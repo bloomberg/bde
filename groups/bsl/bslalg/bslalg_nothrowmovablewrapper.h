@@ -189,7 +189,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_constructionutil.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_allocatorargt.h>
@@ -402,7 +402,7 @@ bslalg::NothrowMovableWrapper<TYPE>::NothrowMovableWrapper(
                                                    bsl::allocator_arg_t,
                                                    const allocator_type& alloc)
 {
-    bslma::ConstructionUtil::construct(d_buffer.address(), alloc.mechanism());
+    bslma::ConstructionUtil::construct(d_buffer.address(), alloc);
 }
 
 template <class TYPE>
@@ -419,8 +419,7 @@ bslalg::NothrowMovableWrapper<TYPE>::NothrowMovableWrapper(
                                                    const allocator_type& alloc,
                                                    const TYPE&           val)
 {
-    bslma::ConstructionUtil::construct(
-        d_buffer.address(), alloc.mechanism(), val);
+    bslma::ConstructionUtil::construct(d_buffer.address(), alloc, val);
 }
 
 template <class TYPE>
@@ -440,7 +439,7 @@ bslalg::NothrowMovableWrapper<TYPE>::NothrowMovableWrapper(
                                                  bslmf::MovableRef<TYPE> val)
 {
     bslma::ConstructionUtil::construct(d_buffer.address(),
-                                       alloc.mechanism(),
+                                       alloc,
                                        bslmf::MovableRefUtil::move(val));
 }
 
@@ -461,7 +460,7 @@ bslalg::NothrowMovableWrapper<TYPE>::NothrowMovableWrapper(
                                          const NothrowMovableWrapper& original)
 {
     bslma::ConstructionUtil::construct(
-        d_buffer.address(), alloc.mechanism(), original.unwrap());
+        d_buffer.address(), alloc, original.unwrap());
 }
 
 template <class TYPE>
@@ -485,7 +484,7 @@ bslalg::NothrowMovableWrapper<TYPE>::NothrowMovableWrapper(
 {
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        alloc.mechanism(),
+        alloc,
         bslmf::MovableRefUtil::move(
             bslmf::MovableRefUtil::access(original).unwrap()));
 }

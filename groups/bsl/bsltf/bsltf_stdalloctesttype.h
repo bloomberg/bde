@@ -98,6 +98,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_assert.h>
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -126,16 +128,17 @@ class StdAllocTestType {
     StdAllocTestType<ALLOC> *d_self_p;      // pointer to self (to verify this
                                             // object is not bit-wise moved)
 
-  public:
-#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(
-                    StdAllocTestType,
-                    bslma::UsesBslmaAllocator,
-                    (bsl::is_convertible<bslma::Allocator *, ALLOC>::value));
-#endif
+    // PRIVATE MANIPULATORS
+    void assignImp(const StdAllocTestType& rhs, bsl::true_type propagateAlloc);
+    void assignImp(const StdAllocTestType& rhs,
+                   bsl::false_type         propagateAlloc);
+        // Assign to this object the value of the specified 'rhs' object.  The
+        // allocator will be copied from 'rhs' if the specified
+        // 'propagateAlloc' argument has type 'bsl::true_type'; otherwise the
+        // allocator for this object will remain unchanged.
 
-    // PUBLIC TYPES
+  public:
+    // TYPES
     typedef ALLOC allocator_type;           // needed by 'uses_allocator' trait
 
     // CREATORS
@@ -208,6 +211,40 @@ bool operator!=(const StdAllocTestType<ALLOC>& lhs,
                         // class StdAllocTestType
                         // ----------------------
 
+// PRIVATE MANIPULATORS
+template <class ALLOC>
+inline void
+StdAllocTestType<ALLOC>::assignImp(const StdAllocTestType& rhs,
+                                   bsl::true_type          )
+{
+    // Create a temp copy of 'rhs' using allocator from 'rhs' (might throw).
+    StdAllocTestType rhsCopy(rhs, rhs.allocator());
+
+    // Swap allocator of copy with this object's allocator (can't throw)
+    ALLOC tmpAlloc = d_allocator;
+    d_allocator = rhsCopy.d_allocator;
+    rhsCopy.d_allocator = tmpAlloc;
+
+    // Swap data of copy with this object's data (can't throw)
+    int *tmpData = d_data_p;
+    d_data_p = rhsCopy.d_data_p;
+    rhsCopy.d_data_p = tmpData;
+}
+
+template <class ALLOC>
+inline void
+StdAllocTestType<ALLOC>::assignImp(const StdAllocTestType& rhs,
+                                   bsl::false_type         )
+{
+    // Create a temp copy of 'rhs' using this object's allocator (might throw).
+    StdAllocTestType rhsCopy(rhs, d_allocator);
+
+    // Swap data of copy with this object's data (can't throw)
+    int *tmpData = d_data_p;
+    d_data_p = rhsCopy.d_data_p;
+    rhsCopy.d_data_p = tmpData;
+}
+
 // CREATORS
 template <class ALLOC>
 inline
@@ -274,25 +311,13 @@ inline
 StdAllocTestType<ALLOC>&
 StdAllocTestType<ALLOC>::operator=(const StdAllocTestType& rhs)
 {
+    typedef bsl::allocator_traits<ALLOC> AllocTraits;
+
     if (this != &rhs) {
-        if (bsl::allocator_traits<ALLOC>::
-                                 propagate_on_container_copy_assignment::value)
-        {
-            StdAllocTestType other(rhs, rhs.allocator());
-            ALLOC tmp = d_allocator;                // can't throw
-            d_allocator = other.d_allocator;
-            other.d_allocator = tmp;
-            int *t = d_data_p;
-            d_data_p = other.d_data_p;
-            other.d_data_p = t;
-        }
-        else {
-            StdAllocTestType other(rhs, d_allocator);
-            int *t = d_data_p;
-            d_data_p = other.d_data_p;
-            other.d_data_p = t;
-        }
+        assignImp(rhs,
+               typename AllocTraits::propagate_on_container_copy_assignment());
     }
+
     return *this;
 }
 

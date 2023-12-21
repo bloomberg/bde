@@ -6,6 +6,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_protocoltest.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -29,8 +30,11 @@ using namespace BloombergLP;
 // 'allocate' and 'deallocate' method of the supplied allocator.
 //-----------------------------------------------------------------------------
 // [ 1] virtual ~Allocator();
-// [ 1] virtual void *allocate(size_type size) = 0;
-// [ 1] virtual void deallocate(void *address) = 0;
+// [ 1] virtual void *allocate(size_type) = 0;
+// [ 1] virtual void deallocate(void *) = 0;
+// [ 1] virtual void* do_allocate(std::size_t, std::size_t);
+// [ 1] virtual void do_deallocate(void *p, std::size_t, std::size_t);
+// [ 1] virtual bool do_is_equal(const bsl::memory_resource&) const;
 // [ 2] template<class TYPE> void deleteObject(const TYPE *);
 // [ 3] template<class TYPE> void deleteObjectRaw(const TYPE *);
 // [ 2] void deleteObject(bsl::nulptr_t);
@@ -104,6 +108,73 @@ void aSsErT(bool condition, const char *message, int line)
 //=============================================================================
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
+
+class AllocatorProtocolTest : public bsls::ProtocolTestImp<bslma::Allocator> {
+    // This class is used with 'bsls::ProtocolTest' to test the
+    // 'bslma::Allocator' protocol.
+
+  protected:
+    void* do_allocate(std::size_t, std::size_t) BSLS_KEYWORD_OVERRIDE;
+    void do_deallocate(void *, std::size_t, std::size_t) BSLS_KEYWORD_OVERRIDE;
+    bool do_is_equal(const bsl::memory_resource&) const
+                                   BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+
+  public:
+    void *allocate(size_type) BSLS_KEYWORD_OVERRIDE;
+    void deallocate(void *) BSLS_KEYWORD_OVERRIDE;
+};
+
+void *AllocatorProtocolTest::do_allocate(std::size_t, std::size_t)
+{
+    static char buf[1];
+    return markDoneVal(static_cast<void*>(buf));  // return non-null pointer
+}
+
+void AllocatorProtocolTest::do_deallocate(void *, std::size_t, std::size_t)
+{
+    markDone();
+}
+
+bool AllocatorProtocolTest::do_is_equal(const bsl::memory_resource&) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return markDone();
+}
+
+void *AllocatorProtocolTest::allocate(size_type)
+{
+    static char buf[1];
+    return markDoneVal(static_cast<void*>(buf));  // return non-null pointer
+}
+
+void AllocatorProtocolTest::deallocate(void *)
+{
+    markDone();
+}
+
+class IndirectProtocolTest : public bsls::ProtocolTestImp<bslma::Allocator> {
+    // This class is used with 'bsls::ProtocolTest' to test the
+    // 'bslma::Allocator' protocol.  Unlike the 'AllocatorProtocolTest', the
+    // non-pure 'do_allocate', 'do_deallocate', and 'do_is_equal' virtual
+    // functions are not overriden; their default implementations are used
+    // instead.
+
+  public:
+    void *allocate(size_type) BSLS_KEYWORD_OVERRIDE;
+    void deallocate(void *) BSLS_KEYWORD_OVERRIDE;
+};
+
+void *IndirectProtocolTest::allocate(size_type)
+{
+    static char buf[1];
+    return markDoneVal(static_cast<void*>(buf));  // return non-null pointer
+}
+
+void IndirectProtocolTest::deallocate(void *)
+{
+    markDone();
+}
+
 class my_Allocator : public bslma::Allocator {
     // Test class used to verify protocol.
 
@@ -254,6 +325,7 @@ class my_MostDerived : public my_LeftBase, public my_RightBase {
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
+
 class my_DoubleStack {
     double           *d_stack_p;     // dynamically allocated array (d_size
                                      // elements)
@@ -948,36 +1020,106 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // PROTOCOL TEST
-        //   All we need to do is make sure that a subclass of the
-        //   'bslma::Allocator' class compiles and links when all virtual
-        //   functions are defined.
+        // PROTOCOL TEST:
+        //   Ensure this class is a properly defined protocol.
+        //
+        // Concerns:
+        //: 1 The protocol is abstract: no objects of it can be created.
+        //: 2 The protocol has no data members.
+        //: 3 The protocol has a virtual destructor.
+        //: 4 All methods of the 'bslma::Allocator' protocol are publicly
+        //:   accessible virtual functions.
+        //: 5 All virtual methods inherited from 'bsl::memory_resource' are
+        //:   available through public pass-through functions
+        //: 6 The methods inherited from 'bsl::memory_resource' are not pure
+        //:   virtual in the 'bslma::Allocator' derived class. If they are not
+        //:   overriden, 'do_allocate' and 'do_deallocate' call the (overriden)
+        //:   'allocate' and 'deallocate' methods, respectively.
         //
         // Plan:
-        //   Construct an object of a class derived from 'bslma::Allocator'.
-        //   Up-cast a reference to the object to the base class
-        //   'bslma::Allocator'.  Using the base class reference invoke both
-        //   'allocate' and 'deallocate' methods.  Verify that the correct
-        //   implementations of the methods are called.
+        //: 1 Define a concrete derived implementation of the protocol,
+        //:   'AllocatorProtocolTest', that overrides all of the virtual
+        //:   methods and records when they are called.
+        //: 2 Create an object of the 'bsls::ProtocolTest' class template
+        //:   parameterized by 'AllocatorProtocolTest', and use it to verify
+        //:   that:
+        //:
+        //:   1 The protocol is abstract. (C-1)
+        //:   2 The protocol has no data members. (C-2)
+        //:   3 The protocol has a virtual destructor. (C-3)
+        //:
+        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+        //:   non-creator methods of the 'bslma::Allocator' protocol are
+        //:   virtual and publicly available.  (C-4)
+        //: 4 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+        //:   non-creator methods inherited from 'bsl::memory_resource' are
+        //:   virtual and available through public pass-through functions.
+        //:   (C-5)
+        //: 5 Define a concrete derivded implementation of the protocol,
+        //:   'IndirectProtocolTest', that overrides the new (pure)
+        //:   virtual methods introduced by 'bslma::Allocator' but not the (not
+        //:   pure) virtual methods inherited from 'bsl::memory_resource'.
+        //:   Repeat steps 2-4 with this 'IndirectProtocolTest'.
         //
         // Testing:
-        //   virtual ~Allocator();
-        //   virtual void *allocate(size_type size) = 0;
-        //   virtual void deallocate(void *address) = 0;
+        //      ~Allocator();
+        //      void *allocate(size_type);
+        //      void deallocate(void *);
+        //      void* do_allocate(std::size_t, std::size_t);
+        //      void do_deallocate(void *p, std::size_t, std::size_t);
+        //      bool do_is_equal(const bsl::memory_resource&) const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPROTOCOL TEST"
                             "\n=============\n");
-        my_Allocator      myA;
-        bslma::Allocator& a = myA;
 
-        if (verbose) printf("\nTesting allocate/deallocate\n");
-        {
-            ASSERT(&myA == a.allocate(100));    ASSERT(1 == myA.fun());
-            a.deallocate(&myA);                 ASSERT(2 == myA.fun());
-        }
+        bsls::ProtocolTest<AllocatorProtocolTest> testObj(veryVerbose);
+
+        ASSERT(testObj.testAbstract());
+        ASSERT(testObj.testNoDataMembers());
+        ASSERT(testObj.testVirtualDestructor());
+
+        // Create a reference to 'bslma::Allocator' to test protocol.
+        const bslma::Allocator& other = AllocatorProtocolTest();
+        void *p = 0;
+
+        // Test 'bslma::Allocator' protocol.  Note that the base-class
+        // 'allocate' and 'deallocate' non-virtual functions are hidden.
+        BSLS_PROTOCOLTEST_ASSERT(testObj, allocate(2));
+        BSLS_PROTOCOLTEST_ASSERT(testObj, deallocate(p));
+
+        // Test 'bsl::memory_resource' base-class protocol via pass-through
+        // functions.  Note that the base-class 'allocate' and 'deallocate' are
+        // hidden within 'bslma::Allocator' and must be qualified in the method
+        // call.
+        typedef bsl::memory_resource Base;
+        BSLS_PROTOCOLTEST_ASSERT(testObj, Base::allocate(2, 1));
+        BSLS_PROTOCOLTEST_ASSERT(testObj, Base::deallocate(p, 2, 1));
+        BSLS_PROTOCOLTEST_ASSERT(testObj, is_equal(other));
+
+        bsls::ProtocolTest<IndirectProtocolTest> testIndirect(veryVerbose);
+
+        ASSERT(testIndirect.testAbstract());
+        ASSERT(testIndirect.testNoDataMembers());
+        ASSERT(testIndirect.testVirtualDestructor());
+
+        // Test 'bslma::Allocator' protocol.  Note that the base-class
+        // 'allocate' and 'deallocate' non-virtual functions are hidden.
+        BSLS_PROTOCOLTEST_ASSERT(testIndirect, allocate(2));
+        BSLS_PROTOCOLTEST_ASSERT(testIndirect, deallocate(p));
+
+        // Test 'bsl::memory_resource' base-class protocol via pass-through
+        // functions.  Note that the base-class 'allocate' and 'deallocate' are
+        // hidden within 'bslma::Allocator' and must be qualified in the method
+        // call.
+        typedef bsl::memory_resource Base;
+        BSLS_PROTOCOLTEST_ASSERT(testIndirect, Base::allocate(2, 1));
+        BSLS_PROTOCOLTEST_ASSERT(testIndirect, Base::deallocate(p, 2, 1));
+        // The default implementation of 'do_is_equal' cannot be tested because
+        // it does call a virtual function that we can intercept.
 
       } break;
+
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

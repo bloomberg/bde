@@ -490,7 +490,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_isstdallocator.h>
 #include <bslma_default.h>
 #include <bslma_destructorguard.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_addlvaluereference.h>

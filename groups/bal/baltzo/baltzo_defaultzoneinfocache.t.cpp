@@ -23,10 +23,12 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-#include <bslmt_threadutil.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
+
+#include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -1253,7 +1255,7 @@ int main(int argc, char *argv[])
 
         TC::test2<bsl::vector<const char *> >();
         TC::test2<std::vector<const char *> >();
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
         TC::test2<std::pmr::vector<const char *> >();
 #endif
       } break;

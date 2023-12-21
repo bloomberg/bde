@@ -3,15 +3,15 @@
 
 #include <bsltf_alloctesttype.h>
 #include <bsltf_emplacabletesttype.h>
-#include <bsltf_movestate.h>
 #include <bsltf_stdalloctesttype.h>
 #include <bsltf_stdtestallocator.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_destructorguard.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_stdtestallocator.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -67,7 +67,7 @@ using namespace BloombergLP::bsltf;
 // [ 2] ~StdAllocatorAdaptor() = default;
 //
 // MANIPULATORS
-// [ 6] AllocatorAdaptor& operator=(const AllocatorAdaptor& rh) = default;
+// [ 6] COPY-ASSIGNMENT OPERATOR (deleted)
 // [ 4] void construct(ELEMENT_TYPE *address, Args&&... arguments);
 //
 // ACCESSORS
@@ -168,6 +168,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bsl::allocator<int>                 ObjType;
 typedef bsl::allocator<float>               AnotherObjType;
+typedef bsltf::CopyMoveState                CMS;
 typedef StdAllocatorAdaptor<ObjType>        Obj;
 typedef StdAllocatorAdaptor<AnotherObjType> AnotherObj;
 
@@ -185,7 +186,7 @@ class ConstructTestType {
     // and values.
 
   private:
-    // TYPES
+    // PRIVATE TYPES
     typedef bsl::allocator_traits<ALLOC> AllocatorTraits;
 
     // DATA
@@ -193,15 +194,7 @@ class ConstructTestType {
     ALLOC               d_allocator;  // allocator
 
   public:
-#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(
-                    ConstructTestType,
-                    bslma::UsesBslmaAllocator,
-                    (bsl::is_convertible<bslma::Allocator *, ALLOC>::value));
-#endif
-
-    // PUBLIC TYPES
+    // TYPES
     typedef ALLOC allocator_type;
 
     typedef EmplacableTestType::ArgType01 ArgType01;
@@ -838,47 +831,27 @@ void testCase4_RunTest()
 
     // Verify forwarding of arguments.
 
-    ASSERTV(MOVE_01, A01.movedFrom(),
-            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
-    ASSERTV(MOVE_02, A02.movedFrom(),
-            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
-    ASSERTV(MOVE_03, A03.movedFrom(),
-            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
-    ASSERTV(MOVE_04, A04.movedFrom(),
-            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
-    ASSERTV(MOVE_05, A05.movedFrom(),
-            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
-    ASSERTV(MOVE_06, A06.movedFrom(),
-            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
-    ASSERTV(MOVE_07, A07.movedFrom(),
-            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
-    ASSERTV(MOVE_08, A08.movedFrom(),
-            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
-    ASSERTV(MOVE_09, A09.movedFrom(),
-            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
-    ASSERTV(MOVE_10, A10.movedFrom(),
-            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_01, A01.copyMoveState(), MOVE_01 == CMS::isMovedFrom(A01));
+    ASSERTV(MOVE_02, A02.copyMoveState(), MOVE_02 == CMS::isMovedFrom(A02));
+    ASSERTV(MOVE_03, A03.copyMoveState(), MOVE_03 == CMS::isMovedFrom(A03));
+    ASSERTV(MOVE_04, A04.copyMoveState(), MOVE_04 == CMS::isMovedFrom(A04));
+    ASSERTV(MOVE_05, A05.copyMoveState(), MOVE_05 == CMS::isMovedFrom(A05));
+    ASSERTV(MOVE_06, A06.copyMoveState(), MOVE_06 == CMS::isMovedFrom(A06));
+    ASSERTV(MOVE_07, A07.copyMoveState(), MOVE_07 == CMS::isMovedFrom(A07));
+    ASSERTV(MOVE_08, A08.copyMoveState(), MOVE_08 == CMS::isMovedFrom(A08));
+    ASSERTV(MOVE_09, A09.copyMoveState(), MOVE_09 == CMS::isMovedFrom(A09));
+    ASSERTV(MOVE_10, A10.copyMoveState(), MOVE_10 == CMS::isMovedFrom(A10));
 
-    ASSERTV(MOVE_01, B01.movedFrom(),
-            MOVE_01 == (MoveState::e_MOVED == B01.movedFrom()));
-    ASSERTV(MOVE_02, B02.movedFrom(),
-            MOVE_02 == (MoveState::e_MOVED == B02.movedFrom()));
-    ASSERTV(MOVE_03, B03.movedFrom(),
-            MOVE_03 == (MoveState::e_MOVED == B03.movedFrom()));
-    ASSERTV(MOVE_04, B04.movedFrom(),
-            MOVE_04 == (MoveState::e_MOVED == B04.movedFrom()));
-    ASSERTV(MOVE_05, B05.movedFrom(),
-            MOVE_05 == (MoveState::e_MOVED == B05.movedFrom()));
-    ASSERTV(MOVE_06, B06.movedFrom(),
-            MOVE_06 == (MoveState::e_MOVED == B06.movedFrom()));
-    ASSERTV(MOVE_07, B07.movedFrom(),
-            MOVE_07 == (MoveState::e_MOVED == B07.movedFrom()));
-    ASSERTV(MOVE_08, B08.movedFrom(),
-            MOVE_08 == (MoveState::e_MOVED == B08.movedFrom()));
-    ASSERTV(MOVE_09, B09.movedFrom(),
-            MOVE_09 == (MoveState::e_MOVED == B09.movedFrom()));
-    ASSERTV(MOVE_10, B10.movedFrom(),
-            MOVE_10 == (MoveState::e_MOVED == B10.movedFrom()));
+    ASSERTV(MOVE_01, B01.copyMoveState(), MOVE_01 == CMS::isMovedFrom(B01));
+    ASSERTV(MOVE_02, B02.copyMoveState(), MOVE_02 == CMS::isMovedFrom(B02));
+    ASSERTV(MOVE_03, B03.copyMoveState(), MOVE_03 == CMS::isMovedFrom(B03));
+    ASSERTV(MOVE_04, B04.copyMoveState(), MOVE_04 == CMS::isMovedFrom(B04));
+    ASSERTV(MOVE_05, B05.copyMoveState(), MOVE_05 == CMS::isMovedFrom(B05));
+    ASSERTV(MOVE_06, B06.copyMoveState(), MOVE_06 == CMS::isMovedFrom(B06));
+    ASSERTV(MOVE_07, B07.copyMoveState(), MOVE_07 == CMS::isMovedFrom(B07));
+    ASSERTV(MOVE_08, B08.copyMoveState(), MOVE_08 == CMS::isMovedFrom(B08));
+    ASSERTV(MOVE_09, B09.copyMoveState(), MOVE_09 == CMS::isMovedFrom(B09));
+    ASSERTV(MOVE_10, B10.copyMoveState(), MOVE_10 == CMS::isMovedFrom(B10));
 
     ASSERTV(V01, OBJ1.arg01(), V01 == OBJ1.arg01() || 2 == N01);
     ASSERTV(V02, OBJ1.arg02(), V02 == OBJ1.arg02() || 2 == N02);
@@ -1202,116 +1175,22 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // COPY-ASSIGNMENT OPERATOR
-        //   Ensure that we can assign the value of any object of the class to
-        //   any object of the class, such that the two objects subsequently
-        //   have the same value.
+        //
+        //   Since 'bsl::allocator' is not assignable, neither is this adaptor.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        //: 1 None
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Use default constructor to create a source object 'X' and copy
-        //:   constructor to create control object 'Z' as a copy of 'X'.
-        //:
-        //: 3 Use value constructor to create target object 'Y', having the
-        //:   same type as  the source object, but the different value.
-        //:
-        //: 4 Assign 'Y' from 'X'.
-        //:
-        //: 5 Verify that the address of the return value is the same as
-        //:   that of target object.  (C-3)
-        //:
-        //: 6 Use the equal-comparison operator to verify that target object
-        //:   have the same values as 'X'.  (C-1,3)
-        //:
-        //: 7 Use the equal-comparison operator to verify that after each
-        //:   assignment 'X' has the same value as 'Z'.  (C-4)
-        //:
-        //: 8 Assign 'X' from 'X'.
-        //:
-        //: 9 Use the equal-comparison operator to verify that 'X' has the
-        //:   same value as 'Z'.  (C-5)
+        //: 1 None
         //
-        // Testing:
-        //   AllocatorAdaptor& operator=(const AllocatorAdaptor& rh) = default;
+        // Testing
+        //     COPY-ASSIGNMENT OPERATOR (deleted)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
                             "\n========================\n");
 
-        if (verbose)
-            printf("\tSignature and return type verification.\n");
-        {
-            typedef Obj& (Obj::*operatorPtr)(const Obj&);
-
-            // Verify that the signature and return type are standard.
-
-            operatorPtr operatorAssignment = &Obj::operator=;
-
-            (void) operatorAssignment;  // quash potential compiler warning
-        }
-
-        if (verbose)
-            printf("\tTesting behavior.\n");
-        {
-            // Source object creation.
-
-            Obj        mX;
-            const Obj& X = mX;
-
-            // Control object creation.
-
-            Obj        mZ(X);
-            const Obj& Z = mZ;
-
-            // Target objects creation.
-
-            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
-            ObjType              allocator(&ta);
-            Obj                  mY(allocator);
-            const Obj&           Y = mY;
-
-            ASSERT(X  != Y);
-
-            Obj *mR = &(mY = X);
-
-            ASSERT(mR == &mY);
-            ASSERT(X  == Y);
-            ASSERT(Z  == X);
-        }
-
-        if (verbose)
-            printf("\tSelf-assignment.\n");
-        {
-            // Source object creation.
-
-            Obj        mX;
-            const Obj& X = mX;
-
-            // Control object creation.
-
-            Obj        mZ;
-            const Obj& Z = mZ;
-
-            // Assignment.
-
-            mX = X;
-
-            ASSERT(Z == X);
-        }
       } break;
       case 5: {
         // --------------------------------------------------------------------

@@ -14,11 +14,10 @@
 
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
-#include <bslma_constructionutil.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_managedptr.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
@@ -277,7 +276,6 @@ typedef bsltf::TemplateTestFacility TTF;
 typedef bsltf::MoveState            MoveState;
 typedef bslmf::MovableRefUtil       MoveUtil;
 typedef bsls::Types::Int64          Int64;
-typedef bslma::ConstructionUtil     ConstrUtil;
 
 bool             verbose = false;
 bool         veryVerbose = false;

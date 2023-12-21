@@ -569,6 +569,10 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
         // Alias for the base class.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StatefulStlAllocator,
+                                   bslma::IsStdAllocator);
+
     template <class BDE_OTHER_TYPE>
     struct rebind {
         // This nested 'struct' template, parameterized by some

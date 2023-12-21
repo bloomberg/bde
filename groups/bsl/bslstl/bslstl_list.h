@@ -583,8 +583,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
+#include <bslma_allocatorutil.h>
 #include <bslma_isstdallocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
@@ -2555,7 +2556,9 @@ list<VALUE, ALLOCATOR>::list(
             tmp.emplace_back(MoveUtil::move(p->d_value));
         }
 
-        quickSwap(&tmp);  // Leave 'tmp' in an invalid but destructible state.
+        // Leave 'tmp' with all elements in a moved-from (but destructible)
+        // state.
+        quickSwap(&tmp);
     }
 }
 
@@ -2597,38 +2600,20 @@ list<VALUE, ALLOCATOR>::~list()
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& rhs)
 {
-    if (this == &rhs) {
-        return *this;                                                 // RETURN
-    }
+    typedef typename
+        AllocTraits::propagate_on_container_copy_assignment Propagate;
 
-    if (AllocTraits::propagate_on_container_copy_assignment::value
-       && allocatorImp() != rhs.allocatorImp()) {
-        // We can't simply swap containers, as we aren't allowed to modify
-        // 'rhs'.
-
-        // Completely destroy and rebuild list using new allocator.
-
-        // Create a new list with the new allocator.  This operation might
-        // throw, so we do it before destroying the old list.
-
-        list tmp(rhs, rhs.allocatorImp());
-
-        // Clear existing list and leave in an invalid but destructible state.
-
-        destroyAll();
-
-        // Assign allocator (here we are relying on the C++11 standard, which
-        // requires that the allocator type not throw on copy or assign) as
-        // 'quickSwap' requires the entities to have the same allocator.
-
-        allocatorImp() = rhs.allocatorImp();
-
-        // Now swap lists, leaving 'tmp' in an invalid but destructible state.
-
-        quickSwap(&tmp);
-    }
-    else {
-        assign(rhs.begin(), rhs.end());
+    if (this != &rhs) {
+        if (Propagate::value && allocatorImp() != rhs.allocatorImp()) {
+            // Fully destroy old list before assigning allocator, then reset to
+            // the empty list state.
+            destroyAll();
+            BloombergLP::bslma::AllocatorUtil::assign(&allocatorImp(),
+                                                      rhs.allocatorImp(),
+                                                      Propagate());
+            createSentinel();
+        }
+        assign(rhs.begin(), rhs.end()); // Copy elements
     }
 
     return *this;
@@ -2639,6 +2624,9 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(
                                       BloombergLP::bslmf::MovableRef<list> rhs)
     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(AllocTraits::is_always_equal::value)
 {
+    typedef typename
+        AllocTraits::propagate_on_container_move_assignment Propagate;
+
     list& lvalue = rhs;
 
     if (this == &lvalue) {
@@ -2650,7 +2638,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(
 
         quickSwap(&lvalue);
     }
-    else if (AllocTraits::propagate_on_container_move_assignment::value) {
+    else if (Propagate::value) {
         // An rvalue must be left in a valid state after a move.  Both '*this'
         // and 'rhs' must be left in valid states after a throw.
 
@@ -2667,10 +2655,12 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(
         list other(MoveUtil::move(lvalue));
 
         using std::swap;
+        using BloombergLP::bslma::AllocatorUtil;
 
-        swap(allocatorImp(), other.allocatorImp()); // won't throw
-        swap(d_sentinel,     other.d_sentinel);     // swap of pointer type
-        swap(sizeRef(),      other.sizeRef());      // swap of fundamental type
+        AllocatorUtil::swap(                       // won't throw
+            &allocatorImp(), &other.allocatorImp(), Propagate());
+        swap(d_sentinel,      other.d_sentinel);   // swap of pointer type
+        swap(sizeRef(),       other.sizeRef());    // swap of fundamental type
     }
     else {
         // Unequal allocators and the allocator of the destination is to remain
@@ -3324,12 +3314,16 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
     // C++11 behavior for member 'swap': undefined for unequal allocators.
     // BSLS_ASSERT(allocatorImp() == other.allocatorImp());
 
-    if (AllocTraits::propagate_on_container_swap::value) {
-        using std::swap;
+    typedef typename AllocTraits::propagate_on_container_swap Propagate;
 
-        swap(d_sentinel,     other.d_sentinel);
-        swap(allocatorImp(), other.allocatorImp());
-        swap(sizeRef(),      other.sizeRef());
+    if (Propagate::value) {
+        using std::swap;
+        using BloombergLP::bslma::AllocatorUtil;
+
+        AllocatorUtil::swap(  // Won't throw
+            &allocatorImp(), &other.allocatorImp(), Propagate());
+        swap(d_sentinel,      other.d_sentinel);
+        swap(sizeRef(),       other.sizeRef());
     }
     else if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                      allocatorImp() == other.allocatorImp())) {

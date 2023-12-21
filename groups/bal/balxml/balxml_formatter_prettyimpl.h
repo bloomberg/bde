@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlsb_memoutstreambuf.h>
 
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>

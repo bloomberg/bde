@@ -5,7 +5,7 @@
 #include <bslstl_ostringstream.h>
 #include <bslstl_stringbuf.h>
 
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_stdtestallocator.h>
 #include <bslma_testallocator.h>
 

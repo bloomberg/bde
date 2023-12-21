@@ -5748,6 +5748,10 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
         // Alias for the base class.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StatefulStlAllocator,
+                                   bslma::IsStdAllocator);
+
     template <class BDE_OTHER_TYPE>
     struct rebind {
         // This nested 'struct' template, parameterized by some
@@ -6135,6 +6139,9 @@ class DummyAllocator {
     // reproduce an AIX bug.  Every method is a no-op.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DummyAllocator, bslma::IsStdAllocator);
+
     // PUBLIC TYPES
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;

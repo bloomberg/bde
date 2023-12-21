@@ -83,6 +83,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 
+#include <bsltf_copymovestate.h>
+#include <bsltf_copymovetracker.h>
 #include <bsltf_movestate.h>
 
 namespace BloombergLP {
@@ -113,8 +115,7 @@ class MovableAllocTestType {
 
     MovableAllocTestType   *d_self_p;       // pointer to self (to verify this
                                             // object is not bit-wise moved
-    MoveState::Enum         d_movedFrom;    // moved-from state
-    MoveState::Enum         d_movedInto;    // moved-from state
+    CopyMoveTracker         d_tracker;      // Track copy & move state
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
   public:
@@ -168,6 +169,9 @@ class MovableAllocTestType {
                                   bslmf::MovableRef<MovableAllocTestType> rhs);
         // TBD: comment this
 
+    void setCopyMoveState(CopyMoveState::Enum state);
+        // Set the copy/move state of this object to the specified 'state'.
+
     void setData(int value);
         // Set the 'data' attribute of this object to the specified 'value'.
 
@@ -175,19 +179,39 @@ class MovableAllocTestType {
         // Set the moved-into state of this object to the specified 'value'.
 
     // ACCESSORS
+    CopyMoveState::Enum copyMoveState() const;
+        // Return the copy/move state of this object.
+
     int data() const;
         // Return the value of the 'data' attribute of this object.
 
     MoveState::Enum movedInto() const;
+        // !DEPRECATED! Use 'CopyMoveState::isMovedInto' instead.
         // Return the move state of this object as target of a move operation.
 
     MoveState::Enum movedFrom() const;
+        // !DEPRECATED! Use 'CopyMoveState::isMovedFrom' instead.
         // Return the move state of this object as source of a move operation.
 
                                   // Aspects
 
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.
+
+    // HIDDEN FRIENDS
+    friend
+    CopyMoveState::Enum copyMoveState(const MovableAllocTestType& obj)
+        // Return the copy/move state of the specified 'obj'.  This function is
+        // an ADL customization point used by 'CopyMoveState::get(obj)'.
+        { return obj.copyMoveState(); }
+
+    friend
+    void setCopyMoveState(MovableAllocTestType* obj,
+                          CopyMoveState::Enum   state)
+        // Set the copy/move state of object at the specified 'obj' address to
+        // the specified 'state'.  This function is an ADL customization point
+        // used by 'CopyMoveState::set(obj, state)'.
+        { obj->setCopyMoveState(state); }
 };
 
 // FREE OPERATORS
@@ -205,17 +229,6 @@ bool operator!=(const MovableAllocTestType& lhs,
     // same value, and 'false' otherwise.  Two 'MovableAllocTestType' objects
     // do not have the same value if their 'data' attributes are not the same.
 
-// FREE FUNCTIONS
-MoveState::Enum getMovedFrom(const MovableAllocTestType& object);
-    // Return the move-from state of the specified 'object'.
-
-MoveState::Enum getMovedInto(const MovableAllocTestType& object);
-    // Return the move-into state of the specified 'object'.
-
-void setMovedInto(MovableAllocTestType *object, MoveState::Enum value);
-    // Set the moved-into state of the specified 'object' to the specified
-    // 'value'.
-
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
@@ -226,12 +239,24 @@ void setMovedInto(MovableAllocTestType *object, MoveState::Enum value);
 
 // MANIPULATORS
 inline
+void MovableAllocTestType::setCopyMoveState(CopyMoveState::Enum state)
+{
+    d_tracker.setCopyMoveState(state);
+}
+
+inline
 void MovableAllocTestType::setMovedInto(MoveState::Enum value)
 {
-    d_movedInto = value;
+    bsltf::setMovedInto(this, value);
 }
 
 // ACCESSORS
+inline
+CopyMoveState::Enum MovableAllocTestType::copyMoveState() const
+{
+    return d_tracker.copyMoveState();
+}
+
 inline
 int MovableAllocTestType::data() const
 {
@@ -241,13 +266,13 @@ int MovableAllocTestType::data() const
 inline
 MoveState::Enum MovableAllocTestType::movedFrom() const
 {
-    return d_movedFrom;
+    return bsltf::getMovedFrom(*this);
 }
 
 inline
 MoveState::Enum MovableAllocTestType::movedInto() const
 {
-    return d_movedInto;
+    return bsltf::getMovedInto(*this);
 }
 
                                   // Aspects
@@ -256,25 +281,6 @@ inline
 bslma::Allocator *MovableAllocTestType::allocator() const
 {
     return d_allocator_p;
-}
-
-// FREE FUNCTION
-inline
-MoveState::Enum getMovedFrom(const MovableAllocTestType& object)
-{
-    return object.movedFrom();
-}
-
-inline
-MoveState::Enum getMovedInto(const MovableAllocTestType& object)
-{
-    return object.movedInto();
-}
-
-inline
-void setMovedInto(MovableAllocTestType *object, MoveState::Enum value)
-{
-    object->setMovedInto(value);
 }
 
 }  // close package namespace

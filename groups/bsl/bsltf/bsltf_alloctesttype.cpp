@@ -4,9 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslma_allocator.h>
-#include <bslma_default.h>
-
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -23,41 +20,41 @@ namespace bsltf {
 
 // CREATORS
 AllocTestType::AllocTestType()
-: d_allocator_p(bslma::Default::allocator(0))
+: d_allocator()
+, d_data_p(d_allocator.allocate(1))
 , d_self_p(this)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = 0;
 }
 
-AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+AllocTestType::AllocTestType(const allocator_type& allocator)
+: d_allocator(allocator)
+, d_data_p(d_allocator.allocate(1))
 , d_self_p(this)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = 0;
 }
 
-AllocTestType::AllocTestType(int data, bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+AllocTestType::AllocTestType(int data, const allocator_type& allocator)
+: d_allocator(allocator)
+, d_data_p(d_allocator.allocate(1))
 , d_self_p(this)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = data;
 }
 
-AllocTestType::AllocTestType(const AllocTestType& original,
-                             bslma::Allocator     *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+AllocTestType::AllocTestType(const AllocTestType&   original,
+                              const allocator_type& allocator)
+: d_allocator(allocator)
+, d_data_p(d_allocator.allocate(1))
 , d_self_p(this)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = *original.d_data_p;
 }
 
 AllocTestType::~AllocTestType()
 {
-    d_allocator_p->deallocate(d_data_p);
+    d_allocator.deallocate(d_data_p, 1);
 
     // Ensure that this objects has not been bitwise moved.
 
@@ -69,9 +66,8 @@ AllocTestType& AllocTestType::operator=(const AllocTestType& rhs)
 {
     if (&rhs != this)
     {
-        int *newData = reinterpret_cast<int *>(
-                                         d_allocator_p->allocate(sizeof(int)));
-        d_allocator_p->deallocate(d_data_p);
+        int *newData = d_allocator.allocate(1);
+        d_allocator.deallocate(d_data_p, 1);
         d_data_p = newData;
         *d_data_p = *rhs.d_data_p;
     }

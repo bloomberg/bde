@@ -71,10 +71,12 @@ private:
   typedef BloombergLP::bslalg::ContainerBase<_MaybeReboundAlloc> _Base;
 
   typedef _STLP_alloc_proxy<_Value, _Tp, _MaybeReboundAlloc> _Self;
+
 public:
   _Value _M_data;
   inline _STLP_alloc_proxy(const _MaybeReboundAlloc& __a, _Value __p) : _Base(__a), _M_data(__p) {}
 
+  _MaybeReboundAlloc get_allocator() const { return this->allocatorRef(); }
 };
 
 }  // close namespace bsl

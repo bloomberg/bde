@@ -99,7 +99,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_constructionutil.h>
 #include <bslma_default.h>
 #include <bslma_destructionutil.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_allocatorargt.h>
@@ -3649,11 +3649,11 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(bsl::allocator_arg_t,
 {
     if (has_value()) {
         return BloombergLP::bslma::ConstructionUtil::make<TYPE>(
-            allocator.mechanism(), std::move(d_value.value()));
+            allocator, std::move(d_value.value()));
     }
     else {
         return BloombergLP::bslma::ConstructionUtil::make<TYPE>(
-            allocator.mechanism(), std::forward<ANY_TYPE>(value));
+            allocator, std::forward<ANY_TYPE>(value));
     }
 }
 #  endif  // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
@@ -3997,11 +3997,11 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(
 {
     if (has_value()) {
         return BloombergLP::bslma::ConstructionUtil::make<TYPE>(
-            allocator.mechanism(), d_value.value());
+            allocator, d_value.value());
     }
     else {
         return BloombergLP::bslma::ConstructionUtil::make<TYPE>(
-            allocator.mechanism(),
+            allocator,
             BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE, value));
     }
 }
@@ -4032,11 +4032,11 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(
 {
     if (has_value()) {
         return BloombergLP::bslma::ConstructionUtil::make<TYPE>(
-            allocator.mechanism(), d_value.value());
+            allocator, d_value.value());
     }
     else {
         return BloombergLP::bslma::ConstructionUtil::make<TYPE>(
-            allocator.mechanism(),
+            allocator,
             BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE, value));
     }
 }

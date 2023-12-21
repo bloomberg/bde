@@ -1554,9 +1554,9 @@ int main(int argc, char *argv[])
           TEST.run<void (   AI),  void       (  rPI)  >(L_, YES);
           TEST.run<void (   AI),  void       ( rPcI)  >(L_, NO );
           TEST.run<void (   AI),  void       ( rrPI)  >(L_, NO );
-          TEST.run<void (   AI),  void       (rrPcI)  >(L_, !(MSVC
-                                                              || CLANG
-                                                              || GNU_10PLUS));
+          TEST.run<void (   AI),  void       (rrPcI)  >(L_, !(MSVC  ||
+                                                              CLANG ||
+                                                              GNU_10PLUS));
           TEST.run<void (  AcI),  void       (   PI)  >(L_, NO );
           TEST.run<void (  AcI),  void       (  PcI)  >(L_, YES);
           TEST.run<void (  AcI),  void       (  rPI)  >(L_, NO );

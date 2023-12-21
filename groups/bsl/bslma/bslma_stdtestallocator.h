@@ -20,6 +20,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_constructionutil.h>
 #include <bslma_destructionutil.h>
+#include <bslma_isstdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
 
@@ -52,6 +53,7 @@ class StdTestAllocator {
 
   public:
     // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StdTestAllocator, bslma::IsStdAllocator);
     BSLMF_NESTED_TRAIT_DECLARATION(StdTestAllocator,
                                    bslmf::IsBitwiseCopyable);
     BSLMF_NESTED_TRAIT_DECLARATION(StdTestAllocator,

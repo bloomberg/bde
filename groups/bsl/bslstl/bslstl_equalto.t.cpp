@@ -1,6 +1,7 @@
 // bslstl_equalto.t.cpp                                               -*-C++-*-
 #include <bslstl_equalto.h>
 
+#include <bslma_allocatorutil.h>
 #include <bslma_constructionutil.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -182,7 +183,7 @@ class ListSet {
             return false;                                             // RETURN
         }
 
-        Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
+        Node *node = bslma::AllocatorUtil::allocateObject<Node>(d_allocator_p);
         bslma::ConstructionUtil::construct(&node->d_value,
                                            d_allocator_p,
                                            value);

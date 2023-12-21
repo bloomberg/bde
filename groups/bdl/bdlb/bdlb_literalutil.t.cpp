@@ -4,6 +4,7 @@
 #include <bsl_iostream.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>            // to verify that we do not
 #include <bslma_testallocatormonitor.h>     // allocate any memory
 #include <bsls_asserttest.h>
@@ -179,7 +180,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&ga);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    ASSERT(0 == bslma::Default::setDefaultAllocator(&da));
+    bslma::DefaultAllocatorGuard dag(&da);
 
     bslma::TestAllocatorMonitor gam(&ga), dam(&da);
 
@@ -226,7 +227,7 @@ int main(int argc, char *argv[])
         bsl::string      bslResult("garbage", &ta);
         std::string      stdResult("garbage");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-        std::pmr::string pmrResult("garbage");
+        std::pmr::string pmrResult("garbage", &ta);
 #endif
 
         // 'bsl::string_view' input
@@ -318,7 +319,7 @@ int main(int argc, char *argv[])
         // 'std::pmr::string' input
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
         {
-            const std::pmr::string inPmr(inArray, sizeof(inArray) - 1);
+            const std::pmr::string inPmr(inArray, sizeof(inArray) - 1, &ta);
 
             bslResult = "garbage";
             stdResult = "garbage";

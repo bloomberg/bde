@@ -364,6 +364,21 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+#include <memory>
+
+namespace bsl {
+
+// In order to use native templates, these types and values must be identical
+// to the standard ones.
+using std::allocator_arg_t;
+using std::allocator_arg;
+
+}  // close namespace bsl
+
+#else  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
 namespace bsl {
 
                         // ======================
@@ -385,6 +400,8 @@ static const allocator_arg_t allocator_arg = { };
     // namespace 'bsl' with using declarations instead.
 
 }  // close namespace bsl
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #endif // ! defined(INCLUDED_BSLMF_ALLOCATORARGT)
 

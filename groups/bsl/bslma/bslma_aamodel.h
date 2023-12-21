@@ -9,14 +9,14 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  AAModelNone:   Tag 'struct' representing no AA model
-//  AAModelLegacy: Tag for the *legacy-AA* model ('bslma::Allocator*')
-//  AAModelBsl:    Tag for the *bsl-AA* model ('bsl::allocator')
 //  AAModelPmr:    Tag for the *pmr-AA* model ('polymorphic_allocator')
+//  AAModelBsl:    Tag for the *bsl-AA* model ('bsl::allocator')
+//  AAModelLegacy: Tag for the *legacy-AA* model ('bslma::Allocator*')
 //  AAModelStl:    Tag for the *stl-AA* model (non-bsl, non-pmr STL allocator)
 //  AAModelIsSupported: Metafunction to detect if type 'T' supports model 'M'
 //  AAModel: Metafunction to detect the AA model implemented by a type 'T'
 //
-//@SEE_ALSO: bslma_allocator, bslma_stdallocator
+//@SEE_ALSO: bslma_allocator, bslma_bslallocator
 //
 //@DESCRIPTION: This component provides five tag 'struct's ('AAModelNone',
 // 'AAModelLegacy', 'AAModelBsl', 'AAModelPmr', and 'AAModelStl') and a pair of
@@ -42,16 +42,10 @@ BSLS_IDENT("$Id: $")
 //:   automatically detectable as supporting the *bsl-AA* model if there exists
 //:   a nested type 'T::allocator_type' that is convertible from
 //:   'bsl::allocator<char>'.
-//: o (Future) If 'T' uses an instantiation of 'bsl::polymorphic_allocator',
-//:   then it is *pmr-AA*.  Note that 'bsl::polymorphic_allocator' is currently
-//:   non-existant, but is expected sometime in 2022.  When it becomes
-//:   available, 'bsl::polymorphic_allocator' will implement the C++17
-//:   'std::pmr::polymorphic_allocator' interface and will, in fact, be just an
-//:   alias for 'std::pmr::polymorphic_allocator' when the latter is available
-//:   in the platform library.  'T' will be automatically detectable as
-//:   supporting the *pmr-AA* model if there exists a nested type
-//:   'T::allocator_type' that is convertible from
-//:   'bsl::polymorphic_allocator<char>'.
+//: o If 'T' uses an instantiation of 'bsl::polymorphic_allocator', then it is
+//:   *pmr-AA*.  'T' will be automatically detectable as supporting the
+//:   *pmr-AA* model if there exists a nested type 'T::allocator_type' that is
+//:   convertible from 'bsl::polymorphic_allocator<char>'.
 //: o If 'T' uses an STL-style allocator other than 'bsl::allocator' or
 //:   'bsl::polymorphic_allocator', then it is *stl-AA*.  For the purposes of
 //:   this component, any class having an 'allocator_type' member that is not
@@ -83,12 +77,19 @@ BSLS_IDENT("$Id: $")
 //  | model tag     | value |
 //  +---------------+-------+
 //  | AAModelNone   |   0   |
-//  | AAModelLegacy |   1   |
+//  | AAModelPmr    |   1   |
 //  | AAModelBsl    |   2   |
-//  | AAModelPmr    |   3   |
+//  | AAModelLegacy |   3   |
 //  | AAModelStl    |   4   |
 //  +---------------+-------+
 //..
+// Note that these values are roughly in order of "pickyness" of the model: A
+// *legacy-AA* type's constructors accept only allocators convertible to
+// 'bslma::Allocator *' whereas a *pmr-AA* type is less picky in that its
+// constructors also accept allocators convertible to
+// 'bsl::polymorphic_allocator' (including 'bsl::allocator').  The models are
+// not fully ordered in that, for example, *stl-AA* is orthogonal to the rest
+// and is neither more nor less picky than *legacy-AA*.
 //
 ///AA-model metafunctions
 ///----------------------
@@ -379,8 +380,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_allocator.h>
-// #include <bslma_polymorphicallocator.h>  // Future
-#include <bslma_stdallocator.h>
+#include <bslma_hasallocatortype.h>
+#include <bslma_polymorphicallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_conditional.h>
@@ -393,7 +395,6 @@ namespace BloombergLP {
 namespace bslma {
 
 // FORWARD DECLARATIONS
-template <class TYPE, class = void> struct AAModel_HasAllocatorType;
 template <class TYPE,
           class MODEL1,
           class MODEL2 = void,
@@ -412,15 +413,15 @@ struct AAModelNone : bsl::integral_constant<int, 0> {
     typedef AAModelNone type;
 };
 
-                        // ====================
-                        // struct AAModelLegacy
-                        // ====================
+                        // =================
+                        // struct AAModelPmr
+                        // =================
 
-struct AAModelLegacy : bsl::integral_constant<int, 1> {
-    // Model tag for legacy-AA types.
+struct AAModelPmr : bsl::integral_constant<int, 1> {
+    // Model tag for pmr-AA types.
 
     // TYPES
-    typedef AAModelLegacy type;
+    typedef AAModelPmr type;
 };
 
                         // =================
@@ -434,16 +435,15 @@ struct AAModelBsl : bsl::integral_constant<int, 2> {
     typedef AAModelBsl type;
 };
 
-                        // =================
-                        // struct AAModelPmr
-                        // =================
+                        // ====================
+                        // struct AAModelLegacy
+                        // ====================
 
-struct AAModelPmr : bsl::integral_constant<int, 3> {
-    // Model tag for pmr-AA types.  Note that this 'struct' is a place holder
-    // for future support of 'polymorphic_allocator'.
+struct AAModelLegacy : bsl::integral_constant<int, 3> {
+    // Model tag for legacy-AA types.
 
     // TYPES
-    typedef AAModelPmr type;
+    typedef AAModelLegacy type;
 };
 
                         // =================
@@ -470,12 +470,9 @@ struct AAModel : AAModel_Imp<TYPE,
                              AAModelNone>::type {
     // Metafunction that yields (is derived from) a model tag type that
     // indicates the AA model preferred for the specified type -- one of
-    // 'AAModelNone', 'AAModelLegacy', 'AAModelBsl', 'AAModelPmr', or
-    // 'AAModelStl'.  If 'TYPE' supports more than one of AA models, then the
-    // result is the model tag with the highest 'value' except that the result
-    // is 'AAModelStl' if and only if 'TYPE::allocator_type' exists and is not
-    // convertible from one of the polymorphic allocator types
-    // ('bsl::allocator' or 'pmr::polymorphic_allocator').
+    // 'AAModelPmr', 'AAModelBsl', 'AAModelLegacy', 'AAModelStl', or
+    // 'AAModelNone'.  If 'TYPE' supports more than one of AA models, then the
+    // result is the first in the preceding list that is supported.
 };
 
                     // =================================
@@ -502,16 +499,12 @@ struct AAModelIsSupported<TYPE, AAModelNone> : bsl::true_type {
 };
 
 template <class TYPE>
-struct AAModelIsSupported<TYPE, AAModelLegacy>
+struct AAModelIsSupported<TYPE, AAModelPmr>
     : bsl::integral_constant<bool,
-                             UsesBslmaAllocator<TYPE>::value               ||
-                             AAModelIsSupported<TYPE, AAModelBsl>::value>
-{
-    // Specialization of 'AAModelIsSupported' for 'MODEL == AAModelStl',
-    // yielding 'true_type' if 'TYPE' can use 'bslma::Allocator *' as its
-    // memory resource.  Specifically, it is true if 'UsesBslmaAllocator<TYPE>'
-    // is true or if 'TYPE::allocator_type' exists and is convertible from
-    // 'bslma::Allocator *'.
+         bsl::uses_allocator<TYPE, bsl::polymorphic_allocator<char> >::value> {
+    // Specialization of 'AAModelIsSupported' for 'MODEL == AAModelPmr',
+    // yielding 'true_type' if 'TYPE::allocator_type' exists and is convertible
+    // from 'bsl::polymorphic_allocator<char>'.
 };
 
 template <class TYPE>
@@ -525,18 +518,21 @@ struct AAModelIsSupported<TYPE, AAModelBsl>
 };
 
 template <class TYPE>
-struct AAModelIsSupported<TYPE, AAModelPmr> : bsl::false_type
-{
-    // Specialization of 'AAModelIsSupported' for 'MODEL == AAModelBsl',
-    // yielding 'true_type' if 'TYPE::allocator_type' exists and is convertible
-    // from 'bsl::polymorphic_allocator<char>'.  Note that this metafunction is
-    // not yet implemented and always yields 'false_type'.
+struct AAModelIsSupported<TYPE, AAModelLegacy>
+    : bsl::integral_constant<bool,
+                             UsesBslmaAllocator<TYPE>::value               ||
+                             AAModelIsSupported<TYPE, AAModelBsl>::value> {
+    // Specialization of 'AAModelIsSupported' for 'MODEL == AAModelStl',
+    // yielding 'true_type' if 'TYPE' can use 'bslma::Allocator *' as its
+    // memory resource.  Specifically, it is true if 'UsesBslmaAllocator<TYPE>'
+    // is true or if 'TYPE::allocator_type' exists and is convertible from
+    // 'bslma::Allocator *'.
 };
 
 template <class TYPE>
 struct AAModelIsSupported<TYPE, AAModelStl>
     : bsl::integral_constant<bool,
-                             AAModel_HasAllocatorType<TYPE>::value        ||
+                             HasAllocatorType<TYPE>::value             ||
                              AAModelIsSupported<TYPE, AAModelBsl>::value>
 {
     // Specialization of 'AAModelIsSupported' for 'MODEL == AAModelStl',
@@ -551,23 +547,6 @@ struct AAModelIsSupported<TYPE, AAModelStl>
 // ============================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ============================================================================
-
-                // ========================================
-                // struct template AAModel_HasAllocatorType
-                // ========================================
-
-template <class TYPE, class>
-struct AAModel_HasAllocatorType : bsl::false_type {
-    // Metafunction yields 'true_type' if 'TYPE::allocator_type' exists; else
-    // yields 'false_type'.
-};
-
-template <class TYPE>
-struct AAModel_HasAllocatorType<TYPE,
-                              BSLMF_VOIDTYPE(typename TYPE::allocator_type)>
-    : bsl::true_type {
-    // Specialization for 'TYPE's that *do* have an 'allocator_type' member.
-};
 
                         // ===========================
                         // struct template AAModel_Imp
@@ -597,7 +576,7 @@ struct AAModel_Imp {
     // 'bsl::conditional', below.  If the condition is 'true', the first
     // '::type' after the 'conditional' selects the 'AAModel_Imp'
     // specialization whereas the second '::type' yields the recursive
-    // application of the metafunction; there is no recursion of the condition
+    // application of the metafunction; there is no recursion if the condition
     // is 'false'.  This idiom is the compile-time equivalent of having a
     // conditional expression that returns a pointer-to-function that, only
     // when invoked, could yield a recursive call.

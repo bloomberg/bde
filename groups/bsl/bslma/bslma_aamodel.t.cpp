@@ -107,7 +107,15 @@ int veryVeryVeryVerbose = 0; // For test allocators
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-struct NonAAClass { };
+struct NonAAClass {
+    // Non Allocator-Aware (AA) class.
+};
+
+struct VoidATClass {
+    // Non Allocator-Aware (AA) class that nevertheless has an 'allocator_type'
+    // typedef.
+    typedef void allocator_type;
+};
 
 struct LegacyAAClass {
     // Class meeting minimal requirement for detection as *legacy-AA*.
@@ -117,22 +125,23 @@ struct LegacyAAClass {
 struct BslAAClass {
     // Class meeting minimal requirement for detection as *bsl-AA*.
 
-#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
-    BSLMF_NESTED_TRAIT_DECLARATION(BslAAClass, bslma::UsesBslmaAllocator);
-#endif
-
     typedef bsl::allocator<int> allocator_type;
 };
 
-// FUTURE:
-// struct PmrAAClass {
-//     // Class meeting minimal requirement for detection as *pmr-AA*.
-//     typedef bsl::polymorphic_allocator<int> allocator_type;
-// };
+struct PmrAAClass {
+    // Class meeting minimal requirement for detection as *pmr-AA*.
+
+    typedef bsl::polymorphic_allocator<int> allocator_type;
+};
 
 struct StlAAClass {
     // Class meeting minimal requirement for detection as *stl-AA*.
-    struct allocator_type { };
+    struct allocator_type {
+        BSLMF_NESTED_TRAIT_DECLARATION(allocator_type, bslma::IsStdAllocator);
+        typedef int value_type;
+        int *allocate(std::size_t);
+        void deallocate(int *, std::size_t);
+    };
 };
 
 // These 'structs' would not meet the requirements for an AA type except that
@@ -286,12 +295,6 @@ namespace {
         bsl::allocator<char> d_allocator;
 
       public:
-#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
-        // TRAITS
-        BSLMF_NESTED_TRAIT_DECLARATION(SampleAAType,
-                                       bslma::UsesBslmaAllocator);
-#endif
-
         // TYPES
         typedef bsl::allocator<char> allocator_type;
 
@@ -499,9 +502,10 @@ int main(int argc, char *argv[])
         //   ===============  ==============
         TEST(int            , AAModelNone  );
         TEST(NonAAClass     , AAModelNone  );
+        TEST(VoidATClass    , AAModelNone  );
         TEST(LegacyAAClass  , AAModelLegacy);
         TEST(BslAAClass     , AAModelBsl   );
-//      TEST(PmrAAClass     , AAModelPmr   );
+        TEST(PmrAAClass     , AAModelPmr   );
         TEST(StlAAClass     , AAModelStl   );
         TEST(LegacyAAByTrait, AAModelLegacy);
         TEST(BslAAByTrait   , AAModelBsl   );
@@ -522,10 +526,13 @@ int main(int argc, char *argv[])
         //: 2 If, for a given 'TYPE', 'UsesBslmaAllocator<TYPE>::value' is
         //:   'true', then 'AAModelIsSupported<TYPE, AAModelLegacy>' is derived
         //:   from 'bsl::true_type' (but not necessarily vice-versa).
-        //: 3 If, for a given 'TYPE', 'TYPE::allocator_type' exists, then
-        //:   'AAModelIsSupported<TYPE, MODEL>' is 'true_type' for one or more
-        //:   of 'AAModelBsl', 'AAModelPmr', 'AAModelStl', depending on which
-        //:   allocator types are convertible to 'allocator_type'.
+        //: 3 If, for a given 'TYPE', 'TYPE::allocator_type' exists and is an
+        //:   allocator type, then 'AAModelIsSupported<TYPE, MODEL>' is
+        //:   'true_type' for one or more of 'AAModelBsl', 'AAModelPmr',
+        //:   'AAModelStl', depending on which allocator types are convertible
+        //:   to 'allocator_type'.  If 'TYPE::allocator_type' does not exists
+        //:   or is not an allocator class type, only 'AAModelIsSupported<TYPE,
+        //:   AAModelNone' is true.
         //: 4 If 'AAModelIsSupported<TYPE, AAModelPmr>::value' is 'true', then
         //:   'AAModelIsSupported<TYPE, AAModelBsl>' is also 'true'.  If
         //:   'AAModelIsSupported<TYPE, AAModelBsl>::value' is 'true', then
@@ -554,7 +561,8 @@ int main(int argc, char *argv[])
         //: 3 Among the types tested in step 1, include types that have member
         //:   type 'allocator_type' convertible from 'bsl::allocator'
         //:   (*bsl-AA*), convertible from 'bsl::polymorphic_allocator'
-        //:   (*pmr-AA*), or not convertible from either (*stl-AA*).  (C-3)
+        //:   (*pmr-AA*), class type not convertible from either (*stl-AA*), or
+        //:   non-allocator type (not AA).  (C-3)
         //: 4 In step 1, ensure that the expected results are consistant with
         //:   the deduction rules (i.e., *bsl-AA* is a superset of
         //:   *legacy-AA*).  (C-4)
@@ -587,9 +595,10 @@ int main(int argc, char *argv[])
         //   ===============  ====  ====== =====  =====  =====
         TEST(int            , true, false, false, false, false);
         TEST(NonAAClass     , true, false, false, false, false);
+        TEST(VoidATClass    , true, false, false, false, false);
         TEST(LegacyAAClass  , true, true , false, false, false);
         TEST(BslAAClass     , true, true , true , false, true );
-//      TEST(PmrAAClass     , true, true , true , true , true );
+        TEST(PmrAAClass     , true, true , true , true , true );
         TEST(StlAAClass     , true, false, false, false, true );
         TEST(LegacyAAByTrait, true, true , false, false, false);
         TEST(BslAAByTrait   , true, true , true , false, true );
@@ -622,15 +631,18 @@ int main(int argc, char *argv[])
 
         ASSERT(AAModelNone::value   == AAModel<int>::value);
         ASSERT(AAModelNone::value   == AAModel<NonAAClass>::value);
+        ASSERT(AAModelNone::value   == AAModel<VoidATClass>::value);
         ASSERT(AAModelLegacy::value == AAModel<LegacyAAClass>::value);
         ASSERT(AAModelBsl::value    == AAModel<BslAAClass>::value);
-//        ASSERT(AAModelPmr::value    == AAModel<PmrAAClass>::value);
+        ASSERT(AAModelPmr::value    == AAModel<PmrAAClass>::value);
         ASSERT(AAModelStl::value    == AAModel<StlAAClass>::value);
 
         ASSERT((  AAModelIsSupported<int          , AAModelNone>::value));
         ASSERT((! AAModelIsSupported<int          , AAModelLegacy>::value));
         ASSERT((  AAModelIsSupported<NonAAClass   , AAModelNone>::value));
+        ASSERT((  AAModelIsSupported<VoidATClass  , AAModelNone>::value));
         ASSERT((! AAModelIsSupported<NonAAClass   , AAModelLegacy>::value));
+        ASSERT((! AAModelIsSupported<VoidATClass  , AAModelLegacy>::value));
 
         ASSERT((  AAModelIsSupported<LegacyAAClass, AAModelNone>::value));
         ASSERT((  AAModelIsSupported<LegacyAAClass, AAModelLegacy>::value));

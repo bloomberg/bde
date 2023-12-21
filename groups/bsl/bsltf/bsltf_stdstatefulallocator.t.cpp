@@ -99,8 +99,8 @@ using bsls::NameOf;
 // [16] size_type max_size() const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const StdStatefulAllocator<TYPE,B,B,B,B>& lhs, rhs);
-// [ 6] bool operator!=(const StdStatefulAllocator<TYPE,B,B,B,B>& lhs, rhs);
+// [ 6] bool operator==(const StdStatefulAllocator<T1>& lhs, SSA<T2>& rhs);
+// [ 6] bool operator!=(const StdStatefulAllocator<T1>& lhs, SSA<T2>& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [17] USAGE EXAMPLE
@@ -231,6 +231,7 @@ static bool veryVeryVeryVerbose;
 
 typedef StdStatefulAllocator<int>   ObjI;
 typedef StdStatefulAllocator<float> ObjF;
+typedef bsltf::CopyMoveState        CMS;
 
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
@@ -550,26 +551,16 @@ void TestDriver<VALUE>::testCase15_RunTest(Obj *object)
 
     // Verify forwarding of arguments.
 
-    ASSERTV(MOVE_01, A01.movedFrom(),
-            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
-    ASSERTV(MOVE_02, A02.movedFrom(),
-            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
-    ASSERTV(MOVE_03, A03.movedFrom(),
-            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
-    ASSERTV(MOVE_04, A04.movedFrom(),
-            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
-    ASSERTV(MOVE_05, A05.movedFrom(),
-            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
-    ASSERTV(MOVE_06, A06.movedFrom(),
-            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
-    ASSERTV(MOVE_07, A07.movedFrom(),
-            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
-    ASSERTV(MOVE_08, A08.movedFrom(),
-            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
-    ASSERTV(MOVE_09, A09.movedFrom(),
-            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
-    ASSERTV(MOVE_10, A10.movedFrom(),
-            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_01, CMS::isMovedFrom(A01), MOVE_01 == CMS::isMovedFrom(A01));
+    ASSERTV(MOVE_02, CMS::isMovedFrom(A02), MOVE_02 == CMS::isMovedFrom(A02));
+    ASSERTV(MOVE_03, CMS::isMovedFrom(A03), MOVE_03 == CMS::isMovedFrom(A03));
+    ASSERTV(MOVE_04, CMS::isMovedFrom(A04), MOVE_04 == CMS::isMovedFrom(A04));
+    ASSERTV(MOVE_05, CMS::isMovedFrom(A05), MOVE_05 == CMS::isMovedFrom(A05));
+    ASSERTV(MOVE_06, CMS::isMovedFrom(A06), MOVE_06 == CMS::isMovedFrom(A06));
+    ASSERTV(MOVE_07, CMS::isMovedFrom(A07), MOVE_07 == CMS::isMovedFrom(A07));
+    ASSERTV(MOVE_08, CMS::isMovedFrom(A08), MOVE_08 == CMS::isMovedFrom(A08));
+    ASSERTV(MOVE_09, CMS::isMovedFrom(A09), MOVE_09 == CMS::isMovedFrom(A09));
+    ASSERTV(MOVE_10, CMS::isMovedFrom(A10), MOVE_10 == CMS::isMovedFrom(A10));
 
     ASSERTV(V01, EXP.arg01(), V01 == EXP.arg01() || 2 == N01);
     ASSERTV(V02, EXP.arg02(), V02 == EXP.arg02() || 2 == N02);
@@ -1706,62 +1697,40 @@ void TestDriver<VALUE>::testCase6()
     //   Ensure that '==' and '!=' are the operational definition of value.
     //
     // Concerns:
-    //: 1 The equality operator's signature and return type are standard.
-    //:
-    //: 2 The inequality operator's signature and return type are standard.
-    //:
-    //: 3 Two objects, 'X' and 'Y', compare equal if and only if their
+    //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
     //:   underlying allocator instances are equal.
     //:
-    //: 4 'true == (X == X)'  (i.e., identity)
+    //: 2 'true == (X == X)'  (i.e., identity)
     //:
-    //: 5 'false == (X != X)'  (i.e., identity)
+    //: 3 'false == (X != X)'  (i.e., identity)
     //:
-    //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
+    //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
     //:
-    //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
+    //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
     //:
-    //: 8 'X != Y' if and only if '!(X == Y)'
+    //: 6 'X != Y' if and only if '!(X == Y)'
     //:
-    //: 9 Comparison is symmetric with respect to user-defined conversion
+    //: 7 Comparison is symmetric with respect to user-defined conversion
     //:   (i.e., both comparison operators are free functions).
     //:
-    //:10 Non-modifiable objects can be compared (i.e., objects or references
+    //: 8 Non-modifiable objects can be compared (i.e., objects or references
     //:   providing only non-modifiable access).
+    //:
+    //: 9 The above concerns apply when the allocators being compared are
+    //:   instantiated on different value types.
     //
     // Plan:
-    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-    //:   initialize function pointers having the appropriate signatures and
-    //:   return types for the two homogeneous, free equality-comparison
-    //:   operators defined in this component.  (C-1..2)
-    //:
     //: 2 Create a few 'StdStatefulAllocator' objects of different template
     //:   instances and verify the commutativity properties and the expected
-    //:   return values for both '==' and '!='.  (C-3..10)
+    //:   return values for both '==' and '!='.  (C-1..9)
     //
     // Testing:
-    //   bool operator==(const StdStatefulAllocator<TYPE,B,B,B,B>& lhs, rhs);
-    //   bool operator!=(const StdStatefulAllocator<TYPE,B,B,B,B>& lhs, rhs);
+    //   bool operator==(const StdStatefulAllocator<T1>& lhs, SSA<T2>& rhs);
+    //   bool operator!=(const StdStatefulAllocator<T1>& lhs, SSA<T2>& rhs);
     // ------------------------------------------------------------------------
 
     if (verbose)
         printf("\nVALUE: %s\n", NameOf<VALUE>().name());
-
-    if (verbose)
-        printf("\tTesting signatures.\n");
-    {
-        typedef bool (*operatorPtr)(const Obj&, const Obj&);
-
-        // Verify that the signatures and return types are standard.
-
-        operatorPtr operatorEq = operator==;
-        operatorPtr operatorNe = operator!=;
-
-        // quash potential compiler warnings
-
-        (void) operatorEq;
-        (void) operatorNe;
-    }
 
     if (verbose)
         printf("\tTesting behavior.\n");
@@ -1769,9 +1738,9 @@ void TestDriver<VALUE>::testCase6()
         bslma::TestAllocator allocX("X", veryVeryVeryVerbose);
         bslma::TestAllocator allocY("Y", veryVeryVeryVerbose);
 
-        const Obj X1(&allocX);
-        const Obj X2(&allocX);
-        const Obj Y1(&allocY);
+        const Obj                                 X1(&allocX);
+        const bsltf::StdStatefulAllocator<VALUE*> X2(&allocX);
+        const Obj                                 Y1(&allocY);
 
         ASSERT(  X1 == X1 );
         ASSERT(  X1 == X2 );

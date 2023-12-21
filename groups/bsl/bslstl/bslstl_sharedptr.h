@@ -1453,7 +1453,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_sharedptrinplacerep.h>
 #include <bslma_sharedptroutofplacerep.h>
 #include <bslma_sharedptrrep.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_addpointer.h>

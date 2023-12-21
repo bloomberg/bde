@@ -105,7 +105,8 @@ BSLS_IDENT("$Id: $")
 //              return false;                                         // RETURN
 //          }
 //
-//          Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
+//          Node *node =
+//                   bslma::AllocatorUtil::allocateObject<Node>(d_allocator_p);
 //          bslma::ConstructionUtil::construct(&node->d_value,
 //                                             d_allocator_p,
 //                                             value);

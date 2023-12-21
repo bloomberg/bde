@@ -2,7 +2,9 @@
 #include <bslstl_simplepool.h>
 
 #include <bslma_allocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_memoryresource.h>
+#include <bslma_polymorphicallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_defaultallocatorguard.h>
@@ -224,6 +226,165 @@ class Stack {
     }
 };
 
+class CheckedResource : public bslma::TestAllocator {
+    // A 'memory_resource' that checks that each deallocation is matched with a
+    // corresponding allocation having the same address, size, and alignment.
+    // Can have up to a maximum of 128 blocks outstanding.
+
+    // PRIVATE TYPES
+    typedef bslma::TestAllocator Base;
+
+    struct BlockInfo {
+        // Information about a block of memory allocated from this resource.
+        void        *d_block_p;
+        std::size_t  d_bytes;
+        std::size_t  d_alignment;
+    };
+
+    // DATA
+    enum { k_MAX_OUTSTANDING_BLOCKS = 128 };
+
+    // Keep track of allocations in an array of 'BlockInfo' objects.
+    BlockInfo             d_blocks[k_MAX_OUTSTANDING_BLOCKS];
+    BlockInfo            *d_nextBlock;  // Next unallocated block info
+
+    // Counters for mismatches detected at deallocation time.
+    int                   d_numPointerMismatches;
+    int                   d_numSizeMismatches;
+    int                   d_numAlignmentMismatches;
+
+    // PRIVATE VIRTUAL METHODS
+    void *do_allocate(std::size_t bytes,
+                      std::size_t alignment) BSLS_KEYWORD_OVERRIDE;
+    void do_deallocate(void        *p,
+                       std::size_t  bytes,
+                       std::size_t  alignment) BSLS_KEYWORD_OVERRIDE;
+    bool do_is_equal(const memory_resource& other) const BSLS_KEYWORD_NOEXCEPT
+                                                         BSLS_KEYWORD_OVERRIDE;
+
+  public:
+    // CREATORS
+    explicit CheckedResource(bslma::Allocator *upstream = 0);
+    explicit CheckedResource(const char *name, bslma::Allocator *upstream = 0);
+    explicit CheckedResource(bool              verboseFlag,
+                             bslma::Allocator *upstream = 0);
+    CheckedResource(const char       *name,
+                    bool              verboseFlag,
+                    bslma::Allocator *upstream = 0);
+
+    ~CheckedResource();
+
+    // MANIPULATORS
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
+
+    // ACCESSORS
+    int numPointerMismatches()   const { return d_numPointerMismatches;   }
+    int numSizeMismatches()      const { return d_numSizeMismatches;      }
+    int numAlignmentMismatches() const { return d_numAlignmentMismatches; }
+};
+
+// CREATORS
+CheckedResource::CheckedResource(bslma::Allocator  *upstream)
+    : Base(upstream)
+    , d_nextBlock(d_blocks)
+    , d_numPointerMismatches(0)
+    , d_numSizeMismatches(0)
+    , d_numAlignmentMismatches(0)
+{
+}
+
+CheckedResource::CheckedResource(const char        *name,
+                                 bslma::Allocator  *upstream)
+    : Base(name, upstream)
+    , d_nextBlock(d_blocks)
+    , d_numPointerMismatches(0)
+    , d_numSizeMismatches(0)
+    , d_numAlignmentMismatches(0)
+{
+}
+
+CheckedResource::CheckedResource(bool              verboseFlag,
+                                 bslma::Allocator *upstream)
+    : Base(verboseFlag, upstream)
+    , d_nextBlock(d_blocks)
+    , d_numPointerMismatches(0)
+    , d_numSizeMismatches(0)
+    , d_numAlignmentMismatches(0)
+{
+}
+
+CheckedResource::CheckedResource(const char       *name,
+                                 bool              verboseFlag,
+                                 bslma::Allocator *upstream)
+    : Base(name, verboseFlag, upstream)
+    , d_nextBlock(d_blocks)
+    , d_numPointerMismatches(0)
+    , d_numSizeMismatches(0)
+    , d_numAlignmentMismatches(0)
+{
+}
+
+CheckedResource::~CheckedResource()
+{
+    ASSERTV(name(), d_nextBlock == d_blocks);  // All memory was returned
+    ASSERTV(name(), 0 == numPointerMismatches());
+    ASSERTV(name(), 0 == numSizeMismatches());
+    ASSERTV(name(), 0 == numAlignmentMismatches());
+}
+
+// PRIVATE VIRTUAL METHODS
+void *CheckedResource::do_allocate(std::size_t bytes, std::size_t alignment)
+{
+    BSLS_ASSERT_OPT(d_nextBlock < d_blocks + k_MAX_OUTSTANDING_BLOCKS);
+
+    void *block_p = Base::allocate(bytes);
+
+    d_nextBlock->d_block_p   = block_p;
+    d_nextBlock->d_bytes     = bytes;
+    d_nextBlock->d_alignment = alignment;
+    ++d_nextBlock;
+
+    return block_p;
+}
+
+void CheckedResource::do_deallocate(void        *p,
+                                    std::size_t  bytes,
+                                    std::size_t  alignment)
+{
+    for (BlockInfo *bp = d_blocks; bp < d_nextBlock; ++bp) {
+        if (p == bp->d_block_p) {
+            d_numSizeMismatches      += (0 != bytes && bp->d_bytes != bytes);
+            d_numAlignmentMismatches += (bp->d_alignment != alignment);
+            *bp = *--d_nextBlock;  // Remove from block info array
+            Base::deallocate(p);
+            return;
+        }
+    }
+
+    // Didn't find matching allocated block
+    ++d_numPointerMismatches;
+}
+
+bool CheckedResource::do_is_equal(const bsl::memory_resource& other) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return this == &other;
+}
+
+// MANIPULATORS
+void *CheckedResource::allocate(size_type size)
+{
+    BSLS_ASSERT(false && "Should call `memory_resource::allocate`");
+    return do_allocate(size, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+}
+
+void CheckedResource::deallocate(void *address)
+{
+    BSLS_ASSERT(false && "Should call `memory_resource::deallocate`");
+    do_deallocate(address, 0, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+}
+
 template <class VALUE>
 class TestDriver {
     // This templatized struct provide a namespace for testing the 'map'
@@ -395,15 +556,15 @@ void TestDriver<VALUE>::testCase13()
 
         if (veryVerbose) { P(CONFIG) }
 
-        bslma::TestAllocator da ("default",   veryVeryVeryVerbose);
+        CheckedResource      da ("default",   veryVeryVeryVerbose);
         bslma::TestAllocator fa ("footprint", veryVeryVeryVerbose);
-        bslma::TestAllocator sa1("supplied1", veryVeryVeryVerbose);
-        bslma::TestAllocator sa2("supplied2", veryVeryVeryVerbose);
+        CheckedResource      sa1("supplied1", veryVeryVeryVerbose);
+        CheckedResource      sa2("supplied2", veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard dag(&da);
 
         Obj                  *objPtr;
-        bslma::TestAllocator *objAllocatorPtr;
+        CheckedResource      *objAllocatorPtr;
 
         switch (CONFIG) {
           case 'a': {
@@ -425,7 +586,7 @@ void TestDriver<VALUE>::testCase13()
         }
 
         Obj& mX = *objPtr;  const Obj& X = mX;
-        bslma::TestAllocator& oa = *objAllocatorPtr;
+        CheckedResource     & oa = *objAllocatorPtr;
 
         // --------------------------------------------------------
 
@@ -583,9 +744,9 @@ void TestDriver<VALUE>::testCase10()
     const int NUM_ALLOCS = sizeof ALLOCS / sizeof *ALLOCS;
 
     for (int ti = 0; ti < NUM_ALLOCS; ++ti) {
-        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        CheckedResource      da("default",   veryVeryVeryVerbose);
         bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-        bslma::TestAllocator oa("supplied",  veryVeryVeryVerbose);
+        CheckedResource      oa("supplied",  veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard dag(&da);
 
@@ -702,7 +863,7 @@ void TestDriver<VALUE>::testCase9()
     // Testing:
     //   CONCERN: Standard allocator can be used
     // ------------------------------------------------------------------------
-    typedef typename bslstl::SimplePool<VALUE, StlAlloc> Obj;
+    typedef bslstl::SimplePool<VALUE, StlAlloc> Obj;
 
     StlAlloc A;
     Obj mX(A);
@@ -766,7 +927,7 @@ void TestDriver<VALUE>::testCase8()
     //   void swap(bslstl_SimplePool& other);
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    CheckedResource              da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
     struct {
@@ -807,7 +968,7 @@ void TestDriver<VALUE>::testCase8()
             const int ALLOCS2   = DATA[tj].d_numAlloc;
             const int DEALLOCS2 = DATA[tj].d_numDealloc;
 
-            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            CheckedResource      oa("object", veryVeryVeryVerbose);
 
             Stack usedX;
             Stack freeX;
@@ -863,7 +1024,7 @@ void TestDriver<VALUE>::testCase8()
 
         if (veryVerbose) printf("Test alias safety");
         {
-            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            CheckedResource      oa("object", veryVeryVeryVerbose);
 
             Stack usedX;
             Stack freeX;
@@ -902,8 +1063,8 @@ void TestDriver<VALUE>::testCase8()
 
         if (veryVerbose) printf("\t'swap' member function\n");
         {
-            bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
-            bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
+            CheckedResource      oa1("object1", veryVeryVeryVerbose);
+            CheckedResource      oa2("object2", veryVeryVeryVerbose);
 
             Obj mA(&oa1);  Obj mB(&oa1);
             Obj mZ(&oa2);
@@ -941,7 +1102,7 @@ void TestDriver<VALUE>::testCase7()
     //   void release();
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    CheckedResource              da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
     struct {
@@ -977,7 +1138,7 @@ void TestDriver<VALUE>::testCase7()
         const int ALLOCS   = DATA[ti].d_numAlloc;
         const int DEALLOCS = DATA[ti].d_numDealloc;
 
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+        CheckedResource      oa("object", veryVeryVeryVerbose);
 
         Stack usedX;
         Stack freeX;
@@ -1044,8 +1205,8 @@ void TestDriver<VALUE>::testCase6()
 
     for (int ti = 1; ti < 8; ++ti) {
         for(int tj = 0; tj < 8; ++tj) {
-            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
-            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            CheckedResource      oa("object",  veryVeryVeryVerbose);
+            CheckedResource      da("default", veryVeryVeryVerbose);
 
             bslma::DefaultAllocatorGuard dag(&da);
 
@@ -1084,9 +1245,9 @@ void TestDriver<VALUE>::testCase6()
     {
         bsls::AssertTestHandlerGuard hG;
 
-        if (veryVerbose) printf("\t'reseve'\n");
+        if (veryVerbose) printf("\t'reserve'\n");
         {
-            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            CheckedResource      oa("object", veryVeryVeryVerbose);
 
             Obj mX(&oa);
 
@@ -1164,8 +1325,8 @@ void TestDriver<VALUE>::testCase5()
         Stack usedBlocks;
         Stack freeBlocks;
 
-        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        CheckedResource      oa("object",  veryVeryVeryVerbose);
+        CheckedResource      da("default", veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard dag(&da);
 
@@ -1255,15 +1416,15 @@ void TestDriver<VALUE>::testCase4()
     for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
         const char CONFIG = cfg;
 
-        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        CheckedResource      da("default",   veryVeryVeryVerbose);
         bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-        bslma::TestAllocator sa1("supplied1",  veryVeryVeryVerbose);
-        bslma::TestAllocator sa2("supplied2",  veryVeryVeryVerbose);
+        CheckedResource      sa1("supplied1",  veryVeryVeryVerbose);
+        CheckedResource      sa2("supplied2",  veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard dag(&da);
 
         Obj                 *objPtr;
-        bslma::TestAllocator *objAllocatorPtr;
+        CheckedResource      *objAllocatorPtr;
 
         switch (CONFIG) {
           case 'a': {
@@ -1285,7 +1446,7 @@ void TestDriver<VALUE>::testCase4()
         }
 
         Obj& mX = *objPtr;  const Obj& X = mX;
-        bslma::TestAllocator& oa = *objAllocatorPtr;
+        CheckedResource     & oa = *objAllocatorPtr;
 
         // --------------------------------------------------------
 
@@ -1325,9 +1486,8 @@ void TestDriver<VALUE>::testCase2()
 {
     // ------------------------------------------------------------------------
     // CTOR, PRIMARY MANIPULATORS, & DTOR
-    //   Ensure that we can use the default constructor to create an
-    //   object (having the default-constructed value), use the primary
-    //   manipulators to put that object into any state relevant for
+    //   Ensure that we can use the constructor to create an object, use the
+    //   primary manipulators to put that object into any state relevant for
     //   thorough testing, and use the destructor to destroy it safely.
     //
     // Concerns:
@@ -1338,7 +1498,9 @@ void TestDriver<VALUE>::testCase2()
     //:
     //: 3 There is no temporary allocation from any allocator.
     //:
-    //: 4 Every object releases any allocated memory at destruction.
+    //: 4 Every object releases any allocated memory at destruction.  The
+    //:   deallocation calls use the same size and alignment as the allocation
+    //:   calls.
     //:
     //: 5 Pointer returned by 'allocate' is aligned correctly.
     //:
@@ -1349,6 +1511,9 @@ void TestDriver<VALUE>::testCase2()
     //: 8 Constructor allocates no memory.
     //:
     //: 9 Any memory allocation is exception neutral.
+    //:
+    //: 10 Destructor returns all memory to the allocator using exactly the
+    //:    mirror of the allocation call.
     //
     // Plan:
     //: 1 For each allocator configuration:
@@ -1367,7 +1532,9 @@ void TestDriver<VALUE>::testCase2()
     //:       'sizeof(VALUE)' and 'sizeof(void *) larger than the previous
     //:       address.  (C-7)
     //:
-    //:   3 Delete the object and verify all memory is deallocated.  (C-4)
+    //:   3 Delete the object and verify all memory is deallocated. Using a
+    //:     special memory resource, verify that all deallocation calls match
+    //:     the size and alignment of the corresponding allocation call. (C-4)
     //
     // Testing:
     //   explicit SimplePool(const ALLOCATOR& allocator);
@@ -1376,60 +1543,39 @@ void TestDriver<VALUE>::testCase2()
     // ------------------------------------------------------------------------
 
     if (verbose) printf(
-                 "\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
-                 "\n==========================================\n");
+                 "\nCTOR, PRIMARY MANIPULATORS, & DTOR"
+                 "\n==================================\n");
+
+    typedef bsl::polymorphic_allocator<VALUE>   PmrAlloc;
+    typedef bslstl::SimplePool<VALUE, PmrAlloc> Obj;
 
     if (verbose) printf("\nTesting with various allocator configurations.\n");
 
-    for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+    CheckedResource      da("default",  veryVeryVeryVerbose);
+    CheckedResource      sa("supplied", veryVeryVeryVerbose);
 
-        const char CONFIG = cfg;  // how we specify the allocator
-
-        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-        bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
-
+    {
         bslma::DefaultAllocatorGuard dag(&da);
 
-        Obj                 *objPtr;
-        bslma::TestAllocator *objAllocatorPtr;
-
-        switch (CONFIG) {
-          case 'a': {
-            objPtr = new (fa) Obj(0);
-            objAllocatorPtr = &da;
-          } break;
-          case 'b': {
-            objPtr = new (fa) Obj(&sa);
-            objAllocatorPtr = &sa;
-          } break;
-          default: {
-            ASSERTV(CONFIG, !"Bad allocator config.");
-            return;                                                   // RETURN
-          } break;
-        }
-
-        Obj&                   mX = *objPtr;  const Obj& X = mX;
-        bslma::TestAllocator&  oa = *objAllocatorPtr;
-        bslma::TestAllocator& noa = 'b' != CONFIG ? sa : da;
+        Obj mX(&sa); const Obj& X = mX;
 
         // ---------------------------------------
         // Verify allocator is installed properly.
         // ---------------------------------------
 
-        ASSERTV(CONFIG, &oa == X.allocator());
+        ASSERTV(&sa == X.allocator());
 
         // Verify no allocation from the object/non-object allocators.
 
-        ASSERTV(CONFIG,  oa.numBlocksTotal(), 0 ==  oa.numBlocksTotal());
-        ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+        ASSERTV(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
         VALUE *prevPtr = 0;
         for (int ti = 0; ti < 96; ++ti) {
-            bslma::TestAllocatorMonitor oam(&oa);
+           bslma::TestAllocatorMonitor oam(&sa);
 
             VALUE *ptr;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                 ptr = mX.allocate();
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -1456,20 +1602,16 @@ void TestDriver<VALUE>::testCase2()
         // Verify no temporary memory is allocated from the object
         // allocator.
 
-        ASSERTV(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
-                oa.numBlocksTotal() == oa.numBlocksInUse());
+       ASSERTV(sa.numBlocksTotal(),   sa.numBlocksInUse(),
+               sa.numBlocksTotal() == sa.numBlocksInUse());
 
-        // Reclaim dynamically allocated object under test.
-
-        fa.deleteObject(objPtr);
-
-        // Verify all memory is released on object destruction.
-
-        ASSERTV(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
-        ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
-        ASSERTV(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+        // 'Obj' destructor returns memory to supplied allocator.
     }
 
+    // Verify all memory was released on object destruction.
+
+    ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+    ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 }
 
 }  // close unnamed namespace
@@ -1730,7 +1872,7 @@ int main(int argc, char *argv[])
 
             typedef SimplePool<int, bsl::allocator<int> > Obj;
 
-            bslma::TestAllocator da, ta;
+            CheckedResource      da, ta;
             bslma::DefaultAllocatorGuard daGuard(&da);
 
             Obj x(&ta);

@@ -12,316 +12,307 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator
 //
-//@DESCRIPTION: This component provides a proxy for constructing and
-// automatically destroying objects.  The proxy class
-// 'bslalg::ConstructorProxy' is parameterized on a 'OBJECT_TYPE', where
-// 'OBJECT_TYPE' may or may not use a 'bslma' allocator to supply memory.  Upon
-// construction of a proxy, a proxied 'OBJECT_TYPE' instance is also
-// constructed; the 'bslma' allocator supplied to the proxy constructor is
-// passed to the constructor of the proxied object only if 'OBJECT_TYPE'
-// declares the 'bslma::UsesBslmaAllocator' trait.  If this trait is
-// not declared for 'OBJECT_TYPE', the allocator is ignored.
+//@DESCRIPTION: This component provides a proxy class template,
+// 'bslalg::ConstructorProxy', for creating a proxied object of parameter type
+// 'OBJECT_TYPE' using a uniform constructor syntax, regardless of whether
+// 'OBJECT_TYPE' is allocator-aware (AA) -- i.e., uses an allocator to supply
+// memory.  This proxy is useful in generic programming situations where an
+// object of a given type must be constructed, but it is not known in advance
+// which allocator model the object supports, if any.  In these situations,
+// client code unconditionally passes an allocator as the last argument to the
+// 'ConstructorProxy' constructor; the constructor forwards the allocator to
+// the proxied object if 'OBJECT_TYPE' is AA and discards it otherwise.
 //
-// Following construction of the proxied object, it is held by the proxy.
-// Modifiable and non-modifiable access to the proxied object may be obtained
-// using the overloaded 'object' methods.  When the proxy is destroyed, the
-// proxied object is automatically destroyed.
-//
-// This proxy is useful in situations where an object of a given type must be
-// constructed, but it is not known whether the object's constructor takes a
-// 'bslma' allocator to supply memory.  This occurs frequently in generic
-// programming.
+// The proxied object is owned by the 'ConstructorProxy' object.  Modifiable
+// and non-modifiable access to the proxied object may be obtained using the
+// overloaded 'object' methods.  When the proxy is destroyed, it automatically
+// destroys its proxied object.
 //
 // See the 'bslma' package-level documentation for more information about using
-// 'bslma' allocators.
+// allocators.
 //
 ///Usage
 ///-----
-// The snippets of code in the first usage example below illustrate very basic
-// use of the constructor proxy.  The second usage example provides a more
-// extended illustration of a scenario that can occur in generic programming.
+///Example 1: Conditionally pass an allocator to a template member ctor
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we create a key-value class template consiting of a
+// string key paired with a value of template-parameter type.  Since the value
+// type might be allocator aware (AA), we want to ensure that our key-value
+// class template can pass an allocator to its value-type constructor.
 //
-///Example 1
-///- - - - -
-// Suppose we have an arbitrary class:
+// First, we define a simple AA string class that will be our value type for
+// testing:
 //..
-//  class SomeClass {
-//      // ... class definition ...
-//  };
-//..
-// 'SomeClass' may optionally declare the 'bslma::UsesBslmaAllocator'
-// trait.  The following code illustrates how a 'SomeClass' object can be
-// constructed using a constructor proxy that detects this trait:
-//..
-//  using namespace BloombergLP;
+//  #include <bslma_bslallocator.h>
+//  #include <bslma_allocatorutil.h>
+//  #include <cstring>
 //
-//  bslma::TestAllocator                testAllocator;
-//  bslalg::ConstructorProxy<SomeClass> proxy(&testAllocator);
+//  class String {
+//      // Basic allocator-aware string class
 //
-//  SomeClass& myObject = proxy.object();
-//..
-// If 'SomeClass' declares the 'bslma::UsesBslmaAllocator' trait,
-// then the object of type 'SomeClass' held by 'proxy' will obtain its memory
-// from the supplied 'testAllocator'.  Otherwise, 'testAllocator' will be
-// ignored.
-//
-///Example 2
-///- - - - -
-// The following snippets of code illustrate a use of this component in a more
-// typical scenario.
-//
-// The 'MyContainer' class below contains an object of the specified parameter
-// 'TYPE':
-//..
-//  template <typename TYPE>
-//  class MyContainer {
-//      // This class contains an object of parameterized 'TYPE'.
-//
-//      // PRIVATE DATA MEMBERS
-//      TYPE d_object;  // contained object
+//      // DATA
+//      bsl::allocator<char>  d_allocator;
+//      std::size_t           d_length;
+//      char                 *d_data;
 //
 //    public:
-//      // CREATORS
-//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
-//          // Construct a container using the specified 'basicAllocator' to
-//          // supply memory.  If 'basicAllocator' is 0, the currently
-//          // installed default allocator is used.
+//      // TYPES
+//      typedef bsl::allocator<char> allocator_type;
 //
-//      ~MyContainer();
-//          // Destroy this container.
+//      // CREATORS
+//      String(const char            *str = "",
+//             const allocator_type&  a = allocator_type());        // IMPLICIT
+//      String(const String&          original,
+//             const allocator_type&  a = allocator_type());
+//      ~String();
+//
+//      // MANIPULATORS
+//      String& operator=(const String& rhs);
 //
 //      // ACCESSORS
-//      const TYPE& getObject() const;
-//          // Return a reference to the non-modifiable object stored in this
-//          // container.
+//      const char* c_str() const { return d_data; }
+//      allocator_type get_allocator() const { return d_allocator; }
+//      std::size_t size() const { return d_length; }
+//  };
 //
-//      // ... rest of class definition ...
+//  // FREE FUNCTIONS
+//  bool operator==(const String& a, const String& b);
+//  bool operator!=(const String& a, const String& b);
+//..
+// Next, we define the constructors, destructor, and equality-comparison
+// operators.  For brevity, we've omited the implementation of the assignment
+// operator, which is not used in this example:
+//..
+//  String::String(const char *str, const allocator_type& a)
+//      : d_allocator(a), d_length(std::strlen(str))
+//  {
+//      d_data = static_cast<char *>(
+//          bslma::AllocatorUtil::allocateBytes(a, d_length + 1));
+//      std::memcpy(d_data, str, d_length + 1);
+//  }
+//
+//  String::String(const String& original, const allocator_type& a)
+//      : d_allocator(a), d_length(original.d_length)
+//  {
+//      d_data = static_cast<char *>(
+//          bslma::AllocatorUtil::allocateBytes(a, d_length + 1));
+//      std::memcpy(d_data, original.c_str(), d_length);
+//      d_data[d_length] = '\0';
+//  }
+//
+//  String::~String()
+//  {
+//      bslma::AllocatorUtil::deallocateBytes(d_allocator, d_data, d_length+1);
+//  }
+//
+//  bool operator==(const String& a, const String& b)
+//  {
+//      return (a.size() == b.size() &&
+//              0 == std::memcmp(a.c_str(), b.c_str(), a.size()));
+//  }
+//
+//  bool operator!=(const String& a, const String& b)
+//  {
+//      return ! (a == b);
+//  }
+//..
+// Now we are ready to define our key-value template.  The data portion of the
+// template needs a member for the key and one for the value.  Rather than
+// defining the value member as simply a member variable of 'TYPE', we use
+// 'bslalg::ConstructorProxy' to ensure that we will be able to construct it in
+// a uniform way even though we do not know whether or not it is
+// allocator-aware:
+//..
+//  #include <bslalg_constructorproxy.h>
+//
+//  template <class TYPE>
+//  class KeyValue {
+//      // Key-value pair with string key and arbitrary value type.
+//
+//      // DATA
+//      String                         d_key;
+//      bslalg::ConstructorProxy<TYPE> d_valueProxy;
+//..
+// Next, we declare the creators and manipulators typical of an AA attribute
+// class:
+//..
+//    public:
+//      typedef bsl::allocator<> allocator_type;
+//
+//      // CREATORS
+//      KeyValue(const String&         k,
+//               const TYPE&           v,
+//               const allocator_type& a = allocator_type());
+//      KeyValue(const KeyValue&       original,
+//               const allocator_type& a = allocator_type());
+//      ~KeyValue();
+//
+//      // MANIPULATORS
+//      KeyValue& operator=(const KeyValue& rhs);
+//..
+// Next, we declare the accessessors and, for convenience in this example,
+// define them inline.  Note that the 'value' accessor extracts the proxied
+// object from the 'd_valueProxy' member:
+//..
+//      // ACCESSESSORS
+//      allocator_type get_allocator() const { return d_key.get_allocator(); }
+//      const String&  key()   const { return d_key; }
+//      const TYPE&    value() const { return d_valueProxy.object(); }
 //  };
 //..
-// The implementation for the 'MyContainer' constructor is a little tricky
-// without a constructor proxy.  One possible implementation is as follows:
+// Next, we define the value constructor, which passes its allocator argument
+// to both data members' constructors.  Note that the 'd_valueProxy',
+// constructor always expects an allocator argument, even if 'TYPE' is not AA:
 //..
-//  template <typename TYPE>
-//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
+//  template <class TYPE>
+//  KeyValue<TYPE>::KeyValue(const String&         k,
+//                           const TYPE&           v,
+//                           const allocator_type& a)
+//      : d_key(k, a), d_valueProxy(v, a)
 //  {
 //  }
 //..
-// This implementation will compile successfully for each 'TYPE' that has a
-// default constructor, but it will not behave as documented.  In particular,
-// the specified 'basicAllocator' will not be used to supply memory.
-//
-// Another possible implementation for the 'MyContainer' constructor is as
-// follows:
+// Next, we define the copy constructor and assignment operator.  Since
+// 'bslalg::ConstructorProxy' is not copyable, we must manually extract the
+// proxied object in the assignment operator.  This extraction is not needed in
+// the copy constructor because the single-value proxy constructor
+// automatically "unwraps" its argument when presented with an instantiation of
+// 'bslalg::ConstructorProxy':
 //..
-//  template <typename TYPE>
-//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
-//  : d_object(basicAllocator)
+//  template <class TYPE>
+//  KeyValue<TYPE>::KeyValue(const KeyValue&       original,
+//                           const allocator_type& a)
+//      : d_key(original.d_key, a)
+//      , d_valueProxy(original.d_valueProxy, a)  // Automatically unwrapped
+//  {
+//  }
+//
+//  template <class TYPE>
+//  KeyValue<TYPE>& KeyValue<TYPE>::operator=(const KeyValue& rhs)
+//  {
+//      d_key                 = rhs.d_key;
+//      d_valueProxy.object() = rhs.d_valueProxy.object();
+//      return *this;
+//  }
+//..
+// Last, we define the destructor, which does nothing explicit (and could
+// therefore have been defaulted), because both 'String' and 'ConstructorProxy'
+// clean up after themselves:
+//..
+//  template <class TYPE>
+//  KeyValue<TYPE>::~KeyValue()
 //  {
 //  }
 //..
-// This implementation behaves as documented, but it will not compile unless
-// 'TYPE' has a constructor taking a 'bslma::Allocator *'.  For example, the
-// following declaration of 'container' will fail to compile:
+// Now we can illustrate the use of our key-value pair by defining a string-int
+// pair and constructing it with a test allocator.  Note that the allocator was
+// passed to the ('String') key, as we would expect:
 //..
-//  bslma::TestAllocator testAllocator;
+//  #include <bslma_testallocator.h>
 //
-//  MyContainer<int> container(&testAllocator);
-//..
-// The solution to this problem is to use the constructor proxy provided by
-// this component.  The following definition of 'MyContainer' uses a
-// constructor proxy for the contained object of parameterized 'TYPE':
-//..
-//  template <typename TYPE>
-//  class MyContainer {
-//      // This class contains an object of parameterized 'TYPE'.
-//
-//      // PRIVATE DATA MEMBERS
-//      bslalg::ConstructorProxy<TYPE> d_proxy;
-//
-//    public:
-//      // CREATORS
-//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
-//          // Construct a container using the specified 'basicAllocator' to
-//          // supply memory.  If 'basicAllocator' is 0, the currently
-//          // installed default allocator is used.
-//
-//      ~MyContainer();
-//          // Destroy this container.
-//
-//      // ACCESSORS
-//      const TYPE& getObject() const;
-//          // Return a reference to the non-modifiable object stored in this
-//          // container.
-//
-//      // ... rest of class definition ...
-//  };
-//..
-// The constructor for 'MyContainer' can now be implemented as follows:
-//..
-//  template <typename TYPE>
-//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
-//  : d_proxy(basicAllocator)
+//  int main()
 //  {
+//      bslma::TestAllocator ta;
+//
+//      KeyValue<int> kv1("hello", 2023, &ta);
+//      assert("hello" == kv1.key());
+//      assert(2023    == kv1.value());
+//      assert(&ta     == kv1.get_allocator());
+//      assert(&ta     == kv1.key().get_allocator());
+//..
+// Next, we define a string-string pair and show that the allocator was
+// passed to *both* the key and value parts of the pair:
+//..
+//      KeyValue<String> kv2("March", "Madness", &ta);
+//      assert("March"   == kv2.key());
+//      assert("Madness" == kv2.value());
+//      assert(&ta       == kv2.get_allocator());
+//      assert(&ta       == kv2.key().get_allocator());
+//      assert(&ta       == kv2.value().get_allocator());
+//..
+// Finally, we declare a 'bslalg::ConstructorProxy' of 'KeyValue' and show how
+// we can pass more than one argument (up to 14) -- in addition to the
+// allocator -- to the proxied type's constructor:
+//..
+//      typedef KeyValue<int> UnitVal;
+//
+//      bslalg::ConstructorProxy<UnitVal> uvProxy("km", 14, &ta);
+//      UnitVal& uv = uvProxy.object();
+//      assert("km" == uv.key());
+//      assert(14   == uv.value());
+//      assert(&ta  == uv.get_allocator());
 //  }
-//..
-// The 'getObject' method of 'MyContainer' is implemented as follows:
-//..
-//  template <typename TYPE>
-//  const TYPE& MyContainer<TYPE>::getObject() const
-//  {
-//      return d_proxy.object();
-//  }
-//..
-// Now the following code, which previously did not compile, *will* compile
-// successfully:
-//..
-//  bslma::TestAllocator testAllocator;
-//
-//  MyContainer<int> container(&testAllocator);
-//..
-// The specified 'testAllocator' will simply be ignored because 'int' does not
-// use a 'bslma' allocator to supply memory.
-//
-// Next suppose we have a class defined as follows:
-//..
-//  class SomeClassUsingAllocator {
-//      // This class uses a 'bslma' allocator.
-//
-//      // PRIVATE DATA MEMBERS
-//      bslma::Allocator *d_allocator_p;
-//
-//    public:
-//      // CREATORS
-//      explicit SomeClassUsingAllocator(bslma::Allocator *basicAllocator = 0)
-//      : d_allocator_p(bslma::Default::allocator(basicAllocator))
-//      {
-//      }
-//
-//      // ACCESSORS
-//      bslma::Allocator *getAllocator() const
-//      {
-//          return d_allocator_p;
-//      }
-//  };
-//
-//  // TRAITS
-//  namespace bslma {
-//
-//  template <>
-//  struct UsesBslmaAllocator<SomeClassUsingAllocator> : bsl::true_type
-//  {};
-//
-//  }
-//..
-// The following code will compile and run without an assertion failure:
-//..
-//  bslma::TestAllocator testAllocator;
-//
-//  MyContainer<SomeClassUsingAllocator> container(&testAllocator);
-//
-//  assert(&testAllocator == container.getObject().getAllocator());
-//..
-// Finally, since the 'MyContainer' class uses a 'bslma' allocator to supply
-// memory, it is useful to expose this property.  This is done by declaring the
-// 'bslma::UsesBslmaAllocator' trait to complete the definition of
-// 'MyContainer':
-//..
-//  template <typename TYPE>
-//  class MyContainer {
-//      // This class contains an object of parameterized 'TYPE' and declares
-//      // the 'bslma::UsesBslmaAllocator' trait.
-//
-//      // PRIVATE DATA MEMBERS
-//      bslalg::ConstructorProxy<TYPE> d_proxy;
-//
-//    public:
-//      // CREATORS
-//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
-//          // Construct a container using the specified 'basicAllocator' to
-//          // supply memory.  If 'basicAllocator' is 0, the currently
-//          // installed default allocator is used.
-//
-//      ~MyContainer();
-//          // Destroy this container.
-//
-//      // ACCESSORS
-//      const TYPE& getObject() const;
-//          // Return a reference to the non-modifiable object stored in this
-//          // container.
-//
-//      // ... rest of class definition ...
-//  };
-//
-//  // TRAITS
-//  namespace bslma {
-//
-//  template <typename TYPE>
-//  struct UsesBslmaAllocator<MyContainer<TYPE> > : bsl::true_type
-//  {};
-//
-//  }
-//..
-// The following code will also compile and run without an assertion failure:
-//..
-//  bslma::TestAllocator testAllocator;
-//
-//  MyContainer<MyContainer<SomeClassUsingAllocator> >
-//                                          containedContainer(&testAllocator);
-//
-//  assert(&testAllocator
-//               == containedContainer.getObject().getObject().getAllocator());
 //..
 
 #include <bslscm_version.h>
 
+#include <bslma_aamodel.h>
 #include <bslma_constructionutil.h>
 #include <bslma_destructionutil.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_enableif.h>
-#include <bslmf_decay.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_issame.h>
 #include <bslmf_movableref.h>
-#include <bslmf_util.h>    // 'forward(V)'
+#include <bslmf_removecvref.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_util.h>     // 'forward<T>(V)'
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_scalarprimitives.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
-
-namespace bslma { class Allocator; }
-
 namespace bslalg {
 
-template <class> class ConstructorProxy;
+// FORWARD DECLARATIONS
+template <class OBJECT_TYPE> class  ConstructorProxy;
+template <class TYPE = bsl::polymorphic_allocator<>::value_type>
+class ConstructorProxy_PolymorphicAllocator;
+template <class TYPE, class AAMODEL = typename bslma::AAModel<TYPE>::type >
+struct ConstructorProxy_AllocatorType;
 
-                        // ===============================
-                        // struct ConstructorProxy_IsProxy
-                        // ===============================
+                    // ===============================
+                    // struct ConstructorProxy_ImpUtil
+                    // ===============================
 
-template <class TYPE>
-struct ConstructorProxy_IsProxy : bsl::false_type {
-    // Provides a metafunction to determine if the specified 'TYPE' is
-    // 'ConstructorProxy'. This non-specialized class template always returns
-    // 'false'.
+struct ConstructorProxy_ImpUtil {
+    // Component-private utility class for implementation methods.
+
+    // CLASS METHODS
+    template <class TYPE>
+    static TYPE&                   unproxy(TYPE&                          obj);
+    template <class TYPE>
+    static TYPE&                   unproxy(ConstructorProxy<TYPE>&        obj);
+    template <class TYPE>
+    static const TYPE&             unproxy(const TYPE&                    obj);
+    template <class TYPE>
+    static const TYPE&             unproxy(const ConstructorProxy<TYPE>&  obj);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template <class TYPE>
+    static TYPE&&                  unproxy(TYPE&&                         obj);
+    template <class TYPE>
+    static TYPE&&                  unproxy(ConstructorProxy<TYPE>&&       obj);
+#else
+    template <class TYPE>
+    static bslmf::MovableRef<TYPE> unproxy(bslmf::MovableRef<TYPE>        obj);
+    template <class TYPE>
+    static bslmf::MovableRef<TYPE> unproxy(
+                               bslmf::MovableRef<ConstructorProxy<TYPE> > obj);
+#endif
+        // If the specified 'obj' is a specialization of 'ConstructorProxy',
+        // return the object stored within 'obj'; otherwise return 'obj'
+        // unchanged.  Note that the value category (i.e., lvalue vs. xvalue)
+        // of 'obj' is retained.
 };
 
-template <class TYPE>
-struct ConstructorProxy_IsProxy<ConstructorProxy<TYPE> > : bsl::true_type {
-    // Provides a metafunction to determine if the specified 'TYPE' is
-    // 'ConstructorProxy'. This specialized class template always returns
-    // 'true'.
-};
-
-                        // ======================
-                        // class ConstructorProxy
-                        // ======================
+                    // ===============================
+                    // class template ConstructorProxy
+                    // ===============================
 
 template <class OBJECT_TYPE>
 class ConstructorProxy {
@@ -333,9 +324,19 @@ class ConstructorProxy {
     // allocator will be used to construct the proxied object.  Otherwise, the
     // allocator is ignored.
 
+    // PRIVATE TYPES
+    typedef typename
+    ConstructorProxy_AllocatorType<OBJECT_TYPE>::ArgType CtorAllocArgT;
+
     // DATA
     bsls::ObjectBuffer<OBJECT_TYPE> d_objectBuffer;  // footprint of proxied
                                                      // object (raw buffer)
+
+    // PRIVATE CLASS METHODS
+    const typename ConstructorProxy_AllocatorType<OBJECT_TYPE>::type&
+    unwrapAlloc(const CtorAllocArgT& alloc);
+        // Unwrap the specified 'alloc', returning the underlying allocator
+        // used to construct 'OBJECT_TYPE', if any.
 
   private:
     // NOT IMPLEMENTED
@@ -343,52 +344,59 @@ class ConstructorProxy {
     ConstructorProxy& operator=(const ConstructorProxy&) BSLS_KEYWORD_DELETED;
 
   public:
-    // CREATORS
-    explicit ConstructorProxy(bslma::Allocator *basicAllocator);
-        // Construct a proxy, and a proxied object of parameterized
-        // 'OBJECT_TYPE'.  Use the specified 'basicAllocator' to supply memory
-        // to the proxied object if 'OBJECT_TYPE' declares the
-        // 'bslma::UsesBslmaAllocator' trait, and ignore 'basicAllocator'
-        // otherwise.
+    // TYPES
+    typedef OBJECT_TYPE                               ValueType;
 
-    template <class SOURCE_TYPE>
-    ConstructorProxy(
-            const ConstructorProxy<SOURCE_TYPE>&               original,
-            bslma::Allocator                                  *basicAllocator);
-    template <class SOURCE_TYPE>
-    ConstructorProxy(BSLMF_MOVABLEREF_DEDUCE(ConstructorProxy<SOURCE_TYPE>)
-                         original,
-                     bslma::Allocator *basicAllocator);
-        // Construct a proxy, and a proxied object of the parameterized
-        // 'OBJECT_TYPE' having the value of the object of the parameterized
-        // 'SOURCE_TYPE' held by the specified 'original' proxy.  Use the
-        // specified 'basicAllocator' to supply memory to the proxied object if
-        // 'OBJECT_TYPE' declares the 'bslma::UsesBslmaAllocator' trait, and
-        // ignore 'basicAllocator' otherwise.  Note that a compilation error
-        // will result unless an instance of 'OBJECT_TYPE' can be constructed
-        // from an instance of 'SOURCE_TYPE'.
+    typedef typename
+    ConstructorProxy_AllocatorType<OBJECT_TYPE>::type allocator_type;
+        // Minimally picky allocator type that can be used to construct a
+        // 'ConstructorProxy'.  Choose 'bsl::polymorphic_allocator' If
+        // 'OBJECT_TYPE' is not AA, 'bsl::allocator<char>' if 'OBJECT_TYPE' is
+        // *legacy-AA*, and 'OBJECT_TYPE::allocator_type' otherwise.
+
+    // CREATORS
+    explicit ConstructorProxy(const CtorAllocArgT&  allocator);
+        // Construct a proxy, passing no arguments except possibly a specified
+        // 'allocator' to the constructor of the proxied object.  If
+        // 'OBJECT_TYPE' is allocator aware and 'allocator_type' is a
+        // compatible allocator type, pass 'allocator' to the proxied object
+        // constructor; otherwise ignore 'allocator'.  A compilation error will
+        // result unless 'OBJECT_TYPE' has an (extended) default constructor.
 
     template <class ARG01>
-    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
-                     typename bsl::enable_if<
-                         !ConstructorProxy_IsProxy<
-                             typename bsl::decay<ARG01>::type>::value,
-                             bslma::Allocator>::type          *basicAllocator);
+    ConstructorProxy(ARG01&                                   a01,
+                     const CtorAllocArgT&                     allocator);
+    template <class ARG01>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01) a01,
+                     const CtorAllocArgT&                     allocator);
+        // Construct a proxy, passing a single argument and possibly a
+        // specified 'allocator' to the constructor of the proxied object,
+        // where the non-allocator argument is the specified 'a01' argument if
+        // 'ARG01' is not a specialization of 'ConstructorProxy', and
+        // 'a01.object()' if it is such a specialization.  If 'OBJECT_TYPE' is
+        // allocator aware and 'allocator_type' is a compatible allocator type,
+        // pass 'allocator' to the proxied object's constructor; otherwise
+        // ignore 'allocator'.  A compilation error will result unless
+        // 'OBJECT_TYPE' has a constructor with a signature compatible with
+        // 'OBJECT_TYPE(ARG01&&)'.  Note that, if 'ARG01' is
+        // 'ConstructorProxy<OBJECT_TYPE>', then these constructors take on the
+        // rolls of the extended copy and extended move constructors.
+
     template <class ARG01, class ARG02>
     ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03>
     ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04>
     ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05>
     ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
@@ -396,7 +404,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06>
     ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
@@ -405,7 +413,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06, class ARG07>
     ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
@@ -415,7 +423,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06, class ARG07, class ARG08>
     ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
@@ -426,7 +434,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06, class ARG07, class ARG08,
               class ARG09>
@@ -439,7 +447,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06, class ARG07, class ARG08,
               class ARG09, class ARG10>
@@ -453,7 +461,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06, class ARG07, class ARG08,
               class ARG09, class ARG10, class ARG11>
@@ -468,7 +476,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06, class ARG07, class ARG08,
               class ARG09, class ARG10, class ARG11, class ARG12>
@@ -484,7 +492,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06, class ARG07, class ARG08,
               class ARG09, class ARG10, class ARG11, class ARG12,
@@ -502,7 +510,7 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG13)  a13,
-                     bslma::Allocator                         *basicAllocator);
+                     const CtorAllocArgT&                      allocator);
     template <class ARG01, class ARG02, class ARG03, class ARG04,
               class ARG05, class ARG06, class ARG07, class ARG08,
               class ARG09, class ARG10, class ARG11, class ARG12,
@@ -521,16 +529,16 @@ class ConstructorProxy {
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG13)  a13,
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG14)  a14,
-                     bslma::Allocator                         *basicAllocator);
-        // Construct a proxy, and a proxied object of the parameterized
-        // 'OBJECT_TYPE' using the specified arguments 'a01' up to 'a14' of the
-        // respective parameterized 'ARG01' up to 'ARG14' types.  Use the
-        // specified 'basicAllocator' to supply memory to the proxied object if
-        // 'OBJECT_TYPE' declares the 'bslma::UsesBslmaAllocator' trait, and
-        // ignore 'basicAllocator' otherwise.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.  Note that a
-        // compilation error will result unless 'OBJECT_TYPE' has a constructor
-        // of signature compatible with 'OBJECT_TYPE(ARG01&&, ARG2&&, ...)'.
+                     const CtorAllocArgT&                      allocator);
+        // Construct a proxy, forwarding the specified 'a01' up to the
+        // specified 'a14' arguments and possibly a specified 'allocator' to
+        // the constructor of the proxied object.  If 'OBJECT_TYPE' is
+        // allocator aware and 'allocator_type' is a compatible allocator type,
+        // pass 'allocator' to the proxied object's constructor; otherwise
+        // ignore 'allocator'.  A compilation error will result unless
+        // 'OBJECT_TYPE' has a constructor with a signature compatible with
+        // 'OBJECT_TYPE(ARG01&&, ARG2&&, ...)'.  Note that, in C++03, non-const
+        // lvalue arguments will be forwarded as 'const' lvalue references.
 
     ~ConstructorProxy();
         // Destroy this proxy and the object held by this proxy.
@@ -548,63 +556,205 @@ class ConstructorProxy {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------
-                        // class ConstructorProxy
-                        // ----------------------
+            // -----------------------------------------------------
+            // struct template ConstructorProxy_PolymorphicAllocator
+            // -----------------------------------------------------
+
+template <class TYPE>
+class ConstructorProxy_PolymorphicAllocator
+    : public bsl::polymorphic_allocator<TYPE> {
+    // Wrapper around 'bsl::polymorphic_allocator' that can tolerate being
+    // constructed with a null pointer.
+
+    typedef bsl::polymorphic_allocator<TYPE> Base;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(ConstructorProxy_PolymorphicAllocator,
+                                   bslma::IsStdAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(ConstructorProxy_PolymorphicAllocator,
+                                      bslma::UsesBslmaAllocator, false);
+
+    // CREATORS
+    ConstructorProxy_PolymorphicAllocator(bsl::memory_resource *r = 0)
+                                                                    // IMPLICIT
+        // Construct from the address of a 'memory_resource' optionally
+        // specified by 'r'.  If 'r' is null or not specified, construct from
+        // the default allocator.
+        : Base(r ? Base(r) : Base()) { }
+
+    template <class T2>
+    ConstructorProxy_PolymorphicAllocator(
+        const bsl::polymorphic_allocator<T2> &other)                // IMPLICIT
+        // Create an allocator using the same 'memory_resource' as the
+        // specified 'other' allocator.
+        : Base(other) { }
+
+    //! ConstructorProxy_PolymorphicAllocator(
+    //!                const ConstructorProxy_PolymorphicAllocator&) = default;
+    //! ~ConstructorProxy_PolymorphicAllocator();
+};
+
+            // ----------------------------------------------
+            // struct template ConstructorProxy_AllocatorType
+            // ----------------------------------------------
+
+template <class TYPE, class AAMODEL>
+struct ConstructorProxy_AllocatorType
+{
+    // Metafunction to determine the allocator type for a specified template
+    // parameter 'TYPE' using the specified template parater 'AAMODEL' for
+    // constructors.  This primary template yields a nested 'type' of
+    // 'bsl::polymorphic_allocator', which is the most permisive type to use as
+    // a constructor parameter, and an 'ArgType' allocator constructor argument
+    // that is a wrapper around 'polymorphic_allocator' that tolerates being
+    // constructed with a null pointer.  However, if 'AAMODEL' is 'AAModelNone'
+    // or 'AAModelStl', the allocator constructor argument is ignored and not
+    // passed to the proxied object.
+
+    // TYPES
+    typedef bsl::polymorphic_allocator<>            type;
+    typedef ConstructorProxy_PolymorphicAllocator<> ArgType;
+};
+
+template <class TYPE>
+struct ConstructorProxy_AllocatorType<TYPE, bslma::AAModelBsl>
+{
+    // Specialization for a bsl-AA 'TYPE'.
+
+    // TYPES
+    typedef bsl::allocator<> type;
+    typedef bsl::allocator<> ArgType;
+};
+
+template <class TYPE>
+struct ConstructorProxy_AllocatorType<TYPE, bslma::AAModelLegacy>
+{
+    // Specialization for a legacy-AA 'TYPE'.  The proxy type will be bsl-AA.
+
+    // TYPES
+    typedef bsl::allocator<> type;
+    typedef bsl::allocator<> ArgType;
+};
+
+
+                    // -------------------------------
+                    // struct ConstructorProxy_ImpUtil
+                    // -------------------------------
+
+// PRIVATE METHODS
+template <class TYPE>
+inline
+TYPE& ConstructorProxy_ImpUtil::unproxy(TYPE& obj)
+{
+    return obj;
+}
+
+template <class TYPE>
+inline
+TYPE& ConstructorProxy_ImpUtil::unproxy(ConstructorProxy<TYPE>& obj)
+{
+    return obj.object();
+}
+
+template <class TYPE>
+inline
+const TYPE& ConstructorProxy_ImpUtil::unproxy(const TYPE& obj)
+{
+    return obj;
+}
+
+template <class TYPE>
+inline
+const TYPE&
+ConstructorProxy_ImpUtil::unproxy(const ConstructorProxy<TYPE>& obj)
+{
+    return obj.object();
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <class TYPE>
+inline
+TYPE&& ConstructorProxy_ImpUtil::unproxy(TYPE&& obj)
+{
+    return bslmf::MovableRefUtil::move(obj);
+}
+
+template <class TYPE>
+inline
+TYPE&& ConstructorProxy_ImpUtil::unproxy(ConstructorProxy<TYPE>&& obj)
+{
+    return bslmf::MovableRefUtil::move(obj.object());
+}
+
+#else // if !BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <class TYPE>
+inline
+bslmf::MovableRef<TYPE>
+ConstructorProxy_ImpUtil::unproxy(bslmf::MovableRef<TYPE> obj)
+{
+    return BSLS_COMPILERFEATURES_FORWARD(TYPE, obj);
+}
+
+template <class TYPE>
+inline
+bslmf::MovableRef<TYPE> ConstructorProxy_ImpUtil::unproxy(
+                                bslmf::MovableRef<ConstructorProxy<TYPE> > obj)
+{
+    return bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(obj).object());
+}
+
+#endif // !BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+
+                    // -------------------------------
+                    // class template ConstructorProxy
+                    // -------------------------------
+
+// PRIVATE CLASS METHODS
+template <class OBJECT_TYPE>
+inline
+const typename ConstructorProxy_AllocatorType<OBJECT_TYPE>::type&
+ConstructorProxy<OBJECT_TYPE>::unwrapAlloc(const CtorAllocArgT& alloc)
+{
+    return alloc;
+}
 
 // CREATORS
 template <class OBJECT_TYPE>
 inline
-ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                                              bslma::Allocator *basicAllocator)
+ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(const CtorAllocArgT& allocator)
 {
-    bslma::ConstructionUtil::construct(d_objectBuffer.address(),
-                                       basicAllocator);
-}
-
-template <class OBJECT_TYPE>
-template <class SOURCE_TYPE>
-inline
-ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                          const ConstructorProxy<SOURCE_TYPE>&  original,
-                          bslma::Allocator                     *basicAllocator)
-{
-    bslma::ConstructionUtil::construct(d_objectBuffer.address(),
-                                       basicAllocator,
-                                       original.object());
-}
-
-template <class OBJECT_TYPE>
-template <class SOURCE_TYPE>
-inline
-ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-               BSLMF_MOVABLEREF_DEDUCE(ConstructorProxy<SOURCE_TYPE>) original,
-               bslma::Allocator *basicAllocator)
-{
-    bslma::ConstructionUtil::construct(
-                        d_objectBuffer.address(),
-                        basicAllocator,
-                        bslmf::MovableRefUtil::move(
-                            bslmf::MovableRefUtil::access(original).object()));
+    bslma::ConstructionUtil::construct(d_objectBuffer.address(), allocator);
 }
 
 template <class OBJECT_TYPE>
 template <class ARG01>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
-                      typename bsl::enable_if<
-                          !ConstructorProxy_IsProxy<
-                              typename bsl::decay<ARG01>::type>::value,
-                              bslma::Allocator>::type          *basicAllocator)
+                                               ARG01&                a01,
+                                               const CtorAllocArgT&  allocator)
 {
-    // NOTE: 'enable_if' is here so this constructor won't overshadow the copy
-    //       and move constructors.
+    bslma::ConstructionUtil::construct(d_objectBuffer.address(),
+                                       allocator,
+                                       ConstructorProxy_ImpUtil::unproxy(a01));
+}
 
+template <class OBJECT_TYPE>
+template <class ARG01>
+inline
+ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARG01) a01,
+                            const CtorAllocArgT&                     allocator)
+{
     bslma::ConstructionUtil::construct(
-                                    d_objectBuffer.address(),
-                                    basicAllocator,
-                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01));
+        d_objectBuffer.address(),
+        allocator,
+        ConstructorProxy_ImpUtil::unproxy(
+                                   BSLS_COMPILERFEATURES_FORWARD(ARG01, a01)));
 }
 
 template <class OBJECT_TYPE>
@@ -613,11 +763,11 @@ inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02));
 }
@@ -629,11 +779,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03));
@@ -647,11 +797,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -668,11 +818,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -691,11 +841,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -716,11 +866,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -743,11 +893,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -773,11 +923,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -805,11 +955,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -839,11 +989,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -875,11 +1025,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -914,11 +1064,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG13)  a13,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -955,11 +1105,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG13)  a13,
                       BSLS_COMPILERFEATURES_FORWARD_REF(ARG14)  a14,
-                      bslma::Allocator                         *basicAllocator)
+                      const CtorAllocArgT&                      allocator)
 {
     bslma::ConstructionUtil::construct(
                                     d_objectBuffer.address(),
-                                    basicAllocator,
+                                    allocator,
                                     BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
                                     BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
@@ -1005,15 +1155,6 @@ const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
 // ============================================================================
 //                                TYPE TRAITS
 // ============================================================================
-
-namespace bslma {
-
-template <class OBJECT_TYPE>
-struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
-    : bsl::true_type
-{};
-
-}  // close namespace bslma
 
 namespace bslmf {
 

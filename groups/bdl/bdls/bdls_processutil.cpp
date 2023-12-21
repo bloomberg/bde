@@ -349,7 +349,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
         // Use '*result's allocator for 'utf8Path', since 'utf8Path' will be
         // perfectly sized and we can then swap it into '*result'.
 
-        bsl::string utf8Path(result->allocator().mechanism());
+        bsl::string utf8Path(result->get_allocator());
         int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&utf8Path, wResult);
         if (0 != rc) {
             U_LOG_ERROR_ONCE("bdls::ProcessUtil: utf16ToUtf8 failed.");

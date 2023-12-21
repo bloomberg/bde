@@ -6837,7 +6837,7 @@ int main(int argc, char *argv[])
                     else if (X.isString()) {
                         ASSERTV(VALUE_CONFIG,
                                 CONFIG,
-                                &oa == X.theString().allocator());
+                                &oa == X.theString().get_allocator());
                     }
                     else if (X.isBoolean() || X.isNull()) {
                         // No allocator.
@@ -7173,7 +7173,7 @@ int main(int argc, char *argv[])
                     else if (X.isString()) {
                         ASSERTV(VALUE_CONFIG,
                                 CONFIG,
-                                &oa == X.theString().allocator());
+                                &oa == X.theString().get_allocator());
                     }
                     else if (X.isBoolean() || X.isNull()) {
                         // No allocator.

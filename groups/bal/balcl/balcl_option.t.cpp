@@ -2117,9 +2117,9 @@ int main(int argc, const char *argv[])  {
             // Vet object allocators.
 
             ASSERTV(CONFIG, &oa == X.allocator());
-            ASSERTV(CONFIG, &oa == X.   description().allocator());
-            ASSERTV(CONFIG, &oa == X.          name().allocator());
-            ASSERTV(CONFIG, &oa == X.     tagString().allocator());
+            ASSERTV(CONFIG, &oa == X.   description().get_allocator());
+            ASSERTV(CONFIG, &oa == X.          name().get_allocator());
+            ASSERTV(CONFIG, &oa == X.     tagString().get_allocator());
             ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
             ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
 
@@ -2566,9 +2566,9 @@ int main(int argc, const char *argv[])  {
 
                 // Vet object allocators.
                 ASSERTV(CONFIG, &oa == X.allocator());
-                ASSERTV(CONFIG, &oa == X.   description().allocator());
-                ASSERTV(CONFIG, &oa == X.          name().allocator());
-                ASSERTV(CONFIG, &oa == X.     tagString().allocator());
+                ASSERTV(CONFIG, &oa == X.   description().get_allocator());
+                ASSERTV(CONFIG, &oa == X.          name().get_allocator());
+                ASSERTV(CONFIG, &oa == X.     tagString().get_allocator());
                 ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
                 ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
 
@@ -3195,9 +3195,9 @@ int main(int argc, const char *argv[])  {
 
                 // Vet object allocators.
                 ASSERTV(CONFIG, &oa == X.allocator());
-                ASSERTV(CONFIG, &oa == X.   description().allocator());
-                ASSERTV(CONFIG, &oa == X.          name().allocator());
-                ASSERTV(CONFIG, &oa == X.     tagString().allocator());
+                ASSERTV(CONFIG, &oa == X.   description().get_allocator());
+                ASSERTV(CONFIG, &oa == X.          name().get_allocator());
+                ASSERTV(CONFIG, &oa == X.     tagString().get_allocator());
                 ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
                 ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
 

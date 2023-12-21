@@ -1504,8 +1504,9 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hashtableimputil.h>
 
 #include <bslma_allocatortraits.h>
+#include <bslma_allocatorutil.h>
 #include <bslma_destructorguard.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_addlvaluereference.h>
@@ -3337,28 +3338,20 @@ void HashTable_Util::destroyBucketArray(
                                      std::size_t               bucketArraySize,
                                      const ALLOCATOR&          allocator)
 {
+    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
+    (void) SizeType();
+
     BSLS_ASSERT_SAFE(data);
     BSLS_ASSERT_SAFE(
                   (1  < bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() != data)
                || (1 == bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() == data));
-
-    typedef ::bsl::allocator_traits<ALLOCATOR>               ParamAllocTraits;
-    typedef typename ParamAllocTraits::template
-                      rebind_traits<bslalg::HashTableBucket> BucketAllocTraits;
-    typedef typename BucketAllocTraits::allocator_type       ArrayAllocator;
-    typedef ::bsl::allocator_traits<ArrayAllocator>       ArrayAllocatorTraits;
-    typedef typename ArrayAllocatorTraits::size_type         SizeType;
-
     BSLS_ASSERT_SAFE(bucketArraySize <= std::numeric_limits<SizeType>::max());
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
-        ArrayAllocator reboundAllocator(allocator);
-        ArrayAllocatorTraits::deallocate(
-                                       reboundAllocator,
-                                       data,
-                                       static_cast<SizeType>(bucketArraySize));
+        bslma::AllocatorUtil::deallocateObject(allocator, data,
+                                               bucketArraySize);
     }
 }
 
@@ -3368,44 +3361,20 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
                                 std::size_t              bucketArraySize,
                                 const ALLOCATOR&         allocator)
 {
+    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
+    (void) SizeType();
+
     BSLS_ASSERT_SAFE(anchor);
     BSLS_ASSERT_SAFE(0 != bucketArraySize);
-
-    typedef ::bsl::allocator_traits<ALLOCATOR>               ParamAllocTraits;
-    typedef typename ParamAllocTraits::template
-                      rebind_traits<bslalg::HashTableBucket> BucketAllocTraits;
-    typedef typename BucketAllocTraits::allocator_type       ArrayAllocator;
-    typedef ::bsl::allocator_traits<ArrayAllocator>       ArrayAllocatorTraits;
-    typedef typename ArrayAllocatorTraits::size_type         SizeType;
-
     BSLS_ASSERT_SAFE(bucketArraySize <= std::numeric_limits<SizeType>::max());
 
-    ArrayAllocator reboundAllocator(allocator);
+    typedef bslalg::HashTableBucket Bucket;
+    Bucket *data = bslma::AllocatorUtil::allocateObject<Bucket>(allocator,
+                                                              bucketArraySize);
 
-    // This test is necessary to avoid undefined behavior in the non-standard
-    // narrow contract of 'bsl::allocator', although it seems like a reasonable
-    // assumption to pre-empt other allocators too.
+    std::fill_n(data, bucketArraySize, Bucket());
 
-    if (ArrayAllocatorTraits::max_size(reboundAllocator) < bucketArraySize) {
-        bsls::BslExceptionUtil::throwBadAlloc();
-    }
-
-    // Conversion to exactly the correct type resolves compiler warnings.  The
-    // assertions above are a loose safety check that this conversion can never
-    // overflow - which would require an allocator using a 'size_type' larger
-    // than 'std::size_t', with the requirement that a standard conforming
-    // allocator must use a 'size_type' that is a built-in unsigned integer
-    // type.
-
-    const SizeType newArraySize = static_cast<SizeType>(bucketArraySize);
-
-    bslalg::HashTableBucket *data = ArrayAllocatorTraits::allocate(
-                                       reboundAllocator,
-                                       newArraySize);
-
-    std::fill_n(data, bucketArraySize, bslalg::HashTableBucket());
-
-    anchor->setBucketArrayAddressAndSize(data, newArraySize);
+    anchor->setBucketArrayAddressAndSize(data, bucketArraySize);
 }
 
                 //-------------------------------

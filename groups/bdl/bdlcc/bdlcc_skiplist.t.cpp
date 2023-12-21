@@ -4068,8 +4068,8 @@ void removeAllSafetyFunc(Obj        *list,
                 removedPairsStd.clear();
               } break;
               case 3: {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                std::pmr::vector<Pair*> removedPairsPmr;
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+                std::pmr::vector<Pair*> removedPairsPmr(alloc_p);
 
                 unsigned rc = list->removeAllRaw(&removedPairsPmr);
                 ASSERT(rc == removedPairsPmr.size());

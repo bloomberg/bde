@@ -231,6 +231,7 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bslma_allocatorutil.h>
 #include <bslma_managedptr.h>
 
 #include <bsls_annotation.h>
@@ -253,6 +254,8 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace ball {
 namespace {
+
+typedef BloombergLP::bslma::AllocatorUtil AllocUtil;
 
 const char *const k_KEY_TIMESTAMP        = "timestamp";
 const char *const k_KEY_PROCESS_ID       = "pid";
@@ -303,7 +306,8 @@ bsl::string_view getDefaultFormat()
 
     return buffer;
 }
-}
+
+}  // close unnamed namespace within BloombergLP::ball
 
                    // ========================================
                    // class RecordJsonFormatter_FieldFormatter
@@ -321,6 +325,12 @@ class RecordJsonFormatter_FieldFormatter {
         // Destroy this object.
 
     // MANIPULATORS
+    virtual void deleteSelf(const bsl::allocator<> allocator) = 0;
+        // Call the destructor for the most-derived class then deallocate this
+        // object to the specified 'allocator'.  Derived-class implementations
+        // of this method should communicate the type of the most-derived
+        // object to the allocator so that the correct size can be computed.
+
     virtual
     int format(baljsn::SimpleFormatter *formatter, const Record& record) = 0;
         // Format a field of the specified 'record' and render it to the
@@ -363,8 +373,6 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
         e_FORMAT_ISO_8601  = 1
     };
 
-    typedef bsl::allocator<char>  allocator_type;
-
     // DATA
     bsl::string               d_name;
     Format                    d_format;
@@ -372,9 +380,8 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
     FractionalSecondPrecision d_precision;
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(TimestampFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<>  allocator_type;
 
     // CREATORS
     explicit TimestampFormatter(const allocator_type& allocator)
@@ -388,6 +395,10 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Format the 'timestamp' field of the specified 'record' and render it
@@ -414,16 +425,13 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
         e_HEXADECIMAL = 1
     };
 
-    typedef bsl::allocator<char>  allocator_type;
-
     // DATA
     bsl::string d_name;
     Format      d_format;
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(ThreadIdFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
 
     // CREATORS
     explicit
@@ -436,6 +444,10 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Format the 'tid' field of the specified 'record' and render it to
@@ -457,16 +469,12 @@ class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
     // tag that has a single 'name' attribute ('pid', line', 'category',
     // 'message' and a user-defined attribute).
 
-    // PRIVATE TYPES
-    typedef bsl::allocator<char>  allocator_type;
-
     // DATA
     bsl::string d_name;
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(FixedFieldFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<>  allocator_type;
 
     // CREATORS
     FixedFieldFormatter(const bsl::string&    name,
@@ -495,13 +503,9 @@ class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
 class ProcessIdFormatter : public FixedFieldFormatter {
     // This class implements JSON field formatter for the 'pid' tag.
 
-    // PRIVATE TYPES
-    typedef bsl::allocator<char>  allocator_type;
-
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(ProcessIdFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
 
     // CREATORS
     explicit ProcessIdFormatter(const allocator_type& allocator)
@@ -512,6 +516,10 @@ class ProcessIdFormatter : public FixedFieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Format the 'pid' field of the specified 'record' and render it to
@@ -526,13 +534,9 @@ class ProcessIdFormatter : public FixedFieldFormatter {
 class LineFormatter : public FixedFieldFormatter {
     // This class implements JSON field formatter for the 'line' tag.
 
-    // PRIVATE TYPES
-    typedef bsl::allocator<char>  allocator_type;
-
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(LineFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<>  allocator_type;
 
     // CREATORS
     explicit LineFormatter(const allocator_type& allocator)
@@ -543,6 +547,10 @@ class LineFormatter : public FixedFieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Format the 'line' field of the specified 'record' and render it to
@@ -557,13 +565,9 @@ class LineFormatter : public FixedFieldFormatter {
 class CategoryFormatter : public FixedFieldFormatter {
     // This class implements JSON field formatter for the 'category' tag.
 
-    // PRIVATE TYPES
-    typedef bsl::allocator<char>  allocator_type;
-
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(CategoryFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
 
     // CREATORS
     explicit CategoryFormatter(const allocator_type& allocator)
@@ -574,6 +578,10 @@ class CategoryFormatter : public FixedFieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Format the 'category' field of the specified 'record' and render it
@@ -588,13 +596,9 @@ class CategoryFormatter : public FixedFieldFormatter {
 class SeverityFormatter : public FixedFieldFormatter {
     // This class implements JSON field formatter for the 'severity' tag.
 
-    // PRIVATE TYPES
-    typedef bsl::allocator<char>  allocator_type;
-
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(SeverityFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
 
     // CREATORS
     explicit SeverityFormatter(const allocator_type& allocator)
@@ -605,6 +609,10 @@ class SeverityFormatter : public FixedFieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Format the 'severity' field of the specified 'record' and render it
@@ -619,13 +627,10 @@ class SeverityFormatter : public FixedFieldFormatter {
 class MessageFormatter : public FixedFieldFormatter {
     // This class implements JSON field formatter for the 'message' tag.
 
-    // PRIVATE TYPES
-    typedef bsl::allocator<char>  allocator_type;
-
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MessageFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
+
     // CREATORS
     explicit MessageFormatter(const allocator_type& allocator)
     : FixedFieldFormatter(k_KEY_MESSAGE, allocator)
@@ -635,6 +640,10 @@ class MessageFormatter : public FixedFieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Format the 'messaged' field of the specified 'record' and render it
@@ -656,15 +665,13 @@ class FileFormatter : public RecordJsonFormatter_FieldFormatter {
         e_FULL = 1
     };
 
-    typedef bsl::allocator<char>  allocator_type;
-
     // DATA
     bsl::string d_name;
     Path        d_path;
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(FileFormatter, bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
 
     // CREATORS
     explicit FileFormatter(const allocator_type& allocator)
@@ -675,6 +682,10 @@ class FileFormatter : public RecordJsonFormatter_FieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Format the 'file' field of the specified 'record' and render it to
@@ -697,16 +708,14 @@ class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
     // PRIVATE TYPES
     enum { k_UNSET = -1 };  // Unspecified index
 
-    typedef bsl::allocator<char> allocator_type;
-
     // DATA
     bsl::string d_key;    // attribute's key
     int         d_index;  // cached attribute's index
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(AttributeFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
+
     // CREATORS
     AttributeFormatter(const bsl::string_view& key,
                        const allocator_type&   allocator)
@@ -718,6 +727,10 @@ class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
     {}
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Render an attribute having the key supplied at construction of this
@@ -748,6 +761,9 @@ class AttributesFormatter : public RecordJsonFormatter_FieldFormatter {
         // should not be printed as part of the 'attributes' format tag,
         // because they are printed as individual user-defined attributes.
 
+    typedef SkipAttributes::allocator_type             allocator_type;
+        // Allocator type used to provide memory.
+
     typedef bsl::shared_ptr<SkipAttributes>            SkipAttributesSp;
         // 'SkipAttributesSp' is an alias for the shared pointer to the
         // 'SkipAttributes' type.
@@ -763,26 +779,25 @@ class AttributesFormatter : public RecordJsonFormatter_FieldFormatter {
         // key and a flag indicating whether the attribute should be displayed
         // or not.
 
-    typedef bsl::allocator<char>                       allocator_type;
-
     // DATA
     SkipAttributesSp      d_skipAttributes_sp;
     AttributeCache        d_cache;                // cached attributes
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(AttributesFormatter,
-                                   bslma::UsesBslmaAllocator);
-
     // CREATORS
-    explicit AttributesFormatter(const SkipAttributesSp& skipAttributesSp)
+    explicit AttributesFormatter(const SkipAttributesSp& skipAttributesSp,
+                                 const allocator_type&   allocator =
+                                                             allocator_type());
         // Create an attribute formatter object having the specified
-        // 'skipAttributesSp' collection.
-    : d_skipAttributes_sp(skipAttributesSp)
-    , d_cache(skipAttributesSp->get_allocator())
-    {}
+        // 'skipAttributesSp' collection.  Optionally specify an 'allocator' to
+        // provide memory.  The behavior is undefined unless 'allocator' and
+        // 'skipAttributesSp->get_allocator()' compare equal.
 
     // MANIPULATORS
+    void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
+        // Call the destructor for this object deallocate this object to the
+        // specified 'allocator'.
+
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
         // Render all user attributes in the specified 'record' except
@@ -821,11 +836,9 @@ class DatumParser {
         // 'SkipAttributesSp' is an alias for the shared pointer to the
         // 'SkipAttributes' type.
 
-    typedef bsl::allocator<char>                  allocator_type;
-
     // DATA
     SkipAttributesSp d_skipAttributes_sp;
-    allocator_type   d_allocator;
+    bsl::allocator<> d_allocator;
 
     // CLASS METHODS
     RecordJsonFormatter_FieldFormatter *make(const bslstl::StringRef&  v);
@@ -833,6 +846,9 @@ class DatumParser {
         // Create a field formatter by the specified 'v' value.
 
   public:
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumParser, bslma::UsesBslmaAllocator);
 
@@ -898,7 +914,7 @@ class FieldFormattersDestructor {
                           it != d_formatters_p->end();
                         ++it)
             {
-                d_formatters_p->get_allocator().mechanism()->deleteObject(*it);
+                (*it)->deleteSelf(d_formatters_p->get_allocator());
             }
         }
     }
@@ -909,6 +925,11 @@ class FieldFormattersDestructor {
                    // ------------------------
 
 // MANIPULATORS
+void TimestampFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int TimestampFormatter::format(baljsn::SimpleFormatter *formatter,
                                const Record&            record)
 {
@@ -1017,6 +1038,11 @@ int TimestampFormatter::parse(bdld::DatumMapRef v)
                    // -----------------------
 
 // MANIPULATORS
+void ThreadIdFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int ThreadIdFormatter::format(baljsn::SimpleFormatter *formatter,
                               const Record&            record)
 {
@@ -1105,6 +1131,11 @@ const bsl::string& FixedFieldFormatter::name() const
                    // ------------------------
 
 // MANIPULATORS
+void ProcessIdFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int ProcessIdFormatter::format(baljsn::SimpleFormatter *formatter,
                                const Record&            record)
 {
@@ -1116,6 +1147,11 @@ int ProcessIdFormatter::format(baljsn::SimpleFormatter *formatter,
                    // -------------------
 
 // MANIPULATORS
+void LineFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int LineFormatter::format(baljsn::SimpleFormatter *formatter,
                           const Record&            record)
 {
@@ -1127,6 +1163,11 @@ int LineFormatter::format(baljsn::SimpleFormatter *formatter,
                    // -----------------------
 
 // MANIPULATORS
+void CategoryFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int CategoryFormatter::format(baljsn::SimpleFormatter *formatter,
                               const Record&            record)
 {
@@ -1136,6 +1177,11 @@ int CategoryFormatter::format(baljsn::SimpleFormatter *formatter,
                    // -----------------------
                    // class SeverityFormatter
                    // -----------------------
+
+void SeverityFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
 
 int SeverityFormatter::format(baljsn::SimpleFormatter *formatter,
                               const Record&            record)
@@ -1151,6 +1197,11 @@ int SeverityFormatter::format(baljsn::SimpleFormatter *formatter,
                    // ----------------------
 
 // MANIPULATORS
+void MessageFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int MessageFormatter::format(baljsn::SimpleFormatter *formatter,
                              const Record&            record)
 {
@@ -1162,6 +1213,11 @@ int MessageFormatter::format(baljsn::SimpleFormatter *formatter,
                    // -------------------
 
 // MANIPULATORS
+void FileFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int FileFormatter::format(baljsn::SimpleFormatter *formatter,
                           const Record&            record)
 {
@@ -1217,6 +1273,11 @@ int FileFormatter::parse(bdld::DatumMapRef v)
                        // ------------------------
 
 // MANIPULATORS
+void AttributeFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int AttributeFormatter::format(baljsn::SimpleFormatter *formatter,
                                const Record&            record)
 {
@@ -1271,7 +1332,24 @@ const bsl::string& AttributeFormatter::key() const
                        // class AttributesFormatter
                        // -------------------------
 
+// CREATORS
+inline
+AttributesFormatter::AttributesFormatter(
+                                      const SkipAttributesSp& skipAttributesSp,
+                                      const allocator_type&   allocator)
+    : d_skipAttributes_sp(skipAttributesSp)
+    , d_cache(allocator)
+{
+    BSLS_ASSERT(allocator == skipAttributesSp->get_allocator());
+}
+
 // MANIPULATORS
+inline
+void AttributesFormatter::deleteSelf(const bsl::allocator<> allocator)
+{
+    AllocUtil::deleteObject(allocator, this);
+}
+
 int AttributesFormatter::format(baljsn::SimpleFormatter *formatter,
                                 const Record&            record)
 {
@@ -1300,6 +1378,7 @@ int AttributesFormatter::format(baljsn::SimpleFormatter *formatter,
     return 0;
 }
 
+inline
 int AttributesFormatter::parse(bdld::DatumMapRef v)
 {
     (void) v;
@@ -1312,47 +1391,41 @@ int AttributesFormatter::parse(bdld::DatumMapRef v)
                        // -----------------
 
 // CLASS METHODS
-RecordJsonFormatter_FieldFormatter *DatumParser::make(
-                                                   const bslstl::StringRef&  v)
+RecordJsonFormatter_FieldFormatter *
+DatumParser::make(const bslstl::StringRef& v)
 {
     RecordJsonFormatter_FieldFormatter *formatter = 0;
 
     if (k_KEY_TIMESTAMP       == v) {
-        formatter =
-                new (*d_allocator.mechanism()) TimestampFormatter(d_allocator);
+        formatter = AllocUtil::newObject<TimestampFormatter>(d_allocator);
     }
     else if (k_KEY_PROCESS_ID == v) {
-        formatter =
-                new (*d_allocator.mechanism()) ProcessIdFormatter(d_allocator);
+        formatter = AllocUtil::newObject<ProcessIdFormatter>(d_allocator);
     }
     else if (k_KEY_THREAD_ID  == v) {
-        formatter =
-                 new (*d_allocator.mechanism()) ThreadIdFormatter(d_allocator);
+        formatter = AllocUtil::newObject<ThreadIdFormatter>(d_allocator);
     }
     else if (k_KEY_SEVERITY   == v) {
-        formatter =
-                 new (*d_allocator.mechanism()) SeverityFormatter(d_allocator);
+        formatter = AllocUtil::newObject<SeverityFormatter>(d_allocator);
     }
     else if (k_KEY_FILE       == v) {
-        formatter = new (*d_allocator.mechanism()) FileFormatter(d_allocator);
+        formatter = AllocUtil::newObject<FileFormatter>(d_allocator);
     }
     else if (k_KEY_LINE       == v) {
-        formatter = new (*d_allocator.mechanism()) LineFormatter(d_allocator);
+        formatter = AllocUtil::newObject<LineFormatter>(d_allocator);
     }
     else if (k_KEY_CATEGORY   == v) {
-        formatter =
-                 new (*d_allocator.mechanism()) CategoryFormatter(d_allocator);
+        formatter = AllocUtil::newObject<CategoryFormatter>(d_allocator);
     }
     else if (k_KEY_MESSAGE    == v) {
-        formatter =
-                  new (*d_allocator.mechanism()) MessageFormatter(d_allocator);
+        formatter = AllocUtil::newObject<MessageFormatter>(d_allocator);
     }
     else if (k_KEY_ATTRIBUTES == v) {
         if (!d_skipAttributes_sp) {
             d_skipAttributes_sp = bsl::allocate_shared<SkipAttributes>(
                                                                   d_allocator);
         }
-        formatter = new (*d_allocator.mechanism()) AttributesFormatter(
+        formatter = AllocUtil::newObject<AttributesFormatter>(d_allocator,
                                                           d_skipAttributes_sp);
     }
     else {
@@ -1361,10 +1434,9 @@ RecordJsonFormatter_FieldFormatter *DatumParser::make(
                                                                   d_allocator);
         }
 
-        bslma::ManagedPtr<AttributeFormatter> formatter_mp;
-        formatter_mp.load(new (*d_allocator.mechanism())
-                          AttributeFormatter(v, d_allocator),
-                          d_allocator.mechanism());
+        bslma::ManagedPtr<AttributeFormatter> formatter_mp =
+            bslma::ManagedPtrUtil::allocateManaged<AttributeFormatter>(
+                                                   d_allocator.mechanism(), v);
 
         if (d_skipAttributes_sp->end() == d_skipAttributes_sp->find(v)) {
             d_skipAttributes_sp->emplace(formatter_mp->key());
@@ -1479,7 +1551,7 @@ int FormatUtil::formatAttribute(baljsn::SimpleFormatter *formatter,
     return -1;
 }
 
-}  // close unnamed namespace
+}  // close unnamed namespace within BloombergLP::ball
 
                         // -------------------------
                         // class RecordJsonFormatter
@@ -1523,8 +1595,8 @@ int RecordJsonFormatter::setFormat(const bsl::string_view& format)
         return rc;                                                    // RETURN
     }
 
-    DatumParser               parser(allocator());
-    FieldFormatters           formatters(allocator());
+    DatumParser               parser(get_allocator());
+    FieldFormatters           formatters(get_allocator());
     FieldFormattersDestructor destructor(&formatters);
 
     rc = parser.parse(&formatters, datum.datum());

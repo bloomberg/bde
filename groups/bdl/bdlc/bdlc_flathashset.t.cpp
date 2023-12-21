@@ -1326,7 +1326,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing copy 'insert' with hint." << endl;
         {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
             testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
                                                                 true,
                                                                 false,
@@ -1350,34 +1349,8 @@ int main(int argc, char *argv[])
                                                             true,
                                                             true,
                                                             true);
-#else
-            testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
-                                                                true,
-                                                                false,
-                                                                true);
-            testCaseInsert<bsltf::AllocTestType>(2, true, true, true);
-            testCaseInsert<bsltf::BitwiseCopyableTestType>(3,
-                                                           false,
-                                                           false,
-                                                           true);
-            testCaseInsert<bsltf::BitwiseMoveableTestType>(4,
-                                                           false,
-                                                           false,
-                                                           true);
-            testCaseInsert<bsltf::MovableAllocTestType>(5, true, true, true);
-            testCaseInsert<bsltf::MovableTestType>(6, false, false, true);
-            testCaseInsert<bsltf::NonDefaultConstructibleTestType>(7,
-                                                                   false,
-                                                                   false,
-                                                                   true);
-            testCaseInsert<bsltf::NonOptionalAllocTestType>(8,
-                                                            true,
-                                                            true,
-                                                            true);
-#endif
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) cout << "Testing move 'insert' with hint." << endl;
         {
             testCaseInsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
@@ -1413,7 +1386,6 @@ int main(int argc, char *argv[])
                                                                 false,
                                                                 true);
         }
-#endif
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -4144,7 +4116,6 @@ cout << endl
 
         if (verbose) cout << "Testing copy 'insert'." << endl;
         {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
             testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
                                                                 true,
                                                                 false,
@@ -4168,34 +4139,8 @@ cout << endl
                                                             true,
                                                             true,
                                                             false);
-#else
-            testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
-                                                                true,
-                                                                false,
-                                                                false);
-            testCaseInsert<bsltf::AllocTestType>(2, true, true, false);
-            testCaseInsert<bsltf::BitwiseCopyableTestType>(3,
-                                                           false,
-                                                           false,
-                                                           false);
-            testCaseInsert<bsltf::BitwiseMoveableTestType>(4,
-                                                           false,
-                                                           false,
-                                                           false);
-            testCaseInsert<bsltf::MovableAllocTestType>(5, true, true, false);
-            testCaseInsert<bsltf::MovableTestType>(6, false, false, false);
-            testCaseInsert<bsltf::NonDefaultConstructibleTestType>(7,
-                                                                   false,
-                                                                   false,
-                                                                   false);
-            testCaseInsert<bsltf::NonOptionalAllocTestType>(8,
-                                                            true,
-                                                            true,
-                                                            false);
-#endif
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) cout << "Testing move 'insert'." << endl;
         {
             testCaseInsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
@@ -4231,7 +4176,6 @@ cout << endl
                                                                 false,
                                                                 false);
         }
-#endif
 
         if (verbose) cout << "Testing 'erase'." << endl;
         {

@@ -184,8 +184,7 @@ BSLS_IDENT("$Id: $")
 // require calling 'larryObj.get_allocator().mechanism()' instead of
 // 'larryObj.allocator().  By using 'getAdaptedAllocator', the 'setCurly'
 // implementation above is robust in the face of such future evolution.  This
-// benefit is even more important in generic code, especially when *pmr-AA*
-// types are added into the mix in the future.
+// benefit is even more important in generic code.
 //
 ///Example 2: Retrieving a Specific Allocator Type from a Subobject
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -233,17 +232,20 @@ BSLS_IDENT("$Id: $")
 // However, the preceding 'get_allocator' implementation, like the 'setCurly'
 // implementation in the previous example, is more robust because it need not
 // be changed if 'Larry' is changed from *legacy-AA* to *bsl-AA* or if it is
-// replaced by a template parameter that might use either AA model.  When
-// *pmr-AA* is added to the Bloomberg codebase, using the
-// 'getAllocatorFromSubobject' idiom will be vital to recovering 'bsl'
-// allocators stored within *pmr-AA* objects.
+// replaced by a template parameter that might use either AA model or even the
+// *pmr-AA* model.  Using the 'getAllocatorFromSubobject' idiom is, infact,
+// vital to recovering 'bsl' allocators stored within *pmr-AA* objects.
 
 #include <bslscm_version.h>
 
 #include <bslma_aamodel.h>
 #include <bslma_allocatorutil.h>
 
+#include <bslmf_conditional.h>
 #include <bslmf_enableif.h>
+#include <bslmf_isconvertible.h>
+
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 namespace bslma {
@@ -252,9 +254,23 @@ namespace bslma {
                         // struct AATypeUtil
                         // =================
 
-struct AATypeUtil {
+class AATypeUtil {
     // Namespace for utility functions on allocator-aware types
 
+    // PRIVATE CLASS METHODS
+    static bsl::allocator<char>
+    toBslAllocator(bslma::Allocator *allocator);
+    template <class TYPE>
+    static bsl::allocator<char>
+    toBslAllocator(const bsl::allocator<TYPE>& allocator);
+    template <class TYPE>
+    static bsl::allocator<char>
+    toBslAllocator(const bsl::polymorphic_allocator<TYPE>& allocator);
+        // Return the specified 'allocator', converted to 'bsl::allocator'.
+        // The behavior is undefined in the last overload unless the runtime
+        // type of '*allocator.resource()' is derived from 'bslma::Allocator'.
+
+  public:
     // CLASS METHODS
     template <class TYPE>
     static
@@ -269,33 +285,52 @@ struct AATypeUtil {
 
     template <class TYPE>
     static
-    typename bsl::enable_if<AAModel<TYPE>::value != AAModelBsl::value,
+    typename bsl::enable_if<AAModel<TYPE>::value != AAModelLegacy::value &&
+                            AAModel<TYPE>::value != AAModelBsl::value,
                             typename TYPE::allocator_type>::type
     getAdaptedAllocator(const TYPE& object);
-        // Return the allocator held used by the specified 'object'.  This
+        // Return the allocator held by the specified 'object'.  This
         // overload will be selected if 'TYPE' is *pmr-AA* or *stl-AA*.
 
     template <class ALLOCATOR, class TYPE>
-    static
-    ALLOCATOR getAllocatorFromSubobject(const TYPE& object);
-        // Return the allocator for the specified 'object', converted to the
-        // specified 'ALLOCATOR' template argument, which must be explicitly
-        // provided.  This function can recover allocator-type information if
-        // 'TYPE' holds an allocator that is compatible with 'ALLOCATOR', but
-        // is not necessarily directly convertible -- e.g., 'TYPE' is *bsl-AA*
-        // (uses 'bsl::allocator') and 'ALLOCATOR' is 'bslma::Allocator *'.
-        // The behavior is undefined unless 'object' was constructed with an
-        // allocator that is convertible to 'ALLOCATOR' without loss of
-        // information.
+    static typename bsl::enable_if<
+        (bsl::is_convertible<bslma::Allocator *, ALLOCATOR>::value &&
+         bslma::AAModelIsSupported<TYPE, bslma::AAModelLegacy>::value),
+        ALLOCATOR>::type
+    getAllocatorFromSubobject(const TYPE& object);
+    template <class ALLOCATOR, class TYPE>
+    static typename bsl::enable_if<
+        ! (bsl::is_convertible<bslma::Allocator *, ALLOCATOR>::value &&
+           bslma::AAModelIsSupported<TYPE, bslma::AAModelLegacy>::value),
+        ALLOCATOR>::type
+    getAllocatorFromSubobject(const TYPE& object);
+        // Return an object of the explicitly specified 'ALLOCATOR' type
+        // representing the same resource as the allocator for the specified
+        // 'object'.  This function can recover allocator type information when
+        // an 'ALLOCATOR' object is used to construct a 'TYPE' object that
+        // holds an allocator type compatible with, but not necessarily
+        // directly convertible to, 'ALLOCATOR' -- e.g., when 'TYPE' is
+        // *pmr-AA* and 'ALLOCATOR' is 'bsl::allocator<int>' -- in which case
+        // this function reverses the implicit conversion from 'ALLOCATOR' that
+        // occured when 'object' was originally constructed.  When 'TYPE' is
+        // *stl-AA* or 'ALLOCATOR' is not constructible from 'bsl::Allocator
+        // *', this function simply constructs 'ALLOCATOR', from 'object''s
+        // allocator, if such an explicit conversion is valid; otherwise the
+        // call is ill-formed.  The behavior is undefined unless 'object' was
+        // originally constructed with an allocator of type 'ALLOCATOR'.
 
     template <class TYPE>
-    static bsl::allocator<char> getBslAllocator(const TYPE& object);
+    static
+    typename bsl::enable_if<AAModelIsSupported<TYPE, AAModelLegacy>::value,
+                            bsl::allocator<char> >::type
+    getBslAllocator(const TYPE& object);
         // Return the allocator for the specified 'object', converted to
-        // 'bsl::allocator<char>'.  Instantiation will fail unless 'TYPE' is
-        // allocator-aware and has an allocator *type* that is statically
-        // convertible to 'bsl::allocator'.  The behavior is undefined unless
-        // 'object' was constructed with an allocator *value* that is
-        // dynamically convertible to a valid 'bsl::allocator'.
+        // 'bsl::allocator<char>'.  This function will not participate in
+        // overload resolution unless 'TYPE' is *pmr-AA*, *bsl-AA*, or
+        // *legacy-AA*.  In the case of a *pmr-AA* 'TYPE', the behavior is
+        // undefined unless 'object' was originally constructed constructed
+        // with an allocator *value* holding a pointer to a 'memory_resource'
+        // whose dynamic type is derived from 'bslma::Allocator'.
 
     template <class TYPE>
     static
@@ -311,12 +346,31 @@ struct AATypeUtil {
 
     template <class TYPE>
     static
-    typename TYPE::allocator_type getNativeAllocator(const TYPE& object);
+    typename bsl::enable_if<HasAllocatorType<TYPE>::value,
+                            typename TYPE::allocator_type>::type
+    getNativeAllocator(const TYPE& object);
         // Return the allocator used by the specified AA 'object'.  This
         // function does not participate in overload resolution unless 'TYPE'
         // has an 'allocator_type' member.  Note that instantiation will fail
         // unless 'object.get_allocator()' is well formed and returns a type
         // convertible to 'TYPE::allocator_type'.
+
+    template <class TYPE>
+    static
+    typename bsl::enable_if<AAModel<TYPE>::value == AAModelNone::value,
+                            bool>::type
+    haveEqualAllocators(const TYPE& a, const TYPE& b);
+    template <class TYPE>
+    static
+    typename bsl::enable_if<AAModel<TYPE>::value != AAModelNone::value,
+                            bool>::type
+    haveEqualAllocators(const TYPE& a, const TYPE& b);
+        // Return 'true' if (a) 'TYPE' *is* AA and the allocators used by the
+        // specified 'a' and 'b' compare equal or (b) template parameter 'TYPE'
+        // is *not* AA; otherwise return 'false'.  Note that if 'TYPE' is AA,
+        // instantiation will fail unless the appropriate allocator accessor is
+        // well-formed, i.e. 'object.allocator()' if 'TYPE' is *legacy-AA* and
+        // 'object.get_allocator()' otherwise.
 };
 
 }  // close package namespace
@@ -326,6 +380,29 @@ struct AATypeUtil {
 // ============================================================================
 
 namespace bslma {
+
+// PRIVATE CLASS METHODS
+inline bsl::allocator<char>
+AATypeUtil::toBslAllocator(bslma::Allocator *allocator)
+{
+    return allocator;
+}
+
+template <class TYPE>
+inline bsl::allocator<char>
+AATypeUtil::toBslAllocator(const bsl::allocator<TYPE>& allocator)
+{
+    return allocator;
+}
+
+template <class TYPE>
+inline bsl::allocator<char>
+AATypeUtil::toBslAllocator(const bsl::polymorphic_allocator<TYPE>& allocator)
+{
+    bsl::memory_resource *resource_p = allocator.resource();
+    BSLS_ASSERT(0 != dynamic_cast<bslma::Allocator *>(resource_p));
+    return static_cast<bslma::Allocator *>(resource_p);
+}
 
 // CLASS METHODS
 template <class TYPE>
@@ -340,29 +417,58 @@ AATypeUtil::getAdaptedAllocator(const TYPE& object)
 
 template <class TYPE>
 inline
-typename bsl::enable_if<AAModel<TYPE>::value != AAModelBsl::value,
+typename bsl::enable_if<AAModel<TYPE>::value != AAModelLegacy::value &&
+                        AAModel<TYPE>::value != AAModelBsl::value,
                         typename TYPE::allocator_type>::type
 AATypeUtil::getAdaptedAllocator(const TYPE& object)
 {
     return AllocatorUtil::adapt(getNativeAllocator(object));
 }
 
+// ALLOCATOR AND TYPE ARE IN THE BSL/PMR UNIVERSE
 template <class ALLOCATOR, class TYPE>
-inline
-ALLOCATOR AATypeUtil::getAllocatorFromSubobject(const TYPE& object)
+inline typename bsl::enable_if<
+    (bsl::is_convertible<bslma::Allocator *, ALLOCATOR>::value &&
+     bslma::AAModelIsSupported<TYPE, bslma::AAModelLegacy>::value),
+    ALLOCATOR>::type
+AATypeUtil::getAllocatorFromSubobject(const TYPE& object)
 {
-    return static_cast<ALLOCATOR>(
-                             AllocatorUtil::adapt(getNativeAllocator(object)));
+    // 'bsl::polymorphic_allocator' can be constructed from itself,
+    // 'bsl::allocator', or 'bslma::Allocator *', so it the universal
+    // recepient.
+    bsl::polymorphic_allocator<char> pmrAlloc(getNativeAllocator(object));
+
+    // If 'ALLOCATOR' is convertible from 'bslma::memory_resource *', then we
+    // will use the memory resource unchanged as the constructor argument for
+    // the return value; otherwise, we will need to cast the resource pointer
+    // to 'bslma::Allocator *' before using it as the constructor argument.
+    typedef typename bsl::conditional<
+        bsl::is_convertible<bsl::memory_resource *, ALLOCATOR>::value,
+        bsl::memory_resource *, bslma::Allocator *>::type CtorArgType;
+
+    // Cast the resource pointer to the correct constructor argument and use
+    // the result to construct the return value.
+    return ALLOCATOR(static_cast<CtorArgType>(pmrAlloc.resource()));
+}
+
+// ALLOCATOR OR TYPE ARE NOT IN THE BSL/PMR UNIVERSE
+template <class ALLOCATOR, class TYPE>
+inline typename bsl::enable_if<
+    ! (bsl::is_convertible<bslma::Allocator *, ALLOCATOR>::value &&
+       bslma::AAModelIsSupported<TYPE, bslma::AAModelLegacy>::value),
+    ALLOCATOR>::type
+AATypeUtil::getAllocatorFromSubobject(const TYPE& object)
+{
+    return ALLOCATOR(getNativeAllocator(object));
 }
 
 template <class TYPE>
 inline
-bsl::allocator<char> AATypeUtil::getBslAllocator(const TYPE& object)
+typename bsl::enable_if<AAModelIsSupported<TYPE, AAModelLegacy>::value,
+                        bsl::allocator<char> >::type
+AATypeUtil::getBslAllocator(const TYPE& object)
 {
-    // TBD: When 'bsl::polymorphic_allocator' is introduced, add defensive
-    // checks that 'object.get_allocator().resource()' can be dynamically
-    // cast to 'bslma::Allocator *'.
-    return static_cast<bsl::allocator<char> >(getNativeAllocator(object));
+    return toBslAllocator(getNativeAllocator(object));
 }
 
 template <class TYPE>
@@ -376,10 +482,29 @@ AATypeUtil::getNativeAllocator(const TYPE& object)
 
 template <class TYPE>
 inline
-typename TYPE::allocator_type
+typename bsl::enable_if<HasAllocatorType<TYPE>::value,
+                        typename TYPE::allocator_type>::type
 AATypeUtil::getNativeAllocator(const TYPE& object)
 {
     return object.get_allocator();
+}
+
+template <class TYPE>
+inline
+typename bsl::enable_if<AAModel<TYPE>::value == AAModelNone::value,
+                        bool>::type
+AATypeUtil::haveEqualAllocators(const TYPE&, const TYPE&)
+{
+    return true;
+}
+
+template <class TYPE>
+inline
+typename bsl::enable_if<AAModel<TYPE>::value != AAModelNone::value,
+                        bool>::type
+AATypeUtil::haveEqualAllocators(const TYPE& a, const TYPE& b)
+{
+    return getNativeAllocator(a) == getNativeAllocator(b);
 }
 
 }  // close package namespace

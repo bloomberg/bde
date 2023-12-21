@@ -5,6 +5,8 @@ bsltf_alloctesttype
 bsltf_argumenttype
 bsltf_bitwisecopyabletesttype
 bsltf_bitwisemoveabletesttype
+bsltf_copymovestate
+bsltf_copymovetracker
 bsltf_convertiblevaluewrapper
 bsltf_degeneratefunctor
 bsltf_emplacabletesttype

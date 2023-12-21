@@ -6,6 +6,7 @@ bsl_iterator.h
 bsl_list.h
 bsl_map.h
 bsl_memory.h
+bsl_memory_resource.h
 bsl_queue.h
 bsl_set.h
 bsl_sstream.h

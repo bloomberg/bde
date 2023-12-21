@@ -7803,13 +7803,13 @@ int main(int argc, char *argv[])
         // TESTING 'TYPE' IS ALLOCATOR
         //
         // Concerns:
-        //: 1 That the type under test can copy or move construct or assign
+        //: 1 That the type under test can copy or move construct
         //:   when 'TYPE' is 'bsl::allocator'.
         //:
         //: 2 That the type under test can copy or move construct or assign
         //:   when 'TYPE' is 'bslma::Allocator *'.
         //:
-        //: 3 That the type under test can copy construct or assign when the
+        //: 3 That the type under test can copy construct when the
         //:   'TYPE' of the 'from' is 'bslma::Allocator *' and the 'TYPE' of
         //:   the 'to' is 'bsl::allocator'.
         //
@@ -7820,9 +7820,9 @@ int main(int argc, char *argv[])
         //:
         //:   o move construct
         //:
-        //:   o copy assign
+        //:   o copy assign (for 'bslma::Allocator *')
         //:
-        //:   o move assign
+        //:   o move assign (for 'bslma::Allocator *')
         //:
         //: 2 Test, going from 'bsl::optional' to 'NullableValue', for both
         //:   'TYPE == bsl::allocator' && 'TYPE == bslma::Allocator *',
@@ -7830,9 +7830,9 @@ int main(int argc, char *argv[])
         //:
         //:   o move construct
         //:
-        //:   o copy assign
+        //:   o copy assign (for 'bslma::Allocator *')
         //:
-        //:   o move assign
+        //:   o move assign (for 'bslma::Allocator *')
         //
         // Testing:
         //   TESTING 'TYPE' IS ALLOCATOR
@@ -7913,17 +7913,9 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            NVAlloc       raa(aa);     const NVAlloc& RAA  = raa;
-            NVAlloc       nvAA(ua);    const NVAlloc& NVAA = nvAA;
-            NVAlloc      *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = RAA);
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(RAA ->mechanism() == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
+            // Note: do not test assignment to
+            // 'NullableValue<bsl::allocator<char>>', because
+            // 'bsl::allocator<char>' is not assignable.
 
             NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP  = raap;
             NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr& NVAAP = nvAAP;
@@ -7943,17 +7935,9 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            NVAlloc       raa(aa);     const NVAlloc& RAA  = raa;
-            NVAlloc       nvAA(ua);    const NVAlloc& NVAA = nvAA;
-            NVAlloc      *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = MoveUtil::move(raa));
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(RAA ->mechanism() == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
+            // Note: do not test assignment to
+            // 'NullableValue<bsl::allocator<char>>', because
+            // 'bsl::allocator<char>' is not assignable.
 
             NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP  = raap;
             NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr& NVAAP = nvAAP;
@@ -8010,17 +7994,9 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAlloc      oaa(aa);     const OptAlloc& OAA = oaa;
-            NVAlloc       nvAA(ua);    const NVAlloc&  NVAA = nvAA;
-            NVAlloc      *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = OAA);
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(OAA ->mechanism() == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
+            // Note: do not test assignment to
+            // 'NullableValue<bsl::allocator<char>>', because
+            // 'bsl::allocator<char>' is not assignable.
 
             OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
             NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&  NVAAP = nvAAP;
@@ -8040,17 +8016,9 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAlloc      oaa(aa);     const OptAlloc& OAA = oaa;
-            NVAlloc       nvAA(ua);    const NVAlloc&  NVAA = nvAA;
-            NVAlloc      *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = MoveUtil::move(oaa));
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(OAA ->mechanism() == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
+            // Note: do not test assignment to
+            // 'NullableValue<bsl::allocator<char>>', because
+            // 'bsl::allocator<char>' is not assignable.
 
             OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
             NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&  NVAAP = nvAAP;
@@ -8092,43 +8060,9 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        if (verbose) cout << "Copy assign NV from NV diff\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
-            NVAlloc          nvAA(ua);      const NVAlloc& NVAA    = nvAA;
-            NVAlloc         *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = RAAP);
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(*RAAP  == &taa);
-            ASSERT(NVAA->mechanism() == &taa);
-        }
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        if (verbose) cout << "Move assign NV from NV diff\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
-            NVAlloc          nvAA(ua);      const NVAlloc& NVAA    = nvAA;
-            NVAlloc         *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = MoveUtil::move(raap));
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(*RAAP  == &taa);
-            ASSERT(NVAA->mechanism() == &taa);
-        }
-#endif
+        // Note: Do not test assignment to
+        // 'NullableValue<bsl::allocator<char>>', because
+        // 'bsl::allocator<char>' is not assignable.
 
         if (verbose) cout << "Copy construct NV from Opt diff\n";
         {
@@ -8157,43 +8091,9 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        if (verbose) cout << "Copy assign NV from Opt diff\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
-            NVAlloc          nvAA(ua);      const NVAlloc&     NVAA = nvAA;
-            NVAlloc         *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = OAAP);
-
-            ASSERT(&NVAA             == z_p);
-            ASSERT(*OAAP             == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
-        }
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        if (verbose) cout << "Move assign NV from Opt diff\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
-            NVAlloc          nvAA(ua);      const NVAlloc&     NVAA = nvAA;
-            NVAlloc         *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = MoveUtil::move(oaap));
-
-            ASSERT(&NVAA             == z_p);
-            ASSERT(*OAAP             == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
-        }
-#endif
+        // Note: do not test assignment to
+        // 'NullableValue<bsl::allocator<char>>', because
+        // 'bsl::allocator<char>' is not assignable.
 
         {
             TestAlloc taa;
@@ -8298,65 +8198,9 @@ int main(int argc, char *argv[])
             ASSERT(***nvOOAAPP == &taa);
         }
 
-        if (verbose) cout << "Copy assign NV from Opt\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            OptAlloc      oaa(aa);     const OptAlloc& OAA = oaa;
-            NVAlloc       nvAA(ua);    const NVAlloc&  NVAA = nvAA;
-            NVAlloc      *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = OAA);
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(OAA ->mechanism() == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
-
-            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
-            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&  NVAAP = nvAAP;
-            NVAllocPtr      *zp_p = 0;
-
-            ASSERT(*nvAAP == &uaa);
-
-            zp_p = &(nvAAP = OAAP);
-
-            ASSERT(&NVAAP == zp_p);
-            ASSERT(*OAAP  == &taa);
-            ASSERT(*nvAAP == &taa);
-        }
-
-        if (verbose) cout << "Move assign NV from Opt\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            OptAlloc      oaa(aa);     const OptAlloc& OAA = oaa;
-            NVAlloc       nvAA(ua);    const NVAlloc&  NVAA = nvAA;
-            NVAlloc      *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = MoveUtil::move(oaa));
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(OAA ->mechanism() == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
-
-            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
-            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&  NVAAP = nvAAP;
-            NVAllocPtr      *zp_p = 0;
-
-            ASSERT(*nvAAP == &uaa);
-
-            zp_p = &(nvAAP = MoveUtil::move(oaap));
-
-            ASSERT(&NVAAP == zp_p);
-            ASSERT(*OAAP  == &taa);
-            ASSERT(*nvAAP == &taa);
-        }
+        // Note: do not test assignment to
+        // 'NullableValue<bsl::allocator<char>>', because
+        // 'bsl::allocator<char>' is not assignable.
 
         if (verbose) cout << "Copy construct NV from NV diff\n";
         {
@@ -8385,43 +8229,9 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        if (verbose) cout << "Copy assign NV from NV diff\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
-            NVAlloc          nvAA(ua);      const NVAlloc& NVAA    = nvAA;
-            NVAlloc         *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = RAAP);
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(*RAAP  == &taa);
-            ASSERT(NVAA->mechanism() == &taa);
-        }
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        if (verbose) cout << "Move assign NV from NV diff\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
-            NVAlloc          nvAA(ua);      const NVAlloc& NVAA    = nvAA;
-            NVAlloc         *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = MoveUtil::move(raap));
-
-            ASSERT(&NVAA == z_p);
-            ASSERT(*RAAP  == &taa);
-            ASSERT(NVAA->mechanism() == &taa);
-        }
-#endif
+        // Note: do not test assignment to
+        // 'NullableValue<bsl::allocator<char>>', because
+        // 'bsl::allocator<char>' is not assignable.
 
         if (verbose) cout << "Copy construct NV from Opt diff\n";
         {
@@ -8450,73 +8260,13 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        if (verbose) cout << "Copy assign NV from Opt diff\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
-            NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
-            NVAlloc         *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = OAAP);
-
-            ASSERT(&NVAA             == z_p);
-            ASSERT(*OAAP             == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
-        }
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        if (verbose) cout << "Move assign NV from Opt diff\n";
-        {
-            TestAlloc taa, uaa;
-            Alloc     aa(&taa), ua(&uaa);
-
-            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
-            NVAlloc          nvAA(ua);      const NVAlloc&     NVAA = nvAA;
-            NVAlloc         *z_p = 0;
-
-            ASSERT(nvAA->mechanism() == &uaa);
-
-            z_p = &(nvAA = MoveUtil::move(oaap));
-
-            ASSERT(&NVAA             == z_p);
-            ASSERT(*OAAP             == &taa);
-            ASSERT(nvAA->mechanism() == &taa);
-        }
-#endif
-
         if (verbose) cout << "Copy assign NV from OptOpt\n";
         {
-            TestAlloc taa, txx;
-            Alloc     aa(&taa), xx(&txx);
+            // Note: do not test assignment to
+            // 'NullableValue<bsl::allocator<char>>', because
+            // 'bsl::allocator<char>' is not assignable.
 
-            OptAlloc                 oaa(aa);
-            const OptAlloc&          OAA = oaa;
-
-            OptOptAlloc              ooaa(OAA);
-            const OptOptAlloc&       OOAA = ooaa;
-
-            OptAlloc                 oxx(xx);
-            const OptAlloc&          OXX = oxx;
-
-            OptOptAlloc              ooxx(OXX);
-            const OptOptAlloc&       OOXX = ooxx;
-
-            NVOptOptAlloc            nvOOAA(OOAA);
-            const NVOptOptAlloc      nvOOXX(OOXX);
-
-            ASSERT((*OOAA)   ->mechanism() == &taa);
-            ASSERT((**nvOOAA)->mechanism() == &taa);
-            ASSERT((**nvOOXX)->mechanism() == &txx);
-
-            NVOptOptAlloc* p_z = &(nvOOAA = nvOOXX);
-
-            ASSERT(&nvOOAA == p_z);
-            ASSERT((**nvOOAA)->mechanism() == &txx);
-            ASSERT((**nvOOXX)->mechanism() == &txx);
+            TestAlloc                   taa, txx;
 
             OptAllocPtr                 oaap(&taa);
             const OptAllocPtr&          OAAP = oaap;
@@ -8538,7 +8288,6 @@ int main(int argc, char *argv[])
             ASSERT(***nvOOXXP == &txx);
 
             NVOptOptAllocPtr* p_zp = &(nvOOAAP = OOXXP);
-
             ASSERT(&nvOOAAP == p_zp);
             ASSERT(***nvOOAAP == &txx);
             ASSERT(***nvOOXXP == &txx);
@@ -8546,33 +8295,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Move assign NV from OptOpt\n";
         {
-            TestAlloc taa, txx;
-            Alloc     aa(&taa), xx(&txx);
-
-            OptAlloc                 oaa(aa);
-            const OptAlloc&          OAA = oaa;
-
-            OptOptAlloc              ooaa(OAA);
-            const OptOptAlloc&       OOAA = ooaa;
-
-            OptAlloc                 oxx(xx);
-            const OptAlloc&          OXX = oxx;
-
-            OptOptAlloc              ooxx(OXX);
-            const OptOptAlloc&       OOXX = ooxx;
-
-            NVOptOptAlloc            nvOOAA(OOAA);
-            NVOptOptAlloc            nvOOXX(OOXX);
-
-            ASSERT((*OOAA)   ->mechanism() == &taa);
-            ASSERT((**nvOOAA)->mechanism() == &taa);
-            ASSERT((**nvOOXX)->mechanism() == &txx);
-
-            NVOptOptAlloc* p_z = &(nvOOAA = MoveUtil::move(nvOOXX));
-
-            ASSERT(&nvOOAA == p_z);
-            ASSERT((**nvOOAA)->mechanism() == &txx);
-            ASSERT((**nvOOXX)->mechanism() == &txx);
+            TestAlloc                   taa, txx;
 
             OptAllocPtr                 oaap(&taa);
             const OptAllocPtr&          OAAP = oaap;
@@ -8593,12 +8316,13 @@ int main(int argc, char *argv[])
             ASSERT(***nvOOAAP == &taa);
             ASSERT(***nvOOXXP == &txx);
 
-            NVOptOptAllocPtr* p_zp = &(nvOOAAP =MoveUtil::move(nvOOXXP));
+            NVOptOptAllocPtr* p_zp = &(nvOOAAP = MoveUtil::move(nvOOXXP));
 
             ASSERT(&nvOOAAP == p_zp);
             ASSERT(***nvOOAAP == &txx);
             ASSERT(***nvOOXXP == &txx);
         }
+
       } break;
       case 31: {
         // --------------------------------------------------------------------
@@ -10557,7 +10281,7 @@ int main(int argc, char *argv[])
             const Obj& Z = mZ;
 
             ASSERT(!Z.isNull());
-            ASSERT(Z.value().allocator() == &ta);
+            ASSERT(Z.value().get_allocator() == &ta);
 
             mZ = bsl::nullopt;
             ASSERT(Z.isNull());
@@ -10566,7 +10290,7 @@ int main(int argc, char *argv[])
                   "Big string literals still evade short string optimization");
 
             ASSERT(!Z.isNull());
-            ASSERT(Z.value().allocator() == &ta);
+            ASSERT(Z.value().get_allocator() == &ta);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
             ASSERTV( noexcept(  mY = bsl::nullopt      ) );

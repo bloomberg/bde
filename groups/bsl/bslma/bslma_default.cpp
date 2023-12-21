@@ -4,7 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslma_allocator.h>            // for testing only
 #include <bsls_assert.h>
 
 namespace BloombergLP {
@@ -66,10 +65,17 @@ Allocator *Default::determineAndReturnDefaultAllocator()
         // one to assign it the 'requested' value, so use that.  Otherwise we
         // use whatever was returned in 'installed'.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        // We have just installed and locked the default allocator.  Ensure
+        // that the default resource is the same as the default allocator.
+        std::pmr::set_default_resource(
+            static_cast<bsl::memory_resource *>(requested));
+#endif
+
         installed = requested;
     }
 
-    // The reverse cast: go from void to the base protocol.
+    // The reverse cast: go from 'void' pointer to the base protocol pointer.
 
     return static_cast<Allocator *>(installed);
 }
@@ -87,20 +93,25 @@ int Default::setDefaultAllocator(Allocator *basicAllocator)
                                                   basicAllocator);
 
     // If nothing was previously requested we've successfully placed a request.
+    // Otherwise, we check for the installed default allocator being '0' where
+    // this value is recent as of our read-modify-write above.  If nothing has
+    // been installed yet we conclude success.  When the default allocator is
+    // first requested our write to 's_requestedDefaultAllocator' will be
+    // honored.  This could only fail when the request for the default
+    // allocator runs concurrently to this code, but this would be out of
+    // contract and we just take our best guess.
 
-    if (previouslyRequested == 0) {
-        return 0;                                                     // RETURN
-    }
+    if (previouslyRequested == 0 ||
+        !bsls::AtomicOperations::getPtr(&s_defaultAllocator)) {
 
-    // We check for the installed default allocator being '0' where this value
-    // is recent as of our read-modify-write above.  If nothing has been
-    // installed yet we conclude success.  When the default allocator is first
-    // requested our write to 's_requestedDefaultAllocator' will be honored.
-    // This could only fail when the request for the default allocator runs
-    // concurrently to this code, but this would be out of contract and we just
-    // take our best guess.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        // The default resource tracks the default allocator.  Note that,
+        // unlike the default allocator, the default resource can be queried
+        // without locking it.
+        std::pmr::set_default_resource(
+            static_cast<bsl::memory_resource *>(basicAllocator));
+#endif
 
-    if (!bsls::AtomicOperations::getPtr(&s_defaultAllocator)) {
         return 0;                                                     // RETURN
     }
 
@@ -112,6 +123,10 @@ void Default::setDefaultAllocatorRaw(Allocator *basicAllocator)
     BSLS_ASSERT(0 != basicAllocator);
 
     bsls::AtomicOperations::setPtr(&s_defaultAllocator, basicAllocator);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    // Ensure that the default resource is the same as the default allocator.
+    std::pmr::set_default_resource(basicAllocator);
+#endif
 }
 
                         // *** global allocator ***
@@ -125,6 +140,29 @@ Allocator *Default::setGlobalAllocator(Allocator *basicAllocator)
     return previous ? previous
                     : &NewDeleteAllocator::singleton();
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+
+Default_NewDeleteSetter::Default_NewDeleteSetter()
+{
+    namespace pmr = std::pmr;
+
+    static bool done = false;
+
+    if (! done) {
+        if (pmr::get_default_resource() == pmr::new_delete_resource()) {
+            // Default resource has not been set (or has been set to its
+            // default).  Replace the 'new_delete_resource' with
+            // 'NewDeleteAllocator' so as to be compatible with
+            // 'bsl::allocator'.
+            pmr::set_default_resource(&bslma::NewDeleteAllocator::singleton());
+        }
+
+        done = true;
+    }
+}
+
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
 }  // close package namespace
 
@@ -145,4 +183,3 @@ Allocator *Default::setGlobalAllocator(Allocator *basicAllocator)
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

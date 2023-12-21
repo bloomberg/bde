@@ -266,10 +266,10 @@ struct DefaultZoneinfoCache {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     static void loadDefaultZoneinfoDataLocations(
                                     std::pmr::vector<const char *> *locations);
+#endif
         // Load into the specified 'locations', the sequence of null
         // terminated C-style strings that characterizes the default paths for
         // Zoneinfo data, accessed by this class, on this platform.
-#endif
 
     static ZoneinfoCache *setDefaultCache(ZoneinfoCache *cache);
         // Set the address of the default 'ZoneinfoCache' object to the

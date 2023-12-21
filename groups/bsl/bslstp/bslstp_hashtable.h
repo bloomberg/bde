@@ -52,8 +52,7 @@
 #include <bslstp_iterator.h> // const and nonconst traits for iterator
 #include <bslstp_util.h>
 
-#include <bslalg_scalarprimitives.h>
-
+#include <bslma_constructionutil.h>
 #include <bslma_destructionutil.h>
 
 #include <bsls_exceptionutil.h>
@@ -244,7 +243,7 @@ public:
   typedef typename _Alloc_traits<_Val,_All>::allocator_type allocator_type;
   allocator_type get_allocator() const {
     //return _STLP_CONVERT_ALLOCATOR((const _M_node_allocator_type&)_M_num_elements, _Val).allocator();
-    return (const _M_node_allocator_type&)(_M_num_elements.allocator());
+    return (const _M_node_allocator_type&)(_M_num_elements.get_allocator());
   }
 private:
   hasher                _M_hash;
@@ -548,17 +547,17 @@ private:
 
   _Node* _M_new_node(const value_type& __obj)
   {
-    _Node* __n = _M_num_elements.allocate(1);
+    _Node* __n = _M_num_elements.allocatorRef().allocate(1);
     __n->_M_next = 0;
     BSLS_TRY {
-      BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+      BloombergLP::bslma::ConstructionUtil::construct(
                                              BSLS_UTIL_ADDRESSOF(__n->_M_val),
-                                             __obj,
-                                             _M_num_elements.bslmaAllocator());
+                                             _M_num_elements.get_allocator(),
+                                             __obj);
     }
     BSLS_CATCH(...)
     {
-        (_M_num_elements.deallocate(__n, 1));
+        (_M_num_elements.allocatorRef().deallocate(__n, 1));
         BSLS_RETHROW;
     }
     return __n;
@@ -568,7 +567,7 @@ private:
   {
     BloombergLP::bslma::DestructionUtil::destroy(
                                              BSLS_UTIL_ADDRESSOF(__n->_M_val));
-    _M_num_elements.deallocate(__n, 1);
+    _M_num_elements.allocatorRef().deallocate(__n, 1);
   }
 
   void _M_erase_bucket(const size_type __n, _Node* __first, _Node* __last);

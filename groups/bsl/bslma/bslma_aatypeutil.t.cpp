@@ -2,6 +2,7 @@
 
 #include <bslma_aatypeutil.h>
 
+#include <bslma_isstdallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
@@ -43,12 +44,13 @@ using namespace BloombergLP;
 // [ 5] ALLOCATOR getAllocatorFromSubobject(const TYPE&)
 // [ 2] bslma::Allocator *getAdaptedAllocator(const TYPE&)
 // [ 2] TYPE::allocator_type getAdaptedAllocator(const TYPE&)
+// [ 6] bool haveEqualAllocators(const TYPE&, const TYPE&)
 // [ 3] bslma::Allocator *getNativeAllocator(const TYPE&)
 // [ 3] TYPE::allocator_type getNativeAllocator(const TYPE&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [-1] NEGATIVE COMPILATION TESTS
-// [ 6] USAGE EXAMPLES
+// [ 7] USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -115,6 +117,8 @@ int veryVeryVeryVerbose = 0; // For test allocators
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+typedef bslma::AATypeUtil Util;
 
 class NonAAClass { };
 
@@ -184,24 +188,23 @@ struct BslLegacyAAClass {
     bslma::Allocator *allocator()     const { return d_legacyAllocator_p; }
 };
 
-// FUTURE:
-// class PmrAAClass {
-//     // Class meeting minimal requirement for detection as *pmr-AA*.
-//
-//     // DATA
-//     bsl::polymorphic_allocator<int> d_allocator;
-//
-//   public:
-//     // TYPES
-//     typedef bsl::polymorphic_allocator<int> allocator_type;
-//
-//     // CREATORS
-//     explicit PmrAAClass(const allocator_type& allocator)
-//         : d_allocator(allocator) { }
-//
-//     // ACCESSORS
-//     allocator_type get_allocator() const { return d_allocator; }
-// };
+class PmrAAClass {
+    // Class meeting minimal requirement for detection as *pmr-AA*.
+
+    // DATA
+    bsl::polymorphic_allocator<int> d_allocator;
+
+   public:
+     // TYPES
+     typedef bsl::polymorphic_allocator<int> allocator_type;
+
+    // CREATORS
+    explicit PmrAAClass(const allocator_type& allocator)
+        : d_allocator(allocator) { }
+
+    // ACCESSORS
+    allocator_type get_allocator() const { return d_allocator; }
+};
 
 template <class TYPE>
 class StlAllocator
@@ -213,6 +216,9 @@ class StlAllocator
     int d_id;  // Arbitrary state to distinguish instances from one another
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StlAllocator, bslma::IsStdAllocator);
+
     // TYPES
     typedef TYPE value_type;
 
@@ -267,6 +273,10 @@ class BslCompatibleAllocator {
     bsl::allocator<char> d_imp;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(BslCompatibleAllocator,
+                                   bslma::IsStdAllocator);
+
     // TYPES
     typedef TYPE value_type;
 
@@ -275,6 +285,11 @@ class BslCompatibleAllocator {
         // Construct 'BslCompatibleAllocator' holding the specified 'imp'
         // allocator.
         : d_imp(imp) { }
+
+    BslCompatibleAllocator(bslma::Allocator *basicAllocator)        // IMPLICIT
+        // Construct 'BslCompatibleAllocator' holding the specified
+        // 'basicAllocator'.
+        : d_imp(basicAllocator) { }
 
     // MANIPULATORS
     TYPE *allocate(std::size_t);
@@ -312,12 +327,11 @@ int allocatorModel(const bsl::allocator<TYPE>&)
     return bslma::AAModelBsl::value;
 }
 
-// FUTURE:
-// template <class TYPE>
-// int allocatorModel(const bsl::polymorphic_allocator<TYPE>&)
-// {
-//     return bslma::AAModelPmr::value;
-// }
+template <class TYPE>
+int allocatorModel(const bsl::polymorphic_allocator<TYPE>&)
+{
+    return bslma::AAModelPmr::value;
+}
 
 template <class TYPE>
 int allocatorModel(const StlAllocator<TYPE>&)
@@ -491,8 +505,7 @@ namespace {
 // require calling 'larryObj.get_allocator().mechanism()' instead of
 // 'larryObj.allocator().  By using 'getAdaptedAllocator', the 'setCurly'
 // implementation above is robust in the face of such future evolution.  This
-// benefit is even more important in generic code, especially when *pmr-AA*
-// types are added into the mix in the future.
+// benefit is even more important in generic code.
 //
 ///Example 2: Retrieving a Specific Allocator Type from a Subobject
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -540,10 +553,9 @@ namespace {
 // However, the preceding 'get_allocator' implementation, like the 'setCurly'
 // implementation in the previous example, is more robust because it need not
 // be changed if 'Larry' is changed from *legacy-AA* to *bsl-AA* or if it is
-// replaced by a template parameter that might use either AA model.  When
-// *pmr-AA* is added to the Bloomberg codebase, using the
-// 'getAllocatorFromSubobject' idiom will be vital to recovering 'bsl'
-// allocators stored within *pmr-AA* objects.
+// replaced by a template parameter that might use either AA model or even the
+// *pmr-AA* model.  Using the 'getAllocatorFromSubobject' idiom is, infact,
+// vital to recovering 'bsl' allocators stored within *pmr-AA* objects.
 
 }  // close unnamed namespace
 
@@ -562,7 +574,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -586,6 +598,88 @@ int main(int argc, char *argv[])
 
       } break;
 
+      case 6: {
+        // --------------------------------------------------------------------
+        // 'haveEqualAllocators'
+        //
+        // Concerns:
+        //: 1 For two objects of the same non-AA type, 'haveEqualAllocators'
+        //:   returns 'true'.
+        //: 2 For two objects of the same *legacy-AA* type,
+        //:   'haveEqualAllocators' returns 'true' if they were constructed
+        //:   with the same 'bslma::Allocator' address and 'false' otherwise.
+        //: 3 For two objects of the same *pmr-AA*, *bsl-AA*, or *stl-AA* type,
+        //:   'haveEqualAllocators' returns 'true' if they were constructed
+        //:   with allocators that compare equal and 'false' if they were
+        //:   constructed with allocators that do not compare equal.
+        //
+        // Plan:
+        //: 1 Construct several pairs of objects of non-AA type and verify that
+        //:   'haveEqualAllocators' returns 'true' for each pair, regardless of
+        //:   value.  (C-1)
+        //: 2 Construct two 'bslma::TestAllocator' objects.  Construct three
+        //:   *legacy-AA* objects, two using the address of the first test
+        //:   allocator and one using the address of the second test
+        //:   allocator.  Verify that 'haveEqualAllocators' returns 'true' for
+        //:   the first two objects and 'false' for either of the first two
+        //:   objects and the third object.  (C-2)
+        //: 3 For a representative sample of *pmr-AA*, *bsl-AA*, and *stl-AA*
+        //:   objects, repreat step two except with the appropriate allocator
+        //:   type for each pair of AA objects.  (C-3)
+        //
+        // TESTING
+        //      bool haveEqualAllocators(const TYPE&, const TYPE&)
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'haveEqualAllocators'"
+                            "\n=====================\n");
+
+        bslma::TestAllocator ta1, ta2;
+
+        // Step 1: non-AA types
+        {
+            int i1 = 1, i2 = 2;
+            ASSERT(Util::haveEqualAllocators(i1, i2));
+
+            NonAAClass c1, c2;
+            ASSERT(Util::haveEqualAllocators(c1, c2));
+        }
+
+        // Step 2: legacy-AA types
+        {
+            const LegacyAAClass C1A(&ta1), C1B(&ta1), C2(&ta2);
+            ASSERT(  Util::haveEqualAllocators(C1A, C1B));
+            ASSERT(! Util::haveEqualAllocators(C1A, C2 ));
+        }
+
+        // Step 3: legacy-AA types
+        {
+            // *pmr-AA* types
+            bsl::polymorphic_allocator<char> a1a(&ta1), a1b(&ta1), a2(&ta2);
+
+            const PmrAAClass C1A(a1a), C1B(a1b), C2(a2);
+            ASSERT(  Util::haveEqualAllocators(C1A, C1B));
+            ASSERT(! Util::haveEqualAllocators(C1A, C2 ));
+        }
+        {
+            // *bsl-AA* types
+            bsl::allocator<char> a1a(&ta1), a1b(&ta1), a2(&ta2);
+
+            const BslAAClass C1A(a1a), C1B(a1b), C2(a2);
+            ASSERT(  Util::haveEqualAllocators(C1A, C1B));
+            ASSERT(! Util::haveEqualAllocators(C1A, C2 ));
+        }
+        {
+            // *stl-AA* types
+            StlAllocator<char> a1a(1), a1b(1), a2(2);
+
+            const StlAAClass C1A(a1a), C1B(a1b), C2(a2);
+            ASSERT(  Util::haveEqualAllocators(C1A, C1B));
+            ASSERT(! Util::haveEqualAllocators(C1A, C2 ));
+        }
+
+      } break;
+
       case 5: {
         // --------------------------------------------------------------------
         // 'getAllocatorFromSubobject'
@@ -601,13 +695,11 @@ int main(int argc, char *argv[])
         //: 3 For a *bsl-AA* object, 'obj', and 'ALLOCATOR' type
         //:   'bslma::Allocator *', 'getAllocatorFromSubobject<ALLOCATOR>(obj)'
         //:   returns 'obj.get_allocator().mechanism()'.
-        //: 4 (FUTURE) For a *pmr-AA* object, 'obj',
-        //:   'getAllocatorFromSubobject<bsl::memory_resource *>(obj)' returns
-        //:   'obj.get_allocator().resource())' and
+        //: 4 For a *pmr-AA* object, 'obj',
         //:   'getAllocatorFromSubobject<bslma::Allocator *>(obj)' returns
-        //:   'static_cast<bslma::Allocator*>(obj.get_allocator().resource())'
-        //: 5 For a *bsl-AA*, *pmr-AA* (FUTURE), or *stl-AA* object 'obj' of
-        //:   type 'TYPE', and 'ALLOCATOR' type explicitly convertible from
+        //:   'static_cast<bslma::Allocator*>(obj.get_allocator().resource())'.
+        //: 5 For a *bsl-AA*, *pmr-AA*, or *stl-AA* object 'obj' of type
+        //:   'TYPE', and 'ALLOCATOR' type explicitly convertible from
         //:   'TYPE::allocator_type',
         //:   'getAllocatorFromSubobject<ALLOCATOR>(obj)' returns
         //:   'static_cast<ALLOCATOR>(obj.get_allocator())'.
@@ -624,24 +716,23 @@ int main(int argc, char *argv[])
         //: 1 Construct *legacy-AA* object, 'obj', using the address of a
         //:   'bslma::TestAllocator' allocator.  For 'ALLOCATOR' types
         //:   'bslma::Allocator *', 'bsl::allocator<char>',
-        //:   'bsl::allocator<int>', 'bsl::polymorphic_allocator<char>'
-        //:   (FUTURE), and a synthetic type explicitly convertible from
+        //:   'bsl::allocator<int>', 'bsl::polymorphic_allocator<char>',
+        //:   and a synthetic type explicitly convertible from
         //:   'bsl::allocator<char>', invoke
         //:   'getAllocatorFromSubobject<ALLOCATOR>(obj)' and verify that the
         //:   resulting allocator was constructed from the test allocator.
         //:   (C-1, C-2)
         //: 2 Construct a *bsl-AA* object, 'obj', using the address of a
         //:   'bslma::TestAllocator' allocator.  Invoke
-        //:   'getAllocatorFromSubobject<bslma::Allocator *>(obj)' and verify
+        //:   'getAllocatorFromSubobject<bslma::Allocator *>(obj)', and verify
         //:   that the resulting allocator was constructed from the test
         //:   allocator.  (C-3)
-        //: 3 (FUTURE) Construct a *pmr-AA* object, 'obj', using the address of
-        //:   a 'bslma::TestAllocator' allocator.  Invoke
-        //:   'getAllocatorFromSubobject<bsl::memory_resource *>(obj)' and
-        //:   'getAllocatorFromSubobject<bslma::Allocator *>(obj)' and verify
+        //: 3 Construct a *pmr-AA* object, 'obj', using the address of a
+        //:   'bslma::TestAllocator' allocator.  Invoke
+        //:   'getAllocatorFromSubobject<bslma::Allocator *>(obj)', and verify
         //:   that, in both cases, the resulting allocator was constructed from
         //:   the test allocator.  (C-4)
-        //: 4 Repeat step 1 with *bsl-AA* and *pmr-AA* (FUTURE) objects.  (C-5)
+        //: 4 Repeat step 1 with *bsl-AA* and *pmr-AA* objects.  (C-5)
         //: 5 Construct an *stl-AA* object, 'obj', with an STL-style allocator.
         //:   For 'ALLOCATOR' types convertible from the STL-allocator type,
         //:   verify that 'getAllocatorFromSubobject<ALLOCATOR>(obj)' returns
@@ -661,16 +752,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'getAllocatorFromSubobject'"
                             "\n===========================\n");
 
-        typedef bslma::AATypeUtil Util;
-
-        bslma::TestAllocator        ta1, ta2;
-        bslma::Allocator     *const bslmaAlloc = &ta1;
-        bsl::allocator<int>         bslAlloc(&ta2);
-        StlAllocator<int>           stlAlloc(99);
+        bslma::TestAllocator             ta1, ta2, ta3;
+        bslma::Allocator          *const bslmaAlloc = &ta1;
+        bsl::allocator<int>              bslAlloc(&ta2);
+        bsl::polymorphic_allocator<int>  pmrAlloc(&ta3);
+        StlAllocator<int>                stlAlloc(99);
         ASSERT(bslmaAlloc != bslAlloc);
 
         LegacyAAClass    laac(bslmaAlloc); const LegacyAAClass& LAAC = laac;
         BslAAClass       baac(bslAlloc);   const BslAAClass&    BAAC = baac;
+        PmrAAClass       paac(pmrAlloc);   const PmrAAClass&    PAAC = paac;
         StlAAClass       saac(stlAlloc);   const StlAAClass&    SAAC = saac;
 
         BslLegacyAAClass        blaac(bslAlloc, bslmaAlloc);
@@ -683,10 +774,9 @@ int main(int argc, char *argv[])
                Util::getAllocatorFromSubobject<bsl::allocator<char> >(LAAC));
         ASSERT(bslmaAlloc ==
                Util::getAllocatorFromSubobject<bsl::allocator<int> >(LAAC));
-        // FUTURE
-        // ASSERT(bslmaAlloc ==
-        //        Util::getAllocatorFromSubobject<
-        //            bsl::polymorphic_allocator<int> >(LAAC));
+        ASSERT(bslmaAlloc ==
+               Util::getAllocatorFromSubobject<
+                   bsl::polymorphic_allocator<int> >(LAAC));
         ASSERT(bslmaAlloc ==
                Util::getAllocatorFromSubobject<
                    BslCompatibleAllocator<char> >(LAAC).mechanism());
@@ -696,21 +786,31 @@ int main(int argc, char *argv[])
                Util::getAllocatorFromSubobject<bslma::Allocator *>(BAAC));
 
         // Step 3: get a 'bslma::Allocator *' from a *pmr-AA* object
-        // (FUTURE)
+        ASSERT(&ta3 ==
+               Util::getAllocatorFromSubobject<bslma::Allocator *>(PAAC));
 
-        // Step 4: get other allocator types from *bsl-AA* and *bsl-AA*
-        // (FUTURE) objects.
+        // Step 4: get other allocator types from *bsl-AA* and *pmr-AA*
+        // objects.
         ASSERT(bslAlloc ==
                Util::getAllocatorFromSubobject<bsl::allocator<char> >(BAAC));
         ASSERT(bslAlloc ==
                Util::getAllocatorFromSubobject<bsl::allocator<int> >(BAAC));
-        // FUTURE
-        // ASSERT(bslAlloc ==
-        //        Util::getAllocatorFromSubobject<
-        //            bsl::polymorphic_allocator<int> >(BAAC));
+        ASSERT(bslAlloc ==
+               Util::getAllocatorFromSubobject<
+                   bsl::polymorphic_allocator<int> >(BAAC));
         ASSERT(bslAlloc ==
                Util::getAllocatorFromSubobject<
                    BslCompatibleAllocator<char> >(BAAC).mechanism());
+        ASSERT(pmrAlloc ==
+               Util::getAllocatorFromSubobject<bsl::allocator<char> >(PAAC));
+        ASSERT(pmrAlloc ==
+               Util::getAllocatorFromSubobject<bsl::allocator<int> >(PAAC));
+        ASSERT(pmrAlloc ==
+               Util::getAllocatorFromSubobject<
+                   bsl::polymorphic_allocator<int> >(PAAC));
+        ASSERT(pmrAlloc ==
+               Util::getAllocatorFromSubobject<
+                   BslCompatibleAllocator<char> >(PAAC).mechanism());
 
         // Step 5: *stl-AA* types
         ASSERT(stlAlloc ==
@@ -725,10 +825,9 @@ int main(int argc, char *argv[])
                Util::getAllocatorFromSubobject<bsl::allocator<char> >(BLAAC));
         ASSERT(bslAlloc ==
                Util::getAllocatorFromSubobject<bsl::allocator<int> >(BLAAC));
-        // FUTURE
-        // ASSERT(bslAlloc ==
-        //        Util::getAllocatorFromSubobject<
-        //            bsl::polymorphic_allocator<int> >(BLAAC));
+        ASSERT(bslAlloc ==
+               Util::getAllocatorFromSubobject<
+                   bsl::polymorphic_allocator<int> >(BLAAC));
         ASSERT(bslAlloc ==
                Util::getAllocatorFromSubobject<
                    BslCompatibleAllocator<char> >(BLAAC).mechanism());
@@ -744,7 +843,7 @@ int main(int argc, char *argv[])
         //:   'bsl::allocator<char>(obj.allocator())'.
         //: 2 For a *bsl-AA* object 'obj' of 'getBslAllocator(obj)' returns
         //:   'obj.get_allocator()'
-        //: 3 (FUTURE) For a *pmr-AA* object, 'obj', 'getBslAllocator(obj)'
+        //: 3 For a *pmr-AA* object, 'obj', 'getBslAllocator(obj)'
         //:   returns 'bsl::allocator<char>( dynamic_cast<bslma::Allocator*>(
         //:   obj.get_allocator().resource() ))'
         //: 4 For an object, 'obj', whose type has the interface of both
@@ -760,10 +859,10 @@ int main(int argc, char *argv[])
         //:   and verify that the resulting allocator was constructed from the
         //:   test allocator.  (C-1)
         //: 2 Repeat step 1 with a *bsl-AA* objects.  (C-2)
-        //: 3 (FUTURE) Construct a *pmr-AA* object, 'obj', using the address of
-        //:   a 'bslma::TestAllocator' allocator.  Invoke
-        //:   'getBslAllocator(obj)' and verify that the that the resulting
-        //:   allocator was constructed from the test allocator.  (C-3)
+        //: 3 Construct a *pmr-AA* object, 'obj', using the address of a
+        //:   'bslma::TestAllocator' allocator.  Invoke 'getBslAllocator(obj)'
+        //:   and verify that the that the resulting allocator was constructed
+        //:   from the test allocator.  (C-3)
         //: 4 Define a class having all of the attributes of both a *legacy-AA*
         //:   type and a *bsl-AA* type, using different allocators for each
         //:   model.  Construct an object, 'obj', of that class and repeat step
@@ -778,16 +877,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'getBslAllocator'"
                             "\n=================\n");
 
-        typedef bslma::AATypeUtil Util;
-
-        bslma::TestAllocator        ta1, ta2;
-        bslma::Allocator     *const bslmaAlloc = &ta1;
-        bsl::allocator<int>         bslAlloc(&ta2);
-        StlAllocator<int>           stlAlloc(99);
+        bslma::TestAllocator             ta1, ta2, ta3;
+        bslma::Allocator          *const bslmaAlloc = &ta1;
+        bsl::allocator<int>              bslAlloc(&ta2);
+        bsl::polymorphic_allocator<int>  pmrAlloc(&ta3);
+        StlAllocator<int>                stlAlloc(99);
         ASSERT(bslmaAlloc != bslAlloc);
 
         LegacyAAClass    laac(bslmaAlloc); const LegacyAAClass& LAAC = laac;
         BslAAClass       baac(bslAlloc);   const BslAAClass&    BAAC = baac;
+        PmrAAClass       paac(pmrAlloc);   const PmrAAClass&    PAAC = paac;
 
         BslLegacyAAClass        blaac(bslAlloc, bslmaAlloc);
         const BslLegacyAAClass& BLAAC = blaac;
@@ -798,8 +897,8 @@ int main(int argc, char *argv[])
         // Step 2: *bsl-AA* object
         ASSERT(bslAlloc == Util::getBslAllocator(BAAC));
 
-        // Step 3 (FUTURE): *pmr-AA*
-        // ASSERT(bslAlloc == Util::getBslAllocator(PAAC));
+        // Step 3: *pmr-AA*
+        ASSERT(pmrAlloc == Util::getBslAllocator(PAAC));
 
         // Step 4: Object that has both *legacy-AA* and *bsl-AA* interfaces.
         ASSERT(bslAlloc == Util::getBslAllocator(BLAAC));
@@ -820,11 +919,11 @@ int main(int argc, char *argv[])
         //:   'bslma::allocator'.
         //: 4 For a *bsl-AA* object, 'obj', 'getNativeAllocator(obj)' returns
         //:   'obj.get_allocator())'.
-        //: 5 (FUTURE) For a *pmr-AA* object, 'obj', the return type of
+        //: 5 For a *pmr-AA* object, 'obj', the return type of
         //:   'getNativeAllocator(obj)' is a specialization of
         //:   'bslma::polymorphic_allocator'.
-        //: 6 (FUTURE) For a *pmr-AA* object, 'obj', 'getNativeAllocator(obj)'
-        //:   returns 'obj.get_allocator())'.
+        //: 6 For a *pmr-AA* object, 'obj', 'getNativeAllocator(obj)' returns
+        //:   'obj.get_allocator())'.
         //: 7 For an *stl-AA* object, 'obj', the return type of
         //:   'getNativeAllocator(obj)' is 'allocator_type' (possibly rebound).
         //: 8 For a *stl-AA* object, 'obj', 'getNativeAllocator(obj)' returns
@@ -850,11 +949,10 @@ int main(int argc, char *argv[])
         //:   returns a value of type 'bsl::allocator<T>' (as determined by the
         //:   'allocatorModel' function from step 1) having the expected value.
         //:   (C-3, C-4)
-        //: 4 (FUTURE) Construct a *pmr-AA* object and verify that
-        //:   'getNativeAllocator' returns a value of type
-        //:   'bsl::polymorphic_allocator<T>' (as determined by the
-        //:   'allocatorModel' function from step 1) having the expected value.
-        //:   (C-5, C-6)
+        //: 4 (Construct a *pmr-AA* object and verify that 'getNativeAllocator'
+        //:   returns a value of type 'bsl::polymorphic_allocator<T>' (as
+        //:   determined by the 'allocatorModel' function from step 1) having
+        //:   the expected value.  (C-5, C-6)
         //: 5 Construct an *stl-AA* object and verify that 'getNativeAllocator'
         //:   returns a value of type 'allocator_type' (as determined by the
         //:   'allocatorModel' function from step 1) having the expected value.
@@ -875,16 +973,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'getNativeAllocator'"
                             "\n====================\n");
 
-        typedef bslma::AATypeUtil Util;
-
-        bslma::TestAllocator        ta1, ta2;
-        bslma::Allocator     *const bslmaAlloc = &ta1;
-        bsl::allocator<int>         bslAlloc(&ta2);
-        StlAllocator<int>           stlAlloc(99);
+        bslma::TestAllocator             ta1, ta2, ta3;
+        bslma::Allocator          *const bslmaAlloc = &ta1;
+        bsl::allocator<int>              bslAlloc(&ta2);
+        bsl::polymorphic_allocator<int>  pmrAlloc(&ta3);
+        StlAllocator<int>                stlAlloc(99);
         ASSERT(bslmaAlloc != bslAlloc);
 
         LegacyAAClass    laac(bslmaAlloc); const LegacyAAClass& LAAC = laac;
         BslAAClass       baac(bslAlloc);   const BslAAClass&    BAAC = baac;
+        PmrAAClass       paac(pmrAlloc);   const PmrAAClass&    PAAC = paac;
         StlAAClass       saac(stlAlloc);   const StlAAClass&    SAAC = saac;
 
         BslLegacyAAClass        blaac(bslAlloc, bslmaAlloc);
@@ -901,7 +999,9 @@ int main(int argc, char *argv[])
         ASSERT(Util::getNativeAllocator(BAAC)  == bslAlloc);
 
         // Step 6: Test *pmr-AA* type
-        // (FUTURE)
+        ASSERT(bslma::AAModelPmr::value ==
+               allocatorModel(Util::getNativeAllocator(PAAC)));
+        ASSERT(Util::getNativeAllocator(PAAC)  == pmrAlloc);
 
         // Step 5: Test *stl-AA* type
         ASSERT(bslma::AAModelStl::value ==
@@ -927,7 +1027,7 @@ int main(int argc, char *argv[])
         //:   returns 'bslma::AllocatorUtil::adapt(obj.allocator())'.
         //: 2 For a *bsl-AA* object, 'obj', 'getAdaptedAllocator(obj)'
         //:   returns 'bslma::AllocatorUtil::adapt(obj.get_allocator())'.
-        //: 3 For an *stl-AA* type or (future) *pmr-AA* object, 'obj',
+        //: 3 For an *stl-AA* type or *pmr-AA* object, 'obj',
         //:   'getAdapted(obj)' returns 'obj.get_allocator()'.
         //: 4 For an object, 'obj', whose type has the interface of both
         //:   *legacy-AA* ('UsesBslmaAllocator' type trait and 'allocator'
@@ -944,7 +1044,7 @@ int main(int argc, char *argv[])
         //: 2 Construct a *bsl-AA* object and verify that
         //:   'getAdaptedAllocator' returns the expected allocator value.
         //:   (C-2)
-        //: 3 Construct an *stl-AA* object and (future) *pmr-AA* object and
+        //: 3 Construct an *stl-AA* object and *pmr-AA* object and
         //:   verify that 'getAdaptedAllocator' returns the expected allocator
         //:   value for each.  (C-3)
         //: 4 Define a class with all of the attributes of both a *legacy-AA*
@@ -961,23 +1061,24 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'getAdaptedAllocator'"
                             "\n=====================\n");
 
-        typedef bslma::AATypeUtil Util;
-
-        bslma::TestAllocator        ta1, ta2;
-        bslma::Allocator     *const bslmaAlloc = &ta1;
-        bsl::allocator<int>         bslAlloc(&ta2);
-        StlAllocator<char>          stlAlloc(3);
+        bslma::TestAllocator             ta1, ta2, ta3;
+        bslma::Allocator          *const bslmaAlloc = &ta1;
+        bsl::allocator<int>              bslAlloc(&ta2);
+        bsl::polymorphic_allocator<int>  pmrAlloc(&ta3);
+        StlAllocator<char>               stlAlloc(4);
         ASSERT(bslmaAlloc != bslAlloc);
 
-        LegacyAAClass   laac(bslmaAlloc); const LegacyAAClass& LAAC = laac;
-        BslAAClass      baac(bslAlloc);   const BslAAClass&    BAAC = baac;
-        StlAAClass      saac(stlAlloc);   const StlAAClass&    SAAC = saac;
+        LegacyAAClass    laac(bslmaAlloc); const LegacyAAClass& LAAC = laac;
+        BslAAClass       baac(bslAlloc);   const BslAAClass&    BAAC = baac;
+        PmrAAClass       paac(pmrAlloc);   const PmrAAClass&    PAAC = paac;
+        StlAAClass       saac(stlAlloc);   const StlAAClass&    SAAC = saac;
 
         BslLegacyAAClass        blaac(bslAlloc, bslmaAlloc);
         const BslLegacyAAClass& BLAAC = blaac;
 
         ASSERT(Util::getAdaptedAllocator(LAAC)  == bslmaAlloc);
         ASSERT(Util::getAdaptedAllocator(BAAC)  == bslAlloc);
+        ASSERT(Util::getAdaptedAllocator(PAAC)  == pmrAlloc);
         ASSERT(Util::getAdaptedAllocator(BLAAC) == bslAlloc);
         ASSERT(Util::getAdaptedAllocator(BLAAC) != bslmaAlloc);
         ASSERT(Util::getAdaptedAllocator(SAAC)  == stlAlloc);
@@ -1003,8 +1104,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
-
-        typedef bslma::AATypeUtil Util;
 
         bslma::TestAllocator        ta1, ta2;
         bslma::Allocator     *const bslmaAlloc = &ta1;
@@ -1057,7 +1156,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNEGATIVE COMPILATION TESTS"
                             "\n==========================\n");
 
-        typedef bslma::AATypeUtil Util;  (void) Util();
+        (void) Util();
 
         int                i = 0;     (void) i;
         NonAAClass         nonAA;     (void) nonAA;

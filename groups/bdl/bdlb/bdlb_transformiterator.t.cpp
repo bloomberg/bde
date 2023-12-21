@@ -264,7 +264,7 @@ bsl::string& Parenthesizer::operator()(bsl::string& s) const
 
 bslma::Allocator *Parenthesizer::allocator() const
 {
-    return d_before.allocator().mechanism();
+    return d_before.get_allocator().mechanism();
 }
 
                        // =============================

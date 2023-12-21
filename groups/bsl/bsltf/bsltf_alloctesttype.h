@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a class for testing that allocates with 'bslma::Allocator'.
+//@PURPOSE: Provide a class for testing that allocates with 'bsl::allocator'.
 //
 //@CLASSES:
 //   bsltf::AllocTestType: allocating test class
@@ -14,20 +14,29 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'AllocTestType', that uses a
-// 'bslma::Allocator' to supply memory and defines the type trait
+// 'bsl::allocator<>' to supply memory and defines the type trait
 // 'bslma::UsesBslmaAllocator'.  Furthermore, this class is not
 // bitwise-moveable, and will assert on destruction if it has been moved.  This
 // class is primarily provided to facilitate testing of templates by defining a
 // simple type representative of user-defined types having an allocator.
 //
-///Attributes
-///----------
+///Salient Attributes
+///------------------
 //..
 //  Name                Type         Default
 //  ------------------  -----------  -------
 //  data                int          0
 //..
 //: o 'data': representation of the object's value
+//
+///Non-salient Attributes
+///----------------------
+//..
+//  Name                Type              Default
+//  ------------------  ----------------  ------------------
+//  allocator           bsl::allocator<>  bsl::allocator<>{}
+//..
+//: o 'allocator': allocator used by the object
 //
 ///Usage
 ///-----
@@ -73,13 +82,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslma_usesbslmaallocator.h>
+#include <bslma_allocator.h>
+#include <bslma_bslallocator.h>
 
 namespace BloombergLP {
-
-namespace bslma {
-        class Allocator;
-}
 
 namespace bsltf {
 
@@ -89,7 +95,7 @@ namespace bsltf {
 
 class AllocTestType {
     // This unconstrained (value-semantic) attribute class that uses a
-    // 'bslma::Allocator' to supply memory and defines the type trait
+    // 'bsl::allocator<>' to supply memory and defines the type trait
     // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
     // to facilitate testing of templates by defining a simple type
     // representative of user-defined types having an allocator.  See the
@@ -97,39 +103,42 @@ class AllocTestType {
     // documentation for information on the class attributes.
 
     // DATA
-    int             *d_data_p;       // pointer to the data value
-
-    bslma::Allocator *d_allocator_p;  // allocator used to supply memory (held,
-                                     // not owned)
-
-    AllocTestType   *d_self_p;       // pointer to self (to verify this object
-                                     // is not bit-wise moved)
+    bsl::allocator<int> d_allocator;  // allocator used to supply memory
+    int                *d_data_p;     // pointer to the data value
+    AllocTestType       *d_self_p;    // pointer to self (to verify this object
+                                      // is not bit-wise moved)
 
   public:
+    // TYPES
+    typedef bsl::allocator<int> allocator_type;
+
     // CREATORS
     AllocTestType();
-    explicit AllocTestType(bslma::Allocator *basicAllocator);
+    explicit AllocTestType(const allocator_type& allocator);
         // Create a 'AllocTestType' object having the (default) attribute
         // values:
         //..
         //  data() == 0
         //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
+        // Optionally specify a 'allocator' used to supply memory.  If
+        // 'allocator' is 0, the currently installed default allocator is
         // used.
 
-    explicit AllocTestType(int data, bslma::Allocator *basicAllocator = 0);
+    explicit AllocTestType(int                   data,
+                           const allocator_type& allocator = allocator_type());
         // Create a 'AllocTestType' object having the specified 'data'
-        // attribute value.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // attribute value.  Optionally specify a 'allocator' used to supply
+        // memory (e.g., the address of a 'bslma::Allocator' object).  If
+        // 'allocator' is not specified, the currently installed default
+        // allocator is used.
 
     AllocTestType(const AllocTestType&  original,
-                  bslma::Allocator      *basicAllocator = 0);
+                  const allocator_type& allocator = allocator_type());
         // Create a 'AllocTestType' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'allocator' used
+        // to supply memory (e.g., the address of a 'bslma::Allocator' object).
+        // If 'allocator' is not specified, the currently installed default
+        // allocator is used.
 
     ~AllocTestType();
         // Destroy this object.
@@ -149,6 +158,9 @@ class AllocTestType {
                                   // Aspects
 
     bslma::Allocator *allocator() const;
+        // Return 'get_allocator().mechanism()'.
+
+    allocator_type get_allocator() const;
         // Return the allocator used by this object to supply memory.
 };
 
@@ -190,7 +202,13 @@ int AllocTestType::data() const
 inline
 bslma::Allocator *AllocTestType::allocator() const
 {
-    return d_allocator_p;
+    return d_allocator.mechanism();
+}
+
+inline
+AllocTestType::allocator_type AllocTestType::get_allocator() const
+{
+    return d_allocator;
 }
 
 }  // close package namespace
@@ -207,13 +225,6 @@ bool bsltf::operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
 {
     return lhs.data() != rhs.data();
 }
-
-// TRAITS
-namespace bslma {
-template <>
-struct UsesBslmaAllocator<bsltf::AllocTestType>
-    : bsl::true_type {};
-}  // close namespace bslma
 
 }  // close enterprise namespace
 

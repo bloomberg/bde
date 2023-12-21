@@ -59,10 +59,10 @@ BSLS_IDENT("$Id: $")
     // For 'BSL_VERSION_DEPRECATION_THRESHOLD' macro definition that would have
     // been provided by this component if 'bsl' was a conforming package group.
 
-#define BSL_VERSION_MAJOR    3
+#define BSL_VERSION_MAJOR    4
     // Provide the major version number of the current (latest) BSL release.
 
-#define BSL_VERSION_MINOR    128
+#define BSL_VERSION_MINOR    0
     // Provide the minor version number of the current (latest) BSL release.
 
 #define BSL_MAKE_VERSION(major, minor) ((major) * 1000000 \

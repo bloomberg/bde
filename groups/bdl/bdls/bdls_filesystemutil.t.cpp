@@ -9130,7 +9130,8 @@ int main(int argc, char *argv[])
             // std::pmr::string
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             {
-                std::pmr::string shortStr(SHORT_STRING);
+                bslma::TestAllocator ta2("local test allocator");
+                std::pmr::string shortStr(SHORT_STRING, &ta2);
                 testCase2_CStringUtil<std::pmr::string>("std::pmr::string",
                                                         shortStr,
                                                         SHORT_STRING,
@@ -9139,7 +9140,7 @@ int main(int argc, char *argv[])
                                                         veryVerbose,
                                                         veryVeryVerbose);
 
-                std::pmr::string longStr(LONG_STRING);
+                std::pmr::string longStr(LONG_STRING, &ta2);
                 testCase2_CStringUtil<std::pmr::string>("std::pmr::string",
                                                         longStr,
                                                         LONG_STRING,

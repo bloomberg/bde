@@ -71,7 +71,8 @@ using namespace bsl;
 // [ 4] int operator(bsl::ostream& stream, const Record& record) const;
 // [ 3] const bsl::string& format() const;
 // [ 3] const bsl::string& recordSeparator() const;
-// [ 3] const allocator_type& allocator() const;
+// [ 3] bsl::Allocator *allocator() const;
+// [ 3] allocator_type get_allocator() const;
 //
 // FREE OPERATORS
 // ----------------------------------------------------------------------------
@@ -455,10 +456,10 @@ int main(int argc, char *argv[])
                 ASSERTV(CONFIG, X == W);
 
                 // Verify that 'X' and 'Y' have the correct allocator.
-                ASSERTV(CONFIG, &oa,   X.allocator().mechanism(),
-                                &oa == X.allocator().mechanism());
-                ASSERTV(CONFIG, srcAllocatorPtr,   Y.allocator().mechanism(),
-                                srcAllocatorPtr == Y.allocator().mechanism());
+                ASSERTV(CONFIG, &oa,   X.get_allocator().mechanism(),
+                                &oa == X.get_allocator());
+                ASSERTV(CONFIG, srcAllocatorPtr, Y.get_allocator().mechanism(),
+                                srcAllocatorPtr == Y.get_allocator());
 
                 // Verify expected object allocator use.
                 const bool isTotalSame = 'b' == CONFIG;
@@ -502,8 +503,8 @@ int main(int argc, char *argv[])
                         ASSERTV(mR == &X);
 
                         // Verify that 'X' has the correct allocator.
-                        ASSERTV(&oa,   X.allocator().mechanism(),
-                                &oa == X.allocator().mechanism());
+                        ASSERTV(&oa,   X.get_allocator().mechanism(),
+                                &oa == X.get_allocator().mechanism());
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     ASSERTV(sam.isTotalSame());
@@ -719,10 +720,10 @@ int main(int argc, char *argv[])
                 Obj& mX = *objPtr;  const Obj& X = mX;
 
                 // Verify that 'X' and 'Y' have the correct allocator.
-                ASSERTV(CONFIG, &oa,   X.allocator().mechanism(),
-                                &oa == X.allocator().mechanism());
-                ASSERTV(CONFIG, &sa,   Y.allocator().mechanism(),
-                                &sa == Y.allocator().mechanism());
+                ASSERTV(CONFIG, &oa,   X.get_allocator().mechanism(),
+                                &oa == X.get_allocator().mechanism());
+                ASSERTV(CONFIG, &sa,   Y.get_allocator().mechanism(),
+                                &sa == Y.get_allocator().mechanism());
 
                 // Verify no allocation from the non-object allocator and that
                 // the object allocator is hooked up.
@@ -966,10 +967,11 @@ int main(int argc, char *argv[])
 
                     ASSERTV(LINE1, LINE2, ZZ == Z);
 
-                    ASSERTV(LINE1, LINE2, &oa,   X.allocator().mechanism(),
-                                          &oa == X.allocator().mechanism());
-                    ASSERTV(LINE1, LINE2, &scratch,   Z.allocator().mechanism(),
-                                          &scratch == Z.allocator().mechanism());
+                    ASSERTV(LINE1, LINE2, &oa,   X.get_allocator().mechanism(),
+                                          &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2,
+                            &scratch,   Z.get_allocator().mechanism(),
+                            &scratch == Z.get_allocator());
 
                     ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
@@ -1011,8 +1013,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE1, mR == &mX);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                      ASSERTV(LINE1, &oa,   Z.allocator().mechanism(),
-                                     &oa == Z.allocator().mechanism());
+                ASSERTV(LINE1, &oa,   Z.get_allocator().mechanism(),
+                        &oa == Z.get_allocator());
 
                 ASSERTV(LINE1, !oam.isInUseUp());
 
@@ -1225,11 +1227,12 @@ int main(int argc, char *argv[])
                     // Invoke the object's 'allocator' accessor, as well as
                     // that of 'Z'.
 
-                    ASSERTV(LINE, CONFIG, &oa,   X.allocator().mechanism(),
-                                          &oa == X.allocator().mechanism());
+                    ASSERTV(LINE, CONFIG, &oa,   X.get_allocator().mechanism(),
+                                          &oa == X.get_allocator());
 
-                    ASSERTV(LINE, CONFIG, &scratch, Z.allocator().mechanism(),
-                                        &scratch == Z.allocator().mechanism());
+                    ASSERTV(LINE, CONFIG,
+                            &scratch,   Z.get_allocator().mechanism(),
+                            &scratch == Z.get_allocator().mechanism());
 
                     // Verify no allocation from the non-object allocator.
 
@@ -1284,8 +1287,8 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, ZZ == Z);
 
-                ASSERTV(LINE, &scratch,   Z.allocator().mechanism(),
-                              &scratch == Z.allocator().mechanism());
+                ASSERTV(LINE, &scratch,   Z.get_allocator().mechanism(),
+                              &scratch == Z.get_allocator().mechanism());
                 ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
                 ASSERTV(LINE, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
             }
@@ -2095,9 +2098,9 @@ int main(int argc, char *argv[])
         //:     allocator.  Then configure the object to have the value from
         //:     'R'.
         //:
-        //:   2 Verify that the 'format', 'recordSeparator', and 'allocator'
-        //:     accessors, invoked on a 'const' reference to the object created
-        //:     in P-2, return the expected values.
+        //:   2 Verify that the 'format', 'recordSeparator', 'get_allocator'
+        //:     and 'allocator' accessors, invoked on a 'const' reference to
+        //:     the object created in P-2, return the expected values.
         //:
         //:   3 Monitor the memory allocated from both the default and object
         //:     allocators before and after calling the accessors; verify that
@@ -2106,7 +2109,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   const bsl::string& format() const;
         //   const bsl::string& recordSeparator() const;
-        //   const allocator_type& allocator() const;
+        //   bsl::Allocator *allocator() const;
+        //   allocator_type get_allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2142,7 +2146,15 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE, SPEC, SPEC == X.format());
             ASSERTV(LINE, RSEP, RSEP == X.recordSeparator());
-            ASSERTV(LINE, SPEC, &oa == X.allocator().mechanism());
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+            ASSERTV(LINE, SPEC, &oa == X.allocator());
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic pop
+#endif
+            ASSERTV(LINE, SPEC, &oa == X.get_allocator());
 
             ASSERTV(LINE, SPEC, oam.isTotalSame());
             ASSERTV(LINE, SPEC, dam.isTotalSame());
@@ -2321,8 +2333,8 @@ int main(int argc, char *argv[])
             // Verify allocator is installed properly.
             // ---------------------------------------
 
-            ASSERTV(CONFIG, &oa,   X.allocator().mechanism(),
-                            &oa == X.allocator().mechanism());
+            ASSERTV(CONFIG, &oa,   X.get_allocator().mechanism(),
+                            &oa == X.get_allocator().mechanism());
 
             // Verify no allocation from the object/non-object allocators.
 

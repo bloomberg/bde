@@ -5,6 +5,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_allocatorutil.h>
+
 #include <bsls_assert.h>
 
 #include <bslstl_referencewrapper.h>  // For testing only
@@ -31,8 +33,14 @@ bslstl::Function_Rep::~Function_Rep()
         d_funcManager_p(e_DESTROY, this, 0);
     }
 
-    if (calcSooFuncSize() > sizeof(InplaceBuffer) && d_objbuf.d_object_p) {
-        d_allocator.mechanism()->deallocate(d_objbuf.d_object_p);
+    std::size_t sooFuncSize = calcSooFuncSize();
+    if (sooFuncSize > sizeof(InplaceBuffer) && d_objbuf.d_object_p) {
+        std::size_t funcSize = (sooFuncSize > k_NON_SOO_SMALL_SIZE ?
+                                sooFuncSize - k_NON_SOO_SMALL_SIZE :
+                                sooFuncSize);
+        bslma::AllocatorUtil::deallocateBytes(d_allocator,
+                                              d_objbuf.d_object_p,
+                                              funcSize);
     }
 }
 
@@ -49,7 +57,8 @@ void bslstl::Function_Rep::allocateBuf(std::size_t sooFuncSize)
         std::size_t funcSize = (sooFuncSize > k_NON_SOO_SMALL_SIZE ?
                                 sooFuncSize - k_NON_SOO_SMALL_SIZE :
                                 sooFuncSize);
-        d_objbuf.d_object_p = d_allocator.mechanism()->allocate(funcSize);
+        d_objbuf.d_object_p =
+            bslma::AllocatorUtil::allocateBytes(d_allocator, funcSize);
     }
 }
 
@@ -134,7 +143,12 @@ void bslstl::Function_Rep::makeEmpty()
 
     if (sooFuncSize > sizeof(InplaceBuffer)) {
         // Deallocate functor.
-        d_allocator.mechanism()->deallocate(d_objbuf.d_object_p);
+        std::size_t funcSize = (sooFuncSize > k_NON_SOO_SMALL_SIZE ?
+                                sooFuncSize - k_NON_SOO_SMALL_SIZE :
+                                sooFuncSize);
+        bslma::AllocatorUtil::deallocateBytes(d_allocator,
+                                              d_objbuf.d_object_p,
+                                              funcSize);
         d_objbuf.d_object_p = 0;
     }
     d_funcManager_p = 0;

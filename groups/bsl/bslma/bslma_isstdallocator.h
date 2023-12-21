@@ -8,36 +8,56 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time check for determining allocator types.
 //
 //@CLASSES:
-//  bsl::IsStdAllocator: standard meta-function for determining allocator types
-//  bsl::IsStdAllocator_v: the result of 'bsl::IsStdAllocator' meta-function
+//  bslma::IsStdAllocator: meta-function to determine if a type is an allocator
+//  bslma::IsStdAllocator_v: Boolean result of 'bslma::IsStdAllocator'
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::IsStdAllocator'
-// and a template variable 'bsl::IsStdAllocator_v', that represents the result
-// value of the 'bsl::IsStdAllocator' meta-function.
+//@DESCRIPTION: This component defines a meta-function, 'bslma::IsStdAllocator'
+// and a variable template, 'bslma::IsStdAllocator_v', that represents the
+// result value of the 'bslma::IsStdAllocator' meta-function.
 //
-// 'bsl::IsStdAllocator' is used to determine if a type meets the requirements
-// for an allocator, as specified in [container.requirements.general].  Note
-// that there is no 'is_allocator' trait specified in the C++ standard, even
-// though every implementation has one.
+// 'bslma::IsStdAllocator' is used to determine if a type meets the
+// requirements for an allocator, as specified in
+// [container.requirements.general].  Note that there is no 'is_allocator'
+// trait specified in the C++ standard, even though every C++ implementation
+// has a private equivalent.
 //
-// Two implementations are supplied; one for C++11 (and later) conforming
-// compilers, and a pre-C++11 compatibility trait that gives different answers
-// for custom allocator types due to the lack of 'decltype' in the older
-// language.
+// In C++03, it is impossible to automatically detect conformance to the
+// allocator requirements, owing to limitations in SFINAE capabilities; even
+// elaborate detection metaprogramming will break if a type has a private
+// 'allocate' method.  Therefore, a portable allocator type, *some-alloc*, must
+// have 'bslma::IsStdAllocator<some-alloc>' specified directly.  There are two
+// ways to specify this trait:
 //
-// Also note that the template variable 'IsStdAllocator_v' is defined in the
-// style of the C++17 standard as an inline variable.  If the current compiler
-// supports the inline variable C++17 compiler feature, 'bsl::IsStdAllocator_v'
-// is defined as an 'inline constexpr bool' variable.  Otherwise, if the
-// compiler supports the variable templates C++14 compiler feature,
-// 'bsl::IsStdAllocator_v' is defined as a non-inline 'constexpr bool'
-// variable.  See 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
+//: 1 Specialize 'IsStdAllocator<some-alloc>' to derive from 'bsl::true_type'
+//:   in namespace 'BloombergLP::bslma'.
+//: 2 Add 'BSLMF_NESTED_TRAIT_DECLARATION(some-alloc,
+//:   bslma::IsStdAllocator)' within the public portion of the class definition
+//:   for *some-alloc*.
+//
+// The first option will bypass any automatic-detection metalogic.  The second
+// option is preferred because it will be checked for correctness -- failing to
+// compile if the allocator is missing a critical member.
+//
+// In C++11 and later, the 'bslma::IsStdAllocator' trait is detected
+// automatically: for any type 'A' having a 'value_type' and 'allocate' method
+// that meet the allocator requirements, 'bslma::IsStdAllocator<A>::value' will
+// be 'true'.  However, to prevent inadvertantly declaring an allocator that is
+// not detected in a C++03 build, using this trait in C++11 or later build will
+// yield a compilation error if it is detected that a type is an allocator does
+// not have 'IsStdAllocator' explicitly specified.  The simplest way to avoid
+// that error is to specify 'IsStdAllocator' deliberately for *every*
+// allocator, as described above.  Alternatively, defining the
+// 'BSLMA_ISALLOCATOR_IGNORE_CPP03_COMPATIBILITY' macro will suppress the error
+// in C++11 and later builds, defering to automatic allocator detection.
+//
+// If C++14 variable templates and constexpr variables are supported, the
+// variable template 'IsStdAllocator_v' is defined to be the value
+// 'IsStdAllocator<T>::value'.  If C++17 inline variables are supported, it is
+// inline.
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section shows the intended use of this component.
 //
 ///Example 1: Verify if a class meets the requirements for an allocator.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,82 +68,229 @@ BSLS_IDENT("$Id: $")
 //..
 //  struct MyAllocator
 //  {
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyAllocator, bslma::IsStdAllocator);
 //      typedef int value_type;
-//      int *allocate(size_t count);
+//      int *allocate(size_t);
 //          // Allocate some memory for use by the caller.
 //  };
 //..
-// Now, we instantiate the 'bsl::IsStdAllocator' template for both a type that
-// does not meet the allocator requirements and the defined type 'MyClass',
-// that does, asserting the 'value' static data member of each instantiation.
+// Now, we instantiate the 'bslma::IsStdAllocator' template for both a type
+// that does not meet the allocator requirements and the defined type
+// 'MyClass', that does, asserting the 'value' static data member of each
+// instantiation.
 //..
-//  assert(false == bsl::IsStdAllocator<int>::value);
-//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-//  assert(true  == bsl::IsStdAllocator<MyAllocator>::value);
-//  #else
-//  assert(false  == bsl::IsStdAllocator<MyAllocator>::value);
+//  int main()
+//  {
+//      assert(false == bslma::IsStdAllocator<int>::value);
+//      assert(true  == bslma::IsStdAllocator<MyAllocator>::value);
+//..
+// Note that if the current compiler supports C++14 variable templates then we
+// can re-write the snippet of code above using the 'bslma::IsStdAllocator_v'
+// variable:
+//..
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//      assert(false == bslma::IsStdAllocator_v<int>);
+//      assert(true  == bslma::IsStdAllocator_v<MyAllocator>);
 //  #endif
-//..
-// Note that if the current compiler supports the variable the templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::IsStdAllocator_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::IsStdAllocator_v<int>);
-//  assert(true  == bsl::IsStdAllocator_v<MyAllocator>);
-//#endif
+//  }
 //..
 
 #include <bslscm_version.h>
 
-#include <bslma_stdallocator.h>
-
+#include <bslmf_assert.h>
+#include <bslmf_detectnestedtrait.h>
+#include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 
-#include <memory>      // allocator
-#include <stddef.h>    // size_t
+#include <cstddef>  // 'std::size_t'
+#include <memory>   // 'std::allocator'
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bsls_nativestd.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+namespace BloombergLP {
+namespace bslma {
 
-namespace bsl {
-                          // =====================
-                          // struct IsStdAllocator
-                          // =====================
+// FORWARD DECLARATIONS
+template <class TYPE, class SIZE_T, class = void> struct IsStdAllocator_Imp;
 
-template<class ALLOC, class = void, class = void>
-struct IsStdAllocator : false_type {};
-    // In general, things are not allocators
+                  // =======================================
+                  // struct template IsStdAllocator_SizeType
+                  // =======================================
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-template<class ALLOC>
-struct IsStdAllocator<ALLOC,
-     void_t<typename ALLOC::value_type>,
-     void_t<decltype(std::declval<ALLOC&>().allocate(size_t(0)))> >
-     : public true_type {};
-         // if it has a 'value_type` and method named 'allocate' that takes
-         // something convertible from a size_t, then it's an allocator.
-#else
-template <class TYPE>
-struct IsStdAllocator<std::allocator<TYPE> > : public true_type {};
-    // std::allocator<T> is an allocator
+template <class TYPE, class = void>
+struct IsStdAllocator_SizeType
+{
+    // This component-private metafunction determines the appopriate size type
+    // for a specified template parameter 'TYPE'.  The nested 'type' typedef is
+    // 'TYPE::size_type' if such a type exists and 'std::size_t' otherwise.
+    // Note that this metafunction produces the same type as
+    // 'bsl::allocator_traits<TYPE>::size_type', but avoids a dependency on
+    // 'bslma_allocatortraits' and is guaranteed to compile even if 'TYPE' is
+    // not an allocator type.
+
+    typedef std::size_t type;
+};
 
 template <class TYPE>
-struct IsStdAllocator< ::bsl::allocator<TYPE> > : public true_type {};
-    // bsl::Allocator is an allocator
-#endif
+struct IsStdAllocator_SizeType<
+                    TYPE,
+                    typename bslmf::VoidType<typename TYPE::size_type>::type> {
+    // This specialization is selected when 'TYPE' has a nested 'size_type'.
+
+    typedef typename TYPE::size_type type;
+};
+
+                      // ==============================
+                      // struct template IsStdAllocator
+                      // ==============================
+
+template <class TYPE>
+struct IsStdAllocator
+    : IsStdAllocator_Imp<TYPE,
+                         typename IsStdAllocator_SizeType<TYPE>::type>::type
+{
+    // Metafunction to determine whether the specified template parameter
+    // 'TYPE' meets the minimum requirements for a C++11 allocator.
+    // Specifically, this 'struct' is derived from 'true_type' if 'TYPE' has a
+    // nested 'value_type' and supports the operation 'a.allocate(bytes)',
+    // where 'a' has type 'TYPE' and 'bytes' has type
+    // 'allocator_traits<TYPE>::size_type'; otherwise it is derived from
+    // 'false_type'.
+};
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool IsStdAllocator_v = IsStdAllocator<TYPE>::value;
     // This template variable represents the result value of the
-    // 'bsl::IsStdAllocator' meta-function.
+    // 'bslma::IsStdAllocator' meta-function.
+#endif
+
+template <class TYPE>
+struct IsStdAllocator<TYPE&> : bsl::false_type {
+    // Specialization for lvalue reference types.
+};
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class TYPE>
+struct IsStdAllocator<TYPE&&> : bsl::false_type {
+    // Specialization for rvalue reference types.
+};
+#endif
+
+template <class TYPE>
+struct IsStdAllocator<std::allocator<TYPE> > : bsl::true_type {
+    // Specialization for 'std::allocator'.
+};
+
+template <>
+struct IsStdAllocator<std::allocator<void> > : bsl::false_type {
+    // 'std::allocator<void>' is not an allocator type, even though all other
+    // specializations are allocator types.
+};
+
+// ============================================================================
+//                         TEMPLATE IMPLEMENTATIONS
+// ============================================================================
+
+                      // ----------------------------------
+                      // struct template IsStdAllocator_Imp
+                      // ----------------------------------
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+template <class TYPE, class SIZE_T, class>
+struct IsStdAllocator_Imp : bsl::false_type {
+    // This C++11 primary template yields 'false_type'.  It is selected when
+    // either 'TYPE::value_type' does not exists or 'a.allocate(bytes)' is
+    // ill-formed, where 'a' has type 'TYPE' and 'bytes' has type 'SIZE_T'.
+
+    // If this assert fails, it means that 'bslma::IsStdAllocator' is declared
+    // as a nested trait within 'TYPE' but 'TYPE' does not meet the C++11
+    // allocator requirements.
+    BSLMF_ASSERT(! (bslmf::DetectNestedTrait<TYPE, IsStdAllocator>::value));
+};
+
+template <class TYPE, class SIZE_T>
+struct IsStdAllocator_Imp<
+             TYPE,
+             SIZE_T,
+             bsl::void_t<typename TYPE::value_type,
+                         decltype(std::declval<TYPE&>().allocate(SIZE_T()))> >
+    : public bsl::true_type {
+    // This C++11 specialization yields 'true_type' and is selected when
+    // 'TYPE::value_type' exists and 'a.allocate(bytes)' is well-formed, where
+    // 'a' has type 'TYPE' and 'bytes' has type 'SIZE_T'.
+
+#ifndef BSLMA_ISALLOCATOR_IGNORE_CPP03_COMPATIBILITY
+    // If this assert fails, it means that 'TYPE' meets the C++11 allocator
+    // requirements but cannot be detected as being an allocator using a C++03
+    // compiler.  Specifically, 'bslma::IsStdAllocator' is neither specialized
+    // for 'TYPE' nor declared as a nested trait within 'TYPE'.  Although
+    // explicitly declaring this trait would not be necessary for a C++11 or
+    // later compiler, this assertion prevents portability errors whereby real
+    // allocator types that would not be recognized as such in C++03.  To
+    // suppress this compatibility check, '#define'
+    // 'BSLMA_ISALLOCATOR_IGNORE_CPP03_COMPATIBILITY' before the '#include' for
+    // this header.
+    BSLMF_ASSERT((bslmf::DetectNestedTrait<TYPE, IsStdAllocator>::value));
+#endif
+};
+
+#else // if ! defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+
+template <class TYPE, class SIZE_T, class>
+struct IsStdAllocator_Imp : bsl::false_type {
+    // This C++03 primary template metafunction is derived from 'false_type'.
+    // It is selected when the specified template paramter 'TYPE' does not
+    // declare itself to be an allocator, i.e., when
+    // 'bslmf::DetectNestedTrait<TYPE, IsStdAllocator>::value' is 'false'.
+};
+
+template <class TYPE, class SIZE_T>
+struct IsStdAllocator_Imp<
+               TYPE,
+               SIZE_T,
+               typename bsl::enable_if<
+                   bslmf::DetectNestedTrait<TYPE, IsStdAllocator>::value>::type
+    >
+    : bsl::true_type {
+    // This C++03 specialization is derived from 'true_type'.  It is selected
+    // when the specified template parameter 'TYPE' is a class that declares
+    // the nested 'IsStdAllocator' trait.  This specialization contains
+    // compile-time correctness checks to ensure that 'TYPE' really does have
+    // 'value_type' and 'allocator()' members.
+
+  private:
+    // TYPES
+    template <class T> struct check { };
+
+    // NOT DEFINED
+    static TYPE& allocObj;
+
+    // COMPILE-TIME CORRECTNESS CHECK:
+    // If 'TYPE' is declared as being an allocator, the following assertions
+    // will fail even to compile unless 'TYPE' also meets the minimum
+    // requirements for a C++11 allocator.  These tests prevent non-allocators
+    // from being declared as allocators.
+    BSLMF_ASSERT(sizeof(check<typename TYPE::value_type>) > 0);
+    BSLMF_ASSERT(sizeof(allocObj.allocate(SIZE_T())) > 0);
+};
+
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// For backwards compatibility:
+namespace bsl {
+
+using BloombergLP::bslma::IsStdAllocator;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+using BloombergLP::bslma::IsStdAllocator_v;
 #endif
 
 }  // close namespace bsl

@@ -123,10 +123,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_allocator.h>
+#include <bslma_isstdallocator.h>
 
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
@@ -219,6 +221,9 @@ class StdTestAllocator {
     // 'StdTestAllocatorConfigurationGuard).
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StdTestAllocator, bslma::IsStdAllocator);
+
     // PUBLIC TYPES
     // Deliberately use types that will *not* have the same representation as
     // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
@@ -270,7 +275,9 @@ class StdTestAllocator {
 
     pointer allocate(size_type numElements);
         // Allocate enough (properly aligned) space for the specified
-        // 'numElements' of type 'T'.  The behavior is undefined unless
+        // 'numElements' of type 'T'.  If the configured delegate allocator is
+        // unable to fulfill the allocation request, an exception (typically
+        // 'bsl::bad_alloc') will be thrown.  The behavior is undefined unless
         // 'numElements <= max_size()'.
 
     void deallocate(pointer address, size_type numElements = 1);
@@ -283,17 +290,19 @@ class StdTestAllocator {
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
     template <class ELEMENT_TYPE, class... Args>
     void construct(ELEMENT_TYPE *address, Args&&... arguments);
-        // TBD: fix comment
-        // Copy-construct a 'TYPE' object at the specified 'address'.  Do not
-        // directly allocate memory.  The behavior is undefined unless
-        // 'address' is properly aligned for 'TYPE'.
+        // Create an object of (template parameter) 'ELEMENT_TYPE' at the
+        // specified 'address', constructed by forwarding the specified
+        // 'argument1' and the (variable number of) additional specified
+        // 'arguments' to the corresponding constructor of 'ELEMENT_TYPE'.  The
+        // behavior is undefined unless 'address' refers to a block of memory
+        // having sufficient size and alignment for an object of
+        // 'ELEMENT_TYPE'.
 #endif
 
     template <class ELEMENT_TYPE>
     void destroy(ELEMENT_TYPE *address);
-        // TBD: fix comment
-        // Invoke the 'TYPE' destructor for the object at the specified
-        // 'address'.
+        // Call the 'ELEMENT_TYPE' destructor for the object at the specified
+        // 'address' but do not deallocate the memory at 'address'.
 
     // ACCESSORS
     pointer address(reference object) const;
@@ -452,6 +461,10 @@ typename StdTestAllocator<TYPE>::pointer
 StdTestAllocator<TYPE>::allocate(typename StdTestAllocator<TYPE>::size_type
                                                                    numElements)
 {
+    if (numElements > this->max_size()) {
+        BloombergLP::bsls::BslExceptionUtil::throwBadAlloc();
+    }
+
     return
       static_cast<pointer>(StdTestAllocatorConfiguration::delegateAllocator()->
             allocate(bslma::Allocator::size_type(numElements * sizeof(TYPE))));

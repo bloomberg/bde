@@ -385,7 +385,7 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 
 #include <bslma_allocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
@@ -435,7 +435,7 @@ class RecordJsonFormatter {
         // initialized from the format specification and responsible for
         // rendering one field of a 'ball::Record' to the output JSON stream.
 
-    typedef bsl::allocator<char> allocator_type;
+    typedef bsl::allocator<> allocator_type;
 
   private:
     // DATA
@@ -454,10 +454,6 @@ class RecordJsonFormatter {
         // 'formatters'.
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(RecordJsonFormatter,
-                                   bslma::UsesBslmaAllocator);
-
     // CREATORS
     explicit RecordJsonFormatter(
                            const allocator_type& allocator = allocator_type());
@@ -493,8 +489,8 @@ class RecordJsonFormatter {
         // and record separator as in the specified 'original' formatter.  The
         // format specification of 'original' is moved to the new object, and
         // all outstanding memory allocations and the specified 'allocator' are
-        // adopted if 'allocator == original.allocator()'.  'original' is left
-        // in a valid but unspecified state.
+        // adopted if 'allocator == original.get_allocator()'.  'original' is
+        // left in a valid but unspecified state.
 
     ~RecordJsonFormatter();
         // Destroy this object.
@@ -510,8 +506,8 @@ class RecordJsonFormatter {
         // modifiable access to this object.  The format specification and
         // record separator of 'rhs' are moved to this object, and all
         // outstanding memory allocations and the allocator associated with
-        // 'rhs' are adopted if 'allocator() == rhs.allocator()'.  'rhs' is
-        // left in a valid but unspecified state.
+        // 'rhs' are adopted if 'get_allocator() == rhs.get_allocator()'.
+        // 'rhs' is left in a valid but unspecified state.
 
     int setFormat(const bsl::string_view& format);
         // Set the message format specification (see
@@ -540,7 +536,11 @@ class RecordJsonFormatter {
 
                                   // Aspects
 
-    const allocator_type& allocator() const;
+    BSLS_DEPRECATE
+    bslma::Allocator *allocator() const;
+        // DEPRECATED: Use 'get_allocator().mechanism()' instead.
+
+    allocator_type get_allocator() const;
         // Return the allocator used by this object to supply memory.
 
 };
@@ -603,7 +603,7 @@ RecordJsonFormatter::RecordJsonFormatter(
       allocator)
 , d_fieldFormatters(allocator)
 {
-    if (MoveUtil::access(original).allocator() == allocator) {
+    if (MoveUtil::access(original).get_allocator() == allocator) {
         d_fieldFormatters = MoveUtil::move(
                                  MoveUtil::access(original).d_fieldFormatters);
     }
@@ -622,7 +622,7 @@ RecordJsonFormatter& RecordJsonFormatter::operator=(
     if (this != &MoveUtil::access(rhs)) {
         d_recordSeparator = MoveUtil::move(
                                   MoveUtil::access(rhs).d_recordSeparator);
-        if (MoveUtil::access(rhs).allocator() == allocator()) {
+        if (MoveUtil::access(rhs).get_allocator() == get_allocator()) {
             releaseFieldFormatters(&d_fieldFormatters);
             d_formatSpec      = MoveUtil::move(
                                       MoveUtil::access(rhs).d_formatSpec);
@@ -662,12 +662,17 @@ const bsl::string& RecordJsonFormatter::recordSeparator() const
                                   // Aspects
 
 inline
-const RecordJsonFormatter::allocator_type&
-RecordJsonFormatter::allocator() const
+bslma::Allocator *RecordJsonFormatter::allocator() const
 {
-    return d_formatSpec.allocator();
+    return d_formatSpec.get_allocator().mechanism();
 }
 
+inline
+RecordJsonFormatter::allocator_type
+RecordJsonFormatter::get_allocator() const
+{
+    return d_formatSpec.get_allocator();
+}
 
 }  // close package namespace
 

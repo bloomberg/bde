@@ -4,7 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
+#include <bsls_keyword.h>
+
+#include <stdint.h>  // 'uintptr_t' -- portable to all compilers
 
 namespace BloombergLP {
 
@@ -27,6 +31,28 @@ void Allocator::throwBadAlloc()
 // CREATORS
 Allocator::~Allocator()
 {
+}
+
+// PROTECTED MANIPULATORS
+void *Allocator::do_allocate(std::size_t bytes, std::size_t alignment)
+{
+    (void) alignment;
+    BSLS_ASSERT_SAFE(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+    return this->allocate(bytes);
+}
+
+void Allocator::do_deallocate(void* p, std::size_t, std::size_t alignment)
+{
+    (void) alignment;
+    BSLS_ASSERT_SAFE(0 == (reinterpret_cast<uintptr_t>(p) & (alignment-1)));
+    this->deallocate(p);
+}
+
+// PROTECTED ACCESSORS
+bool Allocator::do_is_equal(const bsl::memory_resource& other) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return this == &other;
 }
 
 }  // close package namespace

@@ -301,7 +301,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_constructionutil.h>
 #include <bslma_default.h>
 #include <bslma_destructorproctor.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_functionpointertraits.h>

@@ -2,32 +2,66 @@
 #include <bslalg_containerbase.h>
 
 #include <bslma_allocator.h>
-#include <bslma_default.h>
+#include <bslma_allocatorutil.h>
+#include <bslma_autodestructor.h>
+#include <bslma_constructionutil.h>
+#include <bslma_deallocateobjectproctor.h>
+#include <bslma_destructionutil.h>
+#include <bslma_isstdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_istriviallycopyable.h>
-#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isempty.h>
+#include <bslmf_issame.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_bsltestutil.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
-#include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <cstdio>      // 'std::printf'
+#include <cstdlib>     // 'std::atoi'
 
 #include <new>
 
 using namespace BloombergLP;
+using std::printf;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-//
-//
+//                                   Overview
+//                                   --------
+// 'bslalg::ContainerBase' is a template for a mechanism class template
+// intended for private inheritance from Allocator-Aware (AA) classes,
+// especially containers.  It is neither copyable nor movable.  Testing this
+// class involves testing its one constructor, it's two accessors and one
+// manipulator, and its 'AllocatorType' member type.  Additionally, it's
+// intended usage indicates that metafunctions should not deduce it to be an
+// allocator type nor itself be an AA type (although classes that derive from
+// it are typically AA types).  Additionally, the main service provided by this
+// component is ensuring that the allocator does not take up space in the
+// derived class if the allocator type is an empty class, so we test this
+// feature, as well.
+// ----------------------------------------------------------------------------
+// [ 2] ALLOCATOR&       allocatorRef();
+// [ 2] const ALLOCATOR& allocatorRef() const;
+// [ 3] typedef ALLOCATOR AllocatorType;
+// [ 2] ContainerBase(const ALLOCATOR&);
+// [ 2] ~ContainerBase();
+// [ 4] bool equalAllocator(const ContainerBase& rhs) const;
+// [ 5] bslma::IsStdAllocator<ContainerBase<T> >
+// [ 5] bslma::UsesBslmaAllocator<ContainerBase<T> >
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 6] EMPTY-BASE OPTIMIZATION
+// [ 7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -90,256 +124,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
 namespace {
-
-template <class T>
-class Allocator {
-    // An STL-compatible allocator that forwards allocation calls to an
-    // underlying mechanism object of a type derived from 'bslma::Allocator'.
-    // Duplicate of 'bslma_stdallocator'.
-
-    // DATA
-    BloombergLP::bslma::Allocator *d_mechanism;
-
-  public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(Allocator, bsl::is_trivially_copyable);
-    BSLMF_NESTED_TRAIT_DECLARATION(Allocator, bslmf::IsBitwiseMoveable);
-    BSLMF_NESTED_TRAIT_DECLARATION(
-            Allocator,
-            bslmf::IsBitwiseEqualityComparable);
-        // Declare nested type traits for this class.
-
-    // PUBLIC TYPES
-    typedef std::size_t     size_type;
-    typedef std::ptrdiff_t  difference_type;
-    typedef T              *pointer;
-    typedef const T        *const_pointer;
-    typedef T&              reference;
-    typedef const T&        const_reference;
-    typedef T               value_type;
-
-    template <class U> struct rebind
-    {
-        // This nested 'struct' template, parameterized by some type 'U',
-        // provides a namespace for an 'other' type alias, which is an
-        // allocator type following the same template as this one but that
-        // allocates elements of type 'U'.  Note that this allocator type is
-        // convertible to and from 'other' for any type 'U' including 'void'.
-
-        typedef Allocator<U> other;
-    };
-
-    // CREATORS
-    Allocator();
-        // Construct a proxy object that will forward allocation calls to the
-        // object pointed to by 'bslma::Default::defaultAllocator()'.
-        // Postcondition:
-        //..
-        //  this->mechanism() == bslma::Default::defaultAllocator();
-        //..
-
-    Allocator(BloombergLP::bslma::Allocator *mechanism);
-        // Convert a 'bslma::Allocator' pointer to a 'allocator' object that
-        // forwards allocation calls to the object pointed to by the specified
-        // 'mechanism'.  If 'mechanism' is 0, then the currently installed
-        // default allocator is used instead.  Postcondition:
-        // '0 == mechanism || this->mechanism() == mechanism'.
-
-    Allocator(const Allocator& rhs);
-        // Copy construct a proxy object using the same mechanism as rhs.
-        // Postcondition: 'this->mechanism() == rhs.mechanism()'.
-
-    template <class U>
-    Allocator(const Allocator<U>& rhs);
-        // Construct a proxy object sharing the same mechanism object as 'rhs'.
-        // The newly constructed allocator will compare equal to rhs, even
-        // though they are instantiated on different types.  Postcondition:
-        // 'this->mechanism() == rhs.mechanism()'.
-
-    //! ~Allocator();
-        // Destroy this object.  Note that this does not delete the object
-        // pointed to by 'mechanism()'.  Also note that this method's
-        // definition is compiler generated.
-
-    //! Allocator& operator=(const Allocator& rhs);
-        // Assign this object the value of the specified 'rhs'.  Postcondition:
-        // 'this->mechanism() == rhs->mechanism()'.  Note that this does not
-        // delete the object pointed to by the previous value of 'mechanism()'.
-        // Also note that this method's definition is compiler generated.
-
-    // MANIPULATORS
-    pointer allocate(size_type n, const void *hint = 0);
-        // Allocate enough (properly aligned) space for 'n' objects of type 'T'
-        // by calling 'allocate' on the mechanism object.  The 'hint' argument
-        // is ignored by this allocator type.  The behavior is undefined unless
-        // 'n <= max_size()'.
-
-    void deallocate(pointer p, size_type n = 1);
-        // Return memory previously allocated with 'allocate' to the underlying
-        // mechanism object by calling 'deallocate' on the mechanism object.
-        // The 'n' argument is ignored by this allocator type.
-
-    void construct(pointer p, const T& val);
-        // Copy-construct a 'T' object at the memory address specified by 'p'.
-        // Do not directly allocate memory.  Undefined if 'p' is not properly
-        // aligned for 'T'.
-
-    void destroy(pointer p);
-        // Call the 'T' destructor for the object pointed to by 'p'.  Do not
-        // directly deallocate any memory.
-
-    // ACCESSORS
-    BloombergLP::bslma::Allocator *mechanism() const;
-        // Return a pointer to the mechanism object to which this proxy
-        // forwards allocation and deallocation calls.
-
-    pointer address(reference x) const;
-        // Return the address of 'x'.
-
-    const_pointer address(const_reference x) const;
-        // Return the address of 'x'.
-
-    size_type max_size() const;
-        // Return the maximum number of elements of type 'T' that can be
-        // allocated using this allocator.  Note that there is no guarantee
-        // that attempts at allocating less elements than the value returned by
-        // 'max_size' will not throw.
-};
-
-// FREE OPERATORS
-template <class T1, class T2>
-inline
-bool operator==(const Allocator<T1>& lhs,
-                const Allocator<T2>& rhs);
-    // Return true 'lhs' and 'rhs' are proxies for the same 'bslma::Allocator'
-    // object.  This is a practical implementation of the STL requirement that
-    // two allocators compare equal if and only if memory allocated from one
-    // can be deallocated from the other.  Note that the two allocators need
-    // not be instantiated on the same type in order to compare equal.
-
-template <class T1, class T2>
-inline
-bool operator!=(const Allocator<T1>& lhs,
-                const Allocator<T2>& rhs);
-    // Return '!(lhs == rhs)'.
-
-                             // ---------------
-                             // class Allocator
-                             // ---------------
-
-// LOW-LEVEL ACCESSORS
-template <class T>
-inline
-BloombergLP::bslma::Allocator *Allocator<T>::mechanism() const
-{
-    return d_mechanism;
-}
-
-// CREATORS
-template <class T>
-inline
-Allocator<T>::Allocator()
-: d_mechanism(BloombergLP::bslma::Default::defaultAllocator())
-{
-}
-
-template <class T>
-inline
-Allocator<T>::Allocator(BloombergLP::bslma::Allocator *mechanism)
-: d_mechanism(BloombergLP::bslma::Default::allocator(mechanism))
-{
-}
-
-template <class T>
-inline
-Allocator<T>::Allocator(const Allocator& rhs)
-: d_mechanism(rhs.mechanism())
-{
-}
-
-template <class T>
-template <class U>
-inline
-Allocator<T>::Allocator(const Allocator<U>& rhs)
-: d_mechanism(rhs.mechanism())
-{
-}
-
-// MANIPULATORS
-template <class T>
-inline
-typename Allocator<T>::pointer
-Allocator<T>::allocate(typename Allocator::size_type  n,
-                       const void                    *hint)
-{
-    // Both 'bslma::Allocator::size_type' and 'Allocator<T>::size_type' have
-    // the same width; however, the former is signed, but the latter is not.
-    // Hence the cast in the argument of 'allocate' below.
-
-    (void) hint;  // suppress warning
-    return static_cast<pointer>(d_mechanism->allocate(
-                     BloombergLP::bslma::Allocator::size_type(n * sizeof(T))));
-}
-
-template <class T>
-inline
-void Allocator<T>::deallocate(typename Allocator::pointer   p,
-                              typename Allocator::size_type n)
-{
-    (void) n;  // suppress warning
-    d_mechanism->deallocate(p);
-}
-
-template <class T>
-inline
-void Allocator<T>::construct(typename Allocator::pointer p,
-                             const T&                    val)
-{
-    new(static_cast<void*>(p)) T(val);
-}
-
-template <class T>
-inline
-void Allocator<T>::destroy(typename Allocator::pointer p)
-{
-    p->~T();
-}
-
-// ACCESSORS
-template <class T>
-inline
-typename Allocator<T>::size_type Allocator<T>::max_size() const
-{
-    // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
-    // 'size_type'.
-
-    // TBD Should these 'const' variables be declared 'static'?
-    static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
-    static const std::size_t MAX_NUM_ELEMENTS =
-                                        std::size_t(MAX_NUM_BYTES) / sizeof(T);
-
-    return MAX_NUM_ELEMENTS;
-}
-
-template <class T>
-inline
-typename Allocator<T>::pointer Allocator<T>::address(reference x) const
-{
-    return BSLS_UTIL_ADDRESSOF(x);
-}
-
-template <class T>
-inline
-typename Allocator<T>::const_pointer Allocator<T>::address(const_reference x)
-                                                                          const
-{
-    return BSLS_UTIL_ADDRESSOF(x);
-}
 
 class TestType{
     // DATA
@@ -354,29 +139,97 @@ class TestType{
     static int numDestroy() { return s_numDestroy; }
 
     // CREATORS
-    TestType() {}
+    TestType() { (void) d_data1; }
     TestType(const TestType&) { ++s_numCopyConstruct; }
     ~TestType() { ++s_numDestroy; }
 };
 
 // FREE OPERATORS
-template <class T1, class T2>
-inline
-bool operator==(const Allocator<T1>& lhs, const Allocator<T2>& rhs)
-{
-    return lhs.mechanism() == rhs.mechanism();
-}
-
-template <class T1, class T2>
-inline
-bool operator!=(const Allocator<T1>& lhs, const Allocator<T2>& rhs)
-{
-    return ! (lhs == rhs);
-}
-
-
 int TestType::s_numCopyConstruct = 0;
 int TestType::s_numDestroy = 0;
+
+const void *g_lastStatelessSTLAllocatorConstructed = 0;
+    // Address of the most recent 'StatelessSTLAllocator' object constructed.
+
+const void *g_lastStatelessSTLAllocatorDestroyed = 0;
+    // Address of the most recent 'StatelessSTLAllocator' object destroyed.
+
+const void *g_lastStatelessSTLAllocatorCopied = 0;
+    // Address of the most recent 'StatelessSTLAllocator' object from which a
+    // copy was made.
+
+bslma::TestAllocator g_StatelessSTLAllocatorRsrc("Stateless Allocator");
+    // Global memory source for 'StatelessSTLAllocator'.
+
+template <class TYPE>
+class StatelessSTLAllocator {
+    // Allocator that allocates from the default 'bslma::Allocator'
+    // resource.  Constructors keep track of the address of the most-recently
+    // constructed instance.
+
+  public:
+    // TYPES
+    typedef TYPE value_type;
+
+    // CLASS METHODS
+    static bslma::Allocator* mechanism()
+        { return &g_StatelessSTLAllocatorRsrc; }
+
+    // CREATORS
+    StatelessSTLAllocator() { g_lastStatelessSTLAllocatorConstructed = this; }
+
+    StatelessSTLAllocator(const StatelessSTLAllocator& original) {
+        g_lastStatelessSTLAllocatorConstructed = this;
+        g_lastStatelessSTLAllocatorCopied      = &original;
+    }
+
+    template <class T2>
+    StatelessSTLAllocator(const StatelessSTLAllocator<T2>& original) {
+        g_lastStatelessSTLAllocatorConstructed = this;
+        g_lastStatelessSTLAllocatorCopied      = &original;
+    }
+
+    ~StatelessSTLAllocator() { g_lastStatelessSTLAllocatorDestroyed = this; }
+
+    // MANIPULATORS
+    value_type *allocate(std::size_t n, void * = 0) {
+        return bslma::AllocatorUtil::allocateObject<value_type>(
+                                              &g_StatelessSTLAllocatorRsrc, n);
+    }
+
+    void deallocate(value_type *p, std::size_t n) {
+        bslma::Allocator *rsrc = bslma::Default::defaultAllocator();
+        bslma::AllocatorUtil::deallocateObject(&g_StatelessSTLAllocatorRsrc,
+                                               p, n);
+    }
+};
+
+template <class T1, class T2>
+inline
+bool operator==(const StatelessSTLAllocator<T1>&,
+                const StatelessSTLAllocator<T2>&)
+{
+    return true;
+}
+
+template <class T1, class T2>
+inline
+bool operator!=(const StatelessSTLAllocator<T1>&,
+                const StatelessSTLAllocator<T2>&)
+{
+    return false;
+}
+
+struct EmptyBase { };
+
+template <class BASE>
+struct DerivedClass : private BASE
+{
+    // Derived class will have size of 1 byte if 'BASE' is empty and compiler
+    // supports EBO, otherwise will have a size at least as big as 'BASE' + 1.
+
+    char d_data;
+};
 
 }  // close unnamed namespace
 
@@ -390,12 +243,24 @@ int TestType::s_numDestroy = 0;
 //
 ///Example 1: Creating a Fixed-Size Array with 'bslalg::ContainerBase'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we would like to implement a fixed-size array that allocate memory
-// on the heap at construction.
+// Suppose we would like to implement a fixed-size array that allocates memory
+// from a user-supplied allocator at construction.
 //
-// First, we define the interface of the container, 'MyFixedSizeArray', that
-// derives from 'ContainerBase'.  The implementation is elided for brevity:
+// First, we define the interface of the container, 'MyFixedSizeArray'.  We
+// privately derive from 'ContainerBase' to take advantage of the
+// empty-base-class optimization (in case 'ALLOCATOR' is an empty class) and to
+// take advantage of implementation conveniences 'ContainerBase' provides:
 //..
+//  #include <bslalg_containerbase.h>
+//  #include <bslma_allocatorutil.h>
+//  #include <bslma_autodestructor.h>
+//  #include <bslma_constructionutil.h>
+//  #include <bslma_deallocateobjectproctor.h>
+//  #include <bslma_destructionutil.h>
+//  #include <bslma_bslallocator.h>
+//  #include <bslma_testallocator.h>
+//  #include <bslmf_isempty.h>
+
     template <class VALUE, class ALLOCATOR>
     class MyFixedSizeArray : private bslalg::ContainerBase<ALLOCATOR>
         // This class implements a container that contains a fixed number of
@@ -403,109 +268,166 @@ int TestType::s_numDestroy = 0;
         // 'ALLOCATOR' to allocate memory.  The number of elements is specified
         // on construction.
     {
-//..
-// Notice that to use this component, a class should derive from
-// 'ContainerBase' in order to take advantage of empty-base optimization.
-//..
+        // PRIVATE TYPES
+        typedef bslalg::ContainerBase<ALLOCATOR> Base;
+
         // DATA
         VALUE     *d_array;  // head pointer to the array of elements
         const int  d_size;   // (fixed) number of elements in 'd_array'
-//
+
       public:
+        // TYPES
+        typedef ALLOCATOR allocator_type;
+
         // CREATORS
-        MyFixedSizeArray(int size, const ALLOCATOR& allocator = ALLOCATOR());
+        explicit MyFixedSizeArray(int              size,
+                                  const ALLOCATOR& allocator = ALLOCATOR());
             // Create a 'MyFixedSizeArray' object having the specified 'size'
-            // elements, and using the specified 'allocator' to supply memory.
-//
+            // elements, and using the optionally specified 'allocator' to
+            // supply memory.  Each element of the array is value initialized.
+
         MyFixedSizeArray(const MyFixedSizeArray& original,
                          const ALLOCATOR&        allocator = ALLOCATOR());
             // Create a 'MyFixedSizeArray' object having same number of
             // elements as that of the specified 'original', the same value of
             // each element as that of corresponding element in 'original', and
-            // using the specified 'allocator' to supply memory.
-//
+            // using the optionally specified 'allocator' to supply memory.
+
         ~MyFixedSizeArray();
             // Destroy this object.
-//
+
         // MANIPULATORS
-        VALUE& operator[](int i);
-            // Return the reference of the specified 'i'th element of this
-            // object.  The behavior is undefined unless 'i < size()'.
-//
+        VALUE& operator[](int i) { return d_array[i]; }
+            // Return a modifiable reference to the specified 'i'th element of
+            // this object.  The behavior is undefined unless 'i < size()'.
+
         // ACCESSORS
-        int size() const;
+        const VALUE& operator[](int i) const { return d_array[i]; }
+            // Return a const reference to the specified 'i'th element of this
+            // object.  The behavior is undefined unless 'i < size()'.
+
+        ALLOCATOR get_allocator() const;
+            // Return the allocator used by this object to allocate memory.
+
+        int size() const { return d_size; }
             // Return the number of elements contained in this object.
     };
 //..
-
-template<class VALUE, class ALLOCATOR>
-MyFixedSizeArray<VALUE,ALLOCATOR>::MyFixedSizeArray(int              size,
+// Next, we define the 'get_allocator' accessor, which extracts the allocator
+// from the 'ContainerBase' base class using its 'allocatorRef' method:
+//..
+    template<class VALUE, class ALLOCATOR>
+    inline
+    ALLOCATOR
+    MyFixedSizeArray<VALUE,ALLOCATOR>::get_allocator() const {
+        return Base::allocatorRef();
+    }
+//..
+// Next, we define the first constructor, beginning with the initialization the
+// 'ContainerBase' base class with the supplied 'allocator':
+//..
+    template<class VALUE, class ALLOCATOR>
+    MyFixedSizeArray<VALUE,ALLOCATOR>::MyFixedSizeArray(
+                                                    int              size,
                                                     const ALLOCATOR& allocator)
-: bslalg::ContainerBase<ALLOCATOR>(allocator)
-, d_size(size)
-{
-    d_array = this->allocate(d_size);  // sizeof(VALUE)*d_size bytes
-
-    // Default construct each element of the array:
-    for (int i = 0; i < d_size; ++i) {
-        this->construct(&d_array[i], VALUE());
-    }
-}
-
-template<class VALUE, class ALLOCATOR>
-MyFixedSizeArray<VALUE,ALLOCATOR>::MyFixedSizeArray(
-                                             const MyFixedSizeArray& rhs,
-                                             const ALLOCATOR&        allocator)
-: bslalg::ContainerBase<ALLOCATOR>(allocator)
-, d_size(rhs.d_size)
-{
-    d_array = this->allocate(d_size);  // sizeof(VALUE) * d_size bytes
-
-    // copy construct each element of the array:
-    for (int i = 0; i < d_size; ++i) {
-        this->construct(&d_array[i], rhs.d_array[i]);
-    }
-}
-
-template<class VALUE, class ALLOCATOR>
-MyFixedSizeArray<VALUE,ALLOCATOR>::~MyFixedSizeArray()
-{
-    // Call destructor for each element
-    for (int i = 0; i < d_size; ++i) {
-        this->destroy(&d_array[i]);
-    }
-
-    // Return memory to allocator.
-    this->deallocate(d_array, d_size);
-}
-
-template<class VALUE, class ALLOCATOR>
-inline VALUE& MyFixedSizeArray<VALUE,ALLOCATOR>::operator[](int i)
-{
-    return d_array[i];
-}
-
-template<class VALUE, class ALLOCATOR>
-inline int MyFixedSizeArray<VALUE,ALLOCATOR>::size() const
-{
-    return d_size;
-}
-
-template<class VALUE, class ALLOCATOR>
-bool operator==(const MyFixedSizeArray<VALUE,ALLOCATOR>& lhs,
-                const MyFixedSizeArray<VALUE,ALLOCATOR>& rhs)
-{
-    if (lhs.size() != rhs.size()) {
-        return false;                                                 // RETURN
-    }
-    for (int i = 0; i < lhs.size(); ++i) {
-        if (lhs[i] != rhs[i]) {
-            return false;                                             // RETURN
+    : Base(allocator)
+    , d_size(size)
+    {
+//..
+// Then, we allocate the specified number of array elements using the allocator
+// returned by the 'get_allocator()' method.  Once allocated, we protect the
+// array memory with a 'bslma::DeallocateObjectProctor' object:
+//..
+        d_array =
+            bslma::AllocatorUtil::allocateObject<VALUE>(get_allocator(),
+                                                        d_size);
+        bslma::DeallocateObjectProctor<ALLOCATOR, VALUE>
+            deallocateProctor(get_allocator(), d_array, d_size);
+//..
+// Then, we invoke the constructor for each array element using the
+// 'bslma::ConstructionUtil::construct' method.  We use a
+// 'bslma::AutoDestuctor' proctor to unwind these constructions if an exception
+// is thrown:
+//..
+        bslma::AutoDestructor<VALUE> autoDtor(d_array, 0);
+        // Default construct each element of the array:
+        for (int i = 0; i < d_size; ++i) {
+            bslma::ConstructionUtil::construct(&d_array[i], get_allocator());
+            ++autoDtor;
         }
+//..
+// Then, when every element has been constructed, we free the proctors:
+//..
+        autoDtor.release();
+        deallocateProctor.release();
     }
-    return true;
-}
+//..
+// Next we implement the destructor as the reverse of the constructor, invoking
+// 'bslma::DestructionUtil::destroy' on each element then deallocating them
+// with 'bslma::AllocatorUtil::deallocateObject':
+//..
+    template<class VALUE, class ALLOCATOR>
+    MyFixedSizeArray<VALUE,ALLOCATOR>::~MyFixedSizeArray()
+    {
+        // Call destructor for each element
+        for (int i = 0; i < d_size; ++i) {
+            bslma::DestructionUtil::destroy(&d_array[i]);
+        }
 
+        // Return memory to allocator.
+        bslma::AllocatorUtil::deallocateObject(get_allocator(),
+                                               d_array, d_size);
+    }
+//..
+// Next, for testing purposes, we create a 'StatelessAllocator' template that
+// simply allocates a global test allocator:
+//..
+    bslma::TestAllocator g_testAllocator;
+
+    template <class TYPE>
+    class StatelessAllocator {
+        // Allocator that allocates from the default 'bslma::Allocator'
+        // resource.
+
+      public:
+        typedef TYPE value_type;
+
+        value_type *allocate(std::size_t n, void * = 0) {
+            return bslma::AllocatorUtil::allocateObject<value_type>(
+                                                          &g_testAllocator, n);
+        }
+
+        void deallocate(value_type *p, std::size_t n) {
+            bslma::AllocatorUtil::deallocateObject(&g_testAllocator, p, n);
+        }
+    };
+//..
+// Finally, we create two 'MyFixedSizeArray' objects, one using
+// 'StatelessAllocator', and the other using 'bsl::allocator', and we verify
+// that memory is allocated from the correct allocator for each.  Because
+// 'StatelessAllocator' is an empty class, the first object is smaller than the
+// second object by at least the size of a 'bsl::allocator'.
+//..
+    void usageExample()
+    {
+        ASSERT(bsl::is_empty<StatelessAllocator<int> >::value);
+
+        MyFixedSizeArray<int, StatelessAllocator<int> > fixedArray1(3);
+        ASSERT(3               == fixedArray1.size());
+        ASSERT(1               == g_testAllocator.numBlocksInUse());
+        ASSERT(3 * sizeof(int) == g_testAllocator.numBytesInUse());
+
+        bslma::TestAllocator                            ta;
+        MyFixedSizeArray<int, bsl::allocator<int> >     fixedArray2(3, &ta);
+        ASSERT(3               == fixedArray2.size());
+        ASSERT(&ta             == fixedArray2.get_allocator());
+        ASSERT(1               == ta.numBlocksInUse());
+        ASSERT(3 * sizeof(int) == ta.numBytesInUse());
+
+        ASSERT(sizeof(fixedArray2) - sizeof(fixedArray1) >=
+               sizeof(bsl::allocator<int>));
+    }
+//..
 
 
 //=============================================================================
@@ -514,7 +436,7 @@ bool operator==(const MyFixedSizeArray<VALUE,ALLOCATOR>& lhs,
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? std::atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
@@ -529,7 +451,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -544,21 +466,259 @@ int main(int argc, char *argv[])
         //:   (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //      USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-// Finally, assuming we have a STL compliant allocator named 'Allocator', we
-// can create a 'MyFixedSizeArray' object and populate it with data.
-//..
-    MyFixedSizeArray<int, Allocator<int> > fixedArray(3);
-    fixedArray[0] = 1;
-    fixedArray[1] = 2;
-    fixedArray[2] = 3;
-//
-    ASSERT(fixedArray[0] == 1);
-    ASSERT(fixedArray[1] == 2);
-    ASSERT(fixedArray[2] == 3);
-//..
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        usageExample();
+
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // EMPTY-BASE OPTIMIZATION
+        //   'ContainerBase' is designed for derived classes to take advantage
+        //   of the empty-base optimization (EBO) when the allocator type is an
+        //   empty class.
+        //
+        // Concerns:
+        //: 1 If 'ALLOCATOR' is an empty class, a class derived from
+        //:   'bslalg::ContainerBase<ALLOCATOR>' can take advantage of the EBO
+        //:   such that the allocator takes up no space in the derived class.
+        //
+        // Plan:
+        //: 1 Define an empty class, 'EmptyBase'.  Define a class template,
+        //:   'DerivedClass<T>', that inherits privately from 'T'.
+        //: 2 Instantiate 'DerivedClass<ContainerBase<A>>' with both empty
+        //:   (stateless) and non-empty (statefull) allocator types, 'A'.
+        //:   Verify that, when 'A' is empty, 'DerivedClass<ContainerBase<A>>'
+        //:   is the same size as 'DerivedClass<EmptyBase>'.  (C-1)
+        //
+        // Testing:
+        //      EMPTY-BASE OPTIMIZATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nEMPTY-BASE OPTIMIZATION"
+                            "\n=======================\n");
+
+        const std::size_t EBOSize = sizeof(DerivedClass<EmptyBase>);
+
+        typedef bslalg::ContainerBase<bsl::allocator<> >           Obj1;
+        typedef bslalg::ContainerBase<StatelessSTLAllocator<int> > Obj2;
+
+        ASSERT(sizeof(Obj1) >  EBOSize);
+        ASSERT(sizeof(Obj2) == EBOSize);
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TRAITS
+        //   Check that 'ContainerBase' cannot be confused for an allocator or
+        //   an allocator-aware type.
+        //
+        // Concerns:
+        //: 1 'bslma::IsStdAllocator' does not read 'bslalg::ContainerBase' as
+        //:   an allocator; i.e., it evaluates to 'false' for all
+        //:   instantiations.
+        //: 2 'bslma::UsesBslmaAllocator' does not read 'bslalg::ContainerBase'
+        //:   as an allocator-aware type; i.e., it evaluates to 'false' for all
+        //:   instantiations.
+        //
+        // Plan:
+        //: 1 Instantiate 'bslalg::ContainerBase' with both stateful and
+        //:   stateless allocator types.
+        //: 2 Verify that 'bslma::IsStdAllocator' evaluates to 'false' for all
+        //:   instantiations.  (C-1)
+        //: 3 Verify that 'bslma::UsesBslmaAllocator' evaluates to 'false' for
+        //:   all instantiations.  (C-2)
+        //
+        // Testing:
+        //      bslma::IsStdAllocator<ContainerBase<T> >
+        //      bslma::UsesBslmaAllocator<ContainerBase<T> >
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTRAITS"
+                            "\n======\n");
+
+        typedef bslalg::ContainerBase<bsl::allocator<> >           Obj1;
+        typedef bslalg::ContainerBase<StatelessSTLAllocator<int> > Obj2;
+
+        ASSERT(false == bslma::IsStdAllocator<Obj1>::value);
+        ASSERT(false == bslma::IsStdAllocator<Obj2>::value);
+
+        ASSERT(false == bslma::UsesBslmaAllocator<Obj1>::value);
+        ASSERT(false == bslma::UsesBslmaAllocator<Obj2>::value);
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // 'equalAllocator' ACCESSOR
+        //
+        // Concerns:
+        //: 1 For two 'ContainerBase' objects of the same type, 'a' and 'b',
+        //:   'a.equalAllocator(b)' returns 'true' if the allocator for 'a' and
+        //:   the allocator for 'b' compare equal; otherwise it returns false.
+        //: 2 'a.equalAllocator(a)' always returns 'true'.
+        //
+        // Plan:
+        //: 1 Instantiate 'ContainerBase' with both statefull and stateless
+        //:   allocator types.
+        //: 2 For each instantiation, create three objects, two with the same
+        //:   allocator and one with a different allocator.
+        //: 3 Verify that 'a.equalAllocator(b)' returns 'true' if the allocator
+        //:   for 'a' and the allocator for 'b' compare equal and 'false'
+        //:   otherwise.  Note that, for allocators that always compare 'true'
+        //:   (e.g., stateless allocators), 'equalAllocator' will always return
+        //:   'true'.  (C-1)
+        //: 4 Verify that 'a.equalAllocator(a)' always returns 'true'.  (C-2)
+        //
+        // Testing:
+        //      bool equalAllocator(const ContainerBase& rhs) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'equalAllocator' ACCESSOR"
+                            "\n=========================\n");
+
+        {
+            bslma::TestAllocator ta1, ta2;
+            typedef bslalg::ContainerBase<bsl::allocator<> > Obj;
+
+            const Obj A(&ta1);
+            const Obj B(&ta1);
+            const Obj C(&ta2);
+            ASSERT( A.equalAllocator(B));
+            ASSERT(!A.equalAllocator(C));
+            ASSERT( A.equalAllocator(A));
+        }
+
+        {
+            StatelessSTLAllocator<int> ta1, ta2;
+            typedef bslalg::ContainerBase<StatelessSTLAllocator<int> > Obj;
+
+            const Obj A(ta1);
+            const Obj B(ta1);
+            const Obj C(ta2);
+            ASSERT( A.equalAllocator(B));
+            ASSERT( A.equalAllocator(C));  // always compares equal
+            ASSERT( A.equalAllocator(A));
+        }
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // 'AllocatorType' TYPEDEF
+        //   There is a nested 'AllocatorType' typedef in 'ContainerBase'.
+        //
+        // Concerns:
+        //: 1 Each instantiation of 'bslalg::ContainerBase<ALLOCATOR>' has a
+        //:   nested 'typedef' that is an alias for 'ALLOCATOR'.
+        //
+        // Plan
+        //: 1 Instantiate 'ContainerBase' with a couple of different
+        //:   allocators, both stateful and stateless.  Verify that the
+        //:   'AllocatorType' typedef is the same as the allocator type.  (C-1)
+        //
+        // TESTING
+        //      typedef ALLOCATOR AllocatorType;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'AllocatorType' TYPEDEF"
+                            "\n=======================\n");
+
+        typedef bslalg::ContainerBase<bsl::allocator<> > Cb1;
+        ASSERT((bsl::is_same<Cb1::AllocatorType, bsl::allocator<> >::value));
+
+        typedef bslalg::ContainerBase<StatelessSTLAllocator<short> > Cb2;
+        ASSERT((bsl::is_same<Cb2::AllocatorType,
+                             StatelessSTLAllocator<short> >::value));
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTOR AND BASIC ACCESSORS
+        //   Test constructor and main accessors.
+        //
+        // Concerns:
+        //: 1 A 'bslalg::ContainerBase<ALLOCATOR>' object can be constructed
+        //:   from a single argument that is convertable to 'ALLOCATOR'.  The
+        //:   new 'ContainerBase' stores a copy of the constructor argument.
+        //: 2 The 'allocatorRef' accessor and manipulator return the stored
+        //:   allocator by const reference and non-const reference,
+        //:   respectively.
+        //: 3 The destructor for 'ContainerBase' invokes the destructor for the
+        //: 4 The above concerns apply for both stateful and stateless
+        //:   'ALLOCATOR' types.
+        //:   stored allocator.
+        //
+        // Plan:
+        //: 1 Using 'bsl::allocator' for 'ALLOCATOR', create 'ContainerBase'
+        //:   object, passing the constructor the address of a 'TestAllocator'.
+        //:   Verify that the 'allocatorRef' methods return a reference to
+        //:   'bsl::allocator' whose mechanism is the test allocator address.
+        //:   (C-1, C-2)
+        //: 2 Create stateless allocator type, 'StatelessSTLAllocator', that
+        //:   tracks constructors, destructors, and copies.  Create a
+        //:   'ContainerBase' object, passing the constructor an object of type
+        //:   'StatelessSTLAllocator'.  Verify that the object returned by
+        //:   'allocatorRef' is the most-recently constructed allocator and
+        //:   that the object that was passed to the constructor is the
+        //:   most-recently copied allocator.  (C-4)
+        //: 3 When the 'ContainerBase' goes out of scope at the end of step 2,
+        //:   verify that the most-recently destroyed allocator is the same as
+        //:   the most-recently constructed one.  (C-3)
+        //
+        // Testing:
+        //      ContainerBase(const ALLOCATOR&);
+        //      ~ContainerBase();
+        //      ALLOCATOR&       allocatorRef();
+        //      const ALLOCATOR& allocatorRef() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONSTRUCTOR AND BASIC ACCESSORS"
+                            "\n===============================\n");
+
+        if (veryVerbose) printf("statefull allocator\n");
+        {
+            typedef bsl::allocator<int>          Alloc;
+            typedef bslalg::ContainerBase<Alloc> Obj;
+
+            bslma::TestAllocator ta;
+            Alloc                allocArg(&ta);
+
+            // Construct with exact allocator type.
+            Obj          cb1(allocArg); const Obj& CB1 = cb1;
+            Alloc&       a1 = cb1.allocatorRef();
+            const Alloc& A1 = CB1.allocatorRef();
+            ASSERT(&a1 == &A1);
+            ASSERT(a1 == allocArg);
+            ASSERT(A1 == allocArg);
+
+            // Construct using conversion to allocator type
+            Obj cb2(&ta); const Obj& CB2 = cb2;
+            ASSERT(&ta == cb2.allocatorRef().mechanism());
+            ASSERT(&ta == CB2.allocatorRef().mechanism());
+        }
+
+        if (veryVerbose) printf("stateless allocator\n");
+        {
+            typedef StatelessSTLAllocator<int>   Alloc;
+            typedef bslalg::ContainerBase<Alloc> Obj;
+
+            Alloc        allocArg1;
+            {
+                Obj          cb1(allocArg1); const Obj& CB1 = cb1;
+                Alloc&       a1 = cb1.allocatorRef();
+                const Alloc& A1 = CB1.allocatorRef();
+                ASSERT(&a1 == &A1);
+                ASSERT(a1  == allocArg1);
+                ASSERT(A1  == allocArg1);
+                ASSERT(&A1        == g_lastStatelessSTLAllocatorConstructed);
+                ASSERT(&allocArg1 == g_lastStatelessSTLAllocatorCopied);
+            }
+            ASSERT(g_lastStatelessSTLAllocatorDestroyed ==
+                   g_lastStatelessSTLAllocatorConstructed);
+        }
 
       } break;
       case 1: {
@@ -574,64 +734,47 @@ int main(int argc, char *argv[])
         //: 1 Invoke all methods and verify their behavior.
         //
         // Testing:
-        //   BREATHING TEST
+        //      BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        bslma::TestAllocator ta;
-        Allocator<int> a(&ta);
+        // Test with stateful allocator
+        {
+            bslma::TestAllocator ta;
 
-        typedef bslalg::ContainerBase<Allocator<TestType> > Obj;
+            typedef bslalg::ContainerBase<bsl::allocator<TestType> > Obj;
 
-        Obj mX(a);
+            bsl::allocator<int>  a(&ta);
+            bsl::allocator<int>  da;
 
-        for (int i = 1; i <= 5; ++i) {
-            bslma::TestAllocatorMonitor tam(&ta);
+            // A 'ContainerBase' is NOT an allocator.
+            ASSERT(! bslma::IsStdAllocator<Obj>::value);
 
-            Obj::pointer ptr = mX.allocate(i);
-            ASSERTV(i, i * static_cast<ptrdiff_t>(sizeof(TestType))
-                                                        == ta.numBytesInUse());
-
-            int nc = TestType::numCopyConstruct();
-            mX.construct(ptr, TestType());
-            ASSERTV(TestType::numCopyConstruct(), nc + 1,
-                    TestType::numCopyConstruct() == nc + 1);
-
-
-            int nd = TestType::numDestroy();
-            mX.destroy(ptr);
-            ASSERTV(TestType::numDestroy(), nd + 1,
-                    TestType::numDestroy() == nd + 1);
-
-            mX.deallocate(ptr);
-            ASSERTV(0 == ta.numBytesInUse());
-
-
-            int *intPtr = 0;
-            intPtr = mX.allocateN(intPtr, i);
-            ASSERTV(i, i * static_cast<ptrdiff_t>(sizeof(int))
-                                                        == ta.numBytesInUse());
-
-            mX.deallocateN(intPtr, i);
-            ASSERTV(i, 0 == ta.numBytesInUse());
-
-
-            ASSERTV(i, true == tam.isTotalUp());
+            Obj mX(a);  const Obj& X = mX;
+            Obj mY(a);  const Obj& Y = mY;
+            Obj mZ(da); const Obj& Z = mZ;
+            ASSERT(a == mX.allocatorRef());
+            ASSERT(a == X.allocatorRef());
+            ASSERT(  X.equalAllocator(Y));
+            ASSERT(! X.equalAllocator(Z));
         }
 
-        if (verbose) printf("Test 'equalAllocator'\n");
+        // Test with stateless allocator
         {
-            bslma::TestAllocator oa1, oa2;
-            Allocator<int> a1(&oa1);
-            Allocator<int> a2(&oa2);
+            typedef bslalg::ContainerBase<StatelessSTLAllocator<int> > Obj;
 
-            Obj mX(a1);
-            Obj mY(a2);
+            StatelessSTLAllocator<char> a;
 
-            ASSERTV(true  == mX.equalAllocator(mX));
-            ASSERTV(false == mX.equalAllocator(mY));
+            // A 'ContainerBase' is NOT an allocator.
+            ASSERT(! bslma::IsStdAllocator<Obj>::value);
+
+            Obj mX(a); const Obj& X = mX;
+            Obj mY(a); const Obj& Y = mY;
+            ASSERT(a == mX.allocatorRef());
+            ASSERT(a == X.allocatorRef());
+            ASSERT(X.equalAllocator(Y));
         }
 
       } break;

@@ -195,6 +195,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_allocatortraits.h>
+#include <bslma_allocatorutil.h>
 
 #include <bslmf_movableref.h>
 
@@ -247,6 +248,8 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
     // PRIVATE TYPES
     typedef SimplePool_Type<ALLOCATOR> Types;
 
+    enum { k_MAX_BLOCKS_PER_CHUNK = 32 };
+
     union Block {
         // This 'union' implements a link data structure with the size no
         // smaller than 'VALUE' that stores the address of the next link.
@@ -268,10 +271,17 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         // chunks, and thereby enabling constant-time additions to the list of
         // chunks.
 
-        Chunk *d_next_p;  // pointer to next Chunk
+        struct {
+            Chunk                                      *d_next_p;
+            typename Types::AllocatorTraits::size_type  d_numBytes;
+        } d_info;
 
         typename bsls::AlignmentFromType<Block>::Type d_alignment;
                           // ensure each block is correctly aligned
+
+        Block *firstBlock()
+            // Return a pointer to the first block in this chunk.
+            { return reinterpret_cast<Block *>(this + 1); }
     };
 
   public:
@@ -305,10 +315,15 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 
   private:
     // PRIVATE MANIPULATORS
-    Block *allocateChunk(size_type size);
-        // Allocate a chunk of memory with at least the specified 'size' number
-        // of usable bytes and add the chunk to the chunk list.  Return the
-        // address of the usable portion of the memory.
+    Chunk *allocateChunk(std::size_t numBlocks);
+        // Allocate a chunk of memory having enough usable blocks for the
+        // specified 'numBlocks' objects of type 'VALUE', add the chunk to the
+        // chunk list, and return the address of the chunk header.
+
+    void deallocateChunk(Chunk *chunk_p);
+        // Deallocate a chunk of memory at the specified 'chunk_p' address.
+        // The behavior is undefined unless 'chunk_p' was allocate from this
+        // pool using 'allocateChunk' and not yet deallocated.
 
     void replenish();
         // Dynamically allocate a new chunk using the pool's underlying growth
@@ -404,27 +419,36 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 
 // PRIVATE MANIPULATORS
 template <class VALUE, class ALLOCATOR>
-typename SimplePool<VALUE, ALLOCATOR>::Block *
-SimplePool<VALUE, ALLOCATOR>::allocateChunk(size_type size)
+typename SimplePool<VALUE, ALLOCATOR>::Chunk *
+SimplePool<VALUE, ALLOCATOR>::allocateChunk(std::size_t numBlocks)
 {
-    // Determine the number of bytes we want to allocate and compute the number
-    // of 'MaxAlignedType' needed to contain those bytes.
+    std::size_t       numBytes  = sizeof(Chunk) + sizeof(Block) * numBlocks;
+    const std::size_t alignment = bsls::AlignmentFromType<Chunk>::VALUE;
 
-    size_type numBytes = static_cast<size_type>(sizeof(Chunk)) + size;
-    size_type numMaxAlignedType =
-                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-
-    Chunk *chunkPtr = reinterpret_cast<Chunk *>(
-                    AllocatorTraits::allocate(allocator(), numMaxAlignedType));
+    Chunk *chunkPtr =
+        static_cast<Chunk *>(bslma::AllocatorUtil::allocateBytes(allocator(),
+                                                                 numBytes,
+                                                                 alignment));
 
     BSLS_ASSERT_SAFE(0 ==
              reinterpret_cast<bsls::Types::UintPtr>(chunkPtr) % sizeof(Chunk));
 
-    chunkPtr->d_next_p = d_chunkList_p;
-    d_chunkList_p      = chunkPtr;
+    chunkPtr->d_info.d_next_p   = d_chunkList_p;
+    chunkPtr->d_info.d_numBytes = numBytes;
+    d_chunkList_p               = chunkPtr;
 
-    return reinterpret_cast<Block *>(chunkPtr + 1);
+    return chunkPtr;
+}
+
+template <class VALUE, class ALLOCATOR>
+inline void
+SimplePool<VALUE, ALLOCATOR>::deallocateChunk(Chunk *chunk_p)
+{
+    std::size_t       numBytes  = chunk_p->d_info.d_numBytes;
+    const std::size_t alignment = bsls::AlignmentFromType<Chunk>::VALUE;
+
+    bslma::AllocatorUtil::deallocateBytes(allocator(), chunk_p,
+                                          numBytes, alignment);
 }
 
 template <class VALUE, class ALLOCATOR>
@@ -433,9 +457,7 @@ void SimplePool<VALUE, ALLOCATOR>::replenish()
 {
     reserve(d_blocksPerChunk);
 
-    enum { MAX_BLOCKS_PER_CHUNK = 32 };
-
-    if (d_blocksPerChunk < MAX_BLOCKS_PER_CHUNK) {
+    if (d_blocksPerChunk < k_MAX_BLOCKS_PER_CHUNK) {
         d_blocksPerChunk *= 2;
     }
 }
@@ -548,8 +570,20 @@ inline
 void SimplePool<VALUE, ALLOCATOR>::quickSwapExchangeAllocators(
                                            SimplePool<VALUE, ALLOCATOR>& other)
 {
+    // We don't know which operation (copy/move assignment or swap) this
+    // function is being called for, but if any of the propagation traits are
+    // true, then the allocator must support assignment, so we turn propagation
+    // on for all of them.
+    typedef bsl::allocator_traits<ALLOCATOR> AllocTraits;
+    typedef bsl::integral_constant<
+        bool,
+        AllocTraits::propagate_on_container_copy_assignment::value ||
+        AllocTraits::propagate_on_container_move_assignment::value ||
+        AllocTraits::propagate_on_container_swap::value> Propagate;
+
     using std::swap;
-    swap(this->allocator(), other.allocator());
+    using BloombergLP::bslma::AllocatorUtil;
+    AllocatorUtil::swap(&this->allocator(), &other.allocator(), Propagate());
     swap(d_blocksPerChunk,  other.d_blocksPerChunk);
     swap(d_freeList_p,      other.d_freeList_p);
     swap(d_chunkList_p,     other.d_chunkList_p);
@@ -560,43 +594,27 @@ void SimplePool<VALUE, ALLOCATOR>::reserve(size_type numBlocks)
 {
     BSLS_ASSERT(0 < numBlocks);
 
-    Block *begin = allocateChunk(
-                            numBlocks * static_cast<size_type>(sizeof(Block)));
-    Block *end   = begin + numBlocks - 1;
+    Block *begin = allocateChunk(numBlocks)->firstBlock();
+    Block *end   = begin + numBlocks - 1;  // last block, NOT past-the-end
 
+    // The last block is deliberately excluded from this loop.
     for (Block *p = begin; p < end; ++p) {
         p->d_next_p = p + 1;
     }
-    end->d_next_p = d_freeList_p;
+    end->d_next_p = d_freeList_p;  // Handle the last block here
     d_freeList_p  = begin;
 }
 
 template <class VALUE, class ALLOCATOR>
 void SimplePool<VALUE, ALLOCATOR>::release()
 {
-    // The values in 'd_chunkList_p' are allocated using
-    // 'AllocatorTraits::allocate' for max-aligned type (see
-    // 'allocateChunk'). Casting from 'Chunk *' back to that type
-    // will not impact alignment, but may generate warnings.
-
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-#endif
-
     while (d_chunkList_p) {
-        typename AllocatorTraits::value_type *lastChunk =
-                      reinterpret_cast<typename AllocatorTraits::value_type *>(
-                                                                d_chunkList_p);
-        d_chunkList_p   = d_chunkList_p->d_next_p;
-        AllocatorTraits::deallocate(allocator(), lastChunk, 1);
+        Chunk *lastChunk = d_chunkList_p;
+        d_chunkList_p    = d_chunkList_p->d_info.d_next_p;
+        deallocateChunk(lastChunk);
     }
+
     d_freeList_p = 0;
-
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-
 }
 
 // ACCESSORS

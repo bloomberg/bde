@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compatible proxy for 'bslma::Allocator' objects.
 //
-//@DEPRECATED: Use 'bslma_stdallocator' instead.
+//@DEPRECATED: Use 'bslma_bslallocator' instead.
 //
 //@CLASSES:
 //  bsl::allocator: STL-compatible allocator template
@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CANONICAL_HEADER: bsl_memory.h
 //
-//@SEE_ALSO: bslma_stdallocator
+//@SEE_ALSO: bslma_bslallocator
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_memory.h>' instead and use 'bsl::allocator' directly.  This component
@@ -345,7 +345,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 
 namespace BloombergLP {
 

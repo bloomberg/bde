@@ -8,12 +8,13 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -29,6 +30,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef BDE_VERIFY
+// Suppress some pedantic bde_verify checks in this test driver
+#pragma bde_verify -FD01   // Function declaration requires contract
+#pragma bde_verify -FD03   // Parameter not documented in function contract
+#pragma bde_verify -FABC01 // Function not in alphabetical order
+#pragma bde_verify -TP19   // Missing or malformed standard test driver section
+#endif
 
 using namespace BloombergLP;
 using namespace bslstl;
@@ -459,6 +468,54 @@ class Stack
 };
 
 
+template <class TYPE>
+class PropagatingAllocator : public bsl::allocator<TYPE>
+{
+    // Allocator type that propagates on copy, move, and swap.
+
+    typedef bsl::allocator<TYPE> Base;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(PropagatingAllocator,
+                                   bslmf::IsBitwiseMoveable);
+
+    // TYPES
+    template <class T2>
+    struct rebind {
+        typedef PropagatingAllocator<T2> other;
+    };
+
+    typedef bsl::true_type propagate_on_container_copy_assignment;
+    typedef bsl::true_type propagate_on_container_move_assignment;
+    typedef bsl::true_type propagate_on_container_swap;
+
+    // CREATORS
+    PropagatingAllocator(bslma::Allocator *basicAllocator = 0)      // IMPLICIT
+        : Base(basicAllocator) { }
+
+    PropagatingAllocator(const PropagatingAllocator& other)
+        : Base(other) { }
+
+    template <class T2>
+    PropagatingAllocator(const PropagatingAllocator<T2>& other)
+        : Base(other) { }
+
+    // MANIPULATORS
+    PropagatingAllocator& operator=(const PropagatingAllocator& other)
+    {
+        // Because the base class is not assignable, we use the hack of
+        // destroying and re-creating this object in place.
+        this->~PropagatingAllocator();
+        return *new (this) PropagatingAllocator(other);
+    }
+
+    // ACCESSORS
+    PropagatingAllocator select_on_container_copy_construction() const
+        { return *this; }
+};
+
+
 template <class VALUE>
 class TestDriver {
     // This templatized struct provide a namespace for testing.  The
@@ -478,12 +535,13 @@ class TestDriver {
 
   private:
     // PRIVATE CLASS METHODS
+    template <class TYPE>
     static
-    const Obj& init(Obj   *result,
-                    Stack *usedBlocks,
-                    Stack *freeBlocks,
-                    int    numAllocs,
-                    int    numDealloc);
+    const TYPE& init(TYPE  *result,
+                     Stack *usedBlocks,
+                     Stack *freeBlocks,
+                     int    numAllocs,
+                     int    numDealloc);
 
     static
     void createFreeBlocks(Obj *result, Stack *usedBlocks, int numBlocks);
@@ -519,8 +577,9 @@ class TestDriver {
 };
 
 template <class VALUE>
-const bslstl::BidirectionalNodePool<VALUE, bsl::allocator<VALUE> >&
-TestDriver<VALUE>::init(Obj   *result,
+template <class TYPE>
+const TYPE&
+TestDriver<VALUE>::init(TYPE  *result,
                         Stack *usedBlocks,
                         Stack *freeBlocks,
                         int    numAllocs,
@@ -776,6 +835,11 @@ void TestDriver<VALUE>::testCase10()
                     }
                 }
                 {
+                    // To test 'swapExchangeAllocators', we use an allocator
+                    // that is swappable ('bsl::allocator' is not).
+                    typedef bslstl::BidirectionalNodePool<VALUE,
+                                             PropagatingAllocator<VALUE> > Obj;
+
                     bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
                     bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 

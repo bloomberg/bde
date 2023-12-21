@@ -1,11 +1,11 @@
 // bsltf_alloctesttype.t.cpp                                          -*-C++-*-
 #include <bsltf_alloctesttype.h>
 
-#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisemoveable.h>

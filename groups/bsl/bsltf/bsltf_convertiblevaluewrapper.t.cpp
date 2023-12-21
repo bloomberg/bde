@@ -1,8 +1,6 @@
 // bsltf_convertiblevaluewrapper.t.cpp                                -*-C++-*-
 #include <bsltf_convertiblevaluewrapper.h>
 
-#include <bsltf_templatetestfacility.h>
-
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -27,10 +25,6 @@ using namespace BloombergLP::bsltf;
 // types, both value-semantic, and deliberately designed to have the minimal
 // supported interface.  Our final concerns are to demonstrate the value-
 // semantic properties when the class being wrapped is a value-semantic type.
-//
-// As this type is not in any of the standard pre-defined collections of types
-// used by the 'bsltf_TemplateTestFacility' component, we use that component to
-// automate testing over a variety of interesting types.
 //
 //-----------------------------------------------------------------------------
 //*[  ] ConvertibleValueWrapper(const TYPE& value);

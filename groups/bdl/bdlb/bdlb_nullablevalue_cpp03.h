@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 27 09:20:11 2023
+// Generated on Thu Aug 31 15:56:12 2023
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -80,8 +80,8 @@ template <class TYPE>
 class NullableValue : public bsl::optional<TYPE> {
     // This template class extends the set of values of its value-semantic
     // 'TYPE' parameter to include the notion of a "null" value.  If 'TYPE' is
-    // fully value-semantic, then the augmented type 'Nullable<TYPE>' will be
-    // as well.  In addition to supporting all homogeneous value-semantic
+    // fully value-semantic, then the augmented type 'NullableValue<TYPE>' will
+    // be as well.  In addition to supporting all homogeneous value-semantic
     // operations, conversions between comparable underlying value types is
     // also supported.  Two nullable objects with different underlying types
     // compare equal if their underlying types are comparable and either (1)

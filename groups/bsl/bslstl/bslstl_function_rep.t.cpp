@@ -1199,15 +1199,7 @@ void TestDriver<TYPE>::moveInitImp(bslma::TestAllocator *ta1,
         expCopy = true;
     }
     else if (k_EXP_INPLACE) {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         expMove = ! k_IS_BITWISE_MOVABLE;  // No moves if bitwise movable
-#else
-        // TBD: In C++03 compilers, 'destructiveMove' never uses the
-        // 'MovableRef' move constructor.  Remove this conditional if that
-        // situation is ever corrected.
-        expMove = false;
-        expCopy = ! k_IS_BITWISE_MOVABLE;
-#endif
     }
     else {
         expXfer = true;
@@ -1285,21 +1277,10 @@ void TestDriver<TYPE>::TwoDTests<TYPE2>::swapImp()
     NTUnwrpType2 *target2Pre = x2.target<NTUnwrpType2>();
     Verifier2::clearFlags(target2Pre);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     const bool expMove1 = k_EXP_INPLACE  && ! k_IS_BITWISE_MOVABLE;
     const bool expMove2 = k_EXP_INPLACE2 && ! k_IS_BITWISE_MOVABLE2;
     const bool expCopy1 = false;
     const bool expCopy2 = false;
-#else
-    // TBD: In C++03 compilers, 'destructiveMove' never uses the 'MovableRef'
-    // move constructor.  Remove this conditional if that situation is ever
-    // corrected.
-    const bool expMove1 = false;
-    const bool expMove2 = false;
-    const bool expCopy1 = k_EXP_INPLACE  && ! k_IS_BITWISE_MOVABLE;
-    const bool expCopy2 = k_EXP_INPLACE2 && ! k_IS_BITWISE_MOVABLE2;
-#endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
     const bool expXfer1 = ! k_EXP_INPLACE;
     const bool expXfer2 = ! k_EXP_INPLACE2;
 
@@ -1355,17 +1336,8 @@ void TestDriver<TYPE>::swap()
 
         Obj x2(&ta);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         const bool expMove = k_EXP_INPLACE && ! k_IS_BITWISE_MOVABLE;
         const bool expCopy = false;
-#else
-        // TBD: In C++03 compilers, 'destructiveMove' never uses the
-        // 'MovableRef' move constructor.  Remove this conditional if that
-        // situation is ever corrected.
-        const bool expMove = false;
-        const bool expCopy = k_EXP_INPLACE && ! k_IS_BITWISE_MOVABLE;
-#endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
         const bool expXfer = ! k_EXP_INPLACE;
 
         bslma::TestAllocatorMonitor taM(&ta);

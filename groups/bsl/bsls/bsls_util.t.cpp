@@ -524,16 +524,21 @@ int main(int argc, char *argv[])
         int const           ci = 0;
         int       volatile  vi = 0;
         int const volatile cvi = 0;
+        int                 ai[2] = { 0, 0 };
+        int const          cai[2] = { 0, 0 };
 
         ASSERT(&  i == bsls::Util::addressOf(  i));
         ASSERT(& ci == bsls::Util::addressOf( ci));
         ASSERT(& vi == bsls::Util::addressOf( vi));
-        ASSERT(&cvi == bsls::Util::addressOf(cvi));
+        ASSERT(& ai == bsls::Util::addressOf(ai));
+        ASSERT(&cai == bsls::Util::addressOf(cai));
 
         ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(bsls::Util::addressOf(  i)));
         ASSERT(CVQ_CONST          == cvqOfPtr(bsls::Util::addressOf( ci)));
         ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls::Util::addressOf( vi)));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls::Util::addressOf(cvi)));
+        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(bsls::Util::addressOf( ai)));
+        ASSERT(CVQ_CONST          == cvqOfPtr(bsls::Util::addressOf(cai)));
 
         if (veryVerbose) printf("\nTesting addressOf(EvilType)\n");
 

@@ -259,7 +259,7 @@ void FileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
 // ACCESSORS
 bslma::Allocator *FileObserver::allocator() const
 {
-    return d_stdoutLongFormat.allocator().mechanism();
+    return d_stdoutLongFormat.get_allocator().mechanism();
 }
 
 void FileObserver::getLogFormat(const char **logFileFormat,

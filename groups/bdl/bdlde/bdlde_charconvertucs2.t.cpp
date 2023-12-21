@@ -14,6 +14,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -3480,9 +3481,8 @@ int main(int argc, char**argv)
             if (verbose) cout << "\tTesting std containers\n";
             TestDriver::testCase3<std::vector<unsigned short> >();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
             if (verbose) cout << "\tTesting pmr containers\n";
-
             TestDriver::testCase3<std::pmr::vector<unsigned short> >();
 #endif
         }

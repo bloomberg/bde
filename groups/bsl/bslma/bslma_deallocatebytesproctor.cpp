@@ -1,22 +1,21 @@
-// bslma_stdallocator_cpp03.cpp                                       -*-C++-*-
+// bslma_deallocatebytesproctor.cpp                                   -*-C++-*-
 
-// Automatically generated file.  **DO NOT EDIT**
+#include <bslma_deallocatebytesproctor.h>
 
-// Generated on Fri Oct 23 15:03:58 2020
-// Command line: sim_cpp11_features.pl bslma_stdallocator.cpp
+#include <bslma_allocator.h>         // for testing only
+#include <bslma_bslallocator.h>      // for testing only
+#include <bslma_constructionutil.h>  // for testing only
+#include <bslma_isstdallocator.h>    // for testing only
+#include <bslma_testallocator.h>     // for testing only
 
-#define INCLUDED_BSLMA_STDALLOCATOR_CPP03  // Disable inclusion
-#include <bslma_stdallocator_cpp03.h>      // Pro-forma #include
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bslma_deallocatebytesproctor_cpp, "$Id$ $CSID$")
 
-// Empty file except when compiling bslma_stdallocator.cpp
-#ifdef COMPILING_BSLMA_STDALLOCATOR_CPP
-
-// No C++03 Expansion
-
-#endif // defined(COMPILING_BSLMA_STDALLOCATOR_CPP)
+namespace BloombergLP {
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

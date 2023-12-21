@@ -932,7 +932,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslma_allocator.h>
 #include <bslma_constructionutil.h>
-#include <bslma_deallocatorproctor.h>
+#include <bslma_deallocateobjectproctor.h>
 #include <bslma_default.h>
 #include <bslma_managedptr_factorydeleter.h>
 #include <bslma_managedptr_members.h>
@@ -945,6 +945,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_enableif.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isclass.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_isvoid.h>
@@ -1651,17 +1652,22 @@ struct ManagedPtrUtil {
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
     template <class ELEMENT_TYPE, class... ARGS>
-    static ManagedPtr<ELEMENT_TYPE> allocateManaged(
-                                              bslma::Allocator *basicAllocator,
-                                              ARGS&&...         args);
+    static ManagedPtr<ELEMENT_TYPE>
+    allocateManaged(bslma::Allocator *allocator, ARGS&&...   args);
+    template <class ELEMENT_TYPE, class ALLOCATOR, class... ARGS>
+    static typename bsl::enable_if<bsl::is_class<ALLOCATOR>::value,
+                                   ManagedPtr<ELEMENT_TYPE> >::type
+    allocateManaged(const ALLOCATOR& allocator, ARGS&&... args);
         // Create an object of the (template parameter) 'ELEMENT_TYPE' from the
         // specified 'args...' arguments, and return a 'ManagedPtr' to manage
-        // the new object.  Use the specified 'basicAllocator' to supply memory
-        // for the footprint of the new object and implicitly pass
-        // 'basicAllocator' as the last argument of its constructor if
+        // the new object.  Use the specified 'allocator' to supply memory for
+        // the footprint of the new object and implicitly pass 'allocator' as
+        // the allocator argument to the 'ELEMENT_TYPE' constructor if
         // 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true'.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // 'allocator' is a null pointer, the currently installed default
+        // allocator is used.  Note that compilation will fail unless
+        // 'allocator' is convertible to either 'bslma::Allocator *' or
+        // 'bsl::allocator<>'.
 
     template <class ELEMENT_TYPE, class... ARGS>
     static ManagedPtr<ELEMENT_TYPE> makeManaged(ARGS&&... args);
@@ -1669,9 +1675,10 @@ struct ManagedPtrUtil {
         // specified 'args...' arguments, and return a 'ManagedPtr' to manage
         // the new object.  Use the currently installed default allocator to
         // supply memory for the footprint of the new object but do *not*
-        // implicitly pass the default allocator as the last argument of its
-        // constructor even if 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value'
-        // is 'true'.  Note that an allocator may be included in 'args' but see
+        // implicitly pass the default allocator as the allocator argument to
+        // its constructor even if
+        // 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true'.  Note
+        // that an allocator may be included in 'args', but see
         // 'allocateManaged' for an alternative function that is better suited
         // to creating managed pointers to objects of allocator-aware type.
 
@@ -2448,27 +2455,15 @@ void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b)
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
-template <class ELEMENT_TYPE, class... ARGS>
+template <class ELEMENT_TYPE, class ALLOCATOR, class... ARGS>
 inline
-ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
-                                              bslma::Allocator *basicAllocator,
-                                              ARGS&&...         args)
+typename bsl::enable_if<bsl::is_class<ALLOCATOR>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+ManagedPtrUtil::allocateManaged(const ALLOCATOR& allocator, ARGS&&... args)
 {
-    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
-
-    ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
-                                    allocator->allocate(sizeof(ELEMENT_TYPE)));
-
-    bslma::DeallocatorProctor<bslma::Allocator> proctor(
-                                           ManagedPtr_ImpUtil::voidify(objPtr),
-                                           allocator);
-    bslma::ConstructionUtil::construct(
-                                 ManagedPtr_ImpUtil::unqualify(objPtr),
-                                 allocator,
+    return allocateManaged<ELEMENT_TYPE>(
+                                 allocator.mechanism(),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
-    proctor.release();
-
-    return ManagedPtr<ELEMENT_TYPE>(objPtr, allocator);
 }
 
 template <class ELEMENT_TYPE, class... ARGS>
@@ -2477,17 +2472,38 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(ARGS&&... args)
 {
     bslma::Allocator *defaultAllocator = bslma::Default::defaultAllocator();
 
-    ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
-                             defaultAllocator->allocate(sizeof(ELEMENT_TYPE)));
+    typedef typename bsl::remove_cv<ELEMENT_TYPE>::type UnqualElem;
 
-    bslma::DeallocatorProctor<bslma::Allocator> proctor(
-                                           ManagedPtr_ImpUtil::voidify(objPtr),
-                                           defaultAllocator);
+    // Use 'allocateObject' with a separate construction step to avoid passing
+    // the allocator to the constructed object.
+    UnqualElem *objPtr =
+        bslma::AllocatorUtil::allocateObject<UnqualElem>(defaultAllocator);
+
+    bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
+                                                     defaultAllocator, objPtr);
+
+    // Do not pass an allocator to the element constructor.
     ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     proctor.release();
 
     return ManagedPtr<ELEMENT_TYPE>(objPtr, defaultAllocator);
+}
+
+template <class ELEMENT_TYPE, class... ARGS>
+inline
+ManagedPtr<ELEMENT_TYPE>
+ManagedPtrUtil::allocateManaged(bslma::Allocator *allocator, ARGS&&... args)
+{
+    typedef typename bsl::remove_cv<ELEMENT_TYPE>::type UnqualElem;
+
+    allocator = bslma::Default::allocator(allocator);
+
+    ELEMENT_TYPE *objPtr = bslma::AllocatorUtil::newObject<UnqualElem>(
+                                 allocator,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+
+    return ManagedPtr<ELEMENT_TYPE>(objPtr, allocator);
 }
 
 #endif

@@ -2,7 +2,6 @@
 
 #include <bslma_default.h>
 
-#include <bslma_allocator.h>             // for testing only
 #include <bslma_newdeleteallocator.h>
 
 #include <bsls_alignedbuffer.h>          // for testing only
@@ -114,6 +113,13 @@ typedef bslma::Default Obj;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# define ASSERT_CPP17_PMR(...) ASSERTV(__VA_ARGS__)
+#else
+# define ASSERT_CPP17_PMR(...) ((void) 0)
+#endif
+
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -888,11 +894,12 @@ int main(int argc, char *argv[])
         //   locked in this manner to something other than its initial setting.
         //
         // Plan:
-        //   Call 'setDefaultAllocator' to set the default allocator to a value
-        //   distinct from its initial setting, then call 'defaultAllocator' to
-        //   lock the default allocator to this new (non-initial) setting.
-        //   Verify that the default allocator is locked by calling
-        //   'setDefaultAllocator' and asserting that the call fails.
+        //   Call 'setDefaultAllocator' multiple times to set the default
+        //   allocator to a value distinct from its initial setting, then call
+        //   'defaultAllocator' to lock the default allocator to this new
+        //   (non-initial) setting.  Verify that the default allocator is
+        //   locked by calling 'setDefaultAllocator' and asserting that the
+        //   call fails.
         //
         // Testing:
         //   bslma::Allocator *defaultAllocator();
@@ -901,10 +908,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'defaultAllocator' SIDE-EFFECTS"
                             "\n=======================================\n");
 
+        ASSERT(0 == Obj::setDefaultAllocator(V));
         ASSERT(0 == Obj::setDefaultAllocator(U));
         ASSERT(U == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(U == std::pmr::get_default_resource());
         ASSERT(0 != Obj::setDefaultAllocator(V));
         ASSERT(U == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(U == std::pmr::get_default_resource());
 
       } break;
       case 5: {
@@ -915,7 +925,10 @@ int main(int argc, char *argv[])
         //   'defaultAllocator' has the side-effect of locking the default
         //   allocator, if not already locked, to that which is in effect at
         //   the point of call.  In particular, the default allocator can be
-        //   locked in this manner to its initial setting.
+        //   locked in this manner to its initial setting.  The result of
+        //   'std::pmr::get_default_resource()' matches that of
+        //   'defaultAllocator' whether called before or after the first use of
+        //   'defaultAllocator'.
         //
         // Plan:
         //   Call 'defaultAllocator' in the first substantive line of the test
@@ -931,9 +944,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'defaultAllocator' SIDE-EFFECTS"
                             "\n=======================================\n");
 
-        ASSERT(NDA == Obj::defaultAllocator());
-        ASSERT(  0 != Obj::setDefaultAllocator(U));
-        ASSERT(NDA == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(NDA == std::pmr::get_default_resource());
+        ASSERT(          NDA == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(NDA == std::pmr::get_default_resource());
+        ASSERT(          0 != Obj::setDefaultAllocator(U));
+        ASSERT(          NDA == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(NDA == std::pmr::get_default_resource());
 
       } break;
       case 4: {
@@ -1004,18 +1020,20 @@ int main(int argc, char *argv[])
         //      locked has no effect.
         //   4) The default allocator may be set by 'setDefaultAllocatorRaw'
         //      even if it is locked.
+        //   5) (C++17) 'std::pmr::get_default_resource' returns the value of
+        //      the default allocator whether or not it's locked.
         //
         // Plan:
         //   Call 'setDefaultAllocator' in each of the first two substantive
-        //   lines of the test case and verify that they both succeed (but
-        //   do *not* call 'defaultAllocator' until later in the test as that
-        //   has the side-effect of locking the default allocator).  Then call
+        //   lines of the test case and verify that they both succeed (but do
+        //   *not* call 'defaultAllocator' until later in the test as that has
+        //   the side-effect of locking the default allocator).  Then call
         //   'lockDefaultAllocator' and verify that a subsequent call to
         //   'setDefaultAllocator' fails, and also verify that
-        //   'defaultAllocator' returns the value that was passed to the most
-        //   recent *successful* call to 'setDefaultAllocator'.  Include
-        //   individual tests to verify that a subsequent call to
-        //   'lockDefaultAllocator' has no effect and that
+        //   'defaultAllocator' and 'std::pmr::get_default_resource' return the
+        //   value that was passed to the most recent *successful* call to
+        //   'setDefaultAllocator'.  Include individual tests to verify that a
+        //   subsequent call to 'lockDefaultAllocator' has no effect and that
         //   'setDefaultAllocatorRaw' may be used to set the default allocator
         //   even after it has been locked.
         //
@@ -1029,19 +1047,29 @@ int main(int argc, char *argv[])
                    "\n====================================================="
                    "\n");
 
-        ASSERT(0 == Obj::setDefaultAllocator(U));
-        ASSERT(0 == Obj::setDefaultAllocator(V));
-        Obj::lockDefaultAllocator();
-        ASSERT(0 != Obj::setDefaultAllocator(U));
-        ASSERT(V == Obj::defaultAllocator());
+        // Calls to 'getDefaultResource()' invoke
+        // 'std::pmr::get_default_resource()' in C++17 and
+        // 'Obj::defaultAllocator()' in earlier versions of C++.
 
+        ASSERT(          0 == Obj::setDefaultAllocator(U));
+        ASSERT_CPP17_PMR(U == std::pmr::get_default_resource());
+        ASSERT(          0 == Obj::setDefaultAllocator(V));
+        ASSERT_CPP17_PMR(V == std::pmr::get_default_resource());
         Obj::lockDefaultAllocator();
-        ASSERT(0 != Obj::setDefaultAllocator(U));
-        ASSERT(V == Obj::defaultAllocator());
+        ASSERT(          0 != Obj::setDefaultAllocator(U));
+        ASSERT(          V == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(V == std::pmr::get_default_resource());
+
+        // 'lockDefaultAllocator()' is idempotent
+        Obj::lockDefaultAllocator();
+        ASSERT(          0 != Obj::setDefaultAllocator(U));
+        ASSERT(          V == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(V == std::pmr::get_default_resource());
 
         Obj::setDefaultAllocatorRaw(U);
-        ASSERT(U == Obj::defaultAllocator());
-        ASSERT(0 != Obj::setDefaultAllocator(V));
+        ASSERT(          U == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(U == std::pmr::get_default_resource());
+        ASSERT(          0 != Obj::setDefaultAllocator(V));
 
         if (verbose) printf("\nNegative testing\n");
 
@@ -1062,15 +1090,19 @@ int main(int argc, char *argv[])
         //      in effect at the point of call.
         //   3) 'setDefaultAllocatorRaw' unconditionally sets the default
         //      allocator.
+        //   4) (C++17) After an initial call to 'defaultAllocator' or any call
+        //      to 'setDefaultAllocatorRaw', 'std::pmr::get_default_resource'
+        //      returns a pointer to the same object as 'defaultAllocator'.
         //
         // Plan:
         //   Call 'defaultAllocator' in the first substantive line of the test
         //   case to verify that the default allocator is initially the address
         //   of the 'bslma::NewDeleteAllocator' singleton.  Subsequently, use
         //   'setDefaultAllocatorRaw' to set the default allocator to various
-        //   values and verify that 'defaultAllocator' returns the expected
-        //   result.  Note that side-effects of 'defaultAllocator' are ignored
-        //   in this test case.
+        //   values and verify that 'defaultAllocator' and
+        //   'std::pmr::get_default_resource' return the expected results.
+        //   Note that side-effects of 'defaultAllocator' are ignored in this
+        //   test case.
         //
         // Testing:
         //   void setDefaultAllocatorRaw(*ba);
@@ -1086,16 +1118,20 @@ int main(int argc, char *argv[])
             printf("\tIgnoring 'defaultAllocator' side-effects.\n");
         }
 
-        ASSERT(NDA == Obj::defaultAllocator());
+        ASSERT(          NDA == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(NDA == std::pmr::get_default_resource());
 
         Obj::setDefaultAllocatorRaw(U);
-        ASSERT(  U == Obj::defaultAllocator());
+        ASSERT(            U == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(  U == std::pmr::get_default_resource());
 
         Obj::setDefaultAllocatorRaw(V);
-        ASSERT(  V == Obj::defaultAllocator());
+        ASSERT(            V == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(  V == std::pmr::get_default_resource());
 
         Obj::setDefaultAllocatorRaw(NDA);
-        ASSERT(NDA == Obj::defaultAllocator());
+        ASSERT(          NDA == Obj::defaultAllocator());
+        ASSERT_CPP17_PMR(NDA == std::pmr::get_default_resource());
 
         if (verbose) printf("\nNegative testing\n");
 

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::allocator_traits: Uniform interface to standard allocator types
 //
-//@SEE_ALSO: bslma_allocator, bslma_stdallocator
+//@SEE_ALSO: bslma_allocator, bslma_bslallocator
 //
 // TBD: update component-level doc
 //@DESCRIPTION: The standard 'allocator_traits' class template is defined in
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // specified in 'ALLOC'.  This limitation exists because Bloomberg does not
 // need the full functionality of the C++11 model, but needs only to
 // distinguish between C++03 allocators and allocators that implement the BSLMA
-// allocator model (see {'bslma_stdallocator'}).  The full feature set of
+// allocator model (see {'bslma_bslallocator'}).  The full feature set of
 // 'allocator_traits' would require a lot of resources for implementation and
 // (especially) testing.  Moreover, a full implementation would require
 // metaprogramming that is too advanced for the feature set of the compilers
@@ -1002,7 +1002,7 @@ struct allocator_traits {
     // for accessing nested types within, and operations on, any
     // standard-conforming allocator.  A specialization of this class template
     // for 'bsl::allocator' provides support for Bloomberg's 'bslma' allocator
-    // model (see the 'bslma_stdallocator' component for more details).  In
+    // model (see the 'bslma_bslallocator' component for more details).  In
     // C++11 compilation environments, the 'construct' methods forward to the
     // allocator's 'construct' method if such a method matching the (variable
     // number of) specified constructor arguments exists; otherwise, the
@@ -1227,7 +1227,7 @@ struct allocator_traits {
         // method enforces the default policy of propagating the allocator on
         // copy construction, as is standard practice for standard allocators
         // (i.e., returns 'rhs').  Note that the specialization of this class
-        // template for 'bsl::allocator' (in the 'bslma_stdallocator'
+        // template for 'bsl::allocator' (in the 'bslma_bslallocator'
         // component) provides the alternate default behavior of *not*
         // propagating the allocator on copy construction (i.e., returning a
         // default-constructed allocator object).

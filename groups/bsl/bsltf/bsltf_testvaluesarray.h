@@ -142,7 +142,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsltf_templatetestfacility.h>
 
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bsls_alignmentutil.h>
 

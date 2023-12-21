@@ -503,6 +503,7 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_movablealloctesttype.h>
 #include <bsltf_movabletesttype.h>
 #include <bsltf_moveonlyalloctesttype.h>
+#include <bsltf_movestate.h>
 #include <bsltf_nonassignabletesttype.h>
 #include <bsltf_noncopyconstructibletesttype.h>
 #include <bsltf_nondefaultconstructibletesttype.h>
@@ -516,7 +517,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocatortraits.h>
 #include <bslma_mallocfreeallocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_movableref.h>
@@ -756,28 +757,6 @@ struct TemplateTestFacility {
 };
 
 // FREE FUNCTIONS
-template <class TYPE>
-bsltf::MoveState::Enum getMovedFrom(const TYPE& object);
-    // Return the moved-from state of the specified 'object if the (template
-    // parameter) 'TYPE' supports such as query.  The default implementation
-    // provided in this component returns 'e_UNKNOWN'; test types will
-    // presumably provide an specialized version of this function.
-
-template <class TYPE>
-bsltf::MoveState::Enum getMovedInto(const TYPE& object);
-    // Return the moved-into state of the specified 'object if the (template
-    // parameter) 'TYPE' supports such as query.  The default implementation
-    // provided in this component returns 'e_UNKNOWN'; test types will
-    // presumably provide an specialized version of this function.
-
-template <class TYPE>
-void setMovedInto(TYPE *object, bsltf::MoveState::Enum value);
-    // Set the moved-into state of the specified 'object to the specified
-    // 'value' if the (template parameter) 'TYPE' supports such move states.
-    // The default implementation provided in this component does nothing;
-    // test types will presumably provide an specialized version of this
-    // function.
-
 void debugprint(const AllocTestType& obj);
 void debugprint(const NonOptionalAllocTestType& obj);
 void debugprint(const AllocBitwiseMoveableTestType& obj);
@@ -2175,23 +2154,6 @@ void TemplateTestFacility::setMovedIntoState(TYPE                   *object,
 }
 
 // FREE FUNCTIONS
-template <class TYPE>
-bsltf::MoveState::Enum getMovedFrom(const TYPE&)
-{
-    return bsltf::MoveState::e_UNKNOWN;
-}
-
-template <class TYPE>
-bsltf::MoveState::Enum getMovedInto(const TYPE&)
-{
-    return bsltf::MoveState::e_UNKNOWN;
-}
-
-template <class TYPE>
-void setMovedInto(TYPE *, bsltf::MoveState::Enum)
-{
-}
-
 inline
 void debugprint(const EnumeratedTestType::Enum& obj)
 {

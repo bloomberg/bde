@@ -8,7 +8,7 @@
 #include <bslalg_hashtablebucket.h>
 #include <bslalg_hashtableimputil.h>
 
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>

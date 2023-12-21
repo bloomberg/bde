@@ -314,7 +314,7 @@ void TestDriver2<TYPE, ALLOC>::testCase23()
                   } break;
                   case 'b': {
                     oam.reset(&da);
-                    objPtr = new (fa) Obj(MoveUtil::move(mZ), ALLOC(0));
+                    objPtr = new (fa) Obj(MoveUtil::move(mZ), ALLOC());
                     objAllocatorPtr = &da;
                     othAllocatorPtr = &za;
                   } break;

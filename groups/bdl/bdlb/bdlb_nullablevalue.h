@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 
 #include <bslma_constructionutil.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_allocatorargt.h>
@@ -203,8 +203,8 @@ template <class TYPE>
 class NullableValue : public bsl::optional<TYPE> {
     // This template class extends the set of values of its value-semantic
     // 'TYPE' parameter to include the notion of a "null" value.  If 'TYPE' is
-    // fully value-semantic, then the augmented type 'Nullable<TYPE>' will be
-    // as well.  In addition to supporting all homogeneous value-semantic
+    // fully value-semantic, then the augmented type 'NullableValue<TYPE>' will
+    // be as well.  In addition to supporting all homogeneous value-semantic
     // operations, conversions between comparable underlying value types is
     // also supported.  Two nullable objects with different underlying types
     // compare equal if their underlying types are comparable and either (1)

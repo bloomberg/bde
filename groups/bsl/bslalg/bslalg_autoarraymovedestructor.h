@@ -342,7 +342,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_arraydestructionprimitives.h>
 
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisemoveable.h>

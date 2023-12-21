@@ -12,7 +12,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
-#include <bslma_stdallocator.h>  // 'operator!='
+#include <bslma_bslallocator.h>  // 'operator!='
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -143,6 +143,7 @@ using bsl::endl;
 // [11] explicit operator bdldfp::Decimal64() const;
 //
 // [ 2] bslma::Allocator *allocator() const;
+// [ 2] allocator_type get_allocator() const;
 // [ 3] ostream& print(ostream& stream, int level = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
@@ -545,7 +546,7 @@ void testCase11I(int        argc,
 
                 // Also invoke the object's 'get_allocator' accessor.
 
-                ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.allocator());
+                ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
 
                 switch (MEM) {
                   case 'Y': {
@@ -815,7 +816,7 @@ void testCase11F(int                  argc,
 
                 // Also invoke the object's 'allocator' accessor.
 
-                ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.allocator());
+                ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
 
                 switch (MEM) {
                   case 'Y': {
@@ -2294,9 +2295,9 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE1, LINE2, s1m.isTotalSame());
 
                     ASSERTV(LINE1, LINE2, &s1, ALLOC_OF(X),
-                            &s1 == X.allocator());
+                            &s1 == X.get_allocator());
                     ASSERTV(LINE1, LINE2, &s1, ALLOC_OF(F),
-                            &s1 == F.allocator());
+                            &s1 == F.get_allocator());
 
                     anyObjectMemoryAllocatedFlag |= !!s1.numBlocksInUse();
                 }
@@ -2337,9 +2338,9 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE1, LINE2,  Z,   F,  Z == F);
 
                         ASSERTV(LINE1, LINE2, &s2, ALLOC_OF(X),
-                               &s2 == X.allocator());
+                               &s2 == X.get_allocator());
                         ASSERTV(LINE1, LINE2, &s1, ALLOC_OF(F),
-                               &s1 == F.allocator());
+                               &s1 == F.get_allocator());
 
 #ifdef BDE_BUILD_TARGET_EXC
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
@@ -2378,7 +2379,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
                 ASSERTV(LINE1, mR, &mX, mR == &mX);
 
-                ASSERTV(LINE1, &oa, ALLOC_OF(Z), &oa == Z.allocator());
+                ASSERTV(LINE1, &oa, ALLOC_OF(Z), &oa == Z.get_allocator());
 
                 ASSERTV(LINE1, oam.isTotalSame());
 
@@ -2639,9 +2640,9 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
 
                     ASSERTV(LINE1, LINE2, &oa, ALLOC_OF(X),
-                            &oa == X.allocator());
+                            &oa == X.get_allocator());
                     ASSERTV(LINE1, LINE2, &scratch, ALLOC_OF(Z),
-                            &scratch == Z.allocator());
+                            &scratch == Z.get_allocator());
 
                     if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                         ASSERTV(LINE1, LINE2, oam.isInUseUp());
@@ -2688,7 +2689,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE1, mR, &mX, mR == &mX);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                ASSERTV(LINE1, &oa, ALLOC_OF(Z), &oa == Z.allocator());
+                ASSERTV(LINE1, &oa, ALLOC_OF(Z), &oa == Z.get_allocator());
 
                 ASSERTV(LINE1, !oam.isInUseUp());
 
@@ -2904,7 +2905,7 @@ int main(int argc, char *argv[])
                 mW.swap(mW);
 
                 ASSERTV(LINE1, XX, W, XX == W);
-                ASSERTV(LINE1, &oa == W.allocator());
+                ASSERTV(LINE1, &oa == W.get_allocator());
                 ASSERTV(LINE1, oam.isTotalSame());
             }
 
@@ -2915,7 +2916,7 @@ int main(int argc, char *argv[])
                 swap(mW, mW);
 
                 ASSERTV(LINE1, XX, W, XX == W);
-                ASSERTV(LINE1, &oa == W.allocator());
+                ASSERTV(LINE1, &oa == W.get_allocator());
                 ASSERTV(LINE1, oam.isTotalSame());
             }
 
@@ -2944,8 +2945,8 @@ int main(int argc, char *argv[])
 
                     ASSERTV(LINE1, LINE2, YY, X, YY == X);
                     ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
-                    ASSERTV(LINE1, LINE2, &oa == X.allocator());
-                    ASSERTV(LINE1, LINE2, &oa == Y.allocator());
+                    ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &oa == Y.get_allocator());
                     ASSERTV(LINE1, LINE2, oam.isTotalSame());
                 }
 
@@ -2957,8 +2958,8 @@ int main(int argc, char *argv[])
 
                     ASSERTV(LINE1, LINE2, XX, X, XX == X);
                     ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
-                    ASSERTV(LINE1, LINE2, &oa == X.allocator());
-                    ASSERTV(LINE1, LINE2, &oa == Y.allocator());
+                    ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &oa == Y.get_allocator());
                     ASSERTV(LINE1, LINE2, oam.isTotalSame());
                 }
             }
@@ -3033,8 +3034,8 @@ int main(int argc, char *argv[])
 
                     ASSERTV(LINE1, LINE2, YY, X, YY == X);
                     ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
-                    ASSERTV(LINE1, LINE2, &oa  == X.allocator());
-                    ASSERTV(LINE1, LINE2, &oa2 == Y.allocator());
+                    ASSERTV(LINE1, LINE2, &oa  == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &oa2 == Y.get_allocator());
                 }
             }
         }
@@ -3276,7 +3277,7 @@ int main(int argc, char *argv[])
 
                     ASSERTV(LINE, CONFIG,  Z, X,  Z == X);
 
-                    if (objAllocatorPtr != F.allocator()) {
+                    if (objAllocatorPtr != F.get_allocator()) {
                         // If the allocators are different, verify that the
                         // value of 'fX' has not changed.
 
@@ -3311,10 +3312,10 @@ int main(int argc, char *argv[])
                     // as that of 'Z'.
 
                     ASSERTV(LINE, CONFIG, &oa, ALLOC_OF(X),
-                            &oa == X.allocator());
+                            &oa == X.get_allocator());
 
                     ASSERTV(LINE, CONFIG, &scratch, ALLOC_OF(Z),
-                            &scratch == Z.allocator());
+                            &scratch == Z.get_allocator());
 
                     // Verify no allocation from the non-object allocators.
                     if (objAllocatorPtr != &da) {
@@ -3604,7 +3605,7 @@ int main(int argc, char *argv[])
 
                     ASSERTV(LINE, CONFIG,  Z, X,  Z == X);
 
-                    if (objAllocatorPtr != F.allocator()) {
+                    if (objAllocatorPtr != F.get_allocator()) {
                         // If the allocators are different, verify that the
                         // value of 'fX' has not changed.
 
@@ -3639,10 +3640,10 @@ int main(int argc, char *argv[])
                     // as that of 'Z'.
 
                     ASSERTV(LINE, CONFIG, &oa, ALLOC_OF(X),
-                            &oa == X.allocator());
+                            &oa == X.get_allocator());
 
                     ASSERTV(LINE, CONFIG, &scratch, ALLOC_OF(Z),
-                            &scratch == Z.allocator());
+                            &scratch == Z.get_allocator());
 
                     // Verify no allocation from the non-object allocators.
                     if (objAllocatorPtr != &da) {
@@ -3918,10 +3919,10 @@ int main(int argc, char *argv[])
                     // well as that of 'Z'.
 
                     ASSERTV(LINE, CONFIG, &oa, ALLOC_OF(X),
-                            &oa == X.allocator());
+                            &oa == X.get_allocator());
 
                     ASSERTV(LINE, CONFIG, &scratch, ALLOC_OF(Z),
-                            &scratch == Z.allocator());
+                            &scratch == Z.get_allocator());
 
                     // Verify no allocation from the non-object allocator.
 
@@ -4460,10 +4461,10 @@ int main(int argc, char *argv[])
         //:   including some that are exceed the short-string-optimization
         //:   limit.
         //:
-        //: 3 Confirm that the 'allocator' and 'value' accessors show the
-        //:   values expected from the value constructor.  Demonstrate that
-        //:   they are 'const'-qualified by invoking them on 'const'-references
-        //:   to the test objects.
+        //: 3 Confirm that the 'get_allocator', 'allocator' and 'value'
+        //:   accessors show the values expected from the value constructor.
+        //:   Demonstrate that they are 'const'-qualified by invoking them on
+        //:   'const'-references to the test objects.
         //:
         //: 4 Confirm (by test allocator) that all allocated memory is
         //:   recovered on destruction.
@@ -4480,6 +4481,7 @@ int main(int argc, char *argv[])
         //   ~JsonNumber();
         //   const bsl::string& value() const;
         //   bslma::Allocator *allocator() const;
+        //   allocator_type get_allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4531,8 +4533,10 @@ int main(int argc, char *argv[])
 
                 ASSERTV(CONFIG, &oa == X.value().get_allocator().mechanism());
 
-                // Also invoke the object's 'get_allocator' accessor.
+                // Also invoke the object's 'get_allocator' and 'allocator'
+                // accessors.
 
+                ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.allocator());
 
                 ASSERTV(CONFIG,  oa.numBlocksTotal(),
@@ -4625,8 +4629,10 @@ int main(int argc, char *argv[])
 
                 ASSERTV(CONFIG, &oa == X.value().get_allocator().mechanism());
 
-                // Also invoke the object's 'get_allocator' accessor.
+                // Also invoke the object's 'get_allocator' and 'allocator'
+                // accessors.
 
+                ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.allocator());
 
                 switch (MEM) {

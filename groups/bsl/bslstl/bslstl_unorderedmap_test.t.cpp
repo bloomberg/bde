@@ -768,6 +768,10 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
         // Alias for the base class.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StatefulStlAllocator,
+                                   bslma::IsStdAllocator);
+
     template <class BDE_OTHER_TYPE>
     struct rebind {
         // This nested 'struct' template, parameterized by some
@@ -1191,6 +1195,9 @@ class DummyAllocator {
     // reproduce an AIX bug.  Every method is a no-op.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DummyAllocator, bslma::IsStdAllocator);
+
     // PUBLIC TYPES
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;
@@ -9492,8 +9499,13 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nTESTING 'TRY_EMPLACE' AND 'INSERT_OR_ASSIGN'\n"
                      "============================================\n");
+
+        // The Sun CC-5.12.4 compiler fails with an ICE trying to compile more
+        // than one call to 'testCase43'.
+#ifndef BSLS_PLATFORM_CMP_SUN
         TestDriver<char, size_t>::testCase43();
         TestDriver<int,  size_t>::testCase43();
+#endif
         TestDriver<long, size_t>::testCase43();
 
         // test 'try_emplace' with different numbers of arguments

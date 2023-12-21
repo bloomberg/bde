@@ -203,7 +203,7 @@ BSLS_IDENT("$Id: $")
 #include <balxml_formatterwhitespacetype.h>
 
 #include <bslma_allocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>

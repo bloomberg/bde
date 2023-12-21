@@ -372,7 +372,7 @@ using ::bsl::is_trivially_copyable;
 // In this section we show intended usage of this component.
 //
 // IMPORTANT NOTE: This usage example is based on an allocator of type
-// 'bsl::allocator', as defined in 'bslma_stdallocator.h'.  As 'bsl::allocator'
+// 'bsl::allocator', as defined in 'bslma_bslallocator.h'.  As 'bsl::allocator'
 // depends on 'bslma::allocatortraits', the use of a 'bsl::allocator' is not
 // possible in the test driver, and so a mock allocator class is used instead.
 //

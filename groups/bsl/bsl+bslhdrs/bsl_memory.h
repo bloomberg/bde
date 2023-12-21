@@ -144,7 +144,7 @@ namespace bsl {
 
 // Include Bloomberg's implementation.
 #include <bslma_allocatortraits.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bslmf_allocatorargt.h>
 

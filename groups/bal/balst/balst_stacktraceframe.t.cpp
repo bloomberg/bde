@@ -1901,14 +1901,14 @@ int main(int argc, char *argv[])
                     // Verify any attribute allocators are installed properly.
                     // -------------------------------------------------------
 
-                        LOOP2_ASSERT(LINE, CONFIG,
-                                       &oa == X.libraryFileName().allocator());
                     LOOP2_ASSERT(LINE, CONFIG,
-                                     &oa == X.mangledSymbolName().allocator());
+                                   &oa == X.libraryFileName().get_allocator());
                     LOOP2_ASSERT(LINE, CONFIG,
-                                        &oa == X.sourceFileName().allocator());
+                                 &oa == X.mangledSymbolName().get_allocator());
                     LOOP2_ASSERT(LINE, CONFIG,
-                                            &oa == X.symbolName().allocator());
+                                    &oa == X.sourceFileName().get_allocator());
+                    LOOP2_ASSERT(LINE, CONFIG,
+                                        &oa == X.symbolName().get_allocator());
 
                     // Also invoke the object's 'allocator' accessor, as well
                     // as that of 'Z'.
@@ -3306,14 +3306,14 @@ int main(int argc, char *argv[])
                     // Verify any attribute allocators are installed properly.
                     // -------------------------------------------------------
 
-                        LOOP2_ASSERT(LINE, CONFIG,
-                                       &oa == X.libraryFileName().allocator());
                     LOOP2_ASSERT(LINE, CONFIG,
-                                     &oa == X.mangledSymbolName().allocator());
+                                   &oa == X.libraryFileName().get_allocator());
                     LOOP2_ASSERT(LINE, CONFIG,
-                                        &oa == X.sourceFileName().allocator());
+                                 &oa == X.mangledSymbolName().get_allocator());
                     LOOP2_ASSERT(LINE, CONFIG,
-                                            &oa == X.symbolName().allocator());
+                                    &oa == X.sourceFileName().get_allocator());
+                    LOOP2_ASSERT(LINE, CONFIG,
+                                        &oa == X.symbolName().get_allocator());
 
                     // Also invoke the object's 'allocator' accessor.
 
@@ -3687,10 +3687,10 @@ int main(int argc, char *argv[])
             // Verify any attribute allocators are installed properly.
             // -------------------------------------------------------
 
-            LOOP_ASSERT(CONFIG, &oa == X.libraryFileName().allocator());
-            LOOP_ASSERT(CONFIG, &oa == X.mangledSymbolName().allocator());
-            LOOP_ASSERT(CONFIG, &oa == X.sourceFileName().allocator());
-            LOOP_ASSERT(CONFIG, &oa == X.symbolName().allocator());
+            LOOP_ASSERT(CONFIG, &oa == X.libraryFileName().get_allocator());
+            LOOP_ASSERT(CONFIG, &oa == X.mangledSymbolName().get_allocator());
+            LOOP_ASSERT(CONFIG, &oa == X.sourceFileName().get_allocator());
+            LOOP_ASSERT(CONFIG, &oa == X.symbolName().get_allocator());
 
             // Also invoke the object's 'allocator' accessor.
 

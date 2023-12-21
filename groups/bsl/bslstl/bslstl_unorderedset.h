@@ -582,7 +582,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocatortraits.h>
 #include <bslma_isstdallocator.h>
-#include <bslma_stdallocator.h>  // Can probably escape with a fwd-decl, but
+#include <bslma_bslallocator.h>  // Can probably escape with a fwd-decl, but
                                  // not very user friendly
 #include <bslma_usesbslmaallocator.h>
 

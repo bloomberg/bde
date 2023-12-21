@@ -751,7 +751,7 @@ class Callback {
 
     template <class t_ARG>
     Callback(allocator_arg_t,
-             allocator<char>                          alloc,
+             const allocator<char>&                   alloc,
              BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG) arg)
     : d_numInvocations_p(MoveUtil::access(arg).d_numInvocations_p)
     {
@@ -762,11 +762,11 @@ class Callback {
 
     template <class t_ARG>
     Callback(BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG) arg,
-             bslma::Allocator                        *alloc)
+             const allocator<char>&                   alloc)
     : d_numInvocations_p(MoveUtil::access(arg).d_numInvocations_p)
     {
         ASSERT(t_EXPECTED_ALLOC_USAGE == e_TRAILING_ALLOCATOR);
-        MoveUtil::access(arg).d_allocator_p->store(alloc);
+        MoveUtil::access(arg).d_allocator_p->store(alloc.mechanism());
         checkArg(BSLS_COMPILERFEATURES_FORWARD(t_ARG, arg));
     }
 

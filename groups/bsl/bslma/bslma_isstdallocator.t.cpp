@@ -1,33 +1,48 @@
 // bslma_isstdallocator.t.cpp                                         -*-C++-*-
 
 #include <bslma_isstdallocator.h>
-#include <bslma_stdallocator.h>
 
 #include <bsls_bsltestutil.h>
 
-#include <cassert>     // assert
-#include <stdio.h>     // 'printf'
-#include <stdlib.h>    // 'atoi'
+#include <cassert>     // 'assert'
+#include <cstdio>      // 'std::printf' and 'std::fprintf'
+#include <cstdlib>     // 'atoi'
+#include <memory>      // 'std::allocator'
+
+// It would be tempting to use some higher-level components in testing.  These
+// checks prevent inadvertantly modifying this test driver so as to create a
+// dependency inversion or (worse) a cyclic dependancy.
+#ifdef INCLUDED_BSLMA_BSLALLOCATOR
+# error This component should not depend on 'bslma_bslallocator'
+#endif
+
+#ifdef INCLUDED_BSLMA_ALLOCATORTRAITS
+# error This component should not depend on 'bslma_allocatortraits'
+#endif
 
 using namespace BloombergLP;
+using std::printf;
+using std::fprintf;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::IsStdAllocator' and
-// a template variable 'bsl::IsStdAllocator_v', that determine whether a
+// The component under test defines a meta-function, 'bslma::IsStdAllocator'
+// and a template variable 'bslma::IsStdAllocator_v', that determine whether a
 // template parameter type meets the requirements for an allocator, as
 // specified (loosely) in [container.requirements.general].  Thus, we need to
 // ensure that the values returned by the meta-function are correct for each
 // possible category of types.
+
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::IsStdAllocator::value
-// [ 1] bsl::IsStdAllocator_v
+// [ 1] bslma::IsStdAllocator<TYPE>::value
+// [ 1] bslma::IsStdAllocator_v<TYPE>
 // ----------------------------------------------------------------------------
+// [-1] NEGATIVE COMPILATION TESTS
 // [ 2] USAGE EXAMPLE
 
 // ============================================================================
@@ -77,10 +92,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                      WARNING SUPPRESSION
 //-----------------------------------------------------------------------------
 
-// This test driver intentional creates types with unusual use of cv-qualifiers
-// in order to confirm that there are no strange corners of the type system
-// that are not addressed by this traits component.  Consequently, we disable
-// certain warnings from common compilers.
+// This test driver intentionally creates types with unusual uses of
+// cv-qualifiers in order to confirm that there are no strange corners of the
+// type system that are not addressed by this traits component.  Consequently,
+// we disable certain warnings from common compilers.
 
 #if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 # pragma GCC diagnostic ignored "-Wignored-qualifiers"
@@ -96,81 +111,85 @@ namespace {
 
 enum EnumTestType {
     // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 };
 
 struct StructTestType {
     // This user-defined 'struct' type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // the template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 };
 
 union UnionTestType {
     // This user-defined 'union' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 };
 
 class BaseClassTestType {
     // This user-defined base class type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // the template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 };
 
 class DerivedClassTestType : public BaseClassTestType {
     // This user-defined derived class type is intended to be used for testing
-    // as the template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // as the template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
     // This pointer to non-static member function type is intended to be used
-    // for testing as the template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // for testing as the template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 
 typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 
 typedef int StructTestType::*PMD;
     // This pointer to member object type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // the template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 
 struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::IsStdAllocator'.
+    // template parameter 'TYPE' of 'bslma::IsStdAllocator'.
 
-}  // close unnamed namespace
+struct AllocatorOneParam {
+    // A class that meets the allocator requirements.  The 'allocate'
+    // method is callable with one parameters of type 'size_t'.
+    BSLMF_NESTED_TRAIT_DECLARATION(AllocatorOneParam, bslma::IsStdAllocator);
+    typedef int value_type;
+    int *allocate(size_t);
+        // a function signature that matches the allocator requirements.
+};
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#   define TYPE_ASSERT_V_SAME(type)                                           \
-       ASSERT(bsl::IsStdAllocator<type>::value == bsl::IsStdAllocator_v<type>)
-    // 'ASSERT' that 'IsStdAllocator_v' has the same value as
-    // 'IsStdAllocator::value'.
-#else
-#   define TYPE_ASSERT_V_SAME(type)
-#endif
+struct AllocatorTwoParams {
+    // A class that meets the allocator requirements.  The 'allocate'
+    // method is callable with one or two parameters.
+    BSLMF_NESTED_TRAIT_DECLARATION(AllocatorTwoParams, bslma::IsStdAllocator);
+    typedef int value_type;
+    int *allocate(size_t, const void * = 0);
+        // a function signature that matches the allocator requirements.
+};
 
-#define TYPE_ASSERT_V(META_FUNC, TYPE, result)                                \
-    ASSERT(result == META_FUNC<TYPE>::value);                                 \
-    TYPE_ASSERT_V_SAME(TYPE);                                                 \
-    // Apply the specified 'META_FUNC' to the specified 'TYPE' and confirm that
-    // the result value and the specified 'result' are the same.  Also confirm
-    // that the result value of the 'META_FUNC' and the value of the
-    // 'META_FUNC_v' variable are the same.
+struct AllocatorOverloadedAlloc {
+    // A class that meets the allocator requirements.  The 'allocate'
+    // method is callable with one or two parameters.
+    BSLMF_NESTED_TRAIT_DECLARATION(AllocatorOverloadedAlloc,
+                                   bslma::IsStdAllocator);
+    typedef int value_type;
+    int *allocate(size_t);
+    int *allocate(size_t, void *);
+        // overloaded function signatures that match the allocator
+        // requirements.
+};
 
-#define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                              \
-    ASSERT(result == META_FUNC<TYPE&>::value);                                \
-    TYPE_ASSERT_V_SAME(TYPE&);                                                \
-    // Apply the specified 'META_FUNC' to the specified 'TYPE' reference and
-    // confirm that the result value and the specified 'result' are the same.
-    // Also confirm that the result value of the 'META_FUNC' and the value of
-    // the 'METU_FUNC_v' variable are the same.
-
-#define TYPE_ASSERT(META_FUNC, TYPE, result)                              \
-    TYPE_ASSERT_PREFIX(META_FUNC, TYPE, result);                          \
-    // Apply the specified 'META_FUNC' to the specified 'TYPE' and confirm that
-    // the result value and the specified 'result' are the same.
-
+struct AllocatorInherited : AllocatorOneParam {
+    // A class that meets the allocator requirements through inheritance.
+    BSLMF_NESTED_TRAIT_DECLARATION(AllocatorInherited, bslma::IsStdAllocator);
+};
 
 struct NoAllocateMember {
     // A class that does not meet the allocator requirements.  No 'allocate'.
     typedef int value_type;
+  private:
+    int *allocate(std::size_t);
 };
 
 struct NoValueType {
@@ -178,15 +197,15 @@ struct NoValueType {
     int *allocate(size_t);
 };
 
-struct AllocateTwoParams {
+struct NonAllocatorTwoParams {
     // A class that does not meet the allocator requirements.  The 'allocate'
     // method is not callable with a single 'size_t' parameter.
     typedef int value_type;
-    int *allocate(size_t, void *);
+    int *allocate(size_t, const void *);
         // a function signature that does not match the allocator requirements.
 };
 
-struct AllocateBadParam {
+struct NonAllocatorBadParam {
     // A class that does not meet the allocator requirements.  The 'allocate'
     // method is not callable with a single 'size_t' parameter.
     typedef int value_type;
@@ -194,12 +213,77 @@ struct AllocateBadParam {
         // a function signature that does not match the allocator requirements.
 };
 
+struct NegativeNotDeclared : AllocatorOneParam {
+    // FOR NEGATIVE COMPILATION TESTS.  A class that meets the allocator
+    // requirements but which does not explicitly declare the 'IsStdAllocator'
+    // trait.
+};
+
+struct NegativeMissingValueType {
+    // FOR NEGATIVE COMPILATION TESTS.  A class that does not meet the
+    // allocator requirements (missing 'value_type') but nevertheless declares
+    // the 'IsStdAllocator' nested trait.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(NegativeMissingValueType,
+                                   bslma::IsStdAllocator);
+    int *allocate(std::size_t);
+};
+
+struct NegativeMissingAllocate {
+    // FOR NEGATIVE COMPILATION TESTS.  A class that does not meet the
+    // allocator requirements (missing 'allocate(size_type)' but nevertheless
+    // declares the 'IsStdAllocator' nested trait.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(NegativeMissingAllocate,
+                                   bslma::IsStdAllocator);
+
+    typedef int value_type;
+    int *allocate(const StructTestType &);
+        // Function signature that does not match the allocator requirements.
+};
+
+struct NegativeMissingBoth {
+    // FOR NEGATIVE COMPILATION TESTS.  A class that does not meet the
+    // allocator requirements (missing 'value_type' and 'allocate(size_type)'
+    // but nevertheless declares the 'IsStdAllocator' nested trait.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(NegativeMissingBoth, bslma::IsStdAllocator);
+};
+
+}  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bslma {
+
+template <> struct IsStdAllocator<Incomplete> : bsl::false_type { };
+    // Specialize trait under test when auto-detection would fail.
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#   define TYPE_ASSERT_V_SAME(type)                                           \
+       ASSERT(bslma::IsStdAllocator<type>::value ==                           \
+              bslma::IsStdAllocator_v<type>)
+    // 'ASSERT' that 'IsStdAllocator_v' has the same value as
+    // 'IsStdAllocator::value'.
+#else
+#   define TYPE_ASSERT_V_SAME(type)
+#endif
+
+#define TYPE_ASSERT(META_FUNC, TYPE, result)                                  \
+    ASSERT(result == META_FUNC<TYPE>::value);                                 \
+    TYPE_ASSERT_V_SAME(TYPE);                                                 \
+    // Apply the specified 'META_FUNC' to the specified 'TYPE' and confirm that
+    // the result value and the specified 'result' are the same.  Also confirm
+    // that the result value of the 'META_FUNC' and the value of the
+    // 'META_FUNC_v' variable are the same.
 
 //=============================================================================
 //                              USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-// In this section we show intended use of this component.
+// This section shows the intended use of this component.
 //
 ///Example 1: Verify if a class meets the requirements for an allocator.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -210,10 +294,31 @@ struct AllocateBadParam {
 //..
     struct MyAllocator
     {
+        BSLMF_NESTED_TRAIT_DECLARATION(MyAllocator, bslma::IsStdAllocator);
         typedef int value_type;
         int *allocate(size_t);
             // Allocate some memory for use by the caller.
     };
+//..
+// Now, we instantiate the 'bslma::IsStdAllocator' template for both a type
+// that does not meet the allocator requirements and the defined type
+// 'MyClass', that does, asserting the 'value' static data member of each
+// instantiation.
+//..
+    void usageExample()
+    {
+        ASSERT(false == bslma::IsStdAllocator<int>::value);
+        ASSERT(true  == bslma::IsStdAllocator<MyAllocator>::value);
+//..
+// Note that if the current compiler supports the variable the templates C++14
+// feature then we can re-write the snippet of code above using the
+// 'bslma::IsStdAllocator_v' variable as follows:
+//..
+    #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+        ASSERT(false == bslma::IsStdAllocator_v<int>);
+        ASSERT(true  == bslma::IsStdAllocator_v<MyAllocator>);
+    #endif
+    }
 //..
 
 //=============================================================================
@@ -222,7 +327,7 @@ struct AllocateBadParam {
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? std::atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
@@ -232,7 +337,7 @@ int main(int argc, char *argv[])
     (void)veryVeryVerbose;      // suppress warning
     (void)veryVeryVeryVerbose;  // suppress warning
 
-    setbuf(stdout, NULL);       // Use unbuffered output
+    std::setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -257,33 +362,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Now, we instantiate the 'bsl::IsStdAllocator' template for both a type that
-// does not meet the allocator requirements and the defined type 'MyClass',
-// that does, asserting the 'value' static data member of each instantiation.
-//..
-    ASSERT(false == bsl::IsStdAllocator<int>::value);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    ASSERT(true  == bsl::IsStdAllocator<MyAllocator>::value);
-#else
-    ASSERT(false == bsl::IsStdAllocator<MyAllocator>::value);
-#endif
-//..
-// Note that if the current compiler supports the variable the templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::IsStdAllocator_v' variable as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::IsStdAllocator_v<int>);
-    ASSERT(true  == bsl::IsStdAllocator_v<MyAllocator>);
-#endif
-//..
+        usageExample();
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::IsStdAllocator::value'
+        // 'bslma::IsStdAllocator::value'
         //   Ensure that the static data member 'value' of
-        //   'bsl::IsStdAllocator' instantiations having various
+        //   'bslma::IsStdAllocator' instantiations having various
         //   (template parameter) 'TYPE's has the correct value.
         //
         // Concerns:
@@ -307,97 +393,150 @@ int main(int argc, char *argv[])
         //: 7 'IsStdAllocator::value' is 'false' when 'TYPE' is a type that
         //:   does not meet the requirements of an allocator.
         //:
-        //: 8 That 'IsStdAllocator_v' equals to 'IsStdAllocator::value' for
+        //: 8 'IsStdAllocator::value' is 'false' when 'TYPE' is a reference
+        //:   type, even if the type it refers to meets the requirements of an
+        //:   allocator.
+        //:
+        //: 9 That 'IsStdAllocator_v' equals to 'IsStdAllocator::value' for
         //:   a variety of template parameter types.
         //
         // Plan:
-        //: 1 Verify that 'bsl::IsStdAllocator::value' has the correct value
+        //: 1 Verify that 'bslma::IsStdAllocator::value' has the correct value
         //:   for each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
-        //   bsl::IsStdAllocator::value
-        //   bsl::IsStdAllocator_v
+        //   bslma::IsStdAllocator<TYPE>::value
+        //   bslma::IsStdAllocator_v<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::IsStdAllocator::value'\n"
-                            "============================\n");
+        if (verbose) printf("'bslma::IsStdAllocator::value'\n"
+                            "==============================\n");
 
-        // C-1,8
-        TYPE_ASSERT_V(bsl::IsStdAllocator, void, false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, int,  false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, int,  false);
+        // C-1,9
+        TYPE_ASSERT(bslma::IsStdAllocator, void,  false);
+        TYPE_ASSERT(bslma::IsStdAllocator, int,   false);
+        TYPE_ASSERT(bslma::IsStdAllocator, int,   false);
 
-        // C-2,8
-        TYPE_ASSERT_V(bsl::IsStdAllocator, EnumTestType, false);
+        // C-2,9
+        TYPE_ASSERT(bslma::IsStdAllocator, EnumTestType,  false);
 
-        // C-3,8
-        TYPE_ASSERT_V  (bsl::IsStdAllocator, StructTestType,       false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, StructTestType,       false);
-        TYPE_ASSERT_V  (bsl::IsStdAllocator, UnionTestType,        false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, UnionTestType,        false);
-        TYPE_ASSERT_V  (bsl::IsStdAllocator, Incomplete,           false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, Incomplete,           false);
-        TYPE_ASSERT_V  (bsl::IsStdAllocator, BaseClassTestType,    false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, BaseClassTestType,    false);
-        TYPE_ASSERT_V  (bsl::IsStdAllocator, DerivedClassTestType, false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, DerivedClassTestType, false);
+        // C-3,8,9
+        TYPE_ASSERT(bslma::IsStdAllocator, StructTestType,        false);
+        TYPE_ASSERT(bslma::IsStdAllocator, StructTestType&,       false);
+        TYPE_ASSERT(bslma::IsStdAllocator, UnionTestType,         false);
+        TYPE_ASSERT(bslma::IsStdAllocator, UnionTestType&,        false);
+        TYPE_ASSERT(bslma::IsStdAllocator, Incomplete,            false);
+        TYPE_ASSERT(bslma::IsStdAllocator, Incomplete&,           false);
+        TYPE_ASSERT(bslma::IsStdAllocator, BaseClassTestType,     false);
+        TYPE_ASSERT(bslma::IsStdAllocator, BaseClassTestType&,    false);
+        TYPE_ASSERT(bslma::IsStdAllocator, DerivedClassTestType,  false);
+        TYPE_ASSERT(bslma::IsStdAllocator, DerivedClassTestType&, false);
 
-        // C-4,8
-        TYPE_ASSERT_V(bsl::IsStdAllocator, int*,                       false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, StructTestType*,            false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, int StructTestType::*,      false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, int StructTestType::* *,    false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, UnionTestType*,             false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, PMD BaseClassTestType::*,   false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, PMD BaseClassTestType::* *, false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, BaseClassTestType*,         false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, DerivedClassTestType*,      false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, Incomplete*,                false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, MethodPtrTestType,          false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, FunctionPtrTestType,        false);
+        // C-4,9
+        TYPE_ASSERT(bslma::IsStdAllocator, int*,                       false);
+        TYPE_ASSERT(bslma::IsStdAllocator, StructTestType*,            false);
+        TYPE_ASSERT(bslma::IsStdAllocator, int StructTestType::*,      false);
+        TYPE_ASSERT(bslma::IsStdAllocator, int StructTestType::* *,    false);
+        TYPE_ASSERT(bslma::IsStdAllocator, UnionTestType*,             false);
+        TYPE_ASSERT(bslma::IsStdAllocator, PMD BaseClassTestType::*,   false);
+        TYPE_ASSERT(bslma::IsStdAllocator, PMD BaseClassTestType::* *, false);
+        TYPE_ASSERT(bslma::IsStdAllocator, BaseClassTestType*,         false);
+        TYPE_ASSERT(bslma::IsStdAllocator, DerivedClassTestType*,      false);
+        TYPE_ASSERT(bslma::IsStdAllocator, Incomplete*,                false);
+        TYPE_ASSERT(bslma::IsStdAllocator, MethodPtrTestType,          false);
+        TYPE_ASSERT(bslma::IsStdAllocator, FunctionPtrTestType,        false);
 
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, int*,                      false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, StructTestType*,           false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, int StructTestType::*,     false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, int StructTestType::* *,   false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, UnionTestType*,            false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, PMD BaseClassTestType::*,  false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, PMD BaseClassTestType::* *,
-                                                                        false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, BaseClassTestType*,        false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, DerivedClassTestType*,     false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, Incomplete*,               false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, MethodPtrTestType,         false);
-        TYPE_ASSERT_REF(bsl::IsStdAllocator, FunctionPtrTestType,       false);
+        // C-8
+        TYPE_ASSERT(bslma::IsStdAllocator, int*&,                       false);
+        TYPE_ASSERT(bslma::IsStdAllocator, StructTestType*&,            false);
+        TYPE_ASSERT(bslma::IsStdAllocator, int StructTestType::*&,      false);
+        TYPE_ASSERT(bslma::IsStdAllocator, int StructTestType::* *&,    false);
+        TYPE_ASSERT(bslma::IsStdAllocator, UnionTestType*&,             false);
+        TYPE_ASSERT(bslma::IsStdAllocator, PMD BaseClassTestType::*&,   false);
+        TYPE_ASSERT(bslma::IsStdAllocator, PMD BaseClassTestType::* *&, false);
+        TYPE_ASSERT(bslma::IsStdAllocator, BaseClassTestType*&,         false);
+        TYPE_ASSERT(bslma::IsStdAllocator, DerivedClassTestType*&,      false);
+        TYPE_ASSERT(bslma::IsStdAllocator, Incomplete*&,                false);
+        TYPE_ASSERT(bslma::IsStdAllocator, MethodPtrTestType&,          false);
+        TYPE_ASSERT(bslma::IsStdAllocator, FunctionPtrTestType&,        false);
 
-        // C-5,8
-        TYPE_ASSERT_V(bsl::IsStdAllocator, int  (int),  false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, void (void), false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, int  (void), false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, void (int),  false);
+        // C-5,9
+        TYPE_ASSERT(bslma::IsStdAllocator, int  (int),   false);
+        TYPE_ASSERT(bslma::IsStdAllocator, void (void),  false);
+        TYPE_ASSERT(bslma::IsStdAllocator, int  (void),  false);
+        TYPE_ASSERT(bslma::IsStdAllocator, void (int),   false);
 
-        // C-6,8
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-        TYPE_ASSERT_V(bsl::IsStdAllocator, MyAllocator,       true);
-#else
-        TYPE_ASSERT_V(bsl::IsStdAllocator, MyAllocator,       false);
+        // C-6,9
+        TYPE_ASSERT(bslma::IsStdAllocator, MyAllocator,                 true);
+        TYPE_ASSERT(bslma::IsStdAllocator, AllocatorOneParam,           true);
+        TYPE_ASSERT(bslma::IsStdAllocator, AllocatorTwoParams,          true);
+        TYPE_ASSERT(bslma::IsStdAllocator, AllocatorOverloadedAlloc,    true);
+        TYPE_ASSERT(bslma::IsStdAllocator, AllocatorInherited,          true);
+        TYPE_ASSERT(bslma::IsStdAllocator, std::allocator<int>,         true);
+        TYPE_ASSERT(bslma::IsStdAllocator, std::allocator<Incomplete>,  true);
+
+        // C-7,9
+        TYPE_ASSERT(bslma::IsStdAllocator, NoAllocateMember,            false);
+        TYPE_ASSERT(bslma::IsStdAllocator, NoValueType,                 false);
+        TYPE_ASSERT(bslma::IsStdAllocator, NonAllocatorTwoParams,       false);
+        TYPE_ASSERT(bslma::IsStdAllocator, NonAllocatorBadParam,        false);
+
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // NEGATIVE TESTS
+        //   These tests (disabled by default) should result in compilation
+        //   errors when enabled.
+        //
+        // Concerns:
+        //: 1 For type declaring the 'bslma::IsStdAllocator' nested trait,
+        //:   'bslma::IsStdAllocator' will result in a compile-time error if
+        //:   the type is missing 'value_type', 'allocate(size_type)', or both.
+        //:
+        //: 2 In C++11 and later, for type that appears to be an allocator
+        //:   (i.e., it has 'value_type' and 'allocate(size_type)'),
+        //:   'bslma::IsStdAllocator' will result in a compile-time error if
+        //:   the type does not declare the 'bslma::IsStdAllocator' nested
+        //:   trait.
+        //
+        // Plan:
+        //: 1 Instantiate 'bslma::IsStdAllocator' with classes that declare the
+        //:   'bslma::IsStdAllocator' nested trait but are missing
+        //:   'value_type', 'allocate(size_type)', or both.  Verify that a
+        //:   compilation error results.  (C-1)
+        //:
+        //: 2 Instantiate 'bslma::IsStdAllocator' with a class that meets the
+        //:   C++11 allocator requirements but does not delcare the
+        //:   'bslma::IsStdAllocator' nested trait.  Verify that a compilation
+        //:   error results.  (C-2)
+        //
+        // Testing
+        //    NEGATIVE COMPILATION TESTS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("NEGATIVE COMPILATION TESTS"
+                            "==========================\n");
+
+#if 0
+        // C-1
+        bslma::IsStdAllocator<NegativeMissingValueType>::type v1;
+        (void) v1;
+
+        bslma::IsStdAllocator<NegativeMissingAllocate>::type  v2;
+        (void) v2;
+
+        bslma::IsStdAllocator<NegativeMissingBoth>::type      v3;
+        (void) v3;
 #endif
-        TYPE_ASSERT_V(bsl::IsStdAllocator, std::allocator<int>,        true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, std::allocator<float>,      true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, std::allocator<int *>,      true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, std::allocator<Incomplete>, true);
 
+#if 0
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+        // C-2
+        bslma::IsStdAllocator<NegativeNotDeclared>::type      v4;
 
-        TYPE_ASSERT_V(bsl::IsStdAllocator, bsl::allocator<int>,          true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, bsl::allocator<float>,        true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, bsl::allocator<int *>,        true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, bsl::allocator<Incomplete>,   true);
-
-        // C-7,8
-        TYPE_ASSERT_V(bsl::IsStdAllocator, NoAllocateMember,  false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, NoValueType,       false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, AllocateTwoParams, false);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, AllocateBadParam,  false);
+        (void) v4;
+# endif
+#endif
 
       } break;
       default: {

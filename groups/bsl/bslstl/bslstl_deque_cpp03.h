@@ -316,6 +316,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
     typedef BloombergLP::bslalg::DequePrimitives<VALUE_TYPE,
                                                 BLOCK_LENGTH>  DequePrimitives;
 
+    typedef BloombergLP::bslma::AllocatorUtil                  AllocatorUtil;
     typedef bsl::allocator_traits<ALLOCATOR>                   AllocatorTraits;
 
     typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
@@ -368,6 +369,26 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // exception-safe repository for intermediate calculations.
 
     // PRIVATE MANIPULATORS
+    Block *allocateBlock();
+        // Return one block allocated from this object's allocator.  Note that
+        // the block is not initialized.
+
+    BlockPtr *allocateBlockPtrs(std::size_t n);
+        // Allocate an array having the specified 'n' elements of type
+        // 'BlockPtr' from this object's allocator.  Note that the array
+        // elements are not initialized.
+
+    void deallocateBlock(Block *p);
+        // Deallocate from this object's allocator the block at the specified
+        // 'p' address.  Note that this function does not call any destructors
+        // on 'p' or '*p'.
+
+    void deallocateBlockPtrs(BlockPtr *p, std::size_t n);
+        // Deallocate from this object's allocator an array at the specified
+        // 'p' address having the specified 'n' elements of type 'BlockPtr'.
+        // Note that if any of the array elements point to an allocated block,
+        // then that block is not deallocated (and might be leaked).
+
     template <class INPUT_ITERATOR>
     size_type privateAppend(INPUT_ITERATOR                  first,
                             INPUT_ITERATOR                  last,
@@ -2006,12 +2027,13 @@ template <class VALUE_TYPE>
 typename Deque_Base<VALUE_TYPE>::size_type
 Deque_Base<VALUE_TYPE>::capacity() const BSLS_KEYWORD_NOEXCEPT
 {
-    // 'ContainerBase::allocateN', which creates the 'd_blocks_p' array, does
-    // not, in its contract, guarantee to initialize the array to 0.  Since we
-    // read these values, we have to make sure they're initialized to avoid
-    // purify 'read before write' errors.  Note that we initialize them to
-    // null in which case they are not valid pointers, but we never dereference
-    // them, and the pointer arithmetic we do on them will still work.
+    // 'allocateBlockPtrs', which creates the 'd_blocks_p' array,
+    // does not, in its contract, guarantee to initialize the array to 0.
+    // Since we read these values, we have to make sure they're initialized to
+    // avoid purify 'read before write' errors.  Note that we initialize them
+    // to null in which case they are not valid pointers, but we never
+    // dereference them, and the pointer arithmetic we do on them will still
+    // work.
 
     if (d_start.blockPtr() > d_blocks_p) {
         d_blocks_p[0] = 0;
@@ -2108,6 +2130,37 @@ deque<VALUE_TYPE, ALLOCATOR>::deque(RawInit, const ALLOCATOR& allocator)
 
 // PRIVATE MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
+typename deque<VALUE_TYPE, ALLOCATOR>::Block *
+deque<VALUE_TYPE, ALLOCATOR>::allocateBlock()
+{
+    return AllocatorUtil::allocateObject<Block>(this->allocatorRef());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+typename deque<VALUE_TYPE, ALLOCATOR>::BlockPtr *
+deque<VALUE_TYPE, ALLOCATOR>::allocateBlockPtrs(std::size_t n)
+{
+    return AllocatorUtil::allocateObject<BlockPtr>(this->allocatorRef(), n);
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void deque<VALUE_TYPE, ALLOCATOR>::deallocateBlock(Block *p)
+{
+    AllocatorUtil::deallocateObject(this->allocatorRef(), p);
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void
+deque<VALUE_TYPE, ALLOCATOR>::deallocateBlockPtrs(BlockPtr *p, std::size_t n)
+{
+    AllocatorUtil::deallocateObject(this->allocatorRef(), p, n);
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
 deque<VALUE_TYPE, ALLOCATOR>::privateAppend(
@@ -2141,7 +2194,7 @@ deque<VALUE_TYPE, ALLOCATOR>::privateAppend(
             insertPoint = guard.end();  // 'insertAtBack(1)' invalidated
                                         // iterator
         }
-        AllocatorTraits::construct(ContainerBase::allocator(),
+        AllocatorTraits::construct(this->allocatorRef(),
                                    BSLS_UTIL_ADDRESSOF(*insertPoint),
                                    *first);
         ++guard;
@@ -2188,7 +2241,7 @@ deque<VALUE_TYPE, ALLOCATOR>::privateAppend(INPUT_ITERATOR          first,
                                         // iterator
         }
 
-        AllocatorTraits::construct(ContainerBase::allocator(),
+        AllocatorTraits::construct(this->allocatorRef(),
                                    BSLS_UTIL_ADDRESSOF(*insertPoint),
                                    *first);
         ++guard;
@@ -2214,7 +2267,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateAppendDefaultInsertable(
     DequePrimitives::valueInititalizeN(&this->d_finish,
                                        this->d_finish,
                                        numElements,
-                                       ContainerBase::allocator());
+                                       this->allocatorRef());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -2234,7 +2287,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateAppendRaw(
                                             this->d_finish,
                                             numElements,
                                             value,
-                                            ContainerBase::allocator());
+                                            this->allocatorRef());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -2245,14 +2298,15 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateInit(size_type numElements)
 
     // Allocate block pointer array.
 
-    this->d_blocks_p     = this->allocateN((BlockPtr *)0, blocksLength);
+    this->d_blocks_p     = this->allocateBlockPtrs(blocksLength);
+
     this->d_blocksLength = blocksLength;
 
     // Allocate the first block and store its pointer into the array.  Leave a
     // little room at the front and back of the array for growth.
 
     BlockPtr *firstBlockPtr = &this->d_blocks_p[Imp::BLOCK_ARRAY_PADDING];
-    *firstBlockPtr = this->allocateN((Block *)0, 1);
+    *firstBlockPtr = this->allocateBlock();
 
     // Calculate the offset into the first block such that 'n' elements will
     // leave equal space at the front of the first block and at the end of the
@@ -2391,7 +2445,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateSplit(
                                                   other->d_start.valuePtr(),
                                                   pos.valuePtr(),
                                                   this->d_finish.valuePtr(),
-                                                  ContainerBase::allocator());
+                                                  this->allocatorRef());
         other->d_finish += numAfter;
         this->d_finish = pos;
         return;                                                       // RETURN
@@ -2407,7 +2461,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateSplit(
                                                   other->d_start.valuePtr(),
                                                   this->d_start.valuePtr(),
                                                   pos.valuePtr(),
-                                                  ContainerBase::allocator());
+                                                  this->allocatorRef());
         other->d_finish += numBefore;
         this->d_start = pos;
         Deque_Util::swap(
@@ -2422,12 +2476,12 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateSplit(
     size_type otherBlocksLength = numMoveBlocks + 1 +
                                               2 * Imp::BLOCK_ARRAY_PADDING;
 
-    other->d_blocks_p     = this->allocateN((BlockPtr *)0, otherBlocksLength);
+    other->d_blocks_p     = this->allocateBlockPtrs(otherBlocksLength);
     other->d_blocksLength = otherBlocksLength;
 
     // Good time to allocate block for exception safety.
 
-    Block *newBlock = this->allocateN((Block *)0, 1);
+    Block *newBlock = this->allocateBlock();
 
     // The following chunk of code will never throw an exception.  Move unsplit
     // blocks from 'this' to 'other', then adjust the iterators.
@@ -2479,7 +2533,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateSplit(
                                                   splitValuePtr,
                                                   pos.valuePtr(),
                                                   pos.blockEnd(),
-                                                  ContainerBase::allocator());
+                                                  this->allocatorRef());
     }
     else {
         // Move the head part of the block into the new block, then swap the
@@ -2489,7 +2543,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateSplit(
                                                   newBlock->d_data,
                                                   pos.blockBegin(),
                                                   pos.valuePtr(),
-                                                  ContainerBase::allocator());
+                                                  this->allocatorRef());
         *newBlockPtr    = *pos.blockPtr();
         *pos.blockPtr() = newBlock;
     }
@@ -2515,7 +2569,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateJoinPrepend(
 
     // Make 'other' raw again, and free its resources.
 
-    deque<VALUE_TYPE, ALLOCATOR> temp(k_RAW_INIT, other->allocator());
+    deque<VALUE_TYPE, ALLOCATOR> temp(k_RAW_INIT, other->allocatorRef());
     Deque_Util::move(static_cast<Base *>(&temp), static_cast<Base *>(other));
 }
 
@@ -2530,7 +2584,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateJoinAppend(
 
     // Make 'other' raw again, and free its resources.
 
-    deque<VALUE_TYPE, ALLOCATOR> temp(k_RAW_INIT, other->allocator());
+    deque<VALUE_TYPE, ALLOCATOR> temp(k_RAW_INIT, other->allocatorRef());
     Deque_Util::move(static_cast<Base *>(&temp), static_cast<Base *>(other));
 }
 
@@ -2581,7 +2635,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                               first,
                                               last,
                                               numElements,
-                                              ContainerBase::allocator());
+                                              this->allocatorRef());
     } else {
         // Create new blocks at front.  In case an exception is thrown, any
         // unused blocks are returned to the allocator.
@@ -2597,7 +2651,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                              first,
                                              last,
                                              numElements,
-                                             ContainerBase::allocator());
+                                             this->allocatorRef());
     }
 }
 
@@ -2618,7 +2672,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::privatePrependRaw(
                                              this->d_start,
                                              numElements,
                                              value,
-                                             ContainerBase::allocator());
+                                             this->allocatorRef());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -2680,7 +2734,7 @@ deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(
                                           // 'insertPoint'
         }
         --insertPoint;
-        AllocatorTraits::construct(ContainerBase::allocator(),
+        AllocatorTraits::construct(this->allocatorRef(),
                                    BSLS_UTIL_ADDRESSOF(*insertPoint),
                                    *--last);
         ++guard;
@@ -2724,7 +2778,7 @@ deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(
                                           // 'insertPoint'
         }
         --insertPoint;
-        AllocatorTraits::construct(ContainerBase::allocator(),
+        AllocatorTraits::construct(this->allocatorRef(),
                                    BSLS_UTIL_ADDRESSOF(*insertPoint),
                                    *--last);
         ++guard;
@@ -2808,8 +2862,7 @@ deque<VALUE_TYPE, ALLOCATOR>::deque(INPUT_ITERATOR   first,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-deque<VALUE_TYPE, ALLOCATOR>::deque(
-                                  const deque<VALUE_TYPE, ALLOCATOR>& original)
+deque<VALUE_TYPE, ALLOCATOR>::deque(const deque& original)
 : Deque_Base<VALUE_TYPE>()
 , ContainerBase(AllocatorTraits::select_on_container_copy_construction(
                                                      original.get_allocator()))
@@ -2824,7 +2877,7 @@ deque<VALUE_TYPE, ALLOCATOR>::deque(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>::deque(
-                 const deque<VALUE_TYPE, ALLOCATOR>&            original,
+                 const deque&                                   original,
                  const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : Deque_Base<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
@@ -2903,34 +2956,32 @@ deque<VALUE_TYPE, ALLOCATOR>::~deque()
 
     if (0 != this->d_start.blockPtr()) {
         // Destroy all elements and deallocate all but one block.
-
         clear();
 
         // Deallocate the remaining (empty) block.
-
-        this->deallocateN(*this->d_start.blockPtr(), 1);
+        this->deallocateBlock(*this->d_start.blockPtr());
     }
 
     // Deallocate the array of block pointers.
-
-    this->deallocateN(this->d_blocks_p, this->d_blocksLength);
+    this->deallocateBlockPtrs(this->d_blocks_p, this->d_blocksLength);
 }
 
 // MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>&
-deque<VALUE_TYPE, ALLOCATOR>::operator=(
-                                       const deque<VALUE_TYPE, ALLOCATOR>& rhs)
+deque<VALUE_TYPE, ALLOCATOR>::operator=(const deque<VALUE_TYPE,ALLOCATOR>& rhs)
 {
+    typedef typename
+        AllocatorTraits::propagate_on_container_copy_assignment Propagate;
+
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
-        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
+        if (Propagate::value && get_allocator() != rhs.get_allocator()) {
             deque other(rhs, rhs.get_allocator());
 
             Deque_Util::swap(static_cast<Base *>(this),
                              static_cast<Base *>(&other));
-            BloombergLP::bslalg::SwapUtil::swap(
-                                            &ContainerBase::allocator(),
-                                            &other.ContainerBase::allocator());
+            AllocatorUtil::swap(&this->allocatorRef(), &other.allocatorRef(),
+                                Propagate());
         }
         else {
             size_type origSize = this->size();
@@ -2976,19 +3027,19 @@ deque<VALUE_TYPE, ALLOCATOR>::operator=(
 {
     deque& lvalue = rhs;
 
+    typedef typename
+        AllocatorTraits::propagate_on_container_move_assignment Propagate;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
         if (get_allocator() == lvalue.get_allocator()) {
             Deque_Util::swap(static_cast<Base *>(this),
                              static_cast<Base *>(&lvalue));
         }
-        else if (
-              AllocatorTraits::propagate_on_container_move_assignment::value) {
+        else if (Propagate::value) {
             deque other(MoveUtil::move(lvalue));
             Deque_Util::swap(static_cast<Base *>(this),
                              static_cast<Base *>(&other));
-            BloombergLP::bslalg::SwapUtil::swap(
-                                            &ContainerBase::allocator(),
-                                            &other.ContainerBase::allocator());
+            AllocatorUtil::swap(&this->allocatorRef(), &other.allocatorRef(),
+                                Propagate());
         }
         else {
             deque other(MoveUtil::move(lvalue), get_allocator());
@@ -3114,7 +3165,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::reserve(size_type numElements)
                                       "deque<...>::reserve(n): deque too big");
     }
 
-    // 'ContainerBase::allocateN', which creates the 'd_blocks_p' array, does
+    // 'allocateBlockPtrs', which creates the 'd_blocks_p' array, does
     // not, in its contract, guarantee to initialize the array to 0.  Since we
     // read these values, we have to make sure they're initialized to avoid
     // purify 'read before write' errors.  Note that we initialize them to 0,
@@ -3189,11 +3240,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
 
         IteratorImp oldEnd = this->d_finish;
         IteratorImp newEnd = this->d_start + newSize;
-        DequePrimitives::destruct(newEnd, oldEnd, ContainerBase::allocator());
+        DequePrimitives::destruct(newEnd, oldEnd, this->allocatorRef());
         // Deallocate blocks no longer used
         for (; oldEnd.blockPtr() != newEnd.blockPtr();
                oldEnd.previousBlock()) {
-            this->deallocateN(*oldEnd.blockPtr(), 1);
+            this->deallocateBlock(*oldEnd.blockPtr());
         }
         this->d_finish = newEnd;
     }
@@ -3240,13 +3291,13 @@ void deque<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
     const size_type offsetStart  = this->d_start.offsetInBlock();
     const size_type offsetFinish = this->d_finish.offsetInBlock();
 
-    BlockPtr *newBlocks = this->allocateN((BlockPtr *)0, newBlocksLength);
+    BlockPtr *newBlocks = this->allocateBlockPtrs(newBlocksLength);
 
     std::memmove(newBlocks,
                  this->d_start.blockPtr(),
                  newBlocksLength * sizeof(BlockPtr));
 
-    this->deallocateN(this->d_blocks_p, this->d_blocksLength);
+    this->deallocateBlockPtrs(this->d_blocks_p, this->d_blocksLength);
 
     this->d_blocks_p     = newBlocks;
     this->d_blocksLength = newBlocksLength;
@@ -3276,7 +3327,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_front(const VALUE_TYPE& value)
         newBlocks.insertAtFront(1);  // The deque's value is not modified.
 
         AllocatorTraits::construct(
-            ContainerBase::allocator(), (this->d_start - 1).valuePtr(), value);
+            this->allocatorRef(), (this->d_start - 1).valuePtr(), value);
 
         --this->d_start;
     }
@@ -3285,7 +3336,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_front(const VALUE_TYPE& value)
         // pointer.  This is much quicker than calling 'operator--'.
 
         AllocatorTraits::construct(
-            ContainerBase::allocator(), this->d_start.valuePtr() - 1, value);
+            this->allocatorRef(), this->d_start.valuePtr() - 1, value);
         this->d_start.valuePtrDecrement();
     }
 }
@@ -3310,7 +3361,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_front(
         BlockCreator newBlocks(this);
         newBlocks.insertAtFront(1);  // The deque's value is not modified.
 
-        AllocatorTraits::construct(ContainerBase::allocator(),
+        AllocatorTraits::construct(this->allocatorRef(),
                                    (this->d_start - 1).valuePtr(),
                                    MoveUtil::move(lvalue));
         --this->d_start;
@@ -3319,7 +3370,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_front(
         // Since the offset is non-zero, it is safe to directly decrement the
         // pointer.  This is much quicker than calling 'operator--'.
 
-        AllocatorTraits::construct(ContainerBase::allocator(),
+        AllocatorTraits::construct(this->allocatorRef(),
                                    this->d_start.valuePtr() - 1,
                                    MoveUtil::move(lvalue));
         this->d_start.valuePtrDecrement();
@@ -3339,7 +3390,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                 ContainerBase::allocator(), this->d_finish.valuePtr(), value);
+                 this->allocatorRef(), this->d_finish.valuePtr(), value);
         this->d_finish.valuePtrIncrement();
     }
     else {
@@ -3349,7 +3400,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
         newBlocks.insertAtBack(1);  // The deque's value is not modified.
 
         AllocatorTraits::construct(
-                 ContainerBase::allocator(), this->d_finish.valuePtr(), value);
+                 this->allocatorRef(), this->d_finish.valuePtr(), value);
         this->d_finish.nextBlock();
     }
 }
@@ -3369,7 +3420,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_back(
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
-        AllocatorTraits::construct(ContainerBase::allocator(),
+        AllocatorTraits::construct(this->allocatorRef(),
                                    this->d_finish.valuePtr(),
                                    MoveUtil::move(lvalue));
         this->d_finish.valuePtrIncrement();
@@ -3380,7 +3431,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_back(
         BlockCreator newBlocks(this);
         newBlocks.insertAtBack(1);  // The deque's value is not modified.
 
-        AllocatorTraits::construct(ContainerBase::allocator(),
+        AllocatorTraits::construct(this->allocatorRef(),
                                    this->d_finish.valuePtr(),
                                    MoveUtil::move(lvalue));
         this->d_finish.nextBlock();
@@ -3417,14 +3468,14 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr());
         --this->d_start;
     }
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1);
         this->d_start.valuePtrDecrement();
     }
@@ -3454,7 +3505,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
         --this->d_start;
@@ -3462,7 +3513,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
         this->d_start.valuePtrDecrement();
@@ -3495,7 +3546,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
@@ -3504,7 +3555,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
@@ -3540,7 +3591,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3550,7 +3601,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3589,7 +3640,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3600,7 +3651,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3642,7 +3693,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3654,7 +3705,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3699,7 +3750,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3712,7 +3763,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3760,7 +3811,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3774,7 +3825,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3825,7 +3876,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3840,7 +3891,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3894,7 +3945,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3910,7 +3961,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3967,7 +4018,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -3984,7 +4035,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4019,7 +4070,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr());
         this->d_finish.valuePtrIncrement();
     }
@@ -4030,7 +4081,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr());
         this->d_finish.nextBlock();
     }
@@ -4055,7 +4106,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
         this->d_finish.valuePtrIncrement();
@@ -4067,7 +4118,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
         this->d_finish.nextBlock();
@@ -4095,7 +4146,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
@@ -4108,7 +4159,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
@@ -4139,7 +4190,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4153,7 +4204,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4187,7 +4238,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4202,7 +4253,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4239,7 +4290,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4255,7 +4306,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4295,7 +4346,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4312,7 +4363,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4355,7 +4406,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4373,7 +4424,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4419,7 +4470,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4438,7 +4489,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4487,7 +4538,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4507,7 +4558,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4559,7 +4610,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4580,7 +4631,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -4622,7 +4673,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
         newBlocks.insertAtFront(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             (this->d_start - 1).valuePtr(),
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         --this->d_start;
@@ -4630,7 +4681,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
     else {
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_start.valuePtr() - 1,
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         this->d_start.valuePtrDecrement();
@@ -4654,7 +4705,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         this->d_finish.valuePtrIncrement();
@@ -4666,7 +4717,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
         newBlocks.insertAtBack(1);
 
         AllocatorTraits::construct(
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             this->d_finish.valuePtr(),
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         this->d_finish.nextBlock();
@@ -4725,7 +4776,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position)
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator());
+                            this->allocatorRef());
         proctor.release();
     }
     else {
@@ -4739,7 +4790,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position)
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator());
+                            this->allocatorRef());
         proctor.release();
     }
     return this->begin() + posIdx;
@@ -4788,7 +4839,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
         proctor.release();
     }
@@ -4803,7 +4854,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
         proctor.release();
     }
@@ -4857,7 +4908,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
         proctor.release();
@@ -4873,7 +4924,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
         proctor.release();
@@ -4932,7 +4983,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
@@ -4949,7 +5000,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
@@ -5013,7 +5064,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5031,7 +5082,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5100,7 +5151,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5119,7 +5170,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5193,7 +5244,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5213,7 +5264,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5292,7 +5343,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5313,7 +5364,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5397,7 +5448,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5419,7 +5470,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5508,7 +5559,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5531,7 +5582,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5625,7 +5676,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5649,7 +5700,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -5710,7 +5761,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_start,
                             this->d_start,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         proctor.release();
     }
@@ -5725,7 +5776,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                             &this->d_finish,
                             this->d_finish,
                             this->d_start + posIdx,
-                            ContainerBase::allocator(),
+                            this->allocatorRef(),
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         proctor.release();
     }
@@ -5742,7 +5793,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::pop_front()
     BloombergLP::bslma::DestructionUtil::destroy(this->d_start.valuePtr());
 
     if (1 == this->d_start.remainingInBlock()) {
-        this->deallocateN(*this->d_start.blockPtr(), 1);
+        this->deallocateBlock(*this->d_start.blockPtr());
         this->d_start.nextBlock();
         return;                                                       // RETURN
     }
@@ -5759,7 +5810,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::pop_back()
         --this->d_finish;
         BloombergLP::bslma::DestructionUtil::destroy(
                                                     this->d_finish.valuePtr());
-        this->deallocateN(this->d_finish.blockPtr()[1], 1);
+        this->deallocateBlock(this->d_finish.blockPtr()[1]);
         return;                                                       // RETURN
     }
 
@@ -5808,7 +5859,7 @@ deque<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
                                               this->d_start + posIdx,
                                               1,
                                               value,
-                                              ContainerBase::allocator());
+                                              this->allocatorRef());
     }
     else {
         BlockCreator newBlocks(this);
@@ -5820,7 +5871,7 @@ deque<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
                                              this->d_start + posIdx,
                                              1,
                                              value,
-                                             ContainerBase::allocator());
+                                             this->allocatorRef());
     }
     return this->begin() + posIdx;
 }
@@ -5868,7 +5919,7 @@ deque<VALUE_TYPE, ALLOCATOR>::insert(
                                                   this->d_start,
                                                   this->d_start + posIdx,
                                                   MoveUtil::move(lvalue),
-                                                  ContainerBase::allocator());
+                                                  this->allocatorRef());
     }
     else {
         BlockCreator newBlocks(this);
@@ -5879,7 +5930,7 @@ deque<VALUE_TYPE, ALLOCATOR>::insert(
                                                  this->d_finish,
                                                  this->d_start + posIdx,
                                                  MoveUtil::move(lvalue),
-                                                 ContainerBase::allocator());
+                                                 this->allocatorRef());
     }
     return this->begin() + posIdx;
 }
@@ -5934,7 +5985,7 @@ deque<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
                                               this->d_start + posIdx,
                                               numElements,
                                               value,
-                                              ContainerBase::allocator());
+                                              this->allocatorRef());
     }
     else {
         // Create new blocks at back.  In case an exception is thrown, any
@@ -5950,7 +6001,7 @@ deque<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
                                              this->d_start + posIdx,
                                              numElements,
                                              value,
-                                             ContainerBase::allocator());
+                                             this->allocatorRef());
     }
 
     return this->begin() + posIdx;
@@ -6026,24 +6077,23 @@ deque<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first, const_iterator last)
     iterator last_imp  = this->begin() + (last  - this->cbegin());
     iterator oldStart  = this->begin();
     iterator oldFinish = this->end();
-    iterator result = iterator(DequePrimitives::erase(
-                                                  &this->d_start,
-                                                  &this->d_finish,
-                                                  this->d_start,
-                                                  first_imp.imp(),
-                                                  last_imp.imp(),
-                                                  this->d_finish,
-                                                  ContainerBase::allocator()));
+    iterator result = iterator(DequePrimitives::erase(&this->d_start,
+                                                      &this->d_finish,
+                                                      this->d_start,
+                                                      first_imp.imp(),
+                                                      last_imp.imp(),
+                                                      this->d_finish,
+                                                      this->allocatorRef()));
 
     // Deallocate blocks no longer used.
 
     for ( ; oldStart.imp().blockPtr() != this->d_start.blockPtr();
                                                   oldStart.imp().nextBlock()) {
-        this->deallocateN(oldStart.imp().blockPtr()[0], 1);
+        this->deallocateBlock(oldStart.imp().blockPtr()[0]);
     }
     for ( ; oldFinish.imp().blockPtr() != this->d_finish.blockPtr();
                                              oldFinish.imp().previousBlock()) {
-        this->deallocateN(oldFinish.imp().blockPtr()[0], 1);
+        this->deallocateBlock(oldFinish.imp().blockPtr()[0]);
     }
     return result;
 }
@@ -6053,11 +6103,13 @@ void deque<VALUE_TYPE, ALLOCATOR>::swap(deque<VALUE_TYPE, ALLOCATOR>& other)
     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                        AllocatorTraits::is_always_equal::value)
 {
-    if (AllocatorTraits::propagate_on_container_swap::value) {
+    typedef typename
+        AllocatorTraits::propagate_on_container_swap Propagate;
+    if (Propagate::value) {
         Deque_Util::swap(static_cast<Base *>(this),
                          static_cast<Base *>(&other));
-        BloombergLP::bslalg::SwapUtil::swap(&ContainerBase::allocator(),
-                                            &other.ContainerBase::allocator());
+        AllocatorUtil::swap(&this->allocatorRef(), &other.allocatorRef(),
+                            Propagate());
     }
     else {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
@@ -6084,14 +6136,14 @@ void deque<VALUE_TYPE, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 {
     DequePrimitives::destruct(this->d_start,
                               this->d_finish,
-                              ContainerBase::allocator());
+                              this->allocatorRef());
 
     // Deallocate all blocks except 'finishBlock'.
 
     BlockPtr *startBlock  = this->d_start.blockPtr();
     BlockPtr *finishBlock = this->d_finish.blockPtr();
     for ( ; startBlock != finishBlock; ++startBlock) {
-        this->deallocateN(*startBlock, 1);
+        this->deallocateBlock(*startBlock);
     }
 
     // Reposition in the middle.
@@ -6112,7 +6164,7 @@ inline
 typename deque<VALUE_TYPE, ALLOCATOR>::allocator_type
 deque<VALUE_TYPE, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
 {
-    return ContainerBase::allocator();
+    return this->allocatorRef();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6278,8 +6330,7 @@ Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::~Deque_BlockCreator()
 
         for (; delFirst != delLast; ++delFirst) {
             // Deallocate the block that '*delFirst' points to.
-
-            d_deque_p->deallocateN(*delFirst, 1);
+            d_deque_p->deallocateBlock(*delFirst);
         }
     }
 }
@@ -6290,7 +6341,8 @@ void Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::insertAtFront(size_type n)
 {
     d_boundary_p = reserveBlockSlots(n, true);
     for ( ; n > 0; --n) {
-        d_boundary_p[-1] = d_deque_p->allocateN((Block *)0, 1);
+        d_boundary_p[-1] = d_deque_p->allocateBlock();
+
         --d_boundary_p;
     }
 }
@@ -6300,7 +6352,7 @@ void Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::insertAtBack(size_type n)
 {
     d_boundary_p = reserveBlockSlots(n, false);
     for ( ; n > 0; --n) {
-        *d_boundary_p = d_deque_p->allocateN((Block *)0, 1);
+        *d_boundary_p = d_deque_p->allocateBlock();
         ++d_boundary_p;
     }
 }
@@ -6357,7 +6409,7 @@ Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::reserveBlockSlots(
 
             newBlocksLength *= 2;
         }
-        newBlocks = d_deque_p->allocateN((BlockPtr *)0, newBlocksLength);
+        newBlocks = d_deque_p->allocateBlockPtrs(newBlocksLength);
     }
 
     // Center block pointers within new blocks array.
@@ -6383,7 +6435,7 @@ Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::reserveBlockSlots(
         // Deallocate old blocks array and install the new one.
 
         if (blocks) {
-            d_deque_p->deallocateN(blocks, d_deque_p->d_blocksLength);
+            d_deque_p->deallocateBlockPtrs(blocks, d_deque_p->d_blocksLength);
         }
         d_deque_p->d_blocks_p     = newBlocks;
         d_deque_p->d_blocksLength = newBlocksLength;
@@ -6456,7 +6508,7 @@ Deque_BlockProctor<VALUE_TYPE, ALLOCATOR>::~Deque_BlockProctor()
         for (; delFirst != delLast; ++delFirst) {
             // Deallocate the block that '*delFirst' points to.
 
-            d_deque_p->deallocateN(*delFirst, 1);
+            d_deque_p->deallocateBlock(*delFirst);
         }
     }
 }
@@ -6533,7 +6585,7 @@ Deque_Guard<VALUE_TYPE, ALLOCATOR>::~Deque_Guard()
         begin = end - d_count;
     }
 
-    DequePrimitives::destruct(begin, end, d_deque_p->allocator());
+    DequePrimitives::destruct(begin, end, d_deque_p->get_allocator());
 }
 
 // MANIPULATORS

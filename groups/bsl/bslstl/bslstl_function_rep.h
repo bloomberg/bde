@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_nothrowmovableutil.h>
 
 #include <bslma_constructionutil.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_decay.h>
@@ -498,7 +498,7 @@ bslstl::Function_Rep::functionManager(ManagerOpCode  opCode,
         // trivially.
         FUNC& original = *static_cast<FUNC *>(srcVoidPtr);
         ConstructionUtil::construct(target,
-                                    rep->d_allocator.mechanism(),
+                                    rep->d_allocator,
                                     bslmf::MovableRefUtil::move(original));
       } break;
 
@@ -507,9 +507,7 @@ bslstl::Function_Rep::functionManager(ManagerOpCode  opCode,
         // this operation for bitwise copyable types.  If the type is trivially
         // copyable, then the 'construct' operation below will do it trivially.
         const FUNC& original = *static_cast<FUNC *>(srcVoidPtr);
-        ConstructionUtil::construct(target,
-                                    rep->d_allocator.mechanism(),
-                                    original);
+        ConstructionUtil::construct(target, rep->d_allocator, original);
       } break;
 
       case e_DESTROY: {
@@ -518,9 +516,7 @@ bslstl::Function_Rep::functionManager(ManagerOpCode  opCode,
 
       case e_DESTRUCTIVE_MOVE: {
         FUNC *fromPtr = static_cast<FUNC*>(srcVoidPtr);
-        ConstructionUtil::destructiveMove(target,
-                                          rep->d_allocator.mechanism(),
-                                          fromPtr);
+        ConstructionUtil::destructiveMove(target, rep->d_allocator, fromPtr);
       } break;
 
       case e_GET_SIZE: {

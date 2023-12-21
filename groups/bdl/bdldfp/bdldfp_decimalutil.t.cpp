@@ -3551,8 +3551,8 @@ int main(int argc, char* argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
                 Type      valuePmrStr = ERROR_VALUE;
                 const int rcPmrStr = Util::parseDecimal32(
-                                                      &valuePmrStr,
-                                                      std::pmr::string(INPUT));
+                                                  &valuePmrStr,
+                                                  std::pmr::string(INPUT, pa));
 #endif
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rcCStr,   0 == rcCStr  );

@@ -133,7 +133,7 @@ BSLS_IDENT("$Id: $")
 //  // my_doublestack.h
 //  // ...
 //
-//  namespace bslma { class Allocator; } // forward declaration of allocator
+//  #include <bslma_allocator.h>
 //
 //  class my_DoubleStack {
 //      // DATA
@@ -370,6 +370,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_deleterhelper.h>
+#include <bslma_memoryresource.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
@@ -381,7 +382,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
-#include <bsls_types.h>
 
 #include <cstddef>       // for 'std::size_t', 'std::ptrdiff_t'
 
@@ -397,7 +397,7 @@ namespace bslma {
                         // class Allocator
                         // ===============
 
-class Allocator {
+class Allocator : public bsl::memory_resource {
     // This protocol class provides a pure abstract interface and contract for
     // clients and suppliers of raw memory.  If the requested memory cannot be
     // returned, the contract requires that an 'std::bad_alloc' exception be
@@ -406,11 +406,44 @@ class Allocator {
     // less than the maximal alignment guarantee afforded by global
     // 'operator new'.
 
+  protected:
+    // PROTECTED MANIPULATORS
+    void* do_allocate(std::size_t bytes,
+                      std::size_t alignment) BSLS_KEYWORD_OVERRIDE;
+        // Return a newly allocated block of memory of (at least) the specified
+        // positive 'bytes' and having at least the specified 'alignment'.
+        // Unless overriden in a derived class, the return value is
+        // 'this->allocate(bytes)'.  If this allocator cannot return the
+        // requested number of bytes or cannot satisfy the alignment request,
+        // then it will throw a 'std::bad_alloc' exception in an
+        // exception-enabled build, or else will abort the program in a
+        // non-exception build.  The behavior is undefined unless '0 <=
+        // bytes'.  Unless overriden in a derived class, the behavior is
+        // undefined if 'alignment > bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+
+    void do_deallocate(void        *p,
+                       std::size_t  bytes,
+                       std::size_t  alignment) BSLS_KEYWORD_OVERRIDE;
+        // Return the memory block at the specified 'p' address, having the
+        // specified 'bytes' and specified 'alignment', back to this allocator.
+        // If 'address' is 0, this function has no effect.  The behavior is
+        // undefined unless 'address' is 0 or a block allocated from this
+        // allocator object using the same 'bytes' and 'alignment' and has not
+        // already been deallocated.
+
+    // PROTECTED ACCESSORS
+    bool do_is_equal(const memory_resource& other) const
+                                   BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Return 'true' if this allocator is equal to the specified 'other'
+        // allocator, meaning (at least) that a memory block allocated by one
+        // can be deallocated by the other; otherwise return 'false'.  Unless
+        // overriden, this method returns 'this == &other'.
+
   public:
     // PUBLIC TYPES
-    typedef bsls::Types::size_type size_type;
-        // Alias for a signed integral type capable of representing the number
-        // of bytes in this platform's virtual address space.
+    typedef std::size_t size_type;
+        // Alias for an unsigned integral type capable of representing the
+        // number of bytes in this platform's virtual address space.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // CLASS METHODS
@@ -424,10 +457,10 @@ class Allocator {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CREATORS
-    virtual ~Allocator();
+    ~Allocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator.  Note that the behavior of destroying an
-        // allocator while memory is allocated from it is not specified.
-        // (Unless you *know* that it is valid to do so, don't!)
+        // allocator while memory is allocated from it is not specified;
+        // unless you *know* that it is valid to do so, don't!
 
     // MANIPULATORS
     virtual void *allocate(size_type size) = 0;
@@ -439,13 +472,20 @@ class Allocator {
         // program in a non-exception build.  The behavior is undefined unless
         // '0 <= size'.  Note that the alignment of the address returned
         // conforms to the platform requirement for any object of the specified
-        // 'size'.
+        // 'size'.  Note that this virtual function hides a two-argument
+        // non-virtual 'allocate' method inherited from 'bsl::memory_resource';
+        // to access the inherited function, upcast the object to
+        // 'bsl::memory_resource&' before calling the base-class function.
 
     virtual void deallocate(void *address) = 0;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect.  The
         // behavior is undefined unless 'address' was allocated using this
-        // allocator object and has not already been deallocated.
+        // allocator object and has not already been deallocated.  Note that
+        // this virtual function hides a two-argument, non-virtual 'deallocate'
+        // method inherited from 'bsl::memory_resource'; to access the
+        // inherited function, upcast the object to 'bsl::memory_resource&'
+        // before calling the base-class function.
 
     template <class TYPE>
     void deleteObject(const TYPE *object);

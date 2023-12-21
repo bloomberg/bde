@@ -32,6 +32,18 @@ BSLS_IDENT("$Id: $")
 //: o All methods of the protocol are pure virtual.
 //: o All methods of the protocol are publicly accessible.
 //
+// There are two main exceptions to the above requirements:
+//: o Adaptor classes that adapt one protocol to another will have non-pure
+//:   virtual functions that invoke pure virtual functions.  Test drivers for
+//:   such adaptors should test that the appropriate pure virtual function is
+//:   called when the adapted function is invoked.
+//: o Protocol classes that copy or extend those from the C++ Standard Library
+//:   may have *pass-through* non-virtual functions that call private or
+//:   protected virtual functions.  For example, non-virtual
+//:   'bsl::memory_resource::allocate' calls private virtual 'do_allocate'.  In
+//:   this case test drivers using this component should reference the
+//:   non-virtual function as a proxy for the virtual function.
+//
 // This protocol test component is intended to verify conformance to these
 // requirements; however, it is not possible to verify all protocol
 // requirements fully within the framework of the C++ language.  The following
@@ -701,7 +713,7 @@ class ProtocolTest {
 
 #define BSLS_PROTOCOLTEST_ASSERT(test, methodCall)                            \
     do {                                                                      \
-        test.method(                                                          \
+        (void) test.method(                                                   \
                 "inside BSLS_PROTOCOLTEST_ASSERT("#methodCall")")->methodCall;\
         if (!test.lastStatus()) {                                             \
             ASSERT(0 && "Not a virtual method: "#methodCall);                 \

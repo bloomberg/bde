@@ -2,8 +2,8 @@
 #ifndef BDE_OPENSOURCE_PUBLICATION // STP
 
 #include <bslstp_alloc.h>
-#include <bslma_stdallocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
+#include <bslma_bslallocator.h>
 
 namespace bsl {
 

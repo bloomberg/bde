@@ -86,7 +86,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_allocatortraits.h>
-#include <bslma_stdallocator.h>
+#include <bslma_isstdallocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bslmf_integralconstant.h>
 #include <bslmf_isconvertible.h>
@@ -149,6 +150,9 @@ class StdAllocatorAdaptor : public ALLOCATOR {
 #endif
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StdAllocatorAdaptor, bslma::IsStdAllocator);
+
     // PUBLIC TYPES
     typedef typename ALLOCATOR::size_type       size_type;
     typedef typename ALLOCATOR::difference_type difference_type;

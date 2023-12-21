@@ -327,11 +327,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_swaputil.h>
 
+#include <bslma_bslallocator.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isintegral.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_keyword.h>  // 'BSLS_KEYWORD_NOEXCEPT'
 #include <bsls_types.h>    // 'bsls::Types::Int64', 'bsls::Types::Uint64'
@@ -377,8 +380,10 @@ class JsonNumber {
     };
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(JsonNumber, bslma::UsesBslmaAllocator);
     BSLMF_NESTED_TRAIT_DECLARATION(JsonNumber, bslmf::IsBitwiseMoveable);
+
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
 
     // CLASS METHODS
     static bool isValidNumber(const bsl::string_view& text);
@@ -388,20 +393,20 @@ class JsonNumber {
 
     // CREATORS
     JsonNumber();
-    explicit JsonNumber(bslma::Allocator *basicAllocator);
-        // Create a 'JsonNumber' having the value "0".  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+    explicit JsonNumber(const allocator_type& allocator);
+        // Create a 'JsonNumber' having the value "0".  Optionally specify an
+        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) used
+        // to supply memory.
 
-    explicit JsonNumber(const char              *text,
-                        bslma::Allocator        *basicAllocator = 0);
-    explicit JsonNumber(const bsl::string_view&  text,
-                        bslma::Allocator        *basicAllocator = 0);
+    explicit JsonNumber(const char            *text,
+                        const allocator_type&  allocator = allocator_type());
+    explicit JsonNumber(const bsl::string_view& text,
+                        const allocator_type&   allocator = allocator_type());
         // Create a 'JsonNumber' having the value of the specified 'text'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'isValidJsonNumber(text)'
-        // is 'true'.  See {JSON Textual Specification}.
+        // Optionally specify an 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) used to supply memory.  The behavior is
+        // undefined unless 'isValidJsonNumber(text)' is 'true'.  See {JSON
+        // Textual Specification}.
 
     explicit JsonNumber(bslmf::MovableRef<bsl::string> text);
         // Create a 'JsonNumber' object having the same value and the same
@@ -411,47 +416,45 @@ class JsonNumber {
         // is 'true'.  See {JSON Textual Specification}.
 
     explicit JsonNumber(bslmf::MovableRef<bsl::string>  text,
-                        bslma::Allocator               *basicAllocator);
+                        const allocator_type&           allocator);
         // Create a 'JsonNumber' object having the same value as the specified
-        // 'text', using the specified 'basicAllocator' to supply memory.  The
-        // allocator of the 'text' string remains unchanged.  If the 'text' and
-        // the newly created object have the same allocator then the contents
-        // of 'text' string becomes unspecified but valid, and no exceptions
-        // will be thrown; otherwise the 'text' string is unchanged and an
-        // exception may be thrown.  The behavior is undefined unless
+        // 'text', using the specified 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) to supply memory.  The allocator of the
+        // 'text' string remains unchanged.  If the 'text' and the newly
+        // created object have the same allocator then the contents of 'text'
+        // string becomes unspecified but valid, and no exceptions will be
+        // thrown; otherwise the 'text' string is unchanged and an exception
+        // may be thrown.  The behavior is undefined unless
         // 'isValidNumber(text)' is 'true'.  See {JSON Textual Specification}.
 
-    explicit JsonNumber(int                      value,
-                        bslma::Allocator        *basicAllocator = 0);
-    explicit JsonNumber(unsigned int             value,
-                        bslma::Allocator        *basicAllocator = 0);
-    explicit JsonNumber(bsls::Types::Int64       value,
-                        bslma::Allocator        *basicAllocator = 0);
-    explicit JsonNumber(bsls::Types::Uint64      value,
-                        bslma::Allocator        *basicAllocator = 0);
+    explicit JsonNumber(int                   value,
+                        const allocator_type& allocator = allocator_type());
+    explicit JsonNumber(unsigned int          value,
+                        const allocator_type& allocator = allocator_type());
+    explicit JsonNumber(bsls::Types::Int64    value,
+                        const allocator_type& allocator = allocator_type());
+    explicit JsonNumber(bsls::Types::Uint64   value,
+                        const allocator_type& allocator = allocator_type());
         // Create a 'JsonNumber' having the specified 'value'.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) used to supply memory.
 
-    explicit JsonNumber(float                    value,
-                        bslma::Allocator        *basicAllocator = 0);
-    explicit JsonNumber(double                   value,
-                        bslma::Allocator        *basicAllocator = 0);
-    explicit JsonNumber(bdldfp::Decimal64        value,
-                        bslma::Allocator        *basicAllocator = 0);
+    explicit JsonNumber(float                 value,
+                        const allocator_type& allocator = allocator_type());
+    explicit JsonNumber(double                value,
+                        const allocator_type& allocator = allocator_type());
+    explicit JsonNumber(bdldfp::Decimal64     value,
+                        const allocator_type& allocator = allocator_type());
         // Create a 'JsonNumber' having the specified 'value'.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if the 'value' is infinite ('INF')
-        // or not-a-number ('NaN').
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) used to supply memory.  The behavior is undefined if the
+        // 'value' is infinite ('INF') or not-a-number ('NaN').
 
-    JsonNumber(const JsonNumber&  original,
-               bslma::Allocator  *basicAllocator = 0);
+    JsonNumber(const JsonNumber&     original,
+               const allocator_type& allocator = allocator_type());
         // Create a 'JsonNumber' object having the same value as the specified
-        // 'original' object.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // 'original' object.  Optionally specify an 'allocator' (e.g., the
+        // address of a 'bslma::Allocator' object) used to supply memory.
 
     JsonNumber(bslmf::MovableRef<JsonNumber> original) BSLS_KEYWORD_NOEXCEPT;
         // Create a 'JsonNumber' object having the same value and the same
@@ -460,16 +463,17 @@ class JsonNumber {
         // unchanged.
 
     JsonNumber(bslmf::MovableRef<JsonNumber>  original,
-               bslma::Allocator              *basicAllocator);
+               const allocator_type&          allocator);
         // Create a 'JsonNumber' object having the same value as the specified
-        // 'original' object, using the specified 'basicAllocator' to supply
-        // memory.  The allocator of 'original' remains unchanged.  If
-        // 'original' and the newly created object have the same allocator then
-        // the value of 'original' becomes unspecified but valid, and no
-        // exceptions will be thrown; otherwise 'original' is unchanged (and an
-        // exception may be thrown).
+        // 'original' object, using the specified 'allocator' (e.g., the
+        // address of a 'bslma::Allocator' object) to supply memory.  The
+        // allocator of 'original' remains unchanged.  If 'original' and the
+        // newly created object have the same allocator then the value of
+        // 'original' becomes unspecified but valid, and no exceptions will be
+        // thrown; otherwise 'original' is unchanged (and an exception may be
+        // thrown).
 
-//! ~JsonNumber() = default;
+    //! ~JsonNumber() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -594,10 +598,14 @@ class JsonNumber {
 
                         // Aspects
 
-    bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the default
-        // allocator in effect at construction is used.
+    bslma::Allocator *BSLS_ANNOTATION_DEPRECATED allocator() const;
+        // !DEPRECATED!: Use 'get_allocator()' instead.
+        //
+        // Return 'get_allocator().mechanism()', i.e., the memory resource used
+        // by this object to supply memory.
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
@@ -670,70 +678,60 @@ JsonNumber::JsonNumber()
 }
 
 inline
-JsonNumber::JsonNumber(bslma::Allocator *basicAllocator)
-: d_value(1, '0', basicAllocator)
+JsonNumber::JsonNumber(const allocator_type& allocator)
+: d_value(1, '0', allocator)
 {
 }
 
 inline
-JsonNumber::JsonNumber(const char       *text,
-                       bslma::Allocator *basicAllocator)
-: d_value(text, basicAllocator)
-{
-    BSLS_ASSERT(NumberUtil::isValidNumber(text));
-}
-
-inline
-JsonNumber::JsonNumber(const bsl::string_view&  text,
-                       bslma::Allocator        *basicAllocator)
-: d_value(text, basicAllocator)
+JsonNumber::JsonNumber(const char            *text,
+                       const allocator_type&  allocator)
+: d_value(text, allocator)
 {
     BSLS_ASSERT(NumberUtil::isValidNumber(text));
 }
 
 inline
-JsonNumber::JsonNumber(int value, bslma::Allocator *basicAllocator)
-: d_value(basicAllocator)
+JsonNumber::JsonNumber(const bsl::string_view& text,
+                       const allocator_type&   allocator)
+: d_value(text, allocator)
+{
+    BSLS_ASSERT(NumberUtil::isValidNumber(text));
+}
+
+inline
+JsonNumber::JsonNumber(int value, const allocator_type& allocator)
+: d_value(allocator)
 {
     NumberUtil::stringify(&d_value, static_cast<bsls::Types::Int64>(value));
 }
 
 inline
-JsonNumber::JsonNumber(unsigned int value, bslma::Allocator *basicAllocator)
-: d_value(basicAllocator)
+JsonNumber::JsonNumber(unsigned int value, const allocator_type& allocator)
+: d_value(allocator)
 {
     NumberUtil::stringify(&d_value, static_cast<bsls::Types::Uint64>(value));
 }
 
 inline
-JsonNumber::JsonNumber(bsls::Types::Int64  value,
-                       bslma::Allocator   *basicAllocator)
-: d_value(basicAllocator)
+JsonNumber::JsonNumber(bsls::Types::Int64    value,
+                       const allocator_type& allocator)
+: d_value(allocator)
 {
     NumberUtil::stringify(&d_value, value);
 }
 
 inline
-JsonNumber::JsonNumber(bsls::Types::Uint64  value,
-                       bslma::Allocator    *basicAllocator)
-: d_value(basicAllocator)
+JsonNumber::JsonNumber(bsls::Types::Uint64   value,
+                       const allocator_type& allocator)
+: d_value(allocator)
 {
     NumberUtil::stringify(&d_value, value);
 }
 
 inline
-JsonNumber::JsonNumber(float value, bslma::Allocator *basicAllocator)
-: d_value(basicAllocator)
-{
-    BSLS_ASSERT(!bdlb::Float::isNan     (value));
-    BSLS_ASSERT(!bdlb::Float::isInfinite(value));
-
-    NumberUtil::stringify(&d_value, value);
-}
-
-inline
-JsonNumber::JsonNumber(double value, bslma::Allocator *basicAllocator)
-: d_value(basicAllocator)
+JsonNumber::JsonNumber(float value, const allocator_type& allocator)
+: d_value(allocator)
 {
     BSLS_ASSERT(!bdlb::Float::isNan     (value));
     BSLS_ASSERT(!bdlb::Float::isInfinite(value));
@@ -742,9 +740,19 @@ JsonNumber::JsonNumber(double value, bslma::Allocator *basicAllocator)
 }
 
 inline
-JsonNumber::JsonNumber(bdldfp::Decimal64  value,
-                       bslma::Allocator  *basicAllocator)
-: d_value(basicAllocator)
+JsonNumber::JsonNumber(double value, const allocator_type& allocator)
+: d_value(allocator)
+{
+    BSLS_ASSERT(!bdlb::Float::isNan     (value));
+    BSLS_ASSERT(!bdlb::Float::isInfinite(value));
+
+    NumberUtil::stringify(&d_value, value);
+}
+
+inline
+JsonNumber::JsonNumber(bdldfp::Decimal64     value,
+                       const allocator_type& allocator)
+: d_value(allocator)
 {
     BSLS_ASSERT(!bdldfp::DecimalUtil::isNan(value));
     BSLS_ASSERT(!bdldfp::DecimalUtil::isInf(value));
@@ -760,17 +768,17 @@ JsonNumber::JsonNumber(bslmf::MovableRef<bsl::string> text)
 }
 
 inline
-JsonNumber::JsonNumber(bslmf::MovableRef<bsl::string>  text,
-                       bslma::Allocator               *basicAllocator)
-: d_value(bslmf::MovableRefUtil::move(text), basicAllocator)
+JsonNumber::JsonNumber(bslmf::MovableRef<bsl::string> text,
+                       const allocator_type&          allocator)
+: d_value(bslmf::MovableRefUtil::move(text), allocator)
 {
     BSLS_ASSERT(NumberUtil::isValidNumber(d_value));
 }
 
 inline
-JsonNumber::JsonNumber(const JsonNumber&  original,
-                       bslma::Allocator  *basicAllocator)
-: d_value(original.d_value, basicAllocator)
+JsonNumber::JsonNumber(const JsonNumber&     original,
+                       const allocator_type& allocator)
+: d_value(original.d_value, allocator)
 {
 }
 
@@ -783,11 +791,11 @@ JsonNumber::JsonNumber(bslmf::MovableRef<JsonNumber> original)
 }
 
 inline
-JsonNumber::JsonNumber(bslmf::MovableRef<JsonNumber>  original,
-                       bslma::Allocator              *basicAllocator)
+JsonNumber::JsonNumber(bslmf::MovableRef<JsonNumber> original,
+                       const allocator_type&         allocator)
 : d_value(bslmf::MovableRefUtil::move(
                               bslmf::MovableRefUtil::access(original).d_value),
-                              basicAllocator)
+                              allocator)
 {
 }
 
@@ -868,7 +876,7 @@ JsonNumber& JsonNumber::operator=(bdldfp::Decimal64 rhs)
 inline
 void JsonNumber::swap(JsonNumber& other)
 {
-    BSLS_ASSERT(d_value.allocator() == other.allocator());
+    BSLS_ASSERT(d_value.get_allocator() == other.get_allocator());
 
     bslalg::SwapUtil::swap(&d_value, &other.d_value);
 }
@@ -976,6 +984,12 @@ inline
 bslma::Allocator *JsonNumber::allocator() const
 {
     return d_value.get_allocator().mechanism();
+}
+
+inline
+JsonNumber::allocator_type JsonNumber::get_allocator() const
+{
+    return d_value.get_allocator();
 }
 
 }  // close package namespace

@@ -26,10 +26,8 @@ MovableAllocTestType::MovableAllocTestType()
 : d_data_p(0)
 , d_allocator_p(bslma::Default::allocator(0))
 , d_self_p(this)
-, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
-, d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = 0;
 }
 
@@ -37,10 +35,8 @@ MovableAllocTestType::MovableAllocTestType(bslma::Allocator *basicAllocator)
 : d_data_p(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_self_p(this)
-, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
-, d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = 0;
 }
 
@@ -49,10 +45,8 @@ MovableAllocTestType::MovableAllocTestType(int data,
 : d_data_p(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_self_p(this)
-, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
-, d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = data;
 }
 
@@ -61,20 +55,21 @@ MovableAllocTestType::MovableAllocTestType(
 : d_data_p(0)
 , d_allocator_p(bslmf::MovableRefUtil::access(original).d_allocator_p)
 , d_self_p(this)
-, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
-, d_movedInto(bsltf::MoveState::e_MOVED)
+, d_tracker(bslmf::MovableRefUtil::move(
+                            bslmf::MovableRefUtil::access(original).d_tracker))
 {
     MovableAllocTestType& lvalue = original;
 
-    if (lvalue.d_data_p) {
-        d_data_p = lvalue.d_data_p;
-        lvalue.d_data_p = 0;
+    d_data_p = lvalue.d_data_p;
+    lvalue.d_data_p = 0;
+
+    if (! d_data_p) {
+        // Moved from a moved-from object; this object is also considered moved
+        // from (as well as moved into).
+        d_tracker.setCopyMoveState(
+            CopyMoveState::Enum(CopyMoveState::e_MOVED_INTO |
+                                CopyMoveState::e_MOVED_FROM));
     }
-    else {
-        d_data_p = 0;
-        d_movedFrom = bsltf::MoveState::e_MOVED;
-    }
-    lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
 }
 
 MovableAllocTestType::MovableAllocTestType(
@@ -83,31 +78,32 @@ MovableAllocTestType::MovableAllocTestType(
 : d_data_p(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_self_p(this)
-, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
-, d_movedInto(bsltf::MoveState::e_MOVED)
 {
     MovableAllocTestType& lvalue = original;
 
     if (d_allocator_p == lvalue.d_allocator_p) {
-        if (lvalue.d_data_p) {
-            d_data_p = lvalue.d_data_p;
-            lvalue.d_data_p = 0;
-        }
-        else {
-            d_data_p = 0;
-            d_movedFrom = bsltf::MoveState::e_MOVED;
-        }
+        d_data_p = lvalue.d_data_p;
+        lvalue.d_data_p = 0;
     }
     else {
-        d_data_p =
-                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+        d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
         *d_data_p = lvalue.data();
         if (lvalue.d_data_p) {
             lvalue.d_allocator_p->deallocate(lvalue.d_data_p);
             lvalue.d_data_p = 0;
         }
     }
-    lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
+
+    // Do not modify original tracker until move succeeds.
+    d_tracker = bslmf::MovableRefUtil::move(lvalue.d_tracker);
+
+    if (! d_data_p) {
+        // Moved from a moved-from object; this object is also considered moved
+        // from (as well as moved into).
+        d_tracker.setCopyMoveState(
+            CopyMoveState::Enum(CopyMoveState::e_MOVED_INTO |
+                                CopyMoveState::e_MOVED_FROM));
+    }
 }
 
 MovableAllocTestType::MovableAllocTestType(
@@ -116,19 +112,17 @@ MovableAllocTestType::MovableAllocTestType(
 : d_data_p(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_self_p(this)
-, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
-, d_movedInto(bsltf::MoveState::e_NOT_MOVED)
+, d_tracker(original.d_tracker)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = original.data();
 }
 
 MovableAllocTestType::~MovableAllocTestType()
 {
-    d_allocator_p->deallocate(d_data_p);
+    BSLS_ASSERT_OPT(!d_data_p == CopyMoveState::isMovedFrom(*this));
 
-    BSLS_ASSERT_OPT(!!d_data_p ==
-                               (bsltf::MoveState::e_NOT_MOVED == d_movedFrom));
+    d_allocator_p->deallocate(d_data_p);
 
     // Ensure that this objects has not been bitwise moved.
 
@@ -141,14 +135,13 @@ MovableAllocTestType::operator=(const MovableAllocTestType& rhs)
 {
     if (&rhs != this)
     {
-        int *newData = reinterpret_cast<int *>(
+        int *newData = static_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
         d_allocator_p->deallocate(d_data_p);
         d_data_p = newData;
         *d_data_p = rhs.data();
 
-        d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
-        d_movedInto = bsltf::MoveState::e_NOT_MOVED;
+        d_tracker = rhs.d_tracker;
     }
     return *this;
 }
@@ -157,29 +150,18 @@ MovableAllocTestType&
 MovableAllocTestType::operator=(bslmf::MovableRef<MovableAllocTestType> rhs)
 {
     MovableAllocTestType& lvalue = rhs;
+
     if (&lvalue != this)
     {
-        if (d_allocator_p == lvalue.d_allocator_p) {
-            if (lvalue.d_data_p) {
-                if (d_data_p) {
-                    d_allocator_p->deallocate(d_data_p);
-                }
-                d_data_p = lvalue.d_data_p;
-                lvalue.d_data_p = 0;
+        if (lvalue.d_data_p && d_allocator_p == lvalue.d_allocator_p) {
+            if (d_data_p) {
+                d_allocator_p->deallocate(d_data_p);
             }
-            else {
-                int *newData = reinterpret_cast<int *>(
-                                         d_allocator_p->allocate(sizeof(int)));
-                if (d_data_p) {
-                    d_allocator_p->deallocate(d_data_p);
-                }
-
-                d_data_p = newData;
-                *d_data_p = 0;
-            }
+            d_data_p = lvalue.d_data_p;
+            lvalue.d_data_p = 0;
         }
         else {
-            int *newData = reinterpret_cast<int *>(
+            int *newData = static_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
             if (d_data_p) {
                 d_allocator_p->deallocate(d_data_p);
@@ -191,24 +173,28 @@ MovableAllocTestType::operator=(bslmf::MovableRef<MovableAllocTestType> rhs)
                 lvalue.d_data_p = 0;
             }
         }
-        d_movedFrom        = bsltf::MoveState::e_NOT_MOVED;
-        d_movedInto        = bsltf::MoveState::e_MOVED;
-        lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
     }
+
+    d_tracker = bslmf::MovableRefUtil::move(lvalue.d_tracker);
+    if (! d_data_p) {
+        // Moved from a moved-from object; this object is also considered moved
+        // from (as well as moved into).
+        d_tracker.setCopyMoveState(
+            CopyMoveState::Enum(CopyMoveState::e_MOVED_INTO |
+                                CopyMoveState::e_MOVED_FROM));
+    }
+
     return *this;
 }
 
 void MovableAllocTestType::setData(int value)
 {
     if (!d_data_p) {
-        int *newData = reinterpret_cast<int *>(
-                                         d_allocator_p->allocate(sizeof(int)));
-        d_data_p = newData;
+        d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     }
     *d_data_p = value;
 
-    d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
-    d_movedInto = bsltf::MoveState::e_NOT_MOVED;
+    d_tracker.resetCopyMoveState();
 }
 
 }  // close package namespace

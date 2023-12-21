@@ -4,6 +4,7 @@
 #include <bdlc_flathashtable.h>
 #include <bdlc_flathashtable_groupcontrol.h>
 
+#include <bslalg_constructorproxy.h>
 #include <bslalg_hasstliterators.h>
 
 #include <bslh_fibonaccibadhashwrapper.h>
@@ -26,6 +27,8 @@
 #include <bslmf_movableref.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
@@ -422,19 +425,8 @@ void testCase15MoveAssignment(int id, bool allocates)
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-        bsls::ObjectBuffer<Entry> entry1;
-        bslma::ConstructionUtil::construct(entry1.address(),
-                                           &oa,
-                                           bsl::make_pair(1, 1));
-
-        bslma::DestructorGuard<Entry> guard1(&entry1.object());
-
-        bsls::ObjectBuffer<Entry> entry2;
-        bslma::ConstructionUtil::construct(entry2.address(),
-                                           &oa,
-                                           bsl::make_pair(2, 2));
-
-        bslma::DestructorGuard<Entry> guard2(&entry2.object());
+        bslalg::ConstructorProxy<Entry> entry1(bsl::make_pair(1, 1), &oa);
+        bslalg::ConstructorProxy<Entry> entry2(bsl::make_pair(2, 2), &oa);
 
         Obj mX(&oa);  const Obj& X = mX;
 
@@ -472,19 +464,8 @@ void testCase15MoveAssignment(int id, bool allocates)
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
 
-        bsls::ObjectBuffer<Entry> entry1;
-        bslma::ConstructionUtil::construct(entry1.address(),
-                                           &oa,
-                                           bsl::make_pair(1, 1));
-
-        bslma::DestructorGuard<Entry> guard1(&entry1.object());
-
-        bsls::ObjectBuffer<Entry> entry2;
-        bslma::ConstructionUtil::construct(entry2.address(),
-                                           &sa,
-                                           bsl::make_pair(2, 2));
-
-        bslma::DestructorGuard<Entry> guard2(&entry2.object());
+        bslalg::ConstructorProxy<Entry> entry1(bsl::make_pair(1, 1), &oa);
+        bslalg::ConstructorProxy<Entry> entry2(bsl::make_pair(2, 2), &sa);
 
         Obj mX(&oa);  const Obj& X = mX;
 
@@ -534,12 +515,7 @@ void testCase14MoveConstructorWithAllocator(int id)
         // Create control object 'W'.
         Obj mW(&oa);  const Obj& W = mW;
 
-        bsls::ObjectBuffer<Entry> entry;
-        bslma::ConstructionUtil::construct(entry.address(),
-                                           &oa,
-                                           bsl::make_pair(i, i));
-
-        bslma::DestructorGuard<Entry> guard(&entry.object());
+        bslalg::ConstructorProxy<Entry> entry(bsl::make_pair(i, i), &oa);
 
         mW.insert(entry.object());
 
@@ -556,6 +532,7 @@ void testCase14MoveConstructorWithAllocator(int id)
             bslma::DefaultAllocatorGuard dag(&da);
 
             // Create source object 'Y'.
+            // Use 'ObjectBuffer' so that we can destroy it at will.
             bsls::ObjectBuffer<Obj> bufferY;
 
             Obj *pY = bufferY.address();
@@ -656,18 +633,14 @@ void testCase13MoveConstructorWithoutAllocator(int id)
         // Create control object 'W'.
         Obj mW(&oa);  const Obj& W = mW;
 
-        bsls::ObjectBuffer<Entry> entry;
-        bslma::ConstructionUtil::construct(entry.address(),
-                                           &oa,
-                                           bsl::make_pair(i, i));
-
-        bslma::DestructorGuard<Entry> guard(&entry.object());
+        bslalg::ConstructorProxy<Entry> entry(bsl::make_pair(i, i), &oa);
 
         mW.insert(entry.object());
 
         LOOP_ASSERT(id, i == W.begin()->first.data());
 
-        // Create source object 'Y' in an object buffer so it may be deleted.
+        // Create source object 'Y'.
+        // Use 'ObjectBuffer' so that we can destroy it at will.
         bsls::ObjectBuffer<Obj> objY;
         bslma::ConstructionUtil::construct(objY.address(), &oa, W);
         Obj& mY = objY.object();  const Obj& Y = mY;
@@ -720,12 +693,7 @@ void testCaseInsert(int  id,
     Obj mX(&oa);  const Obj& X = mX;
 
     for (int i = 0; i <= thirdAlloc; ++i) {
-        bsls::ObjectBuffer<Entry> entry;
-        bslma::ConstructionUtil::construct(entry.address(),
-                                           &oa,
-                                           bsl::make_pair(i, i));
-
-        bslma::DestructorGuard<Entry> guard(&entry.object());
+        bslalg::ConstructorProxy<Entry> entry(bsl::make_pair(i, i), &oa);
 
         if (!useHint) {
             bsl::pair<typename Obj::iterator, bool> rv;
@@ -802,7 +770,8 @@ void testCaseInsertMove(int id, bool allocates, bool moveable, bool useHint)
     // 'true', and can be moved if the specified 'moveable' is 'true'.  Use
     // 'insert' with a hint if the specified 'useHint' is 'true'.
 {
-    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+    bslma::TestAllocator      oa("object", veryVeryVeryVerbose);
+    bslma::NewDeleteAllocator la;  // Local allocator to avoid default alloc
 
     typedef bdlc::FlatHashMap<KEY, int, TestValueIsHash<KEY> > Obj;
     typedef bsl::pair<KEY, int>                                Entry;
@@ -816,15 +785,13 @@ void testCaseInsertMove(int id, bool allocates, bool moveable, bool useHint)
     bsl::size_t        expCapacity    = 0;
 
     for (int i = 0; i <= thirdAlloc; ++i) {
-        bsls::ObjectBuffer<Entry> entry1;
-        bslma::ConstructionUtil::construct(entry1.address(), &oa, i, i);
+        bslalg::ConstructorProxy<KEY>   key1(i, &la);
+        bslalg::ConstructorProxy<Entry> entry1(
+                           bslmf::MovableRefUtil::move(key1.object()), i, &oa);
 
-        bslma::DestructorGuard<Entry> guard1(&entry1.object());
-
-        bsls::ObjectBuffer<Entry> entry2;
-        bslma::ConstructionUtil::construct(entry2.address(), &oa, i, i);
-
-        bslma::DestructorGuard<Entry> guard2(&entry2.object());
+        bslalg::ConstructorProxy<KEY>   key2(i, &la);
+        bslalg::ConstructorProxy<Entry> entry2(
+                           bslmf::MovableRefUtil::move(key2.object()), i, &oa);
 
         if (!useHint) {
             bsl::pair<typename Obj::iterator, bool> rv;
@@ -1332,7 +1299,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing copy 'insert' with hint." << endl;
         {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
             testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
                                                                 true,
                                                                 false,
@@ -1356,34 +1322,8 @@ int main(int argc, char *argv[])
                                                             true,
                                                             true,
                                                             true);
-#else
-            testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
-                                                                true,
-                                                                false,
-                                                                true);
-            testCaseInsert<bsltf::AllocTestType>(2, true, true, true);
-            testCaseInsert<bsltf::BitwiseCopyableTestType>(3,
-                                                           false,
-                                                           false,
-                                                           true);
-            testCaseInsert<bsltf::BitwiseMoveableTestType>(4,
-                                                           false,
-                                                           false,
-                                                           true);
-            testCaseInsert<bsltf::MovableAllocTestType>(5, true, true, true);
-            testCaseInsert<bsltf::MovableTestType>(6, false, false, true);
-            testCaseInsert<bsltf::NonDefaultConstructibleTestType>(7,
-                                                                   false,
-                                                                   false,
-                                                                   true);
-            testCaseInsert<bsltf::NonOptionalAllocTestType>(8,
-                                                            true,
-                                                            true,
-                                                            true);
-#endif
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) cout << "Testing move 'insert' with hint." << endl;
         {
             testCaseInsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
@@ -1419,7 +1359,6 @@ int main(int argc, char *argv[])
                                                                 false,
                                                                 true);
         }
-#endif
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -4661,7 +4600,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing copy 'insert'." << endl;
         {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
             testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
                                                                 true,
                                                                 false,
@@ -4685,34 +4623,8 @@ int main(int argc, char *argv[])
                                                             true,
                                                             true,
                                                             false);
-#else
-            testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
-                                                                true,
-                                                                false,
-                                                                false);
-            testCaseInsert<bsltf::AllocTestType>(2, true, true, false);
-            testCaseInsert<bsltf::BitwiseCopyableTestType>(3,
-                                                           false,
-                                                           false,
-                                                           false);
-            testCaseInsert<bsltf::BitwiseMoveableTestType>(4,
-                                                           false,
-                                                           false,
-                                                           false);
-            testCaseInsert<bsltf::MovableAllocTestType>(5, true, true, false);
-            testCaseInsert<bsltf::MovableTestType>(6, false, false, false);
-            testCaseInsert<bsltf::NonDefaultConstructibleTestType>(7,
-                                                                   false,
-                                                                   false,
-                                                                   false);
-            testCaseInsert<bsltf::NonOptionalAllocTestType>(8,
-                                                            true,
-                                                            true,
-                                                            false);
-#endif
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) cout << "Testing move 'insert'." << endl;
         {
             testCaseInsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
@@ -4748,7 +4660,6 @@ int main(int argc, char *argv[])
                                                                 false,
                                                                 false);
         }
-#endif
 
         if (verbose) cout << "Testing 'erase'." << endl;
         {

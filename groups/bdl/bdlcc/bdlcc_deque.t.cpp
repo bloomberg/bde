@@ -3028,7 +3028,7 @@ void testForcePushRemoveAllAux(const bool       match,
     bsl::vector<ELEMENT> vBsl(&va);
     std::vector<ELEMENT> vStd;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    std::pmr::vector<ELEMENT> vPmr;
+    std::pmr::vector<ELEMENT> vPmr(&va);
 #endif
 
     switch (vecType) {
@@ -3107,7 +3107,7 @@ void testForcePushRemoveAllAux(const bool       match,
         }
     }
 
-    ASSERT(u::e_BSL != vecType || 0 == da.numAllocations());
+    ASSERTV(vecType, u::e_BSL != vecType || 0 == da.numAllocations());
 }
 
 template <class ELEMENT>
@@ -7093,7 +7093,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "std::pmr::vector\n";
         {
             AObj                       mX(&ta);
-            std::pmr::vector<AElement> buffer;
+            std::pmr::vector<AElement> buffer(&ta);
 
             mX.pushBack(VA);
             mX.pushBack(VB);
@@ -7108,7 +7108,7 @@ int main(int argc, char *argv[])
         }
         {
             AObj                       mX(&ta);
-            std::pmr::vector<AElement> buffer;
+            std::pmr::vector<AElement> buffer(&ta);
 
             buffer.push_back(VA);
             buffer.push_back(VB);

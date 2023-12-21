@@ -3227,13 +3227,7 @@ int main(int argc, char *argv[])
             testCase20Bracket<bsltf::AllocTestType>(2, true, true);
             testCase20Bracket<bsltf::BitwiseCopyableTestType>(3, false, false);
             testCase20Bracket<bsltf::BitwiseMoveableTestType>(4, false, false);
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
             testCase20Bracket<bsltf::MovableAllocTestType>(5, true, false);
-#else
-            testCase20Bracket<bsltf::MovableAllocTestType>(5, true, true);
-#endif
-
             testCase20Bracket<bsltf::MovableTestType>(6, false, false);
             testCase20Bracket<bsltf::NonDefaultConstructibleTestType>(7,
                                                                       false,
@@ -3241,7 +3235,6 @@ int main(int argc, char *argv[])
             testCase20Bracket<bsltf::NonOptionalAllocTestType>(8, true, true);
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) cout << "Testing move 'operator[]'." << endl;
         {
             testCase20BracketMove<bsltf::AllocBitwiseMoveableTestType>(0,
@@ -3267,7 +3260,6 @@ int main(int argc, char *argv[])
                                                                  true,
                                                                  false);
         }
-#endif
 
         if (verbose) cout << "Testing returned reference." << endl;
         {
@@ -5717,13 +5709,7 @@ int main(int argc, char *argv[])
             testCase2CopyInsert<bsltf::BitwiseMoveableTestType>(4,
                                                                 false,
                                                                 false);
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
             testCase2CopyInsert<bsltf::MovableAllocTestType>(5, true, false);
-#else
-            testCase2CopyInsert<bsltf::MovableAllocTestType>(5, true, true);
-#endif
-
             testCase2CopyInsert<bsltf::MovableTestType>(6, false, false);
             testCase2CopyInsert<bsltf::NonDefaultConstructibleTestType>(7,
                                                                         false,
@@ -5733,7 +5719,6 @@ int main(int argc, char *argv[])
                                                                  true);
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) cout << "Testing move 'insert'." << endl;
         {
             testCase2MoveInsert<int>(0, false, true);
@@ -5759,7 +5744,6 @@ int main(int argc, char *argv[])
                                                                  true,
                                                                  false);
         }
-#endif
 
         if (verbose) cout << "Testing 'clear'." << endl;
         {

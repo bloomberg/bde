@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Aug 15 10:43:45 2022
+// Generated on Thu Aug 31 15:21:25 2023
 // Command line: sim_cpp11_features.pl bsltf_stdstatefulallocator.h
 
 #ifdef COMPILING_BSLTF_STDSTATEFULALLOCATOR_H
@@ -63,6 +63,10 @@ class StdStatefulAllocator {
                                           // owned)
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StdStatefulAllocator,
+                                   bslma::IsStdAllocator);
+
     // PUBLIC TYPES
     typedef TYPE value_type;
 
@@ -79,12 +83,6 @@ class StdStatefulAllocator {
     typedef TYPE           *pointer;
     typedef const TYPE     *const_pointer;
 #endif
-
-    // TBD The following two 'typedef's are required for testing 'bslstl_deque'
-    // and 'bslstl_vector' (because 'bslalg::ContainerBase', which is used by
-    // both of those containers, expects these to exist).
-    typedef TYPE&           reference;
-    typedef const TYPE&     const_reference;
 
     typedef bsl::integral_constant<bool,
                                    PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT>
@@ -151,7 +149,9 @@ class StdStatefulAllocator {
 
     TYPE *allocate(bslma::Allocator::size_type numElements);
         // Allocate enough (properly aligned) space for the specified
-        // 'numElements' of the (template parameter) type 'TYPE'.
+        // 'numElements' of the (template parameter) type 'TYPE'.  If the
+        // underlying 'bslma::Allocator' is unable to fulfill the allocation
+        // request, an exception (typically 'bsl::bad_alloc') will be thrown.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -478,21 +478,22 @@ class StdStatefulAllocator {
 };
 
 // FREE OPERATORS
-template <class TYPE,
+template <class TYPE1,
+          class TYPE2,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
           bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
           bool  IS_ALWAYS_EQUAL>
 bool operator==(const StdStatefulAllocator<
-                                 TYPE,
+                                 TYPE1,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
                                  IS_ALWAYS_EQUAL>& lhs,
                 const StdStatefulAllocator<
-                                 TYPE,
+                                 TYPE2,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
@@ -501,21 +502,22 @@ bool operator==(const StdStatefulAllocator<
     // Return 'true' if the specified 'lhs' and 'rhs' have the same underlying
     // test allocator, and 'false' otherwise.
 
-template <class TYPE,
+template <class TYPE1,
+          class TYPE2,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
           bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
           bool  IS_ALWAYS_EQUAL>
 bool operator!=(const StdStatefulAllocator<
-                                 TYPE,
+                                 TYPE1,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
                                  IS_ALWAYS_EQUAL>& lhs,
                 const StdStatefulAllocator<
-                                 TYPE,
+                                 TYPE2,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
@@ -594,6 +596,10 @@ StdStatefulAllocator<TYPE,
                      IS_ALWAYS_EQUAL>::allocate(
                                        bslma::Allocator::size_type numElements)
 {
+    if (numElements > this->max_size()) {
+        BloombergLP::bsls::BslExceptionUtil::throwBadAlloc();
+    }
+
     return static_cast<TYPE *>(d_allocator_p->allocate(
                      bslma::Allocator::size_type(numElements * sizeof(TYPE))));
 }
@@ -1393,7 +1399,8 @@ allocator() const
 }  // close package namespace
 
 // FREE OPERATORS
-template <class TYPE,
+template <class TYPE1,
+          class TYPE2,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
@@ -1401,14 +1408,14 @@ template <class TYPE,
           bool  IS_ALWAYS_EQUAL>
 inline
 bool bsltf::operator==(const StdStatefulAllocator<
-                                  TYPE,
+                                  TYPE1,
                                   PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                   PROPAGATE_ON_CONTAINER_SWAP,
                                   PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
                                   IS_ALWAYS_EQUAL>& lhs,
                        const StdStatefulAllocator<
-                                  TYPE,
+                                  TYPE2,
                                   PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                   PROPAGATE_ON_CONTAINER_SWAP,
@@ -1418,7 +1425,8 @@ bool bsltf::operator==(const StdStatefulAllocator<
     return IS_ALWAYS_EQUAL || (lhs.allocator() == rhs.allocator());
 }
 
-template <class TYPE,
+template <class TYPE1,
+          class TYPE2,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
@@ -1426,14 +1434,14 @@ template <class TYPE,
           bool  IS_ALWAYS_EQUAL>
 inline
 bool bsltf::operator!=(const StdStatefulAllocator<
-                                  TYPE,
+                                  TYPE1,
                                   PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                   PROPAGATE_ON_CONTAINER_SWAP,
                                   PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
                                   IS_ALWAYS_EQUAL>& lhs,
                        const StdStatefulAllocator<
-                                  TYPE,
+                                  TYPE2,
                                   PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                   PROPAGATE_ON_CONTAINER_SWAP,
@@ -1452,7 +1460,7 @@ bool bsltf::operator!=(const StdStatefulAllocator<
 #endif // ! defined(INCLUDED_BSLTF_STDSTATEFULALLOCATOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

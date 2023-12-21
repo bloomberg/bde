@@ -334,7 +334,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 
 #include <bslma_isstdallocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>

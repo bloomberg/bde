@@ -208,7 +208,8 @@ static bool veryVeryVeryVerbose;
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef EmplacableTestType Obj;
+typedef EmplacableTestType   Obj;
+typedef bsltf::CopyMoveState CMS;
 
 static const EmplacableTestType::ArgType01 V01(1);
 static const EmplacableTestType::ArgType02 V02(20);
@@ -1629,34 +1630,20 @@ void TestDriver::testCase2()
     }
     bslma::DestructorGuard<Obj> guard(&buffer.object());
 
-    ASSERTV(MOVE_01, A01.movedFrom(),
-                           MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
-    ASSERTV(MOVE_02, A02.movedFrom(),
-                           MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
-    ASSERTV(MOVE_03, A03.movedFrom(),
-                           MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
-    ASSERTV(MOVE_04, A04.movedFrom(),
-                           MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
-    ASSERTV(MOVE_05, A05.movedFrom(),
-                           MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
-    ASSERTV(MOVE_06, A06.movedFrom(),
-                           MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
-    ASSERTV(MOVE_07, A07.movedFrom(),
-                           MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
-    ASSERTV(MOVE_08, A08.movedFrom(),
-                           MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
-    ASSERTV(MOVE_09, A09.movedFrom(),
-                           MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
-    ASSERTV(MOVE_10, A10.movedFrom(),
-                           MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
-    ASSERTV(MOVE_11, A11.movedFrom(),
-                           MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
-    ASSERTV(MOVE_12, A12.movedFrom(),
-                           MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
-    ASSERTV(MOVE_13, A13.movedFrom(),
-                           MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
-    ASSERTV(MOVE_14, A14.movedFrom(),
-                           MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
+    ASSERTV(MOVE_01, CMS::isMovedFrom(A01), MOVE_01 == CMS::isMovedFrom(A01));
+    ASSERTV(MOVE_02, CMS::isMovedFrom(A02), MOVE_02 == CMS::isMovedFrom(A02));
+    ASSERTV(MOVE_03, CMS::isMovedFrom(A03), MOVE_03 == CMS::isMovedFrom(A03));
+    ASSERTV(MOVE_04, CMS::isMovedFrom(A04), MOVE_04 == CMS::isMovedFrom(A04));
+    ASSERTV(MOVE_05, CMS::isMovedFrom(A05), MOVE_05 == CMS::isMovedFrom(A05));
+    ASSERTV(MOVE_06, CMS::isMovedFrom(A06), MOVE_06 == CMS::isMovedFrom(A06));
+    ASSERTV(MOVE_07, CMS::isMovedFrom(A07), MOVE_07 == CMS::isMovedFrom(A07));
+    ASSERTV(MOVE_08, CMS::isMovedFrom(A08), MOVE_08 == CMS::isMovedFrom(A08));
+    ASSERTV(MOVE_09, CMS::isMovedFrom(A09), MOVE_09 == CMS::isMovedFrom(A09));
+    ASSERTV(MOVE_10, CMS::isMovedFrom(A10), MOVE_10 == CMS::isMovedFrom(A10));
+    ASSERTV(MOVE_11, CMS::isMovedFrom(A11), MOVE_11 == CMS::isMovedFrom(A11));
+    ASSERTV(MOVE_12, CMS::isMovedFrom(A12), MOVE_12 == CMS::isMovedFrom(A12));
+    ASSERTV(MOVE_13, CMS::isMovedFrom(A13), MOVE_13 == CMS::isMovedFrom(A13));
+    ASSERTV(MOVE_14, CMS::isMovedFrom(A14), MOVE_14 == CMS::isMovedFrom(A14));
 
 
     ASSERTV(V01, EXP.arg01(), V01 == EXP.arg01() || 2 == N01);

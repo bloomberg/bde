@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsltf::MoveState: namespace for move-state enumeration
 //
+//@SEE ALSO: bsltf_copystate
+//
 //@DESCRIPTION: This component provides a 'struct', 'bsltf_MoveState', which
 // serves as a namespace for enumerating the move-state of an object, including
 // an unknown value indicating that the test type does not support tracking
@@ -29,6 +31,9 @@ BSLS_IDENT("$Id: $")
 //
 //  e_UNKNOWN     The type does not expose move-state infromation.
 //..
+// When converted to 'bool', 'e_NOT_MOVED' yields 'false' whereas the rest
+// yield 'true'.  When 'e_UNKNOWN' is not expected, this conversion makes it
+// easy to check a value for the binary copied/not-copied attribute.
 //
 ///Usage
 ///-----
@@ -57,7 +62,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <stdio.h>  // for 'printf'
+#include <bsltf_copymovestate.h>
+
+#include <cstdio>  // for 'std::printf'
 
 namespace BloombergLP {
 namespace bsltf {
@@ -98,14 +105,85 @@ struct MoveState {
 };
 
 // FREE FUNCTIONS
-inline
-void debugprint(const MoveState::Enum& value)
+void debugprint(const MoveState::Enum& value);
     // Print the specified 'value' as a string.
+
+template <class TYPE>
+MoveState::Enum getMovedFrom(const TYPE& object);
+    // !DEPRECATED!: Use 'CopyMoveState::isMovedFrom' or 'CopyMoveState::get'.
+    // Return the moved-from state of the specified 'object' of (template
+    // parameter) 'TYPE'.  The default implementation of this ADL customization
+    // point calls 'CopyMoveState::get' and translates the result into the
+    // correpsonding 'MoveState::Enum' (which has been deprecated).  Note that
+    // a customization of this function for a specific type will not be
+    // "inherited" by derived classes of that type; new types should customize
+    // 'copyMoveState', not 'getMovedFrom'.
+
+template <class TYPE>
+MoveState::Enum getMovedInto(const TYPE& object);
+    // !DEPRECATED!: Use 'CopyMoveState::isMovedInto' or 'CopyMoveState::get'.
+    // Return the moved-from state of the specified 'object' of (template
+    // parameter) 'TYPE'.  The default implementation of this ADL customization
+    // point calls 'CopyMoveState::get' and translates the result into the
+    // correpsonding 'MoveState::Enum'.  Note that a customization of this
+    // function for a specific type will not be "inherited" by derived classes
+    // of that type; new types should customize 'copyMoveState', not
+    // 'getMovedInto'.
+
+template <class TYPE>
+void setMovedInto(TYPE *object, MoveState::Enum value);
+    // !DEPRECATED!: Use 'CopyMoveState::set' insetead.
+    // Set the moved-into state of the specified 'object' to the specified
+    // 'value'.  The default implementation of this ADL customization point
+    // calls 'CopyMoveState::set' and translates 'value' into the correpsonding
+    // 'CopyMoveState::Enum'.  Note that a customization of this function for a
+    // specific type will not be "inherited" by derived classes of that type;
+    // new types should customize 'setCopyMoveState', not 'setMovedInto'.
+
+}  // close package namespace
+
+// ============================================================================
+//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+// ============================================================================
+
+// FREE FUNCTIONS
+template <class TYPE>
+inline bsltf::MoveState::Enum bsltf::getMovedFrom(const TYPE& object)
 {
-    printf("%s", MoveState::toAscii(value));
+    return (CopyMoveState::isUnknown(object)   ? MoveState::e_UNKNOWN :
+            CopyMoveState::isMovedFrom(object) ? MoveState::e_MOVED :
+            MoveState::e_NOT_MOVED);
 }
 
-}  // close namespace bsltf
+template <class TYPE>
+inline bsltf::MoveState::Enum bsltf::getMovedInto(const TYPE& object)
+{
+    return (CopyMoveState::isUnknown(object)   ? MoveState::e_UNKNOWN :
+            CopyMoveState::isMovedInto(object) ? MoveState::e_MOVED :
+            MoveState::e_NOT_MOVED);
+}
+
+template <class TYPE>
+void bsltf::setMovedInto(TYPE *object, bsltf::MoveState::Enum value)
+{
+    CopyMoveState::Enum cms = CopyMoveState::e_UNKNOWN;
+
+    switch (value)
+    {
+      case MoveState::e_NOT_MOVED: cms = CopyMoveState::e_ORIGINAL;   break;
+      case MoveState::e_MOVED:     cms = CopyMoveState::e_MOVED_INTO; break;
+      case MoveState::e_UNKNOWN:   cms = CopyMoveState::e_UNKNOWN;    break;
+    }
+
+    CopyMoveState::set(object, cms);
+}
+
+inline void bsltf::debugprint(const bsltf::MoveState::Enum& value)
+    // Print the specified 'value' as a string.
+{
+    std::printf("%s", MoveState::toAscii(value));
+}
+
 }  // close namespace BloombergLP
 
 #endif

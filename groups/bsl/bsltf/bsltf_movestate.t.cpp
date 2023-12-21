@@ -28,8 +28,13 @@ using namespace BloombergLP;
 //
 // CLASS METHODS
 // [ 1] const char *toAscii(SystemClockType::Enum val);
+//
+// ADL CUSTOMIZATION POINTS
+// [ 2] MoveState::Enum bsltf::getMovedFrom(const TYPE& object);
+// [ 2] MoveState::Enum bsltf::getMovedInto(const TYPE& object);
+// [ 2] void bsltf::setMovedInto(TYPE *object, MoveState::Enum value);
 // ----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -82,6 +87,41 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bsltf::MoveState::Enum Enum;
 typedef bsltf::MoveState       Obj;
+typedef bsltf::CopyMoveState   Cms;
+
+struct AdlClass1 {
+    // Class that supplies ADL-findable 'getMovedFrom', 'getMovedInto', and
+    // 'setMovedInto' functions.
+    Enum d_movedFrom;
+    Enum d_movedInto;
+
+    AdlClass1() : d_movedFrom(Obj::e_NOT_MOVED), d_movedInto(Obj::e_NOT_MOVED)
+        { }
+
+    friend Enum getMovedFrom(const AdlClass1& obj) { return obj.d_movedFrom; }
+    friend Enum getMovedInto(const AdlClass1& obj) { return obj.d_movedInto; }
+    friend void setMovedInto(AdlClass1* obj_p, Enum value)
+        { obj_p->d_movedInto = value; }
+};
+
+struct AdlClass2 {
+    // Class that supplies ADL-findable 'getMovedFrom', 'getMovedInto', and
+    // 'setMovedInto' functions.
+
+    Cms::Enum d_copyMoveState;
+
+    AdlClass2() : d_copyMoveState(Cms::e_ORIGINAL) { }
+
+    friend Cms::Enum copyMoveState(const AdlClass2& obj)
+        { return obj.d_copyMoveState; }
+
+    friend void setCopyMoveState(AdlClass2 *obj, Cms::Enum value)
+        { obj->d_copyMoveState = value; }
+};
+
+struct nonAdlClass {
+    // Class with no customization points.
+};
 
 // ============================================================================
 //                       GLOBAL CONSTANTS FOR TESTING
@@ -109,7 +149,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -154,6 +194,89 @@ int main(int argc, char *argv[])
 //..
     ASSERT(0 == strcmp(asciiValue, "MOVED"));
 //..
+
+      } break;
+      case 2: {
+        // -------------------------------------------------------------------
+        // TESTING ADL CUSTOMIZATION POINTS
+        //
+        // Concerns:
+        //: 1 If a type supplies a customization of the namespace functions
+        //:   'getMovedFrom', 'getMovedInto', and/or 'setMovedInto', then an
+        //:   unqualified call to one of those functions on an object of that
+        //:   type calls the appropriate customization function.
+        //:
+        //: 2 If a type does *not* supply a customization of the namespace
+        //:   functions 'getMovedFrom', 'getMovedInto', and/or 'setMovedInto'
+        //:   but *does* supply an customizatoin function for 'copyMoveState'
+        //:   and/or 'setCopyMoveState' then an unqualified call to one of the
+        //:   first three functions on an object of that type yields an adapted
+        //:   call to one of the latter two functions.
+        //:
+        //: 3 Otherwise 'getMovedFrom' and 'getMovedInto' return
+        //:   'MoveState::e_UNKNOWN' and 'setMovedInto' does nothing.
+        //
+        // Plan:
+        //: 1 Create a class in its own namespace having customized versions of
+        //:   namespace-scope 'getMovedFrom', 'getMovedInto', and
+        //:   'setMovedInto'.  Verify that these customizations are called when
+        //:   the corresponding function is called without qualification.
+        //:   (C-1)
+        //:
+        //: 2 Create a class in its own namespace having customized versions of
+        //:   'copyMoveState' and 'setCopyMoveState'.  Verify that an
+        //:   unqualified call to 'getMovedFrom', 'getMovedInto', or
+        //:   'setMovedInto' calls the appropriate customization point and
+        //:   adapts it correctly.  (C-2)
+        //:
+        //: 3 Verify that an unqualified call to 'getMovedFrom', 'getMovedInto'
+        //:   on an 'int' or a class not providing the needed customization
+        //:   points returns 'e_UNKNOWN'.  Verify that an unqualified call to
+        //:   'setMovedInto' succeeds with no detectable effect.
+        //
+        // Testing
+        //    MoveState::Enum bsltf::getMovedFrom(const TYPE& object);
+        //    MoveState::Enum bsltf::getMovedInto(const TYPE& object);
+        //    void bsltf::setMovedInto(TYPE *object, MoveState::Enum value);
+        // -------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING ADL CUSTOMIZATION POINTS"
+                            "\n================================\n");
+
+        using bsltf::getMovedFrom;
+        using bsltf::getMovedInto;
+        using bsltf::setMovedInto;
+
+        AdlClass1 adl1; const AdlClass1& ADL1 = adl1;
+        ASSERT(Obj::e_NOT_MOVED == getMovedFrom(ADL1));
+        ASSERT(Obj::e_NOT_MOVED == getMovedInto(ADL1));
+
+        setMovedInto(&adl1, Obj::e_MOVED);
+        ASSERT(Obj::e_NOT_MOVED == getMovedFrom(ADL1));
+        ASSERT(Obj::e_MOVED     == getMovedInto(ADL1));
+
+        adl1.d_movedFrom = Obj::e_MOVED;
+        setMovedInto(&adl1, Obj::e_UNKNOWN);
+        ASSERT(Obj::e_MOVED   == getMovedFrom(ADL1));
+        ASSERT(Obj::e_UNKNOWN == getMovedInto(ADL1));
+
+        AdlClass2 adl2; const AdlClass2& ADL2 = adl2;
+        ASSERT(Obj::e_NOT_MOVED == getMovedFrom(ADL2));
+        ASSERT(Obj::e_NOT_MOVED == getMovedInto(ADL2));
+
+        Cms::set(&adl2, Cms::e_MOVED_FROM);
+        ASSERT(Obj::e_MOVED     == getMovedFrom(ADL2));
+        ASSERT(Obj::e_NOT_MOVED == getMovedInto(ADL2));
+
+        setMovedInto(&adl2, Obj::e_MOVED);
+        ASSERT(Cms::e_MOVED_INTO == copyMoveState(ADL2));
+        ASSERT(Obj::e_NOT_MOVED  == getMovedFrom(ADL2));
+        ASSERT(Obj::e_MOVED      == getMovedInto(ADL2));
+
+        setMovedInto(&adl2, Obj::e_UNKNOWN);
+        ASSERT(Cms::e_UNKNOWN == copyMoveState(ADL2));
+        ASSERT(Obj::e_UNKNOWN == getMovedFrom(ADL2));
+        ASSERT(Obj::e_UNKNOWN == getMovedInto(ADL2));
 
       } break;
       case 1: {

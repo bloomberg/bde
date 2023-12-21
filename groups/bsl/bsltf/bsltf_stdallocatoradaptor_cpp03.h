@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Feb 28 19:11:05 2022
+// Generated on Wed Oct 26 12:19:11 2022
 // Command line: sim_cpp11_features.pl bsltf_stdallocatoradaptor.h
 
 #ifdef COMPILING_BSLTF_STDALLOCATORADAPTOR_H
@@ -643,6 +643,9 @@ class StdAllocatorAdaptor : public ALLOCATOR {
 #endif
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StdAllocatorAdaptor, bslma::IsStdAllocator);
+
     // PUBLIC TYPES
     typedef typename ALLOCATOR::size_type       size_type;
     typedef typename ALLOCATOR::difference_type difference_type;

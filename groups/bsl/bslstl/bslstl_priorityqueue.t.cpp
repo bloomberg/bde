@@ -8,7 +8,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_mallocfreeallocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_testallocatorexception.h>

@@ -275,16 +275,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
 
-#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
-# define BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE 1
-    // If defined as 1, this macro indicates that
-    // 'bslma::UsesBslmaAllocator<TYPE>::value' is automatically true when
-    // 'TYPE::allocator_type' exists and is convertible from 'bsl::allocator'.
-#elif ! BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
-    // If 'BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE' is 0, undef it.
-# undef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
-#endif
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -492,23 +482,10 @@ struct UsesBslmaAllocator_Imp {
         // 'bslma::Allocator *' is convertible to 'T::allocator_type'.
         k_COMPATIBLE_ALLOC_TYPE = bsl::uses_allocator<TYPE,Allocator *>::value,
 
-#ifdef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
         // If either of the previous two constants is 'true', it is not
         // necessary to "sniff" further for this trait.
         k_BYPASS_SNIFFING = k_NESTED_TRAIT || k_COMPATIBLE_ALLOC_TYPE
-#else
-        // If nested trait is detected, it is not necessary to "sniff" further
-        // for this trait.
-        k_BYPASS_SNIFFING = k_NESTED_TRAIT
-#endif // BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
     };
-
-#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
-    BSLMA_USESBSLMAALLOCATOR_DEPRECATE_IF(
-        k_COMPATIBLE_ALLOC_TYPE && ! k_NESTED_TRAIT,
-        "Class declaring 'allocator_type' but not declaring trait "
-        "'bslma::UsesBslmaAllocator' is not considered allocator-aware.");
-#endif
 
   public:
     // TYPES

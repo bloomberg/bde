@@ -6,7 +6,7 @@
 #include <bslalg_rangecompare.h>
 
 #include <bslma_allocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>

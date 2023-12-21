@@ -461,6 +461,7 @@ TestAllocator::~TestAllocator()
             std::printf(":\n  Number of blocks in use = %lld\n"
                         "   Number of bytes in use = %lld\n",
                         numBlocksInUse(), numBytesInUse());
+            std::fflush(stdout);
 
             if (!isNoAbort()) {
                 std::abort();                                         // ABORT

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Aug 12 18:48:16 2022
+// Generated on Thu Aug 31 15:21:25 2023
 // Command line: sim_cpp11_features.pl bsltf_stdtestallocator.h
 
 #ifdef COMPILING_BSLTF_STDTESTALLOCATOR_H
@@ -102,6 +102,9 @@ class StdTestAllocator {
     // 'StdTestAllocatorConfigurationGuard).
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StdTestAllocator, bslma::IsStdAllocator);
+
     // PUBLIC TYPES
     // Deliberately use types that will *not* have the same representation as
     // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
@@ -153,7 +156,9 @@ class StdTestAllocator {
 
     pointer allocate(size_type numElements);
         // Allocate enough (properly aligned) space for the specified
-        // 'numElements' of type 'T'.  The behavior is undefined unless
+        // 'numElements' of type 'T'.  If the configured delegate allocator is
+        // unable to fulfill the allocation request, an exception (typically
+        // 'bsl::bad_alloc') will be thrown.  The behavior is undefined unless
         // 'numElements <= max_size()'.
 
     void deallocate(pointer address, size_type numElements = 1);
@@ -454,9 +459,8 @@ class StdTestAllocator {
 
     template <class ELEMENT_TYPE>
     void destroy(ELEMENT_TYPE *address);
-        // TBD: fix comment
-        // Invoke the 'TYPE' destructor for the object at the specified
-        // 'address'.
+        // Call the 'ELEMENT_TYPE' destructor for the object at the specified
+        // 'address' but do not deallocate the memory at 'address'.
 
     // ACCESSORS
     pointer address(reference object) const;
@@ -615,6 +619,10 @@ typename StdTestAllocator<TYPE>::pointer
 StdTestAllocator<TYPE>::allocate(typename StdTestAllocator<TYPE>::size_type
                                                                    numElements)
 {
+    if (numElements > this->max_size()) {
+        BloombergLP::bsls::BslExceptionUtil::throwBadAlloc();
+    }
+
     return
       static_cast<pointer>(StdTestAllocatorConfiguration::delegateAllocator()->
             allocate(bslma::Allocator::size_type(numElements * sizeof(TYPE))));
@@ -1178,7 +1186,7 @@ bool operator!=(const bsltf::StdTestAllocator<TYPE1>&,
 #endif // ! defined(INCLUDED_BSLTF_STDTESTALLOCATOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

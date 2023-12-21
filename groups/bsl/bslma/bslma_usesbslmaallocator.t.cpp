@@ -92,8 +92,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
-// We don't want to create a dependency on 'bslma_stdallocator', so, for
+#ifndef INCLUDED_BSLMA_BSLALLOCATOR
+// We don't want to create a dependency on 'bslma_bslallocator', so, for
 // testing purposes, we copy the saliant parts of its interface here.
 
 namespace bsl {
@@ -113,7 +113,7 @@ class allocator {
 
 }  // close namespace bsl
 
-#endif // ! INCLUDED_BSLMA_STDALLOCATOR
+#endif // ! INCLUDED_BSLMA_BSLALLOCATOR
 
 ///Usage
 ///-----
@@ -357,7 +357,7 @@ struct HasCompatibleAllocatorType {
     // This class defines a nested 'allocator_type' that is an alias for a type
     // convertible from 'bslma::Allocator *'.  'UsesAbslmaAllocator' should be
     // 'true' for such cases, but was unintuitively 'false' prior to
-    // 'BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE' being turned on.
+    // autodetection of this type.
 
     typedef BslmaCompatibleSTLAllocator allocator_type;
 };
@@ -582,11 +582,7 @@ int main(int argc, char *argv[])
         TEST(HasNestedTrait               , true );  // Step 3
         TEST(HasSniffableAndNestedTrait   , true );  // Step 3
 
-#ifdef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
         TEST(HasCompatibleAllocatorType   , true );  // Step 4
-#else
-        TEST(HasCompatibleAllocatorType   , false);  // Step 4
-#endif
 
         TEST(int                          , false);  // Step 5
         TEST(EmptyClass                   , false);  // Step 5

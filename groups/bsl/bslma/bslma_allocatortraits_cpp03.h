@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 15 11:14:32 2022
+// Generated on Fri Aug 11 21:20:13 2023
 // Command line: sim_cpp11_features.pl bslma_allocatortraits.h
 
 #ifdef COMPILING_BSLMA_ALLOCATORTRAITS_H
@@ -560,7 +560,7 @@ struct allocator_traits {
     // for accessing nested types within, and operations on, any
     // standard-conforming allocator.  A specialization of this class template
     // for 'bsl::allocator' provides support for Bloomberg's 'bslma' allocator
-    // model (see the 'bslma_stdallocator' component for more details).  In
+    // model (see the 'bslma_bslallocator' component for more details).  In
     // C++11 compilation environments, the 'construct' methods forward to the
     // allocator's 'construct' method if such a method matching the (variable
     // number of) specified constructor arguments exists; otherwise, the
@@ -1074,7 +1074,7 @@ struct allocator_traits {
         // method enforces the default policy of propagating the allocator on
         // copy construction, as is standard practice for standard allocators
         // (i.e., returns 'rhs').  Note that the specialization of this class
-        // template for 'bsl::allocator' (in the 'bslma_stdallocator'
+        // template for 'bsl::allocator' (in the 'bslma_bslallocator'
         // component) provides the alternate default behavior of *not*
         // propagating the allocator on copy construction (i.e., returning a
         // default-constructed allocator object).
@@ -2015,7 +2015,7 @@ allocator_traits<ALLOCATOR_TYPE>::select_on_container_copy_construction(
 #endif // ! defined(INCLUDED_BSLMA_ALLOCATORTRAITS_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

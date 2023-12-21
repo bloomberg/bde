@@ -384,6 +384,18 @@ class MyDerivedDerivedObject : public MyDerivedObject {
         // this object.
 };
 
+template <class TYPE>
+class DerivedAllocator : public bsl::allocator<TYPE>
+{
+    // A class that is convertible to 'bsl::allocator<>'.
+
+  public:
+    template <class T2>
+    struct rebind { typedef DerivedAllocator<T2> other; };
+
+    explicit DerivedAllocator(bslma::Allocator *a) : bsl::allocator<TYPE>(a) {}
+};
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -8245,9 +8257,13 @@ class AllocOnlyTestType {
     bslma::Allocator *d_alloc3_p;  // third  value (held, not owned)
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(AllocOnlyTestType,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
     AllocOnlyTestType();
-    AllocOnlyTestType(bslma::Allocator *alloc1);
+    explicit AllocOnlyTestType(bslma::Allocator *alloc1);
     AllocOnlyTestType(bslma::Allocator *alloc1, bslma::Allocator *alloc2);
     AllocOnlyTestType(bslma::Allocator *alloc1,
                       bslma::Allocator *alloc2,
@@ -9695,6 +9711,79 @@ void Harness::testCase18_NoAllocTestSingleCheck(int   numParameters,
                 EXP_NUM_DEALLOCATIONS_SA == sa.numAllocations());
     }
 
+    // Testing 'allocateManaged(alloc, ...)'.
+
+    {
+        bslma::TestAllocator  sa("supplied", g_veryVeryVeryVerbose);
+        DerivedAllocator<int> alloc(&sa);
+
+        bsls::Types::Int64 numAllocationsDA   = da->numAllocations();
+        bsls::Types::Int64 numDeallocationsDA = da->numDeallocations();
+        bsls::Types::Int64 numBytesInUseDA    = da->numBytesInUse();
+
+        bsls::Types::Int64 numAllocationsSA   = sa.numAllocations();
+        bsls::Types::Int64 numDeallocationsSA = sa.numDeallocations();
+        bsls::Types::Int64 numBytesInUseSA    = sa.numBytesInUse();
+
+        const bsls::Types::Int64 EXP_NUM_ALLOCATIONS_DA   = numAllocationsDA;
+        const bsls::Types::Int64 EXP_NUM_DEALLOCATIONS_DA = numDeallocationsDA;
+        const bsls::Types::Int64 EXP_NUM_BYTESINUSE_DA    = numBytesInUseDA;
+
+        const bsls::Types::Int64 EXP_NUM_ALLOCATIONS_SA   =
+                                                        numAllocationsSA + 1;
+        const bsls::Types::Int64 EXP_NUM_DEALLOCATIONS_SA =
+                                                        numDeallocationsSA + 1;
+        const bsls::Types::Int64 EXP_NUM_BYTESINUSE_SA    =
+                                     numBytesInUseSA + sizeof(NoAllocTestType);
+
+        {
+            bslma::ManagedPtr<NoAllocTestType> mX;
+
+            switch (numParameters) {
+              case 0: {
+                mX = Util::allocateManaged<NoAllocTestType>(alloc);
+              } break;
+              case 1: {
+                mX = Util::allocateManaged<NoAllocTestType>(alloc, c);
+              } break;
+              case 2: {
+                mX = Util::allocateManaged<NoAllocTestType>(alloc, c, i);
+              } break;
+              case 3: {
+                mX = Util::allocateManaged<NoAllocTestType>(alloc, c, i, f);
+              } break;
+              default: {
+                ASSERTV("Unsupported # of parameters", numParameters, false);
+              }
+            }
+
+            ASSERTV(numParameters, c, i, f,
+                    EXP_NUM_ALLOCATIONS_DA,      da->numAllocations(),
+                    EXP_NUM_ALLOCATIONS_DA    == da->numAllocations());
+            ASSERTV(numParameters, c, i, f,
+                    EXP_NUM_BYTESINUSE_DA,       da->numAllocations(),
+                    EXP_NUM_BYTESINUSE_DA     == da->numBytesInUse());
+
+            ASSERTV(numParameters, c, i, f,
+                    EXP_NUM_ALLOCATIONS_SA,      sa.numAllocations(),
+                    EXP_NUM_ALLOCATIONS_SA    == sa.numAllocations());
+            ASSERTV(numParameters, c, i, f,
+                    EXP_NUM_BYTESINUSE_SA,       sa.numAllocations(),
+                    EXP_NUM_BYTESINUSE_SA     == sa.numBytesInUse());
+
+            ASSERTV(numParameters, c, i, f, c == mX->getChar());
+            ASSERTV(numParameters, c, i, f, i == mX->getInt());
+            ASSERTV(numParameters, c, i, f, f == mX->getFloat());
+        }
+
+        ASSERTV(numParameters, c, i, f,
+                EXP_NUM_DEALLOCATIONS_DA,   da->numDeallocations(),
+                EXP_NUM_DEALLOCATIONS_DA == da->numAllocations());
+        ASSERTV(numParameters, c, i, f,
+                EXP_NUM_DEALLOCATIONS_SA,   sa.numDeallocations(),
+                EXP_NUM_DEALLOCATIONS_SA == sa.numAllocations());
+    }
+
     // Testing 'allocateManaged(0, ...)'.
 
     {
@@ -9878,6 +9967,93 @@ void Harness::testCase18_AllocOnlyTest()
                   case 2: {
                     mX   = Util::allocateManaged<AllocOnlyTestType>(
                                                               &sa, &aa1, &aa2);
+                    EXP1 = &aa1;
+                    EXP2 = &aa2;
+                    EXP3 = &sa;
+                  } break;
+                  default: {
+                    ASSERTV("Unsupported # of arguments", i, false);
+                  } break;
+                }
+
+                const bsls::Types::Int64 EXP_NUM_ALLOCATIONS_DA =
+                                                              numAllocationsDA;
+                const bsls::Types::Int64 EXP_NUM_BYTESINUSE_DA =
+                                                              numBytesInUseDA;
+
+                ASSERTV(i, EXP_NUM_ALLOCATIONS_DA,     da->numAllocations(),
+                           EXP_NUM_ALLOCATIONS_DA   == da->numAllocations());
+                ASSERTV(i, EXP_NUM_BYTESINUSE_DA,      da->numBytesInUse(),
+                           EXP_NUM_BYTESINUSE_DA    == da->numBytesInUse());
+
+                const bsls::Types::Int64 EXP_NUM_ALLOCATIONS_SA =
+                                                          numAllocationsSA + 1;
+                const bsls::Types::Int64 EXP_NUM_BYTESINUSE_SA =
+                                   numBytesInUseSA + sizeof(AllocOnlyTestType);
+
+                ASSERTV(i, EXP_NUM_ALLOCATIONS_SA,     sa.numAllocations(),
+                           EXP_NUM_ALLOCATIONS_SA   == sa.numAllocations());
+                ASSERTV(i, EXP_NUM_BYTESINUSE_SA,      sa.numBytesInUse(),
+                           EXP_NUM_BYTESINUSE_SA    == sa.numBytesInUse());
+
+                ASSERTV(i, EXP1, mX->alloc1(), EXP1 == mX->alloc1());
+                ASSERTV(i, EXP2, mX->alloc2(), EXP2 == mX->alloc2());
+                ASSERTV(i, EXP3, mX->alloc3(), EXP3 == mX->alloc3());
+            }
+
+            const bsls::Types::Int64 EXP_NUM_DEALLOCATIONS_DA =
+                                                            numDeallocationsDA;
+            ASSERTV(i, EXP_NUM_DEALLOCATIONS_DA,   da->numDeallocations(),
+                       EXP_NUM_DEALLOCATIONS_DA == da->numAllocations());
+
+            const bsls::Types::Int64 EXP_NUM_DEALLOCATIONS_SA =
+                                                        numDeallocationsSA + 1;
+            ASSERTV(i, EXP_NUM_DEALLOCATIONS_SA,   sa.numDeallocations(),
+                       EXP_NUM_DEALLOCATIONS_SA == sa.numAllocations());
+        }
+    }
+
+    // Testing 'allocateManaged(alloc, ...)'.
+
+    // Since 'true == bslma::UsesBslmaAllocator<AllocOnlyTestType>::value', the
+    // first argument passed to 'allocateManaged' (i.e., the allocator) is
+    // passed as the *last* argument to the 'AllocOnlyTestType' constructor.
+
+    {
+        bslma::TestAllocator    sa("supplied", g_veryVeryVeryVerbose);
+        DerivedAllocator<short> alloc(&sa);
+
+        for (int i = 0; i < 3; ++i) {
+            bsls::Types::Int64 numDeallocationsDA = da->numDeallocations();
+            bsls::Types::Int64 numDeallocationsSA = sa.numDeallocations();
+
+            {
+                bslma::ManagedPtr<AllocOnlyTestType> mX;
+
+                bslma::TestAllocator *EXP1 = 0;
+                bslma::TestAllocator *EXP2 = 0;
+                bslma::TestAllocator *EXP3 = 0;
+
+                bsls::Types::Int64 numAllocationsDA = da->numAllocations();
+                bsls::Types::Int64 numBytesInUseDA  = da->numBytesInUse();
+
+                bsls::Types::Int64 numAllocationsSA = sa.numAllocations();
+                bsls::Types::Int64 numBytesInUseSA  = sa.numBytesInUse();
+
+                switch (i) {
+                  case 0: {
+                    mX   = Util::allocateManaged<AllocOnlyTestType>(alloc);
+                    EXP1 = &sa;
+                  } break;
+                  case 1: {
+                    mX   = Util::allocateManaged<AllocOnlyTestType>(
+                                                                  alloc, &aa1);
+                    EXP1 = &aa1;
+                    EXP2 = &sa;
+                  } break;
+                  case 2: {
+                    mX   = Util::allocateManaged<AllocOnlyTestType>(
+                                                            alloc, &aa1, &aa2);
                     EXP1 = &aa1;
                     EXP2 = &aa2;
                     EXP3 = &sa;
@@ -10131,9 +10307,16 @@ int main(int argc, char *argv[])
         //:
         //: 5 'allocateManaged' passes the supplied allocator as an extra
         //:   argument in the final position if 'T' uses 'bslma' allocators.
+        //:   If the supplied allocator has class type, it's 'mechanism()'
+        //:   pointer is used to allocate, deallocate, and construct the 'T'
+        //:   object.
         //:
         //: 6 If 0 is supplied to 'allocateManaged' as the allocator then the
         //:   default allocator is used.
+        //:
+        //: 7 The allocator used by 'makeManaged' and 'allocateManaged' to
+        //:   allocate the object is used by the returned 'ManagedPtr' to
+        //:   delete the object when it goes out of scope.
         //
         // Plan:
         //: 1 Use 'makeManaged' and 'allocateManaged' to call 15 different
@@ -10156,12 +10339,16 @@ int main(int argc, char *argv[])
         //:
         //: 6 Verify that the supplied allocator is propagated by
         //:   'allocateManaged' to the constructor of the managed object if its
-        //:   type uses 'bslma' allocators and is not propagated otherwise
-        //:   Also verify that the default allocator is used if 0 is supplied
-        //:   as the allocator.  (C-5..6)
+        //:   type uses 'bslma' allocators and is not propagated otherwise.
+        //:   Perform this step using both a test allocator pointer (derived
+        //:   from 'bslma::Allocator') and an allocator class object (of type
+        //:   derived from 'bsl::allocator').  (C-5)
         //:
-        //: 7 Let the managed pointer go out of scope and verify that all
-        //:   allocated memory is successfully released.  (C-1)
+        //: 7 Verify that the default allocator is used if 0 is supplied
+        //:   as the allocator to 'allocateManaged'.  (C-6)
+        //:
+        //: 8 Let the managed pointer go out of scope and verify that all
+        //:   allocated memory is successfully released.  (C-7)
         //
         // Testing:
         //   ManagedPtr makeManaged(ARGS&&... args);

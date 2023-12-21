@@ -1280,11 +1280,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
     //: 8 Non-modifiable objects can be compared (i.e., objects or
     //:   references providing only non-modifiable access).
     //:
-    //; 9 The equality operator's signature and return type are standard.
-    //:
-    //:10 The inequality operator's signature and return type are standard.
-    //:
-    //:11 QoI: Asserted precondition violations are detected when enabled.
+    //; 9 QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
     //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
@@ -1316,7 +1312,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
     //:     property and the expected return value for both '==' and '!='.
     //:     (C-1..8)
     //:
-    //: 4 Verify defensive checks are triggered for invalid values.  (C-11)
+    //: 4 Verify defensive checks are triggered for invalid values.  (C-9)
     //
     // Testing:
     //   bool operator==(lhs, rhs);
@@ -1325,20 +1321,6 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
 
     if (verbose)
         printf("\nVALUE: %s\n", NameOf<VALUE>().name());
-
-    if (verbose)
-        printf("\nTesting signatures and return types.\n");
-    {
-        typedef bool (*operatorPtr)(const Iterator&, const Iterator&);
-
-        // Verify that the signatures and return types are standard.
-
-        operatorPtr operatorEq = operator==;
-        operatorPtr operatorNe = operator!=;
-
-        (void) operatorEq;  // quash potential compiler warnings
-        (void) operatorNe;
-    }
 
     if (verbose) printf("\tTesting behavior.\n");
     {

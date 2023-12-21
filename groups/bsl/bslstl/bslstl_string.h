@@ -650,12 +650,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
+#include <bslma_allocatorutil.h>
 #include <bslma_isstdallocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_enableif.h>
+#include <bslmf_integralconstant.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_issame.h>
@@ -681,7 +683,6 @@ BSLS_IDENT("$Id: $")
 # include <initializer_list>
 #endif
 
-#include <algorithm>  // for 'std::swap'
 #include <istream>    // for 'std::basic_istream', 'sentry'
 #include <limits>     // for 'std::numeric_limits'
 #include <locale>     // for 'std::ctype', 'locale'
@@ -1171,7 +1172,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_string
     : private String_Imp<CHAR_TYPE,
                          typename allocator_traits<ALLOCATOR>::size_type>
-    , public BloombergLP::bslalg::ContainerBase<ALLOCATOR>
+    , private BloombergLP::bslalg::ContainerBase<ALLOCATOR>
 {
     // This class template provides an STL-compliant 'string' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a string class,
@@ -1210,6 +1211,10 @@ class basic_string
     typedef BloombergLP::bslmf::MovableRefUtil         MoveUtil;
         // This 'typedef' is a convenient alias for the utility associated with
         // movable references.
+
+    typedef BloombergLP::bslma::AllocatorUtil          AllocatorUtil;
+        // This 'typedef' is an alias for a utility class that provides many
+        // useful functions that operate on allocators.
 
     typedef bsl::allocator_traits<ALLOCATOR>           AllocatorTraits;
         // This 'typedef' is an alias for the allocator traits type associated
@@ -1548,12 +1553,15 @@ class basic_string
         // 'newLength' exceeds the current capacity.  The behavior is undefined
         // unless 'newLength <= max_size()'.
 
-    void quickSwapExchangeAllocators(basic_string& other);
+    template <bool ALLOC_PROP>
+    void quickSwapExchangeAllocators(basic_string& other,
+                                     bsl::integral_constant<bool, ALLOC_PROP>);
         // Efficiently exchange the value and allocator of this object with the
         // value and allocator of the specified 'other' object.  This method
-        // provides the no-throw exception-safety guarantee, *unless* swapping
-        // the allocator objects can throw.  Note that this method should not
-        // be called unless the allocator traits support allocator propagation.
+        // provides the no-throw exception-safety guarantee.  Note that this
+        // method should not be called unless the allocators compare equal or
+        // the allocator traits support allocator propagation ('ALLOC_PROP' is
+        // 'true').
 
     void quickSwapRetainAllocators(basic_string& other);
         // Efficiently exchange the value of this object with the value of the
@@ -4074,7 +4082,8 @@ CHAR_TYPE *
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAllocate(
                                                             size_type numChars)
 {
-    return this->allocateN((CHAR_TYPE *)0, numChars + 1);
+    return AllocatorUtil::allocateObject<CHAR_TYPE>(this->allocatorRef(),
+                                                    numChars + 1);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4082,7 +4091,8 @@ inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateDeallocate()
 {
     if (!this->isShortString()) {
-        this->deallocateN(this->d_start_p, this->d_capacity + 1);
+        AllocatorUtil::deallocateObject(this->allocatorRef(),
+                                        this->d_start_p, this->d_capacity + 1);
     }
 }
 
@@ -4801,13 +4811,15 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateResizeRaw(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <bool ALLOC_PROP>
 inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::
-                               quickSwapExchangeAllocators(basic_string& other)
+quickSwapExchangeAllocators(basic_string&                            other,
+                            bsl::integral_constant<bool, ALLOC_PROP> Propagate)
 {
     privateBase().swap(other.privateBase());
-    using std::swap;
-    swap(ContainerBase::allocator(), other.ContainerBase::allocator());
+    AllocatorUtil::swap(&this->allocatorRef(), &other.allocatorRef(),
+                        Propagate);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5117,10 +5129,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                                                        const basic_string& rhs)
 {
+    typedef typename
+        AllocatorTraits::propagate_on_container_copy_assignment Propagate;
+
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
-        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
+        if (Propagate::value) {
             basic_string other(rhs, rhs.get_allocator());
-            quickSwapExchangeAllocators(other);
+            quickSwapExchangeAllocators(other, Propagate());
         }
         else {
             privateAssignDispatch(
@@ -5141,12 +5156,15 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
               AllocatorTraits::propagate_on_container_move_assignment::value ||
               AllocatorTraits::is_always_equal::value)
 {
+    typedef typename
+        AllocatorTraits::propagate_on_container_move_assignment Propagate;
+
     basic_string& lvalue = rhs;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
-        if (AllocatorTraits::propagate_on_container_move_assignment::value) {
+        if (Propagate::value) {
             basic_string other(MoveUtil::move(lvalue));
-            quickSwapExchangeAllocators(other);
+            quickSwapExchangeAllocators(other, Propagate());
         }
         else if (get_allocator() == lvalue.get_allocator()) {
             basic_string other(MoveUtil::move(lvalue));
@@ -6350,8 +6368,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
                          AllocatorTraits::propagate_on_container_swap::value ||
                          AllocatorTraits::is_always_equal::value)
 {
-    if (AllocatorTraits::propagate_on_container_swap::value) {
-        quickSwapExchangeAllocators(other);
+    typedef typename
+        AllocatorTraits::propagate_on_container_swap Propagate;
+
+    if (Propagate::value) {
+        quickSwapExchangeAllocators(other, Propagate());
     }
     else if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    get_allocator() == other.get_allocator())) {
@@ -6584,7 +6605,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return ContainerBase::allocator();
+    return this->allocatorRef();
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>

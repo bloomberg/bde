@@ -8,7 +8,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
-#include <bslma_stdallocator.h>
+#include <bslma_bslallocator.h>
 #include <bslma_stdtestallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -1005,6 +1005,9 @@ class LimitAllocator : public ALLOC {
     typedef bsl::allocator_traits<ALLOC> TraitsBase;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(LimitAllocator, bslma::IsStdAllocator);
+
     // TYPES
     typedef typename TraitsBase::size_type         size_type;
 
