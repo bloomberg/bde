@@ -116,6 +116,7 @@ bsl_execution.h
 bsl_filesystem.h
 bsl_optional.h
 bsl_string_view.h
+bsl_variant.h
 
 # C++20 headers
 bsl_barrier.h
