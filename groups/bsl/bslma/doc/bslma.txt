@@ -16,30 +16,38 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 48 components having 12 levels of physical
+ The 'bslma' package currently has 57 components having 15 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  15. bslma_managedptr
+
+  14. bslma_autodeallocator
+      bslma_destructorproctor
+
+  13. bslma_deallocatorproctor                           !DEPRECATED!
+
   12. bslma_aatypeutil
+      bslma_deallocatebytesproctor
+      bslma_deallocateobjectproctor
+      bslma_deleteobjectproctor
 
   11. bslma_aamodel
       bslma_allocatorutil
-      bslma_isstdallocator
+      bslma_stdallocator                                 !DEPRECATED!
 
-  10. bslma_stdallocator
+  10. bslma_bslallocator
 
-   9. bslma_allocatortraits
-      bslma_managedptr
-      bslma_stdtestallocator
+   9. bslma_polymorphicallocator
 
-   8. bslma_constructionutil
+   8. bslma_allocatortraits
       bslma_managedptr_factorydeleter                                 !PRIVATE!
       bslma_managedptr_members                                        !PRIVATE!
       bslma_sequentialallocator                          !DEPRECATED!
+      bslma_stdtestallocator
 
-   7. bslma_autodeallocator
-      bslma_destructorproctor
+   7. bslma_constructionutil
       bslma_sequentialpool                               !DEPRECATED!
       bslma_sharedptrinplacerep
       bslma_sharedptroutofplacerep
@@ -48,7 +56,6 @@
    6. bslma_allocatoradaptor
       bslma_autodestructor
       bslma_deallocatorguard
-      bslma_deallocatorproctor
       bslma_defaultallocatorguard
       bslma_destructionutil
       bslma_destructorguard
@@ -72,14 +79,19 @@
       bslma_usesbslmaallocator
 
    3. bslma_allocator
+      bslma_hasallocatortype
 
    2. bslma_allocatortraits_cpp03                                     !PRIVATE!
       bslma_deleterhelper
+      bslma_isstdallocator
+      bslma_memoryresource
+      bslma_polymorphicallocator_cpp03                                !PRIVATE!
 
-   1. bslma_constructionutil_cpp03                                    !PRIVATE!
+   1. bslma_allocatorutil_cpp03                                       !PRIVATE!
+      bslma_bslallocator_cpp03                                        !PRIVATE!
+      bslma_constructionutil_cpp03                                    !PRIVATE!
       bslma_managedptr_cpp03                                          !PRIVATE!
       bslma_sharedptrinplacerep_cpp03                                 !PRIVATE!
-      bslma_stdallocator_cpp03                                        !PRIVATE!
 ..
 
 /Component Synopsis
@@ -103,7 +115,10 @@
 :      Provide C++03 implementation for bslma_allocatortraits.h
 :
 : 'bslma_allocatorutil':
-:      Provide a namespace for utility functions on allocators
+:      Provide a namespace for utility functions on allocators.
+:
+: 'bslma_allocatorutil_cpp03':                                        !PRIVATE!
+:      Provide C++03 implementation for bslma_allocatorutil.h
 :
 : 'bslma_autodeallocator':
 :      Provide a range proctor to managed a block of memory.
@@ -114,6 +129,12 @@
 : 'bslma_autorawdeleter':
 :      Provide a range proctor to manage a sequence objects.
 :
+: 'bslma_bslallocator':
+:      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
+:
+: 'bslma_bslallocator_cpp03':                                         !PRIVATE!
+:      Provide C++03 implementation for bslma_bslallocator.h
+:
 : 'bslma_bufferallocator':                               !DEPRECATED!
 :      Support efficient memory allocations from a user-supplied buffer.
 :
@@ -123,10 +144,16 @@
 : 'bslma_constructionutil_cpp03':                                     !PRIVATE!
 :      Provide C++03 implementation for bslma_constructionutil.h
 :
+: 'bslma_deallocatebytesproctor':
+:      Provide a proctor to conditionally unwind memory block allocation.
+:
+: 'bslma_deallocateobjectproctor':
+:      Provide a proctor to conditionally unwind object allocation.
+:
 : 'bslma_deallocatorguard':
 :      Provide a guard to unconditionally manage a block of memory.
 :
-: 'bslma_deallocatorproctor':
+: 'bslma_deallocatorproctor':                            !DEPRECATED!
 :      Provide a proctor to conditionally manage a block memory.
 :
 : 'bslma_default':
@@ -134,6 +161,9 @@
 :
 : 'bslma_defaultallocatorguard':
 :      Provide scoped guard to temporarily change the default allocator.
+:
+: 'bslma_deleteobjectproctor':
+:      Provide a proctor to conditionally unwind new object creation.
 :
 : 'bslma_deleterhelper':
 :      Provide namespace for functions used to delete objects.
@@ -149,6 +179,9 @@
 :
 : 'bslma_exceptionguard':
 :      Provide a check that objects throwing exceptions do not change.
+:
+: 'bslma_hasallocatortype':
+:      Provide a compile-time check for an 'allocator_type' typedef
 :
 : 'bslma_infrequentdeleteblocklist':                     !DEPRECATED!
 :      Provide allocation and management of a sequence of memory blocks.
@@ -180,8 +213,17 @@
 : 'bslma_managedptrdeleter':
 :      Provide an in-core value-semantic class to call a delete function.
 :
+: 'bslma_memoryresource':
+:      Provide a pure abstract interface for memory-allocation mechanisms.
+:
 : 'bslma_newdeleteallocator':
 :      Provide singleton new/delete adaptor to 'bslma::Allocator' protocol.
+:
+: 'bslma_polymorphicallocator':
+:      Provide an allocator interface for 'bsl::memory_resource' objects.
+:
+: 'bslma_polymorphicallocator_cpp03':                                 !PRIVATE!
+:      Provide C++03 implementation for bslma_polymorphicallocator.h
 :
 : 'bslma_rawdeleterguard':
 :      Provide a guard to unconditionally manage an object.
@@ -207,11 +249,8 @@
 : 'bslma_sharedptrrep':
 :      Provide an abstract class for a shared object manager.
 :
-: 'bslma_stdallocator':
+: 'bslma_stdallocator':                                  !DEPRECATED!
 :      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
-:
-: 'bslma_stdallocator_cpp03':                                         !PRIVATE!
-:      Provide C++03 implementation for bslma_stdallocator.h
 :
 : 'bslma_stdtestallocator':
 :      Provide stl-compatible, 'bslma'-style allocator to track usage.

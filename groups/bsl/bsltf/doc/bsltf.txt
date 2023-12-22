@@ -13,37 +13,40 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsltf' package currently has 36 components having 6 levels of physical
+ The 'bsltf' package currently has 38 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  6. bsltf_convertiblevaluewrapper
-     bsltf_stdstatefulallocator
+  7. bsltf_stdstatefulallocator
      bsltf_streamutil
      bsltf_testvaluesarray
 
-  5. bsltf_templatetestfacility
+  6. bsltf_templatetestfacility
 
-  4. bsltf_allocemplacabletesttype
+  5. bsltf_allocemplacabletesttype
      bsltf_emplacabletesttype
 
-  3. bsltf_allocargumenttype
+  4. bsltf_allocargumenttype
      bsltf_argumenttype
      bsltf_movablealloctesttype
      bsltf_movabletesttype
      bsltf_moveonlyalloctesttype
      bsltf_wellbehavedmoveonlyalloctesttype
 
+  3. bsltf_copymovetracker
+     bsltf_movestate
+
   2. bsltf_allocbitwisemoveabletesttype
      bsltf_alloctesttype
      bsltf_bitwisecopyabletesttype
      bsltf_bitwisemoveabletesttype
+     bsltf_convertiblevaluewrapper
+     bsltf_copymovestate
      bsltf_degeneratefunctor
      bsltf_enumeratedtesttype
      bsltf_evilbooleantype
      bsltf_inputiterator
-     bsltf_movestate
      bsltf_nonassignabletesttype
      bsltf_noncopyconstructibletesttype
      bsltf_nondefaultconstructibletesttype
@@ -73,7 +76,7 @@
 :      Provide an allocating test class used to test 'emplace' methods.
 :
 : 'bsltf_alloctesttype':
-:      Provide a class for testing that allocates with 'bslma::Allocator'.
+:      Provide a class for testing that allocates with 'bsl::allocator'.
 :
 : 'bsltf_argumenttype':
 :      Provide a non-allocating class to test variadic function arguments.
@@ -86,6 +89,12 @@
 :
 : 'bsltf_convertiblevaluewrapper':
 :      Provide a wrapper class, convertible to a supplied value.
+:
+: 'bsltf_copymovestate':
+:      Provide an enumeration of copy/move state, including unsupported.
+:
+: 'bsltf_copymovetracker':
+:      Provide a type that tracks if it's been copied or moved
 :
 : 'bsltf_degeneratefunctor':
 :      Provide an awkward type to adapt a user-supplied functor.

@@ -115,7 +115,7 @@
 :      Provide a proxy for constructing and destroying objects.
 :
 : 'bslalg_containerbase':
-:      Provide a wrapper for STL allocators, respecting 'bslma' semantics.
+:      Provide a wrapper for STL allocators, for container use.
 :
 : 'bslalg_dequeimputil':
 :      Provide basic parameters and primitive data structures for deques.

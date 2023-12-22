@@ -49,10 +49,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_versiontag.h>
 
-#define BAL_VERSION_MAJOR 3
+#define BAL_VERSION_MAJOR 4
     // BAL release major version
 
-#define BAL_VERSION_MINOR 128
+#define BAL_VERSION_MINOR 0
     // BAL release major version
 
 #define BAL_VERSION BSL_MAKE_VERSION(BAL_VERSION_MAJOR, \

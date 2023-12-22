@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 122 components having 10 levels of physical
+ The 'bslstl' package currently has 126 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -71,6 +71,7 @@
       bslstl_unorderedmultimap
       bslstl_unorderedmultiset
       bslstl_unorderedset
+      bslstl_variant
 
    5. bslstl_array
       bslstl_function
@@ -107,6 +108,7 @@
       bslstl_allocator                                   !DEPRECATED!
       bslstl_badfunctioncall
       bslstl_badoptionalaccess
+      bslstl_badvariantaccess
       bslstl_badweakptr
       bslstl_compare
       bslstl_complex
@@ -120,6 +122,7 @@
       bslstl_iserrorcodeenum
       bslstl_iserrorconditionenum
       bslstl_iterator
+      bslstl_monostate
       bslstl_ratio
       bslstl_referencewrapper
       bslstl_sharedptrallocateinplacerep
@@ -152,6 +155,7 @@
       bslstl_unorderedmultimap_cpp03                                  !PRIVATE!
       bslstl_unorderedmultiset_cpp03                                  !PRIVATE!
       bslstl_unorderedset_cpp03                                       !PRIVATE!
+      bslstl_variant_cpp03                                            !PRIVATE!
       bslstl_vector_cpp03                                             !PRIVATE!
 ..
 
@@ -174,6 +178,9 @@
 :
 : 'bslstl_badoptionalaccess':
 :      Provide an exception class thrown by 'bsl::optional'.
+:
+: 'bslstl_badvariantaccess':
+:      Provide an exception class thrown by 'bsl::variant'.
 :
 : 'bslstl_badweakptr':
 :      Provide an exception class to indicate a weak_ptr has expired.
@@ -321,6 +328,9 @@
 :
 : 'bslstl_mapcomparator':
 :      Provide a comparator for 'TreeNode' objects and a lookup key.
+:
+: 'bslstl_monostate':
+:      Provide a default constructible alternative for 'bsl::variant'.
 :
 : 'bslstl_multimap':
 :      Provide an STL-compliant multimap class.
@@ -516,6 +526,12 @@
 :
 : 'bslstl_utility':
 :      Provide implementations for utilities not in the system library.
+:
+: 'bslstl_variant':
+:      Provide a standard-compliant allocator aware variant type.
+:
+: 'bslstl_variant_cpp03':                                             !PRIVATE!
+:      Provide C++03 implementation for bslstl_variant.h
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
