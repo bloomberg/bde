@@ -1,5 +1,20 @@
-bsl-internal (3.128.0.0) unstable; urgency=low
+bsl-internal (4.0.0.0) unstable; urgency=low
 
+  * 8a041942c Bumped version to 4.0.0.0
+  * 37ff4e3dc Allocator infrastructure changes (SOW19 d4-d7) - drqs-168933860 (#4554)
+  * 0d3d3e974 Bslstl variant integration (#4488)
+  * 1c692cd92 correct clang build warning (#4553)
+  * e42ba0c7d uint warnings (#4550)
+  * 0c844a7a6 Drqs 173827876/nb 20231219 (#4548)
+  * fb97ce466 Revert "balxml_decoder success on incorrect input {DRQS 171405619} (#4475)" (#4549)
+  * cbc5bc45b Revert "Elide atomic constructor calls for compile-time constants for C++14+ - {DRQS 173277048} (#4466)" (#4546)
+  * 886442f1e Typo in documentation heading (#4544)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Dec 2023 12:24:23 -0500
+
+bsl-internal (3.128.0.0) git; urgency=low
+
+  * fcd2dc8f2 Changelog for version 3.128.0.0
   * 6ed282659 Bumped version to 3.128.0.0
   * f983aec12 Remove outdated comments (#4540)
   * ba3abcc8b Revert "baljsn/balber decode ints as enums and vice versa (#4482)" (#4543)
@@ -23,7 +38,7 @@ bsl-internal (3.128.0.0) unstable; urgency=low
   * f58ca4220 Revert "Add  values for C++20 and c++23 (#4474)" (#4515) (#4517)
   * 64c080844 'createTemporarySubdirectory' method has been added to 'bdls::FileSystemUtil'. DRQS 173473494 (#4503)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 15 Dec 2023 17:02:22 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 15 Dec 2023 17:06:17 -0500
 
 bsl-internal (3.127.0.0) git; urgency=low
 
