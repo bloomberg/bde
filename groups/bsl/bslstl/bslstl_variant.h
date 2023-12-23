@@ -260,7 +260,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Tue Oct 31 09:47:15 2023
+// Generated on Fri Dec 22 18:51:14 2023
 // Command line: sim_cpp11_features.pl bslstl_variant.h
 # define COMPILING_BSLSTL_VARIANT_H
 # include <bslstl_variant_cpp03.h>
@@ -654,11 +654,14 @@ operator<=>(const variant<t_ALTS...>& lhs, const variant<t_ALTS...>& rhs);
     // 'strong_ordering::less' if 'lhs'  is valueless by exception.  Return
     // 'strong_ordering::greater' if 'rhs' is valueless by exception.
 #endif
+#endif
+
 }  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslstl {
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_HEAD = BSLSTL_VARIANT_NOT_A_TYPE, class... t_TAIL>
 struct Variant_UsesBslmaAllocatorAny;
     // This component-private metafunction is derived from 'bsl::true_type' if
