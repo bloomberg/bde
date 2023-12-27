@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Nov 29 14:59:32 2023
+// Generated on Wed Dec 27 14:41:31 2023
 // Command line: sim_cpp11_features.pl bslma_polymorphicallocator.h
 
 #ifdef COMPILING_BSLMA_POLYMORPHICALLOCATOR_H
@@ -1984,12 +1984,7 @@ struct allocator_traits<polymorphic_allocator<TYPE> > {
         // 'allocator_type::max_size()' because that method does not exist in
         // the C++17 standard library.
 
-        BSLS_KEYWORD_CONSTEXPR
-            const size_type MAX_NUM_BYTES    = ~size_type(0);
-        BSLS_KEYWORD_CONSTEXPR
-            const size_type MAX_NUM_ELEMENTS = MAX_NUM_BYTES / sizeof(TYPE);
-
-        return MAX_NUM_ELEMENTS;
+        return (~size_type(0)) / sizeof(TYPE);
     }
 
     // Allocator propagation traits
@@ -3297,12 +3292,7 @@ polymorphic_allocator<TYPE>::max_size() const
     // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
     // 'size_type'.
 
-    BSLS_KEYWORD_CONSTEXPR
-        const size_type MAX_NUM_BYTES    = ~size_type(0);
-    BSLS_KEYWORD_CONSTEXPR
-        const size_type MAX_NUM_ELEMENTS = MAX_NUM_BYTES / sizeof(TYPE);
-
-    return MAX_NUM_ELEMENTS;
+    return (~size_type(0)) / sizeof(TYPE);
 }
 
 template <class TYPE>

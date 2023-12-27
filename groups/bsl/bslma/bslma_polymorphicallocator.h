@@ -736,12 +736,7 @@ struct allocator_traits<polymorphic_allocator<TYPE> > {
         // 'allocator_type::max_size()' because that method does not exist in
         // the C++17 standard library.
 
-        BSLS_KEYWORD_CONSTEXPR
-            const size_type MAX_NUM_BYTES    = ~size_type(0);
-        BSLS_KEYWORD_CONSTEXPR
-            const size_type MAX_NUM_ELEMENTS = MAX_NUM_BYTES / sizeof(TYPE);
-
-        return MAX_NUM_ELEMENTS;
+        return (~size_type(0)) / sizeof(TYPE);
     }
 
     // Allocator propagation traits
@@ -999,12 +994,7 @@ polymorphic_allocator<TYPE>::max_size() const
     // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
     // 'size_type'.
 
-    BSLS_KEYWORD_CONSTEXPR
-        const size_type MAX_NUM_BYTES    = ~size_type(0);
-    BSLS_KEYWORD_CONSTEXPR
-        const size_type MAX_NUM_ELEMENTS = MAX_NUM_BYTES / sizeof(TYPE);
-
-    return MAX_NUM_ELEMENTS;
+    return (~size_type(0)) / sizeof(TYPE);
 }
 
 template <class TYPE>

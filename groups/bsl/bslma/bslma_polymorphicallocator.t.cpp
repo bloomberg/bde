@@ -603,7 +603,7 @@ int main(int argc, char *argv[])
         ASSERTV(TT::lastDestroyed() == buf1.address());                       \
         alloc.construct(&buf2.object(), __VA_ARGS__);                         \
         ASSERT(alloc == buf2.object().get_allocator());                       \
-        ASSERTV(EXP, buf2.object().value(), EXP == buf1.object().value());    \
+        ASSERTV(EXP, buf2.object().value(), EXP == buf2.object().value());    \
         alloc.destroy(&buf2.object());                                        \
         ASSERTV(AATT::lastDestroyed() == buf2.address());                     \
     } while (false);

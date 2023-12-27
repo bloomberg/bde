@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
         ASSERTV(TT::lastDestroyed() == buf1.address());                       \
         alloc.construct(&buf2.object(), __VA_ARGS__);                         \
         ASSERT(alloc == buf2.object().get_allocator());                       \
-        ASSERTV(EXP, buf2.object().value(), EXP == buf1.object().value());    \
+        ASSERTV(EXP, buf2.object().value(), EXP == buf2.object().value());    \
         alloc.destroy(&buf2.object());                                        \
         ASSERTV(AATT::lastDestroyed() == buf2.address());                     \
     } while (false);
@@ -1606,12 +1606,12 @@ int main(int argc, char *argv[])
 
         typedef bsl::allocator<int>  IntAlloc;
         typedef bsl::allocator<void> VoidAlloc;
-        
+
         ASSERT((bslmf::IsBitwiseCopyable<IntAlloc>::value));
         ASSERT((bslmf::IsBitwiseMoveable<IntAlloc>::value));
         ASSERT((bslmf::IsBitwiseEqualityComparable<IntAlloc>::value));
         (void) bslmf::IsTriviallyCopyableCheck<IntAlloc>::value;
-        
+
         ASSERT((bslmf::IsBitwiseCopyable<VoidAlloc>::value));
         ASSERT((bslmf::IsBitwiseMoveable<VoidAlloc>::value));
         ASSERT((bslmf::IsBitwiseEqualityComparable<VoidAlloc>::value));
