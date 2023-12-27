@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Oct 20 12:06:53 2023
+// Generated on Wed Dec 27 14:25:58 2023
 // Command line: sim_cpp11_features.pl bslma_bslallocator.h
 
 #ifdef COMPILING_BSLMA_BSLALLOCATOR_H
@@ -130,15 +130,18 @@ class allocator : public polymorphic_allocator<TYPE> {
 
     // MANIPULATORS
     allocator& BSLS_ANNOTATION_DEPRECATED operator=(const allocator& rhs);
-        // Do nothing with the specified 'rhs' and return a modifiable
-        // reference to this object.  Note that 'bsl::allocator' objects should
-        // never be assigned at runtime, but, in the absence of 'if constexpr',
-        // such assignments can sometimes be found legitimately in dead
-        // branches (branches that are never taken at runtime) within function
-        // templates; ideally, such code would be replaced by more
-        // sophisticated metaprogramming that avoided calls to this operator
-        // entirely.  The behavior is undefined unless 'rhs == *this', i.e.,
-        // when the assignment would be a no-op.
+        // !DEPRECATED! 'bsl::allocator' should not be assigned.  Modify this
+        // allocator to use the same mechanism as the specified 'rhs' allocator
+        // and return a modifiable reference to this object.  Note that
+        // 'bsl::allocator' objects should never be assigned at runtime, but,
+        // in the absence of 'if constexpr', such assignments can sometimes be
+        // found legitimately in dead branches (branches that are never taken
+        // at runtime) within function templates; ideally, such code would be
+        // replaced by more sophisticated metaprogramming that avoided calls to
+        // this operator entirely.  Invoking this assignment will result in a
+        // review error unless 'rhs == *this', i.e., when the assignment would
+        // be a no-op.  In the future, the review error may be replaced with an
+        // a hard assertion failure.
 
     BSLS_ANNOTATION_NODISCARD
     pointer allocate(size_type n, const void *hint = 0);
@@ -1996,9 +1999,13 @@ inline
 allocator<TYPE>& BSLS_ANNOTATION_DEPRECATED
 allocator<TYPE>::operator=(const allocator& rhs)
 {
-    BSLS_ASSERT_OPT(rhs == *this &&
+    BSLS_REVIEW_OPT(rhs == *this &&
                     "'bsl::allocator' objects cannot be assigned");
-    return *this;
+
+    // As the base class does not support assignment, the only way to change
+    // the mechanism is to destroy and re-create this object
+    this->~allocator();
+    return *::new(this) allocator(rhs);
 }
 
 template <class TYPE>
@@ -3287,7 +3294,7 @@ struct IsStdAllocator<bsl::allocator<void> > : bsl::false_type {
 #endif // ! defined(INCLUDED_BSLMA_BSLALLOCATOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
