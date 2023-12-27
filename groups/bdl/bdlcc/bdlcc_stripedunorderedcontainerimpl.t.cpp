@@ -35,6 +35,7 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_uniontesttype.h>
 
+#include <bslmf_allocatorargt.h>
 #include <bslmf_assert.h>
 
 #include <bsls_asserttest.h>
@@ -119,6 +120,9 @@ using namespace bsl;
 // [15] void enableRehash();
 // [ 7] bsl::size_t eraseAll(const KEY& key);
 // [ 7] bsl::size_t eraseFirst(const KEY& key);
+// [23] bsl::size_t eraseIf(const KEY&, Scope, const EraseIfValuePredicate&);
+// [23] bsl::size_t eraseFirstIf(const KEY&, const EraseIfValuePredicate&);
+// [23] bsl::size_t eraseAllIf(const KEY&, const EraseIfValuePredicate&);
 // [ 8] bsl::size_t eraseBulkAll(RANDOMIT first, last);
 // [ 8] bsl::size_t eraseBulkFirst(RANDOMIT first, last);
 // [ 3] void insertAlways(const KEY& key, const VALUE& value);
@@ -1339,6 +1343,21 @@ class TestDriver {
                                                 KEY,
                                                 VALUE,
                                                 PairStdAllocator> > TestValues;
+    struct TestCase23ValuePredicate {
+        // Functor for testCase23 - eraseIfValuePredicate.
+
+        // DATA
+        VALUE d_value;  // Functor will store the specified 'd_value'.
+
+        // CREATORS
+        explicit TestCase23ValuePredicate(const VALUE& value);
+            // Create a 'TestCase23ValuePredicate' with the specified 'value'.
+
+        // COMPARATORS
+        bool operator()(const VALUE& value);
+            // Return 'true' when specified 'value' compares equal to the value
+            // provided upon construction, otherwise returns 'false'
+    };
 
     struct TestCase19Reader {
         // Functor for testCase19 - visitReadOnly.
@@ -1487,8 +1506,23 @@ class TestDriver {
     static void testCase18();
     static void testCase19();
     static void testCase20();
-        // Code for test cases 1 to 20.
+    static void testCase23();
+        // Code for test cases 1 to 23.
 };
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase23ValuePredicate::
+    TestCase23ValuePredicate(const VALUE& value)
+: d_value(value)
+{
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase23ValuePredicate::operator()(
+                                                            const VALUE& value)
+{
+    return areEqual(d_value, value);
+}
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase19Reader::TestCase19Reader(
@@ -7501,6 +7535,206 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase23()
+{
+    // ------------------------------------------------------------------------
+    // TEST 'eraseIf'
+    //
+    // Concerns:
+    //: 1 Erased elements are no longer found in the container.
+    //
+    // Plan:
+    //: 1 Test the empty hash map in a standalone case.
+    //: 2 Test erasing all the elements leaves the container empty.
+    //: 3 Test erasing no elements leaves the container in the same state.
+    //: 4 Test erasing some elements but not others correctly removes just
+    //    those elements from the container, and no others
+    //
+    // Testing:
+    //   bsl::size_t eraseIf(const KEY&, Scope, const EraseIfValuePredicate&);
+    //   bsl::size_t eraseAllIf(const KEY&, const EraseIfPredicate&);
+    //   bsl::size_t eraseFirstIf(const KEY&, const EraseIfPredicate&);
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout << endl
+                      << "TEST 'eraseIf'" << endl
+                      << "==============" << endl;
+
+    bslma::TestAllocator ia("ignored", veryVeryVeryVerbose);
+    bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+
+    const KEY keyOne = bsltf::TemplateTestFacility::create<KEY>(1);
+    const KEY keyTwo = bsltf::TemplateTestFacility::create<KEY>(2);
+    const VALUE valueOne = bsltf::TemplateTestFacility::create<VALUE>(1);
+    const VALUE valueTwo = bsltf::TemplateTestFacility::create<VALUE>(2);
+
+    TestCase23ValuePredicate valueOnePred(valueOne);
+    typename Obj::EraseIfValuePredicate valueIsOne(bsl::allocator_arg,
+                                                   &ia,
+                                                   valueOnePred);
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
+    bslma::TestAllocatorMonitor sam(&supplied);
+
+    if (veryVeryVerbose) {
+        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+    }
+
+    {
+        if (veryVerbose) cout << endl
+                              << "Test 'eraseFirstIf'" << endl;
+
+        // Try to erase from an empty hash map.
+        {
+            Obj mX(8, 4, &supplied);
+
+            bsl::size_t rc = mX.eraseFirstIf(keyOne, valueIsOne);
+            ASSERTV(rc, 0 == rc);
+        }
+
+        // erasing all elements leaves the container empty
+        {
+            Obj mX(8, 4, &supplied);
+
+            mX.insertAlways(keyOne, valueOne);
+            bsl::size_t rc = mX.eraseFirstIf(keyOne, valueIsOne);
+            ASSERTV(rc, 1 == rc);
+            ASSERTV(mX.size(), 0 == mX.size());
+
+            mX.insertAlways(keyOne, valueOne);
+            mX.insertAlways(keyOne, valueOne);
+            rc = mX.eraseFirstIf(keyOne, valueIsOne);
+            ASSERTV(rc, 1 == rc);
+            ASSERTV(mX.size(), 1 == mX.size());
+
+            rc = mX.eraseFirstIf(keyOne, valueIsOne);
+            ASSERTV(rc, 1 == rc);
+            ASSERTV(mX.size(), 0 == mX.size());
+        }
+
+        // erasing no elements leaves the container in the same state
+        {
+            Obj mX(8, 4, &supplied);
+
+            mX.insertAlways(keyTwo, valueTwo);
+            bsl::size_t rc = mX.eraseFirstIf(keyTwo, valueIsOne);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(mX.size(), 1 == mX.size());
+
+            rc = mX.eraseFirstIf(keyTwo, valueIsOne);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(mX.size(), 1 == mX.size());
+        }
+
+        // erasing some elements but not others correctly removes just those
+        // elements from the container, and no others
+        {
+            Obj mX(8, 4, &supplied);
+
+            mX.insertAlways(keyOne, valueOne);
+            mX.insertAlways(keyOne, valueTwo);
+            mX.insertAlways(keyTwo, valueOne);
+            mX.insertAlways(keyTwo, valueTwo);
+
+            ASSERTV(mX.size(), 4 == mX.size());
+            bsl::size_t rc = mX.eraseFirstIf(keyOne, valueIsOne);
+            ASSERTV(rc, 1 == rc);
+            ASSERTV(mX.size(), 3 == mX.size());
+
+            rc = mX.eraseFirstIf(keyTwo, valueIsOne);
+            ASSERTV(rc, 1 == rc);
+            ASSERTV(mX.size(), 2 == mX.size());
+
+            mX.insertAlways(keyOne, valueOne);
+            mX.insertAlways(keyOne, valueOne);
+            rc = mX.eraseFirstIf(keyOne, valueIsOne);
+            ASSERTV(rc, 1 == rc);
+            ASSERTV(mX.size(), 3 == mX.size());
+        }
+    }
+
+    {
+        if (veryVerbose) cout << endl
+                          << "Test 'eraseAllIf'" << endl;
+
+        // Try to erase from an empty hash map.
+        {
+            Obj mX(8, 4, &supplied);
+
+            bsl::size_t rc = mX.eraseAllIf(keyOne, valueIsOne);
+            ASSERTV(rc, 0 == rc);
+        }
+
+        // erasing all elements leaves the container empty
+        {
+            const bsl::size_t LENGTH = 10;
+            Obj mX(8, 4, &supplied);
+
+            mX.insertAlways(keyOne, valueOne);
+            bsl::size_t rc = mX.eraseAllIf(keyOne, valueIsOne);
+            ASSERTV(rc, 1 == rc);
+            ASSERTV(mX.size(), 0 == mX.size());
+
+
+            for(bsl::size_t id = 0; id < LENGTH; ++id)
+            {
+                mX.insertAlways(keyOne, valueOne);
+            }
+            rc = mX.eraseAllIf(keyOne, valueIsOne);
+            ASSERTV(rc, LENGTH == rc);
+            ASSERTV(mX.size(), 0 == mX.size());
+        }
+
+        // erasing no elements leaves the container in the same state
+        {
+            const bsl::size_t LENGTH = 10;
+            Obj mX(8, 4, &supplied);
+
+            for(bsl::size_t id = 0; id < LENGTH; ++id)
+            {
+                mX.insertAlways(keyTwo, valueTwo);
+            }
+            bsl::size_t rc = mX.eraseAllIf(keyTwo, valueIsOne);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(mX.size(), LENGTH == mX.size());
+
+            rc = mX.eraseFirstIf(keyTwo, valueIsOne);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(mX.size(), LENGTH == mX.size());
+        }
+
+        // erasing some elements but not others correctly removes just those
+        // elements from the container, and no others
+        {
+            Obj mX(8, 4, &supplied);
+
+            mX.insertAlways(keyOne, valueOne);
+            mX.insertAlways(keyOne, valueOne);
+            mX.insertAlways(keyOne, valueTwo);
+            mX.insertAlways(keyTwo, valueOne);
+            mX.insertAlways(keyTwo, valueTwo);
+
+            ASSERTV(mX.size(), 5 == mX.size());
+            bsl::size_t rc = mX.eraseAllIf(keyOne, valueIsOne);
+            ASSERTV(rc, 2 == rc);
+            ASSERTV(mX.size(), 3 == mX.size());
+
+            rc = mX.eraseAllIf(keyTwo, valueIsOne);
+            ASSERTV(rc, 1 == rc);
+            ASSERTV(mX.size(), 2 == mX.size());
+        }
+    }
+
+    ASSERT(sam.isInUseSame());
+    // CONCERN: In no case does memory come from the default allocator.
+    ASSERT(dam.isInUseSame());
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
 {
     // ------------------------------------------------------------------------
@@ -9478,6 +9712,10 @@ int main(int argc, char *argv[])
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
+      case 23: {
+        RUN_EACH_TYPE(TestDriver, testCase23, TEST_TYPES_REGULAR);
+        break;
+      }
       case 22: {
         threaded::threadedTest1();
       } break;

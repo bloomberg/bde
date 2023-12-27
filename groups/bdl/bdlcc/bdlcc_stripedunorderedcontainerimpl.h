@@ -447,6 +447,14 @@ class StripedUnorderedContainerImpl {
         //      // and 'value'.
         //..
 
+    typedef bsl::function<bool(const VALUE&)> EraseIfValuePredicate;
+        // An alias to a function meeting the following contract:
+        //..
+        //  bool eraseIfValuePredicate(const VALUE& value);
+        //      // Return 'true' if the specified 'value' is to be removed from
+        //      // the container, and 'false' otherwise.  Note that this
+        //      // functor can *not* change the values associated with 'value'.
+
   private:
     // PRIVATE CONSTANTS
     static const int k_REHASH_IN_PROGRESS = 1; // d_state bit 0
@@ -557,6 +565,9 @@ class StripedUnorderedContainerImpl {
         // integer that is a power of 2 that is greater than or equal
         // 'numBuckets', 'numStripes', and 2.
 
+    static bool alwaysTrue(const VALUE&);
+        // Return 'true'
+
     static bsl::size_t powerCeil(bsl::size_t num);
         // Return the nearest higher power of 2 for the specified 'num'.
 
@@ -587,6 +598,18 @@ class StripedUnorderedContainerImpl {
         // The behavior is undefined unless 'first <= last'.  Note that, when
         // there are multiple elements having 'key', the selection of "first"
         // is unspecified and subject to change.
+
+    bsl::size_t eraseIf(const KEY&                   key,
+                        Scope                        scope,
+                        const EraseIfValuePredicate& predicate);
+        // Remove from this hash map the element, if any, having the specified
+        // 'key', where specified 'predicate' holds true.  If there are
+        // multiple elements having the 'key' for which the 'predicate' holds
+        // true and the specified 'scope' is 'e_SCOPE_ALL', erase them all;
+        // otherwise, erase just the first element found.  Return the number of
+        // elements erased.  Note that, when there are multiple elements for
+        // which 'predicate' holds true, the selection of "first" is
+        // unspecified and subject to change.
 
     bsl::size_t insert(const KEY&    key,
                        const VALUE&  value,
@@ -753,6 +776,12 @@ class StripedUnorderedContainerImpl {
         // Erase from this hash map the elements having the specified 'key'.
         // Return the number of elements erased.
 
+    bsl::size_t eraseAllIf(const KEY&                   key,
+                           const EraseIfValuePredicate& predicate);
+        // Erase from this hash map the elements having the specified 'key' for
+        // which the specified 'predicate' holds true.  Return the number of
+        // elements erased.
+
     template <class RANDOM_ITER>
     bsl::size_t eraseBulkAll(RANDOM_ITER first, RANDOM_ITER last);
         // Erase from this hash map elements in this hash map having any of the
@@ -781,6 +810,12 @@ class StripedUnorderedContainerImpl {
         // found to the specified 'key'.  Return the number of elements erased.
         // Note that method is more performant than 'eraseAll' when there is
         // one element having 'key'.
+
+    bsl::size_t eraseFirstIf(const KEY&                   key,
+                             const EraseIfValuePredicate& predicate);
+        // Erase from this hash map the *first* element with specified 'key'
+        // (of possibly many) found, for which the specified 'predicate' holds
+        // true.  Return the number of elements erased.
 
     void insertAlways(const KEY& key, const VALUE& value);
         // Insert into this hash map an element having the specified 'key' and
@@ -1777,6 +1812,14 @@ bsl::size_t
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
+bool StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::alwaysTrue(
+                                                                  const VALUE&)
+{
+    return true;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
 bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::powerCeil(
                                                                bsl::size_t num)
 {
@@ -1809,44 +1852,12 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::checkRehash()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
 bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::erase(
                                                               const KEY& key,
                                                               Scope      scope)
 {
-    bool        eraseAll = scope == e_SCOPE_ALL;
-    bsl::size_t bucketIdx;
-    LEWGuard    guard(lockWrite(&bucketIdx, key));
-
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
-                                                          d_buckets[bucketIdx];
-
-    typedef StripedUnorderedContainerImpl_Node<KEY, VALUE> Node;
-
-    bsl::size_t count = 0;
-
-    Node **prevNodeAddress = bucket.headAddress();
-    Node  *prevNode        = NULL;
-    while (*prevNodeAddress) {
-        Node *node = *prevNodeAddress;
-        if (d_comparator(node->key(), key)) {
-            *prevNodeAddress = node->next();
-            if (bucket.tail() == node) {
-                bucket.setTail(prevNode);
-            }
-            d_allocator_p->deleteObject(node);
-            bucket.incrementSize(-1);
-            d_numElements.addRelaxed(-1);
-            ++count;
-            if (!eraseAll) {
-                return count;                                         // RETURN
-            }
-        }
-        else {
-            prevNode        = node;
-            prevNodeAddress = node->nextAddress();
-        }
-    }
-    return count;
+    return eraseIf(key, scope, alwaysTrue);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -1921,6 +1932,48 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulk(
         }
     }
 
+    return count;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseIf(
+                                        const KEY&                   key,
+                                        Scope                        scope,
+                                        const EraseIfValuePredicate& predicate)
+{
+    bool        eraseAll = scope == e_SCOPE_ALL;
+    bsl::size_t bucketIdx;
+    LEWGuard    guard(lockWrite(&bucketIdx, key));
+
+    StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
+                                                          d_buckets[bucketIdx];
+
+    typedef StripedUnorderedContainerImpl_Node<KEY, VALUE> Node;
+
+    bsl::size_t count = 0;
+
+    Node **prevNodeAddress = bucket.headAddress();
+    Node  *prevNode        = NULL;
+    while (*prevNodeAddress) {
+        Node *node = *prevNodeAddress;
+        if (d_comparator(node->key(), key) && predicate(node->value())) {
+            *prevNodeAddress = node->next();
+            if (bucket.tail() == node) {
+                bucket.setTail(prevNode);
+            }
+            d_allocator_p->deleteObject(node);
+            bucket.incrementSize(-1);
+            d_numElements.addRelaxed(-1);
+            ++count;
+            if (!eraseAll) {
+                return count;                                         // RETURN
+            }
+        }
+        else {
+            prevNode        = node;
+            prevNodeAddress = node->nextAddress();
+        }
+    }
     return count;
 }
 
@@ -2370,6 +2423,15 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseAll(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseAllIf(
+                                        const KEY&                   key,
+                                        const EraseIfValuePredicate& predicate)
+{
+    return eraseIf(key, e_SCOPE_ALL, predicate);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class RANDOM_ITER>
 inline
 bsl::size_t
@@ -2401,6 +2463,16 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseFirst(
                                                                 const KEY& key)
 {
     return erase(key, e_SCOPE_FIRST);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t
+StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseFirstIf(
+                                        const KEY&                   key,
+                                        const EraseIfValuePredicate& predicate)
+{
+    return eraseIf(key, e_SCOPE_FIRST, predicate);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
