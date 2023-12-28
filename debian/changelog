@@ -1,5 +1,19 @@
-bsl-internal (4.0.0.0) unstable; urgency=low
+bsl-internal (4.0.3.0) unstable; urgency=low
 
+  * 83b665f11 Bumped version to 4.0.3.0
+  * bfdb9bf4a Update bslma_bslallocator to use BSLS_DEPRECATE_FEATURE (#4561)
+  * 03c35565c Add deprecated 'allocator()' method back into 'bsl::basic_string' (#4562)
+  * 55198f208 Fix 'constexpr' functions to work with C++11 - DRQS 173884975 (#4559)
+  * e74e966a4 Change BSLS_ASSERT to BSLS_REVIEW in bsl::allocator::operator= (#4558)
+  * 8f59c61a8 Add erase if key predicate function for stripedunorderedcontainerimpl (#4539)
+  * 7d60641cd Revert "correct clang build warning (#4553)" (#4557)
+  * 9c1e0cc1b Fix generated cpp03 for variant (#4556)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 28 Dec 2023 14:55:03 -0500
+
+bsl-internal (4.0.0.0) git; urgency=low
+
+  * 536f60698 Changelog for version 4.0.0.0
   * 8a041942c Bumped version to 4.0.0.0
   * 37ff4e3dc Allocator infrastructure changes (SOW19 d4-d7) - drqs-168933860 (#4554)
   * 0d3d3e974 Bslstl variant integration (#4488)
@@ -10,7 +24,7 @@ bsl-internal (4.0.0.0) unstable; urgency=low
   * cbc5bc45b Revert "Elide atomic constructor calls for compile-time constants for C++14+ - {DRQS 173277048} (#4466)" (#4546)
   * 886442f1e Typo in documentation heading (#4544)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Dec 2023 12:24:23 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Dec 2023 12:27:55 -0500
 
 bsl-internal (3.128.0.0) git; urgency=low
 
