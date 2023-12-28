@@ -475,6 +475,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -490,6 +491,10 @@ BSLS_IDENT("$Id: $")
 # include <bslma_bslallocator_cpp03.h>
 # undef COMPILING_BSLMA_BSLALLOCATOR_H
 #else
+
+#define BSLMA_BSLALLOCATOR_DEPRECATE_ASSIGN \
+    BSLS_DEPRECATE_FEATURE("bsl", "bsl_allocator_assign", \
+                           "Do not assign allocators.")
 
 namespace BloombergLP {
 namespace bslma {
@@ -594,7 +599,8 @@ class allocator : public polymorphic_allocator<TYPE> {
         // object pointed to by 'mechanism()'.
 
     // MANIPULATORS
-    allocator& BSLS_ANNOTATION_DEPRECATED operator=(const allocator& rhs);
+    BSLMA_BSLALLOCATOR_DEPRECATE_ASSIGN
+    allocator& operator=(const allocator& rhs);
         // !DEPRECATED! 'bsl::allocator' should not be assigned.  Modify this
         // allocator to use the same mechanism as the specified 'rhs' allocator
         // and return a modifiable reference to this object.  Note that
@@ -946,7 +952,7 @@ allocator<TYPE>::allocator(const allocator<ANY_TYPE>& original)
 // MANIPULATORS
 template <class TYPE>
 inline
-allocator<TYPE>& BSLS_ANNOTATION_DEPRECATED
+allocator<TYPE>&
 allocator<TYPE>::operator=(const allocator& rhs)
 {
     BSLS_REVIEW_OPT(rhs == *this &&

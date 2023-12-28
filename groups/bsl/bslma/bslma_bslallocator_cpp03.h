@@ -21,10 +21,14 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 27 14:25:58 2023
+// Generated on Thu Dec 28 13:45:56 2023
 // Command line: sim_cpp11_features.pl bslma_bslallocator.h
 
 #ifdef COMPILING_BSLMA_BSLALLOCATOR_H
+
+#define BSLMA_BSLALLOCATOR_DEPRECATE_ASSIGN \
+    BSLS_DEPRECATE_FEATURE("bsl", "bsl_allocator_assign", \
+                           "Do not assign allocators.")
 
 namespace BloombergLP {
 namespace bslma {
@@ -129,7 +133,8 @@ class allocator : public polymorphic_allocator<TYPE> {
         // object pointed to by 'mechanism()'.
 
     // MANIPULATORS
-    allocator& BSLS_ANNOTATION_DEPRECATED operator=(const allocator& rhs);
+    BSLMA_BSLALLOCATOR_DEPRECATE_ASSIGN
+    allocator& operator=(const allocator& rhs);
         // !DEPRECATED! 'bsl::allocator' should not be assigned.  Modify this
         // allocator to use the same mechanism as the specified 'rhs' allocator
         // and return a modifiable reference to this object.  Note that
@@ -1996,7 +2001,7 @@ allocator<TYPE>::allocator(const allocator<ANY_TYPE>& original)
 // MANIPULATORS
 template <class TYPE>
 inline
-allocator<TYPE>& BSLS_ANNOTATION_DEPRECATED
+allocator<TYPE>&
 allocator<TYPE>::operator=(const allocator& rhs)
 {
     BSLS_REVIEW_OPT(rhs == *this &&
