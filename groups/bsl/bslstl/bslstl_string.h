@@ -673,9 +673,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_performancehint.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -708,6 +708,10 @@ BSLS_IDENT("$Id: $")
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+#define BSLSTL_STRING_DEPRECATE_ALLOCATOR_ACCESSOR                 \
+    BSLS_DEPRECATE_FEATURE("bsl", "bsl_string_allocator_accessor", \
+                           "Use 'get_allocator' instead.")
 
 namespace bsl {
 
@@ -2548,6 +2552,12 @@ class basic_string
 
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
         // Return the allocator used by this string to supply memory.
+
+    BSLSTL_STRING_DEPRECATE_ALLOCATOR_ACCESSOR
+    allocator_type allocator() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'this->get_allocator()'.  Note that this function is not
+        // available in *standard* 'std::string' and is deprecated; use
+        // 'get_allocator' directly, instead.
 
     size_type find(const basic_string& substring,
                    size_type           position = 0) const
@@ -6603,6 +6613,15 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return this->allocatorRef();
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator() const
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return this->allocatorRef();

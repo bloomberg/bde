@@ -251,7 +251,8 @@ using bsls::nameOfType;
 // [  ] const_reverse_iterator crend() const;
 // [ 4] const CHAR_TYPE *c_str() const;
 // [ 4] const CHAR_TYPE *data() const;
-// [  ] allocator_type get_allocator() const;
+// [ 4] allocator_type get_allocator() const;
+// [ 4] allocator_type allocator() const;  // DEPRECATED
 // [22] size_type find(const string& str, pos = 0) const;
 // [22] size_type find(const STRING_VIEW_LIKE_TYPE& str, pos = 0) const;
 // [22] size_type find(const C *s, pos, n) const;
@@ -4405,6 +4406,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   9) The 'data' and the 'c_str' methods return the address of a
     //      buffer containing a null character at the last (equal to the length
     //      of the object) position, even for an empty object.
+    //  10) The 'get_allocator' and (deprecated) 'allocator' methods return the
+    //      allocator used to construct the object.
     //
     // Plan:
     //   For 1 and 4 do the following:
@@ -4415,7 +4418,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   the same test on an existing object y after perturbing y so as to
     //   achieve an internal state representation of w that is potentially
     //   different from that of x.
-
+    //
     //   For 3, using the object values of the previous experiment, verify that
     //   the array of 'size()' beginning at '&X[0]' is identical in contents to
     //   the object value.
@@ -4437,6 +4440,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   the symbols, returned by the already tested 'operator[]'.  Verify,
     //   that the null character encloses these sequences.
     //
+    //   For 10, verify that the result of 'get_allocator' and 'allocator'
+    //   compares equal to the allocator used to construc the string.
+    //
     // Testing:
     //   size_type size() const;
     //   reference operator[](size_type pos);
@@ -4445,6 +4451,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   const_reference at(size_type pos) const;
     //   const CHAR_TYPE *c_str() const;
     //   const CHAR_TYPE *data() const;
+    //   allocator_type get_allocator() const noexcept;
+    //   allocator_type allocator() const noexcept;  // DEPRECATED
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4544,11 +4552,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
             ASSERT(LENGTH <= MAX_LENGTH);
 
             for (int ai = 0; ai < NUM_AllocType; ++ai) {
-                Obj mX(*AllocType[ai]);
+                const Allocator& A = *AllocType[ai];
+                Obj mX(A);
 
                 const Obj& X = gg(&mX, SPEC);    // canonical organization
 
                 LOOP2_ASSERT(ti, ai, LENGTH == X.size()); // same lengths
+                LOOP2_ASSERT(ti, ai, X.get_allocator() == A);
+                LOOP2_ASSERT(ti, ai, X.allocator()     == A); // DEPRECATED
 
                 if (veryVerbose) {
                     printf( "\ton objects of length " ZU ":\n", LENGTH);
@@ -4594,7 +4605,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
 
                 enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
-                Obj mY(*AllocType[ai]);
+                Obj mY(A);
 
                 const Obj& Y = gg(&mY, SPEC);
 
@@ -5083,6 +5094,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
         const Obj X;
         if (veryVerbose) { T_; T_; P(X); }
         ASSERT(0 == X.size());
+        ASSERT(&da == X.get_allocator());
 
         if (1 == sizeof(TYPE)) {
             ASSERTV(k_SHORT_BUFFER_CAPACITY_CHAR,
@@ -5109,6 +5121,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
         Allocator Z(&oa);
 
         const Obj X(Z);
+        ASSERT(Z == X.get_allocator());
 
         if (veryVerbose) { T_; T_; P(X); }
         ASSERT(0 == X.size());
@@ -6804,6 +6817,8 @@ int main(int argc, char *argv[])
         //   const_reference at(size_type pos) const;
         //   const CHAR_TYPE *c_str() const;
         //   const CHAR_TYPE *data() const;
+        //   allocator_type get_allocator() const noexcept;
+        //   allocator_type allocator() const noexcept;  // DEPRECATED
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING BASIC ACCESSORS"
