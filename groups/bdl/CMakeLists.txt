@@ -2,8 +2,15 @@ set(target bdl)
 
 add_library(${target} STATIC)
 
-bbs_setup_target_uor(${target}
-                     NO_EMIT_PKG_CONFIG_FILE)
+macro(add_extra_libs target scope)
+    if (CMAKE_SYSTEM_NAME STREQUAL "SunOS")
+        target_link_libraries(${target} ${scope} -lsocket)
+    endif()
+endmacro()
+
+add_extra_libs(${target} PUBLIC)
+
+bbs_setup_target_uor(${target})
 
 # Custom tweaks for individual packages
 target_compile_options(bdlde-iface
@@ -21,9 +28,5 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(bdlcc INTERFACE /bigobj)
 endif()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
-    target_link_libraries(bdls INTERFACE -lsocket)
-    target_link_libraries(${target} PUBLIC -lsocket)
-endif()
+add_extra_libs(bdls INTERFACE)
 
-bbs_emit_pkg_config(${target})
