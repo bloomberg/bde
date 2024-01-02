@@ -21,33 +21,79 @@ using namespace BloombergLP;
 using namespace bslstl;
 
 // TYPES
-typedef bsls::AtomicOperations        Atomics;
-typedef Atomics::AtomicTypes::Pointer AtomicPtr;
-typedef bsls::PointerCastUtil         CastUtil;
+typedef bsls::AtomicOperations          Atomics;
+typedef Atomics::AtomicTypes::Pointer   AtomicPtr;
+typedef bsls::PointerCastUtil           CastUtil;
 
-enum { k_MAX_BYTES_PER_PTR = sizeof(void *) * 2 };
+static void * const null = 0;
 
-// DATA
-void * const null = 0;
+template <class t_EXCEPTION>
+class ExceptionSource {
+    // This template 'class' enables us to store the exception name and the pre
+    // throw hook for each supported exception type, and have a template
+    // function 'dothrow' which does the work of examining the pre throw hook,
+    // calling it if set, and throwing the exception.
 
-u::AtomicPtr runtime_error_Hook    = { u::null };
-u::AtomicPtr logic_error_Hook      = { u::null };
-u::AtomicPtr domain_error_Hook     = { u::null };
-u::AtomicPtr invalid_argument_Hook = { u::null };
-u::AtomicPtr length_error_Hook     = { u::null };
-u::AtomicPtr out_of_range_Hook     = { u::null };
-u::AtomicPtr range_error_Hook      = { u::null };
-u::AtomicPtr overflow_error_Hook   = { u::null };
-u::AtomicPtr underflow_error_Hook  = { u::null };
+    // DATA
+    static const char   *s_exceptionName;
+    static u::AtomicPtr  s_preThrowHook;
 
-#define U_THROW_EXCEPTION_BODY(exceptionName, message)                        \
-    PreThrowHook preThrowHook = reinterpret_cast<PreThrowHook>(               \
-                     u::Atomics::getPtrAcquire(&u::exceptionName ## _Hook));  \
-    if (preThrowHook) {                                                       \
-        (*preThrowHook)("std::" #exceptionName, message);                     \
-    }                                                                         \
-                                                                              \
-    BSLS_THROW(std::exceptionName(message))
+  public:
+    // CLASS METHODS
+    static void doThrow(const char *message);
+        // Throw the specified 't_EXCEPTION' with the specified 'message'.  If
+        // the pre throw hook has been set, call it the exception name and
+        // message.
+
+    static void setPreThrowHook(StdExceptUtil::PreThrowHook hook);
+        // Set the pre throw hook for the specified 't_EXCEPTION' to the
+        // specified 'hook'.
+};
+
+template <class t_EXCEPTION>
+inline
+void ExceptionSource<t_EXCEPTION>::doThrow(const char *message)
+{
+    BSLS_ASSERT_OPT(0 != s_exceptionName);
+
+    StdExceptUtil::PreThrowHook preThrowHook =
+                    u::CastUtil::cast<StdExceptUtil::PreThrowHook>(
+                                   u::Atomics::getPtrAcquire(&s_preThrowHook));
+    if (preThrowHook) {
+        (*preThrowHook)(s_exceptionName, message);
+    }
+
+    BSLS_THROW(t_EXCEPTION(message));
+}
+
+template <class t_EXCEPTION>
+inline
+void ExceptionSource<t_EXCEPTION>::setPreThrowHook(
+                                              StdExceptUtil::PreThrowHook hook)
+{
+    u::Atomics::setPtrRelease(
+                             &s_preThrowHook, u::CastUtil::cast<void *>(hook));
+}
+
+template <class t_EXCEPTION>
+u::AtomicPtr ExceptionSource<t_EXCEPTION>::s_preThrowHook = { u::null };
+
+#define U_INIT_EXCEPTION_NAME(exception)                                      \
+template <>                                                                   \
+const char *ExceptionSource<std::exception>::s_exceptionName =                \
+                                                             "std::" #exception
+
+U_INIT_EXCEPTION_NAME(runtime_error);
+U_INIT_EXCEPTION_NAME(logic_error);
+U_INIT_EXCEPTION_NAME(domain_error);
+U_INIT_EXCEPTION_NAME(invalid_argument);
+U_INIT_EXCEPTION_NAME(length_error);
+U_INIT_EXCEPTION_NAME(out_of_range);
+U_INIT_EXCEPTION_NAME(range_error);
+U_INIT_EXCEPTION_NAME(overflow_error);
+U_INIT_EXCEPTION_NAME(underflow_error);
+
+#undef U_INIT_EXCEPTION_NAME
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -63,9 +109,10 @@ namespace bslstl {
 void StdExceptUtil::logCheapStackTrace(const char *exceptionName,
                                        const char *message)
 {
-    enum { k_MAX_FRAMES = 128,
-           k_CHEAP_STACK_BUF_SIZE = 1024 +
-                                 k_MAX_FRAMES * (u::k_MAX_BYTES_PER_PTR + 1) };
+    enum { k_MAX_FRAMES                = 128,
+           k_MAX_PRINTED_BYTES_PER_PTR = sizeof(void *) * 2 + sizeof(char),
+           k_CHEAP_STACK_BUF_SIZE      = 1024 + k_MAX_FRAMES *
+                                                 k_MAX_PRINTED_BYTES_PER_PTR };
 
     char cheapStackBuf[k_CHEAP_STACK_BUF_SIZE];
     bsls::StackAddressUtil::formatCheapStack(cheapStackBuf,
@@ -80,109 +127,110 @@ void StdExceptUtil::logCheapStackTrace(const char *exceptionName,
 
 void StdExceptUtil::setRuntimeErrorHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                      &u::runtime_error_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::runtime_error>::setPreThrowHook(hook);
 }
 
 void StdExceptUtil::setLogicErrorHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                        &u::logic_error_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::logic_error>::setPreThrowHook(hook);
 }
+
 void StdExceptUtil::setDomainErrorHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                       &u::domain_error_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::domain_error>::setPreThrowHook(hook);
 }
 
 void StdExceptUtil::setInvalidArgumentHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                   &u::invalid_argument_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::invalid_argument>::setPreThrowHook(hook);
 }
 
 void StdExceptUtil::setLengthErrorHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                       &u::length_error_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::length_error>::setPreThrowHook(hook);
 }
 
 void StdExceptUtil::setOutOfRangeHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                       &u::out_of_range_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::out_of_range>::setPreThrowHook(hook);
 }
 
 void StdExceptUtil::setRangeErrorHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                        &u::range_error_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::range_error>::setPreThrowHook(hook);
 }
 
 void StdExceptUtil::setOverflowErrorHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                     &u::overflow_error_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::overflow_error>::setPreThrowHook(hook);
 }
 
 void StdExceptUtil::setUnderflowErrorHook(PreThrowHook hook)
 {
-    u::Atomics::setPtrRelease(
-                    &u::underflow_error_Hook, u::CastUtil::cast<void *>(hook));
+    u::ExceptionSource<std::underflow_error>::setPreThrowHook(hook);
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwRuntimeError(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(runtime_error, message);
+    u::ExceptionSource<std::runtime_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwRuntimeError");
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwLogicError(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(logic_error, message);
+    u::ExceptionSource<std::logic_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwLogicError");
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwDomainError(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(domain_error, message);
+    u::ExceptionSource<std::domain_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwDomainError");
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwInvalidArgument(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(invalid_argument, message);
+    u::ExceptionSource<std::invalid_argument>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwInvalidArgument");
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwLengthError(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(length_error, message);
+    u::ExceptionSource<std::length_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwLengthError");
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwOutOfRange(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(out_of_range, message);
+    u::ExceptionSource<std::out_of_range>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwOutOfRange");
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwRangeError(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(range_error, message);
+    u::ExceptionSource<std::range_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwRangeError");
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwOverflowError(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(overflow_error, message);
+    u::ExceptionSource<std::overflow_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwOverflowError");
 }
 
-BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwUnderflowError(const char *message)
 {
-    U_THROW_EXCEPTION_BODY(underflow_error, message);
+    u::ExceptionSource<std::underflow_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwUnderflowError");
 }
 
 }  // close package namespace

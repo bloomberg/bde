@@ -50,11 +50,16 @@ BSLS_IDENT("$Id: $")
 //  void testFunction(int selector)
 //      //  Throw a standard exception according to the specified 'selector'.
 //  {
-//    switch(selector) {
-//      case 1: bslstl::StdExceptUtil::throwRuntimeError("sample message 1");
-//      case 2: bslstl::StdExceptUtil::throwLogicError("sample message 2");
-//      default : bslstl::StdExceptUtil::throwInvalidArgument("ERROR");
-//    }
+//  switch(selector) {
+//    case 1: {
+//      bslstl::StdExceptUtil::throwRuntimeError("sample message 1");
+//    } break;
+//    case 2: {
+//      bslstl::StdExceptUtil::throwLogicError("sample message 2");
+//    } break;
+//    default: {
+//      bslstl::StdExceptUtil::throwInvalidArgument("ERROR");
+//    } break;
 //  }
 //..
 // However, if client code wishes to catch the exception, the '.cpp' file must
@@ -84,7 +89,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
 
 #include <stddef.h>
@@ -136,47 +140,38 @@ struct StdExceptUtil {
         // specified 'hook'.  If 'hook' is passed 0, or if the settor was never
         // called, that means that no pre-throw function will be called.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwRuntimeError(const char *message);
         // Throw a 'std::runtime_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwLogicError(const char *message);
         // Throw a 'std::logic_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwDomainError(const char *message);
         // Throw a 'std::domain_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwInvalidArgument(const char *message);
         // Throw a 'std::invalid_argument' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwLengthError(const char *message);
         // Throw a 'std::length_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwOutOfRange(const char *message);
         // Throw a 'std::out_of_range' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwRangeError(const char *message);
         // Throw a 'std::range_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwOverflowError(const char *message);
         // Throw a 'std::overflow_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLS_ANNOTATION_NORETURN
     static void throwUnderflowError(const char *message);
         // Throw a 'std::underflow_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.

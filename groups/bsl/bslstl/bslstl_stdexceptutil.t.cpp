@@ -106,9 +106,15 @@ int veryVerbose;
       //  Throw a standard exception according to the specified 'selector'.
   {
     switch(selector) {
-      case 1: bslstl::StdExceptUtil::throwRuntimeError("sample message 1");
-      case 2: bslstl::StdExceptUtil::throwLogicError("sample message 2");
-      default : bslstl::StdExceptUtil::throwInvalidArgument("ERROR");
+      case 1: {
+        bslstl::StdExceptUtil::throwRuntimeError("sample message 1");
+      } break;
+      case 2: {
+        bslstl::StdExceptUtil::throwLogicError("sample message 2");
+      } break;
+      default: {
+        bslstl::StdExceptUtil::throwInvalidArgument("ERROR");
+      } break;
     }
   }
 //..
