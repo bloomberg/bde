@@ -227,13 +227,15 @@ void verifyLogContent(int line, const char *exceptionName, const char *message)
     ASSERTV(line, 6 <= count);
 }
 
-static const struct NotA5 {
+static const struct Uninitialized {
+    // DATA
+    static const char value = '\xa5';
+
     bool operator()(char c) const
     {
-        static const char unset = static_cast<char>(0xa5);
-        return unset != c;
+        return value != c;
     }
-} notA5;
+} uninitialized;
 
 void verifyNotLogged(int line)
     // Verify that none of the logged state in this namespace has been
@@ -241,17 +243,17 @@ void verifyNotLogged(int line)
 {
     char *pc  = reinterpret_cast<char *>(&TC::severity);
     char *end = pc + sizeof(TC::severity);
-    ASSERTV(line, std::find_if(pc, end, TC::notA5) == end);
+    ASSERTV(line, std::find_if(pc, end, TC::uninitialized) == end);
 
     pc  = TC::sourceFileNameBuf;
     end = pc + sizeof(TC::sourceFileNameBuf);
-    ASSERTV(line, std::find_if(pc, end, TC::notA5) == end);
+    ASSERTV(line, std::find_if(pc, end, TC::uninitialized) == end);
 
     ASSERTV(line, TC::lineNumber < 0);
 
     pc  = TC::outBuf;
     end = pc + sizeof(TC::outBuf);
-    ASSERTV(line, std::find_if(pc, end, TC::notA5) == end);
+    ASSERTV(line, std::find_if(pc, end, TC::uninitialized) == end);
 }
 
 template <class EXCEPTION>
@@ -319,10 +321,12 @@ int throwAndCatchExceptionsAndCheckLogging(const char *message)
 
         // Set all the test state in 'TC' to failing.
 
-        memset(&TC::severity, 0xa5, sizeof(TC::severity));
-        memset(TC::sourceFileNameBuf, 0xa5, sizeof(TC::sourceFileNameBuf));
+        memset(&TC::severity, TC::Uninitialized::value, sizeof(TC::severity));
+        memset(TC::sourceFileNameBuf,
+               TC::Uninitialized::value,
+               sizeof(TC::sourceFileNameBuf));
         TC::lineNumber = -1;
-        memset(TC::outBuf, 0xa5, sizeof(TC::outBuf));
+        memset(TC::outBuf, TC::Uninitialized::value, sizeof(TC::outBuf));
         TC::caught = false;
 
         try {
