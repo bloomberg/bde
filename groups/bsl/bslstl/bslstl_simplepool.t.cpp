@@ -10,7 +10,6 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
 
-#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_alignmentutil.h>
@@ -295,7 +294,6 @@ CheckedResource::CheckedResource(bslma::Allocator  *upstream)
 {
 }
 
-BSLS_ANNOTATION_UNUSED
 CheckedResource::CheckedResource(const char        *name,
                                  bslma::Allocator  *upstream)
     : Base(name, upstream)
@@ -306,7 +304,6 @@ CheckedResource::CheckedResource(const char        *name,
 {
 }
 
-BSLS_ANNOTATION_UNUSED
 CheckedResource::CheckedResource(bool              verboseFlag,
                                  bslma::Allocator *upstream)
     : Base(verboseFlag, upstream)
