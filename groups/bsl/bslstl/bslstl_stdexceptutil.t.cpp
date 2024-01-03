@@ -152,111 +152,12 @@ namespace TC = BSLSTL_STDEXCEPTUTIL_TEST_CASE_2;
 
 typedef bslstl::StdExceptUtil Util;
 
-bsls::LogSeverity::Enum  severity;
-char                     sourceFileNameBuf[8192];
-int                      lineNumber;
-char                     outBuf[8192];
-
-bool                     caught;
-
-void logMessageHandler(bsls::LogSeverity::Enum  severity,
-                       const char              *file,
-                       int                      line,
-                       const char              *message)
-{
-    namespace TC = BSLSTL_STDEXCEPTUTIL_TEST_CASE_2;
-
-    TC::severity = severity;
-    strcpy(TC::sourceFileNameBuf, file);
-    TC::lineNumber = line;
-    strcpy(TC::outBuf, message);
-
-    if (veryVerbose) {
-        P_(severity);    P_(file);    P_(line);    P(message);
-    }
-}
-
 void failAssert(const char *, const char *)
 {
     BSLS_ASSERT_INVOKE_NORETURN("fail");
 }
 
-void verifyLogContent(int line, const char *exceptionName, const char *message)
-{
-    // Verify severity.
-
-    ASSERTV(line, bsls::LogSeverity::e_WARN == TC::severity);
-
-    // The file name should be the imp file of this component.  Verify that by
-    // substituting '.t.cpp' for '.cpp' and then comparing to '__FILE__'.
-
-    char *pc = strstr(TC::sourceFileNameBuf, ".cpp");
-    ASSERTV(line, pc);
-    strcpy(pc, ".t.cpp");
-    ASSERTV(line, TC::sourceFileNameBuf, __FILE__,
-                                     !strcmp(TC::sourceFileNameBuf, __FILE__));
-
-    // Verify the line number was positive.
-
-    ASSERTV(line, 0 < TC::lineNumber);
-
-    // Verify outBuf contains "About to throw <exceptionName>"
-
-    char aboutBuf[256];
-    strcpy(aboutBuf, "About to throw ");
-    strcat(aboutBuf, exceptionName);
-    ASSERTV(line, TC::outBuf, strstr(TC::outBuf, aboutBuf));
-
-    // Verify outBuf contains 'message'
-
-    ASSERTV(line, strstr(TC::outBuf, message));
-
-    // Verify outBuf
-
-    ASSERTV(line, TC::outBuf, strstr(TC::outBuf, "/bb/bin/showfunc.tsk "));
-
-    // After the 'showfunc.tsk' should be the cheap stack trace -- a series
-    // of addresses of stack frames separated by space.  Confirm there are
-    // at least 6 spaces.  For some reason using 'std::count' didn't compile on
-    // Solaris.
-
-    int count = 0;
-    for (pc = strstr(outBuf, ".tsk ") + 4; *pc; ++pc) {
-        count += ' ' == *pc;
-    }
-    ASSERTV(line, 6 <= count);
-}
-
-static const struct Uninitialized {
-    // DATA
-    static const char value = '\xa5';
-
-    bool operator()(char c) const
-    {
-        return value != c;
-    }
-} uninitialized;
-
-void verifyNotLogged(int line)
-    // Verify that none of the logged state in this namespace has been
-    // modified since it was cleared before the throw.
-{
-    char *pc  = reinterpret_cast<char *>(&TC::severity);
-    char *end = pc + sizeof(TC::severity);
-    ASSERTV(line, std::find_if(pc, end, TC::uninitialized) == end);
-
-    pc  = TC::sourceFileNameBuf;
-    end = pc + sizeof(TC::sourceFileNameBuf);
-    ASSERTV(line, std::find_if(pc, end, TC::uninitialized) == end);
-
-    ASSERTV(line, TC::lineNumber < 0);
-
-    pc  = TC::outBuf;
-    end = pc + sizeof(TC::outBuf);
-    ASSERTV(line, std::find_if(pc, end, TC::uninitialized) == end);
-}
-
-template <class EXCEPTION>
+template <class t_EXCEPTION>
 void verifyExceptionType(int                    line,
                          const std::exception&  exc,
                          const char            *exceptionName)
@@ -264,9 +165,104 @@ void verifyExceptionType(int                    line,
     // 'EXCEPTION' object, using the specified 'line' and 'exceptionName'
     // to report errors.
 {
-    ASSERTV(line, exceptionName, dynamic_cast<const EXCEPTION *>(&exc));
+    ASSERTV(line, exceptionName, dynamic_cast<const t_EXCEPTION *>(&exc));
 }
 
+const char *exceptionName = 0;
+const char *topLevelThrowMessage = 0;
+bool        disableCheckLoggedMessage = false;
+bool        logged;
+
+void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
+                        const char              *file,
+                        int                      line,
+                        const char              *message)
+{
+    if (veryVerbose) {
+        P_(severity);    P_(file);    P_(line);    P(message);
+    }
+
+    char *nonConstMessage = const_cast<char *>(message);
+
+    TC::logged = true;
+
+    ASSERT(!TC::disableCheckLoggedMessage);
+
+    // Verify severity.
+
+    ASSERTV(bsls::LogSeverity::e_WARN == severity);
+
+    // The file name should be the imp file of this component.  Verify that by
+    // starting with '__FILE__' and substituting ".cpp" for ".t.cpp".
+
+    char expectedFileName[] = { __FILE__ };
+    char *pc = strstr(expectedFileName, ".t.cpp");
+    ASSERT(pc);
+    strcpy(pc, ".cpp");
+    ASSERT(!strcmp(file, expectedFileName));
+
+    // Verify the line number was positive.
+
+    ASSERT(0 < line);
+
+    // Verify outBuf contains "About to throw <exceptionName>"
+
+    char aboutBuf[256];
+    strcpy(aboutBuf, "About to throw ");
+    strcat(aboutBuf, TC::exceptionName);
+    ASSERTV(message, aboutBuf, strstr(nonConstMessage, aboutBuf));
+
+    // Verify 'message' contains 'topLevelThrowMessage', which is the 'message'
+    // passed to 'bslstl::StdExceptUtil::throw...'.
+
+    ASSERTV(strstr(nonConstMessage, TC::topLevelThrowMessage));
+
+    // Verify 'message' mentions 'showfunc.tsk'.
+
+    ASSERTV(message, strstr(nonConstMessage, "/bb/bin/showfunc.tsk "));
+
+    // There will be a substring in double quotes in 'message' of the form
+    // "/bb/bin/showfunc.tsk <executable name> <hex address>...".  Count the
+    // spaces before the hex addresses, each of which represents a stack
+    // frame.  We expect at least 9 stack frames:
+    //
+    //: o 'bslstl::StdExceptUtil::logCheapStackTrace'
+    //:
+    //: o 'u::ExceptionSource<t_EXCEPTION>::doThrow' in the imp file but we
+    //:   don't count on it because it's often inlined.
+    //:
+    //: o 'bslstl::StdExceptUtil::throw...'
+    //:
+    //: o 'throwAndCatchExceptionsAndCheckLogging'
+    //:
+    //: o 5 instances of 'recurser'
+    //:
+    //: o 'main'
+    //:
+    //: o There are usually additional frames below 'main', but we don't want
+    //:   to count on them.
+
+    char *start = strstr(nonConstMessage, ".tsk ") + 5;
+    ASSERT(start && ' ' != *start);
+    start       = strchr(start, ' ');    // skip over executable name
+    ASSERT(start);
+    char *end   = strchr(start, '"');
+    ASSERT(end);
+
+    // The number of spaces in the range '[ start, end )' is the number of
+    // stack frames in the cheap stack trace.
+
+    std::ptrdiff_t count = 0;
+
+    // For some reason using 'std::count' here didn't compile on Solaris.
+
+    for (pc = start; pc < end; ++pc) {
+        count += ' ' == *pc;
+    }
+    ASSERTV(9 <= count);
+
+    if (veryVerbose) P(count);
+}
 
 int throwAndCatchExceptionsAndCheckLogging(const char *message)
 {
@@ -321,16 +317,19 @@ int throwAndCatchExceptionsAndCheckLogging(const char *message)
 
         // Set all the test state in 'TC' to failing.
 
-        memset(&TC::severity, TC::Uninitialized::value, sizeof(TC::severity));
-        memset(TC::sourceFileNameBuf,
-               TC::Uninitialized::value,
-               sizeof(TC::sourceFileNameBuf));
-        TC::lineNumber = -1;
-        memset(TC::outBuf, TC::Uninitialized::value, sizeof(TC::outBuf));
-        TC::caught = false;
+        TC::exceptionName             = LOG ? EXCEPTION_NAME : 0;
+        TC::topLevelThrowMessage      = LOG ? message : 0;
+        TC::disableCheckLoggedMessage = !LOG;
+        TC::logged                    = false;
+
+        bool caught                   = false;
+
+        // Set the hook function for the one exception that we will throw this
+        // time.
+
+        (*SET_HOOK_FUNC)(LOG ? &Util::logCheapStackTrace : 0);
 
         try {
-            (*SET_HOOK_FUNC)(LOG ? &Util::logCheapStackTrace : 0);
             (*THROW_FUNC)(message);
             ASSERTV(LINE, EXCEPTION_NAME, 0 && "throw failed");
         }
@@ -338,12 +337,11 @@ int throwAndCatchExceptionsAndCheckLogging(const char *message)
             ASSERTV(LINE, EXCEPTION_NAME, exc.what(), message,
                                                  !strcmp(exc.what(), message));
             (*VERIFY_FUNC)(LINE, exc, EXCEPTION_NAME);
-            TC::caught = true;
+            caught = true;
         }
 
-        ASSERTV(LINE, EXCEPTION_NAME, TC::caught);
-        LOG ? TC::verifyLogContent(LINE, EXCEPTION_NAME, message)
-            : TC::verifyNotLogged(LINE);
+        ASSERTV(LINE, EXCEPTION_NAME, caught);
+        ASSERTV(LINE, LOG == TC::logged);
     }
 
     return 1;
@@ -351,15 +349,15 @@ int throwAndCatchExceptionsAndCheckLogging(const char *message)
 
 template <class FUNC_PTR>
 int recurser(int *depth, FUNC_PTR func, const char *message)
-    // Recurse to the specified 'depth' and then call
-    // 'throwAndCatchExceptionsAndCheckLogging'.
+    // Recurse to the specified 'depth' and then call 'func', which will be
+    // passed 'throwAndCatchExceptionsAndCheckLogging'.
     //
     // We want to recurse several times here so that the stack trace will have
     // some depth to traverse.  This is non-trivial because optimizers are very
     // motivated to inline function calls and replace calls at the end of
     // functions with simple jumps.  Most of the manipulation and checking of
     // the 'depth' variable after the function calls are intended to force the
-    // optimizer to do funciton calls and return from them rather than simply
+    // optimizer to do function calls and return from them rather than simply
     // chaining.
 {
     const int depthIn = *depth;
@@ -368,6 +366,10 @@ int recurser(int *depth, FUNC_PTR func, const char *message)
            ? (*bsls::BslTestUtil::makeFunctionCallNonInline(func))(message)
            : (*bsls::BslTestUtil::makeFunctionCallNonInline(
                                    &recurser<FUNC_PTR>))(depth, func, message);
+
+    // Both functions called always return 1, but the optimizer can't be sure
+    // of that.
+
     *depth += rc;
 
     ASSERT(depthIn == *depth);
@@ -422,8 +424,9 @@ int main(int argc, char *argv[])
         //: 2 That 'logCheapStackTrace' works.
         //
         // Plan:
-        //: 1 Set the 'bsls::Log' message handler to 'TC::logMessageHandler' to
-        //:   capture 'bsls::Log' output in state in the 'TC' namespace.
+        //: 1 Set the 'bsls::Log' message handler to 'TC::checkLoggedMessage'
+        //:   to check that the arguments to the call to 'bsls::Log' are as
+        //:   expected.
         //:
         //: 2 Call 'TC::recurser' which will recurse a few times and then
         //:   call 'TC::throwAndCatchExceptionsAndCheckLogging'.
@@ -459,7 +462,7 @@ int main(int argc, char *argv[])
 
         namespace TC = BSLSTL_STDEXCEPTUTIL_TEST_CASE_2;
 
-        bsls::Log::setLogMessageHandler(TC::logMessageHandler);
+        bsls::Log::setLogMessageHandler(TC::checkLoggedMessage);
 
         int depth = 5;
         TC::recurser(&depth,

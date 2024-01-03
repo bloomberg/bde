@@ -25,13 +25,11 @@ typedef bsls::AtomicOperations          Atomics;
 typedef Atomics::AtomicTypes::Pointer   AtomicPtr;
 typedef bsls::PointerCastUtil           CastUtil;
 
-static void * const null = 0;
-
 template <class t_EXCEPTION>
 class ExceptionSource {
     // This template 'class' enables us to store the exception name and the pre
     // throw hook for each supported exception type, and have a template
-    // function 'dothrow' which does the work of examining the pre throw hook,
+    // function 'doThrow' which does the work of examining the pre throw hook,
     // calling it if set, and throwing the exception.
 
     // DATA
@@ -41,20 +39,20 @@ class ExceptionSource {
   public:
     // CLASS METHODS
     static void doThrow(const char *message);
-        // Throw the specified 't_EXCEPTION' with the specified 'message'.  If
-        // the pre throw hook has been set, call it the exception name and
-        // message.
+        // Throw the template parameter 't_EXCEPTION' with the specified
+        // 'message'.  If the pre throw hook has been set, call it with the
+        // exception name and 'message'.
 
     static void setPreThrowHook(StdExceptUtil::PreThrowHook hook);
-        // Set the pre throw hook for the specified 't_EXCEPTION' to the
-        // specified 'hook'.
+        // Set the pre throw hook for the template parameter 't_EXCEPTION' to
+        // the specified 'hook'.
 };
 
 template <class t_EXCEPTION>
 inline
 void ExceptionSource<t_EXCEPTION>::doThrow(const char *message)
 {
-    BSLS_ASSERT_OPT(0 != s_exceptionName);
+    BSLS_ASSERT(message);
 
     StdExceptUtil::PreThrowHook preThrowHook =
                     u::CastUtil::cast<StdExceptUtil::PreThrowHook>(
@@ -64,6 +62,8 @@ void ExceptionSource<t_EXCEPTION>::doThrow(const char *message)
     }
 
     BSLS_THROW(t_EXCEPTION(message));
+
+    BSLS_ASSERT_INVOKE_NORETURN(s_exceptionName);
 }
 
 template <class t_EXCEPTION>
@@ -76,7 +76,8 @@ void ExceptionSource<t_EXCEPTION>::setPreThrowHook(
 }
 
 template <class t_EXCEPTION>
-u::AtomicPtr ExceptionSource<t_EXCEPTION>::s_preThrowHook = { u::null };
+u::AtomicPtr ExceptionSource<t_EXCEPTION>::s_preThrowHook = {
+                                                      static_cast<void *>(0) };
 
 #define U_INIT_EXCEPTION_NAME(exception)                                      \
 template <>                                                                   \
@@ -173,64 +174,46 @@ void StdExceptUtil::setUnderflowErrorHook(PreThrowHook hook)
 void StdExceptUtil::throwRuntimeError(const char *message)
 {
     u::ExceptionSource<std::runtime_error>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwRuntimeError");
 }
 
 void StdExceptUtil::throwLogicError(const char *message)
 {
     u::ExceptionSource<std::logic_error>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwLogicError");
 }
 
 void StdExceptUtil::throwDomainError(const char *message)
 {
     u::ExceptionSource<std::domain_error>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwDomainError");
 }
 
 void StdExceptUtil::throwInvalidArgument(const char *message)
 {
     u::ExceptionSource<std::invalid_argument>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwInvalidArgument");
 }
 
 void StdExceptUtil::throwLengthError(const char *message)
 {
     u::ExceptionSource<std::length_error>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwLengthError");
 }
 
 void StdExceptUtil::throwOutOfRange(const char *message)
 {
     u::ExceptionSource<std::out_of_range>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwOutOfRange");
 }
 
 void StdExceptUtil::throwRangeError(const char *message)
 {
     u::ExceptionSource<std::range_error>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwRangeError");
 }
 
 void StdExceptUtil::throwOverflowError(const char *message)
 {
     u::ExceptionSource<std::overflow_error>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwOverflowError");
 }
 
 void StdExceptUtil::throwUnderflowError(const char *message)
 {
     u::ExceptionSource<std::underflow_error>::doThrow(message);
-
-    BSLS_ASSERT_INVOKE_NORETURN("throw failed in throwUnderflowError");
 }
 
 }  // close package namespace
