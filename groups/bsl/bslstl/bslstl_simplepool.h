@@ -431,7 +431,7 @@ SimplePool<VALUE, ALLOCATOR>::allocateChunk(std::size_t numBlocks)
                                                                  alignment));
 
     BSLS_ASSERT_SAFE(0 ==
-             reinterpret_cast<bsls::Types::UintPtr>(chunkPtr) % sizeof(Chunk));
+             reinterpret_cast<bsls::Types::UintPtr>(chunkPtr) % alignment);
 
     chunkPtr->d_info.d_next_p   = d_chunkList_p;
     chunkPtr->d_info.d_numBytes = numBytes;
