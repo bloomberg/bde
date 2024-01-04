@@ -266,8 +266,13 @@ void runTestScenario(Scenario scenario, bool printMessages)
         // processor speeds.
 
         const unsigned longLoop = 8 * 1000L * 1000L;
-        for (unsigned u = 0; u < longLoop; ++u) {
-            ++u; --u;
+        {
+            volatile unsigned uu = 0;
+            for (unsigned u = 0; u < longLoop; ++u) {
+                uu = u  + 1;
+                u  = uu - 1;
+            }
+            (void)uu;
         }
       } break;
       case SYSTEM_TIME_SCENARIO: {
@@ -413,9 +418,13 @@ void burnUserTime(int *u)
 {
     enum { NUM_SPINS = 10000000 };
 
+    volatile int k = 0;
     for (int j = 0; j < NUM_SPINS; ++j) {
+        k = j - 1;
+        j = k + 1;
         ++*u;
     }
+    (void)k;
 }
 
 void burnWallTime()
@@ -2083,8 +2092,13 @@ int main(int argc, char *argv[])
             Int64 ut1 = TU::getProcessUserTimer();
             Int64 st1 = TU::getProcessSystemTimer();
 
-            for (unsigned u = 0; u < longLoop; ++u) {
-                ++u; --u;
+            {
+                volatile unsigned uu = 0;
+                for (unsigned u = 0; u < longLoop; ++u) {
+                    uu = u  + 1;
+                    u  = uu - 1;
+                }
+                (void)uu;
             }
 
             Int64 wt2 = TU::getTimer();
