@@ -958,10 +958,14 @@ allocator<TYPE>::operator=(const allocator& rhs)
     BSLS_REVIEW_OPT(rhs == *this &&
                     "'bsl::allocator' objects cannot be assigned");
 
-    // As the base class does not support assignment, the only way to change
-    // the mechanism is to destroy and re-create this object
-    this->~allocator();
-    return *::new(this) allocator(rhs);
+    if (this != &rhs) {
+        // As the base class does not support assignment, the only way to
+        // change the mechanism is to destroy and re-create this object
+        this->~allocator();
+        return *::new(this) allocator(rhs);
+    }
+
+    return *this;
 }
 
 template <class TYPE>

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 28 13:45:56 2023
+// Generated on Wed Jan  3 16:40:22 2024
 // Command line: sim_cpp11_features.pl bslma_bslallocator.h
 
 #ifdef COMPILING_BSLMA_BSLALLOCATOR_H
@@ -2007,10 +2007,14 @@ allocator<TYPE>::operator=(const allocator& rhs)
     BSLS_REVIEW_OPT(rhs == *this &&
                     "'bsl::allocator' objects cannot be assigned");
 
-    // As the base class does not support assignment, the only way to change
-    // the mechanism is to destroy and re-create this object
-    this->~allocator();
-    return *::new(this) allocator(rhs);
+    if (this != &rhs) {
+        // As the base class does not support assignment, the only way to
+        // change the mechanism is to destroy and re-create this object
+        this->~allocator();
+        return *::new(this) allocator(rhs);
+    }
+
+    return *this;
 }
 
 template <class TYPE>
