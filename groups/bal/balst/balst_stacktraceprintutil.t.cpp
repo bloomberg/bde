@@ -348,19 +348,14 @@ void logMessageHandler(bsls::LogSeverity::Enum  severity,
     match.push_back("std::length_error");
     match.push_back("test case 5");
     match.push_back("Stack Trace:\n");
-
-    if (!e_PLAT_SUN || !e_OPT_ON) {
-        // The Solaris optimizer gets confused about this stack frame.
-
-        match.push_back("BloombergLP");
-        U_PUSH_COLONS(match);
-        match.push_back("bslstl");
-        U_PUSH_COLONS(match);
-        match.push_back("StdExceptUtil");
-        U_PUSH_COLONS(match);
-        match.push_back(e_DEMANGLE_PARENS ? "throwLengthError(c"
-                                          : "throwLengthError");
-    }
+    match.push_back("BloombergLP");
+    U_PUSH_COLONS(match);
+    match.push_back("bslstl");
+    U_PUSH_COLONS(match);
+    match.push_back("StdExceptUtil");
+    U_PUSH_COLONS(match);
+    match.push_back(e_DEMANGLE_PARENS ? "throwLengthError(c"
+                                      : "throwLengthError");
     if (e_HAS_SOURCE) {
         match.push_back("source:bslstl_stdexceptutil.cpp");
     }

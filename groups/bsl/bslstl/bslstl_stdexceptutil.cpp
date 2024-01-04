@@ -54,16 +54,15 @@ void ExceptionSource<t_EXCEPTION>::doThrow(const char *message)
 {
     BSLS_ASSERT(message);
 
-    StdExceptUtil::PreThrowHook preThrowHook =
-                    u::CastUtil::cast<StdExceptUtil::PreThrowHook>(
+    typedef StdExceptUtil::PreThrowHook PreThrowHook;
+
+    PreThrowHook preThrowHook = u::CastUtil::cast<PreThrowHook>(
                                    u::Atomics::getPtrAcquire(&s_preThrowHook));
     if (preThrowHook) {
         (*preThrowHook)(s_exceptionName, message);
     }
 
     BSLS_THROW(t_EXCEPTION(message));
-
-    BSLS_ASSERT_INVOKE_NORETURN(s_exceptionName);
 }
 
 template <class t_EXCEPTION>
@@ -171,49 +170,74 @@ void StdExceptUtil::setUnderflowErrorHook(PreThrowHook hook)
     u::ExceptionSource<std::underflow_error>::setPreThrowHook(hook);
 }
 
+// Implementation note: the calls to 'BSLS_ASSERT_INVOKE_NORETURN' in the
+// following 'throw' methods should be unreachable, the reason they are there
+// is to prevent the optimizer from chaining the call to 'doThrow' (as the
+// Solaris CC compiler did) rather than inlining it, resulting in 'doThrow'
+// rather than 'StdExceptUtil::throw...' showing up in the stack trace, which
+// is less user-friendly.
+
 void StdExceptUtil::throwRuntimeError(const char *message)
 {
     u::ExceptionSource<std::runtime_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw runtime_error shouldn't get here");
 }
 
 void StdExceptUtil::throwLogicError(const char *message)
 {
     u::ExceptionSource<std::logic_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw logic_error shouldn't get here");
 }
 
 void StdExceptUtil::throwDomainError(const char *message)
 {
     u::ExceptionSource<std::domain_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw domain_error shouldn't get here");
 }
 
 void StdExceptUtil::throwInvalidArgument(const char *message)
 {
     u::ExceptionSource<std::invalid_argument>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw invalid_argument shouldn't get here");
 }
 
 void StdExceptUtil::throwLengthError(const char *message)
 {
     u::ExceptionSource<std::length_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw length_error shouldn't get here");
 }
 
 void StdExceptUtil::throwOutOfRange(const char *message)
 {
     u::ExceptionSource<std::out_of_range>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw out_of_range shouldn't get here");
 }
 
 void StdExceptUtil::throwRangeError(const char *message)
 {
     u::ExceptionSource<std::range_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw range_error shouldn't get here");
 }
 
 void StdExceptUtil::throwOverflowError(const char *message)
 {
     u::ExceptionSource<std::overflow_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw overflow_error shouldn't get here");
 }
 
 void StdExceptUtil::throwUnderflowError(const char *message)
 {
     u::ExceptionSource<std::underflow_error>::doThrow(message);
+
+    BSLS_ASSERT_INVOKE_NORETURN("throw underflow_error shouldn't get here");
 }
 
 }  // close package namespace
