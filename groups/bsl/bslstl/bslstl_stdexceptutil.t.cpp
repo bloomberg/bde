@@ -179,8 +179,6 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
                         int                      line,
                         const char              *message)
 {
-    char *nonConstMessage = const_cast<char *>(message);
-
     TC::logged = true;
 
     ASSERT(!TC::disableCheckLoggedMessage);
@@ -207,16 +205,16 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     char aboutBuf[256];
     strcpy(aboutBuf, "About to throw ");
     strcat(aboutBuf, TC::exceptionName);
-    ASSERTV(message, aboutBuf, strstr(nonConstMessage, aboutBuf));
+    ASSERTV(message, aboutBuf, strstr(message, aboutBuf));
 
     // Verify 'message' contains 'topLevelThrowMessage', which is the 'message'
     // passed to 'bslstl::StdExceptUtil::throw...'.
 
-    ASSERTV(strstr(nonConstMessage, TC::topLevelThrowMessage));
+    ASSERTV(strstr(message, TC::topLevelThrowMessage));
 
     // Verify 'message' mentions 'showfunc.tsk'.
 
-    ASSERTV(message, strstr(nonConstMessage, "/bb/bin/showfunc.tsk "));
+    ASSERTV(message, strstr(message, "/bb/bin/showfunc.tsk "));
 
     // There will be a substring in double quotes in 'message' of the form
     // "/bb/bin/showfunc.tsk <executable name> <hex address>...".  Count the
@@ -247,27 +245,25 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     // the cheapstack, so we tweak it here to expect fewer frames on Windows.
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    enum { k_EXPECTED_MIN_STACK_FRAMES = 5 };
+    const int k_EXPECTED_MIN_STACK_FRAMES = 5;
 #else
-    enum { k_EXPECTED_MIN_STACK_FRAMES = 9 };
+    const int k_EXPECTED_MIN_STACK_FRAMES = 9;
 #endif
 
-    char *start = strstr(nonConstMessage, ".tsk ") + 5;
+    const char *start = strstr(message, ".tsk ") + 5;
     ASSERT(start && ' ' != *start);
     start       = strchr(start, ' ');    // skip over executable name
     ASSERT(start);
-    char *end   = strchr(start, '"');
+    const char *end   = strchr(start, '"');
     ASSERT(end);
 
     // The number of spaces in the range '[ start, end )' is the number of
-    // stack frames in the cheap stack trace.
+    // stack frames in the cheap stack trace.  For some reason using
+    // 'std::count' here didn't compile on Solaris.
 
-    std::ptrdiff_t count = 0;
-
-    // For some reason using 'std::count' here didn't compile on Solaris.
-
-    for (pc = start; pc < end; ++pc) {
-        count += ' ' == *pc;
+    int count = 0;
+    for (const char *cpc = start; cpc < end; ++cpc) {
+        count += ' ' == *cpc;
     }
     ASSERTV(k_EXPECTED_MIN_STACK_FRAMES, count,
                                          k_EXPECTED_MIN_STACK_FRAMES <= count);
