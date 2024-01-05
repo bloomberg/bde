@@ -4,6 +4,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_log.h>
+#include <bsls_platform.h>
 
 #include <algorithm>
 #include <stdexcept>    //  yes, we want the native std here
@@ -178,10 +179,6 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
                         int                      line,
                         const char              *message)
 {
-    if (veryVerbose) {
-        P_(severity);    P_(file);    P_(line);    P(message);
-    }
-
     char *nonConstMessage = const_cast<char *>(message);
 
     TC::logged = true;
@@ -241,6 +238,19 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     //:
     //: o There are usually additional frames below 'main', but we don't want
     //:   to count on them.
+    //
+    // However, on Windows 'bsls::StackAddressUtil' seems to malfunction and
+    // return fewer stack frames (even though 10 frames are visible in the
+    // debugger).  '/bb/bin/showfunc.tsk' doesn't exist on Windows to examine
+    // which frames showed up.  I would expect 4 identical return addresses
+    // within the 'recurser' calls, but there are no duplicated addresses in
+    // the cheapstack, so we tweak it here to expect fewer frames on Windows.
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    enum { k_EXPECTED_MIN_STACK_FRAMES = 5 };
+#else
+    enum { k_EXPECTED_MIN_STACK_FRAMES = 9 };
+#endif
 
     char *start = strstr(nonConstMessage, ".tsk ") + 5;
     ASSERT(start && ' ' != *start);
@@ -259,9 +269,12 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     for (pc = start; pc < end; ++pc) {
         count += ' ' == *pc;
     }
-    ASSERTV(9 <= count);
+    ASSERTV(k_EXPECTED_MIN_STACK_FRAMES, count,
+                                         k_EXPECTED_MIN_STACK_FRAMES <= count);
 
-    if (veryVerbose) P(count);
+    if (veryVerbose) {
+        P_(severity);    P_(file);    P_(line);    P(count);    P(message);
+    }
 }
 
 int throwAndCatchExceptionsAndCheckLogging(const char *message)
@@ -362,7 +375,7 @@ int recurser(int *depth, FUNC_PTR func, const char *message)
 {
     const int depthIn = *depth;
 
-    int rc = --*depth <= 0
+    int rc = --*depth < 0
            ? (*bsls::BslTestUtil::makeFunctionCallNonInline(func))(message)
            : (*bsls::BslTestUtil::makeFunctionCallNonInline(
                                    &recurser<FUNC_PTR>))(depth, func, message);

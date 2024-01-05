@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_atomicoperations.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_log.h>
 #include <bsls_platform.h>
@@ -62,7 +63,16 @@ void ExceptionSource<t_EXCEPTION>::doThrow(const char *message)
         (*preThrowHook)(s_exceptionName, message);
     }
 
-    BSLS_THROW(t_EXCEPTION(message));
+    // We want to throw unconditionally here, but if the optimizer knows that,
+    // it may chain the call to 'doThrow' and the calling function will not
+    // show up in the stack trace.  So we pass a non-zero pointer, any pointer,
+    // through 'identityPtr' which passes it through another translation unit
+    // and returns it unmodified, and then throw based on that.  This way,
+    // the optimizer thinks we might return when in fact we never will.
+
+    if (0 != bsls::BslTestUtil::identityPtr(&preThrowHook)) {
+        BSLS_THROW(t_EXCEPTION(message));
+    }
 }
 
 template <class t_EXCEPTION>
@@ -170,74 +180,74 @@ void StdExceptUtil::setUnderflowErrorHook(PreThrowHook hook)
     u::ExceptionSource<std::underflow_error>::setPreThrowHook(hook);
 }
 
-// Implementation note: the calls to 'BSLS_ASSERT_INVOKE_NORETURN' in the
-// following 'throw' methods should be unreachable, the reason they are there
-// is to prevent the optimizer from chaining the call to 'doThrow' (as the
-// Solaris CC compiler did) rather than inlining it, resulting in 'doThrow'
-// rather than 'StdExceptUtil::throw...' showing up in the stack trace, which
-// is less user-friendly.
+// Implementation note: the calls to 'BSLS_ASSERT_INVOKE' in the following
+// 'throw' methods should be unreachable, the reason they are there is to
+// prevent the optimizer from chaining the call to 'doThrow' (as the Solaris CC
+// compiler did) rather than inlining it, resulting in 'doThrow' rather than
+// 'StdExceptUtil::throw...' showing up in the stack trace, which is less
+// user-friendly.
 
 void StdExceptUtil::throwRuntimeError(const char *message)
 {
     u::ExceptionSource<std::runtime_error>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw runtime_error shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw runtime_error shouldn't get here");
 }
 
 void StdExceptUtil::throwLogicError(const char *message)
 {
     u::ExceptionSource<std::logic_error>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw logic_error shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw logic_error shouldn't get here");
 }
 
 void StdExceptUtil::throwDomainError(const char *message)
 {
     u::ExceptionSource<std::domain_error>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw domain_error shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw domain_error shouldn't get here");
 }
 
 void StdExceptUtil::throwInvalidArgument(const char *message)
 {
     u::ExceptionSource<std::invalid_argument>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw invalid_argument shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw invalid_argument shouldn't get here");
 }
 
 void StdExceptUtil::throwLengthError(const char *message)
 {
     u::ExceptionSource<std::length_error>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw length_error shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw length_error shouldn't get here");
 }
 
 void StdExceptUtil::throwOutOfRange(const char *message)
 {
     u::ExceptionSource<std::out_of_range>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw out_of_range shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw out_of_range shouldn't get here");
 }
 
 void StdExceptUtil::throwRangeError(const char *message)
 {
     u::ExceptionSource<std::range_error>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw range_error shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw range_error shouldn't get here");
 }
 
 void StdExceptUtil::throwOverflowError(const char *message)
 {
     u::ExceptionSource<std::overflow_error>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw overflow_error shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw overflow_error shouldn't get here");
 }
 
 void StdExceptUtil::throwUnderflowError(const char *message)
 {
     u::ExceptionSource<std::underflow_error>::doThrow(message);
 
-    BSLS_ASSERT_INVOKE_NORETURN("throw underflow_error shouldn't get here");
+    BSLS_ASSERT_INVOKE("throw underflow_error shouldn't get here");
 }
 
 }  // close package namespace
