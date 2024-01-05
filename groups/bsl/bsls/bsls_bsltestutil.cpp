@@ -13,16 +13,15 @@ namespace bsls {
                            // struct BslTestUtil
                            // ------------------
 
-// PRIVATE CLASS METHODS
-void *BslTestUtil::identityPtr(void *ptr)
-{
-    return ptr;
-}
-
 // CLASS METHODS
 void BslTestUtil::flush()
 {
     fflush(stdout);
+}
+
+void *BslTestUtil::identityPtr(void *ptr)
+{
+    return ptr;
 }
 
 void BslTestUtil::printStringNoFlush(const char *s)

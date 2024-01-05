@@ -624,16 +624,15 @@ struct BslTestUtil {
     // package group.
 
   private:
-    // PRIVATE CLASS METHODS
-    static void *identityPtr(void *ptr);
-        // Return 'ptr' without modification.  Note that this is NOT an inline
-        // function, so that if the caller is not in the same module, the
-        // compiler has no way of knowing that it's an identity transform.
-
   public:
     // CLASS METHODS
     static void flush();
         // Write any unwritten text in the output buffer to 'stdout'.
+
+    static void *identityPtr(void *ptr);
+        // Return 'ptr' without modification.  Note that this is NOT an inline
+        // function, so that if the caller is not in the same module, the
+        // compiler has no way of knowing that it's an identity transform.
 
     static void printStringNoFlush(const char *s);
         // Print to the console the specified string, 's'.  Note that the
