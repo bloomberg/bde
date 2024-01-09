@@ -15,20 +15,24 @@ namespace BloombergLP {
 // FREE OPERATORS
 bsl::ostream& balcl::operator<<(bsl::ostream& stream, const OptionInfo& rhs)
 {
+    static const char NL = '\n';
+
     stream << "{" << '\n';
     if (rhs.d_tag.empty()) {
-        stream << "    NON_OPTION" << '\n';
+        stream << "    NON_OPTION\n";
     } else {
-        stream << "    TAG             \"" << rhs.d_tag << "\"" << '\n';
+        stream << "    TAG                       \"" << rhs.d_tag << "\"\n";
     }
-    stream << "    NAME            \""     << rhs.d_name << "\"" << '\n';
-    stream << "    DESCRIPTION     \""     << rhs.d_description << "\""
-                                                                << '\n';
-    stream << "    TYPE_INFO       ";   rhs.d_typeInfo.print(stream, -1);
-                                        stream << '\n';
-    stream << "    OCCURRENCE_INFO ";   rhs.d_defaultInfo.print(stream, -1);
-                                        stream << '\n';
-    stream << "}";
+    stream << "    NAME                      \"" << rhs.d_name << "\"" << NL
+           << "    DESCRIPTION               \"" << rhs.d_description
+           <<                                                            "\"\n"
+           << "    TYPE_INFO                 ";
+    rhs.d_typeInfo.print(stream, -1) << NL
+           << "    OCCURRENCE_INFO           ";
+    rhs.d_defaultInfo.print(stream, -1) << NL
+           << "    ENVIRONMENT_VARIABLE_NAME \""
+           << rhs.d_environmentVariableName << "\"\n}";
+
     return stream;
 }
 

@@ -159,6 +159,9 @@ class Option {
     const bsl::string& description() const;
         // Return the description of this option.
 
+    const bsl::string& environmentVariableName() const;
+        // Return the environment variable name of this option.
+
     bool isArray() const;
         // Return 'true' if the value of this option is of array type, and
         // 'false' otherwise.

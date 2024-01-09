@@ -852,7 +852,7 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT(!"reachable");
+        BSLS_ASSERT_INVOKE_NORETURN("shouldn't be reachable");
       } break;
       CASE(Ot::e_BOOL)
       CASE(Ot::e_CHAR)
@@ -1177,7 +1177,7 @@ void checkCtor(const Obj&  reference,
             objAllocatorPtr = &sa;
           } break;
           default: {
-            ASSERTV(CONFIG, !"Bad allocator config.");
+            ASSERTV(CONFIG, "Bad allocator config.", 0);
           } break;
         }
 
@@ -1203,7 +1203,7 @@ void checkCtor(const Obj&  reference,
                                                                       // ACTION
           } break;
           default: {
-            ASSERTV(CONFIG, !"Bad allocator config.");
+            ASSERTV(CONFIG, "Bad allocator config.", 0);
           } break;
         }
 
@@ -1368,10 +1368,10 @@ case ENUM: {                                                                  \
 
                 switch (ETYPE) {
                   case Ot::e_VOID: {
-                    BSLS_ASSERT(!"reachable");
+                    BSLS_ASSERT_INVOKE_NORETURN("shouldn't be reachable");
                   } break;
                   case Ot::e_BOOL: {
-                    BSLS_ASSERT(!"reachable");
+                    BSLS_ASSERT_INVOKE_NORETURN("shouldn't be reachable");
                   } break;
                   CASE(Ot::e_CHAR)
                   CASE(Ot::e_INT)
@@ -1647,7 +1647,7 @@ case ENUM: {                                                                  \
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", 0);
                   } break;
                 }
 
@@ -1668,7 +1668,7 @@ case ENUM: {                                                                  \
                     objPtr = new (fa) Obj(X, &sa);  // ACTION
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", 0);
                   } break;
                 }
 
@@ -2155,7 +2155,7 @@ case ENUM: {                                                                  \
               objAllocatorPtr = &sa;
             } break;
             default: {
-              ASSERTV(CONFIG, !"Bad allocator config.");
+              ASSERTV(CONFIG, "Bad allocator config.", 0);
             } break;
           }
 
@@ -2176,7 +2176,7 @@ case ENUM: {                                                                  \
               objPtr = new (fa) Obj(OTYPE, &sa);  // ACTION
             } break;
             default: {
-              ASSERTV(CONFIG, !"Bad allocator config.");
+              ASSERTV(CONFIG, "Bad allocator config.", 0);
             } break;
           }
 

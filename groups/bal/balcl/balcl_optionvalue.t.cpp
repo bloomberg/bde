@@ -626,7 +626,7 @@ void setValueDAB(Obj *objPtr, char cfg, int offset = 0)
 
     switch (type) {
       case Ot::e_VOID: {
-        ASSERT(!"Reached");
+        ASSERTV("!Reached", 0);
       } break;
       case Ot::e_BOOL: {
         switch (cfg) {
@@ -941,7 +941,7 @@ bool hasValueDAB(const Obj& obj, char cfg, int offset = 0)
 
     switch (type) {
       case Ot::e_VOID: {
-        ASSERT(!"Reached");
+        ASSERTV("!Reached", 0);
       } break;
       case Ot::e_BOOL: {
         switch (cfg) {
@@ -1197,7 +1197,7 @@ bool hasValueDAB(const Obj& obj, char cfg, int offset = 0)
       } break;
     }
 
-    ASSERT(!"Reached");
+    ASSERTV("!Reached", 0);
     return false; // Suppress warning.
 }
 
@@ -1218,31 +1218,31 @@ bslma::Allocator *getContainedAllocator(const Obj& obj)
 
     switch (obj.type()) {
       case Ot::e_VOID: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_BOOL: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_CHAR: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_INT: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_INT64: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_DOUBLE: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_DATETIME: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_DATE: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_TIME: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
       } break;
       case Ot::e_STRING: {
         return obj.the<Ot::String>().get_allocator().mechanism();     // RETURN
@@ -1274,7 +1274,7 @@ bslma::Allocator *getContainedAllocator(const Obj& obj)
       } break;
     }
 
-    BSLS_ASSERT(!"Reached");
+    BSLS_ASSERT_INVOKE_NORETURN("!Reached");
     return 0; // Suppress warning.
 }
 
@@ -1557,7 +1557,7 @@ void TestDriver<TYPE>::testCase4()
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, "Bad allocator config.", 0);
               } break;
             }
 
@@ -1623,7 +1623,7 @@ void TestDriver<TYPE>::testCase3()
             objAllocatorPtr = &sa;
           } break;
           default: {
-            ASSERTV(CONFIG, !"Bad allocator config.");
+            ASSERTV(CONFIG, "Bad allocator config.", 0);
           } break;
         }
 
