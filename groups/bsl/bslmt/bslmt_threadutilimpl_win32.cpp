@@ -19,6 +19,7 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bslmt_configuration.h>
 #include <bslmt_threadattributes.h>
 
+#include <bsls_atomicoperations.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
 
@@ -285,27 +286,30 @@ enum InitializationState {
   , e_DEINITIALIZED = -1  // threading environment has been de-initialized
 };
 
-static void *volatile            startupInfoCache = 0;
-static DWORD                     threadInfoTLSIndex = 0;
-static ThreadSpecificDestructor *destructors = 0;
+typedef bsls::AtomicOperations              AtomicOps;
+typedef bsls::AtomicOperations::AtomicTypes AtomicTypes;
+
+static AtomicTypes::Pointer      startupInfoCache    = {0};
+static DWORD                     threadInfoTLSIndex  = 0;
+static ThreadSpecificDestructor *destructors         = 0;
 static CRITICAL_SECTION          threadSpecificDestructorsListLock;
-static volatile long             initializationState = e_UNINITIALIZED;
+static AtomicTypes::Int          initializationState = {e_UNINITIALIZED};
 
 #ifdef BSLMT_USE_RETURN_VALUE_MAP
-static CRITICAL_SECTION          returnValueMapLock;
+static CRITICAL_SECTION                   returnValueMapLock;
 
 // Access to this map will be serialized with 'returnValueMapLock'.  It must be
 // declared before 'initializer' - the 'initializer' destructor will empty the
 // map.  'returnValueMapValid' will be false if this module's static
 // initialization has not run, or static cleanup has occurred.
 
-static volatile bool                      returnValueMapValid = false;
+static  bool                              returnValueMapValid = false;
 typedef bsl::unordered_map<DWORD, void *> TReturnValueMap;
 static TReturnValueMap                    returnValueMap(
                                             bslma::Default::globalAllocator());
 #endif
 
-static Win32Initializer   initializer;
+static Win32Initializer initializer;
 
 static inline
 int bslmt_threadutil_win32_Initialize()
@@ -315,15 +319,15 @@ int bslmt_threadutil_win32_Initialize()
     // from some other thread, then it waits until the environment is
     // initialized and returns.
 {
-    if (e_INITIALIZED == initializationState) {
+    if (e_INITIALIZED == AtomicOps::getInt(&initializationState)) {
         return 0;                                                     // RETURN
     }
     else {
-        long result;
+        int result;
         do {
-            result = InterlockedCompareExchange(&initializationState,
-                                                e_INITIALIZING,
-                                                e_UNINITIALIZED);
+            result = AtomicOps::testAndSwapInt(&initializationState,
+                                               e_UNINITIALIZED,
+                                               e_INITIALIZING);
             if (e_INITIALIZING == result) {
                 ::Sleep(0);
             }
@@ -339,10 +343,10 @@ int bslmt_threadutil_win32_Initialize()
             InitializeCriticalSection(&returnValueMapLock);
             returnValueMapValid = true;
 #endif
-            InterlockedExchange(&u::initializationState, e_INITIALIZED);
+            AtomicOps::swapInt(&initializationState, e_INITIALIZED);
         }
-        return e_INITIALIZED == u::initializationState ? 0 : 1;       // RETURN
     }
+    return e_INITIALIZED == AtomicOps::getInt(&initializationState) ? 0 : 1;
 }
 
 static void bslmt_threadutil_win32_Deinitialize()
@@ -352,8 +356,8 @@ static void bslmt_threadutil_win32_Deinitialize()
     // prevents static objects from inadvertently re-initializing
     // re-initializing the environment when they are destroyed.
 {
-    if (InterlockedExchange(&u::initializationState, e_DEINITIALIZED)
-                                                            != e_INITIALIZED) {
+    if (e_INITIALIZED != AtomicOps::swapInt(&initializationState,
+                                            e_DEINITIALIZED)) {
         return;                                                       // RETURN
     }
 
@@ -363,7 +367,8 @@ static void bslmt_threadutil_win32_Deinitialize()
     ThreadSpecificDestructor *d = destructors;
     destructors = 0;
     LeaveCriticalSection(&threadSpecificDestructorsListLock);
-    DeleteCriticalSection(&threadSpecificDestructorsListLock);
+    // NOT deleted to prevent racing with 'invokeDestructors'.
+    // DeleteCriticalSection(&threadSpecificDestructorsListLock);
 
 #ifdef BSLMT_USE_RETURN_VALUE_MAP
     EnterCriticalSection(&returnValueMapLock);
@@ -380,9 +385,8 @@ static void bslmt_threadutil_win32_Deinitialize()
         delete t;
     }
 
-    ThreadStartupInfo *head;
-    head = (ThreadStartupInfo *)InterlockedExchangePointer(
-                                                      &u::startupInfoCache, 0);
+    ThreadStartupInfo *head = static_cast<ThreadStartupInfo *>(
+                                     AtomicOps::swapPtr(&startupInfoCache, 0));
     while (head) {
         ThreadStartupInfo *t = head;
         head = head->d_next;
@@ -405,18 +409,18 @@ static ThreadStartupInfo *allocStartupInfo()
     // objects.  The implementation uses atomic operations to manage a pool
     // objects without any locking overhead.
 {
-    ThreadStartupInfo *head;
-    head = (ThreadStartupInfo *)InterlockedCompareExchangePointer(
-                                                   &u::startupInfoCache, 0, 0);
+    ThreadStartupInfo *head = static_cast<ThreadStartupInfo *>(
+                                         AtomicOps::getPtr(&startupInfoCache));
     while (head) {
-        void *t;
-        t = InterlockedCompareExchangePointer(&u::startupInfoCache,
-                                              head->d_next, head);
+        ThreadStartupInfo *t = static_cast<ThreadStartupInfo *>(
+                                   AtomicOps::testAndSwapPtr(&startupInfoCache,
+                                                             head,
+                                                             head->d_next));
         if (t == head) {
             break;
         }
         else {
-            head = (ThreadStartupInfo *)t;
+            head = t;
         }
     }
     if (!head) {
@@ -433,11 +437,10 @@ static void freeStartupInfo(ThreadStartupInfo *item)
     item->d_next = 0;
 
     while (1) {
-        ThreadStartupInfo *t;
-        t = (ThreadStartupInfo*)InterlockedCompareExchangePointer(
-                                                          &u::startupInfoCache,
-                                                          item,
-                                                          item->d_next);
+        ThreadStartupInfo *t = static_cast<ThreadStartupInfo *>(
+                                   AtomicOps::testAndSwapPtr(&startupInfoCache,
+                                                             item->d_next,
+                                                             item));
         if (t == item->d_next) {
             break;
         }
@@ -451,7 +454,7 @@ static void invokeDestructors()
     // iterates through all registered destructor functions and invokes each
     // destructor that has a non-zero key value.
 {
-    if (initializationState != e_INITIALIZED) {
+    if (e_INITIALIZED != AtomicOps::getInt(&initializationState)) {
         return;                                                       // RETURN
     }
 
