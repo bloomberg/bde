@@ -250,9 +250,9 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     const int k_EXPECTED_MIN_STACK_FRAMES = 9;
 #endif
 
-    const char *start = strstr(message, ".tsk ") + 5;
-    ASSERT(start && ' ' != *start);
-    start       = strchr(start, ' ');    // skip over executable name
+    const char *start = strstr(message, ".tsk ");
+    ASSERT(start && ' ' != start[5]);
+    start             = strchr(start + 5, ' ');    // skip over executable name
     ASSERT(start);
     const char *end   = strchr(start, '"');
     ASSERT(end);
