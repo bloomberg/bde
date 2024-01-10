@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <stdexcept>    //  yes, we want the native std here
+#include <string>
 
 #include <cstdio>
 #include <cstdlib>
@@ -250,22 +251,21 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     const int k_EXPECTED_MIN_STACK_FRAMES = 9;
 #endif
 
-    const char *start = strstr(message, ".tsk ");
-    ASSERT(start && ' ' != start[5]);
-    start             = strchr(start + 5, ' ');    // skip over executable name
-    ASSERT(start);
-    const char *end   = strchr(start, '"');
-    ASSERT(end);
+    const char *hexChars = "0123456789ABCDEF";
+    std::string str = message;
+    const std::size_t npos = std::string::npos;
+    std::size_t pos = str.length();
+    pos = str.find_last_of('"', pos);
+    ASSERT(npos != pos && 1 < pos && '"' == str[pos]);
+    int count = -1;
+    std::size_t next = pos;
+    do {
+        ++count;
+        pos = next - 1;
+        next = str.find_last_not_of(hexChars, pos);
+    } while (npos != next && 0 < next && next < pos && ' ' == str[next]);
 
-    // The number of spaces in the range '[ start, end )' is the number of
-    // stack frames in the cheap stack trace.  For some reason using
-    // 'std::count' here didn't compile on Solaris.
-
-    int count = 0;
-    for (const char *cpc = start; cpc < end; ++cpc) {
-        count += ' ' == *cpc;
-    }
-    ASSERTV(k_EXPECTED_MIN_STACK_FRAMES, count,
+    ASSERTV(k_EXPECTED_MIN_STACK_FRAMES, count, message,
                                          k_EXPECTED_MIN_STACK_FRAMES <= count);
 
     if (veryVerbose) {
