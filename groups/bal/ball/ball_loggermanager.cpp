@@ -1069,7 +1069,8 @@ bslma::ManagedPtr<char> LoggerManager::obtainMessageBuffer(int *bufferSize)
         // program termination, e.g., if a statically initialized object
         // performs logging during its destruction.
         new (staticPool.buffer()) bdlma::ConcurrentPool(
-                                                 k_DEFAULT_LOGGER_BUFFER_SIZE);
+                                            k_DEFAULT_LOGGER_BUFFER_SIZE,
+                                            bslma::Default::globalAllocator());
     }
 
     char *buffer;

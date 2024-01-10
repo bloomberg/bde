@@ -209,6 +209,7 @@ using namespace bdlf::PlaceHolders;
 // [39] USAGE EXAMPLE #2
 // [40] USAGE EXAMPLE #3
 // [41] USAGE EXAMPLE #4
+// [44] CONCERN: 'obtainMessageBuffer' USES GLOBAL ALLOCATOR
 // [37] CONCERN: RECORD POOL MEMORY CONSUMPTION
 // [19] CONCERN: PERFORMANCE IMPLICATIONS
 // [12] CONCERN: LOG RECORD POPULATOR CALLBACKS
@@ -1727,6 +1728,46 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 44: {
+        // --------------------------------------------------------------------
+        // TESTING 'obtainMessageBuffer' USES GLOBAL ALLOCATOR
+        //
+        // Concerns:
+        //: 1 The 'LoggerManager::obtainMessageBuffer' function allocates using
+        //:   the global allocator.
+        //
+        // Plan:
+        //: 1 Obtain a buffer using the 'LoggerManager::obtainMessageBuffer'
+        //:   call.  The returned buffer containts a pointer to the concurrent
+        //:   pool (static object inside 'obtainMessageBuffer').  Verify that
+        //:   the pool's allocator is the same as the global allocator (C-1).
+        //
+        // Testing:
+        //   CONCERN: 'obtainMessageBuffer' USES GLOBAL ALLOCATOR
+        // --------------------------------------------------------------------
+
+        if (verbose)
+                cout << "\nTESTING 'obtainMessageBuffer' USES GLOBAL ALLOCATOR"
+                     << "\n==================================================="
+                     << endl;
+
+        bslma::TestAllocator da("default", veryVeryVerbose);
+        bslma::TestAllocator ga("global",  veryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard guard(&da);
+        bslma::Default::setGlobalAllocator(&ga);
+        ASSERT(bslma::Default::globalAllocator() == &ga);
+
+        int bufferSize = -1;
+        bslma::ManagedPtr<char> p = Obj::obtainMessageBuffer(&bufferSize);
+        ASSERT(bufferSize > 0);
+        ASSERT(p);
+
+        bdlma::ConcurrentPool *pool =
+                   static_cast<bdlma::ConcurrentPool *>(p.deleter().factory());
+        ASSERT(pool->allocator() == bslma::Default::globalAllocator());
+        pool->release();
+      } break;
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       case 43: {
         // --------------------------------------------------------------------
