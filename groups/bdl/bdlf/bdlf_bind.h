@@ -1248,7 +1248,7 @@ class BindWrapper {
                 bslma::Allocator                           *allocator = 0)
         // Create a wrapper with shared pointer semantics around a binder
         // constructed with the specified 'func' invocable and specified
-        // 'tuple' bound arguments.  Optionally specify the 'allocator'.
+        // 'tuple' bound arguments.
     {
         this->d_impl.createInplace(allocator, func, tuple, allocator);
     }
@@ -1258,7 +1258,7 @@ class BindWrapper {
                 bslma::Allocator                           *allocator = 0)
         // Create a wrapper with shared pointer semantics around a binder
         // constructed with the specified 'func' invocable and specified
-        // 'tuple' bound arguments.  Optionally specify the 'allocator'.
+        // 'tuple' bound arguments.
     {
         this->d_impl.createInplace(allocator,
                                    func,
@@ -1268,14 +1268,13 @@ class BindWrapper {
 
     BindWrapper(const BindWrapper<RET,FUNC,TUPLE>&  original)
         // Create a wrapper that shares ownership of the binder of the
-        // specified 'original'.  Optionally specify the 'allocator'.
+        // specified 'original'.
     : d_impl(original.d_impl)
     {
     }
 
-    BindWrapper(bslmf::MovableRef<BindWrapper<RET, FUNC, TUPLE> >
-                    original)
-        BSLS_KEYWORD_NOEXCEPT
+    BindWrapper(bslmf::MovableRef<BindWrapper<RET, FUNC, TUPLE> > original)
+                                                          BSLS_KEYWORD_NOEXCEPT
         // Create a wrapper that assumes ownership of the binder of the
         // specified 'original'.
     : d_impl(MoveUtil::move(MoveUtil::access(original).d_impl))
