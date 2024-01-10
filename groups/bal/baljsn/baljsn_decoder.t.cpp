@@ -24,6 +24,7 @@
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_enumeratorinfo.h>
+#include <bdlat_enumfunctions.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_typetraits.h>
@@ -56,6 +57,7 @@
 #include <s_baltst_generatetestsequence.h>
 #include <s_baltst_generatetesttaggedvalue.h>
 #include <s_baltst_myenumerationwithfallback.h>
+#include <s_baltst_myintenumeration.h>
 #include <s_baltst_mysequencewithchoice.h>
 #include <s_baltst_testchoice.h>
 #include <s_baltst_testcustomizedtype.h>
@@ -127,7 +129,8 @@ namespace test = BloombergLP::s_baltst;
 // [11] FLOATING-POINT VALUES ROUND-TRIP
 // [12] REPRODUCE SCENARIO FROM DRQS 169438741
 // [13] FALLBACK ENUMERATORS
-// [14] USAGE EXAMPLE
+// [14] DECODING INTS AS ENUMS AND VICE VERSA              {DRQS 166048981<GO>}
+// [15] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -36551,6 +36554,54 @@ struct IsEnumeration<test::Enumeration0> : public bsl::true_type {
 };
 
 }  // close bdlat_EnumFunctions namespace
+namespace s_baltst {
+
+                             // ==================
+                             // class Enumeration1
+                             // ==================
+
+class Enumeration1 {
+  private:
+    int d_value;
+
+    friend int bdlat_enumFromInt(Enumeration1 *dest, int val)
+    {
+        if (val == 0 || val == 1) {
+            dest->d_value = val;
+            return 0;                                                 // RETURN
+        }
+        return -1;
+    }
+
+    friend int bdlat_enumFromString(Enumeration1 *, const char *, int)
+    {
+        bsl::cout << "should not be called\n";
+        ASSERT(false);
+        return -1;
+    }
+
+    friend void bdlat_enumToInt(int *result, const Enumeration1& src)
+    {
+        *result = src.d_value;
+    }
+
+    friend void bdlat_enumToString(bsl::string         *result,
+                                   const Enumeration1&  src)
+    {
+        if (src.d_value == 0) {
+            *result = "0";
+        } else {
+            ASSERT(1 == src.d_value);
+            *result = "1";
+        }
+    }
+};
+}  // close namespace s_baltst
+namespace bdlat_EnumFunctions {
+template <>
+struct IsEnumeration<test::Enumeration1> : public bsl::true_type {
+};
+}  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace
 
 namespace BloombergLP {
@@ -36880,7 +36931,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -36985,6 +37036,82 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 //..
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // DECODING INTS AS ENUMS AND VICE VERSA
+        //
+        // Concerns:
+        //: 1 The encoding produced by 'baljsn_encoder' when encoding an
+        //:   integer enumeration can be decoded into either a plain integral
+        //:   type or a customized type (as produced by bas_codegen) whose base
+        //:   type is integral.
+        //:
+        //: 2 The encoding produced by 'baljsn_encoder' when encoding either a
+        //:   plain integral type or a customized type (as produced by
+        //:   bas_codegen) whose base type is integral can be decoded into an
+        //:   integer enumeration type.
+        //
+        // Plan:
+        //: 1 Define a type, 'Enumeration1', that is a 'bdlat' enumeration, can
+        //:   hold an integer value of either 0 or 1, and whose string
+        //:   representation is just the decimal form of its value (as with
+        //:   'bcem_Aggregate').
+        //:
+        //: 2 Using 'baljsn_encoder', encode objects of type 'Enumeration1'
+        //:   having values of 0 and 1, and decode them into plain 'int's.
+        //:   Verify that the resulting values are the same as the original
+        //:   values.  Then, repeat using the generated type
+        //:   'test::MyIntEnumeration'.  (C-1)
+        //:
+        //: 3 Using 'baljsn_encoder', encode plain 'int's having values of 0
+        //:   and 1, decode them into 'Enumeration1', and verify that the
+        //:   resulting values are the same as the original values.  Then,
+        //:   repeat using the generated type 'test::MyIntEnumeration'.  (C-2)
+        //
+        // Testing:
+        //   DECODING INTS AS ENUMS AND VICE VERSA
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nDECODING INTS AS ENUMS AND VICE VERSA"
+                          << "\n=====================================" << endl;
+
+        baljsn::Encoder   encoder;
+        baljsn::Decoder   decoder;
+        bsl::stringstream ss;
+
+        bsl::vector<test::Enumeration1>     ve(2);
+        bsl::vector<int>                    vi(2);
+        bsl::vector<test::MyIntEnumeration> vc(2);
+
+        // P-1
+        ASSERT(0 == bdlat_EnumFunctions::fromInt(&ve[0], 0));
+        ASSERT(0 == bdlat_EnumFunctions::fromInt(&ve[1], 1));
+        ASSERT(0 == encoder.encode(ss, ve, baljsn::EncoderOptions()));
+        ASSERT(0 == decoder.decode(ss, &vi, baljsn::DecoderOptions()));
+        ASSERT(0 == vi[0]);
+        ASSERT(1 == vi[1]);
+        ss.seekg(0);
+        ASSERT(0 == decoder.decode(ss, &vc, baljsn::DecoderOptions()));
+        ASSERT(test::MyIntEnumeration(0) == vc[0]);
+        ASSERT(test::MyIntEnumeration(1) == vc[1]);
+
+        // P-2
+        int value;
+        ss.str("");
+        ASSERT(0 == encoder.encode(ss, vi, baljsn::EncoderOptions()));
+        ASSERT(0 == decoder.decode(ss, &ve, baljsn::DecoderOptions()));
+        bdlat_EnumFunctions::toInt(&value, ve[0]);
+        ASSERT(0 == value);
+        bdlat_EnumFunctions::toInt(&value, ve[1]);
+        ASSERT(1 == value);
+        ss.str("");
+        ASSERT(0 == encoder.encode(ss, vc, baljsn::EncoderOptions()));
+        ASSERT(0 == decoder.decode(ss, &ve, baljsn::DecoderOptions()));
+        bdlat_EnumFunctions::toInt(&value, ve[0]);
+        ASSERT(0 == value);
+        bdlat_EnumFunctions::toInt(&value, ve[1]);
+        ASSERT(1 == value);
       } break;
       case 13: {
         // --------------------------------------------------------------------

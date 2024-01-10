@@ -20,6 +20,7 @@
   <xs:include schemaLocation='s_baltst_myenumerationwithfallback.xsd'/>
   <xs:include
       schemaLocation='s_baltst_myenumerationunpreservedwithfallback.xsd'/>
+  <xs:include schemaLocation='s_baltst_myintenumeration.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequence.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithanonymouschoice.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewitharray.xsd'/>
@@ -83,6 +84,8 @@
               type='MyEnumerationWithFallback'/>
   <xs:element name='MyEnumerationUnpreservedWithFallbackRecord'
               type='MyEnumerationUnpreservedWithFallbackRecord'/>
+  <xs:element name='MyIntEnumerationRecord'
+              type='MyIntEnumerationRecord'/>
   <xs:element name='MySequence'
               type='MySequence'/>
   <xs:element name='MySequenceWithAnonymousChoice'

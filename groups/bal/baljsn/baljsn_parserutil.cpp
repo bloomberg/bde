@@ -526,6 +526,17 @@ int ParserUtil::getValue(bsl::vector<char>       *value,
     return 0;
 }
 
+bool ParserUtil::stripQuotes(bsl::string_view *str)
+{
+    BSLS_ASSERT(str);
+    if (str->size() >= 2 && '"' == str->front() && '"' == str->back()) {
+        str->remove_prefix(1);
+        str->remove_suffix(1);
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
