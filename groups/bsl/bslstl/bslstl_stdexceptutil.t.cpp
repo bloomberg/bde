@@ -251,14 +251,14 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     const int k_EXPECTED_MIN_STACK_FRAMES = 9;
 #endif
 
-    const char *hexChars = "0123456789ABCDEF";
-    std::string str = message;
     const std::size_t npos = std::string::npos;
-    std::size_t pos = str.length();
-    pos = str.find_last_of('"', pos);
-    ASSERT(npos != pos && 1 < pos && '"' == str[pos]);
+    const char *hexChars = "0123456789ABCDEF";
+
+    std::string str = message;
+    std::size_t pos, next = str.find_last_of('"');
+    ASSERT(npos != next && 1 < next && '"' == str[next]);
+
     int count = -1;
-    std::size_t next = pos;
     do {
         ++count;
         pos = next - 1;
