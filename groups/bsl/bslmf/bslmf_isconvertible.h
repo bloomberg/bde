@@ -23,13 +23,22 @@ BSLS_IDENT("$Id: $")
 // When compiling on C++11 or later, both meta-functions are aliases to the
 // standard library implementation std::is_convertible.
 //
-// When compiling on C++03 'bsl::is_convertible' meets the requirements of the
-// 'is_convertible' template defined in the C++11 standard [meta.rel], while
-// 'bslmf::IsConvertible' was devised before 'is_convertible' was standardized.
-// The two meta-functions are functionally equivalent except that
-// 'bsl::is_convertible' does not allow its template parameter types to be
-// incomplete types according to the C++11 standard while
-// 'bslmf::IsConvertible' tests conversions involving incomplete types.
+// When compiling on C++03 'bsl::is_convertible' tries to meet the requirements
+// of the 'is_convertible' template defined in the C++11 standard [meta.rel] as
+// much as possible but fails in some corner cases.  One example of such a
+// case:
+//..
+//  class A {};
+//  class B { public: B(A& ); };
+//
+//  BSLMF_ASSERT((!bsl::is_convertible<A, B>::value)); //<-- FAIL in C++03 mode
+//..
+//
+// 'bslmf::IsConvertible' was devised before 'is_convertible' was standardized
+// and is functionally equivalent except that 'bsl::is_convertible' does not
+// allow its template parameter types to be incomplete types according to the
+// C++11 standard while 'bslmf::IsConvertible' tests conversions involving
+// incomplete types.
 //
 // Note that 'bsl::is_convertible' should be preferred over
 // 'bslmf::IsConvertible', and in general, should be used by new components.
