@@ -58,14 +58,6 @@ void Option::init()
     bslalg::ScalarPrimitives::defaultConstruct(
                                           &d_optionInfo.object().d_defaultInfo,
                                           d_allocator_p);
-    bslalg::AutoScalarDestructor<OccurrenceInfo> defaultGuard(
-                                         &d_optionInfo.object().d_defaultInfo);
-
-    bslalg::ScalarPrimitives::defaultConstruct(
-                              &d_optionInfo.object().d_environmentVariableName,
-                              d_allocator_p);
-
-    defaultGuard.release();
     typeGuard.release();
     descGuard.release();
     nameGuard.release();
@@ -103,15 +95,6 @@ void Option::init(const OptionInfo& optionInfo)
                                           &d_optionInfo.object().d_defaultInfo,
                                           optionInfo.d_defaultInfo,
                                           d_allocator_p);
-    bslalg::AutoScalarDestructor<OccurrenceInfo> defaultGuard(
-                                         &d_optionInfo.object().d_defaultInfo);
-
-    bslalg::ScalarPrimitives::copyConstruct(
-                              &d_optionInfo.object().d_environmentVariableName,
-                              optionInfo.d_environmentVariableName,
-                              d_allocator_p);
-
-    defaultGuard.release();
     typeGuard.release();
     descGuard.release();
     nameGuard.release();
@@ -167,15 +150,12 @@ Option& Option::operator=(const Option& rhs)
 
 Option& Option::operator=(const OptionInfo& rhs)
 {
-    OptionInfo& optionInfo = d_optionInfo.object();
-
-    if (&optionInfo != &rhs) {
-        optionInfo.d_tag                     = rhs.d_tag;
-        optionInfo.d_name                    = rhs.d_name;
-        optionInfo.d_description             = rhs.d_description;
-        optionInfo.d_typeInfo                = rhs.d_typeInfo;
-        optionInfo.d_defaultInfo             = rhs.d_defaultInfo;
-        optionInfo.d_environmentVariableName = rhs.d_environmentVariableName;
+    if (&d_optionInfo.object() != &rhs) {
+        d_optionInfo.object().d_tag         = rhs.d_tag;
+        d_optionInfo.object().d_name        = rhs.d_name;
+        d_optionInfo.object().d_description = rhs.d_description;
+        d_optionInfo.object().d_typeInfo    = rhs.d_typeInfo;
+        d_optionInfo.object().d_defaultInfo = rhs.d_defaultInfo;
     }
     return *this;
 }
@@ -207,11 +187,6 @@ OptionInfo::ArgType Option::argType() const
 const bsl::string& Option::description() const
 {
     return d_optionInfo.object().d_description;
-}
-
-const bsl::string& Option::environmentVariableName() const
-{
-    return d_optionInfo.object().d_environmentVariableName;
 }
 
 bool Option::isArray() const

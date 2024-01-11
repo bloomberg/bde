@@ -46,7 +46,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_time.h>
 
 #include <bslma_allocator.h>
-#include <bslma_default.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
@@ -75,19 +74,6 @@ class TypeInfo {
     // type is opaque, but it is possible to apply the constraint to an element
     // of the same type as the option and see whether it is valid (using the
     // 'satisfiesConstraint' methods of 'TypeInfoUtil').
-
-  public:
-    // PUBLIC TYPES
-    enum ParseInputSource {
-        // This enumeration differentiates the source of input when parsing an
-        // option type.  Note that boolean options, in particular, are treated
-        // differently when supplied on the command line from how they are
-        // treated when supplied by an environment variable (see
-        // 'balcl_commandline').
-
-        e_COMMAND_LINE,
-        e_ENVIRONMENT_VARIABLE
-    };
 
     // DATA
     OptionType::Enum     d_elemType;          // type of the option value
@@ -658,51 +644,21 @@ struct TypeInfoUtil {
         // 'OptionType<ENUM>::EnumToType::type *' where 'ENUM' matches
         // 'typeInfo.type()'.
 
-    static bool parseAndValidate(
-                               OptionValue                *element,
-                               const bsl::string_view&     input,
-                               const TypeInfo&             typeInfo,
-                               bsl::ostream&               stream,
-                               TypeInfo::ParseInputSource  inputSource =
-                                                     TypeInfo::e_COMMAND_LINE);
+    static bool parseAndValidate(OptionValue        *element,
+                                 const bsl::string&  input,
+                                 const TypeInfo&     typeInfo,
+                                 bsl::ostream&       stream);
         // Load into the specified 'element' the result of parsing the
         // specified 'input' as a value of the 'element->type()'.  Return
         // 'true' if 'input' is parsed without error and the value satisfies
         // the constraint of the specified 'typeInfo' object (if any), and
         // 'false' with no effect on 'element' otherwise.  If the operation
-        // fails, a descriptive error message indicating the reason for the
+        // fails a descriptive error message indicating the reason for the
         // failure is written to the specified 'stream.  If 'typeInfo' holds no
         // constraint that validation is considered 'true'; nevertheless, the
-        // parse might still fail due to problems with the input format.
-        // Optionally specify 'inputSource' indicating the source of the option
-        // text being parsed.  If 'inputSource' is not provided, 'input' is
-        // treated as if it came from the command line.  'inputSource' is used
-        // in handling boolean options.  Boolean options supplied by command
-        // line should not have associated text, where as boolean options
-        // supplied by the environment should have the values "0", "1", "true",
-        // or "false".  The behavior is undefined unless
-        // 'element->type() == typeInfo.type()'.
-
-    static int tokenizeArrayEnvironmentVariable(
-                                              bsl::vector<bsl::string> *tokens,
-                                              const bsl::string_view&   input);
-        // Load the specified 'tokens' with the specified 'input' broken up
-        // into substrings separated by ' ', except that characters following
-        // '\' are not to be interpreted as separators.  It is an error for
-        // 'input' to contain a '\' that is not followed by another '\' or ' '.
-        // Return 0 on success, and a negative value on failure.
+        // parse might still fail due to problems with the input format.  The
+        // behavior is undefined unless 'element->type() == typeInfo.type()'.
 };
-
-// CREATORS
-inline
-TypeInfo::TypeInfo()
-: d_elemType(OptionType::e_STRING)
-, d_linkedVariable_p(0)
-, d_isOptionalLinkedVariable(false)
-, d_allocator_p(bslma::Default::allocator())
-{
-    resetConstraint();
-}
 
 }  // close package namespace
 }  // close enterprise namespace

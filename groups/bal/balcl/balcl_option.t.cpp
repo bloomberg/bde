@@ -248,8 +248,10 @@ static const struct {
 } OPTION_TAGS[] = {
     { L_, "" }
   , { L_, "a|aa" }
+  , { L_, "b|bb" }
   , { L_, "cdefghijklmab" }
   , { L_, "a|aaabb" }
+  , { L_, "b|bbbbb" }
   , { L_, "nopqrstuvwxyz" }
   , { L_, SUFFICIENTLY_LONG_STRING }
 };
@@ -261,6 +263,7 @@ static const struct {
 } OPTION_NAMES[] = {
     { L_, "" }
   , { L_, "A" }
+  , { L_, "B" }
   , { L_, "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }
   , { L_, SUFFICIENTLY_LONG_STRING }
 };
@@ -272,24 +275,12 @@ static const struct {
 } OPTION_DESCRIPTIONS[] = {
     { L_, "" }
   , { L_, "A" }
+  , { L_, "B" }
   , { L_, "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }
   , { L_, SUFFICIENTLY_LONG_STRING }
 };
 enum { NUM_OPTION_DESCRIPTIONS = sizeof  OPTION_DESCRIPTIONS
                                / sizeof *OPTION_DESCRIPTIONS };
-
-static const struct {
-    int         d_line;             // line number
-    const char *d_envVarName_p;     // environment variable name
-} OPTION_ENV_VAR_NAMES[] = {
-    { L_, "" }
-  , { L_, "A" }
-  , { L_, "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }
-  , { L_, SUFFICIENTLY_LONG_STRING }
-};
-enum { NUM_OPTION_ENV_VAR_NAMES = sizeof  OPTION_ENV_VAR_NAMES
-                                / sizeof *OPTION_ENV_VAR_NAMES };
-
 
 #define GA bslma::Default::globalAllocator()
 
@@ -1118,10 +1109,10 @@ void setConstraint(TypeInfo *typeInfo, ElemType type, const void *address)
 
     switch (type) {
       case Ot::e_VOID: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached");
       } break;
       case Ot::e_BOOL: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached");
       } break;
 
       CASE(Ot::e_CHAR,         CharConstraint)
@@ -1134,7 +1125,7 @@ void setConstraint(TypeInfo *typeInfo, ElemType type, const void *address)
       CASE(Ot::e_TIME,         TimeConstraint)
 
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
+        BSLS_ASSERT(!"Reached");
       } break;
     };
 
@@ -1179,7 +1170,7 @@ void setLinkedVariable(TypeInfo *typeInfo, ElemType type, void *address)
       CASE(Ot::e_DATE_ARRAY)
       CASE(Ot::e_TIME_ARRAY)
       default: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached");
       } break;
     };
 
@@ -1205,7 +1196,7 @@ void setType(TypeInfo *typeInfo, ElemType type)
 
     switch (type) {
       case Ot::e_VOID: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached.");
       } break;
 
       CASE(BOOL)
@@ -1226,7 +1217,7 @@ void setType(TypeInfo *typeInfo, ElemType type)
       CASE(DATE_ARRAY)
       CASE(TIME_ARRAY)
       default: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached");
       } break;
     };
 
@@ -1301,7 +1292,7 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
 
     switch (type) {
       case Ot::e_VOID: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached.");
       } break;
       CASE(Ot::e_BOOL)
       CASE(Ot::e_CHAR)
@@ -1321,7 +1312,7 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
       CASE(Ot::e_DATE_ARRAY)
       CASE(Ot::e_TIME_ARRAY)
       default: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached");
       } break;
     }
 #undef CASE
@@ -2119,15 +2110,7 @@ int main(int argc, const char *argv[])  {
                           'c' == CONFIG ? new (fa) Obj(&sa) : // ACTION
                           /* error */     0                 ;
             ASSERTV(CONFIG, objPtr);
-
-            if (&sa == objAllocatorPtr) {
-                ASSERTV(CONFIG, sam.isTotalUp());
-                ASSERTV(CONFIG, dam.isTotalSame());
-            }
-            else {
-                ASSERTV(CONFIG, sam.isTotalSame());
-                ASSERTV(CONFIG, dam.isTotalUp());
-            }
+            ASSERTV(CONFIG, dam.isTotalUp());
 
             Obj& mX = *objPtr;  const Obj& X = mX;
 
@@ -2139,7 +2122,6 @@ int main(int argc, const char *argv[])  {
             ASSERTV(CONFIG, &oa == X.     tagString().get_allocator());
             ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
             ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
-            ASSERTV(CONFIG, &oa == X.environmentVariableName().allocator());
 
             // Vet object value.
 
@@ -2296,9 +2278,6 @@ int main(int argc, const char *argv[])  {
             const OccurrenceInfo A5 = OccurrenceInfo(charDefaultValue);
             const OccurrenceInfo B5 = OccurrenceInfo( intDefaultValue);
 
-            const char * const   A6 = "envVarNameA6";
-            const char * const   B6 = "envVarNameB6";
-
             const struct {
                 int             d_line;
                 const char     *d_tag_p;
@@ -2306,20 +2285,16 @@ int main(int argc, const char *argv[])  {
                 const char     *d_desc_p;
                 TypeInfo        d_typeInfo;
                 OccurrenceInfo  d_occurrenceInfo;
-                const char     *d_envVarName;
             } DATA[] = {
-                //  LINE TAG  NAME DESC TI  OI  EN
+                //  LINE TAG  NAME DESC TI  OI
                 //  ---- ---  ---- ---- --  --
-                  { L_,  A1,  A2,  A3,  A4, A5, A6 }  // baseLine
+                  { L_,  A1,  A2,  A3,  A4, A5 }  // baseLine
 
-                , { L_,  B1,  A2,  A3,  A4, A5, A6 }
-                , { L_,  A1,  B2,  A3,  A4, A5, A6 }
-                , { L_,  A1,  A2,  B3,  A4, A5, A6 }
-                , { L_,  A1,  A2,  A3,  B4, A5, A6 }
-                , { L_,  A1,  A2,  A3,  A4, B5, A6 }
-                , { L_,  A1,  A2,  A3,  A4, A5, B6 }
-
-                , { L_,  B1,  B2,  B3,  B4, B5, B6 }
+                , { L_,  B1,  A2,  A3,  A4, A5 }
+                , { L_,  A1,  B2,  A3,  A4, A5 }
+                , { L_,  A1,  A2,  B3,  A4, A5 }
+                , { L_,  A1,  A2,  A3,  B4, A5 }
+                , { L_,  A1,  A2,  A3,  A4, B5 }
             };
 
             enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
@@ -2331,7 +2306,6 @@ int main(int argc, const char *argv[])  {
                 const char * const   DESC1       = DATA[ti].d_desc_p;
                 const TypeInfo       TYPE_INFO1  = DATA[ti].d_typeInfo;
                 const OccurrenceInfo OCCUR_INFO1 = DATA[ti].d_occurrenceInfo;
-                const char * const   ENV_VAR_NM1 = DATA[ti].d_envVarName;
 
                 if (veryVerbose) {
                     T_ P_(LINE1)
@@ -2339,8 +2313,7 @@ int main(int argc, const char *argv[])  {
                        P_(NAME1)
                        P_(DESC1)
                        P_(TYPE_INFO1)
-                       P_(OCCUR_INFO1)
-                       P(ENV_VAR_NM1)
+                       P(OCCUR_INFO1)
                 }
 
                 const OptionInfo OiX = { TAG1
@@ -2348,7 +2321,6 @@ int main(int argc, const char *argv[])  {
                                        , DESC1
                                        , TYPE_INFO1
                                        , OCCUR_INFO1
-                                       , ENV_VAR_NM1
                                        };
 
                 bslma::TestAllocator *saX = &sa1;
@@ -2381,16 +2353,13 @@ int main(int argc, const char *argv[])  {
                     const TypeInfo       TYPE_INFO2  = DATA[tj].d_typeInfo;
                     const OccurrenceInfo OCCUR_INFO2 = DATA[tj].
                                                               d_occurrenceInfo;
-                    const char * const   ENV_VAR_NM2 = DATA[tj].d_envVarName;
-
                     if (veryVerbose) {
                         T_ T_ P_(LINE2)
                               P_(TAG2)
                               P_(NAME2)
                               P_(DESC2)
                               P_(TYPE_INFO2)
-                              P_(OCCUR_INFO2)
-                              P(ENV_VAR_NM2)
+                              P(OCCUR_INFO2)
                     }
 
                     const OptionInfo OiY = { TAG2
@@ -2398,7 +2367,6 @@ int main(int argc, const char *argv[])  {
                                            , DESC2
                                            , TYPE_INFO2
                                            , OCCUR_INFO2
-                                           , ENV_VAR_NM2
                                            };
 
                     for (int m = 0; m < 2; ++m) {
@@ -2411,8 +2379,6 @@ int main(int argc, const char *argv[])  {
 
                         Obj mY(OiY, saY); const Obj& Y = mY;
                         Obj mV(OiY, saY); const Obj& V = mV;
-
-                        ASSERTV(LINE1, LINE2, (ti == tj) == (X == Y));
 
                         Obj *mRy = &(mY = X);    // ACTION
                         Obj *mRv = &(mV = OiX);  // ACTION
@@ -2504,12 +2470,11 @@ int main(int argc, const char *argv[])  {
 
 // BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_TAGS;          ++i) {
-        for (int j = 0; j < NUM_OPTION_NAMES;         ++j) {
-        for (int k = 0; k < NUM_OPTION_DESCRIPTIONS;  ++k) {
-        for (int l = 0; l < NUM_OPTION_TYPEINFO;      ++l) {
-        for (int m = 0; m < NUM_OPTION_OCCURRENCES;   ++m) {
-        for (int n = 0; n < NUM_OPTION_ENV_VAR_NAMES; ++n) {
+        for (int i = 0; i < NUM_OPTION_TAGS;         ++i) {
+        for (int j = 0; j < NUM_OPTION_NAMES;        ++j) {
+        for (int k = 0; k < NUM_OPTION_DESCRIPTIONS; ++k) {
+        for (int l = 0; l < NUM_OPTION_TYPEINFO;     ++l) {
+        for (int m = 0; m < NUM_OPTION_OCCURRENCES;  ++m) {
 
             const int       LINE1      = OPTION_TAGS[i].d_line;
             const char     *TAG        = OPTION_TAGS[i].d_tag_p;
@@ -2539,21 +2504,15 @@ int main(int argc, const char *argv[])  {
                                                                 OTYPE,
                                                                 TYPE,
                                                                 DEFAULT_VALUE);
-
-            const int       LINE6      = OPTION_ENV_VAR_NAMES[n].d_line;
-            const char     *ENAME      = OPTION_ENV_VAR_NAMES[n].
-                                                                d_envVarName_p;
-
             const OptionInfo     OI              = { TAG
                                                    , NAME
                                                    , DESC
                                                    , TYPEINFO
                                                    , OCCURRENCE_INFO
-                                                   , ENAME
                                                    };
 
             if (veryVerbose) {
-                T_ P_(LINE1) P_(LINE2) P_(LINE3) P_(LINE4) P_(LINE5) P(LINE6)
+                T_ P_(LINE1) P_(LINE2) P_(LINE3) P_(LINE4) P(LINE5)
                 T_ P(OI)
             }
 
@@ -2612,8 +2571,6 @@ int main(int argc, const char *argv[])  {
                 ASSERTV(CONFIG, &oa == X.     tagString().get_allocator());
                 ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
                 ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
-                ASSERTV(CONFIG, &oa ==
-                                      X.environmentVariableName().allocator());
 
                 ASSERTV(CONFIG, noam.isTotalSame());
 
@@ -2629,7 +2586,6 @@ int main(int argc, const char *argv[])  {
                 ASSERTV(CONFIG,  oam.isInUseSame());
                 ASSERTV(CONFIG, noam.isInUseSame());
             }
-        }
         }
         }
         }
@@ -3148,12 +3104,11 @@ int main(int argc, const char *argv[])  {
 
 // BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_TAGS;          ++i) {
-        for (int j = 0; j < NUM_OPTION_NAMES;         ++j) {
-        for (int k = 0; k < NUM_OPTION_DESCRIPTIONS;  ++k) {
-        for (int l = 0; l < NUM_OPTION_TYPEINFO;      ++l) {
-        for (int m = 0; m < NUM_OPTION_OCCURRENCES;   ++m) {
-        for (int n = 0; n < NUM_OPTION_ENV_VAR_NAMES; ++n) {
+        for (int i = 0; i < NUM_OPTION_TAGS;         ++i) {
+        for (int j = 0; j < NUM_OPTION_NAMES;        ++j) {
+        for (int k = 0; k < NUM_OPTION_DESCRIPTIONS; ++k) {
+        for (int l = 0; l < NUM_OPTION_TYPEINFO;     ++l) {
+        for (int m = 0; m < NUM_OPTION_OCCURRENCES;  ++m) {
 
             const int       LINE1      = OPTION_TAGS[i].d_line;
             const char     *TAG        = OPTION_TAGS[i].d_tag_p;
@@ -3173,10 +3128,6 @@ int main(int argc, const char *argv[])  {
             const int       LINE5      = OPTION_OCCURRENCES[m].d_line;
             const OccurType OTYPE      = OPTION_OCCURRENCES[m].d_type;
 
-            const int       LINE6      = OPTION_ENV_VAR_NAMES[n].d_line;
-            const char     *ENAME      = OPTION_ENV_VAR_NAMES[n].
-                                                                d_envVarName_p;
-
             const void     *DEFAULT_VALUE = u::getSomeOptionValue(TYPE);
 
             const TypeInfo       TYPEINFO        = u::createTypeInfo(
@@ -3192,11 +3143,10 @@ int main(int argc, const char *argv[])  {
                                                    , DESC
                                                    , TYPEINFO
                                                    , OCCURRENCE_INFO
-                                                   , ENAME
                                                    };
 
             if (veryVerbose) {
-                T_ P_(LINE1) P_(LINE2) P_(LINE3) P_(LINE4) P_(LINE5) P(LINE6)
+                T_ P_(LINE1) P_(LINE2) P_(LINE3) P_(LINE4) P(LINE5)
                 T_ P(OI)
             }
 
@@ -3226,11 +3176,7 @@ int main(int argc, const char *argv[])  {
                 bslma::TestAllocatorMonitor noam(&noa);
 
                 int  completeExceptionCount = 0;
-                Obj *objPtr;
-
-                if (LINE5 == 535 && LINE6 == 292) {
-                    objPtr = 0;
-                }
+                Obj *objPtr                 = 0;
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
 
@@ -3254,8 +3200,6 @@ int main(int argc, const char *argv[])  {
                 ASSERTV(CONFIG, &oa == X.     tagString().get_allocator());
                 ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
                 ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
-                ASSERTV(CONFIG, &oa ==
-                                      X.environmentVariableName().allocator());
 
                 // Vet object value.
                 ASSERT(DESC            == X.description());
@@ -3263,7 +3207,6 @@ int main(int argc, const char *argv[])  {
                 ASSERT(OCCURRENCE_INFO == X.occurrenceInfo());
                 ASSERT(TAG             == X.tagString());
                 ASSERT(TYPEINFO        == X.typeInfo());
-                ASSERT(ENAME           == X.environmentVariableName());
 
                 // Other accessors.
 
@@ -3348,7 +3291,6 @@ int main(int argc, const char *argv[])  {
         }
         }
         }
-        }
 // BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
 // BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
       } break;
@@ -3377,7 +3319,6 @@ int main(int argc, const char *argv[])  {
                               , "description"
                               , TypeInfo(Ot::k_BOOL)
                               , OccurrenceInfo()
-                              , "ENV_VAR_NAME"
                               };
 
         Obj mX(OI); const Obj& X = mX;
@@ -3388,7 +3329,6 @@ int main(int argc, const char *argv[])  {
         ASSERT(Ot::e_BOOL                 == X.typeInfo().type());
         ASSERT(OccurrenceInfo::e_OPTIONAL == X.occurrenceInfo()
                                               .occurrenceType());
-        ASSERT("ENV_VAR_NAME"             == X.environmentVariableName());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

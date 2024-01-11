@@ -28,7 +28,6 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_review.h>
 #include <bsls_types.h>     // 'bsls::Types::Int64'
 
 #include <bsl_cstdlib.h>
@@ -43,12 +42,7 @@
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::flush;
-using bsl::size_t;
-using bsl::ostream;
+using namespace bsl;
 
 // ============================================================================
 //                                   TEST PLAN
@@ -213,7 +207,6 @@ using bsl::ostream;
 // ----------------------------------------------------------------------------
 // balcl::TypeInfoUtil
 // ----------------------------------------------------------------------------
-// [11] int tokenizeArrayEnvironmentVariable(StringVec *, char *);
 // [10] parseAndValidate(OV *e, string& i, TypeInfo& tf, ostream& s);
 // [ 4] bool satisfiesConstraint(const Clov& e,             TypeInfo tf);
 // [ 4] bool satisfiesConstraint(const Clov& e, ostream& s, TypeInfo tf);
@@ -296,44 +289,6 @@ typedef bsls::Types::Int64        Int64;
 
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 BSLMF_ASSERT(bdlb::HasPrintMethod<Obj>::value);
-
-// ============================================================================
-//                                MACROS
-// ----------------------------------------------------------------------------
-
-#if defined(BDE_BUILD_TARGET_EXC) && defined(BSLS_REVIEW_OPT_IS_ACTIVE)
-#define U_REVIEW_THROW_GUARD                                                  \
-    bsls::ReviewFailureHandlerGuard u_review_guard(bsls::Review::failByThrow)
-
-enum { k_REVIEW_FAIL_IS_ENABLED = true };
-# define U_REVIEW_FAIL(expr)                                                  \
-    do {                                                                      \
-        bool u_review_caught = false;                                         \
-        try {                                                                 \
-            expr;                                                             \
-        } catch (const bsls::AssertTestException&) {                          \
-            u_review_caught = true;                                           \
-        }                                                                     \
-        ASSERT(u_review_caught);                                              \
-    } while(false)
-# define U_REVIEW_PASS(expr)                                                  \
-    do {                                                                      \
-        bool u_review_caught = false;                                         \
-        try {                                                                 \
-            expr;                                                             \
-        } catch (const bsls::AssertTestException&) {                          \
-            u_review_caught = true;                                           \
-        }                                                                     \
-        ASSERT(!u_review_caught);                                             \
-    } while(false)
-#else
-#define U_REVIEW_THROW_GUARD                                                  \
-    bsls::ReviewFailureHandlerGuard u_review_guard(bsls::Review::failByAbort)
-
-enum { k_REVIEW_FAIL_IS_ENABLED = false };
-# define U_REVIEW_FAIL(expr)
-# define U_REVIEW_PASS(expr)   expr
-#endif
 
 // ============================================================================
 //          GLOBAL CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
@@ -457,9 +412,6 @@ bool TestConstraint::timeFunc(const bdlt::Time *, bsl::ostream& stream)
 
 #define TC TestConstraint
 
-bool returnTrueFunc(const bool *, bsl::ostream&) { return true; }
-bsl::function<bool (const bool *, bsl::ostream&)> testBoolConstraint(
-                                                              &returnTrueFunc);
 Constraint::    CharConstraint     testCharConstraint(&TC::    charFunc);
 Constraint::     IntConstraint      testIntConstraint(&TC::     intFunc);
 Constraint::   Int64Constraint    testInt64Constraint(&TC::   int64Func);
@@ -611,8 +563,6 @@ static const struct {
 };
 enum { NUM_OPTION_VALUES = sizeof  OPTION_VALUES / sizeof *OPTION_VALUES };
 
-bool                        parsedTrueBool      = true;
-bool                        parsedFalseBool     = false;
 char                        parsedChar          = 'a';
 int                         parsedInt           = 123654;
 Int64                       parsedInt64         = 987654321LL;
@@ -638,13 +588,7 @@ static const struct {
     const void *d_value_p;  // default value attribute(s)
     const char *d_input_p;  // default value attribute(s)
 } PARSABLE_VALUES[] = {
-  { L_, Ot::e_BOOL,           &parsedTrueBool,      ""                   }
-, { L_, Ot::e_BOOL,           &parsedTrueBool,      "1"                  }
-, { L_, Ot::e_BOOL,           &parsedFalseBool,     "0"                  }
-, { L_, Ot::e_BOOL,           &parsedTrueBool,      "true"               }
-, { L_, Ot::e_BOOL,           &parsedFalseBool,     "false"              }
-
-, { L_, Ot::e_CHAR,           &parsedChar,          "a"                   }
+  { L_, Ot::e_CHAR,           &parsedChar,          "a"                   }
 , { L_, Ot::e_INT,            &parsedInt,           "123654"              }
 , { L_, Ot::e_INT64,          &parsedInt64,         "987654321"           }
 , { L_, Ot::e_DOUBLE,         &parsedDouble,        "0.376739501953125"   }
@@ -673,13 +617,7 @@ static const struct {
 } PARSABLE_CONSTRAINTS[] = {
    //LINE TYPE                  CONSTRAINT
    //---- -------------------   ----------------------
-   { L_,  Ot::e_BOOL,           0                       }
- , { L_,  Ot::e_BOOL,           0                       }
- , { L_,  Ot::e_BOOL,           0                       }
- , { L_,  Ot::e_BOOL,           0                       }
- , { L_,  Ot::e_BOOL,           0                       }
-
- , { L_,  Ot::e_CHAR,           &testCharConstraint     }
+   { L_,  Ot::e_CHAR,           &testCharConstraint     }
  , { L_,  Ot::e_INT,            &testIntConstraint      }
  , { L_,  Ot::e_INT64,          &testInt64Constraint    }
  , { L_,  Ot::e_DOUBLE,         &testDoubleConstraint   }
@@ -875,10 +813,10 @@ void setConstraint(Obj *typeInfo, ElemType type, const void *address)
 
     switch (type) {
       case Ot::e_VOID: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached");
       } break;
       case Ot::e_BOOL: {
-        ASSERTV("!Reached", 0);
+        ASSERT(!"Reached");
       } break;
 
       CASE(Ot::e_CHAR,         CharConstraint)
@@ -891,7 +829,7 @@ void setConstraint(Obj *typeInfo, ElemType type, const void *address)
       CASE(Ot::e_TIME,         TimeConstraint)
 
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
+        BSLS_ASSERT(!"Reached");
       } break;
     }
 
@@ -943,7 +881,7 @@ void setLinkedVariable(Obj      *typeInfo,
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: 'e_VOID'");
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
 
       CASE                    (Ot::e_BOOL)
@@ -965,7 +903,7 @@ void setLinkedVariable(Obj      *typeInfo,
       CASE                    (Ot::e_TIME_ARRAY)
 
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("Reached: Unknown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
@@ -993,7 +931,7 @@ void setType(Obj *typeInfo, ElemType type)
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reachable");
+        BSLS_ASSERT(!"Reachable");
       } break;
 
       CASE(BOOL)
@@ -1015,7 +953,7 @@ void setType(Obj *typeInfo, ElemType type)
       CASE(TIME_ARRAY)
 
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: Unknown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
@@ -1110,7 +1048,7 @@ Obj *constructTypeInfo(void     *buffer,
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: e_VOID");
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
 
       CASE                    (Ot::e_BOOL)
@@ -1132,7 +1070,7 @@ Obj *constructTypeInfo(void     *buffer,
       CASE                    (Ot::e_TIME_ARRAY)
 
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: Unknown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
@@ -1191,7 +1129,7 @@ Obj *constructTypeInfo(void             *buffer,
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached");
+        BSLS_ASSERT(!"Reached");
       } break;
 
       CASE                    (Ot::e_BOOL)
@@ -1213,7 +1151,7 @@ Obj *constructTypeInfo(void             *buffer,
       CASE                    (Ot::e_TIME_ARRAY)
 
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: Unknown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
@@ -1278,10 +1216,10 @@ Obj *constructTypeInfo(void     *buffer,
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: 'e_VOID'");
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
       case Ot::e_BOOL: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: 'e_BOOL'");
+        BSLS_ASSERT(!"Reached: 'e_BOOL'");
       } break;
 
       CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR,               CharConstraint)
@@ -1302,7 +1240,7 @@ Obj *constructTypeInfo(void     *buffer,
       CASE                    (Ot::e_TIME_ARRAY,         TimeConstraint)
 
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: Unknown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
@@ -1371,10 +1309,10 @@ Obj *constructTypeInfo(void             *buffer,
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("Reached: 'e_VOID'");
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
       case Ot::e_BOOL: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: 'e_BOOL'");
+        BSLS_ASSERT(!"Reached: 'e_BOOL'");
       } break;
 
       CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR,               CharConstraint)
@@ -1395,7 +1333,7 @@ Obj *constructTypeInfo(void             *buffer,
       CASE                    (Ot::e_TIME_ARRAY,         TimeConstraint)
 
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: Unknown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
@@ -1509,7 +1447,7 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reachable");
+        BSLS_ASSERT(!"Reachable");
       } break;
       case Ot::e_BOOL: {
         dst->set(*(static_cast<const Ot::Bool          *>(src)));
@@ -1644,9 +1582,11 @@ bool areEqualValues(const OptionValue& element, const void *value)
 
     switch (element.type()) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: e_VOID");
+        BSLS_ASSERT(!"Reached: e_VOID");
       } break;
-      CASE(Ot::e_BOOL)
+      case Ot::e_BOOL: {
+        BSLS_ASSERT(!"Reached: e_BOOL");
+      } break;
       CASE(Ot::e_CHAR)
       CASE(Ot::e_INT)
       CASE(Ot::e_INT64)
@@ -1664,7 +1604,7 @@ bool areEqualValues(const OptionValue& element, const void *value)
       CASE(Ot::e_DATE_ARRAY)
       CASE(Ot::e_TIME_ARRAY)
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: Unknown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 #undef CASE
@@ -1697,10 +1637,10 @@ void printValue(ostream& stream, Ot::Enum type, const void *value)
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: e_VOID");
+        BSLS_ASSERT(!"Reached: e_VOID");
       } break;
       case Ot::e_BOOL: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: e_BOOL");
+        BSLS_ASSERT(!"Reached: e_BOOL");
       } break;
 
       CASE_SCALAR(Ot::e_CHAR)
@@ -1721,7 +1661,7 @@ void printValue(ostream& stream, Ot::Enum type, const void *value)
       CASE_ARRAY( Ot::e_DATE_ARRAY)
       CASE_ARRAY( Ot::e_TIME_ARRAY)
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: Unknown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
 #undef CASE_SCALAR
 #undef CASE_ARRAY
@@ -1784,117 +1724,6 @@ int main(int argc, const char *argv[])  {
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
-        // -------------------------------------------------------------------
-        // 'balcl::TypeInfoUtil': 'tokenizeArrayEnvironmentVariable'
-        //
-        // Concerns:
-        //: 1 That the function under test works properly given correcct input.
-        //:
-        //: 2 That the function under test works properly given incorrecct
-        //:   input.
-        //:
-        //: 3 That undefined behavior is caught with asserts.
-        //
-        // Plan:
-        //: 1 C-1 correct input:
-        //:   o Create table 'DATA' where each line gives correct input and
-        //:     the contents of the expected array result.
-        //:
-        //:   o Traverse the table, calling the function under test, observing
-        //:     that 0 is returned and the result vector is as expected.
-        //:
-        //: 2 C-2 incorrect input:
-        //:   o Create table 'DATA' where each line gives incorrect input.
-        //:
-        //:   o Traverse the table, calling the function under test, observing
-        //:     that 0 is not returned.
-        //:
-        //: 3 C-3 Undefined behavior:
-        //:   o Use 'ASSERT_FAIL' to call the function under test with input
-        //:     that causes undefined behavior and observe that the undefined
-        //:     behavior is caught via asserts.
-        //
-        // Testing:
-        //   int tokenizeArrayEnvironmentVariable(StringVec *, char *);
-        // -------------------------------------------------------------------
-
-        typedef bsl::vector<bsl::string> StringVec;
-
-        if (verbose) cout << "C-1 Parsing correct input.\n";
-
-        static const struct Data {
-            int d_line;
-            const char *d_input;
-            const char *d_exp[5];    // 0-terminated list of strings
-        } DATA[] = {
-        //    V -line                         V - expected result
-        //        V - input
-            { L_, "aa bb cc",               { "aa", "bb", "cc", 0 } },
-            { L_, "   aa    bb   cc  ",     { "aa", "bb", "cc", 0 } },
-            { L_, "arf",                    { "arf" , 0 } },
-            { L_, "aa\\  bb cc",            { "aa ", "bb", "cc", 0 } },
-            { L_, "   aa \\   bb   cc  ",   { "aa", " ", "bb", "cc", 0 }},
-            { L_, "arf\\ ",                 { "arf " , 0 } },
-            { L_, "\\ arf ",                { " arf" , 0 } },
-            { L_, "",                       { 0 } },
-            { L_, "        ",               { 0 } } };
-        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
-
-        size_t maxSize = 0;
-        for (unsigned uu = 0; uu < k_NUM_DATA; ++uu) {
-            const Data&             data      = DATA[uu];
-            const int               LINE      = data.d_line;
-            const bsl::string_view  INPUT     = data.d_input;
-            const char * const     *EXP       = data.d_exp;
-
-            StringVec expVec;    const StringVec& EXP_VEC = expVec;
-            bsl::string s;
-            for (unsigned vv = 0; EXP[vv]; ++vv) {
-                expVec.push_back(s = EXP[vv]);
-            }
-            ASSERT(EXP_VEC.size() < 5);
-
-            StringVec result;
-            int rc = ObjUtil::tokenizeArrayEnvironmentVariable(&result,
-                                                               INPUT);
-            ASSERTV(LINE, 0 == rc);
-            ASSERTV(LINE, EXP_VEC == result);
-
-            if (maxSize < result.size()) {
-                maxSize = result.size();
-            }
-        }
-
-        ASSERTV(maxSize, 4 == maxSize);
-
-        if (verbose) "C-2 Paring incorrect input.\n";
-
-        static const struct ErrorData {
-            int         d_line;
-            const char *d_input;
-        } ERROR_DATA[] = {
-            { L_, "\\arf" },
-            { L_, "   \\arf   " },
-            { L_, "arf me\\ow" },
-            { L_, "arf \\meow" },
-            { L_, "arf\\" },
-            { L_, "arf  meow\\" },
-            { L_, "arf  meow  \\" },
-            { L_, "arf meow woof\\" } };
-        enum { k_NUM_ERROR_DATA = sizeof ERROR_DATA / sizeof *ERROR_DATA };
-
-        for (unsigned uu = 0; uu < k_NUM_ERROR_DATA; ++uu) {
-            const ErrorData&       data      = ERROR_DATA[uu];
-            const int              LINE      = data.d_line;
-            const bsl::string_view INPUT     = data.d_input;
-
-            StringVec result;
-            int rc = ObjUtil::tokenizeArrayEnvironmentVariable(&result,
-                                                               INPUT);
-            ASSERTV(LINE, 0 != rc);
-        }
-      } break;
       case 10: {
         // -------------------------------------------------------------------
         // 'balcl::TypeInfoUtil': 'parseAndValidate'
@@ -1936,11 +1765,10 @@ int main(int argc, const char *argv[])  {
 
         if (verbose) cout << "Verify the signature and return type ." << endl;
         {
-            typedef bool (*functionPtr)(OptionValue             *,
-                                        const bsl::string_view&  ,
-                                        const Obj&               ,
-                                        bsl::ostream&            ,
-                                        Obj::ParseInputSource    );
+            typedef bool (*functionPtr)(OptionValue        *,
+                                        const bsl::string&  ,
+                                        const Obj&          ,
+                                        bsl::ostream&       );
 
             functionPtr classMethod = &ObjUtil::parseAndValidate;
 
@@ -1968,51 +1796,19 @@ int main(int argc, const char *argv[])  {
                                                     // no constraint
             bsl::ostringstream oss;
 
-            if (Ot::e_BOOL != TYPE || *INPUT) {
-                bool wasParsedOK = ObjUtil::parseAndValidate(
-                                                  &element,
-                                                  bsl::string(INPUT),
-                                                  *objPtr,
-                                                  oss,
-                                                  Obj::e_ENVIRONMENT_VARIABLE);
-                ASSERTV(LINE, wasParsedOK);
-                ASSERTV(LINE, oss.str().empty());
+            bool wasParsedOK = ObjUtil::parseAndValidate(&element,
+                                                         bsl::string(INPUT),
+                                                         *objPtr,
+                                                         oss);
+            ASSERTV(LINE, wasParsedOK);
+            ASSERTV(LINE, oss.str().empty());
 
-                if (veryVerbose) {
-                    P(element)
-                    u::printValue(cout, TYPE, VALUE);
-                }
-
-                ASSERTV(LINE, u::areEqualValues(element, VALUE));
+            if (veryVerbose) {
+                P(element)
+                u::printValue(cout, TYPE, VALUE);
             }
 
-            oss.str(""); oss.clear();
-            element.reset(); element.setType(TYPE);
-
-            if (Ot::e_BOOL != TYPE || !*INPUT) {
-                bool wasParsedOK = ObjUtil::parseAndValidate(
-                                                            &element,
-                                                            bsl::string(INPUT),
-                                                            *objPtr,
-                                                            oss);
-
-                ASSERTV(LINE, wasParsedOK);
-                ASSERTV(LINE, oss.str().empty());
-
-                if (veryVerbose) {
-                    P(element)
-                    u::printValue(cout, TYPE, VALUE);
-                }
-
-                ASSERTV(LINE, u::areEqualValues(element, VALUE));
-            }
-
-            if (Ot::e_BOOL == TYPE) {
-                continue;
-            }
-
-            oss.str(""); oss.clear();
-            element.reset(); element.setType(TYPE);
+            ASSERTV(LINE, u::areEqualValues(element, VALUE));
 
             const int              LINE_C     = PARSABLE_CONSTRAINTS[i].d_line;
             const ElemType         TYPE_C     = PARSABLE_CONSTRAINTS[i].d_type;
@@ -2029,10 +1825,10 @@ int main(int argc, const char *argv[])  {
             oss.str(""); oss.clear();
             element.reset(); element.setType(TYPE);
 
-            bool wasParsedOK = ObjUtil::parseAndValidate(&element,
-                                                         bsl::string(INPUT),
-                                                         *objPtr,
-                                                         oss);
+            wasParsedOK = ObjUtil::parseAndValidate(&element,
+                                                    bsl::string(INPUT),
+                                                    *objPtr,
+                                                    oss);
             ASSERTV(LINE, wasParsedOK);
             ASSERTV(LINE, oss.str().empty());
             ASSERTV(LINE, u::areEqualValues(element, VALUE));
@@ -2076,33 +1872,13 @@ int main(int argc, const char *argv[])  {
             bsl::ostringstream oss;
             OptionValue        elementOK(TYPE);
 
-            if (Ot::e_BOOL == TYPE) {
-                U_REVIEW_THROW_GUARD;
-                if (*INPUT) {
-                    U_REVIEW_FAIL(ObjUtil::parseAndValidate(&elementOK,
-                                                            INPUT,
-                                                            *objPtr,
-                                                            oss));
-                }
-                bool rc = false;
-                U_REVIEW_PASS(rc = ObjUtil::parseAndValidate(
-                                           &elementOK,
-                                           INPUT,
-                                           *objPtr,
-                                           oss,
-                                           *INPUT ? Obj::e_ENVIRONMENT_VARIABLE
-                                                  : Obj::e_COMMAND_LINE));
-                ASSERT(rc);
-            }
-            else {
-                ASSERT_PASS(ObjUtil::parseAndValidate(&elementOK,
-                                                      INPUT,
-                                                      *objPtr,
-                                                      oss));
-            }
+            ASSERT_PASS(ObjUtil::parseAndValidate(&elementOK,
+                                                  bsl::string(INPUT),
+                                                  *objPtr,
+                                                  oss));
 
             ASSERT_FAIL(ObjUtil::parseAndValidate(0,
-                                                  INPUT,
+                                                  bsl::string(INPUT),
                                                   *objPtr,
                                                   oss));
 
@@ -2114,7 +1890,7 @@ int main(int argc, const char *argv[])  {
             OptionValue elementNG(TYPE_OFFSET);
 
             ASSERT_FAIL(ObjUtil::parseAndValidate(&elementNG,
-                                                  INPUT,
+                                                  bsl::string(INPUT),
                                                   *objPtr,
                                                   oss));
             objPtr->~Obj();
@@ -2257,6 +2033,12 @@ int main(int argc, const char *argv[])  {
 
                 int completeExceptionCount = 0;
 
+                const bool usesSuppliedAllocator = 'f' == cfg;
+                    // Supplied allocator used to wrap a user-supplied
+                    // constraint.  Otherwise, the implementation uses the
+                    // default allocator to create shared pointers the
+                    // "always true" constraints.
+
                 bslma::TestAllocatorMonitor dam(&da);
                 bslma::TestAllocatorMonitor sam(&sa);
 
@@ -2321,7 +2103,7 @@ int main(int argc, const char *argv[])  {
                         xOa = &sa;
                       } break;
                       default: {
-                        BSLS_ASSERT_INVOKE_NORETURN("!Reachable");
+                        BSLS_ASSERT(!"Reachable");
                       } break;
                     }
                     ++completeExceptionCount;
@@ -2329,26 +2111,19 @@ int main(int argc, const char *argv[])  {
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 ASSERTV(CONFIG, xPtr);
-                ASSERTV(CONFIG, &sa == xOa || &da == xOa);
+                ASSERTV(CONFIG, xOa);
                 ASSERTV(CONFIG, 1 == completeExceptionCount);
-
-                const bool usesSuppliedAllocator = &sa == xOa;
-                    // Supplied allocator used to wrap a user-supplied
-                    // constraint.  Otherwise, the implementation uses the
-                    // default allocator to create shared pointers the
-                    // "always true" constraints.
 
                 if (veryVerbose) {
                     P_(CONFIG)
                     P_(dam.isTotalUp())
-                    P(sam.isTotalUp())
+                     P(sam.isTotalUp())
                 }
 
                 // Vet allocator usage.
 
                 if (usesSuppliedAllocator) {
                       ASSERT(sam.isTotalUp());
-                      ASSERT(dam.isTotalSame());
                 } else {
                       ASSERT(dam.isTotalUp());
                 }
@@ -2629,7 +2404,7 @@ int main(int argc, const char *argv[])  {
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, "Bad allocator config.", 0);
+                    ASSERTV(CONFIG, !"Bad allocator config.");
                   } break;
                 }
 
@@ -2650,7 +2425,7 @@ int main(int argc, const char *argv[])  {
                     objPtr = new (fa) Obj(X, &sa);  // ACTION
                   } break;
                   default: {
-                    ASSERTV(CONFIG, "Bad allocator config.", 0);
+                    ASSERTV(CONFIG, !"Bad allocator config.");
                   } break;
                 }
 
@@ -3522,7 +3297,7 @@ int main(int argc, const char *argv[])  {
 
             Obj mX(&sa);  const Obj& X = mX;
 
-            LOOP_ASSERT(LINE, dam.isTotalSame());
+            LOOP_ASSERT(LINE, sam.isTotalSame());
 
             LOOP_ASSERT(LINE, Ot::e_STRING == X.type());
             LOOP_ASSERT(LINE, 0            == X.linkedVariable());
@@ -3537,8 +3312,12 @@ int main(int argc, const char *argv[])  {
                            IS_OPTIONAL_LINKED_VARIABLE,
                            CONSTRAINT);  // ACTION
 
-            LOOP_ASSERT(LINE, sam.isTotalUp());
-            LOOP_ASSERT(LINE, dam.isTotalSame());
+            if (CONSTRAINT) {
+                LOOP_ASSERT(LINE, sam.isTotalUp());
+            } else {
+                LOOP_ASSERT(LINE, sam.isTotalSame());
+            }
+            LOOP_ASSERT(LINE, dam.isTotalUp());
 
             LOOP_ASSERT(LINE, TYPE     == X.type());
             LOOP_ASSERT(LINE, VARIABLE == X.linkedVariable());

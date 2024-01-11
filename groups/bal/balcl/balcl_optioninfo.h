@@ -33,20 +33,8 @@ BSLS_IDENT("$Id: $")
 #include <balcl_typeinfo.h>
 #include <balcl_occurrenceinfo.h>
 
-#include <bsls_compilerfeatures.h>
-
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
-
-// Optioninfo is intended to be aggregate-initialized.  This means that in
-// C++03, it must not have constructors declared.  Declaring the constructors
-// is useful in C++11 and beyond because it avoids warnings when later fields
-// are not initialized by the aggregate.
-
-#undef   BALCL_OPTIONINFO_HAS_CONSTRUCTORS
-#if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
-# define BALCL_OPTIONINFO_HAS_CONSTRUCTORS
-#endif
 
 namespace BloombergLP {
 namespace balcl {
@@ -109,94 +97,12 @@ struct OptionInfo {
 
     bsl::string    d_description;  // description used in printing usage
 
-    TypeInfo       d_typeInfo;     // Optional field.  Within that,
-                                   //: o (optional) type/variable to be linked,
-                                   //: o (optional) constraint
+    TypeInfo       d_typeInfo;     // (optional) type/variable to be linked,
+                                   // (optional) constraint
 
-    OccurrenceInfo d_defaultInfo;  // Optional -- two sub-parts:
-                                   //: o whether the option is required,
-                                   //:   optional, or hidden (default is
-                                   //:   optional)
-                                   //: o optionally, a default value.
-
-    bsl::string    d_environmentVariableName;
-                                   // Optional -- environment variable name
-
-#ifdef BALCL_OPTIONINFO_HAS_CONSTRUCTORS
-    // CREATORS
-    OptionInfo(bsl::string_view            tag = "",
-               bsl::string_view            name = "",
-               bsl::string_view            description = "");       // IMPLICIT
-        // Create an 'OptionInfo' with the specified 'tag', 'name', and
-        // 'description', with 'd_typeInfo', 'd_defaultInfo', and
-        // 'd_environmentVariableName' default-constructed.
-
-    template <class t_TYPEINFO_ARG>
-    OptionInfo(bsl::string_view            tag,
-               bsl::string_view            name,
-               bsl::string_view            description,
-               const t_TYPEINFO_ARG&       typeInfo);
-        // Create an 'OptionInfo' with the specified 'tag', 'name',
-        // 'description', and 'typeInfo', with 'd_defaultInfo', and
-        // 'd_environmentVariableName' default-constructed.
-
-    template <class t_TYPEINFO_ARG, class t_OCCURRENCEINFO_ARG>
-    OptionInfo(bsl::string_view            tag,
-               bsl::string_view            name,
-               bsl::string_view            description,
-               const t_TYPEINFO_ARG&       typeInfo,
-               const t_OCCURRENCEINFO_ARG& defaultInfo,
-               bsl::string_view            envVarName = "");
-        // Create an 'OptionInfo' with the specified 'tag', 'name',
-        // 'description', 'typeInfo', 'defaultInfo', and 'envVarName'.
-#endif
+    OccurrenceInfo d_defaultInfo;  // indicates if the option is required, and
+                                   // a potential default value
 };
-
-#ifdef BALCL_OPTIONINFO_HAS_CONSTRUCTORS
-// CREATORS
-inline
-OptionInfo::OptionInfo(bsl::string_view      tag,
-                       bsl::string_view      name,
-                       bsl::string_view      description)
-: d_tag(tag)
-, d_name(name)
-, d_description(description)
-, d_typeInfo()
-, d_defaultInfo()
-, d_environmentVariableName()
-{
-}
-
-template <class t_TYPEINFO_ARG>
-OptionInfo::OptionInfo(bsl::string_view            tag,
-                       bsl::string_view            name,
-                       bsl::string_view            description,
-                       const t_TYPEINFO_ARG&       typeInfo)
-: d_tag(tag)
-, d_name(name)
-, d_description(description)
-, d_typeInfo(typeInfo)
-, d_defaultInfo()
-, d_environmentVariableName()
-{
-}
-
-template <class t_TYPEINFO_ARG, class t_OCCURRENCEINFO_ARG>
-OptionInfo::OptionInfo(bsl::string_view            tag,
-                       bsl::string_view            name,
-                       bsl::string_view            description,
-                       const t_TYPEINFO_ARG&       typeInfo,
-                       const t_OCCURRENCEINFO_ARG& defaultInfo,
-                       bsl::string_view            envVarName)
-: d_tag(tag)
-, d_name(name)
-, d_description(description)
-, d_typeInfo(typeInfo)
-, d_defaultInfo(defaultInfo)
-, d_environmentVariableName(envVarName)
-{
-}
-#endif
 
 // FREE OPERATORS
 bool operator==(const OptionInfo& lhs, const OptionInfo& rhs);
@@ -232,23 +138,21 @@ bsl::ostream& operator<<(bsl::ostream& stream, const OptionInfo& rhs);
 inline
 bool balcl::operator==(const OptionInfo& lhs, const OptionInfo& rhs)
 {
-    return lhs.d_tag                      == rhs.d_tag
-        && lhs.d_name                     == rhs.d_name
-        && lhs.d_description              == rhs.d_description
-        && lhs.d_typeInfo                 == rhs.d_typeInfo
-        && lhs.d_defaultInfo              == rhs.d_defaultInfo
-        && lhs.d_environmentVariableName  == rhs.d_environmentVariableName;
+    return lhs.d_tag         == rhs.d_tag
+        && lhs.d_name        == rhs.d_name
+        && lhs.d_description == rhs.d_description
+        && lhs.d_typeInfo    == rhs.d_typeInfo
+        && lhs.d_defaultInfo == rhs.d_defaultInfo;
 }
 
 inline
 bool balcl::operator!=(const OptionInfo& lhs, const OptionInfo& rhs)
 {
-    return lhs.d_tag                      != rhs.d_tag
-        || lhs.d_name                     != rhs.d_name
-        || lhs.d_description              != rhs.d_description
-        || lhs.d_typeInfo                 != rhs.d_typeInfo
-        || lhs.d_defaultInfo              != rhs.d_defaultInfo
-        || lhs.d_environmentVariableName  != rhs.d_environmentVariableName;
+    return lhs.d_tag         != rhs.d_tag
+        || lhs.d_name        != rhs.d_name
+        || lhs.d_description != rhs.d_description
+        || lhs.d_typeInfo    != rhs.d_typeInfo
+        || lhs.d_defaultInfo != rhs.d_defaultInfo;
 }
 
 }  // close enterprise namespace
