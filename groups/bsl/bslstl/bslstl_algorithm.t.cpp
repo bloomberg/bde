@@ -18,12 +18,13 @@
 
 #include <bsltf_testvaluesarray.h>
 
-#include <functional>
-#include <limits.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>      // atoi
-#include <string.h>      // strlen
+#include <cstddef>
+#include <cstdio>
+#include <cstdlib>     // atoi
+#include <functional>  // greater
+#include <list>
+#include <string>
+#include <vector>
 
 // ============================================================================
 //                             TEST PLAN
@@ -38,6 +39,7 @@
 // [ 2] BREATHING TEST
 // [ 3] bsl::clamp();
 // [ 4] bsl::lexicographical_compare_three_way()
+// [ 5] OUTPUT_ITERATOR copyN(INPUT_ITERATOR i, SIZE s,OUTPUT_ITERATOR o);
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -337,6 +339,53 @@ inline Type *array_end(Type (&arr)[Size])
     return arr + Size;
 }
 
+template <class t_CONTAINER_TYPE, class t_SIZE_TYPE>
+void testCopyN()
+    // Test 'bslstl::AlgorithmUtil::copyN' function.
+{
+    typedef typename t_CONTAINER_TYPE::value_type ValueType;
+    typedef typename t_CONTAINER_TYPE::iterator   Iterator;
+
+    const int               SIZE              = 10;
+    const t_SIZE_TYPE       MAX_ITEMS_TO_COPY = 5;
+    t_CONTAINER_TYPE        in;
+    t_CONTAINER_TYPE        out;
+
+    for (int i = 0; i < SIZE; ++i) {
+        in.push_back(static_cast<ValueType>(i));
+        out.push_back(static_cast<ValueType>(i + SIZE));
+    }
+
+    for (t_SIZE_TYPE i = 0; i < MAX_ITEMS_TO_COPY; ++i) {
+        const t_SIZE_TYPE NUM_ITEMS_TO_COPY = i;
+        Iterator          expected          = out.begin();
+        for (t_SIZE_TYPE j = 0; j < NUM_ITEMS_TO_COPY; ++j) {
+            ++expected;
+        }
+
+        Iterator result = bslstl::AlgorithmUtil::copyN(in.begin(),
+                                                       NUM_ITEMS_TO_COPY,
+                                                       out.begin());
+
+        ASSERT(expected == result);
+
+        Iterator shuttleIn =  in.begin();
+        Iterator shuttleOut = out.begin();
+        for (t_SIZE_TYPE j = 0; j < NUM_ITEMS_TO_COPY; ++j) {
+            ASSERTV(*shuttleIn, *shuttleOut, *shuttleIn == *shuttleOut);
+            ++shuttleIn;
+            ++shuttleOut;
+        }
+        for (t_SIZE_TYPE j = NUM_ITEMS_TO_COPY;
+             j < static_cast<t_SIZE_TYPE>(SIZE);
+             ++j) {
+            ASSERTV(*shuttleIn, *shuttleOut, *shuttleIn != *shuttleOut);
+            ++shuttleIn;
+            ++shuttleOut;
+        }
+    }
+}
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -353,6 +402,40 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'AlgorithmUtil::copyN'
+        //
+        // Concerns:
+        //: 1 The 'AlgorithmUtil::copyN' function correctly handles any type of
+        //:   passed iterators starting from input iterator.
+        //:
+        //: 2 The 'AlgorithmUtil::copyN' function returns only one iterator
+        //:   pointing to the next element after the last copied in the output
+        //:   range.
+        //
+        // Plan:
+        //: 1 Create a simple example that invokes function passing iterators
+        //:   of different types as parameters and verifies the results.
+        //:   (C-1..2)
+        //
+        // Testing
+        //   OUTPUT_ITERATOR copyN(INPUT_ITERATOR i, SIZE s,OUTPUT_ITERATOR o);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'AlgorithmUtil::copyN'"
+                            "\n==============================\n");
+        testCopyN<std::vector<int>, char  >();
+        testCopyN<std::vector<int>, int   >();
+        testCopyN<std::vector<int>, size_t>();
+        testCopyN<std::list<int>,   char  >();
+        testCopyN<std::list<int>,   int   >();
+        testCopyN<std::list<int>,   size_t>();
+        testCopyN<std::string,      char  >();
+        testCopyN<std::string,      int   >();
+        testCopyN<std::string,      size_t>();
+
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING C++20 'lexicographical_compare_three_way'

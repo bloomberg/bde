@@ -232,6 +232,7 @@ using namespace BloombergLP;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [38] CONCERN: 'copy_n' function is usable from 'bsl'.
 // [37] C++20 'bsl_type_traits.h' HEADER ADDITIONS
 // [36] C++20 'std::ranges' interop with 'bsl::array' CONTAINER
 // [35] bsl::coroutine_traits<>
@@ -902,6 +903,58 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 38: {
+        // --------------------------------------------------------------------
+        // TESTING 'bsl::copy_n'
+        //
+        // Concerns:
+        //: 1 The 'copy_n' function is available in 'bsl' to users who include
+        //:   'bsl_algorithm.h'.
+        //
+        // Plan:
+        //: 1 Create a simple example that uses the function.  Compilation of
+        //:   the example demonstrates that the function can be found in 'bsl'.
+        //
+        // Testing
+        //   CONCERN: 'copy_n' function is usable from 'bsl'.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'bsl::copy_n'"
+                            "\n=====================\n");
+
+        typedef bsl::vector<int>       Vector;
+        typedef Vector::iterator       Iterator;
+        typedef Vector::const_iterator ConstIterator;
+
+        const int     SIZE      = 10;
+        const size_t  NUM_ITEMS_TO_COPY = 5;
+        Vector        in;
+        Vector        out;
+
+        for (int i = 0; i < SIZE; ++i) {
+            in.push_back(i);
+            out.push_back(i + 10);
+        }
+
+        ConstIterator EXPECTED_IN  = in.cbegin() + NUM_ITEMS_TO_COPY;
+        Iterator      EXPECTED_OUT = out.begin() + NUM_ITEMS_TO_COPY;
+
+        bsl::pair<ConstIterator, Iterator> result =
+                      bsl::copy_n(in.cbegin(), NUM_ITEMS_TO_COPY, out.begin());
+
+        ConstIterator resultIn  = result.first;
+        Iterator      resultOut = result.second;
+
+        ASSERT(EXPECTED_IN  == resultIn);
+        ASSERT(EXPECTED_OUT == resultOut);
+
+        for (size_t i = 0; i < NUM_ITEMS_TO_COPY; ++i) {
+            ASSERTV(in[i], out[i], in[i] == out[i]);
+        }
+        for (size_t i = NUM_ITEMS_TO_COPY; i < in.size(); ++i) {
+            ASSERTV(in[i], out[i], in[i] != out[i]);
+        }
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_type_traits.h' HEADER ADDITIONS

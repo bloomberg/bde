@@ -47,6 +47,27 @@ struct AlgorithmUtil {
     // Provide a namespace for implementing helper routines for algorithm
     // implementations.
 
+  private:
+    // PRIVATE CLASS METHODS
+    template <class t_INPUT_ITERATOR, class t_SIZE, class t_OUTPUT_ITERATOR>
+    static
+    t_OUTPUT_ITERATOR copyNImp(t_INPUT_ITERATOR               first,
+                               t_SIZE                         count,
+                               t_OUTPUT_ITERATOR              result,
+                               const bsl::input_iterator_tag&);
+    template <class t_RANDOM_ACCESS_ITERATOR,
+              class t_SIZE,
+              class t_OUTPUT_ITERATOR>
+    static
+    t_OUTPUT_ITERATOR copyNImp(t_RANDOM_ACCESS_ITERATOR               first,
+                               t_SIZE                                 count,
+                               t_OUTPUT_ITERATOR                      result,
+                               const bsl::random_access_iterator_tag&);
+        // Copy the specified 'count' elements from the specified 'first'
+        // to the specified 'result'.   Return an iterator pointing past
+        // the last copied element in the output range.
+
+  public:
     // CLASS FUNCTIONS
     template <class CONTAINER, class PREDICATE>
     static
@@ -55,6 +76,15 @@ struct AlgorithmUtil {
         // Erase all the elements in the specified container 'container' that
         // satisfy the specified predicate 'predicate'.  Return the number of
         // elements erased.
+
+    template <class t_INPUT_ITERATOR, class t_SIZE, class t_OUTPUT_ITERATOR>
+    static
+    t_OUTPUT_ITERATOR copyN(t_INPUT_ITERATOR  first,
+                            t_SIZE            count,
+                            t_OUTPUT_ITERATOR result);
+        // Copy the specified 'count' elements from the specified 'first'
+        // to the specified 'result'.   Return an iterator pointing past
+        // the last copied element in the output range.
 };
 
 }  // close package namespace
@@ -465,6 +495,37 @@ namespace ranges {
                         // struct AlgorithmUtil
                         // --------------------
 
+// PRIVATE CLASS METHODS
+template <class t_INPUT_ITERATOR, class t_SIZE, class t_OUTPUT_ITERATOR>
+inline
+t_OUTPUT_ITERATOR BloombergLP::bslstl::AlgorithmUtil::copyNImp(
+                                         t_INPUT_ITERATOR               first,
+                                         t_SIZE                         count,
+                                         t_OUTPUT_ITERATOR              result,
+                                         const bsl::input_iterator_tag&)
+{
+    for ( ; count > 0; --count) {
+        *result = *first;
+        ++first;
+        ++result;
+    }
+    return result;
+}
+
+template <class t_RANDOM_ACCESS_ITERATOR,
+          class t_SIZE,
+          class t_OUTPUT_ITERATOR>
+inline
+t_OUTPUT_ITERATOR BloombergLP::bslstl::AlgorithmUtil::copyNImp(
+                                        t_RANDOM_ACCESS_ITERATOR first,
+                                        t_SIZE                   count,
+                                        t_OUTPUT_ITERATOR        result,
+                                        const bsl::random_access_iterator_tag&)
+{
+    return std::copy(first, first + count, result);
+}
+
+// CLASS METHODS
 template <class CONTAINER, class PREDICATE>
 inline
 typename CONTAINER::size_type
@@ -482,6 +543,21 @@ BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(CONTAINER& container,
         }
     }
     return oldSize - container.size();
+}
+
+template <class t_INPUT_ITERATOR, class t_SIZE, class t_OUTPUT_ITERATOR>
+inline
+t_OUTPUT_ITERATOR BloombergLP::bslstl::AlgorithmUtil::copyN(
+                                                      t_INPUT_ITERATOR  first,
+                                                      t_SIZE            count,
+                                                      t_OUTPUT_ITERATOR result)
+{
+    typedef typename bsl::iterator_traits<t_INPUT_ITERATOR>::iterator_category
+                                                                           Tag;
+    return BloombergLP::bslstl::AlgorithmUtil::copyNImp(first,
+                                                        count,
+                                                        result,
+                                                        Tag());
 }
 
 #ifdef BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES

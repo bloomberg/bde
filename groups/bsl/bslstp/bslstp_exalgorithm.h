@@ -71,10 +71,55 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
+                         // ==============
+                         // class CopyNRet
+                         // ==============
+
+template <typename t_INPUT_IT, typename t_OUTPUT_IT>
+class CopyNRet {
+    // This class is an adapter, allowing users of the 'bsl::copy_n' function
+    // to seamlessly switch from one return type of that function to another.
+    // This class is created for a strictly defined task and is not intended
+    // for use outside the BDE library.  Do not use it under any circumstances.
+
+  private:
+    // DATA
+    pair<t_INPUT_IT, t_OUTPUT_IT> d_data;  // value returned from 'bsl::copy_n'
+
+  public:
+    // PUBLIC DATA
+    t_OUTPUT_IT&                  second;  // alias for output iterator in
+                                           // returned value
+
+    // CREATORS
+    CopyNRet(t_INPUT_IT iit, t_OUTPUT_IT oit)
+       // Create a 'StringRefData' object having the pair of specified 'iit'
+       // and 'oit' itarators as a value.
+    : d_data(iit, oit)
+    , second(d_data.second)
+    {
+    }
+
+    // ACCESSORS
+    template <typename T1, typename T2>
+    operator pair<T1, T2>() const
+        // Return a pair of iterators having the value returned from
+        // 'bsl::copy_n'.
+    {
+        return d_data;
+    }
+
+    operator t_OUTPUT_IT() const
+        // Return an output iterator having the value of output iterator
+        // returned from 'bsl::copy_n'.
+    {
+        return second;
+    }
+};
 
 // PRIVATE FREE FUNCTIONS
 template <class InputIter, class Size, class OutputIter>
-pair<InputIter, OutputIter>
+CopyNRet<InputIter, OutputIter>
 bslstp_ExAlgorithm_CopyNImp(InputIter  first,
                             Size       count,
                             OutputIter result,
@@ -85,27 +130,27 @@ bslstp_ExAlgorithm_CopyNImp(InputIter  first,
         ++first;
         ++result;
     }
-    return pair<InputIter, OutputIter>(first, result);
+    return CopyNRet<InputIter, OutputIter>(first, result);
 }
 
 template <class RAIter, class Size, class OutputIter>
 inline
-pair<RAIter, OutputIter>
+CopyNRet<RAIter, OutputIter>
 bslstp_ExAlgorithm_CopyNImp(RAIter     first,
                             Size       count,
                             OutputIter result,
                             const      random_access_iterator_tag&)
 {
     RAIter last = first + count;
-    return pair<RAIter, OutputIter>(last, std::copy(first, last, result));
+    return CopyNRet<RAIter, OutputIter>(last, std::copy(first, last, result));
 }
 
 // FREE FUNCTIONS
 template <class InputIter, class Size, class OutputIter>
 inline
-pair<InputIter, OutputIter> copy_n(InputIter  first,
-                                   Size       count,
-                                   OutputIter result)
+CopyNRet<InputIter, OutputIter> copy_n(InputIter  first,
+                                       Size       count,
+                                       OutputIter result)
     // Copy the specified 'count' elements from the specified 'first' address
     // to the specified 'result' address.
 {
