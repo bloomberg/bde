@@ -1039,7 +1039,7 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<Struct  &&>(std::move(s), L_);
         testForwardToTargetRef<Union   &&>(std::move(u), L_);
         testForwardToTargetRef<Class   &&>(std::move(c), L_);
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
         // The following 6 tests fail for MS Visual C++ (tested up to VC 2013).
         // Suspect the optimizer is creating a temporary, rather than truly
         // passing by reference, when given a fundamental/primitive type.

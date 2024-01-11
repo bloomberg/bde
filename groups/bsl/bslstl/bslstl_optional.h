@@ -2863,7 +2863,7 @@ BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
     // compile if TYPE doesn't use allocators.
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 // MSVC2013 has a bug that causes deduction issues in free template functions
 // that have an 'std::initializer_list' argument where the
 // 'std::initializer_list' element type is deduced.
@@ -2907,7 +2907,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(ARG),
     // default allocator will be used for the 'optional' object.
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 // MSVC2013 has a bug that causes deduction issues in free template functions
 // that have an 'std::initializer_list' argument where the
 // 'std::initializer_list' element type is deduced.
@@ -5607,7 +5607,7 @@ BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 template <class TYPE, class INIT_LIST_TYPE, class... ARGS>
 BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
@@ -5651,7 +5651,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(ARG)     arg,
 }
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 template <class TYPE, class INIT_LIST_TYPE, class... ARGS>
 BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(

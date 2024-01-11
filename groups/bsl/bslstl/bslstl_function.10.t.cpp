@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
     // MSVC 2019 (and before) do not implement "return value optimization", so
     // these tests will not work on that platform.   MSVC 2022 is fine.
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
-# if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1930
+# if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1930)
         {
             typedef bsl::function<NonCopyableDeleted()> Obj;
 

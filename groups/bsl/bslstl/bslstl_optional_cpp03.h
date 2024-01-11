@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 13 12:43:26 2023
+// Generated on Thu Jan 11 05:07:56 2024
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -4874,7 +4874,7 @@ BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
 
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 #if BSLSTL_OPTIONAL_VARIADIC_LIMIT_G >= 0
 template <class TYPE, class INIT_LIST_TYPE>
@@ -5075,7 +5075,7 @@ BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)...          args);
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 template <class TYPE, class INIT_LIST_TYPE, class... ARGS>
 BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
@@ -5278,7 +5278,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(ARG),
 
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 #if BSLSTL_OPTIONAL_VARIADIC_LIMIT_H >= 0
 template <class TYPE, class INIT_LIST_TYPE>
@@ -5457,7 +5457,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(ARG),
               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)...);
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 template <class TYPE, class INIT_LIST_TYPE, class... ARGS>
 BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
@@ -11984,7 +11984,7 @@ BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
 #define BSLSTL_OPTIONAL_VARIADIC_LIMIT_P BSLSTL_OPTIONAL_VARIADIC_LIMIT
 #endif
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 #if BSLSTL_OPTIONAL_VARIADIC_LIMIT_P >= 0
 template <class TYPE, class INIT_LIST_TYPE>
@@ -12300,7 +12300,7 @@ BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 template <class TYPE, class INIT_LIST_TYPE, class... ARGS>
 BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
@@ -12609,7 +12609,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(ARG)     arg,
 
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 #if BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 0
 template <class TYPE, class INIT_LIST_TYPE>
@@ -12881,7 +12881,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(ARG)     arg,
 }
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
 template <class TYPE, class INIT_LIST_TYPE, class... ARGS>
 BSLS_KEYWORD_CONSTEXPR bsl::optional<TYPE> make_optional(
@@ -13141,7 +13141,7 @@ inline constexpr bool _Is_specialization_v<bsl::optional<_Tp>, std::optional> =
 #endif // ! defined(INCLUDED_BSLSTL_OPTIONAL_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

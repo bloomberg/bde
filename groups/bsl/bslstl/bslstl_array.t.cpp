@@ -3654,7 +3654,7 @@ void TestDriver<TYPE, SIZE>::testCase12()
 
     }
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
     // According to https://msdn.microsoft.com/en-us/library/hh567368.aspx
     // Visual Studio 2015 has the first MS compiler, that supports compiler
     // generated move assignment operator:
@@ -3796,7 +3796,7 @@ void TestDriver<TYPE, SIZE>::testCase11()
         ASSERTV(SIZE, W == Y);
     }
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
     // According to https://msdn.microsoft.com/en-us/library/hh567368.aspx
     // Visual Studio 2015 has the first MS compiler, that supports compiler
     // generated move constructor:

@@ -1998,7 +1998,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
     // map(initializer_list<value_type>, const Compare& = Compare(),
     //                                   const Allocator& = Allocator());
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION != 1800
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800)
     // MSVC cl 18.00 fails to compile for KEY/VALUE int/int or char/char.
     bsl::map<KEY, VALUE, COMP, StlAlloc> H({});
 #endif
@@ -2144,7 +2144,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
 
     // C++11 only:
     // template <class P> pair<iterator, bool> insert(P&& x);
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION != 1800
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800)
     // MSVC cl 18.00 fails to compile for KEY/VALUE int/int or char/char.
     pair<typename Obj::iterator, bool> (Obj::*methodInsert2)(
                  BSLS_COMPILERFEATURES_FORWARD_REF(typename Obj::value_type)) =
@@ -2160,7 +2160,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
 
     // C++11 only:
     // template <class P> iterator insert(const_iterator position, P&&);
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION != 1800
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800)
     // MSVC cl 18.00 fails to compile for KEY/VALUE int/int or char/char.
     typename Obj::iterator (Obj::*methodInsert4)(
                  typename Obj::const_iterator,

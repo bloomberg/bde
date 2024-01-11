@@ -191,14 +191,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-# if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1900
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) && \
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
     // The Microsoft implementation of native traits allows binding of rvalues
     // (including temporaries invented for conversion) to 'const volatile &'
     // references.  Early versions also do not correctly disallow conversion
     // from itself for types that are neither copy- nor move-constructible.
 #   define BSLMF_ISCONVERTIBLE_USE_NATIVE_TRAITS
-# endif
 #endif
 
 namespace bsl {

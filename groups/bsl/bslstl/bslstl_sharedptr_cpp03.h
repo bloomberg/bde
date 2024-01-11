@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jul  5 08:14:58 2023
+// Generated on Thu Jan 11 05:07:57 2024
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -35,7 +35,7 @@
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS) \
- && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1900)
+ && !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 # define BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS 1
 
 #if BSLS_PLATFORM_CMP_VERSION >= 1910 &&                                      \

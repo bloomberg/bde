@@ -7322,7 +7322,7 @@ void TestDriver<TYPE>::testCase17b()
                                       &oa);
      }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&        \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
     if (veryVerbose)
         printf("\tUsing 'initializer_list' argument.\n");
 
@@ -8028,7 +8028,7 @@ void TestDriver<TYPE>::testCase16b()
                             MoveUtil::move(VA10)));
      }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&        \
-    (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION >= 1900))
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 
     if (veryVerbose)
         printf("\tUsing 'initializer_list' argument.\n");
