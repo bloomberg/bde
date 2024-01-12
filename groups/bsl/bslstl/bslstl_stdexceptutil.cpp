@@ -13,7 +13,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_stackaddressutil.h>
 
 #include <stdexcept>
-#include <string>
+
+// Because this is global, the compiler cannot be sure another translation unit
+// hasn't changed its value.  Only we know that it isn't declared anywhere
+// else, so it's guaranteed to be 'true'.
+
+bool bloombergLP_bslstl_StdExceptUtil_alwaysTrue = true;
 
 namespace {
 namespace u {
@@ -65,12 +70,11 @@ void ExceptionSource<t_EXCEPTION>::doThrow(const char *message)
 
     // We want to throw unconditionally here, but if the optimizer knows that,
     // it may chain the call to 'doThrow' and the calling function will not
-    // show up in the stack trace.  So we pass a non-zero pointer, any pointer,
-    // through 'identityPtr' which passes it through another translation unit
-    // and returns it unmodified, and then throw based on that.  This way,
-    // the optimizer thinks we might return when in fact we never will.
+    // show up in the stack trace.  So we test a global variable that we know
+    // is always true, but the compiler can't know that.  This way, the
+    // optimizer thinks we might return when in fact we never will.
 
-    if (0 != bsls::BslTestUtil::identityPtr(&preThrowHook)) {
+    if (bloombergLP_bslstl_StdExceptUtil_alwaysTrue) {
         BSLS_THROW(t_EXCEPTION(message));
     }
 }
