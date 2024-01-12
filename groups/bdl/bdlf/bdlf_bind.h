@@ -1248,7 +1248,7 @@ class BindWrapper {
                 bslma::Allocator                           *allocator = 0)
         // Create a wrapper with shared pointer semantics around a binder
         // constructed with the specified 'func' invocable and specified
-        // 'tuple' bound arguments.
+        // 'tuple' bound arguments.  Optionally specify the 'allocator'.
     {
         this->d_impl.createInplace(allocator, func, tuple, allocator);
     }
@@ -1258,7 +1258,7 @@ class BindWrapper {
                 bslma::Allocator                           *allocator = 0)
         // Create a wrapper with shared pointer semantics around a binder
         // constructed with the specified 'func' invocable and specified
-        // 'tuple' bound arguments.
+        // 'tuple' bound arguments.  Optionally specify the 'allocator'.
     {
         this->d_impl.createInplace(allocator,
                                    func,
