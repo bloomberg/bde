@@ -1268,14 +1268,13 @@ class BindWrapper {
 
     BindWrapper(const BindWrapper<RET,FUNC,TUPLE>&  original)
         // Create a wrapper that shares ownership of the binder of the
-        // specified 'original'.  Optionally specify the 'allocator'.
+        // specified 'original'.
     : d_impl(original.d_impl)
     {
     }
 
-    BindWrapper(bslmf::MovableRef<BindWrapper<RET, FUNC, TUPLE> >
-                    original)
-        BSLS_KEYWORD_NOEXCEPT
+    BindWrapper(bslmf::MovableRef<BindWrapper<RET, FUNC, TUPLE> > original)
+                                                          BSLS_KEYWORD_NOEXCEPT
         // Create a wrapper that assumes ownership of the binder of the
         // specified 'original'.
     : d_impl(MoveUtil::move(MoveUtil::access(original).d_impl))
@@ -2969,8 +2968,10 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0 >
     bindS(bslma::Allocator *allocator, FUNC func)
-        // Return a 'bdlf::Bind' object that is bound to the specified 'func'
-        // invocable object which can be invoked with no parameters.
+        // Return a 'BindWrapper' object that is bound to the specified 'func'
+        // invocable object which can be invoked with no parameters, using the
+        // specified 'allocator' to supply memory, or the currently installed
+        // default allocator if 'allocator == 0'.
     {
         return BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0>
                                     (func, bdlf::Bind_BoundTuple0(),allocator);
@@ -2984,8 +2985,10 @@ class BindUtil {
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with one parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with one parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1), allocator);
@@ -3004,8 +3007,10 @@ class BindUtil {
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with two parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with two parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type> ListType;
@@ -3030,8 +3035,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
           BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
           BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with three parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with three parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3060,8 +3067,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
           BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with four parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with four parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3094,8 +3103,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
           BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with five parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with five parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3133,8 +3144,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
           BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
           BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with six parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with six parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3176,8 +3189,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
           BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
           BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with seven parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with seven parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3223,8 +3238,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
           BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
           BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with eight parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with eight parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3274,8 +3291,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
           BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8,
           BSLS_COMPILERFEATURES_FORWARD_REF(P9) p9)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with nine parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with nine parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3329,8 +3348,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
           BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
           BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10)
-        // Return a 'bdlf::Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with ten parameters.
+        // Return a 'BindWrapper' object that is bound to the specified
+        // invocable object 'func', which can be invoked with ten parameters,
+        // using the specified 'allocator' to supply memory, or the currently
+        // installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
@@ -3388,9 +3409,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
           BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
           BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with eleven
-        // parameters.
+        // parameters, using the specified 'allocator' to supply memory, or the
+        // currently installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
@@ -3453,9 +3475,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
           BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
           BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with twelve
-        // parameters.
+        // parameters, using the specified 'allocator' to supply memory, or the
+        // currently installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
@@ -3522,9 +3545,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
           BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
           BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with thirteen
-        // parameters.
+        // parameters, using the specified 'allocator' to supply memory, or the
+        // currently installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
@@ -3595,9 +3619,10 @@ class BindUtil {
           BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
           BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13,
           BSLS_COMPILERFEATURES_FORWARD_REF(P14) p14)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with fourteen
-        // parameters.
+        // parameters, using the specified 'allocator' to supply memory, or the
+        // currently installed default allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
@@ -3640,9 +3665,11 @@ class BindUtil {
     static
     BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0 >
     bindSR(bslma::Allocator *allocator, FUNC func)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with no parameters and
-        // returns a value of type 'RET'.
+        // returns a value of type 'RET', using the specified 'allocator' to
+        // supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         return BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0>
                                    (func, bdlf::Bind_BoundTuple0(), allocator);
@@ -3656,9 +3683,11 @@ class BindUtil {
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameter and
-        // returns a value of type 'RET'.
+        // returns a value of type 'RET', using the specified 'allocator' to
+        // supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1), allocator);
@@ -3677,9 +3706,11 @@ class BindUtil {
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
            BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type> ListType;
@@ -3704,9 +3735,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
            BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
            BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with three parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3735,9 +3768,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
            BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
            BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3771,9 +3806,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
            BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
            BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3811,9 +3848,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
            BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
            BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3855,9 +3894,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
            BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
            BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with seven parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3903,9 +3944,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
            BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
            BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with eight parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -3955,9 +3998,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
            BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8,
            BSLS_COMPILERFEATURES_FORWARD_REF(P9) p9)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with nine parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
                                  typename Storage_Type<P2>::type,
@@ -4011,9 +4056,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
            BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
            BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with ten parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
@@ -4072,9 +4119,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
            BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
            BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with eleven parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
         typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
@@ -4137,9 +4186,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
            BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
            BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with twelve parameters
-        // and returns a value of type 'RET'.
+        // and returns a value of type 'RET', using the specified 'allocator'
+        // to supply memory, or the currently installed default allocator if
+        // 'allocator == 0'.
     {
          typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
                                    typename Storage_Type<P2>::type,
@@ -4206,9 +4257,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
            BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
            BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with thirteen
-        // parameters and returns a value of type 'RET'.
+        // parameters and returns a value of type 'RET', using the specified
+        // 'allocator' to supply memory, or the currently installed default
+        // allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
@@ -4279,9 +4332,11 @@ class BindUtil {
            BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
            BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13,
            BSLS_COMPILERFEATURES_FORWARD_REF(P14) p14)
-        // Return a 'bdlf::Bind' object that is bound to the specified
+        // Return a 'BindWrapper' object that is bound to the specified
         // invocable object 'func', which can be invoked with fourteen
-        // parameters and returns a value of type 'RET'.
+        // parameters and returns a value of type 'RET', using the specified
+        // 'allocator' to supply memory, or the currently installed default
+        // allocator if 'allocator == 0'.
     {
         typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
                                   typename Storage_Type<P2>::type,
