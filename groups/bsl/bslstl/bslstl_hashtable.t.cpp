@@ -5,6 +5,7 @@
 #include <bslstl_hash.h>
 #include <bslstl_hashtableiterator.h>  // usage example
 #include <bslstl_iterator.h>           // 'distance', in usage example
+#include <bslstl_pair.h>
 
 #include <bslalg_bidirectionallink.h>
 #include <bslalg_bidirectionallinklistutil.h>
@@ -462,99 +463,7 @@ namespace UsageExamples {
         return value;
     }
 //..
-// Next, we define 'MyPair', a class template that can hold a pair of values of
-// arbitrary types.  This will be used to in 'MyHashedSet' to return the status
-// of the 'insert' method, which must provide an iterator to the inserted value
-// and a boolean value indicating if the value is newly inserted if it
-// previously exiting in the set.  The 'MyPair' class template will also appear
-// in {Example 2} and {Example 3}.  Note that in practice, users can use the
-// standard 'bsl::pair' in this role; the 'MyPair' class template is used in
-// these examples to avoid creating a dependency of 'bslstl_hashtable' on
-// 'bslstl_pair'.
-//..
-                        // =============
-                        // struct MyPair
-                        // =============
-
-    template <class FIRST_TYPE, class SECOND_TYPE>
-    struct MyPair {
-        // PUBLIC TYPES
-        typedef  FIRST_TYPE  first_type;
-        typedef SECOND_TYPE second_type;
-
-        // DATA
-        first_type  first;
-        second_type second;
-
-        // CREATORS
-        MyPair();
-            // Create a 'MyPair' object with a default constructed 'first'
-            // member and a default constructed 'second' member.
-
-        MyPair(first_type firstValue, second_type secondValue);
-            // Create a 'MyPair' object with a 'first' member equal to the
-            // specified 'firstValue' and the 'second' member equal to the
-            // specified 'secondValue'.
-    };
-
-    // FREE OPERATORS
-    template <class FIRST_TYPE, class SECOND_TYPE>
-    inline
-    bool operator==(const MyPair<FIRST_TYPE, SECOND_TYPE>& lhs,
-                    const MyPair<FIRST_TYPE, SECOND_TYPE>& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' MyPair objects have
-        // the same value, and 'false' otherwise.  'lhs' has the same value as
-        // 'rhs' if 'lhs.first == rhs.first' and 'lhs.second == rhs.second'.
-
-    template <class FIRST_TYPE, class SECOND_TYPE>
-    inline
-    bool operator!=(const MyPair<FIRST_TYPE, SECOND_TYPE>& lhs,
-                    const MyPair<FIRST_TYPE, SECOND_TYPE>& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' MyPair objects do not
-        // have the same value, and 'false' otherwise.  'lhs' does not have the
-        // same value as 'rhs' if 'lhs.first != rhs.first' or
-        // 'lhs.second != rhs.second'.
-
-                        // -------------
-                        // struct MyPair
-                        // -------------
-
-    // CREATORS
-    template <class FIRST_TYPE, class SECOND_TYPE>
-    inline
-    MyPair<FIRST_TYPE,SECOND_TYPE>::MyPair()
-    : first()
-    , second()
-    {
-    }
-
-    template <class FIRST_TYPE, class SECOND_TYPE>
-    inline
-    MyPair<FIRST_TYPE,SECOND_TYPE>::MyPair( first_type firstValue,
-                                           second_type secondValue)
-    : first(firstValue)
-    , second(secondValue)
-    {
-    }
-
-    // FREE OPERATORS
-    template <class FIRST_TYPE, class SECOND_TYPE>
-    inline
-    bool operator==(const MyPair<FIRST_TYPE, SECOND_TYPE>& lhs,
-                    const MyPair<FIRST_TYPE, SECOND_TYPE>& rhs)
-    {
-        return lhs.first == rhs.first && lhs.second == rhs.second;
-    }
-
-    template <class FIRST_TYPE, class SECOND_TYPE>
-    inline
-    bool operator!=(const MyPair<FIRST_TYPE, SECOND_TYPE>& lhs,
-                    const MyPair<FIRST_TYPE, SECOND_TYPE>& rhs)
-    {
-        return lhs.first != rhs.first || lhs.second != rhs.second;
-    }
-//..
-// Then, we define our 'MyHashedSet' class template with an instance of
+// Next, we define our 'MyHashedSet' class template with an instance of
 // 'bslstl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
 // data member.  We provide 'insert' method, to allow us to populate these
 // sets, and the 'find' method to allow us to examine those elements.  We also
@@ -622,7 +531,7 @@ namespace UsageExamples {
             // Destroy this object.
 
         // MANIPULATORS
-        MyPair<const_iterator, bool> insert(const KEY& value);
+        bsl::pair<const_iterator, bool> insert(const KEY& value);
             // Insert the specified 'value' into this set if the 'value' does
             // not already exist in this set; otherwise, this method has no
             // effect.  Return a pair whose 'first' member is an iterator
@@ -676,11 +585,11 @@ namespace UsageExamples {
     // MANIPULATORS
     template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
     inline
-    MyPair<typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
+    bsl::pair<typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
            bool>    MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::insert(
                                                               const KEY& value)
     {
-        typedef MyPair<iterator, bool> ResultType;
+        typedef bsl::pair<iterator, bool> ResultType;
 
         bool                       isInsertedFlag = false;
         bslalg::BidirectionalLink *result         = d_impl.insertIfMissing(
@@ -741,7 +650,7 @@ if (verbose) {
 // Inserting a value (10) succeeds the first time but correctly fails on the
 // second attempt.
 //..
-    MyPair<MyHashedSet<int>::const_iterator, bool> status;
+    bsl::pair<MyHashedSet<int>::const_iterator, bool> status;
 
     status = mhs.insert(10);
     ASSERT( 1    ==  mhs.size());
@@ -789,7 +698,7 @@ if (verbose) {
 //
 // First, we define 'UseFirstValueOfPairAsKey', a class template we can use to
 // configure 'bslstl::HashTable' to use the 'first' member of each element,
-// each a 'MyPair', as the key-value for hashing.  Note that, in practice,
+// each a 'bsl::pair', as the key-value for hashing.  Note that, in practice,
 // developers can use class defined in {'bslstl_unorderedmapkeyconfiguration'}.
 //..
                             // ===============================
@@ -853,7 +762,7 @@ if (verbose) {
         typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
 
         typedef BloombergLP::bslstl::HashTable<
-                        UseFirstValueOfPairAsKey<MyPair<const KEY, VALUE> >,
+                        UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
                         HASH,
                         EQUAL,
                         ALLOCATOR>                     HashTable;
@@ -1015,15 +924,15 @@ if (verbose) {
     {
       private:
         // PRIVATE TYPES
-        typedef MyPair<const KEY, VALUE>                  value_type;
+        typedef bsl::pair<const KEY, VALUE>               value_type;
         typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
         typedef typename AllocatorTraits::difference_type difference_type;
 
         typedef BloombergLP::bslstl::HashTable<
-                           UseFirstValueOfPairAsKey<MyPair<const KEY, VALUE> >,
-                           HASH,
-                           EQUAL,
-                           ALLOCATOR>                     HashTable;
+                        UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
+                        HASH,
+                        EQUAL,
+                        ALLOCATOR>                     HashTable;
 
         // DATA
         HashTable d_impl;
@@ -1079,7 +988,7 @@ if (verbose) {
             // template parameter) 'VALUE' type.
 
         // ACCESSORS
-        MyPair<const_iterator, const_iterator> equal_range(const KEY& key)
+        bsl::pair<const_iterator, const_iterator> equal_range(const KEY& key)
                                                                          const;
             // Return a pair of iterators providing non-modifiable access to
             // the sequence of 'value_type' objects in this container matching
@@ -1130,11 +1039,11 @@ if (verbose) {
 //..
     // ACCESSORS
     template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-    MyPair<typename MyHashedMultiMap<KEY,
-                                     VALUE,
-                                     HASH,
-                                     EQUAL,
-                                     ALLOCATOR>::const_iterator,
+    bsl::pair<typename MyHashedMultiMap<KEY,
+                                        VALUE,
+                                        HASH,
+                                        EQUAL,
+                                        ALLOCATOR>::const_iterator,
            typename MyHashedMultiMap<KEY,
                                      VALUE,
                                      HASH,
@@ -1142,8 +1051,8 @@ if (verbose) {
     MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
                                                           const KEY& key) const
     {
-        typedef MyPair<const_iterator, const_iterator> ResultType;
-        typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
+        typedef bsl::pair<const_iterator, const_iterator> ResultType;
+        typedef BloombergLP::bslalg::BidirectionalLink    HashTableLink;
 
         HashTableLink *first;
         HashTableLink *last;
@@ -1164,7 +1073,7 @@ if (verbose) {
 //..
     typedef MyHashedMultiMap<int, double>::iterator       Iterator;
     typedef MyHashedMultiMap<int, double>::const_iterator ConstIterator;
-    typedef MyPair<ConstIterator, ConstIterator>          ConstRange;
+    typedef bsl::pair<ConstIterator, ConstIterator>       ConstRange;
 //..
 // Searching for an element (key value 10) in a newly created, empty container
 // correctly shows the absence of any such element.
@@ -1177,7 +1086,7 @@ if (verbose) {
 //..
 // We can insert a value (the pair 10, 100.00) into the container...
 //..
-    MyPair<const int, double> value(10, 100.00);
+    bsl::pair<const int, double> value(10, 100.00);
 
     Iterator itr;
 
@@ -1462,7 +1371,8 @@ if (verbose) {
             // Destroy this object.
 
         // MANIPULATORS
-        MyPair<ConstItrByOrderNumber, bool> insert(const MySalesRecord& value);
+        bsl::pair<ConstItrByOrderNumber, bool> insert(
+                                                   const MySalesRecord& value);
             // Insert the specified 'value' into this set if the 'value' does
             // not already exist in this set; otherwise, this method has no
             // effect.  Return a pair whose 'first' member is an iterator
@@ -1492,7 +1402,8 @@ if (verbose) {
 // would have had to manage key-value/record pairs, where the key-value would
 // be a copy of part of the record.
 //..
-        MyPair<ConstItrById, ConstItrById> findByCustomerId(int value) const;
+        bsl::pair<ConstItrById, ConstItrById> findByCustomerId(
+                                                              int value) const;
             // Return a pair of iterators providing non-modifiable access to
             // the sequence of 'MySalesRecord' objects in this container having
             // a 'customerId' attribute equal to the specified 'value' where
@@ -1501,7 +1412,7 @@ if (verbose) {
             // sequence.  If this container has no such objects, then the two
             // iterators will be equal.
 
-        MyPair<ConstItrById, ConstItrById> findByVendorId(int value) const;
+        bsl::pair<ConstItrById, ConstItrById> findByVendorId(int value) const;
             // Return a pair of iterators providing non-modifiable access to
             // the sequence of 'MySalesRecord' objects in this container having
             // a 'vendorId' attribute equal to the specified 'value' where the
@@ -1530,7 +1441,7 @@ if (verbose) {
 
     // MANIPULATORS
     inline
-    MyPair<MySalesRecordContainer::ConstItrByOrderNumber, bool>
+    bsl::pair<MySalesRecordContainer::ConstItrByOrderNumber, bool>
     MySalesRecordContainer::insert(const MySalesRecord& value)
     {
         // Insert into internal container that will own the record.
@@ -1549,7 +1460,7 @@ if (verbose) {
 
         // Return of insertion.
 
-        return MyPair<ConstItrByOrderNumber, bool>(
+        return bsl::pair<ConstItrByOrderNumber, bool>(
                                                  ConstItrByOrderNumber(result),
                                                  isInsertedFlag);
     }
@@ -1570,8 +1481,8 @@ if (verbose) {
     }
 
     inline
-    MyPair<MySalesRecordContainer::ConstItrById,
-           MySalesRecordContainer::ConstItrById>
+    bsl::pair<MySalesRecordContainer::ConstItrById,
+              MySalesRecordContainer::ConstItrById>
     MySalesRecordContainer::findByCustomerId(int value) const
     {
         typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
@@ -1580,13 +1491,13 @@ if (verbose) {
         HashTableLink *last;
         d_recordptrsByCustomerId.findRange(&first, &last, value);
 
-        return MyPair<ConstItrById, ConstItrById>(ConstItrById(first),
-                                                  ConstItrById(last));
+        return bsl::pair<ConstItrById, ConstItrById>(ConstItrById(first),
+                                                     ConstItrById(last));
     }
 
     inline
-    MyPair<MySalesRecordContainer::ConstItrById,
-           MySalesRecordContainer::ConstItrById>
+    bsl::pair<MySalesRecordContainer::ConstItrById,
+              MySalesRecordContainer::ConstItrById>
     MySalesRecordContainer::findByVendorId(int value) const
     {
         typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
@@ -1595,8 +1506,8 @@ if (verbose) {
         HashTableLink *last;
         d_recordptrsByVendorId.findRange(&first, &last, value);
 
-        return MyPair<ConstItrById, ConstItrById>(ConstItrById(first),
-                                                  ConstItrById(last));
+        return bsl::pair<ConstItrById, ConstItrById>(ConstItrById(first),
+                                                     ConstItrById(last));
     }
 
     void main4()
@@ -1636,7 +1547,7 @@ if (verbose) {
                    vendorId,
                    description);
 }
-            MyPair<MySalesRecordContainer::ConstItrByOrderNumber,
+            bsl::pair<MySalesRecordContainer::ConstItrByOrderNumber,
                    bool> status = msrc.insert(DATA[i]);
             ASSERT(msrc.cend() != status.first);
             ASSERT(true        == status.second);
@@ -1697,8 +1608,8 @@ if (verbose) {
 }
 
         for (int customerId = 100; customerId <= 200; customerId += 100) {
-            MyPair<MySalesRecordContainer::ConstItrById,
-                   MySalesRecordContainer::ConstItrById> result =
+            bsl::pair<MySalesRecordContainer::ConstItrById,
+                      MySalesRecordContainer::ConstItrById> result =
                                              msrc.findByCustomerId(customerId);
             bsl::iterator_traits<
                 MySalesRecordContainer::ConstItrById>::difference_type count =
@@ -1741,8 +1652,8 @@ if (verbose) {
 }
 
         for (int vendorId = 10; vendorId <= 20; vendorId += 10) {
-            MyPair<MySalesRecordContainer::ConstItrById,
-                   MySalesRecordContainer::ConstItrById> result =
+            bsl::pair<MySalesRecordContainer::ConstItrById,
+                      MySalesRecordContainer::ConstItrById> result =
                                                  msrc.findByVendorId(vendorId);
             bsl::iterator_traits<
                 MySalesRecordContainer::ConstItrById>::difference_type count =

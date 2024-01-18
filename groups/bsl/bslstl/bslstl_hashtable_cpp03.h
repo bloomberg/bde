@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 13 17:59:09 2022
+// Generated on Thu Jan 18 07:59:33 2024
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -1159,6 +1159,8 @@ class HashTable {
 #endif
 
     bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
+    bslalg::BidirectionalLink *insertIfMissing(
+             bslmf::MovableRef<typename bsl::remove_const<KeyType>::type> key);
         // Insert into this hash-table a newly-created 'ValueType' object,
         // constructed by forwarding the specified 'key' and a
         // default-constructed object of the type 'ValueType::second_type', to
@@ -5290,41 +5292,18 @@ bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
                                                             const KeyType& key)
 {
-    size_t hashCode = this->d_parameters.hashCodeForKey(key);
-    bslalg::BidirectionalLink *position = this->find(key, hashCode);
-    if (!position) {
-        if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() * 2);
-        }
+    bool dummy = false;
+    return tryEmplace(&dummy, (bslalg::BidirectionalLink *)0, key);
+}
 
-        typedef typename ValueType::second_type MappedType;
-
-        // TBD: make 'this->allocator()' return the allocator by reference with
-        // modifiable access rather than by value.
-
-        AllocatorType alloc = this->allocator();
-
-        bsls::ObjectBuffer<MappedType> defaultMapped;
-        AllocatorTraits::construct(alloc, defaultMapped.address());
-        bslma::DestructorGuard<MappedType> mappedGuard(
-                                                      defaultMapped.address());
-
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        position = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                       key,
-                                       MoveUtil::move(defaultMapped.object()));
-#else
-        position = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                                       key,
-                                                       defaultMapped.object());
-#endif
-
-        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
-                                                        position,
-                                                        hashCode);
-        ++d_size;
-    }
-    return position;
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
+              bslmf::MovableRef<typename bsl::remove_const<KeyType>::type> key)
+{
+    bool dummy = false;
+    return tryEmplace(&dummy, (bslalg::BidirectionalLink *)0,
+                                        MoveUtil::move(MoveUtil::access(key)));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -5651,9 +5630,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
           std::forward_as_tuple());
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address());
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType());
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5705,10 +5692,18 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5763,11 +5758,19 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5825,12 +5828,20 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5891,13 +5902,21 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5961,14 +5980,22 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6035,15 +6062,23 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6113,16 +6148,24 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6195,17 +6238,25 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6281,18 +6332,26 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6371,19 +6430,27 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10)));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10)));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6436,9 +6503,18 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
           std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
 #else
     typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                     MappedType(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+                     MoveUtil::move((defaultMapped.object())));
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6918,7 +6994,7 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
 #endif // ! defined(INCLUDED_BSLSTL_HASHTABLE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
