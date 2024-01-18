@@ -284,6 +284,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_objectbuffer.h>
@@ -515,10 +516,15 @@ class ObjectCatalog {
         // Return a "snapshot" of the number of items currently contained in
         // this catalog.
 
+    BSLS_DEPRECATE_FEATURE("bde", "ObjectCataloog::value(handle)",
+                                    "use 'ObjectCatalogIter::value()' instead")
     const TYPE& value(int handle) const;
         // Return a 'const' reference to the object having the specified
         // 'handle'.  The behavior is undefined unless 'handle' is contained in
         // this catalog.
+        //
+        // This method is *DEPRECATED* because it is not thread-safe.  Use
+        // 'find', 'isMember', or access the object through an iterator.
 
     // FOR TESTING PURPOSES ONLY
 
@@ -544,7 +550,7 @@ class ObjectCatalogIter {
     // concurrently read the object catalog).
 
     const ObjectCatalog<TYPE> *d_catalog_p;
-    int                        d_index;
+    bsl::ptrdiff_t             d_index;
 
   private:
     // NOT IMPLEMENTED
@@ -567,6 +573,13 @@ class ObjectCatalogIter {
         // the first member of the 'catalog'.  If the 'catalog' is empty then
         // the iterator is initialized to be invalid.  The 'catalog' is locked
         // for read for the duration of iterator's life.
+
+    ObjectCatalogIter(const ObjectCatalog<TYPE>& catalog, int handle);
+        // Create an iterator for the specified 'catalog' and associate it with
+        // the member of the 'catalog' associated with the specified 'handle'.
+        // If the 'catalog' is empty or if 'handle' is invalid, then the
+        // iterator is initialized to be invalid.  The 'catalog' is locked for
+        // read for the duration of iterator's life.
 
     ~ObjectCatalogIter();
         // Destroy this iterator and unlock the catalog associated with it.
@@ -1020,6 +1033,8 @@ template <class TYPE>
 inline
 const TYPE& ObjectCatalog<TYPE>::value(int handle) const
 {
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
+
     Node *node = findNode(handle);
 
     BSLS_ASSERT(node);
@@ -1065,6 +1080,22 @@ ObjectCatalogIter<TYPE>::ObjectCatalogIter(const ObjectCatalog<TYPE>& catalog)
 {
     d_catalog_p->d_lock.lockRead();
     operator++();
+}
+
+template <class TYPE>
+inline
+ObjectCatalogIter<TYPE>::ObjectCatalogIter(const ObjectCatalog<TYPE>& catalog,
+                                           int                        handle)
+: d_catalog_p(&catalog)
+{
+    typedef ObjectCatalog<TYPE>     Catalog;
+    typedef typename Catalog::Node  Node;
+
+    d_catalog_p->d_lock.lockRead();
+
+    Node *node = d_catalog_p->findNode(handle);
+    d_index = node ? node->d_handle & Catalog::k_INDEX_MASK
+                   : bsl::ssize(d_catalog_p->d_nodes);
 }
 
 template <class TYPE>

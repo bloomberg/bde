@@ -20,28 +20,32 @@
 
 #include <bdlt_currenttime.h>
 
-#include <bsla_unused.h>
-#include <bslma_default.h>
-#include <bslma_usesbslmaallocator.h>
-#include <bslma_testallocator.h>
-#include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_isfundamental.h>
-#include <bslmf_issame.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_condition.h>
 #include <bslmt_mutex.h>
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
+#include <bsltf_movestate.h>
+#include <bsltf_streamutil.h>
+#include <bsltf_templatetestfacility.h>
+
+#include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslma_testallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_isfundamental.h>
+#include <bslmf_issame.h>
+
+#include <bsla_unused.h>
+
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_nameof.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
-#include <bsltf_movestate.h>
-#include <bsltf_streamutil.h>
-#include <bsltf_templatetestfacility.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
@@ -51,9 +55,12 @@
 #include <bsl_iostream.h>
 #include <bsl_queue.h>
 #include <bsl_utility.h>
-
+                                                                      // RETURN
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                             TEST PLAN
@@ -188,6 +195,13 @@ enum {
   , k_GENERATION_SHIFT = 24 // static_log2(k_GENERATION_INC)
   , k_RECYCLE_COUNT    = 256
 };
+
+template <class TYPE>
+TYPE *ampersand(TYPE& expression)
+    // Return a non-'const' ptr to the specified 'expression'.
+{
+    return bsls::Util::addressOf(expression);
+}
 
 template<class TYPE>
 class PseudoObjectCatalog
@@ -370,11 +384,11 @@ void printSpec(const char *spec)
     cout << "]" ;
 }
 
-void verifyMatch(Obj          *o1,
-                 vector<int>&  handles1,
-                 my_Obj       *o2,
-                 vector<int>&  handles2,
-                 int           maxHandles)
+void verifyMatch(Obj               *o1,
+                 bsl::vector<int>&  handles1,
+                 my_Obj            *o2,
+                 bsl::vector<int>&  handles2,
+                 int                maxHandles)
     // Verify that the specified 'o1' is correct by comparing it with the
     // specified 'o2'.
 {
@@ -402,9 +416,9 @@ void verifyMatch(Obj          *o1,
 
 template <class TYPE>
 void ggInt(bdlcc::ObjectCatalog<TYPE> *o1,
-           vector<int>&                handles1,
+           bsl::vector<int>&           handles1,
            PseudoObjectCatalog<TYPE>  *o2,
-           vector<int>&                handles2,
+           bsl::vector<int>&           handles2,
            const char                 *spec,
            const int                   gens = 0)
     // Bring the specified object 'o1' into the state specified by the
@@ -1066,12 +1080,6 @@ class TestDriver {
         // been moved.
 
     // PRIVATE CLASS METHODS
-    static ELEMENT *ampersand(ELEMENT& expression)
-        // Return a non-'const' ptr to the specified 'expression'.
-    {
-        return bsls::Util::addressOf(expression);
-    }
-
     static void setData(ELEMENT *target, int value)
         // Set the value of the specified '*target' to the specified 'value'.
     {
@@ -1279,9 +1287,11 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     int HF = handles[5];    (void) HF;
 
     for (int ii = 0; ii < X.length(); ++ii) {
-        ASSERT(spec[ii] == getData(X.value(handles[ii])));
+        Iter it(X, handles[ii]);
+        ASSERT(it);
+        ASSERT(spec[ii] == getData(it.value()));
         if (k_IS_MOVE_AWARE) {
-            MoveState::Enum movedInto = getMovedInto(X.value(handles[ii]));
+            MoveState::Enum movedInto = getMovedInto(it.value());
             ASSERTV(tName, s_expMoved, movedInto, s_expMoved == movedInto);
         }
     }
@@ -1298,23 +1308,27 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     const int H0 = mX.add(MUtil::move(vs[0]));
     ASSERT(0 != H0);
 
-    MoveState::Enum movedFrom = getMovedFrom(VS[0]);
-    ASSERTV(tName, movedFrom, s_expMoved == movedFrom);
-    MoveState::Enum movedInto = getMovedInto(X.value(H0));
-    ASSERTV(tName, movedInto, s_expMoved == movedInto);
-    if (k_IS_MOVABLE) {
-        setData(ampersand(vs[0]), '0');
+    MoveState::Enum movedFrom, movedInto;
+    {
+        movedFrom = getMovedFrom(VS[0]);
+        ASSERTV(tName, movedFrom, s_expMoved == movedFrom);
+        Iter it(X, H0);
+        movedInto = getMovedInto(it.value());
+        ASSERTV(tName, movedInto, s_expMoved == movedInto);
+        if (k_IS_MOVABLE) {
+            setData(u::ampersand(vs[0]), '0');
+        }
+        ASSERT(VS[0] == it.value());
     }
-    ASSERT(VS[0] == X.value(H0));
     ASSERT(7 == X.length());
 
     spec = "ABCDEF0";
     ASSERT(hasSpecElements(X, spec));
 
-    mX.remove(HC, ampersand(vs[1]));
+    mX.remove(HC, u::ampersand(vs[1]));
     ASSERTV(s_expMoved == getMovedInto(VS[1]));
     ASSERT(getData(VS[1]) == 'C');
-    setData(ampersand(vs[1]), '1');
+    setData(u::ampersand(vs[1]), '1');
 
     spec = "ABDEF0";
     ASSERT(hasSpecElements(X, spec));
@@ -1328,12 +1342,12 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     rc = mX.remove(HD);
     ASSERT(0 != rc);
 
-    rc = mX.remove(HF, ampersand(vs[3]));
+    rc = mX.remove(HF, u::ampersand(vs[3]));
     movedInto = getMovedInto(VS[3]);
     ASSERTV(tName, movedInto, s_expMoved, s_expMoved == movedInto);
     ASSERT(0 == rc);
     ASSERT('F' == getData(VS[3]));
-    setData(ampersand(vs[3]), '3');
+    setData(u::ampersand(vs[3]), '3');
 
     spec = "ABE0";
     ASSERT(hasSpecElements(X, spec));
@@ -1341,11 +1355,11 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     rc = mX.replace(HE, MUtil::move(vs[1]));
     movedFrom = getMovedFrom(VS[1]);
     ASSERTV(tName, movedFrom, s_expMoved == movedFrom);
-    movedInto = getMovedInto(X.value(HE));
+    movedInto = getMovedInto(Iter(X, HE).value());
     ASSERTV(tName, movedInto, s_expMoved == movedInto);
 
     ASSERT(0 == rc);
-    setData(ampersand(vs[1]), '1');
+    setData(u::ampersand(vs[1]), '1');
     ASSERT(X.isMember(VS[1]));
 
     rc = mX.replace(HD, MUtil::move(vs[2]));
@@ -1381,7 +1395,8 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     ASSERT(6 == X.length());
 
     for (int ii = 0; ii < X.length(); ++ii) {
-        const ELEMENT& E = X.value(handles[ii]);
+        Iter it(X, handles[ii]);
+        const ELEMENT& E = it.value();
         const int val = getData(E);
         movedInto = getMovedInto(E);
         ASSERTV(tName, s_expMoved, movedInto, s_expMoved == movedInto);
@@ -1438,7 +1453,7 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     int HF = handles[5];    (void) HF;
 
     for (int ii = 0; ii < X.length(); ++ii) {
-        ASSERT(spec[ii] == getData(X.value(handles[ii])));
+        ASSERT(spec[ii] == getData(Iter(X, handles[ii]).value()));
     }
 
     enum { k_NUM_V = 4 };
@@ -1453,19 +1468,21 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     const int H0 = mX.add(VS[0]);
     ASSERT(0 != H0);
     ASSERT('0' == getData(VS[0]));    // not moved from
-    ASSERT(VS[0] == X.value(H0));
+    {
+        ASSERT(VS[0] == Iter(X, H0).value());
+    }
     ASSERT(7 == X.length());
 
     spec = "ABCDEF0";
     ASSERT(hasSpecElements(X, spec));
-    ASSERT(0 == X.find(HD, ampersand(vs[1])));
+    ASSERT(0 == X.find(HD, u::ampersand(vs[1])));
     ASSERT(getData(VS[1]) == 'D');
     ASSERT(hasSpecElements(X, spec));
 
-    setData(ampersand(vs[1]), '1');
-    mX.remove(HC, ampersand(vs[1]));
+    setData(u::ampersand(vs[1]), '1');
+    mX.remove(HC, u::ampersand(vs[1]));
     ASSERT(getData(VS[1]) == 'C');
-    setData(ampersand(vs[1]), '1');
+    setData(u::ampersand(vs[1]), '1');
 
     spec = "ABDEF0";
     ASSERT(hasSpecElements(X, spec));
@@ -1479,10 +1496,10 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     rc = mX.remove(HD);
     ASSERT(0 != rc);
 
-    rc = mX.remove(HF, ampersand(vs[3]));
+    rc = mX.remove(HF, u::ampersand(vs[3]));
     ASSERT(0 == rc);
     ASSERT('F' == getData(VS[3]));
-    setData(ampersand(vs[3]), '3');
+    setData(u::ampersand(vs[3]), '3');
 
     spec = "ABE0";
     ASSERT(hasSpecElements(X, spec));
@@ -1531,17 +1548,18 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     ASSERT(6 == X.length());
 
     for (int ii = 0; ii < X.length(); ++ii) {
-        const ELEMENT& E = X.value(handles[ii]);
+        Iter it(X, handles[ii]);
+        const ELEMENT& E = it.value();
         const int val = getData(E);
         ASSERT('A' <= val && val <= 'F');
         ASSERT(spec[ii] == val);
         ASSERT(usesAllocatorOrNoAllocator(E, &ta));
         ASSERT(0 == X.find(handles[ii]));
-        ASSERT(0 == X.find(handles[ii], ampersand(vs[0])));
+        ASSERT(0 == X.find(handles[ii], u::ampersand(vs[0])));
         ASSERT(E == VS[0]);
         ASSERT(val == getData(VS[0]));
         ASSERT(X.isMember(VS[0]));
-        setData(ampersand(vs[0]), '0');
+        setData(u::ampersand(vs[0]), '0');
     }
 
     int numItems = 0;
@@ -1552,11 +1570,11 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
         ASSERT('A' <= val && val <= 'F');
         ASSERT(usesAllocatorOrNoAllocator(E, &ta));
         ASSERT(0 == X.find(h));
-        ASSERT(0 == X.find(h, ampersand(vs[0])));
+        ASSERT(0 == X.find(h, u::ampersand(vs[0])));
         ASSERT(E == VS[0]);
         ASSERT(val == getData(VS[0]));
         ASSERT(X.isMember(VS[0]));
-        setData(ampersand(vs[0]), '0');
+        setData(u::ampersand(vs[0]), '0');
 
         const bsl::pair<int, ELEMENT>& pr = it();
         ASSERT(usesAllocatorOrNoAllocator(pr.second, &td));
@@ -1601,12 +1619,16 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         const int startLength = X.length();
 
         int vHandle = mX.add(MUtil::move(v));
-        setData(ampersand(v), '5');
+        setData(u::ampersand(v), '5');
         ASSERT(0 != vHandle);
         ASSERT(startLength + 1 == X.length());
-        ASSERT(v == X.value(vHandle));
-        ASSERT('5' == getData(X.value(vHandle)));
-        ASSERT(X.isMember(V));
+        {
+            Iter it(X, vHandle);
+            const ELEMENT& e = it.value();
+            ASSERT(v == e);
+            ASSERT('5' == getData(e));
+            ASSERT(X.isMember(V));
+        }
 
         bsl::vector<int> handles(&tb);
 
@@ -1638,7 +1660,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         for (int jj = 0; jj < LENGTH; ++jj) {
             const char value = SPEC[jj];
             ASSERT(u::isMemberValue(X, value));
-            setData(ampersand(v), value);
+            setData(u::ampersand(v), value);
             ASSERT(X.isMember(v));
             const int handle = handles[jj];
             ASSERT(0 == X.find(handle));
@@ -1656,14 +1678,14 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         for (int jj = 0; jj < LENGTH; ++jj) {
             int value = SPEC[jj];
             ASSERT(!u::isMemberValue(X, value));
-            setData(ampersand(v), value);
+            setData(u::ampersand(v), value);
             ASSERT(!X.isMember(v));
             ASSERT(0 != X.find(handles[jj]));
         }
 
-        setData(ampersand(v), '5');
+        setData(u::ampersand(v), '5');
         vHandle = mX.add(MUtil::move(v));
-        setData(ampersand(v), '5');
+        setData(u::ampersand(v), '5');
         ASSERT(0 != vHandle);
         ASSERT(1 == X.length());
         ASSERT(X.isMember(V));
@@ -1697,7 +1719,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         for (int jj = 0; jj < LENGTH; ++jj) {
             int value = SPEC[jj];
             ASSERT(u::isMemberValue(X, value));
-            setData(ampersand(v), value);
+            setData(u::ampersand(v), value);
             ASSERT(X.isMember(v));
         }
 
@@ -1707,15 +1729,14 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         bsl::strcpy(specCopy, SPEC);
         int ii = 0;
         for (Iter it(X); it; ++it, ++ii) {
-            const ELEMENT& vRef = it.value();
-            const int value = getData(vRef);
+            const int value = getData(it.value());
             char *pc = bsl::find(specCopy + 0,
                                  specCopy + LENGTH,
                                  static_cast<char>(value));
             ASSERT(*pc == value);
             ASSERT(pc < specCopy + LENGTH);
             ASSERT(pc - specCopy == ii);
-            setData(ampersand(v), value);
+            setData(u::ampersand(v), value);
 
             ASSERT(0 == X.find(it.handle()));
 
@@ -1727,7 +1748,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         ASSERT(LENGTH == ii);
         ASSERT(LENGTH == bsl::count(specCopy + 0, specCopy + LENGTH, 0));
 
-        setData(ampersand(v), '5');
+        setData(u::ampersand(v), '5');
     }
 
     v.~ELEMENT();
@@ -1775,47 +1796,47 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyOrMovable()
     ASSERT(0 != HA);
     ASSERT(1 == X1.length());
     setData(OVA.address(), 'A');
-    ASSERTV(name, getData(X1.value(HA)), VA == X1.value(HA));
+    ASSERTV(name, VA == Iter(X1, HA).value());
 
     int HB = x1.add(MUtil::move(VB));
     ASSERT(0 != HB);
     ASSERT(2 == X1.length());
     setData(OVB.address(), 'B');
-    ASSERT(VB == X1.value(HB));
+    ASSERT(VB == Iter(X1, HB).value());
 
     int HC = x1.add(MUtil::move(VC));
     ASSERT(0 != HC);
     ASSERT(3 == X1.length());
     setData(OVC.address(), 'C');
-    ASSERT(VC == X1.value(HC));
+    ASSERT(VC == Iter(X1, HC).value());
 
     int HD = x1.add(MUtil::move(VD));
     ASSERT(0 != HD);
     ASSERT(4 == X1.length());
     setData(OVD.address(), 'D');
-    ASSERT(VD == X1.value(HD));
+    ASSERT(VD == Iter(X1, HD).value());
 
     int HE = x1.add(MUtil::move(VE));
     ASSERT(0 != HE);
     ASSERT(5 == X1.length());
     setData(OVE.address(), 'E');
-    ASSERT(VE == X1.value(HE));
+    ASSERT(VE == Iter(X1, HE).value());
 
     int HF = x1.add(MUtil::move(VF));
     ASSERT(0 != HF);
     ASSERT(6 == X1.length());
     setData(OVF.address(), 'F');
-    ASSERT(VF == X1.value(HF));
+    ASSERT(VF == Iter(X1, HF).value());
 
     ELEMENT vbuffer;
-    ASSERT(0 == x1.remove(HD, ampersand(vbuffer)));
+    ASSERT(0 == x1.remove(HD, u::ampersand(vbuffer)));
     ASSERT(VD == vbuffer);
     ASSERT(5 == X1.length());
     ASSERT(0 != X1.find(HD));
 
     ASSERT(0 == x1.replace(HE, MUtil::move(VG)));
     setData(OVG.address(), 'G');
-    ASSERT(VG == X1.value(HE));
+    ASSERT(VG == Iter(X1, HE).value());
 
     if (verbose) cout << "testing removeAll(buffer)" << endl;
 
@@ -1916,46 +1937,46 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyable()
     int HA = x1.add(VA);
     ASSERT(0 != HA);
     ASSERT(1 == X1.length());
-    ASSERT(0 == X1.find(HA, ampersand(vbuffer)));
+    ASSERT(0 == X1.find(HA, u::ampersand(vbuffer)));
     ASSERT(VA == vbuffer);
 
     int HB = x1.add(VB);
     ASSERT(0 != HB);
     ASSERT(2 == X1.length());
-    ASSERT(0 == X1.find(HB, ampersand(vbuffer)));
+    ASSERT(0 == X1.find(HB, u::ampersand(vbuffer)));
     ASSERT(VB == vbuffer);
 
     int HC = x1.add(VC);
     ASSERT(0 != HC);
     ASSERT(3 == X1.length());
-    ASSERT(0 == X1.find(HC, ampersand(vbuffer)));
+    ASSERT(0 == X1.find(HC, u::ampersand(vbuffer)));
     ASSERT(VC == vbuffer);
 
     int HD = x1.add(VD);
     ASSERT(0 != HD);
     ASSERT(4 == X1.length());
-    ASSERT(0 == X1.find(HD, ampersand(vbuffer)));
+    ASSERT(0 == X1.find(HD, u::ampersand(vbuffer)));
     ASSERT(VD == vbuffer);
 
     int HE = x1.add(VE);
     ASSERT(0 != HE);
     ASSERT(5 == X1.length());
-    ASSERT(0 == X1.find(HE, ampersand(vbuffer)));
+    ASSERT(0 == X1.find(HE, u::ampersand(vbuffer)));
     ASSERT(VE == vbuffer);
 
     int HF = x1.add(VF);
     ASSERT(0 != HF);
     ASSERT(6 == X1.length());
-    ASSERT(0 == X1.find(HF, ampersand(vbuffer)));
+    ASSERT(0 == X1.find(HF, u::ampersand(vbuffer)));
     ASSERT(VF == vbuffer);
 
-    ASSERT(0 == x1.remove(HD, ampersand(vbuffer)));
+    ASSERT(0 == x1.remove(HD, u::ampersand(vbuffer)));
     ASSERT(VD == vbuffer);
     ASSERT(5 == X1.length());
     ASSERT(0 != X1.find(HD));
 
     ASSERT(0 == x1.replace(HE, VG));
-    ASSERT(0 == X1.find(HE, ampersand(vbuffer)));
+    ASSERT(0 == X1.find(HE, u::ampersand(vbuffer)));
     ASSERTV(name, VG == vbuffer);
 
     if (verbose) cout << "testing removeAll(buffer)" << endl;
@@ -1982,9 +2003,10 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyable()
         const bsl::pair<int, ELEMENT>& pr = it();
         const int intVal = getData(pr.second);
         const int handle = pr.first;
-        ASSERT(pr.second == X1.value(handle));
-        ASSERTV(name, usesAllocatorOrNoAllocator(pr.second,        &td));
-        ASSERTV(name, usesAllocatorOrNoAllocator(X1.value(handle), &ta));
+        ASSERTV(name, usesAllocatorOrNoAllocator(pr.second, &td));
+        Iter itB(X1, handle);
+        ASSERT(u::ampersand(itB.value()) == u::ampersand(it.value()));
+        ASSERTV(name, usesAllocatorOrNoAllocator(itB.value(), &ta));
         ASSERTV(intVal, 'A' <= intVal && intVal <= 'G');
         const char charVal = static_cast<char>(intVal);
         if (veryVerbose) cout << "Value: '" << charVal << "'\n";
@@ -2507,11 +2529,11 @@ namespace OBJECTCATALOG_TEST_CASE_10
 
 typedef bdlcc::ObjectCatalogIter<int> Iter;
 
-void verifyAccessors(Obj          *o1,
-                     vector<int>&  handles1,
-                     u::my_Obj    *o2,
-                     vector<int>&  handles2,
-                     int           maxHandles)
+void verifyAccessors(Obj               *o1,
+                     bsl::vector<int>&  handles1,
+                     u::my_Obj         *o2,
+                     bsl::vector<int>&  handles2,
+                     int                maxHandles)
     // Verify the catalog accessors (including iterator) by comparing with
     // alternate implementation.
 {
@@ -2558,7 +2580,7 @@ void verifyAccessors(Obj          *o1,
     if (veryVerbose) { cout << "\tverifying iteration\n"; }
 
     for (Iter it(*o1); it; ++it) {
-        pair<int, int> p = it();
+        bsl::pair<int, int> p = it();
         o1->find(p.first, &v);
         ASSERT(v == p.second);
         ASSERT(o2->isMember(p.second));
@@ -2997,8 +3019,8 @@ int main(int argc, char *argv[])
 
                 Obj o1(&ta);
                 u::my_Obj o2;
-                vector<int> handles1(len, -1);
-                vector<int> handles2(len, -1);
+                bsl::vector<int> handles1(len, -1);
+                bsl::vector<int> handles2(len, -1);
                 u::ggInt(&o1,
                          handles1,
                          &o2,
@@ -3052,7 +3074,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\tnow iterate\n"; }
 
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3067,7 +3089,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\tnow iterate\n"; }
 
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3083,7 +3105,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\tnow iterate\n"; }
 
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3099,7 +3121,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\tnow iterate\n"; }
 
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3116,7 +3138,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\tnow iterate\n"; }
 
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3133,7 +3155,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\tnow iterate\n"; }
 
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3151,7 +3173,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\tnow iterate\n"; }
 
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3174,7 +3196,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\tnow iterate\n"; }
 
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3195,7 +3217,7 @@ int main(int argc, char *argv[])
         x1.remove(HD); if (veryVerbose) { cout << "\tremove(4)\n";}
         if (veryVerbose) { cout << "\tnow iterate\n"; }
         for (Iter it(x1); it; ++it) {
-            pair<int, double> p = it();
+            bsl::pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
             if (veryVerbose) { T_; T_; P(p.second); }
@@ -3237,8 +3259,8 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
             Obj o1(&ta);
             u::my_Obj o2;
-            vector<int> handles1(len, -1);
-            vector<int> handles2(len, -1);
+            bsl::vector<int> handles1(len, -1);
+            bsl::vector<int> handles2(len, -1);
             u::ggInt(&o1, handles1, &o2, handles2, u::SPECS[i]);
 
             if (veryVerbose) {
@@ -3296,8 +3318,8 @@ int main(int argc, char *argv[])
                 Obj o1(&ta);
 
                 u::my_Obj o2;
-                vector<int> handles1(len);
-                vector<int> handles2(len);
+                bsl::vector<int> handles1(len);
+                bsl::vector<int> handles2(len);
                 for (int k=0; k<len; ++k) {
                     handles1[k] = -1;
                     handles2[k] = -1;
@@ -3373,8 +3395,8 @@ int main(int argc, char *argv[])
                 Obj o1(&ta);
 
                 u::my_Obj o2;
-                vector<int> handles1(len);
-                vector<int> handles2(len);
+                bsl::vector<int> handles1(len);
+                bsl::vector<int> handles2(len);
                 for (int k=0; k<len; ++k) {
                     handles1[k] = -1;
                     handles2[k] = -1;
@@ -3450,8 +3472,8 @@ int main(int argc, char *argv[])
                 Obj o1(&ta);
 
                 u::my_Obj o2;
-                vector<int> handles1(len);
-                vector<int> handles2(len);
+                bsl::vector<int> handles1(len);
+                bsl::vector<int> handles2(len);
                 for (int k=0; k<len; ++k) {
                     handles1[k] = -1;
                     handles2[k] = -1;
@@ -3530,8 +3552,8 @@ int main(int argc, char *argv[])
 
             u::my_Obj o2;
             int len = static_cast<int>(strlen(u::SPECS[i]));
-            vector<int> handles1(len, -1);
-            vector<int> handles2(len, -1);
+            bsl::vector<int> handles1(len, -1);
+            bsl::vector<int> handles2(len, -1);
 
             if (veryVerbose) {
                 cout << "\nbringing into state with spec = \""
