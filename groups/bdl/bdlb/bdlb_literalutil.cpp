@@ -7,10 +7,6 @@ BSLS_IDENT_RCSID(bdlb_literalutil_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-
 namespace BloombergLP {
 namespace bdlb {
 
@@ -99,7 +95,7 @@ void LiteralUtil::createQuotedEscapedCString(std::string             *result,
     LiteralUtil::createQuotedEscapedCString_Impl(result, input);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 void LiteralUtil::createQuotedEscapedCString(std::pmr::string        *result,
                                              const bsl::string_view&  input)
 {

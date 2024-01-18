@@ -3129,7 +3129,7 @@ int main(int argc, char *argv[])
                 const char *const      DESC   = DATA[ti].d_description;
                 const bsl::string      DESCB  = DATA[ti].d_description;
                 const std::string      DESCS  = DATA[ti].d_description;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 const std::pmr::string DESCP  = DATA[ti].d_description;
 #endif
 
@@ -3195,7 +3195,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(OFFSET, FLAG, DESCS,
                                               objAllocatorPtr);
                       } break;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                       case 'j': {
                         objAllocatorPtr = &da;
                         objPtr = new (fa) Obj(OFFSET, FLAG, DESCP);

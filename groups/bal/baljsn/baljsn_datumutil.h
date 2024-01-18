@@ -279,9 +279,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
-# include <memory_resource>
-#endif
 #include <string>
 
 namespace BloombergLP {
@@ -351,7 +348,7 @@ struct DatumUtil {
                       const bdld::Datum&   datum);
     static int encode(std::string         *result,
                       const bdld::Datum&   datum);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int encode(std::pmr::string   *result,
                       const bdld::Datum&  datum);
 #endif
@@ -361,7 +358,7 @@ struct DatumUtil {
     static int encode(std::string                *result,
                       const bdld::Datum&          datum,
                       const DatumEncoderOptions&  options);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int encode(std::pmr::string           *result,
                       const bdld::Datum&          datum,
                       const DatumEncoderOptions&  options);
@@ -475,7 +472,7 @@ int DatumUtil::encode(std::string *result, const bdld::Datum& datum)
     return encode(result, datum, DatumEncoderOptions());
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 int DatumUtil::encode(std::pmr::string   *result,
                       const bdld::Datum&  datum)

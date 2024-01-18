@@ -624,7 +624,7 @@ struct FixUtil {
                         const DatetimeTz&            object,
                         const FixUtilConfiguration&  configuration);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int generate(std::pmr::string            *string,
                         const Date&                  object);
     static int generate(std::pmr::string            *string,
@@ -1140,7 +1140,7 @@ int FixUtil::generate(std::string *string, const DatetimeTz& object)
                     FixUtilConfiguration::defaultConfiguration());
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 int FixUtil::generate(std::pmr::string *string, const Date& object)
 {

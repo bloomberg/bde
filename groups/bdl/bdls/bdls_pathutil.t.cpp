@@ -1266,7 +1266,7 @@ int main(int argc, char *argv[])
 
         usageExample<bsl::string>();
         usageExample<std::string>();
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         usageExample<std::pmr::string>();
 #endif
       } break;
@@ -1371,7 +1371,7 @@ int main(int argc, char *argv[])
 
         test_getExtension<bsl::string>(verbose, veryVerbose, veryVeryVerbose);
         test_getExtension<std::string>(verbose, veryVerbose, veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         test_getExtension<std::pmr::string>(
             verbose, veryVerbose, veryVeryVerbose);
 #endif
@@ -1462,7 +1462,7 @@ int main(int argc, char *argv[])
 
         test_splitFilename<bsl::string>(verbose, veryVerbose, veryVeryVerbose);
         test_splitFilename<std::string>(verbose, veryVerbose, veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         test_splitFilename<std::pmr::string>(
             verbose, veryVerbose, veryVeryVerbose);
 #endif
@@ -1514,7 +1514,7 @@ int main(int argc, char *argv[])
 
         test_appendIfValid<bsl::string>(verbose, veryVerbose, veryVeryVerbose);
         test_appendIfValid<std::string>(verbose, veryVerbose, veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         test_appendIfValid<std::pmr::string>(
             verbose, veryVerbose, veryVeryVerbose);
 #endif
@@ -1554,7 +1554,7 @@ int main(int argc, char *argv[])
             verbose, veryVerbose, veryVeryVerbose);
         test_leaflessAppend<std::string>(
             verbose, veryVerbose, veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         test_leaflessAppend<std::pmr::string>(
             verbose, veryVerbose, veryVeryVerbose);
 #endif
@@ -1579,7 +1579,7 @@ int main(int argc, char *argv[])
             verbose, veryVerbose, veryVeryVerbose);
         test_nativeParsingTest<std::string>(
             verbose, veryVerbose, veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         test_nativeParsingTest<std::pmr::string>(
             verbose, veryVerbose, veryVeryVerbose);
 #endif

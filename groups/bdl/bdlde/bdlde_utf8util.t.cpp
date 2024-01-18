@@ -5044,9 +5044,9 @@ int main(int argc, char *argv[])
             bsl::string   nonEmptyBsl("Not an empty string");
             std::string   emptyStd;
             std::string   nonEmptyStd("Not an empty string");
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-            std::string   emptyPmr;
-            std::string   nonEmptyPmr("Not an empty string");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            std::pmr::string emptyPmr;
+            std::pmr::string nonEmptyPmr("Not an empty string");
 #endif
             bsl::size_t   nonEmptyInitLen = nonEmptyBsl.length();
 
@@ -5067,7 +5067,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::appendUtf8CodePoint(&nonEmptyStd, CODEPOINT));
             ASSERT(nonEmptyInitLen + UTF8_LEN == nonEmptyStd.length());
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             ASSERT(0 == Obj::appendUtf8CodePoint(&emptyPmr, CODEPOINT));
             ASSERT(UTF8_LEN == emptyPmr.length());
 

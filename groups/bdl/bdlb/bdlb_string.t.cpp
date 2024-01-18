@@ -1108,7 +1108,7 @@ int main(int argc, char *argv[])
                         Util::pad(&stdString, length);  // default 'padChar'
                     }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     std::pmr::string pmrString(STRING);
                     if ('x' != PADCHAR) {
                         Util::pad(&pmrString, length, PADCHAR);
@@ -1125,7 +1125,7 @@ int main(int argc, char *argv[])
 
                         ASSERTV(strIdx, charIdx, bslString == STRING);
                         ASSERTV(strIdx, charIdx, stdString == STRING);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         ASSERTV(strIdx, charIdx, pmrString == STRING);
 #endif
                     }
@@ -1136,7 +1136,7 @@ int main(int argc, char *argv[])
                                   STRING + bsl::string(length - LEN, CHKCHAR));
                         ASSERTV(strIdx, charIdx, stdString ==
                                   STRING + std::string(length - LEN, CHKCHAR));
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         ASSERTV(strIdx, charIdx, pmrString ==
                              STRING + std::pmr::string(length - LEN, CHKCHAR));
 #endif
@@ -1372,7 +1372,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTesting 'std::pmr::string'" << endl;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         for (int i = 0; STRINGS[i]; ++i) {
 
             if (veryVerbose) { T_ P(i) }
@@ -2135,7 +2135,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, LENGTH < static_cast<int>(sizeof cstring));
                 bsl::string bslString(cstring);
                 std::string stdString(cstring);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string pmrString(cstring);
 #endif
                 char        nonNullString[sizeof(cstring)];
@@ -2145,7 +2145,7 @@ int main(int argc, char *argv[])
                 Util::toLower(cstring);
                 Util::toLower(&bslString);
                 Util::toLower(&stdString);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 Util::toLower(&pmrString);
 #endif
                 Util::toLower(nonNullString, LENGTH);
@@ -2157,7 +2157,7 @@ int main(int argc, char *argv[])
                                ::tolower);
                 ASSERTV(i, lowerStr == bslString);
                 ASSERTV(i, lowerStr == stdString);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERTV(i, lowerStr == pmrString);
 #endif
                 ASSERTV(i, lowerStr == cstring);
@@ -2175,7 +2175,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, LENGTH < static_cast<int>(sizeof cstring));
                 bsl::string bslString(cstring);
                 std::string stdString(cstring);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string pmrString(cstring);
 #endif
                 char        nonNullString[sizeof(cstring)];
@@ -2185,7 +2185,7 @@ int main(int argc, char *argv[])
                 Util::toUpper(cstring);
                 Util::toUpper(&bslString);
                 Util::toUpper(&stdString);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 Util::toUpper(&pmrString);
 #endif
                 Util::toUpper(nonNullString, LENGTH);
@@ -2197,7 +2197,7 @@ int main(int argc, char *argv[])
                                ::toupper);
                 ASSERTV(i, upperStr == bslString);
                 ASSERTV(i, upperStr == stdString);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERTV(i, upperStr == pmrString);
 #endif
                 ASSERTV(i, upperStr == cstring);

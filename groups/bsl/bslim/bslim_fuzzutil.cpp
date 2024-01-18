@@ -96,7 +96,7 @@ void FuzzUtil::consumeRandomLengthString(std::string  *output,
     consumeRandomLengthCharSequence(output, fuzzDataView, maxLength);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 void FuzzUtil::consumeRandomLengthString(std::pmr::string *output,
                                          FuzzDataView     *fuzzDataView,
                                          bsl::size_t       maxLength)

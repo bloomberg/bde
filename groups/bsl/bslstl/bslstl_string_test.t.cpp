@@ -60,10 +60,6 @@
 #include <string.h>
 #include <wchar.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif
-
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
 // manner in Visual Studio.  A "normal" test driver built from the command line
@@ -5194,7 +5190,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     typedef ::BloombergLP::bslh::Hash<>            Hasher;
     typedef typename Hasher::result_type           HashType;
     typedef std::basic_string<TYPE, TRAITS, ALLOC> NativeObj;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     typedef std::pmr::basic_string<TYPE, TRAITS>   NativePmrObj;
 #endif
     typedef bsl::basic_string_view<TYPE>           StringView;
@@ -5343,7 +5339,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
         }
     }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'std::pmr'"
                         " strings with each char type. (C-1,2)\n");
     {
@@ -5409,7 +5405,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
             ASSERT(hash == hasher(StringView(num)));
         }
     }
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
     if (verbose) printf("Hash an empty string. (C-3)\n");
     {

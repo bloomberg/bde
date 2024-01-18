@@ -644,9 +644,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_utility.h>        // 'bsl::pair'
 #include <bsl_vector.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif
 #include <string>
 #include <vector>
 
@@ -901,7 +898,7 @@ class RegEx {
     template <class STRING>
     typename bsl::enable_if<   bsl::is_same<STRING, bsl::string>::value
                             || bsl::is_same<STRING, std::string>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                             || bsl::is_same<STRING, std::pmr::string>::value
 #endif
                             ,  int>::type
@@ -1412,7 +1409,7 @@ class RegEx {
                 const bsl::string_view&  subject,
                 const bsl::string_view&  replacement,
                 size_t                   options = 0) const;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     int replace(std::pmr::string        *result,
                 int                     *errorOffset,
                 const bsl::string_view&  subject,
@@ -1455,7 +1452,7 @@ class RegEx {
                    const bsl::string_view&  subject,
                    const bsl::string_view&  replacement,
                    size_t                   options = 0) const;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     int replaceRaw(std::pmr::string        *result,
                    int                     *errorOffset,
                    const bsl::string_view&  subject,
@@ -1538,7 +1535,7 @@ RegEx::~RegEx()
 template <class STRING>
 typename bsl::enable_if<   bsl::is_same<STRING, bsl::string>::value
                         || bsl::is_same<STRING, std::string>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         || bsl::is_same<STRING, std::pmr::string>::value
 #endif
                         ,  int>::type

@@ -325,10 +325,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_limits.h>
 #include <bsl_cstddef.h>            // 'bsl::size_t'
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-# include <memory_resource>
-#endif
-
 namespace BloombergLP {
 namespace bdlcc {
 

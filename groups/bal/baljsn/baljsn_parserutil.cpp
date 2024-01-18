@@ -30,10 +30,6 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
-# include <memory_resource>
-#endif
-
 namespace {
 namespace u {
 

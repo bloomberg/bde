@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
         testCase2_getOsInfo<std::string>(
             "std::string", test, verbose, veryVerbose, veryVeryVerbose);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase2_getOsInfo<std::pmr::string>(
             "std::pmr::string", test, verbose, veryVerbose, veryVeryVerbose);
 #endif

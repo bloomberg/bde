@@ -869,7 +869,7 @@ int CharConvertUcs2::ucs2ToUtf8(std::string          *result,
     return ucs2ToUtf8Impl(result, srcString, numCharsWritten);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUcs2::ucs2ToUtf8(std::pmr::string     *result,
                                 const unsigned short *srcString,
                                 bsl::size_t          *numCharsWritten)

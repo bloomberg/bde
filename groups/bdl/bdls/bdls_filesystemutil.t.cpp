@@ -3604,7 +3604,7 @@ int main(int argc, char *argv[])
                                                             veryVerbose);
         testCase30_createTemporarySubdirectory<std::string>(verbose,
                                                             veryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase30_createTemporarySubdirectory<std::pmr::string>(verbose,
                                                                  veryVerbose);
 #endif
@@ -5077,7 +5077,7 @@ int main(int argc, char *argv[])
                                                          verbose,
                                                          veryVerbose,
                                                          veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase23_createTemporaryDirectory<std::pmr::string>(
             "std::pmr::string",
             test,
@@ -5124,7 +5124,7 @@ int main(int argc, char *argv[])
                                                     verbose,
                                                     veryVerbose,
                                                     veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase22_createTemporaryFile<std::pmr::string>("std::pmr::string",
                                                          test,
                                                          tmpWorkingDir,
@@ -5198,7 +5198,7 @@ int main(int argc, char *argv[])
                                                             verbose,
                                                             veryVerbose,
                                                             veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase21_makeUnsafeTemporaryFilename<std::pmr::string>(
             "std::pmr::string",
             test,
@@ -6651,7 +6651,7 @@ int main(int argc, char *argv[])
                                             verbose,
                                             veryVerbose,
                                             veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase10_getFileSize<std::pmr::string>("std::pmr::string",
                                                  tmpWorkingDir,
                                                  test,
@@ -6700,7 +6700,7 @@ int main(int argc, char *argv[])
                                                               verbose,
                                                               veryVerbose,
                                                               veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase9_createSystemTemporaryDirectory<std::pmr::string>(
             "std::pmr::string",
             tmpWorkingDir,
@@ -6998,7 +6998,7 @@ int main(int argc, char *argv[])
         CASE_6_TEST_TEMPLATE_2_TYPES(TYPE1, TYPE2);                           \
         CASE_6_TEST_TEMPLATE_2_TYPES(TYPE2, TYPE1);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 #define CASE_6_TEST_TEMPLATE_BOTH_CALL_ORDERS_PMR(TYPE1)                      \
         CASE_6_TEST_TEMPLATE_BOTH_CALL_ORDERS(std::pmr::string, TYPE1);
 #else
@@ -7017,7 +7017,7 @@ int main(int argc, char *argv[])
         CASE_6_TEST_TEMPLATE(const char*);
         CASE_6_TEST_TEMPLATE(bsl::string);
         CASE_6_TEST_TEMPLATE(std::string);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         CASE_6_TEST_TEMPLATE(std::pmr::string);
 #endif
         CASE_6_TEST_TEMPLATE(bslstl::StringRef);
@@ -7060,7 +7060,7 @@ int main(int argc, char *argv[])
                                                          verbose,
                                                          veryVerbose,
                                                          veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase5_isRegularFile_isDirectory<std::pmr::string>(
             "std::pmr::string",
             test,
@@ -7288,7 +7288,7 @@ int main(int argc, char *argv[])
             verbose,
             veryVerbose,
             veryVeryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         testCase4_findMatchingPaths<std::pmr::vector<std::pmr::string> >(
             "std::pmr::vector<std::pmr::string>>",
             "bsl::string_view",
@@ -9128,7 +9128,7 @@ int main(int argc, char *argv[])
             }
 
             // std::pmr::string
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             {
                 bslma::TestAllocator ta2("local test allocator");
                 std::pmr::string shortStr(SHORT_STRING, &ta2);

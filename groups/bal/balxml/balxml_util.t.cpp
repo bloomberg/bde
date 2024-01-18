@@ -16,10 +16,6 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-# include <memory_resource>
-#endif
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -247,7 +243,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 {
                     std::pmr::string   tnsReal;
                     bsl::istringstream is(xsd);
@@ -320,7 +316,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 {
                     std::pmr::string tnsReal;
 

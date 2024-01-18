@@ -785,7 +785,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             char              buffer[Util::k_MAX_STRLEN + 1];
             bsl::string       s;
             std::string       ss;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             std::pmr::string  sp;
 #endif
             bsl::stringstream out;
@@ -799,7 +799,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             Util::generate(&ss, XZ);
             Util::generate(&ss, XZ, C);
             Util::generate(&ss, XZ, CF);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             Util::generate(&sp, XZ);
             Util::generate(&sp, XZ, C);
             Util::generate(&sp, XZ, CF);
@@ -837,7 +837,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             char              buffer[Util::k_MAX_STRLEN + 1];
             bsl::string       s;
             std::string       ss;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             std::pmr::string  sp;
 #endif
             bsl::stringstream out;
@@ -851,7 +851,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             Util::generate(&ss, XZ);
             Util::generate(&ss, XZ, C);
             Util::generate(&ss, XZ, CF);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             Util::generate(&sp, XZ);
             Util::generate(&sp, XZ, C);
             Util::generate(&sp, XZ, CF);
@@ -909,7 +909,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             char              buffer[Util::k_MAX_STRLEN + 1];
             bsl::string       s;
             std::string       ss;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             std::pmr::string  sp;
 #endif
             bsl::stringstream out;
@@ -923,7 +923,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             Util::generate(&ss, XZ);
             Util::generate(&ss, XZ, C);
             Util::generate(&ss, XZ, CF);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             Util::generate(&sp, XZ);
             Util::generate(&sp, XZ, C);
             Util::generate(&sp, XZ, CF);
@@ -981,7 +981,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             char              buffer[Util::k_MAX_STRLEN + 1];
             bsl::string       s;
             std::string       ss;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             std::pmr::string  sp;
 #endif
             bsl::stringstream out;
@@ -995,7 +995,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             Util::generate(&ss, XZ);
             Util::generate(&ss, XZ, C);
             Util::generate(&ss, XZ, CF);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             Util::generate(&sp, XZ);
             Util::generate(&sp, XZ, C);
             Util::generate(&sp, XZ, CF);
@@ -1053,7 +1053,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             char              buffer[Util::k_MAX_STRLEN + 1];
             bsl::string       s;
             std::string       ss;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             std::pmr::string  sp;
 #endif
             bsl::stringstream out;
@@ -1066,7 +1066,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             Util::generate(&s,  XZ, CF);
             Util::generate(&ss, XZ);
             Util::generate(&ss, XZ, C);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             Util::generate(&sp, XZ, CF);
             Util::generate(&sp, XZ);
             Util::generate(&sp, XZ, C);
@@ -1125,7 +1125,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             char              buffer[Util::k_MAX_STRLEN + 1];
             bsl::string       s;
             std::string       ss;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             std::pmr::string  sp;
 #endif
             bsl::stringstream out;
@@ -1139,7 +1139,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             Util::generate(&ss, XZ);
             Util::generate(&ss, XZ, C);
             Util::generate(&ss, XZ, CF);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             Util::generate(&sp, XZ);
             Util::generate(&sp, XZ, C);
             Util::generate(&sp, XZ, CF);
@@ -1186,7 +1186,7 @@ int main(int argc, char *argv[])
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     if (verbose) cout << "std::pmr::string supported\n";
 #endif
 
@@ -3387,7 +3387,7 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         {
                             std::pmr::string mS("qwerty");
 
@@ -3516,7 +3516,7 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         {
                             std::pmr::string mS("qwerty");
 
@@ -3588,29 +3588,29 @@ if (veryVerbose)
 
                 bsl::string        mB("qwerty"), *pb = 0;
                 std::string        mS("qwerty"), *ps = 0;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string   mP("qwerty"), *pp = 0;
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X));
                 ASSERT_PASS(Util::generate(&mS, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X));
                 ASSERT_FAIL(Util::generate( ps, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X));
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X, C));
                 ASSERT_PASS(Util::generate(&mS, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X, C));
 #endif
                 ASSERT_FAIL(Util::generate(  pb, X, C));
                 ASSERT_FAIL(Util::generate(  ps, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate(  pp, X, C));
 #endif
             }
@@ -3819,7 +3819,7 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     {
                         std::pmr::string mS("qwerty");
 
@@ -3944,7 +3944,7 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4015,29 +4015,29 @@ if (veryVerbose)
 
                 bsl::string        mB("qwerty"), *pb = 0;
                 std::string        mS("qwerty"), *ps = 0;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string   mP("qwerty"), *pp = 0;
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X));
                 ASSERT_PASS(Util::generate(&mS, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X));
                 ASSERT_FAIL(Util::generate( ps, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X));
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X, C));
                 ASSERT_PASS(Util::generate(&mS, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X, C));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X, C));
 #endif
             }
@@ -4238,7 +4238,7 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4361,7 +4361,7 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4432,29 +4432,29 @@ if (veryVerbose)
 
                 bsl::string        mB("qwerty"), *pb = 0;
                 std::string        mS("qwerty"), *ps = 0;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string   mP("qwerty"), *pp = 0;
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X));
                 ASSERT_PASS(Util::generate(&mS, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X));
                 ASSERT_FAIL(Util::generate( ps, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X));
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X, C));
                 ASSERT_PASS(Util::generate(&mS, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X, C));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X, C));
 #endif
             }
@@ -4667,7 +4667,7 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4790,7 +4790,7 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4861,29 +4861,29 @@ if (veryVerbose)
 
                 bsl::string        mB("qwerty"), *pb = 0;
                 std::string        mS("qwerty"), *ps = 0;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string   mP("qwerty"), *pp = 0;
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X));
                 ASSERT_PASS(Util::generate(&mS, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X));
                 ASSERT_FAIL(Util::generate( ps, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X));
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X, C));
                 ASSERT_PASS(Util::generate(&mS, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X, C));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X, C));
 #endif
             }
@@ -5063,7 +5063,7 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 {
                     std::pmr::string mS("qwerty");
 
@@ -5184,7 +5184,7 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 {
                     std::pmr::string mS("qwerty");
 
@@ -5253,29 +5253,29 @@ if (veryVerbose)
 
                 bsl::string        mB("qwerty"), *pb = 0;
                 std::string        mS("qwerty"), *ps = 0;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string   mP("qwerty"), *pp = 0;
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X));
                 ASSERT_PASS(Util::generate(&mS, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X));
                 ASSERT_FAIL(Util::generate( ps, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X));
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X, C));
                 ASSERT_PASS(Util::generate(&mS, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X, C));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X, C));
 #endif
             }
@@ -5453,7 +5453,7 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 {
                     std::pmr::string mS("qwerty");
 
@@ -5574,7 +5574,7 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 {
                     std::pmr::string mS("qwerty");
 
@@ -5643,29 +5643,29 @@ if (veryVerbose)
 
                 bsl::string        mB("qwerty"), *pb = 0;
                 std::string        mS("qwerty"), *ps = 0;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string   mP("qwerty"), *pp = 0;
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X));
                 ASSERT_PASS(Util::generate(&mS, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X));
                 ASSERT_FAIL(Util::generate( ps, X));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X));
 #endif
 
                 ASSERT_PASS(Util::generate(&mB, X, C));
                 ASSERT_PASS(Util::generate(&mS, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_PASS(Util::generate(&mP, X, C));
 #endif
                 ASSERT_FAIL(Util::generate( pb, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 ASSERT_FAIL(Util::generate( pp, X, C));
 #endif
             }

@@ -299,10 +299,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #include <bsl_cstddef.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif
-
 #include <string>           // 'std::string', 'std::pmr::string'
 #include <vector>
 
@@ -513,7 +509,7 @@ struct FilesystemUtil {
 
     static int getWorkingDirectory(bsl::string *path);
     static int getWorkingDirectory(std::string *path);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int getWorkingDirectory(std::pmr::string *path);
 #endif
         // Load into the specified 'path' the absolute pathname of the current
@@ -635,7 +631,7 @@ struct FilesystemUtil {
 
     static int getSystemTemporaryDirectory(bsl::string *path);
     static int getSystemTemporaryDirectory(std::string *path);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int getSystemTemporaryDirectory(std::pmr::string *path);
 #endif
         // Load a valid path to the system temporary directory to the specified
@@ -648,7 +644,7 @@ struct FilesystemUtil {
                                               const bsl::string_view&  prefix);
     static FileDescriptor createTemporaryFile(std::string             *outPath,
                                               const bsl::string_view&  prefix);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static FileDescriptor createTemporaryFile(std::pmr::string        *outPath,
                                               const bsl::string_view&  prefix);
 #endif
@@ -670,7 +666,7 @@ struct FilesystemUtil {
                                         const bsl::string_view&  prefix);
     static int createTemporaryDirectory(std::string             *outPath,
                                         const bsl::string_view&  prefix);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int createTemporaryDirectory(std::pmr::string        *outPath,
                                         const bsl::string_view&  prefix);
 #endif
@@ -693,7 +689,7 @@ struct FilesystemUtil {
                                         std::string             *outPath,
                                         const bsl::string_view&  rootDirectory,
                                         const bsl::string_view&  prefix);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int createTemporarySubdirectory(
                                         std::pmr::string        *outPath,
                                         const bsl::string_view&  rootDirectory,
@@ -714,7 +710,7 @@ struct FilesystemUtil {
                                             const bsl::string_view&  prefix);
     static void makeUnsafeTemporaryFilename(std::string             *outPath,
                                             const bsl::string_view&  prefix);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void makeUnsafeTemporaryFilename(std::pmr::string        *outPath,
                                             const bsl::string_view&  prefix);
 #endif
@@ -799,7 +795,7 @@ struct FilesystemUtil {
     template <class STRING_TYPE>
     static int findMatchingPaths(std::vector<std::string> *result,
                                  const STRING_TYPE&        pattern);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int findMatchingPaths(std::pmr::vector<std::pmr::string> *result,
                                  const char                         *pattern);
     template <class STRING_TYPE>
@@ -883,7 +879,7 @@ struct FilesystemUtil {
     template <class STRING_TYPE>
     static int getSymbolicLinkTarget(std::string        *result,
                                      const STRING_TYPE&  path);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int getSymbolicLinkTarget(std::pmr::string *result,
                                      const char       *path);
     template <class STRING_TYPE>
@@ -1144,7 +1140,7 @@ struct FilesystemUtil_CStringUtil {
 
     static const char *flatten(const bsl::string& string);
     static const char *flatten(const std::string& string);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static const char *flatten(const std::pmr::string& string);
 #endif
         // Return the result of invoking 'c_str()' on the specified 'string'.
@@ -1278,7 +1274,7 @@ int FilesystemUtil::findMatchingPaths(std::vector<std::string> *result,
         result, FilesystemUtil_CStringUtil::flatten(pattern));
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 template <class STRING_TYPE>
 inline
 int FilesystemUtil::findMatchingPaths(
@@ -1325,7 +1321,7 @@ int FilesystemUtil::getSymbolicLinkTarget(std::string        *result,
         result, FilesystemUtil_CStringUtil::flatten(path));
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 template <class STRING_TYPE>
 inline
 int FilesystemUtil::getSymbolicLinkTarget(std::pmr::string   *result,
@@ -1385,7 +1381,7 @@ const char *FilesystemUtil_CStringUtil::flatten(const std::string& string)
     return string.c_str();
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 const char *FilesystemUtil_CStringUtil::flatten(const std::pmr::string& string)
 {

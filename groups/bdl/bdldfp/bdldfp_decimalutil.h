@@ -85,10 +85,6 @@ BSLS_IDENT("$Id$")
 #include <bsl_optional.h>
 #include <bsl_string.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-
 #include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
@@ -771,7 +767,7 @@ struct DecimalUtil_CStringUtil {
 
     static const char *flatten(const bsl::string& string);
     static const char *flatten(const std::string& string);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static const char *flatten(const std::pmr::string& string);
 #endif
         // Return the result of invoking 'c_str()' on the specified 'string'.
@@ -1431,7 +1427,7 @@ const char *DecimalUtil_CStringUtil::flatten(const std::string& string)
     return string.c_str();
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 const char *DecimalUtil_CStringUtil::flatten(const std::pmr::string& string)
 {

@@ -706,13 +706,13 @@ class FileObserver2 : public Observer {
         // the 'publish' method of this file observer will be dropped when this
         // method returns 'false'.
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     bool isFileLoggingEnabled(std::pmr::string *result) const;
         // Return 'true' if file logging is enabled for this file observer, and
         // 'false' otherwise.  Load the specified 'result' with the name of the
         // current log file if file logging is enabled, and leave 'result'
         // unmodified otherwise.
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
     bool isPublishInLocalTimeEnabled() const;
         // Return 'true' if this file observer writes the timestamp attribute

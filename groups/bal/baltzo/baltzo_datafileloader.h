@@ -208,10 +208,6 @@ BSLS_IDENT("$Id: $")
 # include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-# include <memory_resource>
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-
 namespace BloombergLP {
 namespace baltzo {
 
@@ -290,7 +286,7 @@ class DataFileLoader : public Loader {
                              const char       *timeZoneId) const;
     int loadTimeZoneFilePath(std::string      *result,
                              const char       *timeZoneId) const;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     int loadTimeZoneFilePath(std::pmr::string *result,
                              const char       *timeZoneId) const;
 #endif

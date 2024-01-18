@@ -8898,7 +8898,7 @@ if (veryVerbose)
                                 if (veryVerbose) { P_(EXPECTED) P(mS); }
                             }
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                             // 'generate' to an 'std::pmr::string'
                             {
                                 std::pmr::string mS("qwerty");
@@ -9069,7 +9069,7 @@ if (veryVerbose)
                                 if (veryVerbose) { P_(EXPECTED) P(mS); }
                             }
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                             // 'generate' to an 'std::pmr::string'
                             {
                                 std::pmr::string mS("qwerty");
@@ -9166,7 +9166,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mSS, X, C));
                 ASSERT_FAIL(Util::generate(  ps, X, C));
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string mSP("qwerty");
                 std::pmr::string *pp = 0;
 
@@ -9434,7 +9434,7 @@ if (veryVerbose)
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         // 'generate' to a 'std::pmr::string'
                         {
                             std::pmr::string mS("qwerty");
@@ -9584,7 +9584,7 @@ if (veryVerbose)
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         // 'generate' to an 'std::pmr::string'
                         {
                             std::pmr::string mS("qwerty");
@@ -9677,7 +9677,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mS, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string  mP("qwerty");
                 std::pmr::string *pp = 0;
 
@@ -9941,7 +9941,7 @@ if (veryVerbose)
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         // 'generate' to an 'std::pmr::string'
                         {
                             std::pmr::string mS("qwerty");
@@ -10090,7 +10090,7 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         // 'generate' to an 'std::pmr::string'
                         {
                             std::pmr::string mS("qwerty");
@@ -10183,7 +10183,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mS, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string  mP("qwerty");
                 std::pmr::string *pp = 0;
 
@@ -14753,7 +14753,7 @@ if (veryVerbose)
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         // 'generate' to an 'std::pmr::string'
                         {
                             std::pmr::string mS("qwerty");
@@ -14891,7 +14891,7 @@ if (veryVerbose)
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         // 'generate' to an 'std::pmr::string'
                         {
                             std::pmr::string mS("qwerty");
@@ -15081,7 +15081,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mSS, X, C));
                 ASSERT_FAIL(Util::generate(  ps, X, C));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string mSP("qwerty");
                 std::pmr::string *pp = 0;
 
@@ -15340,7 +15340,7 @@ if (veryVerbose)
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
@@ -15470,7 +15470,7 @@ if (veryVerbose)
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
@@ -15654,7 +15654,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mS, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string mP("qwerty"), *pp = 0;
 
                 ASSERT_PASS(Util::generate(&mP, X));
@@ -15906,7 +15906,7 @@ if (veryVerbose)
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
@@ -16036,7 +16036,7 @@ if (veryVerbose)
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
@@ -16220,7 +16220,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mS, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string mP("qwerty"), *pp = 0;
 
                 ASSERT_PASS(Util::generate(&mP, X));
@@ -16481,7 +16481,7 @@ if (veryVerbose)
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
@@ -16611,7 +16611,7 @@ if (veryVerbose)
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
@@ -16697,7 +16697,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mS, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string mP("qwerty"), *pp = 0;
 
                 ASSERT_PASS(Util::generate(&mP, X));
@@ -16924,7 +16924,7 @@ if (veryVerbose)
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
@@ -17052,7 +17052,7 @@ if (veryVerbose)
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
@@ -17136,7 +17136,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mS, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string mP("qwerty"), *pp = 0;
 
                 ASSERT_PASS(Util::generate(&mP, X));
@@ -17361,7 +17361,7 @@ if (veryVerbose)
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
@@ -17488,7 +17488,7 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
@@ -17572,7 +17572,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mS, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string mP("qwerty"), *pp = 0;
 
                 ASSERT_PASS(Util::generate(&mP, X));
@@ -17774,7 +17774,7 @@ if (veryVerbose)
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
@@ -17902,7 +17902,7 @@ if (veryVerbose)
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
@@ -17986,7 +17986,7 @@ if (veryVerbose)
                 ASSERT_PASS(Util::generate(&mS, X, C));
                 ASSERT_FAIL(Util::generate( ps, X, C));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string mP("qwerty"), *pp = 0;
 
                 ASSERT_PASS(Util::generate(&mP, X));

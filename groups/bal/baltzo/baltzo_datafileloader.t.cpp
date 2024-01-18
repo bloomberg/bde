@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(ti, TZ_ID,
                              0 != X.loadTimeZoneFilePath(&stdResult, TZ_ID));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string pmrResult;
                 LOOP2_ASSERT(ti, TZ_ID,
                              0 != X.loadTimeZoneFilePath(&pmrResult, TZ_ID));
@@ -919,7 +919,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(ti, TZ_ID,
                              0 == X.loadTimeZoneFilePath(&stdResult, TZ_ID));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 std::pmr::string pmrResult;
                 LOOP2_ASSERT(ti, TZ_ID,
                              0 == X.loadTimeZoneFilePath(&pmrResult, TZ_ID));
@@ -946,7 +946,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.loadTimeZoneFilePath(&stdResult, "A/"));
             ASSERT(0 == X.loadTimeZoneFilePath(&stdResult, "A/B"));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             std::pmr::string pmrResult;
 
             ASSERT(0 != X.loadTimeZoneFilePath(&pmrResult, "/"));
@@ -1008,7 +1008,7 @@ int main(int argc, char *argv[])
                                                             TZ_ID));
                     LOOP3_ASSERT(LINE, EXP, stdResult, EXP == stdResult);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     std::pmr::string pmrResult;
                     LOOP_ASSERT(LINE,
                                 0 == X.loadTimeZoneFilePath(&pmrResult,
@@ -1117,7 +1117,7 @@ int main(int argc, char *argv[])
                                                             TZ_ID));
                     LOOP3_ASSERT(LINE, EXP, stdResult, EXP == stdResult);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     std::pmr::string pmrResult;
                     LOOP_ASSERT(LINE,
                                 0 == X.loadTimeZoneFilePath(&pmrResult,

@@ -628,10 +628,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-
 #include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
@@ -930,7 +926,7 @@ struct Iso8601Util {
                         const DatetimeOrDatetimeTz&      object,
                         const GenerateConfiguration&     configuration);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int generate(std::pmr::string                *string,
                         const bsls::TimeInterval&        object);
     static int generate(std::pmr::string                *string,
@@ -2171,7 +2167,7 @@ int Iso8601Util::generate(std::string                 *string,
     return generate(string, object, defaultConfiguration());
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 int Iso8601Util::generate(std::pmr::string         *string,
                           const bsls::TimeInterval& object)

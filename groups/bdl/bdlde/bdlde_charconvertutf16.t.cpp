@@ -35,6 +35,10 @@
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -5876,7 +5880,7 @@ void TestDriver::testCase16(bdlde::ByteOrder::Enum byteOrder)
         ASSERT(utf8CodePointsB == utf8CodePointsC);
         ASSERTV(displayUtf8(utf8B), displayUtf8(utf8C), utf8B == utf8C);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         utf8CodePointsC = -1;
         std::pmr::string utf8P(std::pmr::new_delete_resource());
         utf8P.reserve(4092);
@@ -6369,7 +6373,7 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
                                                                           endl;
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         std::pmr::u16string utf16U16sp(std::pmr::new_delete_resource());
         utf16U16sp.reserve(4092);
         utf16CodePoints = -1;
@@ -8062,7 +8066,7 @@ int main(int argc, char**argv)
                                std::vector<wchar_t>,
                                std::vector<unsigned short> >();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose)
             cout << "\tTesting pmr containers\n";
 
@@ -8121,7 +8125,7 @@ int main(int argc, char**argv)
         TestDriver::testCase12<std::string, bsl::u16string>();
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase12<std::pmr::string, std::pmr::wstring>();
@@ -8181,7 +8185,7 @@ int main(int argc, char**argv)
         TestDriver::testCase11<std::vector<char>, std::string, char16_t>();
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase11<std::pmr::vector<char>,
@@ -8239,7 +8243,7 @@ int main(int argc, char**argv)
         TestDriver::testCase10<std::vector<unsigned short>, std::u16string>();
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase10<std::pmr::vector<unsigned short>,
@@ -8902,7 +8906,7 @@ int main(int argc, char**argv)
             ASSERT(utf16W == utf16Wstring);
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         {
             std::pmr::wstring utf16Wstring(std::pmr::new_delete_resource());
 
@@ -9412,7 +9416,7 @@ int main(int argc, char**argv)
                 ASSERT(utf8String == utf8StringB);
             }
 #endif
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             {
                 std::pmr::string utf8String(std::pmr::new_delete_resource());
 

@@ -411,10 +411,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_set.h>
 #include <bsl_vector.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-
 #include <set>                   // 'std::set', 'std::pmr::set'
 #include <vector>                // 'std::vector', 'std::pmr::vector'
 

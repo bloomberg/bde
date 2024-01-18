@@ -10,6 +10,7 @@
 #include <stddef.h>  // for 'size_t'
 #include <stdio.h>   // for 'printf', 'puts'
 #include <stdlib.h>  // for 'atoi'
+#include <string>    // for 'pmr::string'
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
     #include <string.h>  // for 'strchr'
@@ -207,6 +208,8 @@
 // [15] BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
 // [18] BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
 // [18] BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
+// [15] BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+// [15] BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 // [17] BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
@@ -395,6 +398,22 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV_defined =
 static const
 bool   BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                                                                           true;
 #else
                                                                          false;
@@ -1373,6 +1392,13 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR));
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -2459,6 +2485,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         // --------------------------------------------------------------------
 
         if (verbose) puts("\n'BSLS_LIBRARYFEATURES_HAS_CPP17_*' MISCELLANY"
@@ -2467,6 +2495,8 @@ int main(int argc, char *argv[])
         if (verbose) {
             P(BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC_defined);
             P(BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET_defined);
+            P(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_defined);
+            P(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING_defined);
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
@@ -2479,6 +2509,34 @@ int main(int argc, char *argv[])
         {
             std::timespec ts;
             (void)std::timespec_get(&ts, TIME_UTC);
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        {
+            (void)(std::pmr::polymorphic_allocator<char> *)0;
+            (void)(std::pmr::memory_resource *)0;
+            (void)(std::pmr::pool_options *)0;
+            (void)(std::pmr::synchronized_pool_resource *)0;
+            (void)(std::pmr::unsynchronized_pool_resource *)0;
+            (void)(std::pmr::monotonic_buffer_resource *)0;
+
+            (void)std::pmr::new_delete_resource();
+            (void)std::pmr::null_memory_resource();
+            (void)std::pmr::get_default_resource();
+            (void)[](std::pmr::memory_resource *r) {
+                (void)std::pmr::set_default_resource(r);
+            };
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+        {
+            (void)(std::pmr::basic_string<char> *)0;
+            (void)(std::pmr::string *)0;
+            (void)(std::pmr::wstring *)0;
+            (void)(std::pmr::u16string *)0;
+            (void)(std::pmr::u32string *)0;
         }
 #endif
       } break;

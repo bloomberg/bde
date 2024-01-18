@@ -2070,7 +2070,7 @@ int CharConvertUtf32::utf32ToUtf8(std::string           *dstString,
                                  byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf32::utf32ToUtf8(std::pmr::string   *dstString,
                                   const unsigned int *srcString,
                                   bsl::size_t        *numCodePointsWritten,
@@ -2127,7 +2127,7 @@ int CharConvertUtf32::utf32ToUtf8(std::string           *dstString,
                                  byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf32::utf32ToUtf8(std::pmr::string   *dstString,
                                   const unsigned int *srcString,
                                   bsl::size_t         srcStringLength,

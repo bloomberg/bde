@@ -123,7 +123,7 @@ int PipeUtil::makeCanonicalName(std::string             *pipeName,
     return u_makeCanonicalName(pipeName, baseName);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int PipeUtil::makeCanonicalName(std::pmr::string        *pipeName,
                                 const bsl::string_view&  baseName)
 {

@@ -72,10 +72,6 @@
 #undef ERROR
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -3429,7 +3425,7 @@ int main(int argc, char *argv[])
                                 std::string(expected.cbegin(),
                                             expected.cend()) == actual);
                     }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     {
                         std::pmr::string actual;
                         ASSERTV(LINE, true == X.isFileLoggingEnabled(&actual));
@@ -3442,7 +3438,7 @@ int main(int argc, char *argv[])
                                 std::pmr::string(expected.cbegin(),
                                                  expected.cend()) == actual);
                     }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                     mX.disableFileLogging();
 

@@ -3548,7 +3548,7 @@ int main(int argc, char* argv[])
                                                        bsl::string(INPUT, pa));
                 const int rcStdStr = Util::parseDecimal32(&valueStdStr,
                                                           std::string(INPUT));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 Type      valuePmrStr = ERROR_VALUE;
                 const int rcPmrStr = Util::parseDecimal32(
                                                   &valuePmrStr,
@@ -3559,7 +3559,7 @@ int main(int argc, char* argv[])
                     LOOP2_ASSERT(LINE, rcStrRef, 0 == rcStrRef);
                     LOOP2_ASSERT(LINE, rcBslStr, 0 == rcBslStr);
                     LOOP2_ASSERT(LINE, rcStdStr, 0 == rcStdStr);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     LOOP2_ASSERT(LINE, rcPmrStr, 0 == rcPmrStr);
 #endif
                 }
@@ -3568,7 +3568,7 @@ int main(int argc, char* argv[])
                     LOOP2_ASSERT(LINE, rcStrRef, rcStrRef);
                     LOOP2_ASSERT(LINE, rcBslStr, rcBslStr);
                     LOOP2_ASSERT(LINE, rcStdStr, rcStdStr);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     LOOP2_ASSERT(LINE, rcPmrStr, rcPmrStr);
 #endif
                 }
@@ -3582,7 +3582,7 @@ int main(int argc, char* argv[])
                                  Util::isNan(valueBslStr));
                     LOOP3_ASSERT(LINE, EXP, valueStdStr,
                                  Util::isNan(valueStdStr));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     LOOP3_ASSERT(LINE, EXP, valuePmrStr,
                                  Util::isNan(valuePmrStr));
 #endif
@@ -3592,7 +3592,7 @@ int main(int argc, char* argv[])
                     LOOP3_ASSERT(LINE, EXP, valueStrRef, EXP == valueStrRef);
                     LOOP3_ASSERT(LINE, EXP, valueBslStr, EXP == valueBslStr);
                     LOOP3_ASSERT(LINE, EXP, valueStdStr, EXP == valueStdStr);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     LOOP3_ASSERT(LINE, EXP, valuePmrStr, EXP == valuePmrStr);
 #endif
                 }

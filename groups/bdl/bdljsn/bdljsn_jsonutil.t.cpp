@@ -1146,7 +1146,7 @@ R"JSON(    {
                     JSON_PRETTY_IIL_1_SPL_2 == outputStr);
         }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose)
             cout << "Testing 'static int write(std::pmr::string*, const "
                     "Json&);'"

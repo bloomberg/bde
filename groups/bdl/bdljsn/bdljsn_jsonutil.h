@@ -433,7 +433,7 @@ struct JsonUtil {
     static int write(bsl::string         *output,
                      const Json&          json,
                      const WriteOptions&  options);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int write(std::pmr::string    *output,
                      const Json&          json);
     static int write(std::pmr::string    *output,
@@ -622,7 +622,7 @@ int JsonUtil::write(bsl::string         *output,
     return write(output, json, options);
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 int JsonUtil::write(std::pmr::string    *output,
                     const Json&          json,
@@ -651,9 +651,9 @@ int JsonUtil::write(std::pmr::string    *output,
     return rc;
 #endif
 }
-#endif  // defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#endif  // defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING)
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 int JsonUtil::write(std::pmr::string    *output,
                     const Json&          json)
@@ -662,7 +662,7 @@ int JsonUtil::write(std::pmr::string    *output,
 
     return write(output, json, options);
 }
-#endif  // defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#endif  // defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING)
 
 inline
 int JsonUtil::write(std::string         *output,

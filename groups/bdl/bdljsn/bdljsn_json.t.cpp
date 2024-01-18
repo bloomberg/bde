@@ -3999,7 +3999,7 @@ int main(int argc, char *argv[])
         obj.insert(s7,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
         obj.insert(s7,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         const std::pmr::string s8 = "s8";
               std::pmr::string s9 = "s9";
 
@@ -4049,7 +4049,7 @@ int main(int argc, char *argv[])
         obj.insert(s9,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
         obj.insert(s9,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
       case 41: {

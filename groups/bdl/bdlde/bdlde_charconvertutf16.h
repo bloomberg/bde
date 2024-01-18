@@ -297,10 +297,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif
-
 #include <string>                   // 'std::string', 'std::pmr::string'
 #include <vector>                   // 'std::vector', 'std::pmr::vector'
 
@@ -348,7 +344,7 @@ struct CharConvertUtf16 {
                           wchar_t                  errorWord            = '?',
                           ByteOrder::Enum          byteOrder            =
                                                             ByteOrder::e_HOST);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf8ToUtf16(
                        std::pmr::wstring       *dstString,
                        const bsl::string_view&  srcString,
@@ -370,7 +366,7 @@ struct CharConvertUtf16 {
                           wchar_t                   errorWord            = '?',
                           ByteOrder::Enum           byteOrder            =
                                                             ByteOrder::e_HOST);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf8ToUtf16(std::pmr::wstring *dstString,
                            const char        *srcString,
                            bsl::size_t       *numCodePointsWritten = 0,
@@ -392,7 +388,7 @@ struct CharConvertUtf16 {
                           char16_t                 errorChar            = '?',
                           ByteOrder::Enum          byteOrder            =
                                                             ByteOrder::e_HOST);
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf8ToUtf16(
                           std::pmr::u16string      *dstString,
                           const bsl::string_view&   srcString,
@@ -415,7 +411,7 @@ struct CharConvertUtf16 {
                           char16_t                  errorChar            = '?',
                           ByteOrder::Enum           byteOrder            =
                                                             ByteOrder::e_HOST);
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf8ToUtf16(
                           std::pmr::u16string      *dstString,
                           const char               *srcString,
@@ -703,7 +699,7 @@ struct CharConvertUtf16 {
                            char                  errorByte            = '?',
                            ByteOrder::Enum       byteOrder            =
                                                             ByteOrder::e_HOST);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf16ToUtf8(
                           std::pmr::string     *dstString,
                           const unsigned short *srcString,
@@ -725,7 +721,7 @@ struct CharConvertUtf16 {
                           bsl::size_t          *numCodePointsWritten = 0,
                           char                  errorByte            = '?',
                           ByteOrder::Enum       byteOrder = ByteOrder::e_HOST);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf16ToUtf8(
                           std::pmr::string     *dstString,
                           const unsigned short *srcString,
@@ -748,7 +744,7 @@ struct CharConvertUtf16 {
                       char                      errorByte            = '?',
                       ByteOrder::Enum           byteOrder            =
                                                             ByteOrder::e_HOST);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf16ToUtf8(
                       std::pmr::string         *dstString,
                       const bsl::wstring_view&  srcString,
@@ -769,7 +765,7 @@ struct CharConvertUtf16 {
                            char             errorByte            = '?',
                            ByteOrder::Enum  byteOrder            =
                                                             ByteOrder::e_HOST);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf16ToUtf8(std::pmr::string *dstString,
                            const wchar_t    *srcString,
                            bsl::size_t      *numCodePointsWritten = 0,
@@ -792,7 +788,7 @@ struct CharConvertUtf16 {
                       char                        errorByte            = '?',
                       ByteOrder::Enum             byteOrder            =
                                                             ByteOrder::e_HOST);
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf16ToUtf8(
                       std::pmr::string           *dstString,
                       const bsl::u16string_view&  srcString,
@@ -813,7 +809,7 @@ struct CharConvertUtf16 {
                            char             errorByte            = '?',
                            ByteOrder::Enum  byteOrder            =
                                                             ByteOrder::e_HOST);
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf16ToUtf8(std::pmr::string *dstString,
                            const char16_t   *srcString,
                            bsl::size_t      *numCodePointsWritten = 0,

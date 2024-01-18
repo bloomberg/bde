@@ -1423,7 +1423,7 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE,     retCode,   EXPECTED,   result2,
                                      0 >  retCode || EXPECTED == result2);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         std::pmr::string result3(j, 0);
 
                         retCode = X.replace(&result3,
@@ -1469,7 +1469,7 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE,     retCode,   EXPECTED,   result2,
                                      0 >  retCode || EXPECTED == result2);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         std::pmr::string result3(j, 0);
 
                         retCode = X.replaceRaw(&result3,

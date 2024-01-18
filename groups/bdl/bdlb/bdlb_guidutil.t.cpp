@@ -1182,7 +1182,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { P_(LINE) P(result.c_str()) }
                 LOOP_ASSERT(LINE, EXP == result);
             }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             {
                 std::pmr::string        result;
                 const std::pmr::string  EXP(GUID_STR);

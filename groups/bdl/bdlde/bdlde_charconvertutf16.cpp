@@ -1640,11 +1640,11 @@ void resizeToZeroTerminate(
                          || bsl::is_same<CONTAINER, bsl::wstring>::value
                          || bsl::is_same<CONTAINER, std::string>::value
                          || bsl::is_same<CONTAINER, std::wstring>::value
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES                        
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
                          || bsl::is_same<CONTAINER, bsl::u16string>::value
                          || bsl::is_same<CONTAINER, std::u16string>::value
 #endif
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                          || bsl::is_same<CONTAINER, std::pmr::string>::value
                          || bsl::is_same<CONTAINER, std::pmr::wstring>::value
                          || bsl::is_same<CONTAINER, std::pmr::u16string>::value
@@ -2045,7 +2045,7 @@ int CharConvertUtf16::utf8ToUtf16(
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf8ToUtf16(
                                  std::pmr::wstring       *dstWstring,
                                  const bsl::string_view&  srcString,
@@ -2087,7 +2087,7 @@ int CharConvertUtf16::utf8ToUtf16(std::wstring       *dstWstring,
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf8ToUtf16(std::pmr::wstring *dstWstring,
                                   const char        *srcString,
                                   bsl::size_t       *numCodePointsWritten,
@@ -2131,7 +2131,7 @@ int CharConvertUtf16::utf8ToUtf16(
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf8ToUtf16(
                                  std::pmr::u16string     *dst16string,
                                  const bsl::string_view&  srcString,
@@ -2173,7 +2173,7 @@ int CharConvertUtf16::utf8ToUtf16(std::u16string     *dst16string,
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf8ToUtf16(std::pmr::u16string *dst16string,
                                   const char          *srcString,
                                   bsl::size_t         *numCodePointsWritten,
@@ -2543,7 +2543,7 @@ int CharConvertUtf16::utf16ToUtf8(std::string          *dstString,
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf16ToUtf8(std::pmr::string          *dstString,
                                   const unsigned short *srcString,
                                   bsl::size_t          *numCodePointsWritten,
@@ -2588,7 +2588,7 @@ int CharConvertUtf16::utf16ToUtf8(std::string          *dstString,
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf16ToUtf8(std::pmr::string     *dstString,
                                   const unsigned short *srcString,
                                   bsl::size_t           srcLengthInWords,
@@ -2633,7 +2633,7 @@ int CharConvertUtf16::utf16ToUtf8(
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf16ToUtf8(
                                 std::pmr::string         *dstString,
                                 const bsl::wstring_view&  srcString,
@@ -2675,7 +2675,7 @@ int CharConvertUtf16::utf16ToUtf8(std::string     *dstString,
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf16ToUtf8(std::pmr::string *dstString,
                                   const wchar_t    *srcString,
                                   bsl::size_t      *numCodePointsWritten,
@@ -2719,7 +2719,7 @@ int CharConvertUtf16::utf16ToUtf8(
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf16ToUtf8(
                               std::pmr::string           *dstString,
                               const bsl::u16string_view&  srcString,
@@ -2761,7 +2761,7 @@ int CharConvertUtf16::utf16ToUtf8(std::string      *dstString,
                               byteOrder);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int CharConvertUtf16::utf16ToUtf8(std::pmr::string  *dstString,
                                   const char16_t    *srcString,
                                   bsl::size_t       *numCodePointsWritten,

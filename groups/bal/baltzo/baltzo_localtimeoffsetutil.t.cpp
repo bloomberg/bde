@@ -1469,7 +1469,7 @@ int main(int argc, char *argv[])
                     std::string timezone; Util::loadTimezone(&timezone);
                     LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
                 }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 {
                     std::pmr::string timezone; Util::loadTimezone(&timezone);
                     LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
@@ -1518,7 +1518,7 @@ int main(int argc, char *argv[])
                     std::string timezone; Util::loadTimezone(&timezone);
                     LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
                 }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                 {
                     std::pmr::string timezone; Util::loadTimezone(&timezone);
                     LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
@@ -1942,7 +1942,7 @@ int main(int argc, char *argv[])
                         Util::loadTimezone(&timezone);
                         ASSERT(0 == strcmp(TIMEZONE, timezone.c_str()));
                     }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     {
                         std::pmr::string timezone;
                         Util::loadTimezone(&timezone);
@@ -2017,7 +2017,7 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Util::loadTimezone(&s));
                 ASSERT_FAIL(Util::loadTimezone(pz));
             }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             {
                 std::pmr::string s, *pz = 0;
                 ASSERT_PASS(Util::loadTimezone(&s));

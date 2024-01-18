@@ -192,10 +192,6 @@ BSLS_IDENT("$Id: $")
 
 #include <string>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif
-
 namespace BloombergLP {
 namespace bdlb {
 
@@ -314,7 +310,7 @@ struct GuidUtil {
 
     static void guidToString(bsl::string *result, const Guid& guid);
     static void guidToString(std::string *result, const Guid& guid);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void guidToString(std::pmr::string *result, const Guid& guid);
 #endif
         // Serialize the specified 'guid' into the specified 'result'.  The

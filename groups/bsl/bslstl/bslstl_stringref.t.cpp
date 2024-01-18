@@ -7111,7 +7111,7 @@ int main(int argc, char *argv[])
                                                  s_nonEmptyString_p.begin())));
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (veryVerbose)
             std::cout
                 << "\nbslstl_StringRef(const std::pmr::string& begin)"

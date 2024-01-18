@@ -5959,7 +5959,7 @@ int main(int argc, char **argv)
                                std::vector<unsigned int>,
                                std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase17<std::pmr::vector<char>,
@@ -6025,7 +6025,7 @@ int main(int argc, char **argv)
                                std::vector<unsigned int>,
                                std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase16<std::pmr::vector<char>,
@@ -6102,7 +6102,7 @@ int main(int argc, char **argv)
                                std::vector<unsigned int>,
                                std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase15<std::pmr::vector<char>,
@@ -6172,7 +6172,7 @@ int main(int argc, char **argv)
                                std::vector<unsigned int>,
                                std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase14<std::pmr::vector<char>,
@@ -6301,7 +6301,7 @@ int main(int argc, char **argv)
                                std::vector<unsigned int>,
                                std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase11<std::pmr::vector<char>,
@@ -6344,7 +6344,7 @@ int main(int argc, char **argv)
                                std::vector<unsigned int>,
                                std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase10<std::pmr::vector<char>,
@@ -6409,7 +6409,7 @@ int main(int argc, char **argv)
         if (verbose) cout << "\tTesting std containers\n";
         TestDriver::testCase8<std::vector<char>, std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase8<std::pmr::vector<char>, std::pmr::string>();
@@ -6462,7 +6462,7 @@ int main(int argc, char **argv)
         if (verbose) cout << "\tTesting std containers\n";
         TestDriver::testCase7<std::vector<char>, std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase7<std::pmr::vector<char>, std::pmr::string>();

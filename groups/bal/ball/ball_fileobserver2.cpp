@@ -61,10 +61,6 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #define snprintf _snprintf
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-
 namespace BloombergLP {
 namespace ball {
 
@@ -864,12 +860,12 @@ bool FileObserver2::isFileLoggingEnabled(std::string *result) const
     return isFileLoggingEnabledImpl(result);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 bool FileObserver2::isFileLoggingEnabled(std::pmr::string *result) const
 {
     return isFileLoggingEnabledImpl(result);
 }
-#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
 bool FileObserver2::isPublishInLocalTimeEnabled() const
 {

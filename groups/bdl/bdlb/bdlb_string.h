@@ -85,10 +85,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #include <bsl_string.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif
-
 #include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
@@ -205,7 +201,7 @@ struct String {
     static void ltrim(char *string);
     static void ltrim(bsl::string *string);
     static void ltrim(std::string *string);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void ltrim(std::pmr::string *string);
 #endif
         // Remove all leading whitespace characters from the specified
@@ -233,7 +229,7 @@ struct String {
         // operation has no effect if 'string.size() >= length'.  The behavior
         // is undefined unless '0 <= length'.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void pad(std::pmr::string            *string,
                     std::pmr::string::size_type  length,
                     char                         padChar = ' ');
@@ -246,7 +242,7 @@ struct String {
     static void rtrim(char *string);
     static void rtrim(bsl::string *string);
     static void rtrim(std::string *string);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void rtrim(std::pmr::string *string);
 #endif
         // Remove all trailing whitespace characters from the specified
@@ -344,7 +340,7 @@ struct String {
     static void toLower(char *string, int length);
     static void toLower(bsl::string *string);
     static void toLower(std::string *string);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void toLower(std::pmr::string *string);
 #endif
         // Replace all upper case characters in the specified 'string' having
@@ -356,7 +352,7 @@ struct String {
     static void toUpper(char *string, int length);
     static void toUpper(bsl::string *string);
     static void toUpper(std::string *string);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void toUpper(std::pmr::string *string);
 #endif
         // Replace all lower case characters in the specified 'string' having
@@ -367,7 +363,7 @@ struct String {
     static void trim(char *string);
     static void trim(bsl::string *string);
     static void trim(std::string *string);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void trim(std::pmr::string *string);
 #endif
         // Remove all leading and trailing whitespace characters from the
@@ -655,7 +651,7 @@ void String::ltrim(std::string *string)
     string->resize(length);
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 void String::ltrim(std::pmr::string *string)
 {
@@ -691,7 +687,7 @@ void String::pad(std::string *string, int length, char padChar)
     }
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 void String::pad(std::pmr::string            *string,
                  std::pmr::string::size_type  length,
@@ -729,7 +725,7 @@ void String::rtrim(std::string *string)
     string->resize(length);
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 void String::rtrim(std::pmr::string *string)
 {
@@ -761,7 +757,7 @@ void String::toLower(std::string *string)
     toLower(&(*string)[0], static_cast<int>(string->size()));
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 void String::toLower(std::pmr::string *string)
 {
@@ -790,7 +786,7 @@ void String::toUpper(std::string *string)
     toUpper(&(*string)[0], static_cast<int>(string->size()));
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 void String::toUpper(std::pmr::string *string)
 {
@@ -838,7 +834,7 @@ void String::trim(std::string *string)
     string->resize(length);
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 void String::trim(std::pmr::string *string)
 {

@@ -188,9 +188,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif
 #include <string>                   // 'std::string', 'std::pmr::string'
 #include <vector>                   // 'std::vector', 'std::pmr::vector'
 
@@ -337,7 +334,7 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf32ToUtf8(std::pmr::string   *dstString,
                            const unsigned int *srcString,
                            bsl::size_t        *numCodePointsWritten = 0,
@@ -358,7 +355,7 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int utf32ToUtf8(std::pmr::string   *dstString,
                            const unsigned int *srcString,
                            bsl::size_t         srcStringLength,

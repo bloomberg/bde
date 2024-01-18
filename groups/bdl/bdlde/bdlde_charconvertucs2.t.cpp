@@ -3253,7 +3253,7 @@ int main(int argc, char**argv)
         if (verbose) cout << "\tTesting std containers\n";
         TestDriver::testCase4<std::string>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         if (verbose) cout << "\tTesting pmr containers\n";
 
         TestDriver::testCase4<std::pmr::string>();

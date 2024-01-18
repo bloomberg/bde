@@ -96,9 +96,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_type_traits.h>      // 'bsl::is_same'
 #include <bsl_vector.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif
 #include <string>
 #include <vector>
 
@@ -191,7 +188,7 @@ struct FuzzUtil {
     static void consumeRandomLengthString(std::string      *output,
                                           FuzzDataView     *fuzzDataView,
                                           bsl::size_t       maxLength);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void consumeRandomLengthString(std::pmr::string *output,
                                           FuzzDataView     *fuzzDataView,
                                           bsl::size_t       maxLength);

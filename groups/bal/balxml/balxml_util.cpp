@@ -18,10 +18,6 @@ BSLS_IDENT_RCSID(balxml_util_cpp,"$Id$ $CSID$")
 #include <bsl_iosfwd.h>
 #include <bsl_sstream.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-# include <memory_resource>
-#endif
-
 namespace {
 namespace u {
 
@@ -169,7 +165,7 @@ bool Util::extractNamespaceFromXsd(const bsl::string_view&  xsdSource,
     return u::extractNamespaceFromXsd_Impl(xsdSource, targetNamespace);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 bool Util::extractNamespaceFromXsd(const bsl::string_view&  xsdSource,
                                    std::pmr::string        *targetNamespace)
 {
@@ -189,7 +185,7 @@ bool Util::extractNamespaceFromXsd(bsl::streambuf   *xsdSource,
     return u::extractNamespaceFromXsd_Impl(xsdSource, targetNamespace);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 bool Util::extractNamespaceFromXsd(bsl::streambuf   *xsdSource,
                                    std::pmr::string *targetNamespace)
 {

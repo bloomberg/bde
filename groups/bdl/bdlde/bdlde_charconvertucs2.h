@@ -277,10 +277,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif
-
 #include <string>                  // 'std::string', 'std::pmr::string'
 #include <vector>                  // 'std::vector', 'std::pmr::vector'
 
@@ -399,7 +395,7 @@ struct CharConvertUcs2 {
     static int ucs2ToUtf8(std::string          *result,
                           const unsigned short *srcString,
                           bsl::size_t          *numCharsWritten = 0);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int ucs2ToUtf8(std::pmr::string     *result,
                           const unsigned short *srcString,
                           bsl::size_t          *numCharsWritten = 0);

@@ -1175,7 +1175,7 @@ int Utf8Util::appendUtf8CodePoint(std::string *output, unsigned int codePoint)
     return appendUtf8CodePointImpl(output, codePoint);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int Utf8Util::appendUtf8CodePoint(std::pmr::string *output,
                                   unsigned int      codePoint)
 {

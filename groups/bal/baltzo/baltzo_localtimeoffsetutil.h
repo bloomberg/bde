@@ -136,10 +136,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_atomic.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif
-
 namespace BloombergLP {
 namespace baltzo {
 
@@ -248,7 +244,7 @@ struct LocalTimeOffsetUtil {
 
     static void loadTimezone(bsl::string      *timezone);
     static void loadTimezone(std::string      *timezone);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void loadTimezone(std::pmr::string *timezone);
 #endif
         // Load to the specified 'timezone' time zone identifier used to

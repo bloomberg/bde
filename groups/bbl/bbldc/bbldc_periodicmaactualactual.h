@@ -67,10 +67,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_vector.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-# include <memory_resource>
-#endif
-
 #include <vector>                   // 'std::vector', 'std::pmr::vector'
 
 namespace BloombergLP {

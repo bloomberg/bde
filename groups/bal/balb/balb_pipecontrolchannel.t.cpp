@@ -175,7 +175,7 @@ enum PipeNameForm { e_BEGIN
                   , e_CONST_CHAR_STAR = e_BEGIN
                   , e_BSL_STRING
                   , e_STD_STRING
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                   , e_PMR_STRING
 #endif
                   , e_STRING_REF
@@ -189,7 +189,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, PipeNameForm pnf)
                     ? "bsl::string"
                     : e_STD_STRING == pnf
                     ? "std::string"
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                     : e_PMR_STRING == pnf
                     ? "pmr::string"
 #endif
@@ -982,7 +982,7 @@ int main(int argc, char *argv[])
                         const std::string PIPE_NAME(PIPE_NAME_BSL);
                         rc = pipeChannel.start(PIPE_NAME, SET_ATTR);
                       } break;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                       case e_PMR_STRING: {
                         const std::pmr::string PIPE_NAME(PIPE_NAME_BSL);
                         rc = pipeChannel.start(PIPE_NAME, SET_ATTR);
@@ -1009,7 +1009,7 @@ int main(int argc, char *argv[])
                         const std::string PIPE_NAME(PIPE_NAME_BSL);
                         rc = pipeChannel.start(PIPE_NAME);
                       } break;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                       case e_PMR_STRING: {
                         const std::pmr::string PIPE_NAME(PIPE_NAME_BSL);
                         rc = pipeChannel.start(PIPE_NAME);

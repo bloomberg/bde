@@ -278,10 +278,6 @@ BSLS_IDENT("$Id: $")
 #include <cstring>
 #include <iosfwd>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif
-
 namespace BloombergLP {
 namespace bslstl {
 
@@ -404,7 +400,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     StringRefImp(const bsl::basic_string_view<CHAR_TYPE>& str);     // IMPLICIT
     StringRefImp(const std::basic_string<CHAR_TYPE>& str);          // IMPLICIT
     StringRefImp(const bsl::basic_string<CHAR_TYPE>& str);          // IMPLICIT
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     StringRefImp(const std::pmr::basic_string<CHAR_TYPE>& str);     // IMPLICIT
 #endif
         // Create a string-reference object having a valid 'std::string' value,
@@ -739,7 +735,7 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const std::basic_string<CHAR_TYPE>& str)
 {
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 template <class CHAR_TYPE>
 inline
 StringRefImp<CHAR_TYPE>::StringRefImp(

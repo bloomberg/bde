@@ -429,15 +429,6 @@ void example2()
 namespace {
 namespace u {
 
-enum VectorType { e_BEGIN,
-                  e_BSL = e_BEGIN,
-                  e_STD,
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                  e_PMR,
-#endif
-                  e_END
-};
-
 template <class VECTOR>
 typename VECTOR::value_type *vFront(VECTOR *v)
 {

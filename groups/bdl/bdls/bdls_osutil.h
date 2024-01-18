@@ -71,10 +71,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif
-
 #include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
@@ -95,7 +91,7 @@ struct OsUtil {
     static int getOsInfo(std::string *osName,
                          std::string *osVersion,
                          std::string *osPatch);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int getOsInfo(std::pmr::string *osName,
                          std::pmr::string *osVersion,
                          std::pmr::string *osPatch);

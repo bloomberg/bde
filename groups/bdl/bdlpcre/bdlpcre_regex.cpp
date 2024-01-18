@@ -1109,7 +1109,7 @@ int RegEx::replace(std::string             *result,
                       false);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int RegEx::replace(std::pmr::string        *result,
                    int                     *errorOffset,
                    const bsl::string_view&  subject,
@@ -1153,7 +1153,7 @@ int RegEx::replaceRaw(std::string             *result,
                       true);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int RegEx::replaceRaw(std::pmr::string        *result,
                       int                     *errorOffset,
                       const bsl::string_view&  subject,

@@ -45,7 +45,7 @@ template <class STRING>
 struct IsString {
     static const bool value = bsl::is_same<STRING, bsl::string>::value
                            || bsl::is_same<STRING, std::string>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                            || bsl::is_same<STRING, std::pmr::string>::value
 #endif
     ;
@@ -247,7 +247,7 @@ int DataFileLoader::loadTimeZoneFilePath(std::string      *result,
                                         d_rootPath);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int DataFileLoader::loadTimeZoneFilePath(std::pmr::string *result,
                                          const char       *timeZoneId) const
 {

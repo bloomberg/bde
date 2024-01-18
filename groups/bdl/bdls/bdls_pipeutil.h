@@ -55,10 +55,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
-#endif
-
 #include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
@@ -75,7 +71,7 @@ struct PipeUtil {
                                  const bsl::string_view&  baseName);
     static int makeCanonicalName(std::string             *pipeName,
                                  const bsl::string_view&  baseName);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int makeCanonicalName(std::pmr::string        *pipeName,
                                  const bsl::string_view&  baseName);
 #endif

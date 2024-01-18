@@ -36,7 +36,7 @@ class Impl {
     struct IsString {
         static const bool value = bsl::is_same<TYPE, bsl::string>::value
                                || bsl::is_same<TYPE, std::string>::value
-    #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                                || bsl::is_same<TYPE, std::pmr::string>::value
     #endif
         ;
@@ -2121,7 +2121,7 @@ int Iso8601Util::generate(std::string                     *string,
     return u::Impl::generate(string, object, configuration);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 int Iso8601Util::generate(std::pmr::string                *string,
                           const bsls::TimeInterval&        object,
                           const GenerateConfiguration&     configuration)

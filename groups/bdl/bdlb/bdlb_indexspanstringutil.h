@@ -123,9 +123,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-#include <memory_resource>
-#endif
 #include <string>
 
 namespace BloombergLP {
@@ -355,7 +352,7 @@ struct IndexSpanStringUtil {
     static IndexSpan create(const std::wstring&                   string,
                             std::wstring::const_iterator          begin,
                             IndexSpan::size_type                  length);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static IndexSpan create(const std::pmr::string&               string,
                             std::pmr::string::const_iterator      begin,
                             IndexSpan::size_type                  length);
@@ -393,7 +390,7 @@ struct IndexSpanStringUtil {
     static IndexSpan create(const std::wstring&                   string,
                             std::wstring::const_iterator          begin,
                             std::wstring::const_iterator          end);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static IndexSpan create(const std::pmr::string&               string,
                             std::pmr::string::const_iterator      begin,
                             std::pmr::string::const_iterator      end);
@@ -785,7 +782,7 @@ IndexSpanStringUtil::create(const std::wstring&          string,
     return createImp(string, begin, length);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 IndexSpan
 IndexSpanStringUtil::create(const std::pmr::string&          string,
@@ -877,7 +874,7 @@ IndexSpanStringUtil::create(const std::wstring&          string,
     return createImp(string, begin, end);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
 IndexSpan
 IndexSpanStringUtil::create(const std::pmr::string&          string,

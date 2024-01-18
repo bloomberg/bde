@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
                    bsl::equal(result.begin(), result.end(), expected.begin()));
                 ASSERT(CONSUMED == fuzzData.size() - fdvSTD.length());
             }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             {
                 bslim::FuzzDataView fdvPMR(fuzzData.data(), fuzzData.size());
                 std::pmr::string    result;
