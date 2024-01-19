@@ -26,6 +26,7 @@ namespace u {
 using namespace BloombergLP;
 using namespace bslstl;
 
+
 // TYPES
 typedef bsls::AtomicOperations          Atomics;
 typedef Atomics::AtomicTypes::Pointer   AtomicPtr;
@@ -108,6 +109,27 @@ U_INIT_EXCEPTION_NAME(overflow_error);
 U_INIT_EXCEPTION_NAME(underflow_error);
 
 #undef U_INIT_EXCEPTION_NAME
+
+struct TailCallGuard {
+    // This 'struct' is created at the beginning of every
+    // 'StdExceptUtil::throw*' method.  Its non-trivial destructor will have to
+    // be called by those functions after the call to 'doThrow', preventing
+    // those methods from optimizing the 'doThrow' call into a jump.
+
+    // CREATORS
+    ~TailCallGuard();
+        // This non-trivial destructor appears to the optimizer to do something
+        // when in fact it does nothing (in fact, it is never called because
+        // the call to 'doThrow' before the destructor is called never
+        // returns).
+};
+
+TailCallGuard::~TailCallGuard()
+{
+    if (!bloombergLP_bslstl_StdExceptUtil_alwaysTrue) {
+        bloombergLP_bslstl_StdExceptUtil_alwaysTrue = true;
+    }
+}
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -193,65 +215,65 @@ void StdExceptUtil::setUnderflowErrorHook(PreThrowHook hook)
 
 void StdExceptUtil::throwRuntimeError(const char *message)
 {
-    u::ExceptionSource<std::runtime_error>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw runtime_error shouldn't get here");
+    u::ExceptionSource<std::runtime_error>::doThrow(message);
 }
 
 void StdExceptUtil::throwLogicError(const char *message)
 {
-    u::ExceptionSource<std::logic_error>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw logic_error shouldn't get here");
+    u::ExceptionSource<std::logic_error>::doThrow(message);
 }
 
 void StdExceptUtil::throwDomainError(const char *message)
 {
-    u::ExceptionSource<std::domain_error>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw domain_error shouldn't get here");
+    u::ExceptionSource<std::domain_error>::doThrow(message);
 }
 
 void StdExceptUtil::throwInvalidArgument(const char *message)
 {
-    u::ExceptionSource<std::invalid_argument>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw invalid_argument shouldn't get here");
+    u::ExceptionSource<std::invalid_argument>::doThrow(message);
 }
 
 void StdExceptUtil::throwLengthError(const char *message)
 {
-    u::ExceptionSource<std::length_error>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw length_error shouldn't get here");
+    u::ExceptionSource<std::length_error>::doThrow(message);
 }
 
 void StdExceptUtil::throwOutOfRange(const char *message)
 {
-    u::ExceptionSource<std::out_of_range>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw out_of_range shouldn't get here");
+    u::ExceptionSource<std::out_of_range>::doThrow(message);
 }
 
 void StdExceptUtil::throwRangeError(const char *message)
 {
-    u::ExceptionSource<std::range_error>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw range_error shouldn't get here");
+    u::ExceptionSource<std::range_error>::doThrow(message);
 }
 
 void StdExceptUtil::throwOverflowError(const char *message)
 {
-    u::ExceptionSource<std::overflow_error>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw overflow_error shouldn't get here");
+    u::ExceptionSource<std::overflow_error>::doThrow(message);
 }
 
 void StdExceptUtil::throwUnderflowError(const char *message)
 {
-    u::ExceptionSource<std::underflow_error>::doThrow(message);
+    u::TailCallGuard guard();
 
-    BSLS_ASSERT_INVOKE("throw underflow_error shouldn't get here");
+    u::ExceptionSource<std::underflow_error>::doThrow(message);
 }
 
 }  // close package namespace
