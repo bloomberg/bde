@@ -16,7 +16,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 // Because this is global, the compiler cannot be sure another translation unit
 // hasn't changed its value.  Only we know that it isn't declared anywhere
-// else, so it's guaranteed to be 'true'.
+// else, so it's guaranteed to be 'true'.  It is used only by the destructor
+// of 'u::TailCallGuard' below.
 
 bool bloombergLP_bslstl_StdExceptUtil_alwaysTrue = true;
 
@@ -112,9 +113,7 @@ struct TailCallGuard {
     // CREATORS
     ~TailCallGuard();
         // This non-trivial destructor appears to the optimizer to do something
-        // when in fact it does nothing (in fact, it is never called because
-        // the call to 'doThrow' before the destructor is called never
-        // returns).
+        // when in fact it does nothing.
 };
 
 TailCallGuard::~TailCallGuard()
