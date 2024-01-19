@@ -69,15 +69,7 @@ void ExceptionSource<t_EXCEPTION>::doThrow(const char *message)
         (*preThrowHook)(s_exceptionName, message);
     }
 
-    // We want to throw unconditionally here, but if the optimizer knows that,
-    // it may chain the call to 'doThrow' and the calling function will not
-    // show up in the stack trace.  So we test a global variable that we know
-    // is always true, but the compiler can't know that.  This way, the
-    // optimizer thinks we might return when in fact we never will.
-
-    if (bloombergLP_bslstl_StdExceptUtil_alwaysTrue) {
-        BSLS_THROW(t_EXCEPTION(message));
-    }
+    BSLS_THROW(t_EXCEPTION(message));
 }
 
 template <class t_EXCEPTION>
@@ -114,7 +106,8 @@ struct TailCallGuard {
     // This 'struct' is created at the beginning of every
     // 'StdExceptUtil::throw*' method.  Its non-trivial destructor will have to
     // be called by those functions after the call to 'doThrow', preventing
-    // those methods from optimizing the 'doThrow' call into a jump.
+    // those methods from optimizing the 'doThrow' call into a jump.  Note that
+    // the destructor will be called as the stack unwinds due to the throw.
 
     // CREATORS
     ~TailCallGuard();
@@ -206,74 +199,76 @@ void StdExceptUtil::setUnderflowErrorHook(PreThrowHook hook)
     u::ExceptionSource<std::underflow_error>::setPreThrowHook(hook);
 }
 
-// Implementation note: the calls to 'BSLS_ASSERT_INVOKE' in the following
-// 'throw' methods should be unreachable, the reason they are there is to
-// prevent the optimizer from chaining the call to 'doThrow' (as the Solaris CC
-// compiler did) rather than inlining it, resulting in 'doThrow' rather than
-// 'StdExceptUtil::throw...' showing up in the stack trace, which is less
-// user-friendly.
-
 void StdExceptUtil::throwRuntimeError(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::runtime_error>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                   &u::ExceptionSource<std::runtime_error>::doThrow))(message);
 }
 
 void StdExceptUtil::throwLogicError(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::logic_error>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                     &u::ExceptionSource<std::logic_error>::doThrow))(message);
 }
 
 void StdExceptUtil::throwDomainError(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::domain_error>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                    &u::ExceptionSource<std::domain_error>::doThrow))(message);
 }
 
 void StdExceptUtil::throwInvalidArgument(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::invalid_argument>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                &u::ExceptionSource<std::invalid_argument>::doThrow))(message);
 }
 
 void StdExceptUtil::throwLengthError(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::length_error>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                    &u::ExceptionSource<std::length_error>::doThrow))(message);
 }
 
 void StdExceptUtil::throwOutOfRange(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::out_of_range>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                    &u::ExceptionSource<std::out_of_range>::doThrow))(message);
 }
 
 void StdExceptUtil::throwRangeError(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::range_error>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                     &u::ExceptionSource<std::range_error>::doThrow))(message);
 }
 
 void StdExceptUtil::throwOverflowError(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::overflow_error>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                  &u::ExceptionSource<std::overflow_error>::doThrow))(message);
 }
 
 void StdExceptUtil::throwUnderflowError(const char *message)
 {
-    u::TailCallGuard guard();
+    u::TailCallGuard guard;
 
-    u::ExceptionSource<std::underflow_error>::doThrow(message);
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                 &u::ExceptionSource<std::underflow_error>::doThrow))(message);
 }
 
 }  // close package namespace
