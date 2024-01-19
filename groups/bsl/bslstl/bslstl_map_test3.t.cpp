@@ -260,7 +260,8 @@ using bsls::NameOf;
 // [40] CONCERN: 'equal_range' properly handles multi-value comparators.
 // [41] CLASS TEMPLATE DEDUCTION GUIDES
 // [44] CONCERN: 'map' IS A C++20 RANGE
-
+// [46] CONCERN: 'operator[]' with non-copyable type.
+//
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
@@ -5535,6 +5536,21 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase29()
     }
 }
 
+namespace DRQS174010402 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+#error "Unexpected feature combination: deleted fns and !piecewise_construct"
+#endif
+    struct MoveAndCopyDeleted {
+        MoveAndCopyDeleted()        : d_x(123) {}
+        MoveAndCopyDeleted(int val) : d_x(val) {}
+        MoveAndCopyDeleted(const MoveAndCopyDeleted&)  = delete;
+        MoveAndCopyDeleted(      MoveAndCopyDeleted&&) = delete;
+        int d_x;
+    };
+#endif
+}  // close namespace DRQS174010402
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 struct TestDeductionGuides {
     // This struct provides a namespace for functions testing deduction guides.
@@ -5722,6 +5738,44 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 46: {
+        // --------------------------------------------------------------------
+        // DRQS 174010402
+        //
+        // Concerns:
+        //: 1 In language versions where 'bsl::pair' supports
+        //:   'piecewise_construct', using 'operator[]' on a map with a
+        //:   non-copyable, non-movable mapped type compiles and behaves as
+        //:   expected.
+        //
+        // Plan:
+        //: 1 Declare a non-copyable, non-movable type and attempt to use it in
+        //:   a map.
+        //
+        // Testing:
+        //   CONCERN: 'operator[]' with non-copyable type.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nDRQS 174010402"
+                   "\n==============\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        const int k = 2;
+
+        bsl::map<int, DRQS174010402::MoveAndCopyDeleted> m;
+        ASSERT(0 == m.size());
+        ASSERT(123 == m[k].d_x);   // const lvalue &
+        ASSERT(m.contains(k));
+        ASSERT(1 == m.size());
+        ASSERT(123 == m[1].d_x);   //       rvalue &
+        ASSERT(m.contains(1));
+        ASSERT(2 == m.size());
+#endif
+
+      } break;
+
+
       case 45: {
         if (verbose) printf(
                   "\nUSAGE EXAMPLE TEST IS HANDLED BY PRIMARY TEST DRIVER'"
