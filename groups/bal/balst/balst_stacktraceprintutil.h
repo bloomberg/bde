@@ -30,6 +30,15 @@ BSLS_IDENT("$Id: $")
 // names and addresses are provided on all platforms.  The 'printStackTrace'
 // function always prints a description of the stack of the calling thread.
 //
+///'logExceptionStackTrace'
+///------------------------
+// The function 'StackTracePrintUtil::logExceptionStackTrace' is meant to be
+// passed as a function pointer to the 'bslstl::StdExceptUtil::set*Hook'
+// functions and will result in a stack trace being logged with fatal severity
+// prior to the respective exception being thrown.  It is a substitute for the
+// function 'bslstl::StdExceptUtil::logCheapStackTrace' that takes longer to
+// run but provides far superior output.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -146,6 +155,17 @@ struct StackTracePrintUtil {
         // '0 <= additionalIgnoreFrames'.  Note that attempting to demangle
         // symbol names could involve calling 'malloc', and that symbol names
         // are always demangled on the Windows platform.
+
+    static void logExceptionStackTrace(const char *exceptionName,
+                                       const char *message);
+        // Log a message using 'BSLS_LOG' consisting of "About to throw
+        // <exceptionName>.  <message>" followed by a stack trace.  This
+        // function is to be set as an exception "pre throw hook" for the
+        // component 'bslstl_stdexceptutil'.  If this funciton is set as the
+        // pre throw hook, it will be called prior to exceptions being thrown,
+        // Note that this function requires considerable disk access and is
+        // therefore slow, so it should not be used for frequently-occurring
+        // exceptions that are expected to be caught and recovered from.
 };
 
                        // ==============================
