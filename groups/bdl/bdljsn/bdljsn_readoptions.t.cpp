@@ -62,9 +62,9 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 9] operator=(const bdljsn::ReadOptions & rhs);
-// [ 3] reset();
-// [ 3] setAllowTrailingText(bool value);
-// [ 3] setMaxNestedDepth(int value);
+// [ 3] ReadOptions& reset();
+// [ 3] ReadOptions& setAllowTrailingText(bool value);
+// [ 3] ReadOptions& setMaxNestedDepth(int value);
 //
 // ACCESSORS
 // [ 4] bool allowTrailingText() const;
@@ -1077,6 +1077,8 @@ int main(int argc, char *argv[])
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //:
         //: 5 'reset()' returns the object to its default value.
+        //:
+        //: 6 Each manipulator returns a non-'const' reference to the object.
         //
         // Plan:
         //: 1 Create three sets of attribute values for the object: 'D', 'A',
@@ -1106,12 +1108,16 @@ int main(int argc, char *argv[])
         //:   (C-4)
         //:
         //: 6 After each test, check that 'reset()' returns the object to the
-        //:   default value.
+        //:   default value.  (C-5)
+        //:
+        //: 7 Confirm that each manipulator returns a value that can be
+        //:   assigned to a non-'const' reference to 'ReadOptions' and that
+        //:   value has the same address as the object under test.  (C-6)
         //
         // Testing:
-        //   reset();
-        //   setMaxNestedDepth(int value);
-        //   setAllowTrailingText(bool value);
+        //   ReadOptions& reset();
+        //   ReadOptions& setMaxNestedDepth(int value);
+        //   ReadOptions& setAllowTrailingText(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1140,12 +1146,12 @@ int main(int argc, char *argv[])
         // 'maxNestedDepth'
         // ----------------
         {
-            mX.setMaxNestedDepth(A1);
+            mX.setMaxNestedDepth(A1);                                   // TEST
             ASSERT(A1 == X.maxNestedDepth());
             ASSERT(D2 == X.allowTrailingText());
 
-            mX.reset();
-            ASSERT(X   == defaultObj);
+            mX.reset();                                                 // TEST
+            ASSERT(X  == defaultObj);
         }
         // -------------------
         // 'allowTrailingText'
@@ -1156,8 +1162,9 @@ int main(int argc, char *argv[])
             ASSERT(A2 == X.allowTrailingText());
 
             mX.reset();
-            ASSERT(X   == defaultObj);
+            ASSERT(X  == defaultObj);
         }
+
         if (verbose) cout << "Corroborate attribute independence." << endl;
         {
             // ---------------------------------------
@@ -1183,6 +1190,36 @@ int main(int argc, char *argv[])
             ASSERT(X   == defaultObj);
         }
 
+        if (verbose)
+            cout << "Verify that each manipulator returns a modifable "
+                    "reference to the current object."
+                 << endl;
+        {
+            // -----------------------------------------------
+            // Check return type and value of each manipulator
+            // -----------------------------------------------
+            {
+                Obj &a1 = mX.setMaxNestedDepth(A1);
+                ASSERTV(&a1, &mX, &a1 == &mX);
+
+                Obj &a2 = mX.setAllowTrailingText(A2);
+                ASSERTV(&a2, &mX, &a2 == &mX);
+
+                Obj &r = mX.reset();
+                ASSERTV(&r,  &mX, &r  == &mX);
+            }
+
+            // ---------------------------------------
+            // Set all attributes to their 'A' values.
+            // ---------------------------------------
+
+            mX.setMaxNestedDepth(A1)
+              .setAllowTrailingText(A2);
+
+            ASSERT(A1  == X.maxNestedDepth());
+            ASSERT(A2  == X.allowTrailingText());
+        }
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
@@ -1196,7 +1233,7 @@ int main(int argc, char *argv[])
             }
 
             obj.reset();
-            ASSERT(obj   == defaultObj);
+            ASSERT(obj == defaultObj);
         }
       } break;
       case 2: {

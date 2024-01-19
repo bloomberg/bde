@@ -93,7 +93,7 @@ BSLS_IDENT("$Id: $")
 // the RFC8259 standard.  Variances from those rules are expressed using
 // 'bdljsn::StringUtil::FLags', an 'enum' of flag values that can be set in the
 // optional 'flags' parameter of the decoding methods.  Multiple flags can be
-// bitwise set in 'flags; however, currently, just one variance flag is
+// bitwise set in 'flags'; however, currently, just one variance flag is
 // defined.
 //
 ///Example Variance

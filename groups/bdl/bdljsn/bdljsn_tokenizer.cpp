@@ -4,6 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdljsn_tokenizer_cpp, "$Id$ $CSID$")
 
+#include <bdljsn_numberutil.h>  // for testing only
+#include <bdljsn_stringutil.h>  // for testing only
+
 #include <bdlb_chartype.h>
 #include <bdlde_utf8util.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
@@ -15,7 +18,7 @@ BSLS_IDENT_RCSID(bdljsn_tokenizer_cpp, "$Id$ $CSID$")
 // --------------------
 // The following table provides the various transitions that need to be handled
 // with the tokenizer.
-//
+//..
 //   Current Token             Curr Char    Next Char         Following Token
 //   -------------             ---------    ---------         ---------------
 //   BEGIN                       BEGIN        '{'              START_OBJECT
@@ -60,8 +63,9 @@ BSLS_IDENT_RCSID(bdljsn_tokenizer_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 namespace {
 
-static const char *g_WHITESPACE = " \n\t\v\f\r";
-static const char *g_TOKENS     = "{}[]:,\"";
+static const char *g_WHITESPACE_RELAXED = " \n\t\v\r\f";
+static const char *g_WHITESPACE_STRICT  = " \n\t\v\r";
+static const char *g_TOKENS             = "{}[]:,\"";
 
 }  // close unnamed namespace
 
@@ -124,6 +128,12 @@ int Tokenizer::extractStringValue()
             }
             else {
                 previousChar = d_stringBuffer[d_valueIter];
+
+                if (e_STRICT_20240119 == d_conformanceMode
+                && '\0' <= previousChar
+                &&         previousChar <= 0x1F) {
+                    return -2;                                        // RETURN
+                }
             }
 
             ++d_valueIter;
@@ -301,8 +311,11 @@ int Tokenizer::skipNonWhitespaceOrTillToken()
 
 int Tokenizer::skipWhitespace()
 {
+    const char *k_WHITESPACE = e_STRICT_20240119 == d_conformanceMode
+                             ? g_WHITESPACE_STRICT
+                             : g_WHITESPACE_RELAXED;
     while (true) {
-        bsl::size_t pos = d_stringBuffer.find_first_not_of(g_WHITESPACE,
+        bsl::size_t pos = d_stringBuffer.find_first_not_of(k_WHITESPACE,
                                                            d_cursor);
         if (bsl::string::npos != pos) {
             d_cursor = pos;
@@ -320,6 +333,8 @@ int Tokenizer::skipWhitespace()
 // MANIPULATORS
 int Tokenizer::advanceToNextToken()
 {
+    BSLS_ASSERT(d_streambuf_p);
+
     if (e_ERROR == d_tokenType) {
         return -1;                                                    // RETURN
     }
@@ -343,7 +358,9 @@ int Tokenizer::advanceToNextToken()
             return -1;                                                // RETURN
         }
 
-        switch (d_stringBuffer[d_cursor]) {
+        const char  ch = d_stringBuffer[d_cursor];
+        switch (ch) {
+
           case '{': {
             if ((e_ELEMENT_NAME == d_tokenType && ':' == previousChar)
              || e_START_ARRAY   == d_tokenType
@@ -429,6 +446,12 @@ int Tokenizer::advanceToNextToken()
           } break;
 
           case ',': {
+            if (false == d_allowConsecutiveSeparators
+             && ','   == previousChar) {
+                d_tokenType = e_ERROR;
+                return -1;                                            // RETURN
+            }
+
             if (!d_allowTrailingTopLevelComma && e_NO_CONTEXT == context()) {
                 d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
@@ -450,6 +473,12 @@ int Tokenizer::advanceToNextToken()
           } break;
 
           case ':': {
+            if (false == d_allowConsecutiveSeparators
+             && ':'   == previousChar) {
+                d_tokenType = e_ERROR;
+                return -1;                                            // RETURN
+            }
+
             if (e_ELEMENT_NAME == d_tokenType) {
 
                 previousChar = ':';
@@ -465,7 +494,7 @@ int Tokenizer::advanceToNextToken()
 
           case '"': {
             // Here are the scenarios for a '"':
-            //
+            //..
             // CURRENT TOKEN           CONTEXT                    NEXT TOKEN
             // -------------           -------                    ----------
             // BEGIN         (   )     n/a                        ELEMENT_VALUE
@@ -487,6 +516,7 @@ int Tokenizer::advanceToNextToken()
             // ELEMENT_VALUE (   )     OBJECT_CONTEXT             ELEMENT_NAME
             //                         ARRAY_CONTEXT              ELEMENT_VALUE
             //                                 NOTE: req. prevChar==','
+            //..
 
             switch (d_tokenType) {
               case e_BEGIN: {
@@ -605,7 +635,7 @@ int Tokenizer::advanceToNextToken()
 
           default: {
             // Here are the scenarios for what could be a value:
-            //
+            //..
             // CURRENT TOKEN           CONTEXT                    NEXT TOKEN
             // -------------           -------                    ----------
             // e_BEGIN                 N/A                        ELEMENT_VALUE
@@ -626,15 +656,16 @@ int Tokenizer::advanceToNextToken()
             // ELEMENT_VALUE (   )     OBJECT_CONTEXT             **ERROR**
             //                         ARRAY_CONTEXT              ELEMENT_VALUE
             //                                 NOTE: req. prevChar==','
+            //..
 
             bool validObjectValue = e_OBJECT_CONTEXT == context() &&
-                                    e_ELEMENT_NAME == d_tokenType &&
+                                    e_ELEMENT_NAME   == d_tokenType &&
                                     ':' == previousChar;
             bool validArrayValue =
                 e_ARRAY_CONTEXT == context() &&
-                ((e_END_OBJECT == d_tokenType) ||
+                ((e_END_OBJECT  == d_tokenType) ||
                  (e_START_ARRAY == d_tokenType) ||
-                 (e_END_ARRAY == d_tokenType) ||
+                 (e_END_ARRAY   == d_tokenType) ||
                  (e_ELEMENT_VALUE == d_tokenType && ',' == previousChar));
 
             bool validStandaloneValue =
@@ -668,6 +699,8 @@ int Tokenizer::advanceToNextToken()
 
 int Tokenizer::resetStreamBufGetPointer()
 {
+    BSLS_ASSERT(d_streambuf_p);
+
     if (d_cursor >= d_stringBuffer.size()) {
         return 0;                                                     // RETURN
     }

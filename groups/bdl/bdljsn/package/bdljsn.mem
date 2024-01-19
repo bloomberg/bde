@@ -3,6 +3,7 @@ bdljsn_json
 bdljsn_jsonliterals
 bdljsn_jsonnull
 bdljsn_jsonnumber
+bdljsn_jsontestsuiteutil
 bdljsn_jsontype
 bdljsn_jsonutil
 bdljsn_location

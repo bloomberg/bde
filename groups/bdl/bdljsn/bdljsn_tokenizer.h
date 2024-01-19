@@ -192,6 +192,11 @@ class Tokenizer {
 
     enum { k_EOF = +1 };
 
+    enum ConformanceMode {
+        e_RELAXED = 0,
+        e_STRICT_20240119
+    };
+
   private:
     // PRIVATE TYPES
     enum ContextType {
@@ -257,6 +262,10 @@ class Tokenizer {
                                             // copied to 'd_readStatus' on next
                                             // read attempt.
 
+    bool                d_allowConsecutiveSeparators;
+                                            // option for allowing consecutive
+                                            // separators (i.e., ':', or ',')
+
     bool                d_allowStandAloneValues;
                                             // option for allowing stand alone
                                             // values
@@ -270,6 +279,8 @@ class Tokenizer {
 
     bool                d_allowTrailingTopLevelComma;
                                             // if 'true', allows '{},'
+
+    ConformanceMode     d_conformanceMode;  // "relaxed" (default) or "strict"
 
     // PRIVATE MANIPULATORS
     int expandBufferForLargeValue();
@@ -292,8 +303,7 @@ class Tokenizer {
         // sequence length of 'd_buffer.size()' characters.  Return the number
         // of bytes read from the 'streambuf'.  Note that if 0 is returned, it
         // may mean end of file or, if UTF-8 checking is set, that invalid
-        // UTF-8 was encountered, so it may be necessary to call
-        // 'utf8ErrorIsSet()' to tell the difference.
+        // UTF-8 was encountered.
 
     ContextType popContext();
         // If the 'd_contextStack' is empty, return 'e_NO_CONTEXT', otherwise
@@ -332,9 +342,20 @@ class Tokenizer {
   public:
     // CREATORS
     explicit Tokenizer(bslma::Allocator *basicAllocator = 0);
-        // Create a 'Reader' object.  Optionally specify a 'basicAllocator'
+        // Create a 'Tokenizer' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // installed default allocator is used.  By default, the
+        // 'conformanceMode' is 'e_RELAXED' and the value of the 'Tokenizer'
+        // options are:
+        //..
+        //  allowConsecutiveSeparators() == true;
+        //  allowHeterogeneousArrays()   == true;
+        //  allowNonUtf8StringLiterals() == true;
+        //  allowStandAloneValues()      == true;
+        //  allowTrailingTopLevelComma() == true;
+        //..
+        // The 'reset' method must be called before any calls to
+        // 'advanceToNextToken' or 'resetStreamBufGetPointer'.
 
     ~Tokenizer();
         // Destroy this object.
@@ -344,67 +365,121 @@ class Tokenizer {
         // Move to the next token in the data steam.  Return 0 on success and a
         // non-zero value otherwise.  Each call to 'advanceToNextToken'
         // invalidates the string references returned by the 'value' accessor
-        // for prior nodes.  Note that on malformed JSON, this function may,
-        // but will not always, return a non-zero value before the end of the
-        // token stream is reached.
+        // for prior nodes.  This function *may* fail to move to the next token
+        // if doing so would advanced past a character sequence that is not
+        // valid JSON, and is guaranteed to do so (fail to move) if
+        // 'e_RELAXED != conformanceMode()'.  The behavior is undefined unless
+        // 'reset' has been called.
 
     void reset(bsl::streambuf *streambuf);
         // Reset this tokenizer to read data from the specified 'streambuf'.
         // Note that the reader will not be on a valid node until
         // 'advanceToNextToken' is called.  Note that this function does not
-        // change the value of the 'allowStandAloneValues',
-        // 'allowHeterogenousArrays', or 'allowNonUtf8StringLiterals' options.
+        // change the the 'conformanceMode' nor the values of any of the
+        // individual token options:
+        //: o 'allowHeterogenousArrays'
+        //: o 'allowNonUtf8StringLiterals'
+        //: o 'allowStandAloneValues'
+        //: o 'allowTrailingTopLevelComma'
 
     int resetStreamBufGetPointer();
         // Reset the get pointer of the 'streambuf' held by this object to
         // refer to the byte following the last processed byte, if the held
         // 'streambuf' supports seeking, and return an error otherwise leaving
         // this object unchanged.  Return 0 on success, and a non-zero value
-        // otherwise.  Note that after a successful function return users can
-        // read data from the 'streambuf' that was specified during 'reset'
-        // from where this object stopped.  Also note that this call implies
-        // the end of processing for this object and any subsequent methods
-        // invoked on this object should only be done after calling 'reset' and
-        // specifying a new 'streambuf'.
+        // otherwise.  The behavior is undefined unless 'reset' has been
+        // called.  Note that after a successful function return users can read
+        // data from the 'streambuf' that was specified during 'reset' from
+        // where this object stopped.  Also note that this call implies the end
+        // of processing for this object and any subsequent methods invoked on
+        // this object should only be done after calling 'reset' and specifying
+        // a new 'streambuf'.
 
-    void setAllowHeterogenousArrays(bool value);
-        // Set the 'allowHeterogenousArrays' option to the specified 'value'.
-        // If the 'allowHeterogenousArrays' value is 'true' this tokenizer will
+    Tokenizer& setAllowConsecutiveSeparators(bool value);
+        // Set the 'allowConsecutiveSeparartors' option to the specified
+        // 'value' and return a non-'const' reference to this tokenizer.  JSON
+        // defines two separator tokens: the colon (':') and the comma (',').
+        // If the 'allowConsecutiveSeparartors' value is 'true' this tokenizer
+        // will accept multiple consecutive sequences of a given separator
+        // (e.g., '"a"::b, "c":::d' and '"a":b,, "c":d', ,, "e":f') as if a
+        // single separator had appeared (i.e., '"a":b, "c":d' and
+        // '"a":b, "c":d', "e":f', respectively).  Otherwise the tokenizer
+        // returns an error when multiple consecutive colons are found.  By
+        // default, the value of the 'allo ConsecutiveSeparators' option is
+        // 'true'.  The behavior is undefined unless
+        // 'e_RELAXED == conformanceMode()'.  Note that consecutive sequences
+        // of both tokens (e.g., ':,:,:,') is always an error.
+
+    Tokenizer& setAllowHeterogenousArrays(bool value);
+        // Set the 'allowHeterogenousArrays' option to the specified 'value'
+        // and return a non-'const' reference to this tokenizer.  If the
+        // 'allowHeterogenousArrays' value is 'true' this tokenizer will
         // successfully tokenize heterogeneous values within an array.  If the
         // option's value is 'false' then the tokenizer will return an error
         // for arrays having heterogeneous values.  By default, the value of
-        // the 'allowHeterogenousArrays' option is 'true'.
+        // the 'allowHeterogenousArrays' option is 'true'.  The behavior is
+        // undefined unless 'e_RELAXED == conformanceMode()'.
 
-    void setAllowNonUtf8StringLiterals(bool value);
-        // Set the 'allowNonUtf8StringLiterals' option to the specified
-        // 'value'.  If the 'allowNonUtf8StringLiterals' value is 'false' this
-        // tokenizer will check string literal tokens for invalid UTF-8, enter
-        // an error mode if it encounters a string literal token that has any
-        // content that is not UTF-8, and fail to advance to subsequent tokens
-        // until 'reset' is called.  By default, the value of the
-        // 'allowNonUtf8StringLiterals' option is 'true'.
+    Tokenizer& setAllowNonUtf8StringLiterals(bool value);
+        // Set the 'allowNonUtf8StringLiterals' option to the specified 'value'
+        // and return a non-'const' reference to this tokenizer.  If the
+        // 'allowNonUtf8StringLiterals' value is 'false' this tokenizer will
+        // check string literal tokens for invalid UTF-8, enter an error mode
+        // if it encounters a string literal token that has any content that is
+        // not UTF-8, and fail to advance to subsequent tokens until 'reset' is
+        // called.  By default, the value of the 'allowNonUtf8StringLiterals'
+        // option is 'true'.  The behavior is undefined unless
+        // 'e_RELAXED == conformanceMode()'.
 
-    void setAllowStandAloneValues(bool value);
-        // Set the 'allowStandAloneValues' option to the specified 'value'.  If
-        // the 'allowStandAloneValues' value is 'true' this tokenizer will
+    Tokenizer& setAllowStandAloneValues(bool value);
+        // Set the 'allowStandAloneValues' option to the specified 'value' and
+        // return a non-'const' reference to this tokenizer.  If the
+        // 'allowStandAloneValues' value is 'true' this tokenizer will
         // successfully tokenize JSON values (strings and numbers).  If the
         // option's value is 'false' then the tokenizer will only tokenize
         // complete JSON documents (JSON objects and arrays) and return an
         // error for stand alone JSON values.  By default, the value of the
-        // 'allowStandAloneValues' option is 'true'.
+        // 'allowStandAloneValues' option is 'true'.  The behavior is undefined
+        // unless 'e_RELAXED == conformanceMode()'.
 
-    void setAllowTrailingTopLevelComma(bool value);
-        // Set the 'allowTrailingTopLevelComma' option to the specified
-        // 'value'.  If the 'allowTrailingTopLevelComma' value is 'true' this
-        // tokenizer will successfully tokenize JSON values where a comma
-        // follows the top-level JSON element.  If the option's value is
-        // 'false' then the tokenizer will reject documents with such trailing
-        // commas, such as '{},'.  By default, the value of the
-        // 'allowTrailingTopLevelComma' option is 'true' for backwards
-        // compatibility.  Note that a document without any JSON elements is
-        // invalid whether or not it contains commas.
+    Tokenizer& setAllowTrailingTopLevelComma(bool value);
+        // Set the 'allowTrailingTopLevelComma' option to the specified 'value'
+        // and return a non-'const' reference to this tokenizer.  If the
+        // 'allowTrailingTopLevelComma' value is 'true' this tokenizer will
+        // successfully tokenize JSON values where a comma follows the
+        // top-level JSON element.  If the option's value is 'false' then the
+        // tokenizer will reject documents with such trailing commas, such as
+        // '{},'.  By default, the value of the 'allowTrailingTopLevelComma'
+        // option is 'true' for backwards compatibility.  Note that a document
+        // without any JSON elements is invalid whether or not it contains
+        // commas.  The behavior is undefined unless
+        // 'e_RELAXED == conformanceMode()'.
+
+    Tokenizer& setConformanceMode(ConformanceMode mode);
+        // Set the 'conformanceMode' of this tokenizer to the specified 'mode'
+        // and return a non-'const' reference to this tokenizer.  If 'mode' is
+        // 'e_STRICT_20240119' the option values of this tokenizer are set to
+        // be fully compliant with RFC8259 (see
+        // https://www.rfc-editor.org/rfc/rfc8259)
+        //
+        // Specifically, those option values are:
+        //..
+        //  allowConsecutiveSeparartor   == false;
+        //  allowHeterogeneousArrays()   == true;
+        //  allowNonUtf8StringLiterals() == false;
+        //  allowStandAloneValues()      == true;
+        //  allowTrailingTopLevelComma() == false;
+        //..
+        // Otherwise (i.e., 'mode' is 'e_RELAXED'), those option values can be
+        // set in any combination.  Note that the behavior is undefined if
+        // individual options are set when 'conformanceMode' is *not*
+        // 'e_RELAXED'.
 
     // ACCESSORS
+    bool allowConsecutiveSeparators() const;
+        // Return the value of the 'allowConsecutiveSeparators' option of this
+        // tokenizer.
+
     bool allowHeterogenousArrays() const;
         // Return the value of the 'allowHeterogenousArrays' option of this
         // tokenizer.
@@ -420,6 +495,9 @@ class Tokenizer {
     bool allowTrailingTopLevelComma() const;
         // Return the value of the 'allowTrailingTopLevelComma' option of this
         // tokenizer.
+
+    ConformanceMode conformanceMode() const;
+        // Return the 'conformanceMode' of this tokenizer.
 
     bsls::Types::Uint64 currentPosition() const;
         // Return the offset of the current octet being tokenized in the stream
@@ -510,10 +588,12 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_contextStack(200, &d_stackAllocator)
 , d_readStatus(0)
 , d_bufEndStatus(0)
+, d_allowConsecutiveSeparators(true)
 , d_allowStandAloneValues(true)
 , d_allowHeterogenousArrays(true)
 , d_allowNonUtf8StringLiterals(true)
 , d_allowTrailingTopLevelComma(true)
+, d_conformanceMode(e_RELAXED)
 {
     d_stringBuffer.reserve(k_MAX_STRING_SIZE);
     d_contextStack.clear();
@@ -545,30 +625,79 @@ void Tokenizer::reset(bsl::streambuf *streambuf)
 }
 
 inline
-void Tokenizer::setAllowHeterogenousArrays(bool value)
+Tokenizer& Tokenizer::setAllowConsecutiveSeparators(bool value)
 {
+    BSLS_ASSERT(e_RELAXED == d_conformanceMode);
+
+    d_allowConsecutiveSeparators = value;
+    return *this;
+}
+
+inline
+Tokenizer& Tokenizer::setAllowHeterogenousArrays(bool value)
+{
+    BSLS_ASSERT(e_RELAXED == d_conformanceMode);
+
     d_allowHeterogenousArrays = value;
+    return *this;
 }
 
 inline
-void Tokenizer::setAllowNonUtf8StringLiterals(bool value)
+Tokenizer& Tokenizer::setAllowNonUtf8StringLiterals(bool value)
 {
+    BSLS_ASSERT(e_RELAXED == d_conformanceMode);
+
     d_allowNonUtf8StringLiterals = value;
+    return *this;
 }
 
 inline
-void Tokenizer::setAllowStandAloneValues(bool value)
+Tokenizer& Tokenizer::setAllowStandAloneValues(bool value)
 {
+    BSLS_ASSERT(e_RELAXED == d_conformanceMode);
+
     d_allowStandAloneValues = value;
+    return *this;
 }
 
 inline
-void Tokenizer::setAllowTrailingTopLevelComma(bool value)
+Tokenizer& Tokenizer::setAllowTrailingTopLevelComma(bool value)
 {
+    BSLS_ASSERT(e_RELAXED == d_conformanceMode);
+
     d_allowTrailingTopLevelComma = value;
+    return *this;
+}
+
+inline
+Tokenizer& Tokenizer::setConformanceMode(Tokenizer::ConformanceMode mode)
+{
+    d_conformanceMode = mode;
+
+    switch (mode) {
+      case e_RELAXED: {
+      } break;
+      case e_STRICT_20240119: {
+        d_allowConsecutiveSeparators = false;
+        d_allowHeterogenousArrays    = true;
+        d_allowNonUtf8StringLiterals = false;
+        d_allowStandAloneValues      = true;
+        d_allowTrailingTopLevelComma = false;
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(!"reached");
+      }
+    }
+    return *this;
 }
 
 // ACCESSORS
+inline
+bool Tokenizer::allowConsecutiveSeparators() const
+{
+    return d_allowConsecutiveSeparators;
+}
+
 inline
 bool Tokenizer::allowHeterogenousArrays() const
 {
@@ -594,6 +723,12 @@ bool Tokenizer::allowTrailingTopLevelComma() const
 }
 
 inline
+Tokenizer::ConformanceMode Tokenizer::conformanceMode() const
+{
+    return d_conformanceMode;
+}
+
+inline
 bsls::Types::Uint64 Tokenizer::currentPosition() const
 {
     return d_readOffset - d_stringBuffer.size() + d_cursor;
@@ -604,7 +739,6 @@ bsls::Types::Uint64 Tokenizer::readOffset() const
 {
     return d_readOffset;
 }
-
 
 inline
 int Tokenizer::readStatus() const
@@ -617,7 +751,6 @@ Tokenizer::TokenType Tokenizer::tokenType() const
 {
     return d_tokenType;
 }
-
 
 }  // close package namespace
 }  // close enterprise namespace
