@@ -1,5 +1,33 @@
-bsl-internal (4.0.3.0) unstable; urgency=low
+bsl-internal (4.1.0.0) unstable; urgency=low
 
+  * 4329a42bd Bumped version to 4.1.0.0
+  * 8d494f26e Revert "map::operator[] and non copyable/movable types (#4573)" (#4591)
+  * 4bb69ffee Revert "Add operator[] support for unmovable, uncopyable types (post C++03) {DRQS 173573936} (#4551)" (#4590)
+  * 7e30469de Fix duplication of hashAppend for std::monostate (DRQS 174058836) (#4586)
+  * f65de3066 Merge pull request #4473 from bchapman/bslstl_stdexceptutil-st-attila-drqs-168403170
+  * 002b08677 Revert "Revert json double comma and JSON conformance work" (#4569)
+  * 08fc63602 map::operator[] and non copyable/movable types (#4573)
+  * e0d9d134f bdlcc::ObjectCatalog: deprecate catalog.value(), add Iter(catalog, ha… (#4530)
+  * 002136c2b Enchance PMR related library features detection and usage. (DRQS 174011792) (#4583)
+  * 04ddaf9e9 Add operator[] support for unmovable, uncopyable types (post C++03) {DRQS 173573936} (#4551)
+  * 4da518937 Merge pull request #4572 from bchapman/bdlf_bind-improve-function-doc-drqs-122979742
+  * 8294ca5bc Analogue of the 'bsl::copy_n' with correct return type has been added. DRQS 173678416 (#4529)
+  * d36b207cd Improve confusing #ifdef check in bslmf_isconvertible (DRQS 173879608) (#4575)
+  * a7a3775db Revert "balcl_commandline: Add ability to read environment variables (#4350)" (#4578)
+  * e0c8ac006 Reinstate decoding ints into int enums and vice versa (DRQS 173798542) (#4570)
+  * 5d7d6d109 Known issue doc added (#4576)
+  * a85005a26 ball::LoggerManager creates process-wide static w/o globalAllocator (DRQS 173849905) (#4555)
+  * 45051e198 Unnecessary volatile qualifiers have been removed from 'bslmt threadutilimpl_win32.cpp'. DRQS 173472631 (#4495)
+  * 7e0698346 balcl_commandline: Add ability to read environment variables (#4350)
+  * 260ea95f7 correct timing issue (#4568)
+  * 51329715a Fix self-assignment for `bsl::allocator<T>` - DRQS 173931564 (#4565)
+  * 398488a71 Refine bdl CML (#4552)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Jan 2024 13:02:21 -0500
+
+bsl-internal (4.0.3.0) git; urgency=low
+
+  * 42a41090f Changelog for version 4.0.3.0
   * 83b665f11 Bumped version to 4.0.3.0
   * bfdb9bf4a Update bslma_bslallocator to use BSLS_DEPRECATE_FEATURE (#4561)
   * 03c35565c Add deprecated 'allocator()' method back into 'bsl::basic_string' (#4562)
@@ -9,7 +37,7 @@ bsl-internal (4.0.3.0) unstable; urgency=low
   * 7d60641cd Revert "correct clang build warning (#4553)" (#4557)
   * 9c1e0cc1b Fix generated cpp03 for variant (#4556)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 28 Dec 2023 14:55:03 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 28 Dec 2023 14:56:19 -0500
 
 bsl-internal (4.0.0.0) git; urgency=low
 
