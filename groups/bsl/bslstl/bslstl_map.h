@@ -2516,12 +2516,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 {
     iterator iter = lower_bound(key);
     if (iter == end() || this->comparator()(key, *iter.node())) {
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-        iter = emplace_hint(iter,
-                            std::piecewise_construct,
-                            std::forward_as_tuple(key),
-                            std::forward_as_tuple());
-#else
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
 
         ALLOCATOR alloc = nodeFactory().allocator();
@@ -2539,7 +2533,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 #else
         iter = emplace_hint(iter, key, temp.object());
 #endif
-#endif
     }
     return iter->second;
 }
@@ -2554,13 +2547,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
 
     iterator iter = lower_bound(lvalue);
     if (iter == end() || this->comparator()(lvalue, *iter.node())) {
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-        iter = emplace_hint(
-           iter,
-           std::piecewise_construct,
-           std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(key_type, key)),
-           std::forward_as_tuple());
-#else
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
 
         ALLOCATOR alloc = nodeFactory().allocator();
@@ -2581,7 +2567,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
         iter = emplace_hint(iter,
                             lvalue,
                             temp.object());
-#endif
 #endif
     }
     return iter->second;
