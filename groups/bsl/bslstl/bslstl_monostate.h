@@ -25,20 +25,13 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #include <variant>  // for 'std::monostate'
+#include <bslh_hashvariant.h>
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 namespace bsl {
 using std::monostate;
 }  // close namespace bsl
-namespace BloombergLP {
-namespace bslh {
-template <class t_HASHALG>
-void hashAppend(t_HASHALG& hashAlg, const std::monostate&);
-    // Pass a 'monostate' to the specified 'hashAlg', where 'hashAlg' is a
-    // hashing algorithm.
-}  // close namespace bslh
-}  // close enterprise namespace
 #else
 namespace bsl {
                               // ===============
@@ -77,17 +70,7 @@ void hashAppend(t_HASHALG& hashAlg, const monostate&);
 // ============================================================================
 //                           INLINE DEFINITIONS
 // ============================================================================
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-namespace BloombergLP {
-namespace bslh {
-template <class t_HASHALG>
-void hashAppend(t_HASHALG& hashAlg, const std::monostate&)
-{
-    hashAppend(hashAlg, true);
-}
-}  // close namespace bslh
-}  // close enterprise namespace
-#else
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 namespace bsl {
 
 
@@ -125,7 +108,7 @@ BSLS_KEYWORD_CONSTEXPR bool operator>=(monostate,
 template <class t_HASHALG>
 void hashAppend(t_HASHALG& hashAlg, const monostate&)
 {
-    hashAppend(hashAlg, true);
+    hashAppend(hashAlg, -7777);
 }
 }  // close namespace bsl
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY

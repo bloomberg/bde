@@ -128,12 +128,12 @@ int main(int argc, char *argv[])
         // TESTING 'hashAppend'
         //
         // Concerns:
-        //: 1 Hashing a 'monostate' object is equivalent to appending 'true' to
-        //:   the hash.
+        //: 1 'hashAppend' for an object of type 'monostate' is usable and
+        //:   satisfies the requirements of a hash function.
         //
         // Plan:
-        //: 1 Create a 'monostate' object and verify that hashing it yields the
-        //:   same value as hashing 'true'.  (C-1)
+        //: 1 Create two 'monostate' objects and verify that hashing both of
+        //:   them yields the same value.  (C-1)
         //
         // Testing:
         //   void hashAppend(HASHALG& hashAlg, const monostate&)
@@ -144,10 +144,11 @@ int main(int argc, char *argv[])
                    "\n====================\n");
 
         {
-            const bsl::monostate obj;
+            const bsl::monostate obj1;
+            const bsl::monostate obj2;
 
-            const size_t hashValue1 = bslh::Hash<>()(obj);
-            const size_t hashValue2 = bslh::Hash<>()(true);
+            const size_t hashValue1 = bslh::Hash<>()(obj1);
+            const size_t hashValue2 = bslh::Hash<>()(obj2);
             ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
         }
       } break;
