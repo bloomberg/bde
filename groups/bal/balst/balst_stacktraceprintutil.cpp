@@ -15,13 +15,7 @@ BSLS_IDENT_RCSID(balst_stacktraceprintutil_cpp,"$Id$ $CSID$")
 #include <balst_stacktrace.h>
 #include <balst_stacktraceutil.h>
 
-#include <bdlsb_memoutstreambuf.h>
-
-#include <bdlma_heapbypassallocator.h>
-
 #include <bsls_assert.h>
-#include <bsls_bsltestutil.h>
-#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_stackaddressutil.h>
 
@@ -93,39 +87,6 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
     }
 
     return StackTraceUtil::printFormatted(stream, st);
-}
-
-void StackTracePrintUtil::logExceptionStackTrace(const char *exceptionName,
-                                                 const char *message)
-{
-    enum { k_MAX_STACK_TRACE_DEPTH        = 128,
-                // Enough to cover most stack traces, not so deep as to require
-                // huge amounts of memory.
-
-           k_LONG_STACK_TRACE_LINE_LENGTH = 256,
-
-           k_STREAMBUF_MEMORY_SIZE        = k_MAX_STACK_TRACE_DEPTH *
-                                              k_LONG_STACK_TRACE_LINE_LENGTH };
-
-    // Use this 'streambuf' approach rather than 'bsl::ostringstream' since
-    // 'BSLS_LOG_FATAL' requires a 'const char *' and the only way to get that
-    // out of an 'ostringsteam' is via '.str().c_str()' which would copy the
-    // whole thing using the default allocator.
-
-    bdlma::HeapBypassAllocator alloc;
-    bdlsb::MemOutStreamBuf     sb(k_STREAMBUF_MEMORY_SIZE, &alloc);
-    bsl::ostream               os(&sb);
-
-    (*bsls::BslTestUtil::makeFunctionCallNonInline(&printStackTrace))(
-                                         os, k_MAX_STACK_TRACE_DEPTH, true, 1);
-    os << bsl::ends;
-
-    // We have to use bsls_log because balst has no dependency on ball.
-
-    BSLS_LOG_FATAL("About to throw %s, %s\nStack Trace:\n%s",
-                   exceptionName,
-                   message,
-                   sb.data());
 }
 
 }  // close package namespace

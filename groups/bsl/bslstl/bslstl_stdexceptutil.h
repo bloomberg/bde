@@ -19,26 +19,6 @@ BSLS_IDENT("$Id: $")
 // classes.  This valuable where header files define function templates or
 // inline functions that may throw these types as exceptions.
 //
-///Pre-Throw Hooks
-///---------------
-// For each exception type supported by this component, there is a "pre throw
-// hook", a function pointer that is normally null.  If that pointer is set to
-// a function, that function is called prior to the throw.  This gives the
-// client a chance to log a message.
-//
-// If the pre-throw hook is set to 'StdExceptUtil::logCheapStackTrace', a cheap
-// stack trace will be logged, enabling the client to use
-// '/bb/bin/showfunc.tsk' on the cheap stack trace to get a stack trace with
-// symbols.  When running 'showfunc.tsk', pipe the output through 'c++filt' to
-// get demangled symbols.
-//
-// If the pre-throw hook is set to
-// 'balst::StackTracePrintUtil::logExceptionStackTrace', a full multi-line
-// stack trace with symbols will be logged, with, on some platforms, symbol
-// demangling, line numbers, and source file names.  This alternative requires
-// considerable disk access and is therefore orders of magnitude slower than
-// the cheap stack trace.
-//
 ///Usage
 ///-----
 // First we declare a function template that wants to throw a standard
@@ -50,16 +30,11 @@ BSLS_IDENT("$Id: $")
 //  void testFunction(int selector)
 //      //  Throw a standard exception according to the specified 'selector'.
 //  {
-//  switch(selector) {
-//    case 1: {
-//      bslstl::StdExceptUtil::throwRuntimeError("sample message 1");
-//    } break;
-//    case 2: {
-//      bslstl::StdExceptUtil::throwLogicError("sample message 2");
-//    } break;
-//    default: {
-//      bslstl::StdExceptUtil::throwInvalidArgument("ERROR");
-//    } break;
+//    switch(selector) {
+//      case 1: bslstl::StdExceptUtil::throwRuntimeError("sample message 1");
+//      case 2: bslstl::StdExceptUtil::throwLogicError("sample message 2");
+//      default : bslstl::StdExceptUtil::throwInvalidArgument("ERROR");
+//    }
 //  }
 //..
 // However, if client code wishes to catch the exception, the '.cpp' file must
@@ -89,9 +64,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
-
-#include <stddef.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 
@@ -105,73 +80,48 @@ struct StdExceptUtil {
     // This 'struct' provides a namespace for 'static' utility functions that
     // throw standard library exceptions.
 
-    // PUBLIC TYPES
-    typedef void (*PreThrowHook)(const char *exceptionName,
-                                 const char *message);
-        // This is the type of function pointer that can be set.  One such
-        // static function pointer exists for each exception type supported by
-        // this component.  Functions called to throw exceptions examine their
-        // respective pointer, and if it's non-null, call it and then throw
-        // after it returns.  Note that it is recommended that the hook
-        // function log a greppable statement such as "About to throw
-        // <exceptionName>".
-
     // CLASS METHODS
-    static void logCheapStackTrace(const char *exceptionName,
-                                   const char *message);
-        // Log "About to throw ", then the specified 'exceptionName', then the
-        // specified 'message', then log a cheap stack trace with warning
-        // severity.  This function is intended as a candidate for setting to
-        // the pre-throw hooks.  Note that a far slower alternative to this,
-        // which logs a full, multi-line stack trace with resolved symbols and,
-        // on many platforms, line numbers and source file names, is
-        // 'balst::StackTracePrintUtil::logExceptionStackTrace'.
-
-    static void setRuntimeErrorHook(   PreThrowHook hook);
-    static void setLogicErrorHook(     PreThrowHook hook);
-    static void setDomainErrorHook(    PreThrowHook hook);
-    static void setInvalidArgumentHook(PreThrowHook hook);
-    static void setLengthErrorHook(    PreThrowHook hook);
-    static void setOutOfRangeHook(     PreThrowHook hook);
-    static void setRangeErrorHook(     PreThrowHook hook);
-    static void setOverflowErrorHook(  PreThrowHook hook);
-    static void setUnderflowErrorHook( PreThrowHook hook);
-        // Set the pre throw hook for the specified exception type to the
-        // specified 'hook'.  If 'hook' is passed 0, or if the settor was never
-        // called, that means that no pre-throw function will be called.
-
+    BSLS_ANNOTATION_NORETURN
     static void throwRuntimeError(const char *message);
         // Throw a 'std::runtime_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
+    BSLS_ANNOTATION_NORETURN
     static void throwLogicError(const char *message);
         // Throw a 'std::logic_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
+    BSLS_ANNOTATION_NORETURN
     static void throwDomainError(const char *message);
         // Throw a 'std::domain_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
+    BSLS_ANNOTATION_NORETURN
     static void throwInvalidArgument(const char *message);
         // Throw a 'std::invalid_argument' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
+    BSLS_ANNOTATION_NORETURN
     static void throwLengthError(const char *message);
         // Throw a 'std::length_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
+    BSLS_ANNOTATION_NORETURN
     static void throwOutOfRange(const char *message);
         // Throw a 'std::out_of_range' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
+    BSLS_ANNOTATION_NORETURN
     static void throwRangeError(const char *message);
         // Throw a 'std::range_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
+    BSLS_ANNOTATION_NORETURN
     static void throwOverflowError(const char *message);
         // Throw a 'std::overflow_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
+    BSLS_ANNOTATION_NORETURN
     static void throwUnderflowError(const char *message);
         // Throw a 'std::underflow_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
