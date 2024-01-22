@@ -81,7 +81,9 @@ class FastPostSemaphoreImplWorkaroundUtil {
         // variable.  Note this mitigation was introduced as a work around for
         // a lost signal bug in the underlying implementation of condition
         // variable (e.g.,
-        // https://sourceware.org/bugzilla/show_bug.cgi?id=25847).
+        // https://sourceware.org/bugzilla/show_bug.cgi?id=25847).  The
+        // availability of the pthread correction is tracked in DRQS 172614796,
+        // and the reversion of this workaround in DRQS 174079882.
 
     static bool usePostAlwaysSignalsMitigation();
         // Return 'true' if  the mitigation of 'post' always signalling the
