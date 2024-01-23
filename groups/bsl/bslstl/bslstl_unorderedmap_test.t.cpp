@@ -269,6 +269,7 @@ using bsl::pair;
 // [40] CONCERN: 'count'       properly handles transparent comparators.
 // [40] CONCERN: 'equal_range' properly handles transparent comparators.
 // [44] CONCERN: 'unordered_map' IS A C++20 RANGE
+// [45] CONCERN: 'operator[]' with non-copyable type.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -8963,6 +8964,68 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
     ASSERTV(DEFAULT_NUM_MAX_LENGTH == done);
 }
 
+
+namespace DRQS173573936 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+# ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+#  error "Unexpected feature combination: deleted fns and !piecewise construct"
+# endif
+    struct MoveAndCopyDeleted {
+        // A struct that cannot be copied or moved
+        MoveAndCopyDeleted()        : d_x(123) {}
+        MoveAndCopyDeleted(int val) : d_x(val) {}
+        MoveAndCopyDeleted(const MoveAndCopyDeleted&)  = delete;
+        MoveAndCopyDeleted(      MoveAndCopyDeleted&&) = delete;
+        int d_x;
+    };
+#endif
+
+struct Unconstrained {
+    // A struct with an templated constructor that is not constrained.
+    Unconstrained () : d_value(-1) {}
+    template <typename T>
+    Unconstrained (T   val) : d_value(val) {}
+    Unconstrained (int val) : d_value(val) {}
+
+    Unconstrained           (const Unconstrained& rhs);
+    Unconstrained& operator=(const Unconstrained& rhs);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    Unconstrained           (Unconstrained&& rhs);
+    Unconstrained& operator=(Unconstrained&& rhs);
+#endif
+
+    int value () const { return d_value; }
+    int d_value;
+    };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+Unconstrained::Unconstrained            (const Unconstrained& rhs) = default;
+Unconstrained& Unconstrained::operator= (const Unconstrained& rhs) = default;
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+Unconstrained::Unconstrained            (Unconstrained&& rhs) = default;
+Unconstrained& Unconstrained::operator= (Unconstrained&& rhs) = default;
+# endif
+#else
+Unconstrained::Unconstrained           (const Unconstrained& rhs)
+: d_value(rhs.d_value) {}
+
+Unconstrained& Unconstrained::operator=(const Unconstrained& rhs) {
+    d_value = rhs.d_value;
+    return *this;
+    }
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+Unconstrained::Unconstrained           (Unconstrained&& rhs)
+: d_value(rhs.d_value) {}
+
+Unconstrained& Unconstrained::operator=(Unconstrained&& rhs) {
+    d_value = rhs.d_value;
+    return *this;
+}
+# endif
+#endif
+
+}  // close namespace DRQS173573936
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 struct TestDeductionGuides {
     // This struct provides a namespace for functions testing deduction guides.
@@ -9432,6 +9495,47 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 45: {
+        // --------------------------------------------------------------------
+        // DRQS 173573936
+        //
+        // Concerns:
+        //: 1 Using 'operator[]' on a map of with a non-copyable, non-movable
+        //:   mapped type fails to compile.
+        //
+        // Plan:
+        //: 1 Declare a non-copyable, non-movable type and attempt to use it in
+        //:   an unordered map.
+        //
+        // Testing:
+        //   CONCERN: 'operator[]' with non-copyable type.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nDRQS 173573936"
+                   "\n==============\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        const int k = 2;
+
+        bsl::unordered_map<int, DRQS173573936::MoveAndCopyDeleted> m;
+        ASSERT(0 == m.size());
+        ASSERT(123 == m[k].d_x);   // const lvalue &
+        ASSERT(m.contains(k));
+        ASSERT(1 == m.size());
+        ASSERT(123 == m[1].d_x);   //       rvalue &
+        ASSERT(m.contains(1));
+        ASSERT(2 == m.size());
+#endif
+
+        bsl::unordered_map<int, DRQS173573936::Unconstrained> m2;
+        ASSERT(m2[14].value() == -1);
+
+        const int key = 17;
+        DRQS173573936::Unconstrained value(123);
+        m2[key] = value;
+        ASSERT(m2[key].value() == 123);
+      } break;
       case 44: {
         // --------------------------------------------------------------------
         // CONCERN: 'unordered_map' IS A C++20 RANGE

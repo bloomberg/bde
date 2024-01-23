@@ -2723,38 +2723,9 @@ typename add_lvalue_reference<VALUE>::type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
                                   BloombergLP::bslmf::MovableRef<key_type> key)
 {
-    key_type& lkey = key;
-
-    // Don't bother creating 'defaultMapped' until after we've made sure the
-    // key isn't found.
-
-    iterator it = this->find(lkey);
-    if (this->end() != it) {
-        return it->second;                                            // RETURN
-    }
-
-    ALLOCATOR alloc = d_impl.allocator();    // TBD: 'd_impl.allocator()'
-                                             // should return a modifiable
-                                             // allocator.
-
-    BloombergLP::bsls::ObjectBuffer<mapped_type> defaultMapped;
-    AllocatorTraits::construct(alloc, defaultMapped.address());
-    BloombergLP::bslma::DestructorGuard<mapped_type> mappedGuard(
-                                                      defaultMapped.address());
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    pair<iterator, bool> pr = this->emplace(
-                                       MoveUtil::move(lkey),
-                                       MoveUtil::move(defaultMapped.object()));
-#else
-    // Move-semantics break on C++03 for types like 'bdef_Function' that have
-    // single argument template constructor but no constructor taking a
-    // movable reference.
-
-    pair<iterator, bool> pr = this->emplace(lkey, defaultMapped.object());
-#endif
-    BSLS_ASSERT_SAFE(pr.second);
-
-    return pr.first->second;
+    HashTableLink *node = d_impl.insertIfMissing(
+                                        MoveUtil::move(MoveUtil::access(key)));
+    return static_cast<HashTableNode *>(node)->value().second;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
