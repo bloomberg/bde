@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Apr 10 08:58:38 2023
+// Generated on Mon Jan 22 22:41:15 2024
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 #ifdef COMPILING_BSLSTL_MAP_H
@@ -2888,6 +2888,12 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 {
     iterator iter = lower_bound(key);
     if (iter == end() || this->comparator()(key, *iter.node())) {
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        iter = emplace_hint(iter,
+                            std::piecewise_construct,
+                            std::forward_as_tuple(key),
+                            std::forward_as_tuple());
+#else
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
 
         ALLOCATOR alloc = nodeFactory().allocator();
@@ -2896,13 +2902,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
-        // Unfortunately, in C++03, there are user types where a MovableRef
-        // will not safely degrade to a lvalue reference when a move
-        // constructor is not available, so 'move' cannot be used directly on a
-        // user supplied type.  See internal bug report 99039150.
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        iter = emplace_hint(iter, key, MoveUtil::move(temp.object()));
-#else
         iter = emplace_hint(iter, key, temp.object());
 #endif
     }
@@ -2919,6 +2918,13 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
 
     iterator iter = lower_bound(lvalue);
     if (iter == end() || this->comparator()(lvalue, *iter.node())) {
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        iter = emplace_hint(
+           iter,
+           std::piecewise_construct,
+           std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(key_type, key)),
+           std::forward_as_tuple());
+#else
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
 
         ALLOCATOR alloc = nodeFactory().allocator();
@@ -2927,18 +2933,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
 
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
-        // Unfortunately, in C++03, there are user types where a MovableRef
-        // will not safely degrade to a lvalue reference when a move
-        // constructor is not available, so 'move' cannot be used directly on a
-        // user supplied type.  See internal bug report 99039150.
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        iter = emplace_hint(iter,
-                            MoveUtil::move(lvalue),
-                            MoveUtil::move(temp.object()));
-#else
-        iter = emplace_hint(iter,
-                            lvalue,
-                            temp.object());
+        iter = emplace_hint(iter, lvalue, temp.object());
 #endif
     }
     return iter->second;
@@ -7494,7 +7489,7 @@ struct UsesBslmaAllocator<bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> >
 #endif // ! defined(INCLUDED_BSLSTL_MAP_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
