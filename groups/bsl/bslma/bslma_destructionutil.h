@@ -162,8 +162,9 @@ void DestructionUtil::destroy(TYPE *address, bsl::true_type)
     // For that compiler, we replace the call to 'memset' with a loop.  This
     // bug is fixed in GCC 12.  At '-O2' and '-O3', (on GCC 11) the loop
     // generates identical code as the call to 'memset'.
-# if defined(BSLS_PLATFORM_CMP_GNU) &&                                        \
-          (BSLS_PLATFORM_VERSION >= 110000) && (BSLS_PLATFORM_VERSION < 120000)
+#if defined(BSLS_PLATFORM_CMP_GNU) &&                                        \
+           (BSLS_PLATFORM_CMP_VERSION >= 110000) &&                          \
+           (BSLS_PLATFORM_CMP_VERSION < 120000)
     unsigned char *pBegin = reinterpret_cast<unsigned char *>(address);
     unsigned char *pEnd   = pBegin + sizeof(TYPE);
     for (unsigned char *p = pBegin; p < pEnd; ++p) {
