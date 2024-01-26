@@ -4,9 +4,14 @@
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
 
 using namespace BloombergLP;
 

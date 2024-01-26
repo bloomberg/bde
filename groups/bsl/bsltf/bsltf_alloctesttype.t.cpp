@@ -1,6 +1,8 @@
 // bsltf_alloctesttype.t.cpp                                          -*-C++-*-
 #include <bsltf_alloctesttype.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -168,7 +170,7 @@ const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
 //                     GLOBAL FUNCTIONS USED FOR TESTING
 // ----------------------------------------------------------------------------
 
-static
+BSLA_MAYBE_UNUSED static
 void exitHandler(const bsls::AssertViolation&)
     // Call 'exit' with the current 'testStatus' of this test driver.  This
     // function is intended to be used as an assertion handler, registered with

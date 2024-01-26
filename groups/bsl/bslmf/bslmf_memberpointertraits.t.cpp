@@ -2,13 +2,19 @@
 #include <bslmf_memberpointertraits.h>
 
 #include <bsla_maybeunused.h>
+
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
 
 // ============================================================================
 //                                 TEST PLAN

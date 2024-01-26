@@ -2,11 +2,16 @@
 #include <bsls_util.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <new>   // required to support use of "placement new"
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
 
 using namespace BloombergLP;
 

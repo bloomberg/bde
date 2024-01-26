@@ -1,6 +1,8 @@
 // bslalg_numericformatterutil.t.cpp                                  -*-C++-*-
 #include <bslalg_numericformatterutil.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 
@@ -8614,14 +8616,15 @@ int main(int argc, char *argv[])
                             char buf[100];
                             switch (kk) {
                               case 0: {
-                                char *result = Util::toChars(buf,
-                                                             buf + 100,
-                                                             num,
-                                                             base);
+                                BSLA_MAYBE_UNUSED char *result =
+                                                       Util::toChars(buf,
+                                                                     buf + 100,
+                                                                     num,
+                                                                     base);
                                 BSLS_ASSERT_OPT(result);
                               } break;
                               case 1: {
-                                std::to_chars_result result =
+                                BSLA_MAYBE_UNUSED std::to_chars_result result =
                                                        std::to_chars(buf,
                                                                      buf + 100,
                                                                      num,
@@ -8684,14 +8687,15 @@ int main(int argc, char *argv[])
                             char buf[100];
                             switch (kk) {
                               case 0: {
-                                char *result = Util::toChars(buf,
-                                                             buf + 100,
-                                                             num,
-                                                             base);
+                                BSLA_MAYBE_UNUSED char *result =
+                                                       Util::toChars(buf,
+                                                                     buf + 100,
+                                                                     num,
+                                                                     base);
                                 BSLS_ASSERT_OPT(result);
                               } break;
                               case 1: {
-                                std::to_chars_result result =
+                                BSLA_MAYBE_UNUSED std::to_chars_result result =
                                                        std::to_chars(buf,
                                                                      buf + 100,
                                                                      num,

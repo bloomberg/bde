@@ -23,6 +23,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
+#include <bsls_platform.h>
 
 #include <utility>   // 'std::move' for C++11
 

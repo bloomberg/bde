@@ -6,6 +6,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <type_traits>  // 'std::is_base_of',
@@ -15,6 +16,10 @@
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
 
 using namespace BloombergLP;
 

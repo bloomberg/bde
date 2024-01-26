@@ -826,6 +826,8 @@ void TradingSystem::executeTrade(int scalingFactor)
     BSLS_ASSERT_OPT(0 <= scalingFactor);
     BSLS_ASSERT_OPT(0 == scalingFactor % 100);
 
+    (void)scalingFactor;
+    
     // ...
 }
 //..
@@ -1401,6 +1403,8 @@ class MyDate {
 //..
 void testFunction(int d_serialDate) {
     BSLS_ASSERT_OPT(MyDateImpUtil::isValidSerialDate(d_serialDate));
+
+    (void)d_serialDate;
 }
 //..
 // each time we attempt the output operation; however, printing the value in a
@@ -2965,7 +2969,7 @@ void test_case_2() {
 
         if (veryVerbose) printf( "\tSet up all but line numbers now. \n" );
 
-        const void *p     = 0;
+        const void *p     = 0;  (void)p;
 
         const char *istr  = "0";
         const char *pstr  = "p";
@@ -2973,7 +2977,7 @@ void test_case_2() {
         const char *tstr  = "false == true ? true : false";
         const char *bstr  = "ExplicitBool(false)";
         const char *file  = __FILE__;
-        const char *level = bsls::Assert::k_LEVEL_SAFE;
+        const char *level = bsls::Assert::k_LEVEL_SAFE;  (void)level;
         int         line  = -1;
 
         if (verbose) {
@@ -4188,6 +4192,8 @@ int main(int argc, char *argv[])
                  verbose = argc > 2;
              veryVerbose = argc > 3;
          veryVeryVerbose = argc > 4;
+
+    (void)checkLevels;
 
     printf( "TEST %s CASE %d\n", __FILE__, test);
 

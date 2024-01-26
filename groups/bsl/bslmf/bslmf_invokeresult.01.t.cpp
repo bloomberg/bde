@@ -41,7 +41,9 @@
 // We need to suppress the bde_verify error due to them not being in this file:
 // BDE_VERIFY pragma: -TP19
 
-
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
 
 using namespace BloombergLP;
 

@@ -1,6 +1,8 @@
 // bslstl_simplepool.t.cpp                                            -*-C++-*-
 #include <bslstl_simplepool.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_allocator.h>
 #include <bslma_memoryresource.h>
 #include <bslma_polymorphicallocator.h>
@@ -265,9 +267,13 @@ class CheckedResource : public bslma::TestAllocator {
   public:
     // CREATORS
     explicit CheckedResource(bslma::Allocator *upstream = 0);
-    explicit CheckedResource(const char *name, bslma::Allocator *upstream = 0);
-    explicit CheckedResource(bool              verboseFlag,
-                             bslma::Allocator *upstream = 0);
+
+    BSLA_MAYBE_UNUSED explicit CheckedResource(const char *name,
+                                               bslma::Allocator *upstream = 0);
+
+    BSLA_MAYBE_UNUSED explicit CheckedResource(bool              verboseFlag,
+                                               bslma::Allocator *upstream = 0);
+
     CheckedResource(const char       *name,
                     bool              verboseFlag,
                     bslma::Allocator *upstream = 0);
