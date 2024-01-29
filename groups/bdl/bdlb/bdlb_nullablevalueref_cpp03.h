@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Oct  2 18:43:55 2023
+// Generated on Thu Jan 25 15:48:11 2024
 // Command line: sim_cpp11_features.pl bdlb_nullablevalueref.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUEREF_H
@@ -1851,7 +1851,7 @@ template <class TYPE>
 inline
 bdlb::ConstNullableValueRef<TYPE>::ConstNullableValueRef(
                                          const ConstNullableValueRef& original)
-: d_target_p(&original.d_target_p)
+: d_target_p(original.d_target_p)
 , d_isTargetOptional(original.d_isTargetOptional)
 {
 }
@@ -2367,7 +2367,7 @@ bool bdlb::operator>=(const NullableValueRef<LHS_TYPE>&      lhs,
 #endif // ! defined(INCLUDED_BDLB_NULLABLEVALUEREF_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

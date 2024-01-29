@@ -1570,7 +1570,7 @@ template <class TYPE>
 inline
 bdlb::ConstNullableValueRef<TYPE>::ConstNullableValueRef(
                                          const ConstNullableValueRef& original)
-: d_target_p(&original.d_target_p)
+: d_target_p(original.d_target_p)
 , d_isTargetOptional(original.d_isTargetOptional)
 {
 }

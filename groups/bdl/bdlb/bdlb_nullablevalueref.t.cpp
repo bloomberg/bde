@@ -1355,12 +1355,16 @@ int main(int argc, char *argv[])
         bdlb::NullableValueRef<int>       nw3(nv1);
         bdlb::NullableValueRef<int>       nw4(av0);
         bdlb::NullableValueRef<int>       nw5(av1);
+        bdlb::NullableValueRef<int>       nw6(nw0);
+        bdlb::NullableValueRef<int>       nw7(nw5);
         bdlb::ConstNullableValueRef<int>  cw0(op0);
         bdlb::ConstNullableValueRef<int>  cw1(op1);
         bdlb::ConstNullableValueRef<int>  cw2(nv0);
         bdlb::ConstNullableValueRef<int>  cw3(nv1);
         bdlb::ConstNullableValueRef<int>  cw4(av0);
         bdlb::ConstNullableValueRef<int>  cw5(av1);
+        bdlb::ConstNullableValueRef<int>  cw6(cw0);
+        bdlb::ConstNullableValueRef<int>  cw7(cw5);
 
         ASSERT(!op0.has_value());
         ASSERT( op1.has_value());
@@ -1374,19 +1378,25 @@ int main(int argc, char *argv[])
         ASSERT(nv1.has_value() == nw3.has_value());
         ASSERT(av0.has_value() == nw4.has_value());
         ASSERT(av1.has_value() == nw5.has_value());
+        ASSERT(nw0.has_value() == nw6.has_value());
+        ASSERT(nw5.has_value() == nw7.has_value());
         ASSERT(op0.has_value() == cw0.has_value());
         ASSERT(op1.has_value() == cw1.has_value());
         ASSERT(nv0.has_value() == cw2.has_value());
         ASSERT(nv1.has_value() == cw3.has_value());
         ASSERT(av0.has_value() == nw4.has_value());
         ASSERT(av1.has_value() == nw5.has_value());
+        ASSERT(cw0.has_value() == cw6.has_value());
+        ASSERT(cw5.has_value() == cw7.has_value());
 
         ASSERT(op1.value() == nw1.value());
         ASSERT(nv1.value() == nw3.value());
         ASSERT(av1.value() == nw5.value());
+        ASSERT(nw5.value() == nw7.value());
         ASSERT(op1.value() == cw1.value());
         ASSERT(nv1.value() == cw3.value());
         ASSERT(av1.value() == cw5.value());
+        ASSERT(cw5.value() == cw7.value());
 
         nw0 = 42;
         ASSERT( op0.has_value());
