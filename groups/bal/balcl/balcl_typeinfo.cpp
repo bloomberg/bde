@@ -8,21 +8,29 @@ BSLS_IDENT_RCSID(balcl_typeinfo_cpp,"$Id$ $CSID$")
 
 #include <bdlb_numericparseutil.h>
 #include <bdlb_print.h>
+#include <bdlb_stringviewutil.h>
 
 #include <bdlt_iso8601util.h>
 
-#include <bslma_default.h>
+#include <bslalg_constructorproxy.h>
 
 #include <bslmf_allocatorargt.h>
 #include <bslmf_assert.h>
+#include <bslmf_movableref.h>
+
+#include <bsla_fallthrough.h>
 
 #include <bsls_assert.h>
 #include <bsls_keyword.h> // 'BSLS_KEYWORD_OVERRIDE'
 
+#include <bsl_algorithm.h>
 #include <bsl_cstddef.h>  // 'bsl::size_t'
+#include <bsl_cstdlib.h>  // 'bsl::atoi'
 #include <bsl_cstring.h>  // 'bsl::strlen'
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+
+#include <bsl_c_ctype.h>    // 'isdigit', 'isspace'
 
 namespace BloombergLP {
 namespace balcl {
@@ -39,21 +47,30 @@ class TypeInfoConstraint {
     // accessor and 'setConstraint' manipulator methods.
 
   public:
+    // PUBLIC TYPES
+    typedef TypeInfo::ParseInputSource ParseInputSource;
+
     // CREATORS
     virtual ~TypeInfoConstraint();
         // Destroy this polymorphic constraint object.
 
     // ACCESSORS
-    virtual bool parse(OptionValue        *element,
-                       bsl::ostream&       stream,
-                       const bsl::string&  input) const = 0;
+    virtual bool parse(OptionValue               *element,
+                       bsl::ostream&              stream,
+                       const bsl::string_view&    input,
+                       ParseInputSource           inputSource) const = 0;
         // Load into the specified 'element' the result of parsing the
         // specified 'input', parsed as a value of the 'balcl::OptionType' of
         // this constraint, and output to the specified 'stream' any error
-        // message.  Return 'true' if this value, parsed without error,
-        // satisfies this constraint, and 'false' if parsing fails or the value
-        // does not satisfy the constraint.  If parsing fails, 'element' is
-        // unchanged.  The behavior is undefined unless
+        // message, using the specified 'inputSource' to determine how 'input'
+        // for boolean options should be parsed.  Return 'true' if this value,
+        // parsed without error, satisfies this constraint, and 'false' if
+        // parsing fails or the value does not satisfy the constraint.  If
+        // parsing fails, 'element' is unchanged.  The specified 'inputSource'
+        // is used in handling boolean options.  Boolean options supplied by
+        // command line should not have associated text, where as boolean
+        // options supplied by the environment should have the values "0", "1",
+        // "true", or "false".  The behavior is undefined unless
         // 'type() == element->type()'.
 
     virtual OptionType::Enum type() const = 0;
@@ -77,8 +94,18 @@ TypeInfoConstraint::~TypeInfoConstraint()
 {
 }
 
+}  // close namespace balcl
+}  // close namespace BloombergLP
+
 namespace {
 namespace u {
+
+using namespace BloombergLP;
+using namespace balcl;
+
+typedef bslmf::MovableRefUtil MoveUtil;
+
+bsl::size_t npos = bsl::string::npos;
 
                             // ==============
                             // struct Ordinal
@@ -151,9 +178,9 @@ bsl::ostream& u::operator<<(bsl::ostream& stream, Ordinal position)
                          // function parseValue
                          // ===================
 
-bool parseValue(void             *value,
-                const char       *input,
-                OptionType::Enum  type)
+bool parseValue(void                    *value,
+                const bsl::string_view&  input,
+                OptionType::Enum         type)
     // Load, to the specified 'value', the value obtained by parsing the
     // parsing the specified 'input' that is (assumed) in the format expected
     // for values of the specified 'type'.  Return 'true' if the parse
@@ -161,54 +188,75 @@ bool parseValue(void             *value,
     // legitimately cast to a pointer of the type associated with 'type'.
 {
     BSLS_ASSERT(value);
-    BSLS_ASSERT(input);
 
-    bool result;
+    bool result = false;
 
     switch (type) {
-      case OptionType::e_CHAR: {
-        *static_cast<char *>(value) = *input;
-        result = *input;  // succeeds if non-null character
-      } break;
-      case OptionType::e_INT: {
-        result = !bdlb::NumericParseUtil::parseInt(static_cast<int *>(value),
-                                                   input);
-      } break;
-      case OptionType::e_INT64: {
-        result = !bdlb::NumericParseUtil::parseInt64(
+      case OptionType::e_CHAR:   BSLA_FALLTHROUGH;
+      case OptionType::e_INT:    BSLA_FALLTHROUGH;
+      case OptionType::e_INT64:  BSLA_FALLTHROUGH;
+      case OptionType::e_DOUBLE: BSLA_FALLTHROUGH;
+      case OptionType::e_STRING: {
+        switch (type) {
+          case OptionType::e_CHAR: {
+            *static_cast<char *>(value) = input.empty() ? '\0' : input[0];
+            result = !input.empty() && input[0];
+          } break;
+          case OptionType::e_INT: {
+            result = !bdlb::NumericParseUtil::parseInt(
+                                                     static_cast<int *>(value),
+                                                     input);
+          } break;
+          case OptionType::e_INT64: {
+            result = !bdlb::NumericParseUtil::parseInt64(
                                       static_cast<bsls::Types::Int64 *>(value),
                                       input);
-      } break;
-      case OptionType::e_DOUBLE: {
-        result = !bdlb::NumericParseUtil::parseDouble(
+          } break;
+          case OptionType::e_DOUBLE: {
+            result = !bdlb::NumericParseUtil::parseDouble(
                                                   static_cast<double *>(value),
                                                   input);
+          } break;
+          case OptionType::e_STRING: {
+            *static_cast<bsl::string *>(value) = input;
+            result = true;
+          } break;
+          default: {
+            BSLS_ASSERT(0);
+          } break;
+        }
       } break;
-      case OptionType::e_STRING: {
-        *static_cast<bsl::string *>(value) = input;
-        result = true;
-      } break;
-      case OptionType::e_DATETIME: {
-        result = !bdlt::Iso8601Util::parse(
-                                         static_cast<bdlt::Datetime *>(value),
-                                         input,
-                                         static_cast<int>(bsl::strlen(input)));
-      } break;
-      case OptionType::e_DATE: {
-        result = !bdlt::Iso8601Util::parse(
-                                         static_cast<bdlt::Date *>(value),
-                                         input,
-                                         static_cast<int>(bsl::strlen(input)));
-      } break;
+      case OptionType::e_DATETIME: BSLA_FALLTHROUGH;
+      case OptionType::e_DATE:     BSLA_FALLTHROUGH;
       case OptionType::e_TIME: {
-        result = !bdlt::Iso8601Util::parse(
+        bsl::string inputStr(input);
+
+        switch (type) {
+          case OptionType::e_DATETIME: {
+            result = !bdlt::Iso8601Util::parse(
+                                         static_cast<bdlt::Datetime *>(value),
+                                         inputStr.c_str(),
+                                         static_cast<int>(input.length()));
+          } break;
+          case OptionType::e_DATE: {
+            result = !bdlt::Iso8601Util::parse(
+                                         static_cast<bdlt::Date *>(value),
+                                         inputStr.c_str(),
+                                         static_cast<int>(input.length()));
+          } break;
+          case OptionType::e_TIME: {
+            result = !bdlt::Iso8601Util::parse(
                                          static_cast<bdlt::Time *>(value),
-                                         input,
-                                         static_cast<int>(bsl::strlen(input)));
+                                         inputStr.c_str(),
+                                         static_cast<int>(input.length()));
+          } break;
+          default: {
+            BSLS_ASSERT(0);
+          } break;
+        }
       } break;
       default: {
         BSLS_ASSERT(0);
-        result = false;
       } break;
     }
     return result;
@@ -284,12 +332,19 @@ class BoolConstraint : public TypeInfoConstraint {
     OptionType::Enum type() const BSLS_KEYWORD_OVERRIDE;
         // Return 'OptionType::e_BOOL'.
 
-    bool parse(OptionValue        *element,
-               bsl::ostream&       stream,
-               const bsl::string&  input) const BSLS_KEYWORD_OVERRIDE;
+    bool parse(OptionValue             *element,
+               bsl::ostream&            stream,
+               const bsl::string_view&  input,
+               ParseInputSource         inputSource) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Store the value 'true' into the specified 'element'.  If there are
         // any issues with the specified 'input' a warning message may be
-        // written to the specified 'stream'.  The behavior is undefined unless
+        // written to the specified 'stream'.  The specified 'inputSource' is
+        // used in handling boolean options.  Boolean options supplied by
+        // command line should not have associated text, where as boolean
+        // options supplied by the environment should have the values "0", "1",
+        // "true", or "false".  Return 'true' if parsing is successful and
+        // 'false' otherwise.  The behavior is undefined unless
         // 'OptionType::e_BOOL == element->type()'.
 
     bool validate(const OptionValue& element) const BSLS_KEYWORD_OVERRIDE;
@@ -321,25 +376,55 @@ OptionType::Enum BoolConstraint::type() const
     return OptionType::e_BOOL;
 }
 
-bool BoolConstraint::parse(OptionValue        *element,
-                           bsl::ostream&       stream,
-                           const bsl::string&  input) const
+bool BoolConstraint::parse(OptionValue               *element,
+                           bsl::ostream&              stream,
+                           const bsl::string_view&    input,
+                           ParseInputSource           inputSource) const
 {
     BSLS_ASSERT(element);
     BSLS_ASSERT(element->hasNonVoidType());
     BSLS_ASSERT(OptionType::e_BOOL == element->type());
 
-    element->set(true);
+    if (TypeInfo::e_COMMAND_LINE == inputSource) {
+        if (!input.empty()) {
+            // WARNING: A value is provided for flag, using equality sign.
+            // Values are not acceptable for flags, except when set by
+            // environment variables.
 
-    if (!input.empty()) {
-        // WARNING: A value is provided for flag, using equality sign.  Values
-        // are not acceptable for flags.  Such input will be considered as
-        // erroneous in future BDE releases, so parsing will fail.
+            stream << "Warning: A string value has been provided for a boolean"
+                      " option on the command line -- the string value was"
+                      " ignored." << bsl::endl;
 
-        stream << "Warning: A value has been provided for the flag."
-               << '\n' << bsl::flush;
+            BSLS_REVIEW_INVOKE(
+                             "String value pass to bool command line option.");
 
-        // return false;                                              // RETURN
+            // We would prefer to return 'false' here, but cannot do so for
+            // backward compatibility.
+
+            // return false;                                          // RETURN
+        }
+
+        element->set(true);
+
+        return true;                                                  // RETURN
+    }
+
+    BSLS_ASSERT(TypeInfo::e_ENVIRONMENT_VARIABLE == inputSource);
+
+    bsl::string_view envInput(bdlb::StringViewUtil::trim(input));
+
+    if ("1" == envInput || "true" == envInput) {
+        element->set(true);
+    }
+    else if ("0" == envInput || "false" == envInput) {
+        element->set(false);
+    }
+    else {
+        stream << "Error parsing boolean environment variable with"
+                " value \"" << envInput << "\" -- a value of \"1\", \"true\","
+                " \"0\", or \"false\" is required." << std::endl;
+
+        return false;                                                 // RETURN
     }
 
     return true;
@@ -350,7 +435,7 @@ bool BoolConstraint::validate(const OptionValue&) const
     return true;
 }
 
-bool BoolConstraint::validate(const OptionValue&, bsl::ostream&)
+bool BoolConstraint::validate(const OptionValue&, std::ostream&)
                                                                           const
 {
     return true;
@@ -395,9 +480,10 @@ class ScalarConstraint : public TypeInfoConstraint {
     OptionType::Enum type() const BSLS_KEYWORD_OVERRIDE;
         // Return the 'balcl::OptionType' element type of this constraint.
 
-    bool parse(OptionValue        *element,
-               bsl::ostream&       stream,
-               const bsl::string&  input) const BSLS_KEYWORD_OVERRIDE;
+    bool parse(OptionValue               *element,
+               std::ostream&              stream,
+               const bsl::string_view&    input,
+               ParseInputSource           ) const BSLS_KEYWORD_OVERRIDE;
         // Load into the instance of parameterized 'TYPE' stored in the
         // specified 'element' the result of parsing the specified 'input',
         // interpreted as an instance of 'TYPE'.  Return 'true' if parsing
@@ -453,9 +539,10 @@ ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::type() const
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 bool
 ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::parse(
-                                               OptionValue        *element,
-                                               bsl::ostream&       stream,
-                                               const bsl::string&  input) const
+                                    OptionValue               *element,
+                                    bsl::ostream&              stream,
+                                    const bsl::string_view&    input,
+                                    ParseInputSource           ) const
 {
     BSLS_ASSERT(element);
     BSLS_ASSERT(element->hasNonVoidType());
@@ -465,7 +552,7 @@ ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::parse(
     BSLS_ASSERT(ELEM_TYPE == elemType);
 
     TYPE value = TYPE();
-    if (!parseValue(&value, input.c_str(), elemType)) {
+    if (!parseValue(&value, input, elemType)) {
         stream << elemTypeToString(elemType)
                << " value was expected, instead of \""
                << input << "\"" << '\n' << bsl::flush;
@@ -574,9 +661,10 @@ class ArrayConstraint : public TypeInfoConstraint {
     OptionType::Enum type() const BSLS_KEYWORD_OVERRIDE;
         // Return the 'balcl::OptionType' element type of this constraint.
 
-    bool parse(OptionValue        *element,
-               bsl::ostream&       stream,
-               const bsl::string&  input) const BSLS_KEYWORD_OVERRIDE;
+    bool parse(OptionValue               *element,
+               bsl::ostream&              stream,
+               const bsl::string_view&    input,
+               ParseInputSource           ) const BSLS_KEYWORD_OVERRIDE;
         // Append to the instance of 'bsl::vector<TYPE>' stored in the
         // specified 'element' the result of parsing the specified 'input',
         // interpreted as an instance of parameterized 'TYPE'.  Return 'true'
@@ -632,9 +720,10 @@ ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::type() const
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 bool
 ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::parse(
-                                               OptionValue        *element,
-                                               bsl::ostream&       stream,
-                                               const bsl::string&  input) const
+                                             OptionValue              *element,
+                                             bsl::ostream&             stream,
+                                             const bsl::string_view&   input,
+                                             ParseInputSource         ) const
 {
     BSLS_ASSERT(element);
     BSLS_ASSERT(element->hasNonVoidType());
@@ -646,7 +735,7 @@ ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::parse(
     OptionType::Enum scalarType = OptionType::fromArrayType(elemType);
 
     TYPE value;
-    if (!parseValue(&value, input.c_str(), scalarType)) {
+    if (!parseValue(&value, input, scalarType)) {
         stream << elemTypeToString(scalarType)
                << " value was expected, instead of \""
                << input << "\"" << '\n' << bsl::flush;
@@ -886,7 +975,7 @@ void OptionValueUtil::setValue(OptionValue *dst, const void  *src)
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT(!"Not reachable.");
+        BSLS_ASSERT_INVOKE_NORETURN("Not reachable.");
       } break;
       case Ot::e_BOOL: {
         dst->set(*(static_cast<const Ot::Bool          *>(src)));
@@ -945,20 +1034,14 @@ void OptionValueUtil::setValue(OptionValue *dst, const void  *src)
 }  // close namespace u
 }  // close unnamed namespace
 
+namespace BloombergLP {
+namespace balcl {
+
                        // --------------
                        // class TypeInfo
                        // --------------
 
 // CREATORS
-TypeInfo::TypeInfo()
-: d_elemType(OptionType::e_STRING)
-, d_linkedVariable_p(0)
-, d_isOptionalLinkedVariable(false)
-, d_allocator_p(bslma::Default::allocator())
-{
-    resetConstraint();
-}
-
 TypeInfo::TypeInfo(bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_STRING)
 , d_linkedVariable_p(0)
@@ -1571,71 +1654,88 @@ void TypeInfo::resetConstraint()
     switch (d_elemType) {
       case OptionType::e_BOOL: {
         d_constraint_p.reset(&defaultBoolConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_CHAR: {
         d_constraint_p.reset(&defaultCharConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_INT: {
         d_constraint_p.reset(&defaultIntConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_INT64: {
         d_constraint_p.reset(&defaultInt64Constraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_DOUBLE: {
         d_constraint_p.reset(&defaultDoubleConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_STRING: {
         d_constraint_p.reset(&defaultStringConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_DATETIME: {
         d_constraint_p.reset(&defaultDatetimeConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_DATE: {
         d_constraint_p.reset(&defaultDateConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_TIME: {
         d_constraint_p.reset(&defaultTimeConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_CHAR_ARRAY: {
         d_constraint_p.reset(&defaultCharArrayConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_INT_ARRAY: {
         d_constraint_p.reset(&defaultIntArrayConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_INT64_ARRAY: {
         d_constraint_p.reset(&defaultInt64ArrayConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_DOUBLE_ARRAY: {
         d_constraint_p.reset(&defaultDoubleArrayConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_STRING_ARRAY: {
         d_constraint_p.reset(&defaultStringArrayConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_DATETIME_ARRAY: {
         d_constraint_p.reset(&defaultDatetimeArrayConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_DATE_ARRAY: {
         d_constraint_p.reset(&defaultDateArrayConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       case OptionType::e_TIME_ARRAY: {
         d_constraint_p.reset(&defaultTimeArrayConstraint,
-                             bslstl::SharedPtrNilDeleter());
+                             bslstl::SharedPtrNilDeleter(),
+                             d_allocator_p);
       } break;
       default: {
         BSLS_ASSERT(0);
@@ -2119,15 +2219,84 @@ bool TypeInfoUtil::satisfiesConstraint(const void      *variable,
     return typeInfo.constraint()->validate(value, stream);
 }
 
-bool TypeInfoUtil::parseAndValidate(OptionValue        *element,
-                                    const bsl::string&  input,
-                                    const TypeInfo&     typeInfo,
-                                    bsl::ostream&       stream)
+bool TypeInfoUtil::parseAndValidate(OptionValue                *element,
+                                    const bsl::string_view&     input,
+                                    const TypeInfo&             typeInfo,
+                                    bsl::ostream&               stream,
+                                    TypeInfo::ParseInputSource  inputSource)
 {
     BSLS_ASSERT(element);
     BSLS_ASSERT(element->type() == typeInfo.type());
 
-    return typeInfo.constraint()->parse(element, stream, input);
+    return typeInfo.constraint()->parse(element, stream, input, inputSource);
+}
+
+int TypeInfoUtil::tokenizeArrayEnvironmentVariable(
+                                              bsl::vector<bsl::string> *tokens,
+                                              const bsl::string_view&   input)
+{
+    // Implementation note: This tokenization function hardcodes ' ' (space) as
+    // the array element separator character.  As is typical of white-space
+    // characters, this is treated as a "soft delimiter", where as a visible
+    // character is typically treated as a "hard delimiter" (see bdlb_tokenizer
+    // for more informaiton on delimiter types).  As a result of using a soft
+    // delimiter, zero-length tokens are not added to the output vector.
+
+    BSLS_ASSERT(tokens->empty());
+
+    static const char patternStr[] = { "\\ " };
+
+    bsl::string_view remaining(input);
+    bsl::string      nextToken(tokens->get_allocator());
+
+    // This may be an over-estimate if some of the ' 's are escaped or
+    // adjacent, but that's not really much of a problem.
+
+    tokens->reserve(1 + bsl::count(input.cbegin(),
+                                   input.cend(),
+                                   ' '));
+
+    while (true) {
+        const bsl::size_t pos = remaining.find_first_of(patternStr);
+        nextToken += remaining.substr(0, pos);
+
+        if (u::npos == pos) {
+            if (!nextToken.empty()) {
+                tokens->push_back(u::MoveUtil::move(nextToken));
+            }
+
+            break;
+        }
+
+        if (' ' == remaining[pos]) {
+            if (!nextToken.empty()) {
+                tokens->push_back(u::MoveUtil::move(nextToken));
+                nextToken.clear();
+            }
+
+            remaining = remaining.substr(pos + 1);
+        }
+        else {
+            BSLS_ASSERT(remaining[pos] == '\\');
+            if (remaining.size() <= pos + 1) {
+                // incomplete escape sequence
+
+                return -1;                                            // RETURN
+            }
+
+            const char escapedChar = remaining[pos + 1];
+            if (escapedChar != '\\' && escapedChar != ' ') {
+                // unsupported escape sequence
+
+                return -1;                                            // RETURN
+            }
+
+            nextToken += escapedChar;
+            remaining = remaining.substr(pos + 2);
+        }
+    }
+
+    return 0;
 }
 
 }  // close package namespace

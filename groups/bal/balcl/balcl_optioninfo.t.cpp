@@ -94,6 +94,20 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
+//                      GLOBAL MACROS FOR TESTING
+// ----------------------------------------------------------------------------
+
+// Passing '{}' to a a non-trivial default constructor in an aggregate
+// initialization makes sense in C++11 but it is not, technically, part of
+// C++03, though some compilers take it in C++03 (in the case of GNU and Sun,
+// with compiler warnings).
+
+#define U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR                                    \
+   (201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS                                \
+       || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN)    \
+       || defined(BSLS_PLATFORM_CMP_MSVC))
+
+// ============================================================================
 //                      GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -138,6 +152,18 @@ static const Obj specTable[] = {
                       "description",                         // description
                       balcl::TypeInfo(&linkedFlag)           // linked variable
                     }
+
+// Passing '{}' to a non-trivial default constructor is not, technically, part
+// of the C++03 language, but some compilers take it.
+
+#if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
+                  , {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      {}                                     // dflt typeinfo
+                    }
+#endif
                   , {
                       "s|longTag",                           // tag
                       "name",                                // name
@@ -145,12 +171,29 @@ static const Obj specTable[] = {
                       balcl::TypeInfo(&linkedFlag),          // linked variable
                       balcl::OccurrenceInfo::e_REQUIRED      // occurrence info
                     }
+#if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
+                  , {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      balcl::TypeInfo(&linkedFlag),          // linked variable
+                      {}                                     // occurrence info
+                    }
+#endif
                   , {
                       "s|longTag",                           // tag
                       "name",                                // name
                       "description",                         // description
                       balcl::TypeInfo(&linkedFlag),          // linked variable
                       balcl::OccurrenceInfo(defaultValue)    // occurrence info
+                    }
+                  , {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      balcl::TypeInfo(&linkedFlag),          // linked variable
+                      balcl::OccurrenceInfo(defaultValue),   // occurrence info
+                     "envVarName"                            // env var name
                     }
 };
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -161,97 +204,151 @@ static const Obj specTable[] = {
 static const char * const expect[] = {
     "{"                                      NL
     "    NON_OPTION"                         NL
-    "    NAME            \"\""               NL
-    "    DESCRIPTION     \"\""               NL
-    "    TYPE_INFO       {"                  NL
+    "    NAME                      \"\""               NL
+    "    DESCRIPTION               \"\""               NL
+    "    TYPE_INFO                 {"                  NL
     "        TYPE       STRING"              NL
     "        CONSTRAINT 0x0000000"           NL
     "    }"                                  NL
-    "    OCCURRENCE_INFO OPTIONAL"           NL
+    "    OCCURRENCE_INFO           OPTIONAL"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
     "}"                                // no-NL
 
   , "{"                                      NL
-    "    TAG             \"genericTag\""     NL
-    "    NAME            \"\""               NL
-    "    DESCRIPTION     \"\""               NL
-    "    TYPE_INFO       {"                  NL
+    "    TAG                       \"genericTag\""     NL
+    "    NAME                      \"\""               NL
+    "    DESCRIPTION               \"\""               NL
+    "    TYPE_INFO                 {"                  NL
     "        TYPE       STRING"              NL
     "        CONSTRAINT 0x0000000"           NL
     "    }"                                  NL
-    "    OCCURRENCE_INFO OPTIONAL"           NL
+    "    OCCURRENCE_INFO           OPTIONAL"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
     "}"  //                               no-NL
 
   , "{"                                      NL
-    "    TAG             \"s|longTag\""      NL
-    "    NAME            \"\""               NL
-    "    DESCRIPTION     \"\""               NL
-    "    TYPE_INFO       {"                  NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"\""               NL
+    "    DESCRIPTION               \"\""               NL
+    "    TYPE_INFO                 {"                  NL
     "        TYPE       STRING"              NL
     "        CONSTRAINT 0x0000000"           NL
     "    }"                                  NL
-    "    OCCURRENCE_INFO OPTIONAL"           NL
+    "    OCCURRENCE_INFO           OPTIONAL"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
     "}"  //                               no-NL
 
   , "{"                                      NL
-    "    TAG             \"s|longTag\""      NL
-    "    NAME            \"name\""           NL
-    "    DESCRIPTION     \"\""               NL
-    "    TYPE_INFO       {"                  NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"name\""           NL
+    "    DESCRIPTION               \"\""               NL
+    "    TYPE_INFO                 {"                  NL
     "        TYPE       STRING"              NL
     "        CONSTRAINT 0x0000000"           NL
     "    }"                                  NL
-    "    OCCURRENCE_INFO OPTIONAL"           NL
+    "    OCCURRENCE_INFO           OPTIONAL"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
     "}"                                // no-NL
 
   , "{"                                      NL
-    "    TAG             \"s|longTag\""      NL
-    "    NAME            \"name\""           NL
-    "    DESCRIPTION     \"description\""    NL
-    "    TYPE_INFO       {"                  NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"name\""           NL
+    "    DESCRIPTION               \"description\""    NL
+    "    TYPE_INFO                 {"                  NL
     "        TYPE       STRING"              NL
     "        CONSTRAINT 0x0000000"           NL
     "    }"                                  NL
-    "    OCCURRENCE_INFO OPTIONAL"           NL
+    "    OCCURRENCE_INFO           OPTIONAL"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
     "}"  //                               no-NL
 
   , "{"                                      NL
-    "    TAG             \"s|longTag\""      NL
-    "    NAME            \"name\""           NL
-    "    DESCRIPTION     \"description\""    NL
-    "    TYPE_INFO       {"                  NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"name\""           NL
+    "    DESCRIPTION               \"description\""    NL
+    "    TYPE_INFO                 {"                  NL
     "        TYPE       BOOL"                NL
     "        VARIABLE   0x00000000"          NL
     "        CONSTRAINT 0x0000000"           NL
     "    }"                                  NL
-    "    OCCURRENCE_INFO OPTIONAL"           NL
+    "    OCCURRENCE_INFO           OPTIONAL"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
     "}"                                // no-NL
 
+#if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
   , "{"                                      NL
-    "    TAG             \"s|longTag\""      NL
-    "    NAME            \"name\""           NL
-    "    DESCRIPTION     \"description\""    NL
-    "    TYPE_INFO       {"                  NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"name\""           NL
+    "    DESCRIPTION               \"description\""    NL
+    "    TYPE_INFO                 {"                  NL
+    "        TYPE       STRING"              NL
+    "        CONSTRAINT 0x0000000"           NL
+    "    }"                                  NL
+    "    OCCURRENCE_INFO           OPTIONAL"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
+    "}"  //                               no-NL
+#endif
+
+  , "{"                                      NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"name\""           NL
+    "    DESCRIPTION               \"description\""    NL
+    "    TYPE_INFO                 {"                  NL
     "        TYPE       BOOL"                NL
     "        VARIABLE   0x00000000"          NL
     "        CONSTRAINT 0x0000000"           NL
     "    }"                                  NL
-    "    OCCURRENCE_INFO REQUIRED"           NL
+    "    OCCURRENCE_INFO           REQUIRED"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
     "}"                                // no-NL
 
+#if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
   , "{"                                      NL
-    "    TAG             \"s|longTag\""      NL
-    "    NAME            \"name\""           NL
-    "    DESCRIPTION     \"description\""    NL
-    "    TYPE_INFO       {"                  NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"name\""           NL
+    "    DESCRIPTION               \"description\""    NL
+    "    TYPE_INFO                 {"                  NL
     "        TYPE       BOOL"                NL
     "        VARIABLE   0x00000000"          NL
     "        CONSTRAINT 0x0000000"           NL
     "    }"                                  NL
-    "    OCCURRENCE_INFO {"                  NL
+    "    OCCURRENCE_INFO           OPTIONAL"           NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
+    "}"                                // no-NL
+#endif
+
+  , "{"                                      NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"name\""           NL
+    "    DESCRIPTION               \"description\""    NL
+    "    TYPE_INFO                 {"                  NL
+    "        TYPE       BOOL"                NL
+    "        VARIABLE   0x00000000"          NL
+    "        CONSTRAINT 0x0000000"           NL
+    "    }"                                  NL
+    "    OCCURRENCE_INFO           {"                  NL
     "        OPTIONAL"                       NL
     "        DEFAULT_TYPE  STRING"           NL
     "        DEFAULT_VALUE default"          NL
     "    }"                                  NL
+    "    ENVIRONMENT_VARIABLE_NAME \"\""               NL
+    "}"                                // no-NL
+
+  , "{"                                      NL
+    "    TAG                       \"s|longTag\""      NL
+    "    NAME                      \"name\""           NL
+    "    DESCRIPTION               \"description\""    NL
+    "    TYPE_INFO                 {"                  NL
+    "        TYPE       BOOL"                NL
+    "        VARIABLE   0x00000000"          NL
+    "        CONSTRAINT 0x0000000"           NL
+    "    }"                                  NL
+    "    OCCURRENCE_INFO           {"                  NL
+    "        OPTIONAL"                       NL
+    "        DEFAULT_TYPE  STRING"           NL
+    "        DEFAULT_VALUE default"          NL
+    "    }"                                  NL
+    "    ENVIRONMENT_VARIABLE_NAME \"envVarName\""     NL
     "}"                                // no-NL
 };
 #undef NL
@@ -303,6 +400,8 @@ bool isMatch(const char *expect, const char *actual, const Obj& obj)
 
         if (addressExpected) {
             if (expectedAddress != actualToken) {
+                ASSERTV(expectedAddress, actualToken,
+                                               expectedAddress == actualToken);
                 return false;                                         // RETURN
             }
 
@@ -370,7 +469,8 @@ bool isMatch(const char *expect, const char *actual, const Obj& obj)
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-int main(int argc, const char *argv[])  {
+int main(int argc, const char *argv[])
+{
     int                test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int             verbose = argc > 2;
     int         veryVerbose = argc > 3;
@@ -390,6 +490,105 @@ int main(int argc, const char *argv[])  {
     bslma::DefaultAllocatorGuard dag(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 5: {
+        // --------------------------------------------------------------------
+
+        const Obj specTableA[] = {
+                    {
+                    }
+        };
+        (void) specTableA;
+        const Obj specTableB[] = {
+                    {
+                      tagString                              // tag
+                    }
+        };
+        (void) specTableB;
+        const Obj specTableC[] = {
+                    {
+                      "s|longTag"                            // tag
+                    }
+        };
+        (void) specTableC;
+        const Obj specTableD[] = {
+                    {
+                      "s|longTag",                           // tag
+                      "name"                                 // name
+                    }
+        };
+        (void) specTableD;
+        const Obj specTableE[] = {
+                    {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description"                          // description
+                    }
+        };
+        (void) specTableE;
+        const Obj specTableF[] = {
+                    {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      balcl::TypeInfo(&linkedFlag)           // linked variable
+                    }
+        };
+        (void) specTableF;
+#if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
+        const Obj specTableG[] = {
+                    {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      {}                                     // dflt typeinfo
+                    }
+        };
+        (void) specTableG;
+#endif
+        const Obj specTableH[] = {
+                    {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      balcl::TypeInfo(&linkedFlag),          // linked variable
+                      balcl::OccurrenceInfo::e_REQUIRED      // occurrence info
+                    }
+        };
+        (void) specTableH;
+#if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
+        const Obj specTableI[] = {
+                    {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      balcl::TypeInfo(&linkedFlag),          // linked variable
+                      {}                                     // occurrence info
+                    }
+        };
+        (void) specTableI;
+#endif
+        const Obj specTableJ[] = {
+                    {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      balcl::TypeInfo(&linkedFlag),          // linked variable
+                      balcl::OccurrenceInfo(defaultValue)    // occurrence info
+                    }
+        };
+        (void) specTableJ;
+        const Obj specTableK[] = {
+                    {
+                      "s|longTag",                           // tag
+                      "name",                                // name
+                      "description",                         // description
+                      balcl::TypeInfo(&linkedFlag),          // linked variable
+                      balcl::OccurrenceInfo(defaultValue),   // occurrence info
+                     "envVarName"                            // env var name
+                    }
+        };
+        (void) specTableK;
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING 'operator<<'
@@ -454,7 +653,7 @@ int main(int argc, const char *argv[])  {
             ASSERTV(i, '\n' != *(expect[i] + (expectLength - 1)));
 
             ASSERTV(i, &oss == &(oss << X));  // ACTION
-            ASSERTV(i, expect[i], oss.str().c_str(),
+            ASSERTV(i, k_NUM_SPEC_TABLE, expect[i], oss.str().c_str(),
                                   u::isMatch(expect[i], oss.str().c_str(), X));
         }
 
@@ -575,6 +774,9 @@ int main(int argc, const char *argv[])  {
             const OccurrenceInfo A5 = OccurrenceInfo(charDefaultValue);
             const OccurrenceInfo B5 = OccurrenceInfo( intDefaultValue);
 
+            const char * const   A6 = "envVarNameA3";
+            const char * const   B6 = "envVarNameB3";
+
             const struct {
                 int             d_line;
                 const char     *d_tag_p;
@@ -582,16 +784,20 @@ int main(int argc, const char *argv[])  {
                 const char     *d_desc_p;
                 TypeInfo        d_typeInfo;
                 OccurrenceInfo  d_occurrenceInfo;
+                const char     *d_envVarName_p;
             } DATA[] = {
-                //  LINE TAG  NAME DESC TI  OI
+                //  LINE TAG  NAME DESC TI  OI  EN
                 //  ---- ---  ---- ---- --  --
-                  { L_,  A1,  A2,  A3,  A4, A5 }  // baseLine
+                  { L_,  A1,  A2,  A3,  A4, A5, A6 }  // baseLine
 
-                , { L_,  B1,  A2,  A3,  A4, A5 }
-                , { L_,  A1,  B2,  A3,  A4, A5 }
-                , { L_,  A1,  A2,  B3,  A4, A5 }
-                , { L_,  A1,  A2,  A3,  B4, A5 }
-                , { L_,  A1,  A2,  A3,  A4, B5 }
+                , { L_,  B1,  A2,  A3,  A4, A5, A6 }
+                , { L_,  A1,  B2,  A3,  A4, A5, A6 }
+                , { L_,  A1,  A2,  B3,  A4, A5, A6 }
+                , { L_,  A1,  A2,  A3,  B4, A5, A6 }
+                , { L_,  A1,  A2,  A3,  A4, B5, A6 }
+                , { L_,  A1,  A2,  A3,  A4, A5, B6 }
+
+                , { L_,  B1,  B2,  B3,  B4, B5, B6 }
             };
 
             enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
@@ -603,6 +809,7 @@ int main(int argc, const char *argv[])  {
                 const char * const   DESC1       = DATA[ti].d_desc_p;
                 const TypeInfo       TYPE_INFO1  = DATA[ti].d_typeInfo;
                 const OccurrenceInfo OCCUR_INFO1 = DATA[ti].d_occurrenceInfo;
+                const char * const   ENAME1      = DATA[ti].d_envVarName_p;
 
                 if (veryVerbose) {
                     T_ P_(LINE1)
@@ -610,7 +817,8 @@ int main(int argc, const char *argv[])  {
                        P_(NAME1)
                        P_(DESC1)
                        P_(TYPE_INFO1)
-                       P(OCCUR_INFO1)
+                       P_(OCCUR_INFO1)
+                       P(ENAME1);
                 }
 
                 const Obj X = { TAG1
@@ -618,6 +826,7 @@ int main(int argc, const char *argv[])  {
                               , DESC1
                               , TYPE_INFO1
                               , OCCUR_INFO1
+                              , ENAME1
                               };
 
                 bslma::TestAllocatorMonitor dam1(&da);
@@ -635,13 +844,15 @@ int main(int argc, const char *argv[])  {
                     const TypeInfo       TYPE_INFO2  = DATA[tj].d_typeInfo;
                     const OccurrenceInfo OCCUR_INFO2 = DATA[tj].
                                                               d_occurrenceInfo;
+                    const char * const   ENAME2      = DATA[tj].d_envVarName_p;
                     if (veryVerbose) {
                         T_ T_ P_(LINE2)
                               P_(TAG2)
                               P_(NAME2)
                               P_(DESC2)
                               P_(TYPE_INFO2)
-                              P(OCCUR_INFO2)
+                              P_(OCCUR_INFO2)
+                              P(ENAME2)
                     }
 
                     const Obj Y = { TAG2
@@ -649,6 +860,7 @@ int main(int argc, const char *argv[])  {
                                   , DESC2
                                   , TYPE_INFO2
                                   , OCCUR_INFO2
+                                  , ENAME2
                                   };
 
                     const bool EXP = ti == tj;  // expected value for equality
@@ -735,56 +947,120 @@ int main(int argc, const char *argv[])  {
 
         if (veryVerbose) cout << "Test unspecified attributes" << endl;
         {
+            int ii = 0;
 
-            ASSERT(specTable[0].d_tag         ==  bsl::string());
-            ASSERT(specTable[0].d_name        ==  bsl::string());
-            ASSERT(specTable[0].d_description ==  bsl::string());
-            ASSERT(specTable[0].d_typeInfo    ==  TypeInfo());
-            ASSERT(specTable[0].d_defaultInfo ==  OccurrenceInfo());
+            ASSERTV(ii, specTable[ii].d_tag         == bsl::string());
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string());
+            ASSERTV(ii, specTable[ii].d_description == bsl::string());
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo());
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo());
 
-            ASSERT(specTable[1].d_tag         ==  tagString);
-            ASSERT(specTable[1].d_name        ==  bsl::string());
-            ASSERT(specTable[1].d_description ==  bsl::string());
-            ASSERT(specTable[1].d_typeInfo    ==  TypeInfo());
-            ASSERT(specTable[1].d_defaultInfo ==  OccurrenceInfo());
+            ++ii;
 
-            ASSERT(specTable[2].d_tag         ==  bsl::string("s|longTag"));
-            ASSERT(specTable[2].d_name        ==  bsl::string());
-            ASSERT(specTable[2].d_description ==  bsl::string());
-            ASSERT(specTable[2].d_typeInfo    ==  TypeInfo());
-            ASSERT(specTable[2].d_defaultInfo ==  OccurrenceInfo());
+            ASSERTV(ii, specTable[ii].d_tag         == tagString);
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string());
+            ASSERTV(ii, specTable[ii].d_description == bsl::string());
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo());
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo());
 
-            ASSERT(specTable[3].d_tag         ==  bsl::string("s|longTag"));
-            ASSERT(specTable[3].d_name        ==  bsl::string("name"));
-            ASSERT(specTable[3].d_description ==  bsl::string());
-            ASSERT(specTable[3].d_typeInfo    ==  TypeInfo());
-            ASSERT(specTable[3].d_defaultInfo ==  OccurrenceInfo());
+            ++ii;
 
-            ASSERT(specTable[4].d_tag         ==  bsl::string("s|longTag"));
-            ASSERT(specTable[4].d_name        ==  bsl::string("name"));
-            ASSERT(specTable[4].d_description ==  bsl::string("description"));
-            ASSERT(specTable[4].d_typeInfo    ==  TypeInfo());
-            ASSERT(specTable[4].d_defaultInfo ==  OccurrenceInfo());
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string());
+            ASSERTV(ii, specTable[ii].d_description == bsl::string());
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo());
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo());
 
-            ASSERT(specTable[5].d_tag         ==  bsl::string("s|longTag"));
-            ASSERT(specTable[5].d_name        ==  bsl::string("name"));
-            ASSERT(specTable[5].d_description ==  bsl::string("description"));
-            ASSERT(specTable[5].d_typeInfo    ==  TypeInfo(&linkedFlag));
-            ASSERT(specTable[5].d_defaultInfo ==  OccurrenceInfo());
+            ++ii;
 
-            ASSERT(specTable[6].d_tag         ==  bsl::string("s|longTag"));
-            ASSERT(specTable[6].d_name        ==  bsl::string("name"));
-            ASSERT(specTable[6].d_description ==  bsl::string("description"));
-            ASSERT(specTable[6].d_typeInfo    ==  TypeInfo(&linkedFlag));
-            ASSERT(specTable[6].d_defaultInfo ==  OccurrenceInfo::e_REQUIRED);
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string("name"));
+            ASSERTV(ii, specTable[ii].d_description == bsl::string());
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo());
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo());
 
-            ASSERT(specTable[7].d_tag         ==  bsl::string("s|longTag"));
-            ASSERT(specTable[7].d_name        ==  bsl::string("name"));
-            ASSERT(specTable[7].d_description ==  bsl::string("description"));
-            ASSERT(specTable[7].d_typeInfo    ==  TypeInfo(&linkedFlag));
-            ASSERT(specTable[7].d_defaultInfo ==  OccurrenceInfo(
+            ++ii;
+
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string("name"));
+            ASSERTV(ii, specTable[ii].d_description ==
+                                                   bsl::string("description"));
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo());
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo());
+
+            ++ii;
+
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string("name"));
+            ASSERTV(ii, specTable[ii].d_description ==
+                                                   bsl::string("description"));
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo(&linkedFlag));
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo());
+
+#if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
+            ++ii;
+
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string("name"));
+            ASSERTV(ii, specTable[ii].d_description ==
+                                                   bsl::string("description"));
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo());
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo());
+#endif
+
+            ++ii;
+
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string("name"));
+            ASSERTV(ii, specTable[ii].d_description ==
+                                                   bsl::string("description"));
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo(&linkedFlag));
+            ASSERTV(ii, specTable[ii].d_defaultInfo ==
+                                                   OccurrenceInfo::e_REQUIRED);
+
+#if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
+            ++ii;
+
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string("name"));
+            ASSERTV(ii, specTable[ii].d_description ==
+                                                   bsl::string("description"));
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo(&linkedFlag));
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo());
+#endif
+
+            ++ii;
+
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string("name"));
+            ASSERTV(ii, specTable[ii].d_description ==
+                                                   bsl::string("description"));
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo(&linkedFlag));
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo(
+                                                               defaultValue));
+
+            ++ii;
+
+            ASSERTV(ii, specTable[ii].d_tag         ==
+                                                     bsl::string("s|longTag"));
+            ASSERTV(ii, specTable[ii].d_name        == bsl::string("name"));
+            ASSERTV(ii, specTable[ii].d_description ==
+                                                   bsl::string("description"));
+            ASSERTV(ii, specTable[ii].d_typeInfo    == TypeInfo(&linkedFlag));
+            ASSERTV(ii, specTable[ii].d_defaultInfo == OccurrenceInfo(
                                                                 defaultValue));
-            ASSERT(7 + 1 == k_NUM_SPEC_TABLE);
+            ASSERTV(ii, specTable[ii].d_environmentVariableName
+                                              ==  bsl::string("envVarName"));
+
+            ASSERTV(ii, ii + 1 == k_NUM_SPEC_TABLE);
 
             for (int i = 0; i < k_NUM_SPEC_TABLE; ++i) {
                 P_(i) P(specTable[i])
@@ -817,6 +1093,7 @@ int main(int argc, const char *argv[])  {
                       , "option description" // description
                       , TypeInfo()
                       , OccurrenceInfo()
+                      , "option env var"     // environment variable name
                       };
         ASSERT(D == D);
         ASSERT(A == A);
