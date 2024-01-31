@@ -450,14 +450,16 @@ class RbTreeNode {
 inline
 bsls::Types::UintPtr RbTreeNode::toInt(RbTreeNode *value)
 {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#if  defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC) && \
+    !defined(BSLS_PLATFORM_CMP_CLANG)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
     return reinterpret_cast<bsls::Types::UintPtr>(value);
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#if  defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC) && \
+    !defined(BSLS_PLATFORM_CMP_CLANG)
 #pragma GCC diagnostic pop
 #endif
 }
