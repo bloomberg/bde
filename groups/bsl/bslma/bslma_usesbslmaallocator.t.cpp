@@ -12,6 +12,7 @@
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -40,6 +41,20 @@ using namespace BloombergLP;
 #pragma bde_verify -FD03  // parameter not documented
 #pragma bde_verify -TP19
 #endif
+
+// ----------------------------------------------------------------------------
+//                      U_ENABLE_TESTS_FOR_WARNINGS
+//
+// Set ' U_ENABLE_TESTS_FOR_WARNINGS'  to 1 to enable tests to determine if
+// this component correctly generates warnings. Note that
+// 'bslma::UsesBslmaAllocator' has deprecated functionality where types
+// implicitly convertible from 'bslma::Allocator *' are considered allocator
+// aware. We provide a test to ensure the warning is generated, but disable it
+// in standard test runs to avoid generating compiler warnings.
+// ----------------------------------------------------------------------------
+
+#undef   U_ENABLE_TESTS_FOR_WARNINGS
+#define  U_ENABLE_TESTS_FOR_WARNINGS 0
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -292,15 +307,42 @@ struct BslmaCompatibleSTLAllocator {
     void deallocate(value_type *, std::size_t); // No body needed for this test
 };
 
-struct HasSniffableTrait {
-    // The 'UsesBslmaAllocator' trait is sniffable (i.e., detectable as being
-    // 'true') from this class's conversion constructor.  Note that this method
-    // of associating the trait with a class is deprecated.
+#if  U_ENABLE_TESTS_FOR_WARNINGS
+struct UsesDeprecatedImplicitConversionForTraitWithWarnings {
+    // This class provides a implicit conversion from a 'bslma::Allocator *',
+    // which is a (deprecated) mechanism for types to be marked allocator-aware
+    // (i.e., 'UsesBslmaAllocator' will be 'true'. Note that this method of
+    // associating the trait with a class is deprecated, and will produce a
+    // warning when used.
 
-    HasSniffableTrait(bslma::Allocator *);                          // IMPLICIT
-        // Create a 'HasSniffableTrait' object.
+    UsesDeprecatedImplicitConversionForTraitWithWarnings(
+                                              bslma::Allocator *);  // IMPLICIT
+        // Create a 'UsesDeprecatedImplicitConversionForTraitWithWarnings'
+        // object.
 
-    HasSniffableTrait(const HasSniffableTrait&, bslma::Allocator *);
+    UsesDeprecatedImplicitConversionForTraitWithWarnings(
+                const UsesDeprecatedImplicitConversionForTraitWithWarnings&,
+                bslma::Allocator                                            *);
+        // Extended copy constructor
+};
+#endif
+
+struct UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings {
+    // This class provides a implicit conversion from a 'bslma::Allocator *',
+    // which is a (deprecated) mechanism for types to be marked allocator-aware
+    // (i.e., 'UsesBslmaAllocator' will be 'true'. Note that this method of
+    // associating the trait with a class is deprecated, but will not produce a
+    // warning when used, because they are intentionally suppressed by the
+    // 'SuppressesImplicitConvertibilityWarnings' meta-function.
+
+    UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings(
+                                              bslma::Allocator *);  // IMPLICIT
+        // Create a 'UsesDeprecatedImplicitConversionForTraitWithWarnings'
+        // object.
+
+    UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings(
+      const UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings&,
+      bslma::Allocator                                                      *);
         // Extended copy constructor
 };
 
@@ -330,6 +372,7 @@ class NotCopyConstructible {
   public:
     NotCopyConstructible();
 };
+
 
 class HasSniffableAndNestedTrait {
     // The 'UsesBslmaAllocator' trait is sniffable (i.e., detectable as being
@@ -398,6 +441,12 @@ struct ConvertibleToAny {
 
 namespace BloombergLP {
 namespace bslma {
+
+template <>
+struct SuppressesImplicitConvertibilityWarnings<
+    UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings>
+: bsl::true_type {
+};
 
 template <>
 struct UsesBslmaAllocator<HasExplicitlyTrueTrait> : bsl::true_type {};
@@ -573,28 +622,33 @@ int main(int argc, char *argv[])
 
         //   Type                           Exp
         //   ----------------------------   -----
-        TEST(HasSniffableTrait            , true );  // Step 1
+#if U_ENABLE_TESTS_FOR_WARNINGS
+        TEST(UsesDeprecatedImplicitConversionForTraitWithWarnings
+                                                           , true );  // Step 1
+#endif
+        TEST(UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings
+                                                           , true );  // Step 1
 
-        TEST(HasExplicitlyTrueTrait       , true );  // Step 2
-        TEST(HasExplicitlyFalseTrait      , false);  // Step 2
-        TEST(ConvertibleToAny             , true );  // Step 2
+        TEST(HasExplicitlyTrueTrait                        , true );  // Step 2
+        TEST(HasExplicitlyFalseTrait                       , false);  // Step 2
+        TEST(ConvertibleToAny                              , true );  // Step 2
 
-        TEST(HasNestedTrait               , true );  // Step 3
-        TEST(HasSniffableAndNestedTrait   , true );  // Step 3
+        TEST(HasNestedTrait                                , true );  // Step 3
+        TEST(HasSniffableAndNestedTrait                    , true );  // Step 3
 
-        TEST(HasCompatibleAllocatorType   , true );  // Step 4
+        TEST(HasCompatibleAllocatorType                    , true );  // Step 4
 
-        TEST(int                          , false);  // Step 5
-        TEST(EmptyClass                   , false);  // Step 5
-        TEST(void *                       , false);  // Step 5
-        TEST(const void *                 , false);  // Step 5
-        TEST(bslma::Allocator *           , false);  // Step 5
-        TEST(const bslma::Allocator *     , false);  // Step 5
-        TEST(DerivedAllocator *           , false);  // Step 5
+        TEST(int                                           , false);  // Step 5
+        TEST(EmptyClass                                    , false);  // Step 5
+        TEST(void *                                        , false);  // Step 5
+        TEST(const void *                                  , false);  // Step 5
+        TEST(bslma::Allocator *                            , false);  // Step 5
+        TEST(const bslma::Allocator *                      , false);  // Step 5
+        TEST(DerivedAllocator *                            , false);  // Step 5
 
-        TEST(ConstructibleFromAnyPointer  , false);  // Step 6
+        TEST(ConstructibleFromAnyPointer                   , false);  // Step 6
 
-        TEST(HasIncompatibleAllocatorType , false);  // Step 7
+        TEST(HasIncompatibleAllocatorType                  , false);  // Step 7
 
         // Note that step 8 is built into the 'testTrait' function template.
 
@@ -621,8 +675,14 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         using bslma::UsesBslmaAllocator;
-
-        ASSERT(UsesBslmaAllocator<HasSniffableTrait>::value);
+#if  U_ENABLE_TESTS_FOR_WARNINGS
+        ASSERT(UsesBslmaAllocator<
+               UsesDeprecatedImplicitConversionForTraitWithWarnings>::value);
+#endif
+        ASSERT(
+              UsesBslmaAllocator<
+              UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings>::
+                                                                        value);
         ASSERT(UsesBslmaAllocator<HasNestedTrait>::value);
 
         ASSERT(! UsesBslmaAllocator<int>::value);
