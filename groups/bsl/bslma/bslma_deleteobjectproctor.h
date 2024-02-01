@@ -1,4 +1,4 @@
- // bslma_deleteobjectproctor.h                                    -*-C++-*-
+// bslma_deleteobjectproctor.h                                        -*-C++-*-
 #ifndef INCLUDED_BSLMA_DELETEOBJECTPROCTOR
 #define INCLUDED_BSLMA_DELETEOBJECTPROCTOR
 

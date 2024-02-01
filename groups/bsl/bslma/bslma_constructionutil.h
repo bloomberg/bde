@@ -31,8 +31,8 @@ BSLS_IDENT("$Id: $")
 // *Legacy-AA* (types with constructors having a parameter of type
 // 'bslma::Allocator *') and *bsl-AA* types (types with constructors having a
 // parameter of type 'bsl::allocator<>') are handled interchangeably by the
-// functions in this component, accepting either a `bslma::Allocator*` or a
-// `bsl::allocator' argument and then passing the appropriate type to the
+// functions in this component, accepting either a 'bslma::Allocator*' or a
+// 'bsl::allocator' argument and then passing the appropriate type to the
 // constructed type.  Thus *bsl-AA* code can work seamlessly with *legacy-AA*
 // code, allowing for a smooth transition from the old model to the new one.
 // Note that this component does not directly use 'bsl::allocator' or
@@ -92,6 +92,7 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsBitwiseMoveable    If true, 'destructiveMove' is implemented as a
 //                              simple 'memcpy', rather than as a move-destroy
 //                              sequence.
+//..
 //
 ///Usage
 ///-----
