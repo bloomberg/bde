@@ -19,6 +19,7 @@
 #include <bslmt_throughputbenchmarkresult.h>
 
 #include <bslma_allocator.h>
+#include <bslmf_allocatorargt.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
@@ -117,8 +118,10 @@ using namespace bsl;
 // [18] void disableRehash();
 // [18] void enableRehash();
 // [ 8] bsl::size_t eraseAll(const KEY& key);
+// [25] bsl::size_t eraseAllIf(const KEY&, const EraseIfValuePredicate&);
 // [ 9] bsl::size_t eraseBulkAll(RANDOMIT first, last);
 // [ 7] bsl::size_t eraseFirst(const KEY& key);
+// [26] bsl::size_t eraseFirstIf(const KEY&, const EraseIfValuePredicate&);
 // [ 3] bsl::size_t insert(const KEY& key, const VALUE& value);
 // [21] void insert(const KEY& key, VALUE&& value);
 // [11] void insertBulk(RANDOMIT first, last);
@@ -155,7 +158,7 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [19] TYPE TRAITS
 // [23] MULTI-THREADED STRESS TEST
-// [25] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [24] DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION
 // [-1] PERFORMANCE TEST INT->STRING
 // [-2] PERFORMANCE TEST STRING->INT64
@@ -617,6 +620,24 @@ bool areEqual(const TYPE& lhs, const TYPE& rhs)
 }
 
 template <class TYPE>
+bool isGreater(const TYPE& lhs, const TYPE& rhs)
+    // Return 'true' if the ID of the specified 'lhs' is greater than the
+    // specified 'rhs', and 'false' otherwise.
+{
+    return bsltf::TemplateTestFacility::getIdentifier(lhs)
+        > bsltf::TemplateTestFacility::getIdentifier(rhs);
+}
+
+template <class TYPE>
+bool isLess(const TYPE& lhs, const TYPE& rhs)
+    // Return 'true' if the ID of the specified 'lhs' is less than the
+    // specified 'rhs', and 'false' otherwise.
+{
+    return bsltf::TemplateTestFacility::getIdentifier(lhs)
+        < bsltf::TemplateTestFacility::getIdentifier(rhs);
+}
+
+template <class TYPE>
 class TestEqualityComparator {
     // This test class provides a mechanism that defines a function-call
     // operator that compares two objects of the parameterized 'TYPE'.  The
@@ -686,6 +707,50 @@ class TestDriver {
                                                 KEY,
                                                 VALUE,
                                                 PairStdAllocator> > TestValues;
+
+    struct TestCaseEraseIfValuePredicate {
+        // Functor for testCase23 - eraseIfValuePredicate.
+
+        enum OP { greater, equal, less };
+
+        // DATA
+        VALUE d_value;  // Functor will store the specified 'd_value'.
+        OP    d_op;     // Enum that will store the type of comparison operator
+
+        // CREATORS
+        explicit TestCaseEraseIfValuePredicate(const VALUE& value,
+                                               const OP&    op)
+            // Create a 'TestCaseEraseIfValuePredicate' with the specified
+            // 'value' and specified 'op'.
+        : d_value(value)
+        , d_op(op)
+        {}
+
+        // COMPARATORS
+        bool operator()(const VALUE& value)
+            // Return 'true' when specified 'value' compares greater than,
+            // equal to, less than the value provided upon construction for op
+            // greater, equal, less respectively, otherwise returns 'false'
+        {
+            bool result = false;
+            switch(d_op)
+            {
+              case greater: {  //OP::greater
+                result = isGreater(value, d_value);
+              } break;
+              case equal: {  // OP::equal
+                result = areEqual(value, d_value);
+              } break;
+              case less: {  // OP::less
+                result = isLess(value, d_value);
+              } break;
+              default: {
+                ASSERT(false);
+              } break;
+            }
+            return result;
+        }
+    };
 
     struct TestCase19Reader {
         // Functor for testCase19 - visitReadOnly.
@@ -831,7 +896,9 @@ class TestDriver {
     static void testCase20();
     static void testCase21();
     static void testCase22();
-        // Code for test cases 1 to 22.
+    static void testCase25();
+    static void testCase26();
+        // Code for test cases 1 to 22 and 25 and 26.
 };
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -987,8 +1054,446 @@ bsl::size_t TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase19_count;
 template <class KEY, class VALUE, class HASH, class EQUAL>
 typename TestDriver<KEY, VALUE, HASH, EQUAL>::VisitedElements
              TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase19_visitedElements;
-template <class KEY, class VALUE, class HASH, class EQUAL>
 
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase26()
+{
+    // ------------------------------------------------------------------------
+    // TEST 'eraseFirstIf'
+    //
+    // Concerns:
+    //: 1 Erased elements are no longer found in the container.
+    //:
+    //: 2 Elements having keys other than the specified 'key' are not changed.
+    //:
+    //: 3 Erased elements are reflected by a reduction in the 'size()' of the
+    //:   container.
+    //:
+    //: 4 Erased elements are reflected by a reduction in the size of the
+    //:   bucket where they resided.
+    //:
+    //: 5 The return value equals the number of elements erased.
+    //:
+    //: 6 Elements can be erased from any bucket.
+    //:
+    //: 7 Erase fails (returns 0) on an empty container.
+    //:
+    //: 8 QoI: Erasing an element returns memory to the allocator.
+    //
+    // Plan:
+    //: 1 Test the empty hash map in a standalone case.
+    //:
+    //: 2 For hash maps of varying lengths, we:
+    //:   1 Erase each key one at a time.
+    //:   2 Confirm that the return value is correct.
+    //:   3 The size of the container decreases by the expected amount.
+    //:   4 The size of the bucket decreases by the expected amount.
+    //:   5 Memory in use has decreased.
+    //:   6 Erasing a non-existent key fails, and does not change memory in
+    //:     use.
+    //:   7 We iterate until the hash map is empty.
+    //:
+    //: 3 P-2 is repeated for containers having different configurations:
+    //:   1 Unique keys
+    //:   2 Duplicate keys
+    //:
+    //: 4 Erase fails for the elements when predicate returns false
+    //
+    // Testing:
+    //   bsl::size_t eraseFirstIf(const KEY&, const EraseIfValuePredicate&);
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout << endl
+                      << "TEST 'eraseFirstIf'" << endl
+                      << "===================" << endl;
+
+    // This is equivalent to portion of 'testCase23' in 'StripedUnorderedImpl'.
+
+    if (veryVeryVerbose) {
+        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+    }
+
+    bslma::TestAllocator ia("ignored", veryVeryVeryVerbose);
+    bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+
+    const VALUE valueOne = bsltf::TemplateTestFacility::create<VALUE>(1);
+    const VALUE valueZero = bsltf::TemplateTestFacility::create<VALUE>(0);
+
+    TestCaseEraseIfValuePredicate valueOnePred(
+                                         valueOne,
+                                         TestCaseEraseIfValuePredicate::equal);
+    typename Obj::EraseIfValuePredicate valueIsOne(bsl::allocator_arg,
+                                                   &ia,
+                                                   valueOnePred);
+
+    TestCaseEraseIfValuePredicate valueGreaterThanZeroPred(
+                                       valueZero,
+                                       TestCaseEraseIfValuePredicate::greater);
+    typename Obj::EraseIfValuePredicate valueGreaterThanZero(
+                                                     bsl::allocator_arg,
+                                                     &ia,
+                                                     valueGreaterThanZeroPred);
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+    const TestValues     VALUES; // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 15;
+
+
+    // Try to erase from an empty hash map.
+    {
+        Obj mX(8, 4, &supplied);
+
+        bsl::size_t rc = mX.eraseFirstIf(VALUES[0].first, valueIsOne);
+        ASSERTV(rc, rc == 0);
+
+        rc = mX.eraseFirstIf(VALUES[0].first, valueGreaterThanZero);
+        ASSERTV(rc, rc == 0);
+    }
+
+    // This is for unique keys.
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        for (bsl::size_t tj = 1; tj < LENGTH; ++tj) {
+
+            // arbitrary number of buckets and stripes
+            Obj mX(8, 4, &supplied);  const Obj& X = mX;
+
+            for (bsl::size_t v = 0; v < tj; ++v) {
+                mX.insert(VALUES[v].first, VALUES[v].second);
+            }
+
+            bslma::TestAllocatorMonitor sam(&supplied);
+
+            // In a loop, erase all elements and check that each erase is
+            // successful, and that the final number of elements is 0.
+
+            ASSERTV(tj, tj == X.size());
+            for (bsl::size_t v = 0; v < tj; ++v) {
+                sam.reset();
+                // Find the bucket where the key resides.
+                bsl::size_t bucketIdx     = X.bucketIndex(VALUES[v].first);
+                bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
+
+                bsl::size_t rc = mX.eraseFirstIf(VALUES[v].first,
+                                                 valueGreaterThanZero);
+                ASSERTV(rc, rc == 1);
+                ASSERTV(tj, v, X.size(), tj - v - 1 == X.size());
+
+                bsl::size_t newBucketSize = X.bucketSize(bucketIdx);
+                ASSERTV(newBucketSize,
+                        oldBucketSize,
+                        newBucketSize == oldBucketSize - 1);
+
+                ASSERT(sam.isInUseDown());
+                sam.reset();
+
+                // Try to erase again the already erased key.
+                rc = mX.eraseFirstIf(VALUES[v].first, valueGreaterThanZero);
+                ASSERTV(rc, rc == 0);
+                ASSERTV(tj, v, X.size(), tj - v - 1 == X.size());
+                ASSERT(sam.isInUseSame());
+            }
+            ASSERT(0 == X.size());
+        }
+    }
+
+    // Test erasing duplicate keys.
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        for (bsl::size_t tj = 1; tj < LENGTH; ++tj) {
+
+            // arbitrary number of buckets and stripes
+            Obj mX(32, 4, &supplied);  const Obj& X = mX;
+
+            for (bsl::size_t v = 0; v < tj; ++v) {
+                mX.insert(VALUES[v].first, VALUES[v].second);
+                mX.insert(VALUES[v].first, VALUES[(v + 1) % tj].second);
+            }
+
+            bslma::TestAllocatorMonitor sam(&supplied);
+
+            // Erase all elements in a loop, and check that each erase is
+            // successful, and that the final number of elements is 0.
+
+            ASSERTV(tj, X.size(), 2 * tj == X.size());
+            for (bsl::size_t v = 0; v < tj; ++v) {
+                sam.reset();
+                // Check what bucket is the key to be erased in.
+                bsl::size_t bucketIdx     = X.bucketIndex(VALUES[v].first);
+                bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
+
+                // Erase the first copy.
+                bsl::size_t rc = mX.eraseFirstIf(VALUES[v].first,
+                                                 valueGreaterThanZero);
+                ASSERTV(rc, rc == 1);
+                ASSERTV(tj, v, X.size(), 2 * (tj - v - 1) + 1 == X.size());
+
+                bsl::size_t newBucketSize = X.bucketSize(bucketIdx);
+                ASSERTV(newBucketSize,
+                        oldBucketSize,
+                        newBucketSize == oldBucketSize - 1);
+
+                ASSERTV(sam.isInUseDown());
+                sam.reset();
+
+                // Erase the second copy.
+                rc = mX.eraseFirstIf(VALUES[v].first, valueGreaterThanZero);
+                ASSERTV(rc, rc == 1);
+                ASSERTV(tj, v, X.size(), 2 * (tj - v - 1) == X.size());
+
+                bsl::size_t veryNewBucketSize = X.bucketSize(bucketIdx);
+                ASSERTV(veryNewBucketSize,
+                        oldBucketSize,
+                        veryNewBucketSize == oldBucketSize - 2);
+
+                ASSERTV(sam.isInUseDown());
+                sam.reset();
+
+                // Try again to erase the previously erased key.
+                rc = mX.eraseFirstIf(VALUES[v].first, valueGreaterThanZero);
+                ASSERTV(rc, rc == 0);
+                ASSERTV(tj, v, X.size(), 2 * (tj - v - 1) == X.size());
+                ASSERTV(sam.isInUseSame());
+            }
+            ASSERTV(X.size(), 0 == X.size());
+        }
+    }
+
+    // Erase fails for the elements when predicate returns false
+    {
+        Obj mX(8, 4, &supplied);
+        mX.insert(VALUES[0].first, valueZero);
+        ASSERTV(mX.size(), mX.size() == 1);
+
+        bslma::TestAllocatorMonitor sam(&supplied);
+        bsl::size_t                 rc = mX.eraseFirstIf(VALUES[0].first,
+                                                         valueGreaterThanZero);
+        ASSERTV(rc, rc == 0);
+        ASSERTV(mX.size(), mX.size() == 1);
+        ASSERT(sam.isInUseSame());
+    }
+
+    // CONCERN: In no case does memory come from the default allocator.
+    ASSERT(dam.isTotalSame());
+}
+
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase25()
+{
+    // ------------------------------------------------------------------------
+    // TEST 'eraseAllIf'
+    //
+    // Concerns:
+    //: 1 Erased elements are no longer found in the container.
+    //:
+    //: 2 Elements having keys other than the specified 'key' are not changed.
+    //:
+    //: 3 Erased elements are reflected by a reduction in the 'size()' of the
+    //:   container.
+    //:
+    //: 4 Erased elements are reflected by a reduction in the size of the
+    //:   bucket where they resided.
+    //:
+    //: 5 The return value equals the number of elements erased.
+    //:
+    //: 6 Elements can be erased from any bucket.
+    //:
+    //: 7 Erase fails (returns 0) on an empty container.
+    //:
+    //: 8 QoI: Erasing an element returns memory to the allocator.
+    //
+    // Plan:
+    //: 1 Test the empty hash map in a standalone case.
+    //:
+    //: 2 For hash maps of varying lengths, we:
+    //:   1 Erase each key one at a time.
+    //:   2 Confirm that the return value is correct.
+    //:   3 The size of the container decreases by the expected amount.
+    //:   4 The size of the bucket decreases by the expected amount.
+    //:   5 Memory in use has decreased.
+    //:   6 Erasing a non-existent key fails, and does not change memory in
+    //:     use.
+    //:   7 We iterate until the hash map is empty.
+    //:
+    //: 3 P-2 is repeated for containers having different configurations:
+    //:   1 Unique keys
+    //:   2 Duplicate keys
+    //:
+    //: 4 Erase fails for the elements when predicate returns false
+    //
+    // Testing:
+    //   bsl::size_t eraseAllIf(const KEY&, const EraseIfValuePredicate&);
+    // ------------------------------------------------------------------------
+
+    // This is equivalent to portion of 'testCase23' in 'StripedUnorderedImpl'.
+
+    if (verbose) cout << endl
+                      << "TEST 'eraseAllIf'" << endl
+                      << "=================" << endl;
+
+    bslma::TestAllocator ia("ignored", veryVeryVeryVerbose);
+    bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+
+    const VALUE valueOne  = bsltf::TemplateTestFacility::create<VALUE>(1);
+    const VALUE valueZero = bsltf::TemplateTestFacility::create<VALUE>(0);
+
+    TestCaseEraseIfValuePredicate valueOnePred(
+                                         valueOne,
+                                         TestCaseEraseIfValuePredicate::equal);
+    typename Obj::EraseIfValuePredicate valueIsOne(bsl::allocator_arg,
+                                                   &ia,
+                                                   valueOnePred);
+
+    TestCaseEraseIfValuePredicate valueGreaterThanZeroPred(
+                                       valueZero,
+                                       TestCaseEraseIfValuePredicate::greater);
+    typename Obj::EraseIfValuePredicate valueGreaterThanZero(
+                                                     bsl::allocator_arg,
+                                                     &ia,
+                                                     valueGreaterThanZeroPred);
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+    const TestValues     VALUES; // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 9;
+
+
+    // Try to erase from an empty hash map.
+    {
+        Obj mX(8, 4, &supplied);
+
+        bsl::size_t rc = mX.eraseAllIf(VALUES[0].first, valueIsOne);
+        ASSERTV(rc == 0);
+
+        rc = mX.eraseAllIf(VALUES[0].first, valueGreaterThanZero);
+        ASSERTV(rc == 0);
+    }
+
+
+
+    // This is for unique keys
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+
+            // arbitrary number of buckets and stripes
+            Obj mX(32, 4, &supplied);  const Obj& X = mX;
+
+            for (bsl::size_t v = 0; v < tj; ++v) {
+                mX.insert(VALUES[v].first, VALUES[v].second);
+            }
+
+            bslma::TestAllocatorMonitor sam(&supplied);
+
+            // In a loop, erase all elements, check that each erase is
+            // successful, and that the final number of elements is 0.
+
+            ASSERTV(tj == X.size());
+            for (bsl::size_t v = 0; v < tj; ++v) {
+                sam.reset();
+                // Find the bucket where the key resides.
+                bsl::size_t bucketIdx     = X.bucketIndex(VALUES[v].first);
+                bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
+
+                bsl::size_t rc = mX.eraseAllIf(VALUES[v].first,
+                                               valueGreaterThanZero);
+                ASSERTV(rc == 1);
+                ASSERTV(tj - v - 1 == X.size());
+
+                bsl::size_t newBucketSize = X.bucketSize(bucketIdx);
+                ASSERTV(newBucketSize == oldBucketSize - 1);
+
+                ASSERTV(sam.isInUseDown());
+
+                sam.reset();
+
+                // Try to erase again the already erased key.
+                rc = mX.eraseAllIf(VALUES[v].first, valueGreaterThanZero);
+                ASSERTV(rc == 0);
+                ASSERTV(tj - v - 1 == X.size());
+                ASSERTV(sam.isInUseSame());
+            }
+            ASSERTV(0 == X.size());
+        }
+    }
+
+    // Test erasing duplicate keys.
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+
+            // arbitrary number of buckets and stripes
+            Obj mX(32, 4, &supplied);  const Obj& X = mX;
+
+            for (bsl::size_t v = 0; v < tj; ++v) {
+                mX.insert(VALUES[v].first, VALUES[v].second);
+                mX.insert(VALUES[v].first, VALUES[(v + 1) % tj].second);
+            }
+
+            bslma::TestAllocatorMonitor sam(&supplied);
+
+            // In a loop, erase all elements, check that each erase is
+            // successful, and that the final number of elements is 0.
+
+            ASSERTV(tj, X.size(), 2 * tj == X.size());
+            for (bsl::size_t v = 0; v < tj; ++v) {
+                sam.reset();
+                // Check what bucket is the key to be erased in.
+                bsl::size_t bucketIdx     = X.bucketIndex(VALUES[v].first);
+                bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
+
+                bsl::size_t rc = mX.eraseAllIf(VALUES[v].first,
+                                               valueGreaterThanZero);
+                ASSERTV(rc, rc == 2);
+                ASSERTV(tj, v, X.size(), 2 * (tj - v - 1) == X.size());
+
+                bsl::size_t newBucketSize = X.bucketSize(bucketIdx);
+                ASSERTV(newBucketSize,
+                        oldBucketSize,
+                        newBucketSize == oldBucketSize - 2);
+
+                ASSERTV(sam.isInUseDown());
+                sam.reset();
+
+                // Try to erase again the already erased key.
+                rc = mX.eraseAllIf(VALUES[v].first, valueGreaterThanZero);
+                ASSERTV(rc, rc == 0);
+                ASSERTV(tj, v, X.size(), 2 * (tj - v - 1) == X.size());
+                ASSERTV(sam.isInUseSame());
+            }
+            ASSERTV(X.size(), 0 == X.size());
+        }
+    }
+
+    // Erase fails for the elements when predicate returns false
+    {
+        Obj mX(8, 4, &supplied);
+        mX.insert(VALUES[0].first, valueZero);
+        ASSERT(mX.size() == 1);
+
+        bslma::TestAllocatorMonitor sam(&supplied);
+        bsl::size_t rc = mX.eraseAllIf(VALUES[0].first, valueGreaterThanZero);
+        ASSERTV(rc, rc == 0);
+        ASSERTV(mX.size(), mX.size() == 1);
+        ASSERT(sam.isInUseSame());
+    }
+
+    // CONCERN: In no case does memory come from the default allocator.
+    ASSERT(dam.isTotalSame());
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
 {
     // ------------------------------------------------------------------------
@@ -7806,7 +8311,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 25: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -7825,6 +8330,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         usage::example1();
+      } break;
+      // BDE_VERIFY pragma: -TP05 Defined in the various test functions
+      case 26: {
+        RUN_EACH_TYPE(TestDriver, testCase26, TEST_TYPES_REGULAR);
+      } break;
+      case 25: {
+        RUN_EACH_TYPE(TestDriver, testCase25, TEST_TYPES_REGULAR);
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -7919,7 +8431,6 @@ int main(int argc, char *argv[])
                 supplied.numBytesInUse(),
                 numBytesInUse == supplied.numBytesInUse());
       } break;
-      // BDE_VERIFY pragma: -TP05 Defined in the various test functions
       case 23: {
         threaded::threadedTest1();
       } break;

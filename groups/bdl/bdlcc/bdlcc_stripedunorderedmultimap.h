@@ -284,6 +284,15 @@ class StripedUnorderedMultiMap {
         //      // and 'value'.
         //..
 
+    typedef bsl::function<bool(const VALUE&)> EraseIfValuePredicate;
+        // An alias to a function meeting the following contract:
+        //..
+        //  bool eraseIfValuePredicate(const VALUE& value);
+        //      // Return 'true' if the specified 'value' is to be removed from
+        //      // the container, and 'false' otherwise.  Note that this
+        //      // functor can *not* change the values associated with 'value'.
+        //..
+
     // CREATORS
     explicit StripedUnorderedMultiMap(
                    bsl::size_t       numInitialBuckets = k_DEFAULT_NUM_BUCKETS,
@@ -325,6 +334,12 @@ class StripedUnorderedMultiMap {
         // Erase from this hash map the elements having the specified 'key'.
         // Return the number of elements erased.
 
+    bsl::size_t eraseAllIf(const KEY&                   key,
+                           const EraseIfValuePredicate& predicate);
+        // Erase from this hash map the elements having the specified 'key' for
+        // which the specified 'predicate' holds true.  Return the number of
+        // elements erased.
+
     template <class RANDOM_ITER>
     bsl::size_t eraseBulkAll(RANDOM_ITER first, RANDOM_ITER last);
         // Erase from this hash map elements in this hash map having any of the
@@ -341,6 +356,12 @@ class StripedUnorderedMultiMap {
         // found to the specified 'key'.  Return the number of elements erased.
         // Note that method is more performant than 'eraseAll' when there is
         // one element having 'key'.
+
+    bsl::size_t eraseFirstIf(const KEY&                   key,
+                             const EraseIfValuePredicate& predicate);
+        // Erase from this hash map the *first* element (of possibly many) with
+        // specified 'key' found, for which the specified 'predicate' holds
+        // true.  Return the number of elements erased.
 
     void insert(const KEY& key, const VALUE& value);
         // Insert into this hash map an element having the specified 'key' and
@@ -679,6 +700,15 @@ bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseAll(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseAllIf(
+                                        const KEY&                   key,
+                                        const EraseIfValuePredicate& predicate)
+{
+    return d_imp.eraseAllIf(key, predicate);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class RANDOM_ITER>
 inline
 bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseBulkAll(
@@ -696,6 +726,16 @@ bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseFirst(
                                                                 const KEY& key)
 {
     return d_imp.eraseFirst(key);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t
+StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseFirstIf(
+                                        const KEY&                   key,
+                                        const EraseIfValuePredicate& predicate)
+{
+    return d_imp.eraseFirstIf(key, predicate);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>

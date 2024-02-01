@@ -406,6 +406,14 @@ class StripedUnorderedMap {
     typedef bsl::pair<KEY, VALUE> KVType;
         // Value type of a bulk insert entry.
 
+    typedef bsl::function<bool(const VALUE&)> EraseIfValuePredicate;
+        // An alias to a function meeting the following contract:
+        //..
+        //  bool eraseIfValuePredicate(const VALUE& value);
+        //      // Return 'true' if the specified 'value' is to be removed from
+        //      // the container, and 'false' otherwise.  Note that this
+        //      // functor can *not* change the values associated with 'value'.
+
     typedef bsl::function<bool (VALUE *, const KEY&)> VisitorFunction;
         // An alias to a function meeting the following contract:
         //..
@@ -482,6 +490,12 @@ class StripedUnorderedMap {
         // not specified.  Return the number of elements removed.  The behavior
         // is undefined unless 'first <= last'.  Note that the map may not have
         // an element for every value in 'keys'.
+
+    bsl::size_t eraseIf(const KEY&                   key,
+                        const EraseIfValuePredicate& predicate);
+        // Remove from this hash map the element, if any, having the specified
+        // 'key', where specified 'predicate' holds true.  Return the number of
+        // elements erased.
 
     bsl::size_t insert(const KEY& key, const VALUE& value);
         // Insert into this hash map an element having the specified 'key' and
@@ -780,6 +794,15 @@ bsl::size_t StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::eraseBulk(
     BSLS_ASSERT(first <= last);
 
     return d_imp.eraseBulkFirst(first, last);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::eraseIf(
+                                        const KEY&                   key,
+                                        const EraseIfValuePredicate& predicate)
+{
+    return d_imp.eraseFirstIf(key, predicate);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
