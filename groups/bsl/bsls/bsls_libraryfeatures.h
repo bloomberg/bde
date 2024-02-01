@@ -1873,8 +1873,16 @@ BSLS_IDENT("$Id: $")
     #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L &&                         \
         (_GLIBCXX_RELEASE >= 9 || _LIBCPP_VERSION >= 16)
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                            1
-        #if !defined(_GLIBCXX_RELEASE) || _GLIBCXX_USE_CXX11_ABI
-            // GNU libstdc++: no 'pmr::string' when pre-C++11 ABI is used
+        #if defined(_GLIBCXX_RELEASE)
+	    // GLIB logic as above for GNU
+            #if _GLIBCXX_USE_CXX11_ABI
+                // GNU libstdc++: no 'pmr::string' when pre-C++11 ABI is used
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING             1
+            #else
+	        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+	        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            #endif
+	#else
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING                 1
         #endif
     #endif
