@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jan 25 15:48:11 2024
+// Generated on Wed Jan 31 15:10:04 2024
 // Command line: sim_cpp11_features.pl bdlb_nullablevalueref.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUEREF_H
@@ -42,6 +42,19 @@ class NullableValueRef {
     // 'NullableAllocatedValue', and provides modifiable access to the wrapped
     // object.
 
+    // PRIVATE TYPES
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    // UNSPECIFIED BOOL
+
+    // This type is needed only in C++03 mode, where 'explicit' conversion
+    // operators are not supported.  A 'NullableAllocatedValue' is implicitly
+    // converted to 'UnspecifiedBool' when used in 'if' statements, but is not
+    // implicitly convertible to 'bool'.
+    typedef BloombergLP::bsls::UnspecifiedBool<NullableValueRef>
+                                                           UnspecifiedBoolUtil;
+    typedef typename UnspecifiedBoolUtil::BoolType         UnspecifiedBool;
+#endif
+
     // DATA
     void *d_target_p;
         // the address of the target
@@ -50,14 +63,6 @@ class NullableValueRef {
         // 'true' if the target is a specialization of 'bsl::optional', and
         // 'false' it's a specialization of 'NullableAllocatedValue'
 
-  public:
-    // TYPES
-    typedef TYPE value_type;
-        // 'value_type' is an alias for the template parameter 'TYPE', and
-        // represents the type of the object managed by the wrapped nullable
-        // object.
-
-  private:
     // PRIVATE ACCESSORS
     NullableAllocatedValue<TYPE>& getNAV() const;
         // Return a reference providing non-const access to the held
@@ -84,14 +89,20 @@ class NullableValueRef {
         // qualified, nor a reference.
 
   public:
+    // TYPES
+    typedef TYPE value_type;
+        // 'value_type' is an alias for the template parameter 'TYPE', and
+        // represents the type of the object managed by the wrapped nullable
+        // object.
+
     // CREATORS
-    explicit NullableValueRef(bsl::optional<TYPE>& opt);
+    NullableValueRef(bsl::optional<TYPE>& opt);                     // IMPLICIT
         // Create a nullable object wrapper that refers to the specified 'opt'
         // object.  Note that the created wrapper does not own a copy of the
         // underlying nullable value, but instead refers to it, and so the
         // lifetime of 'opt' must exceed the lifetime of the created wrapper.
 
-    explicit NullableValueRef(NullableAllocatedValue<TYPE>& opt);
+    NullableValueRef(NullableAllocatedValue<TYPE>& opt);            // IMPLICIT
         // Create a nullable object wrapper that refers to the specified 'opt'
         // object.  Note that the created wrapper does not own a copy of the
         // underlying nullable value, but instead refers to it, and so the
@@ -112,6 +123,12 @@ class NullableValueRef {
     bool has_value() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the target contains a value, and 'false' otherwise.
 
+    bool isNull() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'false' if the target contains a value, and 'true' otherwise.
+        // Note that this accessor is provided purely for compatibility with
+        // 'NullableValue' and 'NullableAllocatedValue', and its use is
+        // discouraged in favor of 'has_value'.
+
     const value_type& value() const;
         // Return a reference providing non-modifiable access to the underlying
         // object of a (template parameter) 'TYPE'.  The behavior is undefined
@@ -126,6 +143,18 @@ class NullableValueRef {
         // Return a reference providing non-modifiable access to the underlying
         // 'TYPE' object.  The behavior is undefined if the target has no
         // value.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    BSLS_KEYWORD_EXPLICIT operator bool() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if the target holds a value, and 'false' otherwise.
+#else
+    // Simulation of explicit conversion to bool.  Inlined to work around xlC
+    // but when out-of-line.
+    operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
+    {
+        return UnspecifiedBoolUtil::makeValue(has_value());
+    }
+#endif
 
     template <class ANY_TYPE>
     TYPE value_or(const ANY_TYPE& default_value) const;
@@ -577,6 +606,19 @@ class ConstNullableValueRef {
     // 'NullableAllocatedValue', and provides non-modifiable access to the
     // wrapped object.
 
+    // PRIVATE TYPES
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    // UNSPECIFIED BOOL
+
+    // This type is needed only in C++03 mode, where 'explicit' conversion
+    // operators are not supported.  A 'NullableAllocatedValue' is implicitly
+    // converted to 'UnspecifiedBool' when used in 'if' statements, but is not
+    // implicitly convertible to 'bool'.
+    typedef BloombergLP::bsls::UnspecifiedBool<ConstNullableValueRef>
+                                                           UnspecifiedBoolUtil;
+    typedef typename UnspecifiedBoolUtil::BoolType         UnspecifiedBool;
+#endif
+
     // DATA
     const void *d_target_p;
         // the address of the target
@@ -585,14 +627,6 @@ class ConstNullableValueRef {
         // 'true' if the referent is a specialization of 'bsl::optional', and
         // 'false' if it's a specialization of 'NullableAllocatedValue'.
 
-  public:
-    // TYPES
-    typedef TYPE value_type;
-        // 'value_type' is an alias for the template parameter 'TYPE', and
-        // represents the type of the object managed by the wrapped nullable
-        // object.
-
-  private:
     // PRIVATE ACCESSORS
     const NullableAllocatedValue<TYPE>& getNAV() const;
         // Return a pointer to the held 'bdlb::NullableAllocatedValue'.  The
@@ -615,15 +649,21 @@ class ConstNullableValueRef {
         // qualified, nor a reference.
 
   public:
+    // TYPES
+    typedef TYPE value_type;
+        // 'value_type' is an alias for the template parameter 'TYPE', and
+        // represents the type of the object managed by the wrapped nullable
+        // object.
 
     // CREATORS
-    explicit ConstNullableValueRef(const bsl::optional<TYPE>& opt);
+    ConstNullableValueRef(const bsl::optional<TYPE>& opt);          // IMPLICIT
         // Create a nullable object wrapper that refers to the specified 'opt'
         // object.  Note that the created wrapper does not own a copy of the
         // underlying nullable value, but instead refers to it, and so the
         // lifetime of 'opt' must exceed the lifetime of the created wrapper.
 
-    explicit ConstNullableValueRef(const NullableAllocatedValue<TYPE>& opt);
+    ConstNullableValueRef(const NullableAllocatedValue<TYPE>& opt);
+                                                                    // IMPLICIT
         // Create a nullable object wrapper that refers to the specified 'opt'
         // object.  Note that the created wrapper does not own a copy of the
         // underlying nullable value, but instead refers to it, and so the
@@ -651,6 +691,12 @@ class ConstNullableValueRef {
     bool has_value() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the target contains a value, and 'false' otherwise.
 
+    bool isNull() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'false' if the target contains a value, and 'true' otherwise.
+        // Note that this accessor is provided purely for compatibility with
+        // 'NullableValue' and 'NullableAllocatedValue', and its use is
+        // discouraged in favor of 'has_value'.
+
     const value_type& value() const;
         // Return a reference providing non-modifiable access to the underlying
         // object of a (template parameter) 'TYPE'.  The behavior is undefined
@@ -665,6 +711,18 @@ class ConstNullableValueRef {
         // Return a reference providing non-modifiable access to the underlying
         // 'TYPE' object.  The behavior is undefined if the target has no
         // value.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    BSLS_KEYWORD_EXPLICIT operator bool() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if the target holds a value, and 'false' otherwise.
+#else
+    // Simulation of explicit conversion to bool.  Inlined to work around xlC
+    // but when out-of-line.
+    operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
+    {
+        return UnspecifiedBoolUtil::makeValue(has_value());
+    }
+#endif
 
     template <class ANY_TYPE>
     TYPE value_or(const ANY_TYPE& default_value) const;
@@ -1071,6 +1129,13 @@ bool bdlb::NullableValueRef<TYPE>::has_value() const BSLS_KEYWORD_NOEXCEPT
 
 template <class TYPE>
 inline
+bool bdlb::NullableValueRef<TYPE>::isNull() const BSLS_KEYWORD_NOEXCEPT
+{
+    return !has_value();
+}
+
+template <class TYPE>
+inline
 const typename bdlb::NullableValueRef<TYPE>::value_type&
 bdlb::NullableValueRef<TYPE>::value() const
 {
@@ -1099,6 +1164,14 @@ bdlb::NullableValueRef<TYPE>::operator*() const
               ? getOpt().operator*()
               : getNAV().operator*();
 }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+template <class TYPE>
+bdlb::NullableValueRef<TYPE>::operator bool() const BSLS_KEYWORD_NOEXCEPT
+{
+    return has_value();
+}
+#endif
 
 template <class TYPE>
 template <class ANY_TYPE>
@@ -1869,6 +1942,14 @@ bdlb::ConstNullableValueRef<TYPE>::has_value() const BSLS_KEYWORD_NOEXCEPT
 
 template <class TYPE>
 inline
+bool
+bdlb::ConstNullableValueRef<TYPE>::isNull() const BSLS_KEYWORD_NOEXCEPT
+{
+    return !has_value();
+}
+
+template <class TYPE>
+inline
 const typename bdlb::ConstNullableValueRef<TYPE>::value_type&
 bdlb::ConstNullableValueRef<TYPE>::value() const
 {
@@ -1897,6 +1978,14 @@ bdlb::ConstNullableValueRef<TYPE>::operator*() const
               ? getOpt().operator*()
               : getNAV().operator*();
 }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+template <class TYPE>
+bdlb::ConstNullableValueRef<TYPE>::operator bool() const BSLS_KEYWORD_NOEXCEPT
+{
+    return has_value();
+}
+#endif
 
 template <class TYPE>
 template <class ANY_TYPE>
@@ -2367,7 +2456,7 @@ bool bdlb::operator>=(const NullableValueRef<LHS_TYPE>&      lhs,
 #endif // ! defined(INCLUDED_BDLB_NULLABLEVALUEREF_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2024 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

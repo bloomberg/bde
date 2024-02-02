@@ -4,6 +4,8 @@
 #include <bdlb_nullablevalue.h>           // NullableValue
 #include <bdlb_nullableallocatedvalue.h>  // NullableAllocatedValue
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -59,9 +61,11 @@ using namespace bsl;
 //
 // ACCESSORS
 // [ 2] bool has_value() const;
+// [ 2] bool isNull() const noexcept;
 // [ 2] const TYPE& value() const;
 // [ 2] operator->() const;
 // [ 2] operator*() const;
+// [ 2] explicit operator bool() const noexcept;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(NVWrapper<LHS_TYPE>&, NVWrapper<RHS_TYPE>&);
@@ -1213,16 +1217,21 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Concerns:
-        //:  1 The wrapper object should report the same state as the target.
-        //:  2 The constructor must not copy the target object.
+        //: 1 The wrapper object should report the same state as the target.
+        //:
+        //: 2 The constructor must not copy the target object.
+        //:
+        //: 3 The conversion from 'bsl::optional', 'NullableValue', and
+        //:   'NullableAllocatedValue' to 'NullableValueRef' or
+        //:   'ConstNullableValueRef' can be done implicitly.
         //
         // Plan:
-        //:  1 Create six objects; two each of 'bsl::optiona', 'NullableValue'
-        //:  and 'NullableAllocatedValue'.  Create a 'NullableValueRef' and a
-        //:  'ConstNullableValueRef' for each of them.  Verify that the
-        //:  contents of the wrappers match the contents of the wrapped
-        //:  objects.  Then make changes to the target, and verify that both
-        //:  the wrappers and the target objects change.
+        //: 1 Create six objects; two each of 'bsl::optional', 'NullableValue',
+        //:   and 'NullableAllocatedValue'.  Create a 'NullableValueRef' and a
+        //:   'ConstNullableValueRef' for each of them.  Verify that the
+        //:   contents of the wrappers match the contents of the wrapped
+        //:   objects.  Then make changes to the target, and verify that both
+        //:   the wrappers and the target objects change.  (C-1..3)
         //
         // Testing:
         //   NullableValueRef(bsl::optional<TYPE> &);
@@ -1232,9 +1241,11 @@ int main(int argc, char *argv[])
         //   ConstNullableValueRef(NullableValue<TYPE> &);
         //   ConstNullableValueRef(NullableAllocatedValue<TYPE> &);
         //   bool has_value() const;
+        //   bool isNull() const noexcept;
         //   const TYPE& value() const;
         //   operator->() const;
         //   operator*() const;
+        //   explicit operator bool() const noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -1242,24 +1253,25 @@ int main(int argc, char *argv[])
                            "\n=================================="
                           << endl;
 
-        bsl::optional<int>                   op0;
-        bsl::optional<int>                   op1(12);
-        bdlb::NullableValue<int>             nv0;
-        bdlb::NullableValue<int>             nv1(13);
-        bdlb::NullableAllocatedValue<int>    av0;
-        bdlb::NullableAllocatedValue<int>    av1(14);
-        bdlb::NullableValueRef<int>          nw0(op0);
-        bdlb::NullableValueRef<int>          nw1(op1);
-        bdlb::NullableValueRef<int>          nw2(nv0);
-        bdlb::NullableValueRef<int>          nw3(nv1);
-        bdlb::NullableValueRef<int>          nw4(av0);
-        bdlb::NullableValueRef<int>          nw5(av1);
-        bdlb::ConstNullableValueRef<int>     cw0(op0);
-        bdlb::ConstNullableValueRef<int>     cw1(op1);
-        bdlb::ConstNullableValueRef<int>     cw2(nv0);
-        bdlb::ConstNullableValueRef<int>     cw3(nv1);
-        bdlb::ConstNullableValueRef<int>     cw4(av0);
-        bdlb::ConstNullableValueRef<int>     cw5(av1);
+        bsl::optional<int>                op0;
+        bsl::optional<int>                op1(12);
+        bdlb::NullableValue<int>          nv0;
+        bdlb::NullableValue<int>          nv1(13);
+        bdlb::NullableAllocatedValue<int> av0;
+        bdlb::NullableAllocatedValue<int> av1(14);
+        bdlb::NullableValueRef<int>       nw0 = op0;
+        bdlb::NullableValueRef<int>       nw1 = op1;
+        bdlb::NullableValueRef<int>       nw2 = nv0;
+        bdlb::NullableValueRef<int>       nw3 = nv1;
+        bdlb::NullableValueRef<int>       nw4 = av0;
+        bdlb::NullableValueRef<int>       nw5 = av1;
+
+        BSLA_MAYBE_UNUSED bdlb::ConstNullableValueRef<int> cw0 = op0;
+        BSLA_MAYBE_UNUSED bdlb::ConstNullableValueRef<int> cw1 = op1;
+        BSLA_MAYBE_UNUSED bdlb::ConstNullableValueRef<int> cw2 = nv0;
+        BSLA_MAYBE_UNUSED bdlb::ConstNullableValueRef<int> cw3 = nv1;
+        BSLA_MAYBE_UNUSED bdlb::ConstNullableValueRef<int> cw4 = av0;
+        BSLA_MAYBE_UNUSED bdlb::ConstNullableValueRef<int> cw5 = av1;
 
         ASSERT(!nw0.has_value());
         ASSERT( nw1.has_value());
@@ -1267,6 +1279,20 @@ int main(int argc, char *argv[])
         ASSERT( nw3.has_value());
         ASSERT(!nw4.has_value());
         ASSERT( nw5.has_value());
+
+        ASSERT(!nw5.isNull());
+        ASSERT( nw0.isNull());
+        ASSERT(!nw1.isNull());
+        ASSERT( nw2.isNull());
+        ASSERT(!nw3.isNull());
+        ASSERT( nw4.isNull());
+
+        ASSERT(false == !!nw0.has_value());
+        ASSERT(true  == !!nw1.has_value());
+        ASSERT(false == !!nw2.has_value());
+        ASSERT(true  == !!nw3.has_value());
+        ASSERT(false == !!nw4.has_value());
+        ASSERT(true  == !!nw5.has_value());
 
         ASSERT(12 == nw1.value());
         ASSERT(13 == nw3.value());
