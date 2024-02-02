@@ -969,8 +969,6 @@ BSLS_IDENT("$Id: $")
 //:   o LLVM libc++    v 16
 //:   o MSVC++ STL     v 15.6 (VS 2017)
 //
-// NOTE: Generic PMR support is temporary disabled due to run-time errors.
-//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING'
 ///-------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING' macro is defined if the
@@ -1571,9 +1569,6 @@ BSLS_IDENT("$Id: $")
             #if _GLIBCXX_USE_CXX11_ABI
                 // GNU libstdc++: no 'pmr::string' when pre-C++11 ABI is used
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING             1
-            #else
-                #undef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                #undef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             #endif
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 120000
@@ -1874,15 +1869,12 @@ BSLS_IDENT("$Id: $")
         (_GLIBCXX_RELEASE >= 9 || _LIBCPP_VERSION >= 16)
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                            1
         #if defined(_GLIBCXX_RELEASE)
-	    // GLIB logic as above for GNU
+        // GLIB logic as above for GNU
             #if _GLIBCXX_USE_CXX11_ABI
                 // GNU libstdc++: no 'pmr::string' when pre-C++11 ABI is used
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING             1
-            #else
-	        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-	        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             #endif
-	#else
+        #else
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING                 1
         #endif
     #endif
