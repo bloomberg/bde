@@ -85,6 +85,7 @@ using bsl::endl;
 // [20] static int getValue(vector<char>         *v, bsl::string_view s);
 // [21] static int getValue(bdldfp::Decimal64    *v, bsl::string_view s);
 // [29] static bool stripQuotes(bsl::string_view *str);
+// [30] DRQS 174180775 - TEST STATIC CALL
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 //
@@ -93,7 +94,7 @@ using bsl::endl;
 // [24] NUMBERS ROUND-TRIP
 // [25] DATE AND TIME TYPES ROUND-TRIP
 //
-// [30] USAGE EXAMPLE
+// [31] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -149,6 +150,14 @@ typedef baljsn::PrintUtil  Print;
 
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
+
+// ============================================================================
+//                    DRQS 174180775 - TEST STATIC CALL
+// ----------------------------------------------------------------------------
+
+static Uint64 u_static_val;
+static int u_static_test_result = baljsn::ParserUtil::getValue(&u_static_val,
+                                                               "1234567890");
 
 // ============================================================================
 //                              TEST MACHINERY
@@ -332,7 +341,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -396,6 +405,28 @@ int main(int argc, char *argv[])
     ASSERT(bdlt::Date(1985, 06, 24) == employee.d_date);
     ASSERT(21                      == employee.d_age);
 //..
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // DRQS 174180775 - TEST STATIC CALL
+        //   Make sure a static call leading to `getUint64` succeeds.
+        //
+        // Concerns:
+        //: 1 Does a call at static load time returns correct value?
+        //
+        // Plan:
+        //: 1 Test that a call at static load time returns correct value.
+        //
+        // Testing:
+        //   DRQS 174180775 - TEST STATIC CALL
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nDRQS 174180775 - TEST STATIC CALL"
+                          << "\n=================================" << endl;
+
+        ASSERTV(u_static_val,
+                u_static_test_result,
+                1234567890 == u_static_val);
       } break;
       case 29: {
         // --------------------------------------------------------------------

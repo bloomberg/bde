@@ -129,8 +129,7 @@ int loadInfOrNan(TYPE *value, const bsl::string_view& data)
     return rc;
 }
 
-static const bsls::Types::Uint64 UINT64_MAX_VALUE =
-                               bsl::numeric_limits<bsls::Types::Uint64>::max();
+static const bsls::Types::Uint64 UINT64_MAX_VALUE = 0xFFFFFFFFFFFFFFFFull;
 static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 =
                                                          UINT64_MAX_VALUE / 10;
 static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
