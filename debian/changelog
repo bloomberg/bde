@@ -1,5 +1,29 @@
-bsl-internal (4.1.0.0) unstable; urgency=low
+bsl-internal (4.2.0.0) unstable; urgency=low
 
+  * 6e90df550 Bumped version to 4.2.0.0
+  * 6cbcf4475 Re-enabled generic PMR support (#4613)
+  * 9077836bd Augment (Const)NullableValueRef (DRQS 174126010) (#4602)
+  * 0ff4e4f90 Replace numeric_limits with constant in static (#4614)
+  * 1c1a8bc81 Replicate PMR behaviour of GNU for Clang (#4611)
+  * ec1cfc2a1 Adds eraseFirstIf and eraseAllIf for StripedUnorderedMap and StripedUnorderedMultiMap (#4582)
+  * 0460bf8a1 Deprecation warnings in 'bslma_usesbslmaallocator.t' have been disabled by default. DRQS 173799492 (#4584)
+  * 7982f81b1 correct clang warning (#4608)
+  * d95d9ec39 Revert "Revert "balcl_commandline: Add ability to read environment va… (#4580)
+  * c3b9a069f bslstl_stdexceptutil: restore BSLA_NORETURN annotations (#4595)
+  * 0f2137e70 Remove extra '&' in ConstNullableValue's copy ctor (#4604)
+  * 7a1bc1a71 reduce nb warnings (#4605)
+  * 013b9ca84 Temporary disable generic PMR support (#4600)
+  * 7fe0977db Use BSLS_PLATFORM_CMP_VERSION instead of non-existant BSLS_PLATFORM_VERSION (#4597)
+  * ae1a3c509 New PR for map::operator[] and non-copyable types (#4596)
+  * ba008ef14 New PR for unordered_map::operator[] and non copyable/movable types (#4588)
+  * 860a4c7bd add notes indication drqs relevant to the workaround removal (#4587)
+  * 9d67ff32b Revert "Bslstl stdexceptutil drqs 168403170" (#4592)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 2 Feb 2024 19:41:12 -0500
+
+bsl-internal (4.1.0.0) git; urgency=low
+
+  * 905b005da Changelog for version 4.1.0.0
   * 4329a42bd Bumped version to 4.1.0.0
   * 8d494f26e Revert "map::operator[] and non copyable/movable types (#4573)" (#4591)
   * 4bb69ffee Revert "Add operator[] support for unmovable, uncopyable types (post C++03) {DRQS 173573936} (#4551)" (#4590)
@@ -23,7 +47,7 @@ bsl-internal (4.1.0.0) unstable; urgency=low
   * 51329715a Fix self-assignment for `bsl::allocator<T>` - DRQS 173931564 (#4565)
   * 398488a71 Refine bdl CML (#4552)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Jan 2024 13:02:21 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Jan 2024 13:19:26 -0500
 
 bsl-internal (4.0.3.0) git; urgency=low
 
