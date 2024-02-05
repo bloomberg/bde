@@ -129,12 +129,12 @@ int loadInfOrNan(TYPE *value, const bsl::string_view& data)
     return rc;
 }
 
-static const bsls::Types::Uint64 UINT64_MAX_VALUE = 0xFFFFFFFFFFFFFFFFull;
-static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 =
-                                                         UINT64_MAX_VALUE / 10;
-static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
-                                             UINT64_MAX_VALUE / 10000000000ULL;
-static const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
+const bsls::Types::Uint64 UINT64_MAX_VALUE = 0xFFFFFFFFFFFFFFFFull;
+const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 =
+                                                  UINT64_MAX_VALUE / 10;
+const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
+                                      UINT64_MAX_VALUE / 10000000000ULL;
+const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
 
 }  // close namespace u
 }  // close unnamed namespace

@@ -155,9 +155,45 @@ typedef bsls::Types::Uint64 Uint64;
 //                    DRQS 174180775 - TEST STATIC CALL
 // ----------------------------------------------------------------------------
 
-static Uint64 u_static_val;
-static int u_static_test_result = baljsn::ParserUtil::getValue(&u_static_val,
-                                                               "1234567890");
+// The values are going to be checked in the test case in main for this
+// plan item.  `u_TestValueCount` and `u_TestValueMask` will
+// let us make sure none of the cases were missed.
+
+int    u_TestValueCount = 0;
+Uint64 u_TestValueMask  = 0;
+
+#define DECLARE_STATIC_TEST_CASE(n)                                 \
+    static Uint64 u_static_val         ## n;                        \
+    static int    u_static_test_result ## n =                       \
+           baljsn::ParserUtil::getValue(&u_static_val ## n, #n);    \
+    static int    u_TestValueCount_increment ## n =                 \
+           ++u_TestValueCount;                                      \
+    static Uint64    u_TestValueMask_update ## n =                  \
+        (u_TestValueMask ^= n)
+
+DECLARE_STATIC_TEST_CASE(1234567890);
+DECLARE_STATIC_TEST_CASE(0);
+DECLARE_STATIC_TEST_CASE(1);
+DECLARE_STATIC_TEST_CASE(95);
+DECLARE_STATIC_TEST_CASE(127);
+DECLARE_STATIC_TEST_CASE(128);
+DECLARE_STATIC_TEST_CASE(200);
+DECLARE_STATIC_TEST_CASE(255);
+DECLARE_STATIC_TEST_CASE(256);
+DECLARE_STATIC_TEST_CASE(32766);
+DECLARE_STATIC_TEST_CASE(32767);
+DECLARE_STATIC_TEST_CASE(65534);
+DECLARE_STATIC_TEST_CASE(65535);
+DECLARE_STATIC_TEST_CASE(8388607);
+DECLARE_STATIC_TEST_CASE(8388608);
+DECLARE_STATIC_TEST_CASE(2147483646);
+DECLARE_STATIC_TEST_CASE(2147483647);
+DECLARE_STATIC_TEST_CASE(4294967294);
+DECLARE_STATIC_TEST_CASE(4294967295);
+DECLARE_STATIC_TEST_CASE(9223372036854775806);
+DECLARE_STATIC_TEST_CASE(9223372036854775807);
+
+#undef DECLARE_STATIC_TEST_CASE
 
 // ============================================================================
 //                              TEST MACHINERY
@@ -424,9 +460,42 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nDRQS 174180775 - TEST STATIC CALL"
                           << "\n=================================" << endl;
 
-        ASSERTV(u_static_val,
-                u_static_test_result,
-                1234567890 == u_static_val);
+        Uint64 testedValuesMask = 0;
+#define CHECK_STATIC(n)                             \
+            ASSERTV(u_static_val ## n,              \
+                    u_static_test_result ## n,      \
+                    n == u_static_val ## n);        \
+            --u_TestValueCount;                     \
+            testedValuesMask ^= n
+
+        CHECK_STATIC(1234567890);
+        CHECK_STATIC(0);
+        CHECK_STATIC(1);
+        CHECK_STATIC(95);
+        CHECK_STATIC(127);
+        CHECK_STATIC(128);
+        CHECK_STATIC(200);
+        CHECK_STATIC(255);
+        CHECK_STATIC(256);
+        CHECK_STATIC(32766);
+        CHECK_STATIC(32767);
+        CHECK_STATIC(65534);
+        CHECK_STATIC(65535);
+        CHECK_STATIC(8388607);
+        CHECK_STATIC(8388608);
+        CHECK_STATIC(2147483646);
+        CHECK_STATIC(2147483647);
+        CHECK_STATIC(4294967294);
+        CHECK_STATIC(4294967295);
+        CHECK_STATIC(9223372036854775806);
+        CHECK_STATIC(9223372036854775807);
+
+        ASSERTV(u_TestValueCount, 0 == u_TestValueCount);
+        ASSERTV(u_TestValueMask,
+                testedValuesMask,
+                u_TestValueMask ^ testedValuesMask,
+                u_TestValueMask == testedValuesMask);
+#undef CHECK_STATIC
       } break;
       case 29: {
         // --------------------------------------------------------------------
