@@ -328,7 +328,6 @@ BSLS_IDENT("$Id: $")
 //..
 // would configure an array containing "C:\Program Files\MyProg" and
 // "D:\Another\Path".
-//..
 //
 ///Best Practices for Environment Variable Naming
 /// - - - - - - - - - - - - - - - - - - - - - - -
