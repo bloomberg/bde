@@ -515,7 +515,7 @@ struct Pair_ImpUtil {
         // no-throw exception-safety guarantee.
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT) &&                         \
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT) &&                        \
     defined(BSLSTL_PAIR_DO_NOT_SFINAE_TEST_IS_SWAPPABLE)
     template <class TYPE1, class TYPE2>
     static constexpr bool hasNothrowSwap()
@@ -551,6 +551,10 @@ struct Pair_First {
         // implementing movable references in C++03 and C++11 environments.
 
     typedef typename Pair_BslmaIdiom<TYPE>::type FirstBslmaIdiom;
+
+    struct SfinaeEnable {};
+        // This empty 'struct' is used with 'bsl::enable_if' in template
+        // constraints.
 
   protected:
   public:
@@ -601,8 +605,14 @@ struct Pair_First {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class PARAM>
-    BSLS_KEYWORD_CONSTEXPR
-    explicit Pair_First(PARAM&& value);
+    BSLS_KEYWORD_CONSTEXPR explicit Pair_First(
+        PARAM&& value,
+        typename std::enable_if<
+            !std::is_same<
+                Pair_First,
+                typename std::remove_cv<
+                    typename std::remove_reference<PARAM>::type>::type>::value,
+            SfinaeEnable>::type = SfinaeEnable());
 #else
     template <class PARAM>
     BSLS_KEYWORD_CONSTEXPR
@@ -759,7 +769,6 @@ struct Pair_First<TYPE&> {
     Pair_First& operator=(const Pair_First& rhs) BSLS_KEYWORD_NOEXCEPT;
 };
 
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template <class TYPE>
 struct Pair_First<TYPE&&> {
@@ -827,7 +836,6 @@ struct Pair_First<TYPE&&> {
 };
 #endif
 
-
                              // ==================
                              // struct Pair_Second
                              // ==================
@@ -844,6 +852,10 @@ struct Pair_Second {
         // implementing movable references in C++03 and C++11 environments.
 
     typedef typename Pair_BslmaIdiom<TYPE>::type SecondBslmaIdiom;
+
+    struct SfinaeEnable {};
+        // This empty 'struct' is used with 'bsl::enable_if' in template
+        // constraints.
 
   protected:
     // PROTECTED DATA
@@ -893,8 +905,14 @@ struct Pair_Second {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class PARAM>
-    BSLS_KEYWORD_CONSTEXPR
-    explicit Pair_Second(PARAM&& value);
+    BSLS_KEYWORD_CONSTEXPR explicit Pair_Second(
+        PARAM&& value,
+        typename std::enable_if<
+            !std::is_same<
+                Pair_Second,
+                typename std::remove_cv<
+                    typename std::remove_reference<PARAM>::type>::type>::value,
+            SfinaeEnable>::type = SfinaeEnable());
 #else
     template <class PARAM>
     BSLS_KEYWORD_CONSTEXPR
@@ -1153,6 +1171,10 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // This typedef is a convenient alias for the utility associated with
         // movable references.
 
+    struct SfinaeEnable {};
+        // This empty 'struct' is used with 'bsl::enable_if' in template
+        // constraints.
+
   public:
     // PUBLIC TYPES
     typedef T1 first_type;
@@ -1223,16 +1245,17 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class PARAM_1, class PARAM_2>
-    BSLS_KEYWORD_CONSTEXPR
-    pair(PARAM_1&& a,
-         PARAM_2&& b,
-         typename bsl::enable_if<std::is_constructible<T1, PARAM_1>::value
-                              && std::is_constructible<T2, PARAM_2>::value
-                              && !(bsl::is_pointer<typename
-                                   bsl::remove_reference<PARAM_2>::type>::value
-                                && bsl::is_convertible<PARAM_2,
-                                     BloombergLP::bslma::Allocator *>::value),
-                                 void *>::type = 0)
+    BSLS_KEYWORD_CONSTEXPR pair(
+        PARAM_1&& a,
+        PARAM_2&& b,
+        typename bsl::enable_if<
+            std::is_constructible<T1, PARAM_1>::value &&
+                std::is_constructible<T2, PARAM_2>::value &&
+                !(bsl::is_pointer<
+                      typename bsl::remove_reference<PARAM_2>::type>::value &&
+                  bsl::is_convertible<PARAM_2,
+                                      BloombergLP::bslma::Allocator *>::value),
+            SfinaeEnable>::type = SfinaeEnable())
     : FirstBase(std::forward<PARAM_1>(a))
     , SecondBase(std::forward<PARAM_2>(b))
     {
@@ -1246,16 +1269,17 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator *basicAllocator);
 #else
     template <class PARAM_1, class PARAM_2>
-    BSLS_KEYWORD_CONSTEXPR
-    pair(const PARAM_1& a,
-         const PARAM_2& b,
-         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                              && bsl::is_convertible<PARAM_2, T2>::value
-                              && !(bsl::is_pointer<typename
-                                   bsl::remove_reference<PARAM_2>::type>::value
-                                && bsl::is_convertible<PARAM_2,
-                                     BloombergLP::bslma::Allocator *>::value),
-                                 void *>::type = 0)
+    BSLS_KEYWORD_CONSTEXPR pair(
+        const PARAM_1& a,
+        const PARAM_2& b,
+        typename bsl::enable_if<
+            bsl::is_convertible<PARAM_1, T1>::value &&
+                bsl::is_convertible<PARAM_2, T2>::value &&
+                !(bsl::is_pointer<
+                      typename bsl::remove_reference<PARAM_2>::type>::value &&
+                  bsl::is_convertible<PARAM_2,
+                                      BloombergLP::bslma::Allocator *>::value),
+            SfinaeEnable>::type = SfinaeEnable())
     : FirstBase(a)
     , SecondBase(b)
     {
@@ -1269,16 +1293,17 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator *basicAllocator);
 
     template <class PARAM_1, class PARAM_2>
-    BSLS_KEYWORD_CONSTEXPR
-    pair(PARAM_1&       a,
-         const PARAM_2& b,
-         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                              && bsl::is_convertible<PARAM_2, T2>::value
-                              && !(bsl::is_pointer<typename
-                                   bsl::remove_reference<PARAM_2>::type>::value
-                                && bsl::is_convertible<PARAM_2,
-                                     BloombergLP::bslma::Allocator *>::value),
-                                 void *>::type = 0)
+    BSLS_KEYWORD_CONSTEXPR pair(
+        PARAM_1&       a,
+        const PARAM_2& b,
+        typename bsl::enable_if<
+            bsl::is_convertible<PARAM_1, T1>::value &&
+                bsl::is_convertible<PARAM_2, T2>::value &&
+                !(bsl::is_pointer<
+                      typename bsl::remove_reference<PARAM_2>::type>::value &&
+                  bsl::is_convertible<PARAM_2,
+                                      BloombergLP::bslma::Allocator *>::value),
+            SfinaeEnable>::type = SfinaeEnable())
     : FirstBase(a)
     , SecondBase(b)
     {
@@ -1292,16 +1317,17 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator *basicAllocator);
 
     template <class PARAM_1, class PARAM_2>
-    BSLS_KEYWORD_CONSTEXPR
-    pair(const PARAM_1& a,
-         PARAM_2&       b,
-         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                              && bsl::is_convertible<PARAM_2, T2>::value
-                              && !(bsl::is_pointer<typename
-                                   bsl::remove_reference<PARAM_2>::type>::value
-                                && bsl::is_convertible<PARAM_2,
-                                     BloombergLP::bslma::Allocator *>::value),
-                                 void *>::type = 0)
+    BSLS_KEYWORD_CONSTEXPR pair(
+        const PARAM_1& a,
+        PARAM_2&       b,
+        typename bsl::enable_if<
+            bsl::is_convertible<PARAM_1, T1>::value &&
+                bsl::is_convertible<PARAM_2, T2>::value &&
+                !(bsl::is_pointer<
+                      typename bsl::remove_reference<PARAM_2>::type>::value &&
+                  bsl::is_convertible<PARAM_2,
+                                      BloombergLP::bslma::Allocator *>::value),
+            SfinaeEnable>::type = SfinaeEnable())
     : FirstBase(a)
     , SecondBase(b)
     {
@@ -1315,16 +1341,17 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator *basicAllocator);
 
     template <class PARAM_1, class PARAM_2>
-    BSLS_KEYWORD_CONSTEXPR
-    pair(PARAM_1& a,
-         PARAM_2& b,
-         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                              && bsl::is_convertible<PARAM_2, T2>::value
-                              && !(bsl::is_pointer<typename
-                                   bsl::remove_reference<PARAM_2>::type>::value
-                                && bsl::is_convertible<PARAM_2,
-                                     BloombergLP::bslma::Allocator *>::value),
-                                 void *>::type = 0)
+    BSLS_KEYWORD_CONSTEXPR pair(
+        PARAM_1& a,
+        PARAM_2& b,
+        typename bsl::enable_if<
+            bsl::is_convertible<PARAM_1, T1>::value &&
+                bsl::is_convertible<PARAM_2, T2>::value &&
+                !(bsl::is_pointer<
+                      typename bsl::remove_reference<PARAM_2>::type>::value &&
+                  bsl::is_convertible<PARAM_2,
+                                      BloombergLP::bslma::Allocator *>::value),
+            SfinaeEnable>::type = SfinaeEnable())
     : FirstBase(a)
     , SecondBase(b)
     {
@@ -1346,19 +1373,21 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     // requires that 'T1' and 'T2' be convertible from 'PARAM_1' and 'PARAM_2',
     // respectively.
 
-#if defined(BSLSTL_PAIR_ENABLE_ALL_CONVERTIBILITY_CHECKS)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
     template <class PARAM_1, class PARAM_2>
     BSLS_KEYWORD_CONSTEXPR
     pair(const pair<PARAM_1, PARAM_2>& other,
-         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                              && bsl::is_convertible<PARAM_2, T2>::value,
-                                 void *>::type = 0);
+         typename bsl::enable_if<
+                            std::is_constructible<T1, const PARAM_1&>::value &&
+                            std::is_constructible<T2, const PARAM_2&>::value,
+                                SfinaeEnable>::type = SfinaeEnable());
     template <class PARAM_1, class PARAM_2>
     BSLS_KEYWORD_CONSTEXPR
     pair(const std::pair<PARAM_1, PARAM_2>& other,
-         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                              && bsl::is_convertible<PARAM_2, T2>::value,
-                                 void *>::type = 0);
+         typename bsl::enable_if<
+                            std::is_constructible<T1, const PARAM_1&>::value &&
+                            std::is_constructible<T2, const PARAM_2&>::value,
+                                SfinaeEnable>::type = SfinaeEnable());
 #else
     template <class PARAM_1, class PARAM_2>
     BSLS_KEYWORD_CONSTEXPR
@@ -1387,13 +1416,13 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     pair(pair<PARAM_1, PARAM_2>&& other,
          typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
                               && bsl::is_convertible<PARAM_2, T2>::value,
-                                 void *>::type = 0);
+                                 SfinaeEnable>::type = SfinaeEnable());
     template <class PARAM_1, class PARAM_2>
     BSLS_KEYWORD_CONSTEXPR
     pair(std::pair<PARAM_1, PARAM_2>&& other,
          typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
                               && bsl::is_convertible<PARAM_2, T2>::value,
-                                 void *>::type = 0);
+                                 SfinaeEnable>::type = SfinaeEnable());
     template <class PARAM_1, class PARAM_2>
     pair(pair<PARAM_1, PARAM_2>&&       other,
          BloombergLP::bslma::Allocator *basicAllocator);
@@ -1411,9 +1440,9 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     template <class PARAM_1, class PARAM_2>
     BSLS_KEYWORD_CONSTEXPR
     pair(BloombergLP::bslmf::MovableRef<pair<PARAM_1, PARAM_2> > other,
-         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                              && bsl::is_convertible<PARAM_2, T2>::value,
-                                 void *>::type = 0)
+         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value &&
+                                     bsl::is_convertible<PARAM_2, T2>::value,
+                                 SfinaeEnable>::type = SfinaeEnable())
     : FirstBase(MovUtil::move(MovUtil::access(other).first))
     , SecondBase(MovUtil::move(MovUtil::access(other).second))
     {
@@ -1425,11 +1454,10 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 
     template <class PARAM_1, class PARAM_2>
     BSLS_KEYWORD_CONSTEXPR
-    pair(
-     BloombergLP::bslmf::MovableRef<std::pair<PARAM_1, PARAM_2> > other,
-     typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                                    && bsl::is_convertible<PARAM_2, T2>::value,
-                             void *>::type = 0)
+    pair(BloombergLP::bslmf::MovableRef<std::pair<PARAM_1, PARAM_2> > other,
+         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value &&
+                                     bsl::is_convertible<PARAM_2, T2>::value,
+                                 SfinaeEnable>::type = SfinaeEnable())
     : FirstBase(MovUtil::move(MovUtil::access(other).first))
     , SecondBase(MovUtil::move(MovUtil::access(other).second))
     {
@@ -2077,7 +2105,13 @@ template <class TYPE>
 template <class PARAM>
 inline
 BSLS_KEYWORD_CONSTEXPR
-Pair_First<TYPE>::Pair_First(PARAM&& value)
+Pair_First<TYPE>::Pair_First(
+      PARAM&& value,
+      typename std::enable_if<
+          !std::is_same<Pair_First,
+                        typename std::remove_cv<typename std::remove_reference<
+                            PARAM>::type>::type>::value,
+          SfinaeEnable>::type)
 : first(BSLS_COMPILERFEATURES_FORWARD(PARAM, value))
 {
 }
@@ -2422,7 +2456,13 @@ template <class TYPE>
 template <class PARAM>
 inline
 BSLS_KEYWORD_CONSTEXPR
-Pair_Second<TYPE>::Pair_Second(PARAM&& value)
+Pair_Second<TYPE>::Pair_Second(
+      PARAM&& value,
+      typename std::enable_if<
+          !std::is_same<Pair_Second,
+                        typename std::remove_cv<typename std::remove_reference<
+                            PARAM>::type>::type>::value,
+          SfinaeEnable>::type)
 : second(BSLS_COMPILERFEATURES_FORWARD(PARAM, value))
 {
 }
@@ -2901,16 +2941,17 @@ pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair>  original,
 }
 #endif
 
-#if defined(BSLSTL_PAIR_ENABLE_ALL_CONVERTIBILITY_CHECKS)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 template <class T1, class T2>
 template <class PARAM_1, class PARAM_2>
 inline
 BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(
-               const pair<PARAM_1, PARAM_2>& other,
-               typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                                    && bsl::is_convertible<PARAM_2, T2>::value,
-                        void *>::type)
+         const pair<PARAM_1, PARAM_2>& other,
+         typename bsl::enable_if<
+                            std::is_constructible<T1, const PARAM_1&>::value &&
+                            std::is_constructible<T2, const PARAM_2&>::value,
+                                SfinaeEnable>::type)
 : FirstBase(other.first)
 , SecondBase(other.second)
 {
@@ -2921,10 +2962,11 @@ template <class PARAM_1, class PARAM_2>
 inline
 BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(
-               const std::pair<PARAM_1, PARAM_2>& other,
-               typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                                    && bsl::is_convertible<PARAM_2, T2>::value,
-                        void *>::type)
+         const std::pair<PARAM_1, PARAM_2>& other,
+         typename bsl::enable_if<
+                            std::is_constructible<T1, const PARAM_1&>::value &&
+                            std::is_constructible<T2, const PARAM_2&>::value,
+                                SfinaeEnable>::type)
 : FirstBase(other.first)
 , SecondBase(other.second)
 {
@@ -2974,12 +3016,11 @@ pair<T1, T2>::pair(const std::pair<PARAM_1, PARAM_2>&  other,
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template <class T1, class T2>
 template <class PARAM_1, class PARAM_2>
-BSLS_KEYWORD_CONSTEXPR
-pair<T1, T2>::pair(
-               pair<PARAM_1, PARAM_2>&& other,
-               typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                                    && bsl::is_convertible<PARAM_2, T2>::value,
-                        void *>::type)
+BSLS_KEYWORD_CONSTEXPR pair<T1, T2>::pair(
+           pair<PARAM_1, PARAM_2>&& other,
+           typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value &&
+                                       bsl::is_convertible<PARAM_2, T2>::value,
+                                   SfinaeEnable>::type)
 : FirstBase(MovUtil::move(other.first))
 , SecondBase(MovUtil::move(other.second))
 {
@@ -2987,12 +3028,11 @@ pair<T1, T2>::pair(
 
 template <class T1, class T2>
 template <class PARAM_1, class PARAM_2>
-BSLS_KEYWORD_CONSTEXPR
-pair<T1, T2>::pair(
-               std::pair<PARAM_1, PARAM_2>&& other,
-               typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                                    && bsl::is_convertible<PARAM_2, T2>::value,
-                        void *>::type)
+BSLS_KEYWORD_CONSTEXPR pair<T1, T2>::pair(
+           std::pair<PARAM_1, PARAM_2>&& other,
+           typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value &&
+                                       bsl::is_convertible<PARAM_2, T2>::value,
+                                   SfinaeEnable>::type)
 : FirstBase(MovUtil::move(other.first))
 , SecondBase(MovUtil::move(other.second))
 {

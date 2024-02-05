@@ -5887,6 +5887,43 @@ struct TestDeductionGuides {
 };
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+struct NotConstructibleFromAnything {
+    NotConstructibleFromAnything(NotConstructibleFromAnything&) = delete;
+};
+
+struct ConstructibleBase {
+};
+
+struct ConstructibleFromBase {
+    explicit ConstructibleFromBase(ConstructibleBase){}
+};
+
+struct ConvertibleFromBase {
+    ConvertibleFromBase(ConstructibleBase){}
+};
+
+int& constructibilityTestCount()
+{
+    static int i = 0;
+    return i;
+}
+
+template <class LeftFrom, class RightFrom, class LeftTo, class RightTo>
+bool constructibilityTest()
+    // constructibilityTest should be called with the 4x4 cartesian product of
+    // four types.  This means each instantiation should be called exactly once
+    // and there should be 256 instantiations.
+{
+    static bool called = false;
+    ASSERT(!called);
+    called = true;
+    ++constructibilityTestCount();
+    return std::is_constructible<bsl::pair<LeftTo, RightTo>,
+                                 bsl::pair<LeftFrom, RightFrom> >::value;
+}
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -6142,6 +6179,97 @@ int main(int argc, char *argv[])
                                                       int&> >::value));
             ASSERTV(!(std::is_constructible<bsl::pair<int&,
                                                       int&> >::value));
+
+            // Think consTructible and conVertible.
+            typedef NotConstructibleFromAnything N;
+            typedef ConstructibleBase            B;
+            typedef ConstructibleFromBase        T;
+            typedef ConvertibleFromBase          V;
+
+// Using macros here to make the tests more readable and verifiable.  Using 'F'
+// for false, and 'TT' for true (double to make it stand out visually in the
+// grid.
+#if defined(TT) || defined(F)
+#error TT or F is already a macro
+#endif
+#define TT(a,b,c,d) ASSERTV( #a #b #c #d, \
+                                     (true == constructibilityTest<a,b,c,d>()))
+#define F(a,b,c,d) ASSERTV( #a #b #c #d, \
+                                    (false == constructibilityTest<a,b,c,d>()))
+
+            F(N,N,N,N);  F(N,N,N,B);  F(N,N,N,T);  F(N,N,N,V);
+            F(N,N,B,N);  F(N,N,B,B);  F(N,N,B,T);  F(N,N,B,V);
+            F(N,N,T,N);  F(N,N,T,B);  F(N,N,T,T);  F(N,N,T,V);
+            F(N,N,V,N);  F(N,N,V,B);  F(N,N,V,T);  F(N,N,V,V);
+            F(N,B,N,N);  F(N,B,N,B);  F(N,B,N,T);  F(N,B,N,V);
+            F(N,B,B,N);  F(N,B,B,B);  F(N,B,B,T);  F(N,B,B,V);
+            F(N,B,T,N);  F(N,B,T,B);  F(N,B,T,T);  F(N,B,T,V);
+            F(N,B,V,N);  F(N,B,V,B);  F(N,B,V,T);  F(N,B,V,V);
+            F(N,T,N,N);  F(N,T,N,B);  F(N,T,N,T);  F(N,T,N,V);
+            F(N,T,B,N);  F(N,T,B,B);  F(N,T,B,T);  F(N,T,B,V);
+            F(N,T,T,N);  F(N,T,T,B);  F(N,T,T,T);  F(N,T,T,V);
+            F(N,T,V,N);  F(N,T,V,B);  F(N,T,V,T);  F(N,T,V,V);
+            F(N,V,N,N);  F(N,V,N,B);  F(N,V,N,T);  F(N,V,N,V);
+            F(N,V,B,N);  F(N,V,B,B);  F(N,V,B,T);  F(N,V,B,V);
+            F(N,V,T,N);  F(N,V,T,B);  F(N,V,T,T);  F(N,V,T,V);
+            F(N,V,V,N);  F(N,V,V,B);  F(N,V,V,T);  F(N,V,V,V);
+
+            F(B,N,N,N);  F(B,N,N,B);  F(B,N,N,T);  F(B,N,N,V);
+            F(B,N,B,N);  F(B,N,B,B);  F(B,N,B,T);  F(B,N,B,V);
+            F(B,N,T,N);  F(B,N,T,B);  F(B,N,T,T);  F(B,N,T,V);
+            F(B,N,V,N);  F(B,N,V,B);  F(B,N,V,T);  F(B,N,V,V);
+            F(B,B,N,N);  F(B,B,N,B);  F(B,B,N,T);  F(B,B,N,V);
+            F(B,B,B,N); TT(B,B,B,B); TT(B,B,B,T); TT(B,B,B,V);
+            F(B,B,T,N); TT(B,B,T,B); TT(B,B,T,T); TT(B,B,T,V);
+            F(B,B,V,N); TT(B,B,V,B); TT(B,B,V,T); TT(B,B,V,V);
+            F(B,T,N,N);  F(B,T,N,B);  F(B,T,N,T);  F(B,T,N,V);
+            F(B,T,B,N);  F(B,T,B,B); TT(B,T,B,T);  F(B,T,B,V);
+            F(B,T,T,N);  F(B,T,T,B); TT(B,T,T,T);  F(B,T,T,V);
+            F(B,T,V,N);  F(B,T,V,B); TT(B,T,V,T);  F(B,T,V,V);
+            F(B,V,N,N);  F(B,V,N,B);  F(B,V,N,T);  F(B,V,N,V);
+            F(B,V,B,N);  F(B,V,B,B);  F(B,V,B,T); TT(B,V,B,V);
+            F(B,V,T,N);  F(B,V,T,B);  F(B,V,T,T); TT(B,V,T,V);
+            F(B,V,V,N);  F(B,V,V,B);  F(B,V,V,T); TT(B,V,V,V);
+
+            F(T,N,N,N);  F(T,N,N,B);  F(T,N,N,T);  F(T,N,N,V);
+            F(T,N,B,N);  F(T,N,B,B);  F(T,N,B,T);  F(T,N,B,V);
+            F(T,N,T,N);  F(T,N,T,B);  F(T,N,T,T);  F(T,N,T,V);
+            F(T,N,V,N);  F(T,N,V,B);  F(T,N,V,T);  F(T,N,V,V);
+            F(T,B,N,N);  F(T,B,N,B);  F(T,B,N,T);  F(T,B,N,V);
+            F(T,B,B,N);  F(T,B,B,B);  F(T,B,B,T);  F(T,B,B,V);
+            F(T,B,T,N); TT(T,B,T,B); TT(T,B,T,T); TT(T,B,T,V);
+            F(T,B,V,N);  F(T,B,V,B);  F(T,B,V,T);  F(T,B,V,V);
+            F(T,T,N,N);  F(T,T,N,B);  F(T,T,N,T);  F(T,T,N,V);
+            F(T,T,B,N);  F(T,T,B,B);  F(T,T,B,T);  F(T,T,B,V);
+            F(T,T,T,N);  F(T,T,T,B); TT(T,T,T,T);  F(T,T,T,V);
+            F(T,T,V,N);  F(T,T,V,B);  F(T,T,V,T);  F(T,T,V,V);
+            F(T,V,N,N);  F(T,V,N,B);  F(T,V,N,T);  F(T,V,N,V);
+            F(T,V,B,N);  F(T,V,B,B);  F(T,V,B,T);  F(T,V,B,V);
+            F(T,V,T,N);  F(T,V,T,B);  F(T,V,T,T); TT(T,V,T,V);
+            F(T,V,V,N);  F(T,V,V,B);  F(T,V,V,T);  F(T,V,V,V);
+
+            F(V,N,N,N);  F(V,N,N,B);  F(V,N,N,T);  F(V,N,N,V);
+            F(V,N,B,N);  F(V,N,B,B);  F(V,N,B,T);  F(V,N,B,V);
+            F(V,N,T,N);  F(V,N,T,B);  F(V,N,T,T);  F(V,N,T,V);
+            F(V,N,V,N);  F(V,N,V,B);  F(V,N,V,T);  F(V,N,V,V);
+            F(V,B,N,N);  F(V,B,N,B);  F(V,B,N,T);  F(V,B,N,V);
+            F(V,B,B,N);  F(V,B,B,B);  F(V,B,B,T);  F(V,B,B,V);
+            F(V,B,T,N);  F(V,B,T,B);  F(V,B,T,T);  F(V,B,T,V);
+            F(V,B,V,N); TT(V,B,V,B); TT(V,B,V,T); TT(V,B,V,V);
+            F(V,T,N,N);  F(V,T,N,B);  F(V,T,N,T);  F(V,T,N,V);
+            F(V,T,B,N);  F(V,T,B,B);  F(V,T,B,T);  F(V,T,B,V);
+            F(V,T,T,N);  F(V,T,T,B);  F(V,T,T,T);  F(V,T,T,V);
+            F(V,T,V,N);  F(V,T,V,B); TT(V,T,V,T);  F(V,T,V,V);
+            F(V,V,N,N);  F(V,V,N,B);  F(V,V,N,T);  F(V,V,N,V);
+            F(V,V,B,N);  F(V,V,B,B);  F(V,V,B,T);  F(V,V,B,V);
+            F(V,V,T,N);  F(V,V,T,B);  F(V,V,T,T);  F(V,V,T,V);
+            F(V,V,V,N);  F(V,V,V,B);  F(V,V,V,T); TT(V,V,V,V);
+#undef TT
+#undef F
+
+            // Ensure that all (4x4x4x4) instances were invoked
+            ASSERTV(constructibilityTestCount(),
+                                           constructibilityTestCount() == 256);
         }
 #endif
       } break;
