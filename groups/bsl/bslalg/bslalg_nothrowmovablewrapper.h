@@ -1,5 +1,4 @@
 // bslalg_nothrowmovablewrapper.h                                     -*-C++-*-
-
 #ifndef INCLUDED_BSLALG_NOTHROWMOVABLEWRAPPER
 #define INCLUDED_BSLALG_NOTHROWMOVABLEWRAPPER
 
@@ -24,7 +23,6 @@ BSLS_IDENT("$Id: $")
 // in heap memory so that its pointer can be moved.  The behavior is undefined
 // if the move constructor is invoked and *does* throw; typically resulting in
 // 'terminate' being invoked.
-//
 //
 ///Usage
 ///-----
@@ -523,28 +521,6 @@ bslalg::NothrowMovableWrapper<TYPE>::unwrap() const
 }
 
 }  // close enterprise namespace
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// 'bslalg::NothrowMovableWrapper' replaced 'bsl::Function_NothrowWrapper'.
-// These declarations exist for backward compatibility.
-namespace bsl {
-namespace bsl_deprecated {
-
-using BloombergLP::bslalg::NothrowMovableWrapper;
-
-}  // close namespace bsl_deprecated
-}  // close namespace bsl
-
-#define Function_NothrowWrapper bsl_deprecated::NothrowMovableWrapper
-    // !DEPRECATED! Use 'bslalg::NothrowMovableWrapper' instead.
-    // The old name, 'bsl::Function_NothrowWrapper' will expand to
-    // 'bsl::bsl_deprecated::NothrowMovableWrapper', which will resolve to
-    // 'BloombergLP::bslalg::NothrowMovableWrapper'.  Note that not all of the
-    // 'Function_NothrowWrapper' interface has been duplicated in
-    // 'NothrowMovableWrapper', but the single-argument constructor is the only
-    // part of the interface known to be used in legacy code.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #endif  // ! defined(INCLUDED_BSLALG_NOTHROWMOVABLEWRAPPER)
 

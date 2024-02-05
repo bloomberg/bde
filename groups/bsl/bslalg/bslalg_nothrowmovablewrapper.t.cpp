@@ -88,7 +88,6 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 9] USAGE EXAMPLE
 // [ 1] BREATHING TEST
-// [ 5] 'bsl::Function_NothrowWrapper' compatibility
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -1055,9 +1054,6 @@ void TestDriver<TYPE>::testCase5()
     //:   construction time, the 'ValueType' object will use the provided
     //:   allocator.
     //:
-    //: 5 'bsl::Function_NothrowWrapper<TYPE>' is a synonym for
-    //:   'bslstl::NothrowMovableWrapper<TYPE>' when constructed with one
-    //:   argument of type (convertible to) 'TYPE'.
     //
     // Plan:
     //: 1 Construct an object of 'NothrowMovableWrapper<TYPE>' from an lvalue
@@ -1101,8 +1097,6 @@ void TestDriver<TYPE>::testCase5()
     //:   resulting 'NothrowMovableWrapper<TYPE>' has been created with the
     //:   provided allocator.  [C-1][C-2][C-4]
     //:
-    //: 9 Repeat step one with 'bsl::Function_NothrowWrapper' instead of
-    //:   'bslstl::NothrowMovableWrapper'.  [C-5]
     //
     // Testing:
     //   NothrowMovableWrapper(const TYPE& val);
@@ -1114,7 +1108,6 @@ void TestDriver<TYPE>::testCase5()
     //   NothrowMovableWrapper(bsl::allocator_arg_t    ,
     //                         const allocator_type&   allocator,
     //                         bslmf::MovableRef<TYPE> val);
-    //   'bsl::Function_NothrowWrapper' compatibility
     // --------------------------------------------------------------------
 
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
@@ -1142,17 +1135,6 @@ void TestDriver<TYPE>::testCase5()
         ASSERT(hasSameAllocator(expected2, x2.unwrap()));
         ASSERT(expected2.isMoved() == x2.unwrap().isMoved());
         ASSERT(expected2.isCopied() == x2.unwrap().isCopied());
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        ValueType expected3(source);
-        bsl::Function_NothrowWrapper<ValueType> x3(source);
-        ASSERT((bsl::is_same<Obj,
-                             bsl::Function_NothrowWrapper<ValueType> >::value));
-        ASSERT(expected3 == x3.unwrap());
-        ASSERT(hasSameAllocator(expected3, x3.unwrap()));
-        ASSERT(expected3.isMoved() == x3.unwrap().isMoved());
-        ASSERT(expected3.isCopied() == x3.unwrap().isCopied());
-#endif
     }
     {
         ValWithAllocator sourceBuf(3, &oa);
