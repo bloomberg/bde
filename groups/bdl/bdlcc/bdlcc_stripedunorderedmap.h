@@ -413,6 +413,7 @@ class StripedUnorderedMap {
         //      // Return 'true' if the specified 'value' is to be removed from
         //      // the container, and 'false' otherwise.  Note that this
         //      // functor can *not* change the values associated with 'value'.
+        //..
 
     typedef bsl::function<bool (VALUE *, const KEY&)> VisitorFunction;
         // An alias to a function meeting the following contract:
