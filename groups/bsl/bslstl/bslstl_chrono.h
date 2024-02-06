@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, stream the two objects to 'stdout':
 //..
-//  printf("one day is %ld hours\n", hours_in_a_day.count());
+//  printf("one day is %lld hours\n", hours_in_a_day.count());
 //  printf("half an hour is %.1f hours\n",
 //         static_cast<double>(halfhour.count()));
 //..
