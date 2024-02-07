@@ -12,9 +12,17 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a utility 'struct', 'bdlb::BitUtil',
 // that serves as a namespace for a collection of efficient, bit-level
-// procedures on 'uint32_t' and 'uint64_t'.  In particular, 'BitUtil' supplies
-// single bit manipulation, bit counting, and mathematical functions that can
-// be optimized with bitwise operations.
+// procedures on 32- and 64-bit unsigned integer types.  In particular,
+// 'BitUtil' supplies single bit manipulation, bit counting, and mathematical
+// functions that can be optimized with bitwise operations.
+//
+// This component is meant to interoperate cleanly both with fundamental types,
+// as well as common sized integer type aliases like 'bsl::uin64_t' and
+// 'bslsl::Types::UInt64'.  An overload set consisting of the fundamental
+// integer types 'unsigned int', 'unsigned long', and 'unsigned long long' is
+// used to minimize warnings and avoid ambiguity that may arise when dealing
+// with explicitly sized types that may alias to different fundamental types on
+// different platforms.
 //
 // Some of the methods provided in 'BitUtil' have other common names.  Below is
 // a list of mappings from the name used in 'BitUtil' to these related function
@@ -87,6 +95,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bslmf_conditional.h>
+
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -123,8 +133,8 @@ namespace bdlb {
 
 struct BitUtil {
     // This utility 'struct' provides a namespace for a set of bit-level,
-    // stateless functions that operate on the built-in 32- and 64-bit integer
-    // types 'uint32_t' and 'uint64_t', respectively.
+    // stateless functions that operate on the built-in 32- and 64-bit unsigned
+    // integer types.
 
   private:
     // PRIVATE CONSTANTS
@@ -139,50 +149,70 @@ struct BitUtil {
     typedef bsl::uint64_t uint64_t;
 
   private:
+    // PRIVATE TYPES
+    typedef bsl::conditional<sizeof(unsigned long) == sizeof(unsigned int),
+                             unsigned int,
+                             unsigned long long>::type ULongLikeType;
+
     // PRIVATE CLASS METHODS
-    static int privateNumBitsSet(uint32_t value);
-    static int privateNumBitsSet(uint64_t value);
+    static ULongLikeType normalize(unsigned long value);
+        // Convert the specified 'value' from 'unsigned long' to another
+        // unsigned type of the same size - `unsigned int` or
+        // 'unsigned long long'.
+
+    static int privateNumBitsSet(unsigned int value);
+    static int privateNumBitsSet(unsigned long value);
+    static int privateNumBitsSet(unsigned long long value);
         // Return the number of 1 bits in the specified 'value'.
 
-    static int privateNumLeadingUnsetBits(uint32_t value);
-    static int privateNumLeadingUnsetBits(uint64_t value);
+    static int privateNumLeadingUnsetBits(unsigned int value);
+    static int privateNumLeadingUnsetBits(unsigned long value);
+    static int privateNumLeadingUnsetBits(unsigned long long value);
         // Return the number of consecutive 0 bits starting from the
         // most-significant bit in the specified 'value'.
 
-    static int privateNumTrailingUnsetBits(uint32_t value);
-    static int privateNumTrailingUnsetBits(uint64_t value);
+    static int privateNumTrailingUnsetBits(unsigned int value);
+    static int privateNumTrailingUnsetBits(unsigned long value);
+    static int privateNumTrailingUnsetBits(unsigned long long value);
         // Return the number of consecutive 0 bits starting from the
         // least-significant bit in the specified 'value'.
 
   public:
     // CLASS METHODS
-    static bool isBitSet(uint32_t value, int index);
-    static bool isBitSet(uint64_t value, int index);
+    static bool isBitSet(unsigned int value, int index);
+    static bool isBitSet(unsigned long value, int index);
+    static bool isBitSet(unsigned long long value, int index);
         // Return 'true' if the bit in the specified 'value' at the specified
         // 'index' is set to 1, and 'false' otherwise.  The behavior is
         // undefined unless '0 <= index < sizeInBits(value)'.
 
-    static int log2(uint32_t value);
-    static int log2(uint64_t value);
+    static int log2(unsigned int value);
+    static int log2(unsigned long value);
+    static int log2(unsigned long long value);
         // Return the base-2 logarithm of the specified 'value' rounded up to
         // the nearest integer.  The behavior is undefined unless '0 < value'.
 
-    static int numBitsSet(uint32_t value);
-    static int numBitsSet(uint64_t value);
+    static int numBitsSet(unsigned int value);
+    static int numBitsSet(unsigned long value);
+    static int numBitsSet(unsigned long long value);
         // Return the number of 1 bits in the specified 'value'.
 
-    static int numLeadingUnsetBits(uint32_t value);
-    static int numLeadingUnsetBits(uint64_t value);
+    static int numLeadingUnsetBits(unsigned int value);
+    static int numLeadingUnsetBits(unsigned long value);
+    static int numLeadingUnsetBits(unsigned long long value);
         // Return the number of consecutive 0 bits starting from the
         // most-significant bit in the specified 'value'.
 
-    static int numTrailingUnsetBits(uint32_t value);
-    static int numTrailingUnsetBits(uint64_t value);
+    static int numTrailingUnsetBits(unsigned int value);
+    static int numTrailingUnsetBits(unsigned long value);
+    static int numTrailingUnsetBits(unsigned long long value);
         // Return the number of consecutive 0 bits starting from the
         // least-significant bit in the specified 'value'.
 
-    static uint32_t roundUp(uint32_t value, uint32_t boundary);
-    static uint64_t roundUp(uint64_t value, uint64_t boundary);
+    static unsigned int roundUp(unsigned int value, unsigned int boundary);
+    static unsigned long roundUp(unsigned long value, unsigned long boundary);
+    static unsigned long long roundUp(unsigned long long value,
+                                      unsigned long long boundary);
         // Return the least multiple of the specified 'boundary' that is
         // greater than or equal to the specified 'value', and 0 if
         // '0 == value' or the conversion was not successful.  The behavior is
@@ -190,27 +220,31 @@ struct BitUtil {
         // conversion will succeed if and only if '0 == value % boundary' or
         // '(1 << sizeInBits(value)) > (value / boundary + 1) * boundary'.
 
-    static uint32_t roundUpToBinaryPower(uint32_t value);
-    static uint64_t roundUpToBinaryPower(uint64_t value);
+    static unsigned int roundUpToBinaryPower(unsigned int value);
+    static unsigned long roundUpToBinaryPower(unsigned long value);
+    static unsigned long long roundUpToBinaryPower(unsigned long long value);
         // Return the least power of 2 that is greater than or equal to the
         // specified 'value', and 0 if the conversion was not successful.  Note
         // that the conversion will succeed if and only if
         // '0 < value <= (1 << (sizeInBits(value) - 1))'
 
     template <class INTEGER>
-    static int sizeInBits(INTEGER value);
+    static int sizeInBits(INTEGER value = 0);
         // Return the number of bits in the specified 'value' of the (template
         // parameter) type 'INTEGER'.
 
-    static uint32_t withBitCleared(uint32_t value, int index);
-    static uint64_t withBitCleared(uint64_t value, int index);
+    static unsigned int withBitCleared(unsigned int value, int index);
+    static unsigned long withBitCleared(unsigned long value, int index);
+    static unsigned long long withBitCleared(unsigned long long value,
+                                             int                index);
         // Return the result of replacing the bit at the specified 'index' in
         // the specified 'value' with 0, transferring all other bits from
         // 'value' unchanged.  The behavior is undefined unless
         // '0 <= index < sizeInBits(value)'.
 
-    static uint32_t withBitSet(uint32_t value, int index);
-    static uint64_t withBitSet(uint64_t value, int index);
+    static unsigned int withBitSet(unsigned int value, int index);
+    static unsigned long withBitSet(unsigned long value, int index);
+    static unsigned long long withBitSet(unsigned long long value, int index);
         // Return the result of replacing the bit at the specified 'index' in
         // the specified 'value' with 1, transferring all other bits from
         // 'value' unchanged.  The behavior is undefined unless
@@ -227,7 +261,13 @@ struct BitUtil {
 
 // CLASS METHODS
 inline
-bool BitUtil::isBitSet(uint32_t value, int index)
+BitUtil::ULongLikeType BitUtil::normalize(unsigned long value)
+{
+    return static_cast<ULongLikeType>(value);
+}
+
+inline
+bool BitUtil::isBitSet(unsigned int value, int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT32);
@@ -236,16 +276,22 @@ bool BitUtil::isBitSet(uint32_t value, int index)
 }
 
 inline
-bool BitUtil::isBitSet(uint64_t value, int index)
+bool BitUtil::isBitSet(unsigned long long value, int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
 
-    return ((static_cast<uint64_t>(1) << index) & value) != 0;
+    return ((1ULL << index) & value) != 0;
 }
 
 inline
-int BitUtil::log2(uint32_t value)
+bool BitUtil::isBitSet(unsigned long value, int index)
+{
+    return isBitSet(normalize(value), index);
+}
+
+inline
+int BitUtil::log2(unsigned int value)
 {
     BSLS_ASSERT(0 < value);
 
@@ -253,7 +299,7 @@ int BitUtil::log2(uint32_t value)
 }
 
 inline
-int BitUtil::log2(uint64_t value)
+int BitUtil::log2(unsigned long long value)
 {
     BSLS_ASSERT(0ULL < value);
 
@@ -261,7 +307,13 @@ int BitUtil::log2(uint64_t value)
 }
 
 inline
-int BitUtil::numBitsSet(uint32_t value)
+int BitUtil::log2(unsigned long value)
+{
+    return log2(normalize(value));
+}
+
+inline
+int BitUtil::numBitsSet(unsigned int value)
 {
 #if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __popcnt4(value);
@@ -275,7 +327,7 @@ int BitUtil::numBitsSet(uint32_t value)
 }
 
 inline
-int BitUtil::numBitsSet(uint64_t value)
+int BitUtil::numBitsSet(unsigned long long value)
 {
 #if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __popcnt8(value);
@@ -286,8 +338,8 @@ int BitUtil::numBitsSet(uint64_t value)
         return static_cast<int>(__popcnt64(value));
     #else
         // '__popcnt64' available only in 64bit target
-        return __popcnt(static_cast<uint32_t>(value)) +
-                    __popcnt(static_cast<uint32_t>(value >> k_BITS_PER_INT32));
+        return __popcnt(static_cast<unsigned int>(value)) +
+               __popcnt(static_cast<unsigned int>(value >> k_BITS_PER_INT32));
     #endif
 #else
     return privateNumBitsSet(value);
@@ -295,7 +347,13 @@ int BitUtil::numBitsSet(uint64_t value)
 }
 
 inline
-int BitUtil::numLeadingUnsetBits(uint32_t value)
+int BitUtil::numBitsSet(unsigned long value)
+{
+    return numBitsSet(normalize(value));
+}
+
+inline
+int BitUtil::numLeadingUnsetBits(unsigned int value)
 {
 #if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __cntlz4(value);
@@ -314,7 +372,7 @@ int BitUtil::numLeadingUnsetBits(uint32_t value)
 }
 
 inline
-int BitUtil::numLeadingUnsetBits(uint64_t value)
+int BitUtil::numLeadingUnsetBits(unsigned long long value)
 {
 #if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __cntlz8(value);
@@ -331,9 +389,9 @@ int BitUtil::numLeadingUnsetBits(uint64_t value)
     #else
         // '_BitScanReverse64' available only in 64bit target
         return value > 0xffffffff
-             ? numLeadingUnsetBits(static_cast<uint32_t>(
+             ? numLeadingUnsetBits(static_cast<unsigned int>(
                                                     value >> k_BITS_PER_INT32))
-             : numLeadingUnsetBits(static_cast<uint32_t>(value))
+             : numLeadingUnsetBits(static_cast<unsigned int>(value))
                                                             + k_BITS_PER_INT32;
     #endif
 #else
@@ -342,7 +400,13 @@ int BitUtil::numLeadingUnsetBits(uint64_t value)
 }
 
 inline
-int BitUtil::numTrailingUnsetBits(uint32_t value)
+int BitUtil::numLeadingUnsetBits(unsigned long value)
+{
+    return numLeadingUnsetBits(normalize(value));
+}
+
+inline
+int BitUtil::numTrailingUnsetBits(unsigned int value)
 {
 #if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __cnttz4(value);
@@ -350,7 +414,7 @@ int BitUtil::numTrailingUnsetBits(uint32_t value)
     enum {
         k_INT32_MASK = k_BITS_PER_INT32 - 1
     };
-    const uint32_t a = __builtin_ffs(value) - 1;
+    const unsigned int a = __builtin_ffs(value) - 1;
     return (a & k_INT32_MASK) + (a >> k_INT32_MASK);
 
     // Other possibility:
@@ -367,7 +431,7 @@ int BitUtil::numTrailingUnsetBits(uint32_t value)
 }
 
 inline
-int BitUtil::numTrailingUnsetBits(uint64_t value)
+int BitUtil::numTrailingUnsetBits(unsigned long long value)
 {
 #if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __cnttz8(value);
@@ -376,7 +440,7 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
         k_INT64_MASK = k_BITS_PER_INT64 - 1,
         k_INT32_MASK = k_BITS_PER_INT32 - 1
     };
-    const uint32_t a = __builtin_ffsll(value) - 1;
+    const unsigned int a = __builtin_ffsll(value) - 1;
     return (a & k_INT64_MASK) + (a >> k_INT32_MASK);
 
     // Other possibility:
@@ -391,8 +455,8 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
     #else
         // '_BitScanForward64' available only in 64bit target
         return 0 != (value & 0xffffffff)
-            ? numTrailingUnsetBits(static_cast<uint32_t>(value))
-            : numTrailingUnsetBits(static_cast<uint32_t>(
+            ? numTrailingUnsetBits(static_cast<unsigned int>(value))
+            : numTrailingUnsetBits(static_cast<unsigned int>(
                                 value >> k_BITS_PER_INT32)) + k_BITS_PER_INT32;
     #endif
 #else
@@ -401,7 +465,13 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
 }
 
 inline
-BitUtil::uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
+int BitUtil::numTrailingUnsetBits(unsigned long value)
+{
+    return numTrailingUnsetBits(normalize(value));
+}
+
+inline
+unsigned int BitUtil::roundUp(unsigned int value, unsigned int boundary)
 {
     BSLS_ASSERT(1 == numBitsSet(boundary));
 
@@ -409,7 +479,8 @@ BitUtil::uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
 }
 
 inline
-BitUtil::uint64_t BitUtil::roundUp(uint64_t value, uint64_t boundary)
+unsigned long long BitUtil::roundUp(unsigned long long value,
+                                    unsigned long long boundary)
 {
     BSLS_ASSERT(1 == numBitsSet(boundary));
 
@@ -417,21 +488,33 @@ BitUtil::uint64_t BitUtil::roundUp(uint64_t value, uint64_t boundary)
 }
 
 inline
-BitUtil::uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
+unsigned long BitUtil::roundUp(unsigned long value, unsigned long boundary)
+{
+    return roundUp(normalize(value), normalize(boundary));
+}
+
+inline
+unsigned int BitUtil::roundUpToBinaryPower(unsigned int value)
 {
     const int index = numLeadingUnsetBits(value - 1);
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
-           ? static_cast<uint32_t>(1) << (k_BITS_PER_INT32 - index)
+           ? 1U << (k_BITS_PER_INT32 - index)
            : 0;
 }
 
 inline
-BitUtil::uint64_t BitUtil::roundUpToBinaryPower(uint64_t value)
+unsigned long long BitUtil::roundUpToBinaryPower(unsigned long long value)
 {
     const int index = numLeadingUnsetBits(value - 1);
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
-           ? static_cast<uint64_t>(1) << (k_BITS_PER_INT64 - index)
+           ? 1ULL << (k_BITS_PER_INT64 - index)
            : 0;
+}
+
+inline
+unsigned long BitUtil::roundUpToBinaryPower(unsigned long value)
+{
+    return roundUpToBinaryPower(normalize(value));
 }
 
 template <class TYPE>
@@ -442,7 +525,7 @@ int BitUtil::sizeInBits(TYPE)
 }
 
 inline
-BitUtil::uint32_t BitUtil::withBitCleared(uint32_t value, int index)
+unsigned int BitUtil::withBitCleared(unsigned int value, int index)
 {
     BSLS_ASSERT(    0 <= index);
     BSLS_ASSERT(index <  k_BITS_PER_INT32);
@@ -451,16 +534,22 @@ BitUtil::uint32_t BitUtil::withBitCleared(uint32_t value, int index)
 }
 
 inline
-BitUtil::uint64_t BitUtil::withBitCleared(uint64_t value, int index)
+unsigned long long BitUtil::withBitCleared(unsigned long long value, int index)
 {
     BSLS_ASSERT(    0 <= index);
     BSLS_ASSERT(index <  k_BITS_PER_INT64);
 
-    return value & ~(static_cast<uint64_t>(1) << index);
+    return value & ~(1ULL << index);
 }
 
 inline
-BitUtil::uint32_t BitUtil::withBitSet(uint32_t value, int index)
+unsigned long BitUtil::withBitCleared(unsigned long value, int index)
+{
+    return withBitCleared(normalize(value), index);
+}
+
+inline
+unsigned int BitUtil::withBitSet(unsigned int value, int index)
 {
     BSLS_ASSERT(    0 <= index);
     BSLS_ASSERT(index <  k_BITS_PER_INT32);
@@ -469,12 +558,18 @@ BitUtil::uint32_t BitUtil::withBitSet(uint32_t value, int index)
 }
 
 inline
-BitUtil::uint64_t BitUtil::withBitSet(uint64_t value, int index)
+unsigned long long BitUtil::withBitSet(unsigned long long value, int index)
 {
     BSLS_ASSERT(    0 <= index);
     BSLS_ASSERT(index <  k_BITS_PER_INT64);
 
-    return value | (static_cast<uint64_t>(1) << index);
+    return value | (1ULL << index);
+}
+
+inline
+unsigned long BitUtil::withBitSet(unsigned long value, int index)
+{
+    return withBitSet(normalize(value), index);
 }
 
 }  // close package namespace

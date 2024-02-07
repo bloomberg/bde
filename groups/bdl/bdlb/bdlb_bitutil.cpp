@@ -9,8 +9,10 @@ BSLS_IDENT_RCSID(bdlb_bitutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlb {
 
-BSLMF_ASSERT(4 == sizeof(BitUtil::uint32_t));
-BSLMF_ASSERT(8 == sizeof(BitUtil::uint64_t));
+BSLMF_ASSERT(4 == sizeof(unsigned int));
+BSLMF_ASSERT(8 == sizeof(unsigned long long));
+BSLMF_ASSERT(sizeof(unsigned long) == sizeof(unsigned int) ||
+             sizeof(unsigned long) == sizeof(unsigned long long));
 
                         // --------------
                         // struct BitUtil
@@ -18,7 +20,7 @@ BSLMF_ASSERT(8 == sizeof(BitUtil::uint64_t));
 
 // PRIVATE CLASS METHODS
 
-int BitUtil::privateNumBitsSet(uint32_t value)
+int BitUtil::privateNumBitsSet(unsigned int value)
 {
     // First we use a tricky way of getting every 2-bit half-nibble to
     // represent the number of bits that were set in those two bits.
@@ -49,17 +51,17 @@ int BitUtil::privateNumBitsSet(uint32_t value)
     return value & 0x000000ff;
 }
 
-int BitUtil::privateNumBitsSet(uint64_t value)
+int BitUtil::privateNumBitsSet(unsigned long long value)
 {
     // First we use a tricky way of getting every 2-bit half-nibble to
     // represent the number of bits that were set in those two bits.
 
-    value -= (value >> 1) & 0x5555555555555555LL;
+    value -= (value >> 1) & 0x5555555555555555ULL;
 
     // Henceforth, we just accumulate the sum down into lower and lower bits.
 
     {
-        const uint64_t mask = 0x3333333333333333LL;
+        const unsigned long long mask = 0x3333333333333333ULL;
         value = ((value >> 2) & mask) + (value & mask);
     }
 
@@ -67,7 +69,7 @@ int BitUtil::privateNumBitsSet(uint64_t value)
     // mask both sides of the addition.  We must mask after the addition so
     // 8-bit bytes are the sum of bits in those 8 bits.
 
-    value = ((value >> 4) + value) & 0x0f0f0f0f0f0f0f0fLL;
+    value = ((value >> 4) + value) & 0x0f0f0f0f0f0f0f0fULL;
 
     // It is no longer necessary to mask the additions, because it is
     // impossible for any bit groups to add up to more than 256 and carry, thus
@@ -81,7 +83,12 @@ int BitUtil::privateNumBitsSet(uint64_t value)
     return static_cast<int>(value & 0xff);
 }
 
-int BitUtil::privateNumLeadingUnsetBits(uint32_t value)
+int BitUtil::privateNumBitsSet(unsigned long value)
+{
+    return privateNumBitsSet(normalize(value));
+}
+
+int BitUtil::privateNumLeadingUnsetBits(unsigned int value)
 {
     // Note that it doesn't matter whether the right shifts sign extend or not.
 
@@ -93,7 +100,7 @@ int BitUtil::privateNumLeadingUnsetBits(uint32_t value)
     return 32 - numBitsSet(value);
 }
 
-int BitUtil::privateNumLeadingUnsetBits(uint64_t value)
+int BitUtil::privateNumLeadingUnsetBits(unsigned long long value)
 {
     // Note that it doesn't matter whether the right shifts sign extend or not.
 
@@ -106,7 +113,12 @@ int BitUtil::privateNumLeadingUnsetBits(uint64_t value)
     return 64 - numBitsSet(value);
 }
 
-int BitUtil::privateNumTrailingUnsetBits(uint32_t value)
+int BitUtil::privateNumLeadingUnsetBits(unsigned long value)
+{
+    return privateNumLeadingUnsetBits(normalize(value));
+}
+
+int BitUtil::privateNumTrailingUnsetBits(unsigned int value)
 {
     value |= value << 16;
     value |= value <<  8;
@@ -116,7 +128,7 @@ int BitUtil::privateNumTrailingUnsetBits(uint32_t value)
     return numBitsSet(~value);
 }
 
-int BitUtil::privateNumTrailingUnsetBits(uint64_t value)
+int BitUtil::privateNumTrailingUnsetBits(unsigned long long value)
 {
     value |= value << 32;
     value |= value << 16;
@@ -125,6 +137,11 @@ int BitUtil::privateNumTrailingUnsetBits(uint64_t value)
     value |= value <<  2;
     value |= value <<  1;
     return numBitsSet(~value);
+}
+
+int BitUtil::privateNumTrailingUnsetBits(unsigned long value)
+{
+    return privateNumTrailingUnsetBits(normalize(value));
 }
 
 }  // close package namespace
