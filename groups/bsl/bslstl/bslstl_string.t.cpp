@@ -251,8 +251,7 @@ using bsls::nameOfType;
 // [  ] const_reverse_iterator crend() const;
 // [ 4] const CHAR_TYPE *c_str() const;
 // [ 4] const CHAR_TYPE *data() const;
-// [ 4] allocator_type get_allocator() const;
-// [ 4] allocator_type allocator() const;  // DEPRECATED
+// [ 4] allocator_type get_allocator() const noexcept;
 // [22] size_type find(const string& str, pos = 0) const;
 // [22] size_type find(const STRING_VIEW_LIKE_TYPE& str, pos = 0) const;
 // [22] size_type find(const C *s, pos, n) const;
@@ -4406,8 +4405,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   9) The 'data' and the 'c_str' methods return the address of a
     //      buffer containing a null character at the last (equal to the length
     //      of the object) position, even for an empty object.
-    //  10) The 'get_allocator' and (deprecated) 'allocator' methods return the
-    //      allocator used to construct the object.
+    //  10) The 'get_allocator' method returns the allocator used to construct
+    //      the object.
     //
     // Plan:
     //   For 1 and 4 do the following:
@@ -4440,8 +4439,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   the symbols, returned by the already tested 'operator[]'.  Verify,
     //   that the null character encloses these sequences.
     //
-    //   For 10, verify that the result of 'get_allocator' and 'allocator'
-    //   compares equal to the allocator used to construc the string.
+    //   For 10, verify that the result of 'get_allocator' compares equal to
+    //   the allocator used to construct the string.
     //
     // Testing:
     //   size_type size() const;
@@ -4452,7 +4451,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   const CHAR_TYPE *c_str() const;
     //   const CHAR_TYPE *data() const;
     //   allocator_type get_allocator() const noexcept;
-    //   allocator_type allocator() const noexcept;  // DEPRECATED
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4559,7 +4557,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
 
                 LOOP2_ASSERT(ti, ai, LENGTH == X.size()); // same lengths
                 LOOP2_ASSERT(ti, ai, X.get_allocator() == A);
-                LOOP2_ASSERT(ti, ai, X.allocator()     == A); // DEPRECATED
 
                 if (veryVerbose) {
                     printf( "\ton objects of length " ZU ":\n", LENGTH);
@@ -6818,7 +6815,6 @@ int main(int argc, char *argv[])
         //   const CHAR_TYPE *c_str() const;
         //   const CHAR_TYPE *data() const;
         //   allocator_type get_allocator() const noexcept;
-        //   allocator_type allocator() const noexcept;  // DEPRECATED
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING BASIC ACCESSORS"
