@@ -2139,8 +2139,8 @@ int main(int argc, const char *argv[])  {
             ASSERTV(CONFIG, &oa == X.     tagString().get_allocator());
             ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
             ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
-            ASSERTV(CONFIG, &oa == X.environmentVariableName().allocator());
-
+            ASSERTV(CONFIG, &oa ==
+                                  X.environmentVariableName().get_allocator());
             // Vet object value.
 
             ASSERT(OptionInfo::e_NON_OPTION   == X.argType());
@@ -2613,7 +2613,7 @@ int main(int argc, const char *argv[])  {
                 ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
                 ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
                 ASSERTV(CONFIG, &oa ==
-                                      X.environmentVariableName().allocator());
+                                  X.environmentVariableName().get_allocator());
 
                 ASSERTV(CONFIG, noam.isTotalSame());
 
@@ -3255,7 +3255,7 @@ int main(int argc, const char *argv[])  {
                 ASSERTV(CONFIG, &oa == X.      typeInfo().allocator());
                 ASSERTV(CONFIG, &oa == X.occurrenceInfo().allocator());
                 ASSERTV(CONFIG, &oa ==
-                                      X.environmentVariableName().allocator());
+                                  X.environmentVariableName().get_allocator());
 
                 // Vet object value.
                 ASSERT(DESC            == X.description());
