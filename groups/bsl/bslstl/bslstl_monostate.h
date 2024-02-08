@@ -73,34 +73,38 @@ void hashAppend(t_HASHALG& hashAlg, const monostate&);
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 namespace bsl {
 
+inline BSLS_KEYWORD_CONSTEXPR
+bool operator==(monostate, monostate) BSLS_KEYWORD_NOEXCEPT
+{
+    return true;
+}
 
-BSLS_KEYWORD_CONSTEXPR bool operator==(monostate,
-                                       monostate) BSLS_KEYWORD_NOEXCEPT
+inline BSLS_KEYWORD_CONSTEXPR
+bool operator!=(monostate, monostate) BSLS_KEYWORD_NOEXCEPT
+{
+    return false;
+}
+
+inline BSLS_KEYWORD_CONSTEXPR
+bool operator<(monostate, monostate) BSLS_KEYWORD_NOEXCEPT
+{
+    return false;
+}
+
+inline BSLS_KEYWORD_CONSTEXPR
+bool operator>(monostate, monostate) BSLS_KEYWORD_NOEXCEPT
+{
+    return false;
+}
+
+inline BSLS_KEYWORD_CONSTEXPR
+bool operator<=(monostate, monostate) BSLS_KEYWORD_NOEXCEPT
 {
     return true;
 }
-BSLS_KEYWORD_CONSTEXPR bool operator!=(monostate,
-                                       monostate) BSLS_KEYWORD_NOEXCEPT
-{
-    return false;
-}
-BSLS_KEYWORD_CONSTEXPR bool operator<(monostate,
-                                      monostate) BSLS_KEYWORD_NOEXCEPT
-{
-    return false;
-}
-BSLS_KEYWORD_CONSTEXPR bool operator>(monostate,
-                                      monostate) BSLS_KEYWORD_NOEXCEPT
-{
-    return false;
-}
-BSLS_KEYWORD_CONSTEXPR bool operator<=(monostate,
-                                       monostate) BSLS_KEYWORD_NOEXCEPT
-{
-    return true;
-}
-BSLS_KEYWORD_CONSTEXPR bool operator>=(monostate,
-                                       monostate) BSLS_KEYWORD_NOEXCEPT
+
+inline BSLS_KEYWORD_CONSTEXPR
+bool operator>=(monostate, monostate) BSLS_KEYWORD_NOEXCEPT
 {
     return true;
 }
