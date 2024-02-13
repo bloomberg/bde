@@ -140,6 +140,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstdint.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
+#include <bsl_span.h>
 
 namespace BloombergLP {
 namespace bdlb {
@@ -162,6 +163,7 @@ class Guid {
     // CLASS DATA
     enum { k_GUID_NUM_BYTES  = 16 };           // number of bytes in a guid
     enum { k_GUID_NUM_32BITS =  4 };           // number of 32-bits in a guid
+    enum { k_GUID_NUM_CHARS =  36 };           // number of formatted chars
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Guid, bslmf::IsBitwiseEqualityComparable)
@@ -170,7 +172,7 @@ class Guid {
   private:
     // DATA
     bsls::AlignedBuffer<k_GUID_NUM_BYTES,
-                        bsls::AlignmentFromType<bsl::uint32_t>::VALUE>
+                        bsls::AlignmentFromType<bsl::uint64_t>::VALUE>
         d_alignedBuffer;
         // byte array to hold the guid
 
@@ -285,6 +287,12 @@ class Guid {
     unsigned char version() const;
         // Return the four-bit 'version' portion of the 'time_hi_and_version'
         // field of this guid as specified in RFC 4122.
+
+    void format(bsl::span<char, k_GUID_NUM_CHARS> buffer) const;
+        // Write the value of this object to the specified output 'buffer' in a
+        // human-readable format.  Note that this human-readable format is not
+        // fully specified, and can change without notice (as can
+        // 'k_GUID_NUM_CHARS').  No trailing null terminator is written.
 
     // ASPECTS
     bsl::ostream& print(bsl::ostream& stream,

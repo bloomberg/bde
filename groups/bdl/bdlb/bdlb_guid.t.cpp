@@ -51,6 +51,7 @@ using namespace bsl;
 // [14] unsigned short timeMid() const;
 // [14] unsigned char variant() const;
 // [14] unsigned char version() const;
+// [16] void format(bsl::span<char, k_GUID_NUM_CHARS> s) const;
 //
 // MANIPULATORS
 // [ 3] Guid& operator=(unsigned char buffer[k_GUID_NUM_BYTES]);
@@ -75,7 +76,7 @@ using namespace bsl;
 // [ 4] bdlb::Guid& gg(bdlb::Guid *object, const char *spec);
 // [ 8] bdlb::Guid g(const char *spec);
 // [ 4] int ggg(bdlb::Guid *object, const char *spec, int vF = 1);
-// [16] USAGE EXAMPLE
+// [17] USAGE EXAMPLE
 // [10] int maxSupportedBdexVersion() const;
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -380,7 +381,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test)  { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -415,6 +416,112 @@ int main(int argc, char *argv[])
             previousFileName = uniqueFileName;
         }
 //..
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING 'format' METHOD
+        //
+        // Concerns:
+        //: 1 The format method formats the value of the object directly from
+        //:   the underlying state information according to supplied arguments.
+        //:
+        //: 2 The format method results in the correct representation of any
+        //:   given GUID.
+        //
+        // Plan:
+        //: 1 For each of an enumerated set of object values, use 'format' to
+        //:   format that object's value, to two separate character buffers
+        //:   each with different initial values.  Also use 'print' to format
+        //:   the object's value.  Compare the contents of these buffers with
+        //:   each other and with the literal expected output format and verify
+        //:   that the characters beyond the formatted span are unaffected in
+        //:   both buffers.  (C-1,2)
+        //
+        // Testing:
+        //   void format(bsl::span<char, k_GUID_NUM_CHARS> s) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'format' METHOD" << endl
+                          << "=======================" << endl;
+
+        {
+
+            const unsigned char DATA[][bdlb::Guid::k_GUID_NUM_BYTES] = {
+                { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+
+                { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
+
+                { 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0xf0, 0xf0, 0xf0,
+                  0xf0, 0x0f, 0x0f, 0x0f, 0x0f, 0xf0, 0xf0, 0xf0 },
+
+                { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+                  0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10 },
+
+                { 0x5c, 0x9d, 0x4e, 0x53, 0x0d, 0xf1, 0x11, 0xe4,
+                  0x91, 0x91, 0x08, 0x00, 0x20, 0x0c, 0x9a, 0x66 },
+
+                { 0x9e, 0xf7, 0x7f, 0xcc, 0xcf, 0xd4, 0x48, 0xdd,
+                  0x91, 0xd8, 0xbf, 0x0b, 0xa5, 0x5a, 0x09, 0x9d },
+            };
+            const char *EXPECTED[] = {
+                "00000000-0000-0000-0000-000000000000",
+                "ffffffff-ffff-ffff-ffff-ffffffffffff",
+                "0f0f0f0f-0ff0-f0f0-f00f-0f0f0ff0f0f0",
+                "01234567-89ab-cdef-fedc-ba9876543210",
+                "5c9d4e53-0df1-11e4-9191-0800200c9a66",
+                "9ef77fcc-cfd4-48dd-91d8-bf0ba55a099d",
+            };
+
+            const int  NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int  SIZE     = 1000; // Big enough to hold output string.
+            const char Z1 = static_cast<char>(0xFF); // Value 1 used for an
+                                                     // unset char.
+            const char Z2 = 0x00;  // Value 2 used to represent an unset char.
+
+            const int  NUM_CHARS = bdlb::Guid::k_GUID_NUM_CHARS;
+
+            for (int ti = 0; ti < NUM_DATA;  ++ti) {
+                const Obj X(DATA[ti]);
+
+                if (veryVerbose) { P_(ti) P(EXPECTED[ti]) }
+
+                char mCtrlBuf1[SIZE];
+                memset(mCtrlBuf1, Z1, SIZE);
+                bsl::span<char, NUM_CHARS> out1(mCtrlBuf1, NUM_CHARS);
+                X.format(out1);
+
+                char mCtrlBuf2[SIZE];
+                memset(mCtrlBuf2, Z2, SIZE);
+                bsl::span<char, NUM_CHARS> out2(mCtrlBuf2, NUM_CHARS);
+                X.format(out2);
+
+                ostringstream reference;
+                X.print(reference, -1, 0);
+
+                LOOP_ASSERT(ti, memcmp(out1.data(),
+                                       EXPECTED[ti],
+                                       out1.size()) == 0);
+                LOOP_ASSERT(ti, memcmp(out1.data(),
+                                       out2.data(),
+                                       out1.size()) == 0);
+                LOOP_ASSERT(ti, memcmp(out1.data(),
+                                       reference.view().data(),
+                                       out1.size()) == 0);
+
+                // Check for overruns
+                LOOP_ASSERT(ti, mCtrlBuf1[NUM_CHARS] == Z1);
+                LOOP_ASSERT(ti, memcmp(mCtrlBuf1 + NUM_CHARS,
+                                       mCtrlBuf1 + NUM_CHARS + 1,
+                                       SIZE - NUM_CHARS - 1) == 0);
+                LOOP_ASSERT(ti, mCtrlBuf2[NUM_CHARS] == Z2);
+                LOOP_ASSERT(ti, memcmp(mCtrlBuf2 + NUM_CHARS,
+                                       mCtrlBuf2 + NUM_CHARS + 1,
+                                       SIZE - NUM_CHARS - 1) == 0);
+            }
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------

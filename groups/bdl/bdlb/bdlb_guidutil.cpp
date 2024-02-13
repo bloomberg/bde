@@ -152,16 +152,45 @@ void makeRfc4122Compliant(unsigned char *bytes, const unsigned char *end)
     }
 }
 
-template <class STRING, class OSTRINGSTREAM>
-void guidToStringImpl(STRING *result, const Guid& guid)
+struct GuidUtil_GuidToStringFormatter
+    // A functor suitable for passing into 'bsl::string::resize_and_overwrite'
+    // which formats a 'bdlb::Guid' into a string buffer.
+{
+    const Guid *d_guid_p;  // the GUID to format
+
+    size_t operator()(char *data, size_t) const
+        // Format this object's GUID into the specified 'data' buffer.  Return
+        // the number of characters written.
+    {
+        bsl::span<char, Guid::k_GUID_NUM_CHARS> span(data,
+                                                     Guid::k_GUID_NUM_CHARS);
+        d_guid_p->format(span);
+        return span.size();
+    }
+};
+
+template <class t_STRING>
+void guidToStringImpl(t_STRING *result, const Guid& guid)
     // Load into the specified 'result' the string representation of the
     // specified 'guid'.
 {
     BSLS_ASSERT(result);
 
-    OSTRINGSTREAM oss;
-    guid.print(oss, 0, -1);
-    *result = oss.str();
+    result->resize(Guid::k_GUID_NUM_CHARS);
+    bsl::span<char, Guid::k_GUID_NUM_CHARS> span(&(*result)[0],
+                                                 Guid::k_GUID_NUM_CHARS);
+    guid.format(span);
+}
+
+template <>
+void guidToStringImpl<bsl::string>(bsl::string *result, const Guid& guid)
+    // Load into the specified 'result' the string representation of the
+    // specified 'guid'.
+{
+    BSLS_ASSERT(result);
+
+    GuidUtil_GuidToStringFormatter fmt = { &guid };
+    result->resize_and_overwrite(Guid::k_GUID_NUM_CHARS, fmt);
 }
 
 inline int getPid()
@@ -440,18 +469,18 @@ Guid GuidUtil::guidFromString(const bsl::string_view& guidString)
 
 void GuidUtil::guidToString(bsl::string *result, const Guid& guid)
 {
-    guidToStringImpl<bsl::string, bsl::ostringstream>(result, guid);
+    guidToStringImpl(result, guid);
 }
 
 void GuidUtil::guidToString(std::string *result, const Guid& guid)
 {
-    guidToStringImpl<std::string, std::ostringstream>(result, guid);
+    guidToStringImpl(result, guid);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 void GuidUtil::guidToString(std::pmr::string *result, const Guid& guid)
 {
-    guidToStringImpl<std::pmr::string, std::ostringstream>(result, guid);
+    guidToStringImpl(result, guid);
 }
 #endif
 
