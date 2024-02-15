@@ -24,6 +24,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -42,6 +43,7 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
+// [16] void append(int length, char fill);
 // [15] void prependWithCapacityBuffer(Blob*,BlobBuffer*,const char*,int);
 // [14] void appendWithCapacityBuffer(Blob*,BlobBuffer*,const char*,int);
 // [13] int appendBufferIfValid(Blob *d, const BlobBuffer& b);
@@ -182,6 +184,73 @@ class BlobBufferFactory : public bdlbb::BlobBufferFactory {
         // Return how many times the 'allocate' function was called.
     {
         return d_numAllocateCalls;
+    }
+};
+
+                         // =======================
+                         // class BlobBufferFactory
+                         // =======================
+
+class MaliciousBlobBufferFactory : public bdlbb::BlobBufferFactory {
+    // This 'class' is just like a 'SimpleBlobBufferFactory' except that half
+    // the blob buffers it creates will have zero length and a null data
+    // pointer.
+
+    // PRIVATE DATA
+    int               d_size;
+    bool              d_zeroBuffer;
+    bslma::Allocator *d_allocator_p;
+
+  private:
+    // NOT IMPLEMENTED:
+    MaliciousBlobBufferFactory(const MaliciousBlobBufferFactory&);
+
+  public:
+    // CREATORS
+    explicit
+    MaliciousBlobBufferFactory(int               initialSize,
+                               bool              firstBufferZero,
+                               bslma::Allocator *basicAllocator = 0)
+    : d_size(initialSize)
+    , d_zeroBuffer(firstBufferZero)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+        // Create a malicious blob buffer factory where the non-zero buffers
+        // will have the specified size 'initialSize'.  If the specified
+        // 'firstBufferZero' is true, make the first buffer of 0 length and
+        // every other buffer as well.  If 'firstBufferZero' is false, make
+        // the second buffer zero, and every other buffer after that.  Use
+        // the specified 'basicAllocator' for memory.
+    {
+    }
+
+    ~MaliciousBlobBufferFactory() BSLS_KEYWORD_OVERRIDE
+    {
+    }
+
+    // MANIPULATORS
+    void allocate(bdlbb::BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE
+    {
+        if (!d_zeroBuffer) {
+            bsl::shared_ptr<char> shptr((char*)d_allocator_p->allocate(d_size),
+                                        d_allocator_p);
+            buffer->reset(shptr, d_size);
+        }
+        else {
+            buffer->reset();
+        }
+
+        d_zeroBuffer = !d_zeroBuffer;
+    }
+
+    void setBufferSize(int bufferSize)
+    {
+        d_size = bufferSize;
+    }
+
+    // ACCESSORS
+    int bufferSize() const
+    {
+        return d_size;
     }
 };
 
@@ -427,6 +496,36 @@ void checkBlob(const bdlbb::Blob& dst,
     }
 }
 
+void checkVariableBlob(const bdlbb::Blob& dst,
+                       int                prevSize,
+                       char               otherChar,
+                       char               fillChar)
+    // Check, with 'ASSERT', that the first specified 'prevSize' bytes in the
+    // specified 'dst' have the specified value 'otherChar', and that any
+    // remaining bytes, if any, have the specified value 'fillChar'.  There
+    // is no constraint on blob buffer sizes.
+{
+    ASSERT(0 <= prevSize);
+
+    const bsl::size_t npos = bsl::string_view::npos;
+
+    for (int ii = 0, bufIdx = 0, bufLen; ii < dst.length(); ii += bufLen) {
+        const bdlbb::BlobBuffer& buffer = dst.buffer(bufIdx++);
+
+        const char *buf = buffer.data();
+
+        // 'ii' in this index in the blob of 'buf[0]'.
+
+        bufLen = bsl::min(buffer.size(), dst.length() - ii);
+        const int mid = bsl::max(0, bsl::min(prevSize - ii, bufLen));
+
+        const bsl::string_view bufView(buf, bufLen);
+
+        ASSERT(npos == bufView.substr(0, mid).find_first_not_of(otherChar));
+        ASSERT(npos == bufView.substr(mid).   find_first_not_of(fillChar));
+    }
+}
+
 bool areBlobsBasicallyEqual(const Blob& lhs, const Blob& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' are basically equal and
     // 'false' otherwise.  Two blobs are basically equal when all their
@@ -469,6 +568,94 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING 'append' WITH SINGLE CHAR FILL
+        //
+        // Concerns:
+        //: 1 That the single-char fill overload of 'append' works as
+        //:   documented.
+        //
+        // Plan:
+        //: 1 Iterate through different values of 'BUFFER_SIZE', 'PRE_SIZE',
+        //:   and 'APPEND_LENGTH'.
+        //:
+        //: 2 Create a factory that creates buffers of uniform size
+        //:   'BUFFER_SIZE'.
+        //:
+        //: 3 Randomly choose two not equal character values 'preFillChar' and
+        //:   'appendChar'.
+        //:
+        //: 4 Create a blob using the factory, make it 'PRE_SIZE' long, and
+        //:   filled with 'preFillChar'.
+        //:
+        //: 5 Call 'BlobUtil::append(APPEND_LENGTH, appendChar)'.
+        //:
+        //: 6 Verify the length of the blob is 'PRE_SIZE + APPEND_LENGTH'.
+        //:
+        //: 7 Call 'u::checkBlob' to confirm that the blob contains 'PRE_SIZE'
+        //:   bytes of 'preFillChar' followed by 'APPEND_LENGTH' bytes of
+        //:   'appendChar'.
+        //
+        // Testing:
+        //   void append(int length, char fill);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'append' WITH SINGLE CHAR FILL\n"
+                             "======================================\n";
+
+        typedef bdlbb::BlobBufferFactory Factory;
+
+        const int bufferSizes[] = { 1, 2, 3, 5, 7, 32 };
+        enum { k_NUM_BUFFER_SIZES = sizeof bufferSizes / sizeof *bufferSizes };
+        const int preSizes[] = { 0, 1, 3, 9, 21, 40, 64 };
+        enum { k_NUM_PRE_SIZES = sizeof preSizes / sizeof *preSizes };
+        const int appendLengths[] = { 0, 1, 2, 3, 10, 15, 27, 38, 64 };
+        enum { k_NUM_APPEND_LENGTHS = sizeof appendLengths /
+                                                       sizeof *appendLengths };
+
+        bslma::TestAllocator ta("test");
+
+        const char preFillChar = 'p';
+        const char appendChar  = 'a';
+
+        for (int ti = 0; ti < 3 * k_NUM_BUFFER_SIZES; ++ti) {
+            const int  bufferSizeIdx   = ti % k_NUM_BUFFER_SIZES;
+            const bool useMalicious    = ti < 2 * k_NUM_BUFFER_SIZES;
+            const bool firstBufferZero = ti <     k_NUM_BUFFER_SIZES;
+
+            const int BUFFER_SIZE = bufferSizes[bufferSizeIdx];
+
+            bdlbb::SimpleBlobBufferFactory simpleFactory(   BUFFER_SIZE, &ta);
+            MaliciousBlobBufferFactory     maliciousFactory(BUFFER_SIZE,
+                                                            firstBufferZero,
+                                                            &ta);
+            Factory& factory = useMalicious
+                             ? *static_cast<Factory *>(&maliciousFactory)
+                             : *static_cast<Factory *>(&simpleFactory);
+
+            for (int preSizeIdx = 0; preSizeIdx < k_NUM_PRE_SIZES;
+                                                                ++preSizeIdx) {
+                const int PRE_SIZE = preSizes[preSizeIdx];
+
+                for (int appendLengthIdx = 0;
+                                        appendLengthIdx < k_NUM_APPEND_LENGTHS;
+                                                           ++appendLengthIdx) {
+                    const int APPEND_LENGTH = appendLengths[appendLengthIdx];
+
+                    bdlbb::Blob blob(&factory, &ta);
+                    bsl::string s(PRE_SIZE, preFillChar, &ta);
+                    copyStringToBlob(&blob, s);
+
+                    bdlbb::BlobUtil::append(&blob, APPEND_LENGTH, appendChar);
+                    ASSERT(PRE_SIZE + APPEND_LENGTH == blob.length());
+                    u::checkVariableBlob(blob, PRE_SIZE, preFillChar,
+                                                                   appendChar);
+                }
+            }
+        }
+
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // TESTING 'prependWithCapacityBuffer' FUNCTION

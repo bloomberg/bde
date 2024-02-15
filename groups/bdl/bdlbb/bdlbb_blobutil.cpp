@@ -158,11 +158,10 @@ void BlobUtil::append(Blob *dest, const char *source, int offset, int length)
 
     int destBufferIndex = bsl::max(0, dest->numDataBuffers() - 1);
     int writePosition   = dest->lastDataBufferLength();
+    int numBytesLeft    = length;
+    int numBytesCopied  = 0;
 
     dest->setLength(dest->length() + length);
-
-    int numBytesLeft   = length;
-    int numBytesCopied = 0;
 
     while (0 < numBytesLeft) {
         const BlobBuffer& buffer = dest->buffer(destBufferIndex);
@@ -192,6 +191,56 @@ void BlobUtil::append(Blob *dest, const char *source, int offset, int length)
     }
 }
 
+void BlobUtil::append(Blob *dest, int length, char fill)
+{
+    BSLS_ASSERT(0 != dest);
+
+    if (0 == length) {
+        return;                                                       // RETURN
+    }
+
+    BSLS_ASSERT(0 < length);
+
+    int bufIdx       = bsl::max(0, dest->numDataBuffers() - 1);
+    int numBytesLeft = length;
+
+    {
+        const int writePosition = dest->lastDataBufferLength();
+
+        dest->setLength(dest->length() + length);
+
+        BSLS_ASSERT_SAFE(0               < dest->length());
+        BSLS_ASSERT_SAFE(writePosition   < dest->length());
+        BSLS_ASSERT_SAFE(bufIdx < dest->numDataBuffers());
+
+        // The following block is the unwound first iteration of the 'while'
+        // loop after it.  The first iteration is special-cased because of
+        // 'writePosition', the body of the 'while' loop is just the same code
+        // where 'writePosition == 0'.
+
+        {
+            const BlobBuffer& buffer = dest->buffer(bufIdx++);
+
+            const int numBytesToFill = bsl::min(buffer.size() - writePosition,
+                                                numBytesLeft);
+
+            bsl::memset(buffer.data() + writePosition, fill, numBytesToFill);
+            numBytesLeft -= numBytesToFill;
+        }
+    }
+
+    BSLS_ASSERT_SAFE(bufIdx < dest->numDataBuffers() || 0 == numBytesLeft);
+
+    while (0 < numBytesLeft) {
+        const BlobBuffer& buffer = dest->buffer(bufIdx++);
+
+        const int numBytesToFill = bsl::min(buffer.size(), numBytesLeft);
+
+        bsl::memset(buffer.data(), fill, numBytesToFill);
+        numBytesLeft -= numBytesToFill;
+    }
+}
+
 void BlobUtil::appendWithCapacityBuffer(Blob       *dest,
                                         BlobBuffer *buffer,
                                         const char *source,
@@ -204,11 +253,13 @@ void BlobUtil::appendWithCapacityBuffer(Blob       *dest,
 
     if (dest->totalSize() - dest->length() >= length) {
         // The blob has enough capacity
+
         append(dest, source, length);
     }
     else {
         if (buffer->size() > 0) {
             // Append the capacity buffer
+
             dest->appendBuffer(bslmf::MovableRefUtil::move(*buffer));
         }
         append(dest, source, length);

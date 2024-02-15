@@ -68,6 +68,10 @@ struct BlobUtil {
         // 'source' address to the specified 'dest'.  The behavior is undefined
         // unless the range '[source, source + length)' is valid memory.
 
+    static void append(Blob *dest, int length, char fill);
+        // Append the specified 'length' bytes to the specified 'dest', all new
+        // bytes are to be set to the specified 'fill'.
+
     static void appendWithCapacityBuffer(Blob       *dest,
                                          BlobBuffer *buffer,
                                          const char *source,
