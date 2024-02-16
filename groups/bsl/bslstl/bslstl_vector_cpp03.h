@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 19 18:09:45 2023
+// Generated on Thu Feb 15 15:06:43 2024
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -4416,6 +4416,11 @@ vector<VALUE_TYPE, ALLOCATOR>::~vector()
 {
     using BloombergLP::bslalg::ArrayDestructionPrimitives;
 
+    // suppress buggy warning in GCC 12 and later (DRQS 174259807)
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     if (this->d_dataBegin_p) {
         ArrayDestructionPrimitives::destroy(this->d_dataBegin_p,
                                             this->d_dataEnd_p,
@@ -4423,6 +4428,9 @@ vector<VALUE_TYPE, ALLOCATOR>::~vector()
         AllocatorUtil::deallocateObject(this->allocatorRef(),
                                         this->d_dataBegin_p, this->d_capacity);
     }
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 }
 
 // MANIPULATORS
@@ -6190,7 +6198,7 @@ extern template class bsl::vector<const char *>;
 #endif // ! defined(INCLUDED_BSLSTL_VECTOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

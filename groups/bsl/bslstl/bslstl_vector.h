@@ -3398,6 +3398,11 @@ vector<VALUE_TYPE, ALLOCATOR>::~vector()
 {
     using BloombergLP::bslalg::ArrayDestructionPrimitives;
 
+    // suppress buggy warning in GCC 12 and later (DRQS 174259807)
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     if (this->d_dataBegin_p) {
         ArrayDestructionPrimitives::destroy(this->d_dataBegin_p,
                                             this->d_dataEnd_p,
@@ -3405,6 +3410,9 @@ vector<VALUE_TYPE, ALLOCATOR>::~vector()
         AllocatorUtil::deallocateObject(this->allocatorRef(),
                                         this->d_dataBegin_p, this->d_capacity);
     }
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 }
 
 // MANIPULATORS
