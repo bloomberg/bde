@@ -1,5 +1,22 @@
-bsl-internal (4.2.0.0) unstable; urgency=low
+bsl-internal (4.3.0.0) unstable; urgency=low
 
+  * 08263c4e0 Bumped version to 4.3.0.0
+  * 0a9f434c6 Suppress buggy Wmaybe-uninitialized error in bsl::vector destructor (DRQS 174259807) (#4632)
+  * 1374e2afa bdlbb_blobutil: add new 'append(length, fillChar)' overload (#4612)
+  * 23a3727fe Speed up `GuidUtil::guidToString` by factor of ~47x - {DRQS 174263699} (#4624)
+  * 02c9d3a73 Add 'inline' to monostate comparison operators (#4622)
+  * e5dabea14 balcl_option.t.cpp: quit using bsl::string::allocator (#4627)
+  * 5080b8a91 Remove deprecated 'bsl::basic_string::allocator()' accessor that was added to facilitate release of BDE 4.0 (#4623)
+  * 7f423aa44 'bsls::Types::Uint64' and 'bsl::uint64_t' are different on Linux, breaking overloads for 'bdld::BitUtil' (DRQS 173489775) (#4534)
+  * 14b7003ea Bde baljsn parserutil static extra tests drqs174180775 (#4617)
+  * 6bddfa463 Bslstl pair is_constructible sfinae current behavior (#4513)
+  * b3b4fb4e9 Remove unused Function_NothrowWrapper (#4618)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 17 Feb 2024 12:51:15 -0500
+
+bsl-internal (4.2.0.0) git; urgency=low
+
+  * 140552b27 Changelog for version 4.2.0.0
   * 6e90df550 Bumped version to 4.2.0.0
   * 6cbcf4475 Re-enabled generic PMR support (#4613)
   * 9077836bd Augment (Const)NullableValueRef (DRQS 174126010) (#4602)
@@ -19,7 +36,7 @@ bsl-internal (4.2.0.0) unstable; urgency=low
   * 860a4c7bd add notes indication drqs relevant to the workaround removal (#4587)
   * 9d67ff32b Revert "Bslstl stdexceptutil drqs 168403170" (#4592)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 2 Feb 2024 19:41:12 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 2 Feb 2024 19:53:17 -0500
 
 bsl-internal (4.1.0.0) git; urgency=low
 
