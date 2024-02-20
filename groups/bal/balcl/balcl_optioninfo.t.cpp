@@ -97,15 +97,28 @@ void aSsErT(bool condition, const char *message, int line)
 //                      GLOBAL MACROS FOR TESTING
 // ----------------------------------------------------------------------------
 
-// Passing '{}' to a a non-trivial default constructor in an aggregate
-// initialization makes sense in C++11 but it is not, technically, part of
-// C++03, though some compilers take it in C++03 (in the case of GNU and Sun,
-// with compiler warnings).
+// In MSVC C++20, there is a compiler warning if a 'bsl::string' is passed to
+// one argument of an 'OptionInfo' constructor and a quoted string to another,
+// since both are being implicitly cast to 'bsl::string_view's in different
+// ways.  Shut up that warning.
 
-#define U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR                                    \
-   (201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS                                \
-       || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN)    \
-       || defined(BSLS_PLATFORM_CMP_MSVC))
+#if 202002L <= BSLS_COMPILERFEATURES_CPLUSPLUS &&                            \
+                                                defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable:4927)
+#endif
+
+// Passing '{}' to a non-trivial default constructor in an aggregate
+// initialization is supported in C++11 and later, but is technically not
+// supported in C++03.  However, the Sun compilers support this, and there is
+// production code that relies on this behavior, so we test it here for
+// backwards compatibility.
+
+#if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS                                \
+                                              || defined(BSLS_PLATFORM_CMP_SUN)
+# define U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR 1
+#else
+# define U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR 0
+#endif
 
 // ============================================================================
 //                      GLOBAL TYPEDEFS FOR TESTING

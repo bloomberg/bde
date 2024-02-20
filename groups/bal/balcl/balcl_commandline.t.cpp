@@ -2756,14 +2756,14 @@ int main(int argc, const char *argv[])
                           "INITIALIZATION OF FIELDS WITH EMPTY CURLY BRACES\n"
                           "================================================\n";
 
-// Passing '{}' to a a non-trivial default constructor in an aggregate
-// initialization makes sense in C++11 but it is not, technically, part of
-// C++03, though some compilers take it in C++03 (in the case of GNU and Sun,
-// with compiler warnings).
+// Passing '{}' to a non-trivial default constructor in an aggregate
+// initialization is supported in C++11 and later, but is technically not
+// supported in C++03.  However, the Sun compilers support this, and there is
+// production code that relies on this behavior, so we test it here for
+// backwards compatibility.
 
 #if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS                                \
-       || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN)    \
-       || defined(BSLS_PLATFORM_CMP_MSVC)
+                                              || defined(BSLS_PLATFORM_CMP_SUN)
 
         bsl::string stringOne;
         static const OptionInfo SPEC[] = {
