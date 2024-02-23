@@ -4222,7 +4222,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        LOOP2_ASSERT(CONFIG, "Bad allocator config.", false);
                       } break;
                     }
                     LOOP2_ASSERT(LINE, CONFIG,

@@ -428,6 +428,15 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_utility.h>
 
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Thu Jan 25 11:18:32 2024
+// Command line: sim_cpp11_features.pl bdlc_flathashset.h
+# define COMPILING_BDLC_FLATHASHSET_H
+# include <bdlc_flathashset_cpp03.h>
+# undef COMPILING_BDLC_FLATHASHSET_H
+#else
+
 namespace BloombergLP {
 namespace bdlc {
 
@@ -459,8 +468,20 @@ struct FlatHashSet_EntryUtil
     // 'ENTRY').
 {
     // CLASS METHODS
-    template <class KEY_TYPE>
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
     static void construct(
+                        ENTRY                                       *entry,
+                        bslma::Allocator                            *allocator,
+                        ARGS&&...                                    args);
+        // Load into the specified 'entry' the 'ENTRY' value constructed from
+        // specified 'args', using the specified 'allocator' to supply memory.
+        //  'allocator' is ignored if the (template parameter) type 'ENTRY' is
+        // not allocator aware.
+#endif
+
+    template <class KEY_TYPE>
+    static void constructFromKey(
                         ENTRY                                       *entry,
                         bslma::Allocator                            *allocator,
                         BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE)  key);
@@ -684,6 +705,38 @@ class FlatHashSet {
         // Remove all elements from this set.  Note that this set will be empty
         // after calling this method, but allocated memory may be retained for
         // future use.  See the 'capacity' method.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    bsl::pair<iterator, bool> emplace(ARGS&&... args);
+        // Insert into this set a newly created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'args' to the corresponding
+        // constructor of 'value_type', if a key equivalent to such a value
+        // does not already exist in this set; otherwise, this method has no
+        // effect (other than possibly creating a temporary 'value_type'
+        // object).  Return a pair whose 'first' member is an iterator
+        // referring to the (possibly newly created and inserted) object in
+        // this set whose value is equivalent to that of an object constructed
+        // from 'arguments', and whose 'second' member is 'true' if a new value
+        // was inserted, and 'false' if an equivalent key was already present.
+
+    template <class... ARGS>
+    iterator emplace_hint(const_iterator hint, ARGS&&... args);
+        // Insert into this set a newly created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'args' to the corresponding
+        // constructor of 'value_type', if a key equivalent to such a value
+        // does not already exists in this set; otherwise, this method has no
+        // effect (other than possibly creating a temporary 'value_type'
+        // object).  Return an iterator referring to the (possibly newly
+        // created and inserted) object in this set whose value is equivalent
+        // to that of an object constructed from 'arguments'.  The average and
+        // worst case complexity of this operation is not affected by the
+        // specified 'hint'.  Note that 'hint' is ignored (other than possibly
+        // asserting its validity in some build modes).
+
+#endif
 
     bsl::size_t erase(const KEY& key);
         // Remove from this set the element whose key is equal to the specified
@@ -955,10 +1008,27 @@ void swap(FlatHashSet<KEY, HASH, EQUAL>& a, FlatHashSet<KEY, HASH, EQUAL>& b);
                        // ----------------------------
 
 // CLASS METHODS
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class ENTRY>
+template <class... ARGS>
+inline
+void FlatHashSet_EntryUtil<ENTRY>::construct(
+                        ENTRY                                       *entry,
+                        bslma::Allocator                            *allocator,
+                        ARGS&&...                                    args)
+{
+    BSLS_ASSERT_SAFE(entry);
+    bslma::ConstructionUtil::construct(
+                                 entry,
+                                 allocator,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+}
+#endif
+
 template <class ENTRY>
 template <class KEY>
 inline
-void FlatHashSet_EntryUtil<ENTRY>::construct(
+void FlatHashSet_EntryUtil<ENTRY>::constructFromKey(
                              ENTRY                                  *entry,
                              bslma::Allocator                       *allocator,
                              BSLS_COMPILERFEATURES_FORWARD_REF(KEY)  key)
@@ -1227,6 +1297,28 @@ void FlatHashSet<KEY, HASH, EQUAL>::clear()
 {
     d_impl.clear();
 }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class HASH, class EQUAL>
+template <class... ARGS>
+inline bsl::pair<typename FlatHashSet<KEY, HASH, EQUAL>::iterator, bool>
+FlatHashSet<KEY, HASH, EQUAL>::emplace(ARGS&&... args)
+{
+    return d_impl.emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+}
+
+template <class KEY, class HASH, class EQUAL>
+template <class... ARGS>
+inline typename FlatHashSet<KEY, HASH, EQUAL>::iterator
+FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
+                  typename FlatHashSet<KEY, HASH, EQUAL>::const_iterator,
+                  ARGS&&...                                               args)
+{
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...).first;
+}
+
+#endif
+
 
 template <class KEY, class HASH, class EQUAL>
 inline
@@ -1510,6 +1602,8 @@ struct UsesBslmaAllocator<bdlc::FlatHashSet<KEY, HASH, EQUAL> >
 
 }  // close namespace bslma
 }  // close enterprise namespace
+
+#endif // End C++11 code
 
 #endif
 

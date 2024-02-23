@@ -285,11 +285,22 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_utility.h>
 
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Tue Feb 13 08:49:03 2024
+// Command line: sim_cpp11_features.pl bdlc_flathashmap.h
+# define COMPILING_BDLC_FLATHASHMAP_H
+# include <bdlc_flathashmap_cpp03.h>
+# undef COMPILING_BDLC_FLATHASHMAP_H
+#else
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 #include <bsl_type_traits.h>
+
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     #error Rvalue references curiously absent despite native 'type_traits'.
     #endif
+
 #endif
 
 namespace BloombergLP {
@@ -324,8 +335,20 @@ struct FlatHashMap_EntryUtil
     // method to extract the key from an 'ENTRY'.
 {
     // CLASS METHODS
-    template <class KEY_TYPE>
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
     static void construct(
+                        ENTRY                                       *entry,
+                        bslma::Allocator                            *allocator,
+                        ARGS&&...                                    args);
+        // Load into the specified 'entry' the 'ENTRY' value constructed from
+        // specified 'args', using the specified 'allocator' to supply memory.
+        //  'allocator' is ignored if the (template parameter) type 'ENTRY' is
+        // not allocator aware.
+#endif
+
+    template <class KEY_TYPE>
+    static void constructFromKey(
                         ENTRY                                       *entry,
                         bslma::Allocator                            *allocator,
                         BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE)  key);
@@ -582,6 +605,44 @@ class FlatHashMap {
         // map maintains unique keys, the range will contain at most one
         // element.
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    bsl::pair<iterator, bool> emplace(ARGS&&... args);
+        // Insert into this map a newly-created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'args' to the corresponding
+        // constructor of 'value_type', if a key equivalent to such a value
+        // does not already exist in this map; otherwise, this method has no
+        // effect (other than possibly creating a temporary 'value_type'
+        // object).  Return a pair whose 'first' member is an iterator
+        // referring to the (possibly newly created and inserted) object in
+        // this map whose key is equivalent to that of an object constructed
+        // from 'args', and whose 'second' member is 'true' if a new value was
+        // inserted, and 'false' if an equivalent key was already present.
+        // This method requires that the (template parameter) types 'KEY' and
+        // 'VALUE' both be 'emplace-constructible' from 'args' (see
+        // {Requirements on 'value_type'}).
+
+    template <class... ARGS>
+    iterator emplace_hint(const_iterator hint, ARGS&&... args);
+        // Insert into this map a newly-created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'args' to the corresponding
+        // constructor of 'value_type', if a key equivalent to such a value
+        // does not already exist in this map; otherwise, this method has no
+        // effect (other than possibly creating a temporary 'value_type'
+        // object).  Return an iterator referring to the (possibly newly
+        // created and inserted) object in this map whose key is equivalent to
+        // that of an object constructed from 'args'.  The average and worst
+        // case complexity of this operation is not affected by the specified
+        // 'hint'.  This method requires that the (template parameter) types
+        // 'KEY' and 'VALUE' both be 'emplace-constructible' from 'args' (see
+        // {Requirements on 'value_type'}).  The behavior is undefined unless
+        // 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).  Note that 'hint' is ignored (other than
+        // possibly asserting its validity in some build modes).
+#endif
+
     bsl::size_t erase(const KEY& key);
         // Remove from this map the element whose key is equal to the specified
         // 'key', if it exists, and return 1; otherwise (there is no element
@@ -717,6 +778,61 @@ class FlatHashMap {
     void reset();
         // Remove all elements from this map and release all memory from this
         // map, returning the map to the default constructed state.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+    template< class... ARGS>
+    bsl::pair<iterator, bool> try_emplace(const KEY& key, ARGS&&... args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, return a pair containing an iterator referring to the existing
+        // item, and 'false'.  Otherwise, insert into this map a newly-created
+        // 'value_type' object, constructed from 'key' and the specified
+        // 'args', and return a pair containing an iterator referring to the
+        // newly-created entry and 'true'.  This method requires that the
+        // (template parameter) types 'KEY' and 'VALUE' are
+        // 'emplace-constructible' from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be 'copy-constructible'.
+
+    template <class... ARGS>
+    bsl::pair<iterator, bool> try_emplace(
+                                     BloombergLP::bslmf::MovableRef<KEY> key,
+                                     ARGS&&...                           args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, return a pair containing an iterator referring to the existing
+        // item and 'false'.  Otherwise, insert into this map a newly-created
+        // 'value_type' object, constructed from 'std::forward<KEY>(key)' and
+        // the specified 'args', and return a pair containing an iterator
+        // referring to the newly-created entry, and 'true'.  This method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' are
+        // 'emplace-constructible' from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be 'copy-constructible'.
+
+    template<class... ARGS>
+    iterator
+    try_emplace(const_iterator, const KEY& key, ARGS&&... args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, return an iterator referring to the existing item.  Otherwise,
+        // insert into this map a newly-created 'value_type' object,
+        // constructed from 'key' and the specified 'args', and return an
+        // iterator referring to the newly-created entry.  This method requires
+        // that the (template parameter) types 'KEY' and 'VALUE' are
+        // 'emplace-constructible' from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be 'copy-constructible'.
+
+    template <class... ARGS>
+    iterator try_emplace(const_iterator,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         ARGS&&...                           args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, return an iterator referring to the existing item.  Otherwise, 
+        // insert into this map a newly-created 'value_type' object,
+        // constructed from 'std::forward<KEY>(key)' and the specified 'args',
+        // and return an iterator referring to the newly-created entry.  This
+        // method requires that the (template parameter) types 'KEY' and
+        // 'VALUE' are 'emplace-constructible' from 'key' and 'args'
+        // respectively.  For C++03, 'VALUE' must also be 'copy-constructible'.
+#endif
+#endif
 
                           // Iterators
 
@@ -887,10 +1003,27 @@ void swap(FlatHashMap<KEY, VALUE, HASH, EQUAL>& a,
                        // ----------------------------
 
 // CLASS METHODS
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class VALUE, class ENTRY>
+template <class... ARGS>
+inline
+void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
+                        ENTRY                                       *entry,
+                        bslma::Allocator                            *allocator,
+                        ARGS&&...                                    args)
+{
+    BSLS_ASSERT_SAFE(entry);
+    bslma::ConstructionUtil::construct(
+                                 entry,
+                                 allocator,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+}
+#endif
+
 template <class KEY, class VALUE, class ENTRY>
 template <class KEY_TYPE>
 inline
-void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
+void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::constructFromKey(
                         ENTRY                                       *entry,
                         bslma::Allocator                            *allocator,
                         BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE)  key)
@@ -1209,6 +1342,28 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::equal_range(const KEY& key)
     return d_impl.equal_range(key);
 }
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class... ARGS>
+inline
+bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
+FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(ARGS&&... args)
+{
+    return d_impl.emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class... ARGS>
+inline
+typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
+FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
+                                                   ARGS&&...       args)
+{
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...).first;
+}
+#endif
+
+
 template <class KEY, class VALUE, class HASH, class EQUAL>
 bsl::size_t FlatHashMap<KEY, VALUE, HASH, EQUAL>::erase(const KEY& key)
 {
@@ -1291,6 +1446,68 @@ void FlatHashMap<KEY, VALUE, HASH, EQUAL>::reset()
 {
     d_impl.reset();
 }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template< class... ARGS>
+inline
+bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
+FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
+                                                  ARGS&&...  args)
+{
+    return d_impl.try_emplace(
+          key,
+          std::piecewise_construct,
+          std::forward_as_tuple(key),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class... ARGS>
+bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
+FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                                      ARGS&&...                           args)
+{
+    return d_impl.try_emplace(
+          BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY, key)),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template<class... ARGS>
+typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
+FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
+                                                  const KEY&      key,
+                                                  ARGS&&...       args)
+{
+    return d_impl.try_emplace(
+          key,
+          std::piecewise_construct,
+          std::forward_as_tuple(key),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...))
+          .first;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class... ARGS>
+typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
+FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         ARGS&&...                           args)
+{
+    return d_impl.try_emplace(
+          BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY, key)),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...))
+          .first;
+}
+#endif
+#endif
 
                           // Iterators
 
@@ -1541,6 +1758,8 @@ struct UsesBslmaAllocator<bdlc::FlatHashMap<KEY, VALUE, HASH, EQUAL> >
 
 }  // close namespace bslma
 }  // close enterprise namespace
+
+#endif // End C++11 code
 
 #endif
 

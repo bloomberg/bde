@@ -54,6 +54,8 @@
 #include <bsl_utility.h>
 #include <bsl_vector.h>
 
+#include <cstdlib>  // std::atoi
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -144,6 +146,8 @@ using namespace bsl;
 // [19] void reserve(size_t);
 // [ 2] void reset();
 // [ 8] void swap(FlatHashSet&);
+// [28] pair<iterator, bool> try_emplace(Args...);
+// [28] iterator emplace(const_iterator, Args...);
 //
 // ACCESSORS
 // [ 4] size_t capacity() const;
@@ -172,8 +176,8 @@ using namespace bsl;
 // FREE FUNCTIONS
 // [ 8] void swap(FlatHashSet&, FlatHashSet&);
 // ----------------------------------------------------------------------------
-// [27] USAGE EXAMPLE
-// [24] CONCERN: 'FlatHashMap' has the necessary type traits
+// [29] USAGE EXAMPLE
+// [24] CONCERN: 'FlatHashSet' has the necessary type traits
 // [25] DRQS 165258625: 'insert' could create reference to temporary
 // [27] DRQS 169531176: 'bsl::inserter' usage on Sun
 // [ 1] BREATHING TEST
@@ -572,7 +576,7 @@ void testCase14MoveConstructorWithAllocator(int id)
                 othAllocatorPtr = &da;
               } break;
               default: {
-                LOOP2_ASSERT(id, CONFIG, !"Bad allocator config.");
+                LOOP3_ASSERT(id, CONFIG, "Bad allocator config.", false);
                 return;                                               // RETURN
               }
             }
@@ -1217,7 +1221,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1264,6 +1268,60 @@ int main(int argc, char *argv[])
 //..
 //  100 84
 //..
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING 'EMPLACE'
+        //   Test 'emplace' and 'emplace_hint'.
+        //
+        // Concerns:
+        //: 1 That 'emplace' and 'emplace_hint' perform correctly.
+        //
+        // Plan:
+        //: 1 Emplace values into the set with a variety of construction
+        //:   parameters.  Check that values that are not included in the set
+        //:   are added, and ones that already exist are not added.
+        //
+        // Testing:
+        //   pair<iterator, bool> try_emplace(Args...);
+        //   iterator emplace(const_iterator, Args...);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'EMPLACE'"
+                            "\n=================\n");
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+        typedef bdlc::FlatHashSet<bsl::string> Obj;
+
+        Obj                            s(&oa);
+        Obj::iterator                  it;
+        bsl::pair<Obj::iterator, bool> ret;
+
+        ASSERT(s.empty());
+
+        ret = s.emplace(3, 'c');
+        ASSERT(1 == s.size());
+        ASSERT( ret.second);
+        ASSERT(*ret.first == "ccc");
+
+        ret = s.emplace("1234", 1, 1);
+        ASSERT(2 == s.size());
+        ASSERT( ret.second);
+        ASSERT(*ret.first == "2");
+
+        ret = s.emplace("ccc");
+        ASSERT(2 == s.size());  // 3 is already in the set
+        ASSERT(!ret.second);
+        ASSERT(*ret.first == "ccc");
+
+        it = s.emplace_hint(s.end(), "5");
+        ASSERT(*it == "5");
+        ASSERT(3 == s.size());
+
+        it = s.emplace_hint(s.end(), "12345", 4, 1); // 5 is already in the set
+        ASSERT(*it == "5");
+        ASSERT(3 == s.size());
+
       } break;
       case 27: {
         // --------------------------------------------------------------------

@@ -139,7 +139,7 @@ using namespace bsl;
 // [22] FlatHashMap& operator=(bsl::initializer_list<v_t> values);
 // #endif
 // [25] VALUE& operator[](FORWARD_REF(KEY) key);
-// [29] VALUE& at(const KEY& key);
+// [29] VALUE& at(const KEY&);
 // [ 2] void clear();
 // [12] bsl::pair<iterator, iterator> equal_range(const KEY& key);
 // [ 2] size_t erase(const KEY&);
@@ -159,9 +159,15 @@ using namespace bsl;
 // [12] iterator begin();
 // [12] iterator end();
 // [ 8] void swap(FlatHashMap&);
+// [31] emplace(ARGS...);
+// [31] emplace_hint(const_iterator, ARGS...);
+// [31] try_emplace(const KEY&,  ARGS...);
+// [31] try_emplace(      KEY&&, ARGS...);
+// [31] try_emplace(const_iterator, const KEY&,  ARGS...);
+// [31] try_emplace(const_iterator,       KEY&&, ARGS...);
 //
 // ACCESSORS
-// [29] const VALUE& at(const KEY& key) const;
+// [29] const VALUE& at(const KEY&) const;
 // [ 4] size_t capacity() const;
 // [12] bool contains(const KEY&) const;
 // [12] bsl::size_t count(const KEY& key) const;
@@ -188,7 +194,7 @@ using namespace bsl;
 // FREE FUNCTIONS
 // [ 8] void swap(FlatHashMap&, FlatHashMap&);
 // ----------------------------------------------------------------------------
-// [31] USAGE EXAMPLE
+// [32] USAGE EXAMPLE
 // [26] CONCERN: 'FlatHashMap' has the necessary type traits
 // [27] DRQS 165583038: 'insert' with conversion can crash
 // [30] DRQS 169531176: bsl::inserter compatibility on Sun
@@ -575,7 +581,7 @@ void testCase14MoveConstructorWithAllocator(int id)
                 othAllocatorPtr = &da;
               } break;
               default: {
-                LOOP2_ASSERT(id, CONFIG, !"Bad allocator config.");
+                LOOP3_ASSERT(id, CONFIG, "Bad allocator config.", false);
                 return;                                               // RETURN
               }
             }
@@ -963,7 +969,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1110,6 +1116,136 @@ int main(int argc, char *argv[])
 //  them          3
 //  among         3
 //..
+      } break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // EMPLACE
+        //   'emplace' and 'try_emplace' work as expected.
+        //
+        // Concerns:
+        //: 1 Attempting to insert objects into the map using 'emplace' and
+        //:   'try_emplace' succeeds when the key does not exist in the map.
+        //:
+        //: 2 Attempting to insert objects into the map using 'emplace' and
+        //:   'try_emplace' fails when the key already exists in the map.
+        //
+        // Plan:
+        //: 1 Attempt to emplace values into the map with key values that both
+        //:   exist and do not exist in the map.  Verify the results (C-1, 2)
+        //
+        // Testing:
+        //   emplace(ARGS...);
+        //   emplace_hint(const_iterator, ARGS...);
+        //   try_emplace(const KEY&,  ARGS...);
+        //   try_emplace(      KEY&&, ARGS...);
+        //   try_emplace(const_iterator, const KEY&,  ARGS...);
+        //   try_emplace(const_iterator,       KEY&&, ARGS...);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "EMPLACE" << endl
+                          << "=======" << endl;
+
+        typedef bdlc::FlatHashMap<int, bsl::string> Obj;
+        typedef bsl::pair<Obj::iterator, bool> Ret;
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+        Obj                  mX(&oa); const Obj& X = mX;
+        const int            key = 2;
+        Ret                  ret;
+        Obj::iterator        it;
+
+        ret = mX.emplace(key, bsl::string("aaaaaa"));
+        ASSERT( ret.second);  // value was inserted
+        ASSERT(ret.first->first == key);
+        ASSERT(ret.first->second == "aaaaaa");
+        ASSERT(1 == X.size());
+
+        ret = mX.emplace(bsl::make_pair(23, bsl::string("ABCDE")));
+        ASSERT( ret.second);  // value was inserted
+        ASSERT(ret.first->first == 23);
+        ASSERT(ret.first->second == "ABCDE");
+        ASSERT(2 == X.size());
+
+        ret = mX.emplace(bsl::make_pair(23, bsl::string("FGHIJ")));
+        ASSERT(!ret.second);  // value was NOT inserted
+        ASSERT(ret.first->first == 23);
+        ASSERT(ret.first->second == "ABCDE"); // unchanged
+        ASSERT(2 == X.size());
+
+        ret = mX.emplace(key, bsl::string("DEF"));
+        ASSERT(!ret.second);  // value was not inserted
+        ASSERT(ret.first->first == key);
+        ASSERT(ret.first->second == "aaaaaa"); // unchanged
+        ASSERT(2 == X.size());
+
+        it = mX.emplace_hint(X.end(), key, bsl::string("DEF"));
+        ASSERT(it->first == key);
+        ASSERT(it->second == "aaaaaa"); // unchanged
+        ASSERT(2 == X.size());
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+        ret = mX.emplace(std::piecewise_construct,
+                         std::forward_as_tuple(17),
+                         std::forward_as_tuple(5, 'b'));
+        ASSERT( ret.second);
+        ASSERT(ret.first->first == 17);
+        ASSERT(ret.first->second == "bbbbb");
+        ASSERT(3 == X.size());
+
+        ret = mX.emplace(std::piecewise_construct,
+                         std::forward_as_tuple(17),
+                         std::forward_as_tuple());
+        ASSERT(!ret.second);  // value was not inserted
+        ASSERT(ret.first->first == 17);
+        ASSERT(ret.first->second == "bbbbb"); // unchanged
+        ASSERT(3 == X.size());
+
+        mX.clear();
+        ASSERT(0 == X.size());
+
+        // All of the try_emplace calls require 'std::piecewise_construct'
+        ret = mX.try_emplace(key, 5, 'b');
+        ASSERT( ret.second);  // value was inserted
+        ASSERT(ret.first->first == key);
+        ASSERT(ret.first->second == "bbbbb");
+        ASSERT(1 == X.size());
+
+        ret = mX.try_emplace(key, "ABC");
+        ASSERT(!ret.second);                  // value was NOT inserted
+        ASSERT(key == ret.first->first);
+        ASSERT(ret.first->second == "bbbbb"); // still the same
+        ASSERT(1 == X.size());
+
+        ret = mX.try_emplace(3, "DEF");     // lvalue overload
+        ASSERT( ret.second);                // value was inserted
+        ASSERT(3 == ret.first->first);
+        ASSERT(ret.first->second == "DEF");
+        ASSERT(2 == X.size());
+
+        ret = mX.try_emplace(3, "ABCDE", 2, 3);  // lvalue overload
+        ASSERT(!ret.second);                // value was NOT inserted
+        ASSERT(3 == ret.first->first);
+        ASSERT(ret.first->second == "DEF");
+        ASSERT(2 == X.size());
+
+        it = mX.try_emplace(X.begin(), key, "ABCDE", 1, 3);
+        ASSERT(key == it->first);
+        ASSERT(it->second == "bbbbb");
+        ASSERT(2 == X.size());
+
+        it = mX.try_emplace(X.begin(), 3, "ABCDE", 2, 3);
+        ASSERT(3 == it->first);
+        ASSERT(it->second == "DEF");
+        ASSERT(2 == X.size());
+
+        it = mX.try_emplace(X.begin(), 99, "ABCDE", 2, 2);
+        ASSERT(99 == it->first);
+        std::cout << it->second << std::endl;
+        ASSERT(it->second == "CD");
+        ASSERT(3 == X.size());
+#endif
+
       } break;
       case 30: {
         // --------------------------------------------------------------------
