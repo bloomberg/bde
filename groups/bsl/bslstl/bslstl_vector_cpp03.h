@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Feb 15 15:06:43 2024
+// Generated on Thu Feb 22 14:09:04 2024
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -4644,14 +4644,16 @@ void vector<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 {
     if (this->size() < this->d_capacity) {
         vector temp(this->get_allocator());
-        temp.privateReserveEmpty(this->size());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         this->allocatorRef());
+        if (this->size() > 0) {
+            temp.privateReserveEmpty(this->size());
+            ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                             this->d_dataBegin_p,
+                                             this->d_dataEnd_p,
+                                             this->allocatorRef());
 
-        temp.d_dataEnd_p += this->size();
-        this->d_dataEnd_p = this->d_dataBegin_p;
+            temp.d_dataEnd_p += this->size();
+            this->d_dataEnd_p = this->d_dataBegin_p;
+        }
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
 }

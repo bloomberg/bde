@@ -3952,6 +3952,8 @@ void TestDriver2<TYPE, ALLOC>::testCase14()
     //      guarantee of rollback.
     //   5) That the accessors such as 'capacity', 'empty', return the correct
     //      value.
+    //   6) That calling 'shrink_to_fit' on a vector with no elements does not
+    //      allocate a zero byte object on the heap.
     //
     // Plan:
     //   For vector 'v' having various initial capacities, call
@@ -4296,6 +4298,20 @@ void TestDriver2<TYPE, ALLOC>::testCase14()
 
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBlocksInUse());
+    }
+
+    // DRQS 174392169: Update shrink_to_fit to avoid calling allocate(0)
+    {
+        bslma::TestAllocator ta("testAllocator", veryVeryVerbose);
+        ALLOC                alloc(&ta);
+
+        Obj v1(alloc);
+        ASSERT(0 == v1.size());
+        v1.reserve(12);
+        ASSERT(v1.capacity() > v1.size());
+        v1.shrink_to_fit();
+        ASSERT(0 != ta.lastAllocatedNumBytes());
+        ASSERT(v1.capacity() == v1.size());
     }
 }
 

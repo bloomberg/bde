@@ -3626,14 +3626,16 @@ void vector<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 {
     if (this->size() < this->d_capacity) {
         vector temp(this->get_allocator());
-        temp.privateReserveEmpty(this->size());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         this->allocatorRef());
+        if (this->size() > 0) {
+            temp.privateReserveEmpty(this->size());
+            ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                             this->d_dataBegin_p,
+                                             this->d_dataEnd_p,
+                                             this->allocatorRef());
 
-        temp.d_dataEnd_p += this->size();
-        this->d_dataEnd_p = this->d_dataBegin_p;
+            temp.d_dataEnd_p += this->size();
+            this->d_dataEnd_p = this->d_dataBegin_p;
+        }
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
 }
