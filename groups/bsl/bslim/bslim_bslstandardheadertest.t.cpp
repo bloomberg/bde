@@ -641,36 +641,6 @@ namespace SW {
     {}
 }  // close namespace SW
 
-void Conjunction ()
-    // Test that 'bsl::conjunction_v<TYPES...>' returns the same value as
-    // 'bsl::conjunction<TYPES...>::value.
-{
-    typedef bsl::false_type F;
-    typedef bsl::true_type  T;
-
-    static_assert(bsl::conjunction<F   >::value == bsl::conjunction_v<F   >);
-    static_assert(bsl::conjunction<T   >::value == bsl::conjunction_v<T   >);
-    static_assert(bsl::conjunction<F, F>::value == bsl::conjunction_v<F, F>);
-    static_assert(bsl::conjunction<F, T>::value == bsl::conjunction_v<F, T>);
-    static_assert(bsl::conjunction<T, F>::value == bsl::conjunction_v<T, F>);
-    static_assert(bsl::conjunction<T, T>::value == bsl::conjunction_v<T, T>);
-}
-
-void Disjunction ()
-    // Test that 'bsl::disjunction_v<TYPES...>' returns the same value as
-    // 'bsl::disjunction<TYPES...>::value.
-{
-    typedef bsl::false_type F;
-    typedef bsl::true_type  T;
-
-    static_assert(bsl::disjunction<F>::value    == bsl::disjunction_v<F>);
-    static_assert(bsl::disjunction<T>::value    == bsl::disjunction_v<T>);
-    static_assert(bsl::disjunction  <F, F>::value == bsl::disjunction_v<F, F>);
-    static_assert(bsl::disjunction  <F, T>::value == bsl::disjunction_v<F, T>);
-    static_assert(bsl::disjunction  <T, F>::value == bsl::disjunction_v<T, F>);
-    static_assert(bsl::disjunction  <T, T>::value == bsl::disjunction_v<T, T>);
-}
-
 void HasUniqueObjectReps ()
     // Test that 'bsl::has_unique_object_representations_v<TYPE>' returns the
     // same value as 'bsl::has_unique_object_representations<TYPE>::value'.
@@ -745,17 +715,6 @@ void IsSwappableWith ()
     static_assert(
         bsl::is_nothrow_swappable_with  <SW::SwapA, SW::SwapC>::value ==
         bsl::is_nothrow_swappable_with_v<SW::SwapA, SW::SwapC>);
-}
-
-void Negation ()
-    // Test that 'bsl::negation_v<TYPE>' returns the same value as
-    // 'bsl::negation<TYPE>::value'.
-{
-    typedef bsl::false_type F;
-    typedef bsl::true_type  T;
-
-    static_assert(bsl::negation<F>::value == bsl::negation_v<F>);
-    static_assert(bsl::negation<T>::value == bsl::negation_v<T>);
 }
 
 }  // close namespace TestCxx17TypeAliases
@@ -4449,15 +4408,12 @@ int main(int argc, char *argv[])
         // We don't really need to call these routines, because all they do is
         // 'static_assert', but this keeps the compiler from warning about
         // "unused functions".
-        TestCpp17TypeAliases::Conjunction();
-        TestCpp17TypeAliases::Disjunction();
         TestCpp17TypeAliases::HasUniqueObjectReps();
         TestCpp17TypeAliases::IsAggregate();
         TestCpp17TypeAliases::IsInvocable();
         TestCpp17TypeAliases::IsInvocableR();
         TestCpp17TypeAliases::IsSwappable();
         TestCpp17TypeAliases::IsSwappableWith();
-        TestCpp17TypeAliases::Negation();
 #endif
 
       } break;

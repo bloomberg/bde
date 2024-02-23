@@ -10,8 +10,12 @@ bslmf_arraytopointer
 bslmf_assert
 bslmf_booleantestable
 bslmf_conditional
+bslmf_conjunction
+bslmf_conjunction_cpp03
 bslmf_decay
 bslmf_detectnestedtrait
+bslmf_disjunction
+bslmf_disjunction_cpp03
 bslmf_enableif
 bslmf_forwardingreftype
 bslmf_forwardingtype
@@ -66,6 +70,7 @@ bslmf_memberfunctionpointertraits
 bslmf_memberpointertraits
 bslmf_metaint
 bslmf_movableref
+bslmf_negation
 bslmf_nestedtraitdeclaration
 bslmf_nil
 bslmf_nthparameter

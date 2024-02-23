@@ -15,6 +15,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsla_deprecated.h>
 
+#include <bslmf_conjunction.h>
+#include <bslmf_disjunction.h>
+#include <bslmf_negation.h>
+
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
@@ -236,9 +240,7 @@ using std::is_final;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // 20.10.8, logical operator traits:
-using std::conjunction;
-using std::disjunction;
-using std::negation;
+// supplied by 'bslmf'
 
     // 23.15.4.3, type properties
 using std::has_unique_object_representations;
@@ -481,18 +483,6 @@ BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_base_of_v = std::is_base_of<TYPE1, TYPE2>::value;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-template <class ...Bools>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool conjunction_v = std::conjunction<Bools...>::value;
-
-template <class ...Bools>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool disjunction_v = std::disjunction<Bools...>::value;
-
-template <class BOOLEAN_VALUE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool negation_v = std::negation<BOOLEAN_VALUE>::value;
-
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr std::size_t has_unique_object_representations_v =
