@@ -179,7 +179,6 @@ class Tokenizer {
         e_ERROR           // error token
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ,
-        BAEJSN_BEGIN         = e_BEGIN,
         BAEJSN_ELEMENT_NAME  = e_ELEMENT_NAME,
         BAEJSN_START_OBJECT  = e_START_OBJECT,
         BAEJSN_END_OBJECT    = e_END_OBJECT,
