@@ -13,7 +13,6 @@ BSLS_IDENT("$Id: $")
 //  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds
 //  BDE_BUILD_TARGET_NO_MT: flag identifying builds that do not support threads
 //  BDE_BUILD_SKIP_VERSION_CHECKS: turn off compiler version checks
-//  BDE_BLOCK_CPP20_LINK_CHECKS: allow C++20 and C++17 code to link together
 //  BDE_OMIT_DEPRECATED: legacy flag to deprecate a block of code
 //  BDE_OMIT_INTERNAL_DEPRECATED: legacy flag to deprecate internal-only code
 //  BDE_OPENSOURCE_PUBLICATION: marker for non-deprecated internal-only code
@@ -46,11 +45,7 @@ BSLS_IDENT("$Id: $")
 // C++ object files built using a particular standard version must be linked
 // with BDE libraries built using the same standard version, or else the
 // program will be ill formed, no diagnostic required (IFNDR) and may exhibit
-// issues at runtime that are very difficult to debug.  However, as a temporary
-// workaround for one specific internal usage, we provide the macro
-// 'BDE_BLOCK_CPP20_LINK_CHECKS', which allows user code built with C++20 to
-// link with BDE libraries built with C++17.  **Under no circumstances should
-// this macro be defined in a production build.**
+// issues at runtime that are very difficult to debug.
 //
 ///Deprecation Control Macros
 ///--------------------------

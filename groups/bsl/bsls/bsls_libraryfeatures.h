@@ -2165,13 +2165,9 @@ BSLS_IDENT("$Id: $")
 
 // Catch attempts to link C++14 objects with C++17 objects (for example).
 
-// NOTE: See 'bsls_buildtarget.h' for documentation of the
-// 'BDE_BLOCK_CPP20_LINK_CHECKS' macro, which must not be used in production.
-
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY)
 #define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME bsls_libraryfeatures_CPP23_ABI
-#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) &&             \
-     !defined(BDE_BLOCK_CPP20_LINK_CHECKS)
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
 #define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME bsls_libraryfeatures_CPP20_ABI
 #elif defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
 #define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME bsls_libraryfeatures_CPP17_ABI
