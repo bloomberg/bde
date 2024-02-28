@@ -251,8 +251,11 @@ using namespace BloombergLP;
 // [ 4] long use_count() const
 // [ 4] bool unique() const
 // [16] operator BoolType() const
-// [29] bool shared_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& rhs)
+// [29] bool shared_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& r)
 // [29] bool shared_ptr::owner_before(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+// [29] bool shared_ptr::owner_equal(const shared_ptr<BDE_OTHER_TYPE>& r)
+// [29] bool shared_ptr::owner_equal(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+// [29] size_t shared_ptr::owner_hash()
 //
 // BDE SPECIFIC ACCESSORS
 // [ 4] add_lvalue_reference<ELEM_TYPE>::type operator[](ptrdiff_t) const
@@ -427,6 +430,9 @@ using namespace BloombergLP;
 // [27] shared_ptr<TYPE> lock() const
 // [29] bool weak_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& rhs)
 // [29] bool weak_ptr::owner_before(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+// [29] bool weak_ptr::owner_equal(const shared_ptr<BDE_OTHER_TYPE>& rhs)
+// [29] bool weak_ptr::owner_equal(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+// [29] size_t weak_ptr::owner_hash()
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST (weak_ptr)
 // [39] USAGE EXAMPLE 1: weak_ptr
@@ -16110,22 +16116,30 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING 'owner_before' METHODS
+        // TESTING 'owner_before', 'owner_equal' AND 'owner_hash' METHODS
         //
         // Concerns:
-        //   Test that the 'owner_before' function works as expected.
+        //   Test that the 'owner_before', 'owner_equal' and 'owner_hash'
+        //   functions works as expected.
         //
         // Plan:
         //
         // Testing:
         //   bool shared_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& r)
         //   bool shared_ptr::owner_before(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+        //   bool shared_ptr::owner_equal(const shared_ptr<BDE_OTHER_TYPE>& r)
+        //   bool shared_ptr::owner_equal(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+        //   size_t shared_ptr::owner_hash()
         //   bool weak_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& rhs)
         //   bool weak_ptr::owner_before(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+        //   bool weak_ptr::owner_equal(const shared_ptr<BDE_OTHER_TYPE>& rhs)
+        //   bool weak_ptr::owner_equal(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+        //   size_t weak_ptr::owner_hash()
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'owner_before' METHODS"
-                            "\n==============================\n");
+        if (verbose) printf(
+         "\nTESTING 'owner_before', 'owner_equal' AND 'owner_hash' METHODS"
+         "\n==============================================================\n");
 
         bslma::TestAllocator ta;
         MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
@@ -16159,6 +16173,22 @@ int main(int argc, char *argv[])
             ASSERT(true  == EWP1.owner_before(SB));
             ASSERT(true  == EWP1.owner_before(WB));
 
+            ASSERT(true  == EWP1.owner_equal(EWP1));
+            ASSERT(true  == EWP1.owner_equal(EWP2));
+            ASSERT(true  == EWP1.owner_equal(ESP));
+            ASSERT(false == EWP1.owner_equal(SA));
+            ASSERT(false == EWP1.owner_equal(WA));
+            ASSERT(false == EWP1.owner_equal(SB));
+            ASSERT(false == EWP1.owner_equal(WB));
+
+            ASSERT(EWP1.owner_hash() == EWP1.owner_hash());
+            ASSERT(EWP1.owner_hash() == EWP2.owner_hash());
+            ASSERT(EWP1.owner_hash() == ESP.owner_hash());
+            ASSERT(EWP1.owner_hash() != SA.owner_hash());
+            ASSERT(EWP1.owner_hash() != WA.owner_hash());
+            ASSERT(EWP1.owner_hash() != SB.owner_hash());
+            ASSERT(EWP1.owner_hash() != WB.owner_hash());
+
             ASSERT(false == WA.owner_before(EWP1));
             ASSERT(false == WA.owner_before(ESP));
             ASSERT(false == WA.owner_before(SA));
@@ -16166,12 +16196,32 @@ int main(int argc, char *argv[])
             ASSERT(WA.owner_before(SB) == (&REP1 < &REP2));
             ASSERT(WA.owner_before(WB) == (&REP1 < &REP2));
 
+            ASSERT(false == WA.owner_equal(EWP1));
+            ASSERT(false == WA.owner_equal(ESP));
+            ASSERT(true  == WA.owner_equal(SA));
+            ASSERT(true  == WA.owner_equal(WA));
+
+            ASSERT(WA.owner_hash() != EWP1.owner_hash());
+            ASSERT(WA.owner_hash() != ESP.owner_hash());
+            ASSERT(WA.owner_hash() == SA.owner_hash());
+            ASSERT(WA.owner_hash() == WA.owner_hash());
+
             ASSERT(false == SA.owner_before(EWP1));
             ASSERT(false == SA.owner_before(ESP));
             ASSERT(false == SA.owner_before(SA));
             ASSERT(false == SA.owner_before(WA));
             ASSERT(SA.owner_before(SB) == (&REP1 < &REP2));
             ASSERT(SA.owner_before(WB) == (&REP1 < &REP2));
+
+            ASSERT(false == SA.owner_equal(EWP1));
+            ASSERT(false == SA.owner_equal(ESP));
+            ASSERT(true  == SA.owner_equal(SA));
+            ASSERT(true  == SA.owner_equal(WA));
+
+            ASSERT(SA.owner_hash() != EWP1.owner_hash());
+            ASSERT(SA.owner_hash() != ESP.owner_hash());
+            ASSERT(SA.owner_hash() == SA.owner_hash());
+            ASSERT(SA.owner_hash() == WA.owner_hash());
         }
       } break;
       case 28: {

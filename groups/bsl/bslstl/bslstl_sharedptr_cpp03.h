@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jan 11 05:07:57 2024
+// Generated on Tue Feb 27 11:06:10 2024
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -1647,6 +1647,26 @@ class shared_ptr {
         // 'other' shared pointer under the total ordering defined by
         // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
         // otherwise.
+
+    template<class ANY_TYPE>
+    bool owner_equal(const shared_ptr<ANY_TYPE>& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template<class ANY_TYPE>
+    bool owner_equal(const weak_ptr<ANY_TYPE>& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
+        // pointer is equal to the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified
+        // 'other' shared pointer, and 'false' otherwise.
+
+    size_t owner_hash() const BSLS_KEYWORD_NOEXCEPT;
+        // Return an unspecified value such that, for any object 'x' where
+        // 'owner_equal(x)' is true, 'owner_hash() == x.owner_hash()' is true.
+        // Note that this is based on the hash of the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by this object.
+        // Note also that for two empty smart pointers 'x' and 'y',
+        // 'x.owner_hash() == y.owner_hash()' is true.
 
     BSLS_DEPRECATE_FEATURE("bsl",
                            "deprecated_cpp17_standard_library_features",
@@ -3445,6 +3465,26 @@ class weak_ptr {
         // 'other' shared pointer under the total ordering defined by
         // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
         // otherwise.
+
+    template<class ANY_TYPE>
+    bool owner_equal(const shared_ptr<ANY_TYPE>& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template<class ANY_TYPE>
+    bool owner_equal(const weak_ptr<ANY_TYPE>& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
+        // pointer is equal to the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified
+        // 'other' shared pointer, and 'false' otherwise.
+
+    size_t owner_hash() const BSLS_KEYWORD_NOEXCEPT;
+        // Return an unspecified value such that, for any object 'x' where
+        // 'owner_equal(x)' is true, 'owner_hash() == x.owner_hash()' is true.
+        // Note that this is based on the hash of the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by this object.
+        // Note also that for two empty smart pointers 'x' and 'y',
+        // 'x.owner_hash() == y.owner_hash()' is true.
 
     BloombergLP::bslma::SharedPtrRep *rep() const BSLS_KEYWORD_NOEXCEPT;
         // Return the address providing modifiable access to the
@@ -5646,6 +5686,33 @@ shared_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 }
 
 template <class ELEMENT_TYPE>
+template<class ANY_TYPE>
+inline
+bool shared_ptr<ELEMENT_TYPE>::owner_equal(const shared_ptr<ANY_TYPE>& other)
+                                                    const BSLS_KEYWORD_NOEXCEPT
+{
+    return rep() == other.rep();
+}
+
+template <class ELEMENT_TYPE>
+template<class ANY_TYPE>
+inline
+bool
+shared_ptr<ELEMENT_TYPE>::owner_equal(const weak_ptr<ANY_TYPE>& other) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return rep() == other.rep();
+}
+
+template <class ELEMENT_TYPE>
+inline
+size_t
+shared_ptr<ELEMENT_TYPE>::owner_hash() const BSLS_KEYWORD_NOEXCEPT
+{
+    return hash<BloombergLP::bslma::SharedPtrRep *>()(rep());
+}
+
+template <class ELEMENT_TYPE>
 inline
 bool shared_ptr<ELEMENT_TYPE>::unique() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -5982,6 +6049,34 @@ weak_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 {
     return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
                                                            other.d_rep_p);
+}
+
+template <class ELEMENT_TYPE>
+template<class ANY_TYPE>
+inline
+bool
+weak_ptr<ELEMENT_TYPE>::owner_equal(const shared_ptr<ANY_TYPE>& other)
+                                                    const BSLS_KEYWORD_NOEXCEPT
+{
+    return rep() == other.rep();
+}
+
+template <class ELEMENT_TYPE>
+template<class ANY_TYPE>
+inline
+bool
+weak_ptr<ELEMENT_TYPE>::owner_equal(const weak_ptr<ANY_TYPE>& other) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return rep() == other.rep();
+}
+
+template <class ELEMENT_TYPE>
+inline
+size_t
+weak_ptr<ELEMENT_TYPE>::owner_hash() const BSLS_KEYWORD_NOEXCEPT
+{
+    return hash<BloombergLP::bslma::SharedPtrRep *>()(rep());
 }
 
 template <class ELEMENT_TYPE>

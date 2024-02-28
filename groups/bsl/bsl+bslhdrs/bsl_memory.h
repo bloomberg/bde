@@ -149,6 +149,8 @@ namespace bsl {
 #include <bslmf_allocatorargt.h>
 
 #include <bslstl_badweakptr.h>
+#include <bslstl_ownerequal.h>
+#include <bslstl_ownerhash.h>
 #include <bslstl_ownerless.h>
 #include <bslstl_sharedptr.h>
 

@@ -67,6 +67,8 @@ bslstl_ostream
 bslstl_ostringstream
 bslstl_osyncstream
 bslstl_ownerless
+bslstl_ownerequal
+bslstl_ownerhash
 bslstl_pair
 bslstl_priorityqueue
 bslstl_priorityqueue_cpp03
