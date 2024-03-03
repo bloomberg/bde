@@ -1,5 +1,19 @@
-bsl-internal (4.3.0.0) unstable; urgency=low
+bsl-internal (4.4.0.0) unstable; urgency=low
 
+  * e17a0cd6c Bumped version to 4.4.0.0
+  * 204d5a550 Implement owner_equal and owner_hash from C++26 (DRQS 174172604) (#4638)
+  * 495a30526 Remove unused BAEJSN_BEGIN (#4639)
+  * 829d43f9c Remove workaround for cpp20 link coercion (#4629)
+  * c8401406b Logical operator traits (DRQS 174269087) (#4628)
+  * d08cde680 Modify 'shrinkToFit' so it does not call 'allocate(0)' {DRQS 174392169} (#4637)
+  * 9c6d14c09 Add 'emplace' (and variants) to the flat associative containers {DRQS 166844030} (#4601)
+  * c5bf4f1ac Balcl nightly build warnings drqs 174193974 (#4610)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 3 Mar 2024 17:35:50 -0500
+
+bsl-internal (4.3.0.0) git; urgency=low
+
+  * 8cd1098c8 Changelog for version 4.3.0.0
   * 08263c4e0 Bumped version to 4.3.0.0
   * 0a9f434c6 Suppress buggy Wmaybe-uninitialized error in bsl::vector destructor (DRQS 174259807) (#4632)
   * 1374e2afa bdlbb_blobutil: add new 'append(length, fillChar)' overload (#4612)
@@ -12,7 +26,7 @@ bsl-internal (4.3.0.0) unstable; urgency=low
   * 6bddfa463 Bslstl pair is_constructible sfinae current behavior (#4513)
   * b3b4fb4e9 Remove unused Function_NothrowWrapper (#4618)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 17 Feb 2024 12:51:15 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 17 Feb 2024 12:55:24 -0500
 
 bsl-internal (4.2.0.0) git; urgency=low
 
