@@ -17,15 +17,14 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 128 components having 11 levels of physical
+ The 'bslstl' package currently has 128 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  11. bslstl_ownerequal
-
-  10. bslstl_ownerless
+  10. bslstl_ownerequal
       bslstl_ownerhash
+      bslstl_ownerless
       bslstl_stoptoken
       bslstl_typeindex
 
@@ -367,6 +366,12 @@
 :
 : 'bslstl_osyncstream':
 :      Provide a C++20-compatible 'basic_osyncstream' class template.
+:
+: 'bslstl_ownerequal':
+:      Provide an ownership comparison for shared and weak pointers.
+:
+: 'bslstl_ownerhash':
+:      Provide an ownership hash functor for shared and weak pointers.
 :
 : 'bslstl_ownerless':
 :      Provide an ordering for shared and weak pointers.

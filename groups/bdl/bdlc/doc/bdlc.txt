@@ -9,24 +9,28 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlc' package currently has 11 components having 3 levels of physical
+ The 'bdlc' package currently has 14 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  3. bdlc_flathashmap
+  4. bdlc_flathashmap
      bdlc_flathashset
 
-  2. bdlc_compactedarray
+  3. bdlc_compactedarray
      bdlc_flathashtable
      bdlc_packedintarrayutil
 
-  1. bdlc_bitarray
+  2. bdlc_bitarray
+     bdlc_flathashmap_cpp03                                           !PRIVATE!
      bdlc_flathashtable_groupcontrol                                  !PRIVATE!
      bdlc_hashtable
      bdlc_indexclerk
      bdlc_packedintarray
      bdlc_queue                                          !DEPRECATED!
+
+  1. bdlc_flathashset_cpp03                                           !PRIVATE!
+     bdlc_flathashtable_cpp03                                         !PRIVATE!
 ..
 
 /Component Synopsis
@@ -40,11 +44,20 @@
 : 'bdlc_flathashmap':
 :      Provide an open-addressed unordered map container.
 :
+: 'bdlc_flathashmap_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bdlc_flathashmap.h
+:
 : 'bdlc_flathashset':
 :      Provide an open-addressed unordered set container.
 :
+: 'bdlc_flathashset_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bdlc_flathashset.h
+:
 : 'bdlc_flathashtable':
 :      Provide an open-addressed hash table like Abseil 'flat_hash_map'.
+:
+: 'bdlc_flathashtable_cpp03':                                         !PRIVATE!
+:      Provide C++03 implementation for bdlc_flathashtable.h
 :
 : 'bdlc_flathashtable_groupcontrol':                                  !PRIVATE!
 :      Provide inquiries to a flat hash table group of control values.

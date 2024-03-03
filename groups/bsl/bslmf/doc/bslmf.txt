@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 90 components having 21 levels of physical
+ The 'bslmf' package currently has 95 components having 21 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -121,11 +121,14 @@
 
    5. bslmf_addpointer
       bslmf_addreference
+      bslmf_conjunction
+      bslmf_disjunction
       bslmf_functionpointertraits
       bslmf_if                                           !DEPRECATED!
       bslmf_makeintegersequence
       bslmf_matchanytype
       bslmf_metaint                                      !DEPRECATED!
+      bslmf_negation
       bslmf_removecv
       bslmf_selecttrait
 
@@ -164,7 +167,9 @@
       bslmf_integralconstant
       bslmf_voidtype
 
-   1. bslmf_functionpointertraits_cpp03                               !PRIVATE!
+   1. bslmf_conjunction_cpp03                                         !PRIVATE!
+      bslmf_disjunction_cpp03                                         !PRIVATE!
+      bslmf_functionpointertraits_cpp03                               !PRIVATE!
       bslmf_invokeresult_cpp03                                        !PRIVATE!
       bslmf_nthparameter_cpp03                                        !PRIVATE!
 ..
@@ -207,11 +212,23 @@
 : 'bslmf_conditional':
 :      Provide a compile-time conditional type selector.
 :
+: 'bslmf_conjunction':
+:      Provide the logical conjunction (AND) for type traits.
+:
+: 'bslmf_conjunction_cpp03':                                          !PRIVATE!
+:      Provide C++03 implementation for bslmf_conjunction.h
+:
 : 'bslmf_decay':
 :      Convert a type to the type used for pass-by-value.
 :
 : 'bslmf_detectnestedtrait':
 :      Provide a facility for defining traits and detecting legacy traits.
+:
+: 'bslmf_disjunction':
+:      Provide the logical disjunction (OR) for type traits.
+:
+: 'bslmf_disjunction_cpp03':                                          !PRIVATE!
+:      Provide C++03 implementation for bslmf_disjunction.h
 :
 : 'bslmf_enableif':
 :      Provide a utility to set up SFINAE conditions in type deduction.
@@ -374,6 +391,9 @@
 :
 : 'bslmf_movableref':
 :      Provide a vocabulary type to enable move semantics.
+:
+: 'bslmf_negation':
+:      Provide the logical negation (NOT) for type traits.
 :
 : 'bslmf_nestedtraitdeclaration':
 :      Provide a nested declaration to associate a class with a trait.
