@@ -200,6 +200,8 @@ void BlobUtil::append(Blob *dest, int length, char fill)
     }
 
     BSLS_ASSERT(0 < length);
+    BSLS_ASSERT(length <= dest->totalSize() - dest->length() ||
+                                                         0 != dest->factory());
 
     int bufIdx       = bsl::max(0, dest->numDataBuffers() - 1);
     int numBytesLeft = length;

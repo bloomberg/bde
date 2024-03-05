@@ -47,30 +47,46 @@ struct BlobUtil {
     // CLASS METHODS
     static void append(Blob *dest, const Blob& source, int offset, int length);
         // Append the specified 'length' bytes from the specified 'offset' in
-        // the specified 'source' to the specified 'dest'.
+        // the specified 'source' to the specified 'dest'.  Note that the data
+        // memory from 'source' is not copied, but rather new 'BlobBuffer's
+        // referring to the same data memory are created and appended to
+        // 'dest', hence 'dest' is not required to have a 'BlobBufferFactory'.
 
     static void append(Blob *dest, const Blob& source, int offset);
         // Append from the specified 'offset' in the specified 'source' to the
-        // specified 'dest'.
+        // specified 'dest'.  Note that the data memory from 'source' is not
+        // copied, but rather new 'BlobBuffer's referring to the same data
+        // memory are created and appended to 'dest', hence 'dest' is not
+        // required to have a 'BlobBufferFactory'.
 
     static void append(Blob *dest, const Blob& source);
-        // Append the specified 'source' to the specified 'dest'.
+        // Append the specified 'source' to the specified 'dest'.  Note that
+        // the data memory from 'source' is not copied, but rather new
+        // 'BlobBuffer's referring to the same data memory are created and
+        // appended to 'dest', hence 'dest' is not required to have a
+        // 'BlobBufferFactory'.
 
     static void append(Blob *dest, const char *source, int offset, int length);
         // Append the specified 'length' bytes starting from the specified
         // 'offset' from the specified 'source' address to the specified
         // 'dest'.  The behavior of this function is undefined unless the range
         // '[source + offset, source + offset + length)' represents a readable
-        // sequence of memory.
+        // sequence of memory, and
+        // 'length <= dest->totalSize() - dest->length()' or
+        // '0 != dest->factory()'.
 
     static void append(Blob *dest, const char *source, int length);
         // Append the specified 'length' bytes starting from the specified
         // 'source' address to the specified 'dest'.  The behavior is undefined
-        // unless the range '[source, source + length)' is valid memory.
+        // unless the range '[source, source + length)' is valid memory, and
+        // 'length <= dest->totalSize() - dest->length()' or
+        // '0 != dest->factory()'.
 
     static void append(Blob *dest, int length, char fill);
         // Append the specified 'length' bytes to the specified 'dest', all new
-        // bytes are to be set to the specified 'fill'.
+        // bytes are to be set to the specified 'fill'.  The behavior is
+        // undefined unless 'length <= dest->totalSize() - dest->length()' or
+        // '0 != dest->factory()'.
 
     static void appendWithCapacityBuffer(Blob       *dest,
                                          BlobBuffer *buffer,
@@ -141,7 +157,11 @@ struct BlobUtil {
         // is undefined unless '0 <= dstOffset', '0 <= length',
         // 'dst || 0 == length', 'src || 0 == length',
         // '!dst || dstOffset <= dst->length() - length', and 'src' refers to a
-        // buffer with at least 'length' bytes.
+        // buffer with at least 'length' bytes.  Note that this operation does
+        // not require 'dst' to have a blob buffer factory in that it does not
+        // create or destroy blobs -- it simply copies data from 'src' into
+        // 'dst', so 'dst' must already have room for 'length' bytes of data
+        // added at 'dstOffset'.
 
     static void copy(Blob        *dst,
                      int          dstOffset,
@@ -153,7 +173,11 @@ struct BlobUtil {
         // in the specified 'src'.  The behavior is undefined unless
         // '0 <= dstOffset', '0 <= srcOffset', '0 <= length',
         // 'dst || 0 == length', '!dst || dstOffset <= dst->length() - length',
-        // and 'srcOffset <= src->length() - length'.
+        // and 'srcOffset <= src->length() - length'.  Note that this operation
+        // does not require 'dst' to have a blob buffer factory in that it does
+        // not create or destroy blobs -- it simply copies data from 'src' into
+        // 'dst', so 'dst' must already have room for 'length' bytes of data
+        // added at 'dstOffset'.
 
     static char *getContiguousRangeOrCopy(char        *dstBuffer,
                                           const Blob&  srcBlob,
