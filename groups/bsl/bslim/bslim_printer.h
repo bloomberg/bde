@@ -511,7 +511,7 @@ BSLS_IDENT("$Id: $")
 //     stream << tmp.str();
 //     printer.end(true);
 //
-//     return stream << bsl::flush;
+//     return stream;
 //  }
 //..
 // Sample output for 'DateTz::print(bsl::cout, 0, -4):

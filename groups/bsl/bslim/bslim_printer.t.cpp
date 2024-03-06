@@ -736,7 +736,7 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
    stream << tmp.str();
    printer.end(true);
 
-   return stream << bsl::flush;
+   return stream;
 }
 
 // BDE_VERIFY pragma: pop    // Disable warnings for usage examples.
