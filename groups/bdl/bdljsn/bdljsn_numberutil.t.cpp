@@ -38,7 +38,7 @@
 
 #include <bsl_cstddef.h>  // 'bsl::size_t'
 #include <bsl_cstdlib.h>  // 'bsl::atoi'
-#include <bsl_cstring.h>  // 'bsl::strlen', 'bsl::memcpy'
+#include <bsl_cstring.h>  // 'bsl::strlen', 'bsl::memcpy', 'bsl::strcmp'
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
@@ -988,46 +988,47 @@ struct JSonSuiteNumericData {
 const int NUM_JSON_SUITE_DATA = sizeof(JSON_SUITE_DATA) /
                                 sizeof(*JSON_SUITE_DATA);
 
-#if 0
+#define NL "\n"
 const char *JSONTESTSUITE_PYTHON_SCRIPT =
-R"python(
-import argparse
-import os
-import sys
-
-DESCRIPTION = "Convert the JSON Test Suite to a BDE-style test table."
-
-def main():
-    parser = argparse.ArgumentParser(
-        description=DESCRIPTION,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-
-    parser.add_argument('directory',type=str,
-                        help="directory location containing json examples "
-                        "(JSONTestSuite/test_parsing)")
-
-    args = parser.parse_args()
-
-    directory = os.fsencode(args.directory)
-    for file in sorted(os.listdir(directory)):
-        filename = os.fsdecode(file)
-        if filename.endswith(".json"):
-            success = filename.startswith(
-                "y_") or filename.startswith("i_")
-            with open(os.path.join(directory, file), 'rb') as input:
-                json = input.read()
-            if len(json) > 100:
-                json = b"Skipped Too Long"
-            success_text = " true" if success else "false";
-            print(f', {{ L_, "{filename}", {success_text}, "',
-                  end = "", flush = True)
-            sys.stdout.buffer.write(json)
-            print('" }', flush = True)
-
-if __name__ == "__main__":
-    main()
-)python";
-#endif // C++11
+                                                                             NL
+"import argparse"                                                            NL
+"import os"                                                                  NL
+"import sys"                                                                 NL
+""                                                                           NL
+"DESCRIPTION = \"Convert the JSON Test Suite to a BDE-style test table.\""   NL
+""                                                                           NL
+"def main():"                                                                NL
+"    parser = argparse.ArgumentParser("                                      NL
+"        description=DESCRIPTION,"                                           NL
+"        formatter_class=argparse.RawDescriptionHelpFormatter)"              NL
+""                                                                           NL
+"    parser.add_argument('directory',type=str,"                              NL
+"                        help=\"directory location containing json examples \""
+                                                                             NL
+"                        \"(JSONTestSuite/test_parsing)\")"                  NL
+""                                                                           NL
+"    args = parser.parse_args()"                                             NL
+""                                                                           NL
+"    directory = os.fsencode(args.directory)"                                NL
+"    for file in sorted(os.listdir(directory)):"                             NL
+"        filename = os.fsdecode(file)"                                       NL
+"        if filename.endswith(\".json\"):"                                   NL
+"            success = filename.startswith("                                 NL
+"                \"y_\") or filename.startswith(\"i_\")"                     NL
+"            with open(os.path.join(directory, file), 'rb') as input:"       NL
+"                json = input.read()"                                        NL
+"            if len(json) > 100:"                                            NL
+"                json = b\"Skipped Too Long\""                               NL
+"            success_text = \" true\" if success else \"false\";"            NL
+"            print(f', {{ L_, \"{filename}\", {success_text}, \"',"          NL
+"                  end = \"\", flush = True)"                                NL
+"            sys.stdout.buffer.write(json)"                                  NL
+"            print('\" }', flush = True)"                                    NL
+""                                                                           NL
+"if __name__ == \"__main__\":"                                               NL
+"    main()"                                                                 NL
+;
+#undef NL
 
 // ============================================================================
 //                              FUZZ TESTING

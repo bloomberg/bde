@@ -180,7 +180,7 @@ typedef bsls::Types::Int64       Int64;
 
 // Note that the members of the objects in this JSON are deliberately sorted.
 
-const char *OLD_STYLE_SIMPLE_JSON =
+const char *SIMPLE_JSON =
 "{\n"
 "  \"array\": [\n"
 "    3.1,\n"
@@ -200,33 +200,6 @@ const char *OLD_STYLE_SIMPLE_JSON =
 "  },\n"
 "  \"string\": \"abc\"\n"
 "}";
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-const char *SIMPLE_JSON =
-R"JSON({
-  "array": [
-    3.1,
-    11,
-    "abc",
-    true
-  ],
-  "boolean": true,
-  "date": "1970-01-01",
-  "integer": 10,
-  "number": 2.1,
-  "object": {
-    "boolean": true,
-    "date": "1970-01-01",
-    "integer": 10,
-    "string": "abc"
-  },
-  "string": "abc"
-})JSON";
-// This assertion is validated at runtime in its own test case
-// ASSERT(bsl::string(SIMPLE_JSON) == bsl::string(OLD_STYLE_SIMPLE_JSON));
-#else
-const char *SIMPLE_JSON = OLD_STYLE_SIMPLE_JSON;
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 
 // These otherwise standard test driver scaffolding variables are global in
 // this test driver so they can be accessed in helper functions.
@@ -743,99 +716,70 @@ int main(int argc, char *argv[])
 //
 // First, we define the JSON data we plan to read:
 //..
-   const char *OLD_STYLE_INPUT_JSON =
-   "{\n"
-   "  \"a boolean\": true,\n"
-   "  \"a date\": \"1970-01-01\",\n"
-   "  \"a number\": 2.1,\n"
-   "  \"an integer\": 10,\n"
-   "  \"array of values\": [\n"
-   "    -1,\n"
-   "    0,\n"
-   "    2.718281828459045,\n"
-   "    3.1415926535979,\n"
-   "    \"abc\",\n"
-   "    true\n"
-   "  ],\n"
-   "  \"event\": {\n"
-   "    \"date\": \"1969-07-16\",\n"
-   "    \"description\": \"Apollo 11 Moon Landing\",\n"
-   "    \"passengers\": [\n"
-   "      \"Neil Armstrong\",\n"
-   "      \"Buzz Aldrin\"\n"
-   "    ],\n"
-   "    \"success\": true\n"
-   "  }\n"
-   "}";
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    const char *INPUT_JSON = R"JSON({
-  "a boolean": true,
-  "a date": "1970-01-01",
-  "a number": 2.1,
-  "an integer": 10,
-  "array of values": [
-    -1,
-    0,
-    2.718281828459045,
-    3.1415926535979,
-    "abc",
-    true
-  ],
-  "event": {
-    "date": "1969-07-16",
-    "description": "Apollo 11 Moon Landing",
-    "passengers": [
-      "Neil Armstrong",
-      "Buzz Aldrin"
-    ],
-    "success": true
-  }
-})JSON";
-    ASSERT(areEqual(INPUT_JSON, OLD_STYLE_INPUT_JSON));
-#else
-    const char *INPUT_JSON = OLD_STYLE_INPUT_JSON;
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+    const char *INPUT_JSON =
+    "{\n"
+    "  \"a boolean\": true,\n"
+    "  \"a date\": \"1970-01-01\",\n"
+    "  \"a number\": 2.1,\n"
+    "  \"an integer\": 10,\n"
+    "  \"array of values\": [\n"
+    "    -1,\n"
+    "    0,\n"
+    "    2.718281828459045,\n"
+    "    3.1415926535979,\n"
+    "    \"abc\",\n"
+    "    true\n"
+    "  ],\n"
+    "  \"event\": {\n"
+    "    \"date\": \"1969-07-16\",\n"
+    "    \"description\": \"Apollo 11 Moon Landing\",\n"
+    "    \"passengers\": [\n"
+    "      \"Neil Armstrong\",\n"
+    "      \"Buzz Aldrin\"\n"
+    "    ],\n"
+    "    \"success\": true\n"
+    "  }\n"
+    "}";
 //..
 // Next, we read the JSON data into a 'Json' object:
 //..
-   bdljsn::Json        result;
-   bdljsn::Error       error;
+    bdljsn::Json        result;
+    bdljsn::Error       error;
 
-   int rc = bdljsn::JsonUtil::read(&result, &error, INPUT_JSON);
+    int rc = bdljsn::JsonUtil::read(&result, &error, INPUT_JSON);
 
-   ASSERT(0 == rc);
+    ASSERT(0 == rc);
 
-   if (0 != rc) {
-       bsl::cout << "Error message: \"" << error.message() << "\""
-                 << bsl::endl;
-   }
+    if (0 != rc) {
+        bsl::cout << "Error message: \"" << error.message() << "\""
+                  << bsl::endl;
+    }
 
 //..
 // Then, we check the values of a few selected fields:
 //..
-   ASSERT(result.type() == JsonType::e_OBJECT);
-   ASSERT(result["array of values"][2].theNumber().asDouble()
-          == 2.718281828459045);
-   ASSERT(result["event"]["date"].theString() == "1969-07-16");
-   ASSERT(result["event"]["passengers"][1].theString() == "Buzz Aldrin");
+    ASSERT(result.type() == JsonType::e_OBJECT);
+    ASSERT(result["array of values"][2].theNumber().asDouble()
+           == 2.718281828459045);
+    ASSERT(result["event"]["date"].theString() == "1969-07-16");
+    ASSERT(result["event"]["passengers"][1].theString() == "Buzz Aldrin");
 //..
 // Finally, we'll 'write' the 'result' back into another string and make sure
 // we got the same value back, by using the correct 'WriteOptions' to match
 // the input format:
 //..
-   bsl::string resultString;
+    bsl::string resultString;
 
-   // Set the WriteOptions to match the initial style:
-   WriteOptions writeOptions;
-   writeOptions.setStyle(bdljsn::WriteStyle::e_PRETTY);
-   writeOptions.setInitialIndentLevel(0);
-   writeOptions.setSpacesPerLevel(2);
-   writeOptions.setSortMembers(true);
+    // Set the WriteOptions to match the initial style:
+    WriteOptions writeOptions;
+    writeOptions.setStyle(bdljsn::WriteStyle::e_PRETTY);
+    writeOptions.setInitialIndentLevel(0);
+    writeOptions.setSpacesPerLevel(2);
+    writeOptions.setSortMembers(true);
 
-   bdljsn::JsonUtil::write(&resultString, result, writeOptions);
+    bdljsn::JsonUtil::write(&resultString, result, writeOptions);
 
-   ASSERT(resultString == INPUT_JSON);
+    ASSERT(resultString == INPUT_JSON);
 //..
         }
         if (verbose)
@@ -851,12 +795,18 @@ int main(int argc, char *argv[])
 // First, let's populate a 'Json' object named 'json' from an input string
 // using 'read', and create an empty 'options' (see 'bdljsn::WriteOptions'):
 //..
-    const bsl::string JSON = R"JSON(
-      {
-        "a" : 1,
-        "b" : []
-      }
-    )JSON";
+//  const bsl::string JSON = R"JSON(
+//        {
+//          "a" : 1,
+//          "b" : []
+//        }
+//      )JSON";
+
+    const bsl::string JSON =
+      "{"            "\n" 
+      "  \"a\" : 1," "\n"
+      "  \"b\" : []" "\n"
+      "}"            "\n" ;
 
     bdljsn::Json         json;
     bdljsn::WriteOptions options;
@@ -956,11 +906,16 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
 
     // Using 'e_PRETTY' style:
+//        ASSERT(
+//     R"JSON({
+//        "a": 1,
+//        "b": []
+//    })JSON" == output);
     ASSERT(
- R"JSON({
-    "a": 1,
-    "b": []
-})JSON" == output);
+        "{"             "\n"
+        "    \"a\": 1," "\n"
+        "    \"b\": []" "\n"
+        "}" == output);
 //..
 // Finally, if we set 'initialIndentLevel' to 1, then an extra set of 4 spaces
 // is prepended to each line, where 4 is the value of 'spacesPerLevel':
@@ -972,15 +927,19 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
 
     // Using 'e_PRETTY' style (with 'initialIndentLevel' as 1):
+//  ASSERT(
+//  R"JSON(    {
+//          "a": 1,
+//          "b": []
+//      })JSON" == output);
     ASSERT(
-R"JSON(    {
-        "a": 1,
-        "b": []
-    })JSON" == output);
+        "    {"             "\n"
+        "        \"a\": 1," "\n"
+        "        \"b\": []" "\n"
+        "    }" == output);
 //..
 #endif //  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
         }
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -3786,8 +3745,6 @@ R"JSON(    {
         if (verbose)
             cout << "\nBREATHING TEST"
                  << "\n==============" << endl;
-
-        ASSERT(areEqual(SIMPLE_JSON, OLD_STYLE_SIMPLE_JSON));
 
         const WriteStyle::Enum C = WriteStyle::e_COMPACT;
         const WriteStyle::Enum O = WriteStyle::e_ONELINE;
