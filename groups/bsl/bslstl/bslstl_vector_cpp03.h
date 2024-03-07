@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Feb 22 14:09:04 2024
+// Generated on Wed Mar  6 13:01:21 2024
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -2659,7 +2659,27 @@ class vector_UintPtrConversionIterator {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
-    auto operator<=>(const vector_UintPtrConversionIterator&) const = default;
+    auto
+    operator<=>(const vector_UintPtrConversionIterator& other) const
+        requires( bsl::three_way_comparable<ITERATOR>) = default;
+    bsl::strong_ordering
+    operator<=>(const vector_UintPtrConversionIterator& other) const
+        requires(!bsl::three_way_comparable<ITERATOR>) = default;
+        // Perform a three-way comparison with the specified 'other' object and
+        // return the result of that comparison. Where the underlying (wrapped)
+        // iterator of type `ITERATOR` supports 3 way comparison, the default
+        // spaceship operator will defer to `ITERATOR::operator<=>` and have
+        // the same return type as `ITERATOR::operator<=>`. Where `ITERATOR`
+        // does not support 3 way comparison, the compiler will deduce a 3 way
+        // comparison operator using `ITERATOR`'s equality and inequality
+        // comparison operators, but it does not have sufficient context to
+        // successfully deduce the return type, hence to avoid compilation
+        // errors we make an assumption that the underlying `ITERATOR` is
+        // strongly ordered and specify the return type as
+        // `bsl::strong_ordering`. We can safely make this assumption as we
+        // know bslstl `vector` will only perform range checks using this
+        // spaceship operator for vectors of pointer types when `ITERATOR`
+        // satisfies the requirements of a random access iterator.
 
 #else
 

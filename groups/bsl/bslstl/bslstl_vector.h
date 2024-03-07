@@ -554,6 +554,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslstl_algorithm.h>
+#include <bslstl_compare.h>
 #include <bslstl_hash.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
@@ -2190,7 +2191,27 @@ class vector_UintPtrConversionIterator {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
-    auto operator<=>(const vector_UintPtrConversionIterator&) const = default;
+    auto
+    operator<=>(const vector_UintPtrConversionIterator& other) const
+        requires( bsl::three_way_comparable<ITERATOR>) = default;
+    bsl::strong_ordering
+    operator<=>(const vector_UintPtrConversionIterator& other) const
+        requires(!bsl::three_way_comparable<ITERATOR>) = default;
+        // Perform a three-way comparison with the specified 'other' object and
+        // return the result of that comparison. Where the underlying (wrapped)
+        // iterator of type `ITERATOR` supports 3 way comparison, the default
+        // spaceship operator will defer to `ITERATOR::operator<=>` and have
+        // the same return type as `ITERATOR::operator<=>`. Where `ITERATOR`
+        // does not support 3 way comparison, the compiler will deduce a 3 way
+        // comparison operator using `ITERATOR`'s equality and inequality
+        // comparison operators, but it does not have sufficient context to
+        // successfully deduce the return type, hence to avoid compilation
+        // errors we make an assumption that the underlying `ITERATOR` is
+        // strongly ordered and specify the return type as
+        // `bsl::strong_ordering`. We can safely make this assumption as we
+        // know bslstl `vector` will only perform range checks using this
+        // spaceship operator for vectors of pointer types when `ITERATOR`
+        // satisfies the requirements of a random access iterator.
 
 #else
 

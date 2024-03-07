@@ -248,6 +248,7 @@
 // [41] INCOMPLETE TYPE SUPPORT
 // [42] CONCERN: Default constructor is called for default-inserted elems
 // [43] CONCERN: 'vector' IS A C++20 RANGE
+// [44] CONCERN: Vectors of pointers support non-spaceship iterators
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
