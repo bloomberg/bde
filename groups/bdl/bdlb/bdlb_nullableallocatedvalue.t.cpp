@@ -20,6 +20,7 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
 
@@ -28,6 +29,8 @@
 #include <bsls_review.h>
 
 #include <bslstl_span.h>
+
+#include <bsltf_testvaluesarray.h>
 
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>
@@ -145,6 +148,7 @@ using namespace bsl;
 // [ 12] bool operator<=(const optional&, const NullableAllocatedValue&);
 // [ 12] bool operator>=(const optional&, const NullableAllocatedValue&);
 // [ 12] bool operator> (const optional&, const NullableAllocatedValue&);
+// [ 15] hashAppend(HASHALG& hashAlg, NullableAllocatedValue<TYPE>& input);
 //
 // DEPRECATED FUNCTIONS
 //  [14] const TYPE *addressOr(const TYPE *address) const;
@@ -155,7 +159,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] INCOMPLETE CLASS SUPPORT
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -676,6 +680,48 @@ void swap(SwappableWithAllocator& a, SwappableWithAllocator& b)
 
 class Incomplete;  // an incomplete class
 
+
+struct SimpleHash {
+  private:
+    size_t d_value;
+
+  public:
+    // TYPES
+    typedef size_t result_type;
+
+    // CREATORS
+    SimpleHash();
+        // Construct a SimpleHash object
+
+    // MANIPULATORS
+    void operator()(const void *input, size_t numBytes);
+        // Add the bytes specified by ['input', 'input' + 'numBytes') to the
+        // hash.
+
+    result_type computeHash();
+        // Compute the result of the hash.
+};
+
+SimpleHash::SimpleHash()
+: d_value(0)
+{
+}
+
+void SimpleHash::operator()(const void *input, size_t numBytes)
+{
+    // Code lifted from bslh_hash.t.cpp
+    const unsigned char *p = static_cast<unsigned const char *>(input);
+    const unsigned char *end = p + numBytes;
+    while (p < end) {
+        d_value += *p++;
+        d_value *= 99991;    // highest prime below 100,000
+    }
+}
+
+SimpleHash::result_type SimpleHash::computeHash()
+{
+    return d_value;
+}
 
 void testSwappableLarge (bool verbose,
                          bool veryVerbose,
@@ -1524,6 +1570,89 @@ void comparisonTest(bsl::span<TYPE, SIZE> values,
 }
 
 
+template <class TEST_TYPE>
+void hashTest(bool,
+              bool veryVerbose,
+              bool,
+              bool veryVeryVeryVerbose)
+    // Verifies that the hash function for NullableAllocatedValues behaves as
+    // expected.  Uses the specified 'verbose', 'veryVerbose',
+    // 'veryVeryVerbose' and 'veryVeryVeryVerbose' flags to control the output.
+{
+    typedef bdlb::NullableAllocatedValue<TEST_TYPE> Obj;
+
+    const bsltf::TestValuesArray<TEST_TYPE> VALUES;
+    const int                               NUM_VALUES
+                                             = static_cast<int>(VALUES.size());
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (veryVerbose) {
+        cout << "\tVerify hashing null nullable values is equivalent to\n"
+                "\tappending 'false' to the hash.\n";
+    }
+    {
+        Obj    object(&oa);
+        Obj&   x = object;  const Obj& X = x;
+        size_t hashValue_1, hashValue_2;
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+        hashValue_1 = bslh::Hash<>()(X);
+        hashValue_2 = bslh::Hash<>()(false);
+        ASSERTV(hashValue_1, hashValue_2, hashValue_1 == hashValue_2);
+
+        hashValue_1 = bslh::Hash<SimpleHash>()(X);
+        hashValue_2 = bslh::Hash<SimpleHash>()(false);
+        ASSERTV(hashValue_1, hashValue_2, hashValue_1 == hashValue_2);
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify hashing non-null nullable values is equivalent to\n"
+                "\tappending 'true' to the hash followed by the value.\n";
+    }
+    {
+        Obj  object(&oa);
+        Obj& x = object;  const Obj& X = x;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            for (int j = 0; j < NUM_VALUES; ++j) {
+
+                ASSERT(0 == oa.numBlocksInUse());
+                ASSERT(0 == da.numBlocksInUse());
+
+                x = VALUES[i];
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                bool areSame = i == j;
+
+                bslh::DefaultHashAlgorithm hasher;
+
+                const size_t hashValue_1 = bslh::Hash<>()(X);
+                hashAppend(hasher, true);
+                hashAppend(hasher, VALUES[j]);
+                const size_t hashValue_2 =
+                                     static_cast<size_t>(hasher.computeHash());
+
+                ASSERTV(areSame, hashValue_1, hashValue_2,
+                        areSame == (hashValue_2 == hashValue_1));
+
+                ASSERT(oam.isInUseSame());
+                ASSERT(0 == da.numBlocksInUse());
+
+                x.reset();
+            }
+        }
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+    }
+}
+
 
 template <class TYPE>
 void breathingTest(const TYPE& VA,
@@ -1721,7 +1850,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *ALLOC = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1760,6 +1889,39 @@ int main(int argc, char *argv[])
         ASSERT( 3 == node.d_value);
         ASSERT( 5 == node.d_next.value().d_value);
         ASSERT(53 == node.d_next.value().d_next.value().d_value);
+
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING: HASHING
+        //
+        // Concerns:
+        //: 1 Hashing a value with a null value is equivalent to appending
+        //:   'false' to the hash.
+        //:
+        //: 2 Hashing a value with a nullable value is equivalent to appending
+        //:   'true' to the hash followed by the value.
+        //
+        // Plan:
+        //: 1 Create a null nullable value and verify that hashing it yields
+        //:   the same value as hashing 'false'.
+        //:
+        //: 2 Create a non-null nullable value for a series of test values and
+        //:   verify that hashing it produces the same result as hashing 'true'
+        //:   and then the test values themselves.
+        //
+        // Testing:
+        //   hashAppend(HASHALG& hashAlg, NullableAllocatedValue<TYPE>& input);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TESTING: HASHING" << endl
+                                  << "================" << endl;
+        hashTest<char>
+                  (verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
+        hashTest<int>
+                  (verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
+        hashTest<double>
+                  (verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
 
       } break;
       case 14: {

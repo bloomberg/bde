@@ -67,6 +67,10 @@ using namespace bsl;
 // [ 2] operator*() const;
 // [ 2] explicit operator bool() const noexcept;
 //
+// FREE FUNCTIONS
+// [ 7] void hashAppend(HASHALG&, NullableValueRef<TYPE>&);
+// [ 7] void hashAppend(HASHALG&, ConstNullableValue<TYPE>&);
+//
 // FREE OPERATORS
 // [ 5] bool operator==(NVWrapper<LHS_TYPE>&, NVWrapper<RHS_TYPE>&);
 // [ 5] bool operator!=(NVWrapper<LHS_TYPE>&, NVWrapper<RHS_TYPE>&);
@@ -144,7 +148,7 @@ using namespace bsl;
 // [ 5] bool operator>=(VWrapper<LHS_TYPE>&, CNVWrapper<RHS_TYPE>&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 
 // ----------------------------------------------------------------------------
 
@@ -285,6 +289,48 @@ struct SimpleStruct {
         return -1;
     }
 };
+
+struct SimpleHash {
+  private:
+    size_t d_value;
+
+  public:
+    // TYPES
+    typedef size_t result_type;
+
+    // CREATORS
+    SimpleHash();
+        // Construct a SimpleHash object
+
+    // MANIPULATORS
+    void operator()(const void *input, size_t numBytes);
+        // Add the bytes specified by ['input', 'input' + 'numBytes') to the
+        // hash.
+
+    result_type computeHash();
+        // Compute the result of the hash.
+};
+
+SimpleHash::SimpleHash()
+: d_value(0)
+{
+}
+
+void SimpleHash::operator()(const void *input, size_t numBytes)
+{
+    // Code lifted from bslh_hash.t.cpp
+    const unsigned char *p = static_cast<unsigned const char *>(input);
+    const unsigned char *end = p + numBytes;
+    while (p < end) {
+        d_value += *p++;
+        d_value *= 99991;    // highest prime below 100,000
+    }
+}
+
+SimpleHash::result_type SimpleHash::computeHash()
+{
+    return d_value;
+}
 
 
 template <class TYPE, bool IS_CONST, bool IS_NAV>
@@ -602,7 +648,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -657,6 +703,90 @@ int main(int argc, char *argv[])
         ASSERT(23 == w1.value());
         ASSERT(34 == w2.value());
         //..
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING: HASHING
+        //
+        // Concerns:
+        //: 1 Hashing a valueRef is the same as hashing the referenced nullable
+        //:   value.
+        //:
+        // Plan:
+        //: 2 Create a non-null nullable value for a series of test values and
+        //:   verify that hashing it produces the same result as hashing 'true'
+        //:   and then the test values themselves.
+        //
+        // Testing:
+        //   void hashAppend(HASHALG&, NullableValueRef<TYPE>&);
+        //   void hashAppend(HASHALG&, ConstNullableValue<TYPE>&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TESTING: HASHING" << endl
+                                  << "================" << endl;
+
+        bsl::optional<int>                   op0;
+        bsl::optional<int>                   op1(32);
+        bdlb::NullableValue<int>             nv0;
+        bdlb::NullableValue<int>             nv1(33);
+        bdlb::NullableAllocatedValue<int>    av0;
+        bdlb::NullableAllocatedValue<int>    av1(34);
+        bdlb::NullableValueRef<int>          nw0(op0);
+        bdlb::ConstNullableValueRef<int>     nw1(op1);
+        bdlb::NullableValueRef<int>          nw2(nv0);
+        bdlb::ConstNullableValueRef<int>     nw3(nv1);
+        bdlb::NullableValueRef<int>          nw4(av0);
+        bdlb::ConstNullableValueRef<int>     nw5(av1);
+
+        size_t hashValue1, hashValue2;
+        hashValue1 =  bslh::Hash<>()(op0);
+        hashValue2 =  bslh::Hash<>()(nw0);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<>()(op1);
+        hashValue2 =  bslh::Hash<>()(nw1);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<>()(nv0);
+        hashValue2 =  bslh::Hash<>()(nw2);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<>()(nv1);
+        hashValue2 =  bslh::Hash<>()(nw3);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<>()(av0);
+        hashValue2 =  bslh::Hash<>()(nw4);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<>()(av1);
+        hashValue2 =  bslh::Hash<>()(nw5);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<SimpleHash>()(op0);
+        hashValue2 =  bslh::Hash<SimpleHash>()(nw0);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<SimpleHash>()(op1);
+        hashValue2 =  bslh::Hash<SimpleHash>()(nw1);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<SimpleHash>()(nv0);
+        hashValue2 =  bslh::Hash<SimpleHash>()(nw2);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<SimpleHash>()(nv1);
+        hashValue2 =  bslh::Hash<SimpleHash>()(nw3);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<SimpleHash>()(av0);
+        hashValue2 =  bslh::Hash<SimpleHash>()(nw4);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
+        hashValue1 =  bslh::Hash<SimpleHash>()(av1);
+        hashValue2 =  bslh::Hash<SimpleHash>()(nw5);
+        ASSERTV(hashValue1, hashValue2, hashValue1 == hashValue2);
+
       } break;
       case 6: {
         // --------------------------------------------------------------------

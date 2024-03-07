@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jan 31 15:10:04 2024
+// Generated on Thu Mar  7 06:52:23 2024
 // Command line: sim_cpp11_features.pl bdlb_nullablevalueref.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUEREF_H
@@ -374,6 +374,14 @@ class NullableValueRef {
         // object of a (template parameter) 'TYPE' if this object is non-null,
         // and 0 otherwise.
 };
+
+// FREE FUNCTIONS
+template <class HASHALG, class TYPE>
+void hashAppend(HASHALG& hashAlg, const NullableValueRef<TYPE>& input);
+    // Pass the boolean value of whether the specified 'input' references a
+    // non-empty nullable value to the specified 'hashAlg' hashing algorithm of
+    // (template parameter) type 'HASHALG'.  If 'input.has_value' is true,
+    // additionally pass the value to 'hashAlg'.
 
 // FREE OPERATORS
 template <class LHS_TYPE, class RHS_TYPE>
@@ -756,6 +764,14 @@ class ConstNullableValueRef {
         // and 0 otherwise.
 
 };
+
+// FREE FUNCTIONS
+template <class HASHALG, class TYPE>
+void hashAppend(HASHALG& hashAlg, const ConstNullableValueRef<TYPE>& input);
+    // Pass the boolean value of whether the specified 'input' references a
+    // non-empty nullable value to the specified 'hashAlg' hashing algorithm of
+    // (template parameter) type 'HASHALG'.  If 'input.has_value' is true,
+    // additionally pass the value to 'hashAlg'.
 
 // FREE OPERATORS
 template <class LHS_TYPE, class RHS_TYPE>
@@ -1588,6 +1604,22 @@ const TYPE *bdlb::NullableValueRef<TYPE>::valueOrNull() const
     return has_value() ? &value() : 0;
 }
 
+// FREE FUNCTIONS
+template <class HASHALG, class TYPE>
+void bdlb::hashAppend(HASHALG&                      hashAlg,
+                      const NullableValueRef<TYPE>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    if (!input.has_value()) {
+        hashAppend(hashAlg, false);
+    }
+    else {
+        hashAppend(hashAlg, true);
+        hashAppend(hashAlg, input.value());
+    }
+}
+
 // FREE OPERATORS
 template <class LHS_TYPE, class RHS_TYPE>
 inline
@@ -2023,6 +2055,22 @@ inline
 const TYPE *bdlb::ConstNullableValueRef<TYPE>::valueOrNull() const
 {
     return has_value() ? &value() : 0;
+}
+
+// FREE FUNCTIONS
+template <class HASHALG, class TYPE>
+void bdlb::hashAppend(HASHALG&                           hashAlg,
+                      const ConstNullableValueRef<TYPE>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    if (!input.has_value()) {
+        hashAppend(hashAlg, false);
+    }
+    else {
+        hashAppend(hashAlg, true);
+        hashAppend(hashAlg, input.value());
+    }
 }
 
 // FREE OPERATORS

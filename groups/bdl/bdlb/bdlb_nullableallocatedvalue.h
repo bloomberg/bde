@@ -811,6 +811,13 @@ bool operator>=(const bsl::optional<LHS_TYPE>&          lhs,
     // Otherwise, return 'lhs.value >= rhs.value()'.
 
 // FREE FUNCTIONS
+template <class HASHALG, class TYPE>
+void hashAppend(HASHALG& hashAlg, const NullableAllocatedValue<TYPE>& input);
+    // Pass the boolean value of whether the specified 'input' contains a value
+    // to the specified 'hashAlg' hashing algorithm of (template parameter)
+    // type 'HASHALG'.  If 'input' contains a value, additionally pass that
+    // value to 'hashAlg'.
+
 template <class TYPE>
 void swap(NullableAllocatedValue<TYPE>& a,
           NullableAllocatedValue<TYPE>& b);
@@ -1847,6 +1854,21 @@ bool bdlb::operator>=(const bsl::optional<LHS_TYPE>&          lhs,
 
 
 // FREE FUNCTIONS
+template <class HASHALG, class TYPE>
+void bdlb::hashAppend(HASHALG&                            hashAlg,
+                      const NullableAllocatedValue<TYPE>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    if (!input.isNull()) {
+        hashAppend(hashAlg, true);
+        hashAppend(hashAlg, input.value());
+    }
+    else {
+        hashAppend(hashAlg, false);
+    }
+}
+
 template <class TYPE>
 void bdlb::swap(NullableAllocatedValue<TYPE>& a,
                 NullableAllocatedValue<TYPE>& b)
