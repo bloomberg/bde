@@ -1,8 +1,6 @@
 // bsls_alignmentimp.t.cpp                                            -*-C++-*-
-
 #include <bsls_alignmentimp.h>
 
-#include <cstddef>     // offsetof() macro
 #include <cstdlib>     // atoi()
 #include <cstring>
 #include <iostream>
@@ -37,16 +35,23 @@ using namespace std;
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
+
+}  // close unnamed namespace
+
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
@@ -72,18 +77,12 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                      SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define A(X) cout << #X " = " << ((void *) X) << endl;  // Print address
 #define A_(X) cout << #X " = " << ((void *) X) << ", " << flush;
 #define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
-
-//=============================================================================
-//                  GLOBAL DEFINITIONS FOR TESTING
-//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  CLASSES AND FUNCTIONS USED IN TESTS
@@ -182,13 +181,13 @@ struct S1 { char d_buff[8]; S1(char); };                            // IMPLICIT
 struct S2 { char d_buff[8]; int d_int; S2(); private: S2(const S2&); };
 struct S3 { S1 d_s1; double d_double; short d_short; };
 struct S4 { short d_shorts[5]; char d_c;  S4(int); private: S4(const S4&); };
-#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)  \
-                                     || defined(BSLS_PLATFORM_OS_CYGWIN)  \
-                                     || defined(BSLS_PLATFORM_OS_SOLARIS) \
-    ) \
- && defined(BSLS_PLATFORM_CPU_X86)
+
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
 struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
+struct S6 { long long d_longLong __attribute__((__aligned__(16))); };
+    // Types used to test over-alignement on 32 bit x86.
 #endif
+
 union  U1 { char d_c; int *d_pointer; };
 
 template <class T>
@@ -333,6 +332,14 @@ int main(int argc, char *argv[])
                         9  == sizeof(bsls::AlignmentImpTag<9>));
             LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<10>),
                         10 == sizeof(bsls::AlignmentImpTag<10>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<11>),
+                        11 == sizeof(bsls::AlignmentImpTag<11>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<12>),
+                        12 == sizeof(bsls::AlignmentImpTag<12>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<13>),
+                        13 == sizeof(bsls::AlignmentImpTag<13>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<14>),
+                        14 == sizeof(bsls::AlignmentImpTag<14>));
         }
 
         typedef void (*FuncPtr)();
@@ -355,12 +362,9 @@ int main(int argc, char *argv[])
             S2_ALIGNMENT          = bsls::AlignmentImpCalc<S2>::VALUE,
             S3_ALIGNMENT          = bsls::AlignmentImpCalc<S3>::VALUE,
             S4_ALIGNMENT          = bsls::AlignmentImpCalc<S4>::VALUE,
-#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)  \
-                                     || defined(BSLS_PLATFORM_OS_CYGWIN)  \
-                                     || defined(BSLS_PLATFORM_OS_SOLARIS) \
-    ) \
- && defined(BSLS_PLATFORM_CPU_X86)
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
             S5_ALIGNMENT          = bsls::AlignmentImpCalc<S5>::VALUE,
+            S6_ALIGNMENT          = bsls::AlignmentImpCalc<S6>::VALUE,
 #endif
             U1_ALIGNMENT          = bsls::AlignmentImpCalc<U1>::VALUE
         };
@@ -385,16 +389,16 @@ int main(int argc, char *argv[])
             int EXP_S2_ALIGNMENT          = 4;
             int EXP_S3_ALIGNMENT          = 8;
             int EXP_S4_ALIGNMENT          = 2;
+
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
             int EXP_S5_ALIGNMENT          = 8;
-            (void) EXP_S5_ALIGNMENT;
+            int EXP_S6_ALIGNMENT          = 16;
+#endif
+
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
-#if    (defined(BSLS_PLATFORM_OS_LINUX)    \
-     || defined(BSLS_PLATFORM_OS_DARWIN)   \
-     || defined(BSLS_PLATFORM_OS_SOLARIS)  \
-        ) \
- && defined(BSLS_PLATFORM_CPU_X86)
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
             EXP_INT64_ALIGNMENT           = 4;
             EXP_DOUBLE_ALIGNMENT          = 4;
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
@@ -404,8 +408,6 @@ int main(int argc, char *argv[])
 #endif
 
             EXP_S3_ALIGNMENT              = 4;
-            LOOP2_ASSERT(S5_ALIGNMENT, EXP_S5_ALIGNMENT,
-                         EXP_S5_ALIGNMENT == S5_ALIGNMENT);
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -479,6 +481,12 @@ int main(int argc, char *argv[])
                          EXP_S4_ALIGNMENT == S4_ALIGNMENT);
             LOOP2_ASSERT(U1_ALIGNMENT, EXP_U1_ALIGNMENT,
                          EXP_U1_ALIGNMENT == U1_ALIGNMENT);
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
+            LOOP2_ASSERT(S5_ALIGNMENT, EXP_S5_ALIGNMENT,
+                         EXP_S5_ALIGNMENT == S5_ALIGNMENT);
+            LOOP2_ASSERT(S6_ALIGNMENT, EXP_S6_ALIGNMENT,
+                         EXP_S6_ALIGNMENT == S6_ALIGNMENT);
+#endif
         }
 
         // Test sameType function.
@@ -534,10 +542,11 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(bsls::AlignmentImpPriorityToType<12>::Type(),
                         sameType(bsls::AlignmentImpPriorityToType<12>::Type(),
                                  char()));
-#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)) \
-  && defined(BSLS_PLATFORM_CPU_X86)
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
             ASSERT(sameType(bsls::AlignmentImpPriorityToType<13>::Type(),
                             bsls::AlignmentImp8ByteAlignedType()));
+            ASSERT(sameType(bsls::AlignmentImpPriorityToType<14>::Type(),
+                            bsls::AlignmentImp16ByteAlignedType()));
 #endif
 
         }

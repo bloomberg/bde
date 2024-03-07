@@ -297,18 +297,30 @@ struct AlignmentImpCalc <long double> {
 };
 #endif
 
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
+
                 // ===================================
                 // struct AlignmentImp8ByteAlignedType
                 // ===================================
 
-#if defined(BSLS_PLATFORM_CPU_X86)                                            \
- && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 struct AlignmentImp8ByteAlignedType {
-    // On Linux or Solaris x86, no natural type is aligned on an 8-byte
-    // boundary, but we need such a type to implement low-level constructs
-    // (e.g., 64-bit atomic types).
+    // On 32 bit x86, no natural type is aligned on an 8-byte boundary, but we
+    // need such a type to implement low-level constructs (e.g., 64-bit atomic
+    // types).
 
     long long d_dummy __attribute__((__aligned__(8)));
+};
+
+                // ====================================
+                // struct AlignmentImp16ByteAlignedType
+                // ====================================
+
+struct AlignmentImp16ByteAlignedType {
+    // On 32 bit x86, no natural type is aligned on an 16-byte boundary, but we
+    // need such a type to implement low-level constructs (e.g., 128-bit atomic
+    // types).
+
+    long long d_dummy __attribute__((__aligned__(16)));
 };
 #endif
 
@@ -382,11 +394,14 @@ struct AlignmentImpPriorityToType<12> {
     typedef char        Type;
 };
 
-#if defined(BSLS_PLATFORM_CPU_X86)                                            \
- && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
 template <>
 struct AlignmentImpPriorityToType<13> {
     typedef AlignmentImp8ByteAlignedType Type;
+};
+template <>
+struct AlignmentImpPriorityToType<14> {
+    typedef AlignmentImp16ByteAlignedType Type;
 };
 #endif
 
@@ -453,52 +468,20 @@ struct AlignmentImpMatch {
         // of the type of the first macro argument, and return an object whose
         // size is the 2nd argument of the macro.
 
-#if defined(BSLS_PLATFORM_CPU_X86)                                            \
- && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
-        // This type exists, and is needed, only on Linux
-
+#if defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CMP_MSVC)
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,      13);
-#endif
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp16ByteAlignedType,     14);
+        // These types exist, and are needed, only on 32 bit x86 unixe
 
-    typedef AlignmentImp_Priority<13> MaxPriority;
+    typedef AlignmentImp_Priority<14> MaxPriority;
+#else
+    typedef AlignmentImp_Priority<12> MaxPriority;
+#endif
 };
 
 }  // close package namespace
 
 #undef BSLS_ALIGNMENTIMP_MATCH_FUNC
-
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-#if defined(BSLS_PLATFORM_CPU_X86)                                            \
- && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
-typedef bsls::AlignmentImp8ByteAlignedType bsls_AlignmentImp8ByteAlignedType;
-    // This alias is defined for backward compatibility.
-#endif
-
-#ifdef bsls_AlignmentImpTag
-#undef bsls_AlignmentImpTag
-#endif
-#define bsls_AlignmentImpTag bsls::AlignmentImpTag
-    // This alias is defined for backward compatibility.
-
-#ifdef bsls_AlignmentImpPriorityToType
-#undef bsls_AlignmentImpPriorityToType
-#endif
-#define bsls_AlignmentImpPriorityToType bsls::AlignmentImpPriorityToType
-    // This alias is defined for backward compatibility.
-
-typedef bsls::AlignmentImpMatch bsls_AlignmentImpMatch;
-    // This alias is defined for backward compatibility.
-
-#ifdef bsls_AlignmentImpCalc
-#undef bsls_AlignmentImpCalc
-#endif
-#define bsls_AlignmentImpCalc bsls::AlignmentImpCalc
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
