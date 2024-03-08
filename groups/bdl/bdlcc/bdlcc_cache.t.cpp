@@ -18,8 +18,11 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_integralconstant.h>
 #include <bslmf_issame.h>
+#include <bslmf_usesallocatorargt.h>
 
 #include <bsltf_movestate.h>
 #include <bsltf_streamutil.h>
@@ -129,7 +132,8 @@ using namespace bsl;
 // [15] THREAD SAFETY
 // [16] LOCKING TEST UTIL
 // [17] LOCKING
-// [18] USAGE EXAMPLE
+// [19] CONCERN: USE 'allocator_arg' CONSTRUCTORS
+// [20] USAGE EXAMPLE
 // [-1] INSERT PERFORMANCE
 // [-2] INSERT BULK PERFORMANCE
 // [-3] READ PERFORMANCE
@@ -1759,6 +1763,28 @@ void threadedTest1()
 }
 
 }  // close namespace threaded
+
+namespace {
+
+class TypeWithAllocatorArg {
+public:
+    TypeWithAllocatorArg() {}
+    template <class ALLOC>
+    TypeWithAllocatorArg(bsl::allocator_arg_t,
+                         const ALLOC& ,
+                         const TypeWithAllocatorArg& ) {}
+};
+
+}  // close unnamed namespace
+
+namespace BloombergLP {
+namespace  bslmf {
+template<> struct UsesAllocatorArgT<TypeWithAllocatorArg> : bsl::true_type {};
+}
+namespace  bslma {
+template<> struct UsesBslmaAllocator<TypeWithAllocatorArg> : bsl::true_type {};
+}
+}  // close namespace BloombergLP
 
 // TestDriver template
 namespace {
@@ -4252,7 +4278,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4272,6 +4298,30 @@ int main(int argc, char *argv[])
 
         usageExample1::example1();
         usageExample2::example2();
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // CONCERN: USE 'allocator_arg' CONSTRUCTORS
+        //
+        // Concern:
+        //: 1 If both 'bslma::UsesBslmaAllocator<VALUE>::value' and
+        //:   'bslmf::UsesAllocatorArgT<VALUE>::value' are 'true'
+        //:   'VALUE(allocator_arg, alloc, ...)' constructor must be used.
+        //
+        // Plan:
+        //: 1 Declare a type that uses 'allocator_arg' copy-construction.
+        //:   Declare both traits 'true' for this type.  Create a
+        //:   'bdlcc::Cache<?, OurType>' object and try to call 'insert()'
+        //:   for it.  The code must compile successfully.
+        //
+        // Testing:
+        //   CONCERN: USE 'allocator_arg' CONSTRUCTORS
+        // --------------------------------------------------------------------
+
+        bslma::TestAllocator ta("test");
+        bdlcc::Cache<int, TypeWithAllocatorArg> cache(&ta);
+
+        cache.insert(1, TypeWithAllocatorArg());
       } break;
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
       case 18: {
