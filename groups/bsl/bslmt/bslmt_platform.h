@@ -1,12 +1,4 @@
 // bslmt_platform.h                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_PLATFORM
 #define INCLUDED_BSLMT_PLATFORM
 
@@ -39,8 +31,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_platform.h>
 #include <bsls_atomic.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 namespace bslmt {

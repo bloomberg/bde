@@ -1,12 +1,4 @@
 // bslmt_barrier.h                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_BARRIER
 #define INCLUDED_BSLMT_BARRIER
 
@@ -61,6 +53,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example demonstrates the use of a 'bslmt::Barrier' to create
 // "checkpoints" in a threaded "basket trade" processing logic.  In this
 // example, a "basket" is a series of trades submitted as one logical trade.

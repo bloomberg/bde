@@ -1,20 +1,10 @@
 // bslmt_threadutilimpl_win32.cpp                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_threadutilimpl_win32.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
-
-#include <windows.h>
 
 #include <bslmt_configuration.h>
 #include <bslmt_threadattributes.h>
@@ -23,11 +13,12 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
 
-#include <bsl_cstring.h>  // 'memcpy'
 
 #include <bsls_assert.h>
 #include <bsls_bslonce.h>
 #include <bsls_types.h>
+
+#include <bsl_cstring.h>  // 'memcpy'
 
 #include <process.h>      // '_begintthreadex', '_endthreadex'
 #include <windows.h>

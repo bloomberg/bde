@@ -1,12 +1,4 @@
 // bslmt_barrier.t.cpp                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_barrier.h>
 
 #include <bslmt_threadattributes.h>
@@ -15,7 +7,6 @@
 #include <bslim_testutil.h>
 
 #include <bsls_atomic.h>  // for testing only
-
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_spinlock.h>
@@ -23,17 +14,17 @@
 #include <bsls_systemtime.h>
 #include <bsls_timeutil.h>
 
-#include <bsl_algorithm.h>
-#include <bsl_functional.h>
-#include <bsl_limits.h>
-#include <bsl_iostream.h>
-#include <bsl_vector.h>              // for usage example
-
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_algorithm.h>
+#include <bsl_functional.h>
+#include <bsl_iostream.h>
+#include <bsl_limits.h>
+#include <bsl_vector.h>      // for usage example
+
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -496,6 +487,10 @@ extern "C" void * testThread3(void *arg)
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example demonstrates the use of a 'bslmt::Barrier' to create
 // "checkpoints" in a threaded "basket trade" processing logic.  In this
 // example, a "basket" is a series of trades submitted as one logical trade.

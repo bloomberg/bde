@@ -1,44 +1,34 @@
 // bslmt_semaphoreimpl_pthread.t.cpp                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_semaphoreimpl_pthread.h>
 
 #if defined(BSLMT_PLATFORM_POSIX_SEMAPHORE)
 
 #include <bslmt_lockguard.h>   // for testing only
 #include <bslmt_mutex.h>       // for testing only
+#include <bslmt_platform.h>
 #include <bslmt_threadutil.h>  // for testing only
 
 #include <bslim_testutil.h>
 
 #include <bslmf_assert.h>
 
-#include <bslmt_platform.h>
-
 #include <bsls_atomic.h>
 #include <bsls_timeinterval.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
-#include <bsl_vector.h>
-#include <bsl_deque.h>
-#include <bsl_iostream.h>
-
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstdio.h>
 #include <bsl_ctime.h>
+#include <bsl_deque.h>
+#include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 #include <pthread.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

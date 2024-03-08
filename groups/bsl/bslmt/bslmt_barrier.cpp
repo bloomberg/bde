@@ -1,12 +1,4 @@
 // bslmt_barrier.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_barrier.h>
 
 #include <bsls_ident.h>
@@ -14,6 +6,7 @@ BSLS_IDENT_RCSID(bslmt_barrier_cpp,"$Id$ $CSID$")
 
 #include <bslmt_lockguard.h>
 #include <bslmt_threadutil.h> // for yield
+
 #include <bsls_assert.h>
 
 namespace BloombergLP {

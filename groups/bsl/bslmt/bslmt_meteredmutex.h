@@ -1,12 +1,4 @@
 // bslmt_meteredmutex.h                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_METEREDMUTEX
 #define INCLUDED_BSLMT_METEREDMUTEX
 
@@ -57,6 +49,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In the following example, we have 'NUM_THREADS' threads (that are
 // sequentially numbered from '0' to 'NUM_THREADS-1') and two counters
 // 'evenCount' and 'oddCount'.  'evenCount' is incremented by the even numbered

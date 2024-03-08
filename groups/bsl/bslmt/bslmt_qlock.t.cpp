@@ -1,12 +1,4 @@
 // bslmt_qlock.t.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_qlock.h>
 
 #include <bslmt_barrier.h>
@@ -19,20 +11,18 @@
 #include <bslim_testutil.h>
 
 #include <bsls_atomicoperations.h>
-
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
-
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-#include <bsl_vector.h>
 
 #include <bsl_cstdlib.h>      // 'atoi'
 #include <bsl_cstring.h>      // 'strcmp'
 #include <bsl_c_stdlib.h>     // 'rand_r'
+#include <bsl_iostream.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                TEST PLAN

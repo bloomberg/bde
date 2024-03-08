@@ -1,12 +1,4 @@
 // bslmt_timedsemaphoreimpl_posixadv.cpp                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_timedsemaphoreimpl_posixadv.h>
 
 #include <bsls_ident.h>
@@ -17,9 +9,9 @@ BSLS_IDENT_RCSID(bslmt_timedsemaphoreimpl_posixadv_cpp,"$Id$ $CSID$")
 #include <bslmt_saturatedtimeconversionimputil.h>
 #include <bslmt_threadutil.h>          // for testing only
 
-#include <bsls_timeinterval.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_ctime.h>
 #include <bsl_c_errno.h>

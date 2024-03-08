@@ -1,17 +1,5 @@
 // bslmt_threadgroup.t.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_threadgroup.h>
-
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
 
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
@@ -19,18 +7,19 @@
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 
-#include <bslma_testallocator.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
-
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
 
 using namespace BloombergLP;
 

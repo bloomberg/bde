@@ -1,12 +1,4 @@
 // bslmt_timedsemaphoreimpl_win32.h                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
 #define INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
 
@@ -59,8 +51,8 @@ BSLS_IDENT("$Id: $")
 // Platform-specific implementation starts here.
 
 #include <bsls_assert.h>
-#include <bsls_timeinterval.h>
 #include <bsls_systemclocktype.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_c_limits.h>
 

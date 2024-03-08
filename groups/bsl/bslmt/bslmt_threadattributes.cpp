@@ -1,17 +1,12 @@
 // bslmt_threadattributes.cpp                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_threadattributes.h>
 
-#include <bslim_printer.h>
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bslmt_threadattributes_cpp,"$Id$ $CSID$")
 
 #include <bslmt_platform.h>
+
+#include <bslim_printer.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -20,9 +15,6 @@
 #include <bsl_cstring.h>
 #include <bsl_c_limits.h>
 #include <bsl_ostream.h>
-
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslmt_threadattributes_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 

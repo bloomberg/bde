@@ -1,12 +1,4 @@
 // bslmt_semaphore.h                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_SEMAPHORE
 #define INCLUDED_BSLMT_SEMAPHORE
 
@@ -28,6 +20,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // This example illustrates a very simple queue where potential clients can
 // push integers to a queue, and later retrieve the integer values from the
 // queue in FIFO order.  It illustrates two potential uses of semaphores: to
@@ -107,10 +103,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmt_platform.h>
 #include <bslmt_semaphoreimpl_counted.h>
 #include <bslmt_semaphoreimpl_pthread.h>
 #include <bslmt_semaphoreimpl_win32.h>
-#include <bslmt_platform.h>
 
 namespace BloombergLP {
 namespace bslmt {

@@ -1,12 +1,4 @@
 // bslmt_mutexassert.t.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_mutexassert.h>
 
 #include <bslmt_mutex.h>
@@ -24,8 +16,6 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_vector.h>
-
-#include <bsls_atomic.h>
 
 using namespace BloombergLP;
 using namespace bsl;

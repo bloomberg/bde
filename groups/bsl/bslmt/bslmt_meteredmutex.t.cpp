@@ -1,17 +1,9 @@
 // bslmt_meteredmutex.t.cpp                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_meteredmutex.h>
 
+#include <bslmt_barrier.h>     // for testing only
 #include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
-#include <bslmt_barrier.h>     // for testing only
 
 #include <bslim_testutil.h>
 
@@ -23,7 +15,7 @@
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                   TEST PLAN
@@ -118,6 +110,10 @@ bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In the following example, we have 'NUM_THREADS' threads (that are
 // sequentially numbered from '0' to 'NUM_THREADS-1') and two counters
 // 'evenCount' and 'oddCount'.  'evenCount' is incremented by the even numbered

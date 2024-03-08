@@ -1,12 +1,4 @@
 // bslmt_semaphoreimpl_darwin.cpp                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_semaphoreimpl_darwin.h>
 
 #include <bsls_ident.h>
@@ -18,11 +10,11 @@ BSLS_IDENT_RCSID(bslmt_semaphoreimpl_darwin_cpp,"$Id$ $CSID$")
 #include <bslmt_mutex.h>        // for testing only
 #include <bslmt_threadutil.h>   // for testing only
 
-#include <bsl_string.h>
-#include <bsl_sstream.h>
+#include <bsl_c_errno.h>
 #include <bsl_iomanip.h>
 #include <bsl_ios.h>
-#include <bsl_c_errno.h>
+#include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsls_types.h>
 
 #include <stdio.h>         // 'snprintf'

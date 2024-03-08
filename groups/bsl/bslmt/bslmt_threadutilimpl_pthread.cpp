@@ -1,12 +1,4 @@
 // bslmt_threadutilimpl_pthread.cpp                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_threadutilimpl_pthread.h>
 
 #include <bsls_ident.h>
@@ -18,16 +10,15 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bslmt_saturatedtimeconversionimputil.h>
 #include <bslmt_threadattributes.h>
 
-#include <bsls_systemtime.h>
-#include <bsls_timeinterval.h>
-
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_platform.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
+
 
 #include <bsl_algorithm.h>   // 'bsl::min'
 #include <bsl_cstdlib.h>
-#include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 #include <bsl_ctime.h>
 #include <bsl_c_limits.h>

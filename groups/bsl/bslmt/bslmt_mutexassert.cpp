@@ -1,12 +1,4 @@
 // bslmt_mutexassert.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_mutexassert.h>
 
 #include <bsls_ident.h>
@@ -30,7 +22,7 @@ void bslmt::MutexAssert_Imp::assertIsLockedImpl(Mutex      *mutex,
                                                 const char *file,
                                                 int         line)
 {
-#if   defined(BSLMT_PLATFORM_POSIX_THREADS)
+#if defined(BSLMT_PLATFORM_POSIX_THREADS)
 
     if (0 == mutex->tryLock()) {    // mutex isn't recursive in pthreads
         // The mutex was unlocked.

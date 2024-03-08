@@ -1,12 +1,4 @@
 // bslmt_readerwriterlockassert.t.cpp                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_readerwriterlockassert.h>
 
 #include <bslmt_readerwriterlock.h>
@@ -17,6 +9,12 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttestexception.h>
+#include <bsls_atomic.h>
+#include <bsls_buildtarget.h>
+#include <bsls_nameof.h>
+
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>    // 'bsl::strcpy' 'bsl::strcat'
 #include <bsl_deque.h>
@@ -25,12 +23,6 @@
 #include <bsl_numeric.h>    // 'bsl::accumulate'
 #include <bsl_utility.h>    // 'bsl::make_pair'
 #include <bsl_vector.h>
-
-#include <bsls_assert.h>
-#include <bsls_asserttestexception.h>
-#include <bsls_atomic.h>
-#include <bsls_buildtarget.h>
-#include <bsls_nameof.h>
 
 #include <float.h>    // 'DBL_MIN'
 

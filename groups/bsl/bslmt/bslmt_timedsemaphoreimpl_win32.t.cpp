@@ -1,12 +1,4 @@
 // bslmt_timedsemaphoreimpl_win32.t.cpp                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_timedsemaphoreimpl_win32.h>
 
 #include <bslim_testutil.h>
@@ -17,10 +9,9 @@
 
 #include <bsls_atomic.h>
 
-#include <bsls_timeinterval.h>
-#include <bsls_systemtime.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
@@ -28,7 +19,7 @@
 #include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
 

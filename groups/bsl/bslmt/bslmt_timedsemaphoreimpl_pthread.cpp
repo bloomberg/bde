@@ -1,12 +1,4 @@
 // bslmt_timedsemaphoreimpl_pthread.cpp                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_timedsemaphoreimpl_pthread.h>
 
 #include <bsls_ident.h>
@@ -15,10 +7,9 @@ BSLS_IDENT_RCSID(bslmt_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bslmt_saturatedtimeconversionimputil.h>
 #include <bslmt_threadutil.h>
 
+#include <bsls_assert.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
-
-#include <bsls_assert.h>
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
 

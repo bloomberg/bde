@@ -17,7 +17,7 @@
 #include <bsl_cstdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION

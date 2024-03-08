@@ -14,8 +14,8 @@
 #include <bslim_testutil.h>
 
 #include <bsls_atomic.h>
-
 #include <bsls_stopwatch.h>
+
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 

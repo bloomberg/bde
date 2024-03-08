@@ -1,12 +1,4 @@
 // bslmt_lockguard.h                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_LOCKGUARD
 #define INCLUDED_BSLMT_LOCKGUARD
 
@@ -89,6 +81,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Use this component to ensure that in the event of an exception or exit from
 // any point in a given scope, the synchronization object will be properly
 // unlocked.  The following function, 'errorProneFunc', is overly complex, not

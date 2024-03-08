@@ -1,27 +1,18 @@
 // bslmt_qlock.cpp                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_qlock.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_qlock_cpp,"$Id$ $CSID$")
 
 #include <bsla_maybeunused.h>
-#include <bsls_assert.h>
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
-#include <bsls_atomicoperations.h>
+#include <bslmt_barrier.h> // for testing only
 #include <bslmt_threadlocalvariable.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_semaphore.h>
-
-#include <bslmt_barrier.h> // for testing only
+#include <bsls_assert.h>
+#include <bsls_atomicoperations.h>
 
 namespace {
 

@@ -1,12 +1,4 @@
 // bslmt_threadgroup.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_threadgroup.h>
 
 #include <bsls_ident.h>
@@ -14,11 +6,12 @@ BSLS_IDENT_RCSID(bslmt_threadgroup_cpp,"$Id$ $CSID$")
 
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>  // for testing only
+                              //
 #include <bslma_default.h>
 
-#include <bsl_algorithm.h>
-
 #include <bsls_assert.h>
+
+#include <bsl_algorithm.h>
 
 namespace BloombergLP {
 namespace {

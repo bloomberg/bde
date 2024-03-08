@@ -1,12 +1,4 @@
 // bslmt_readerwriterlock.t.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_readerwriterlock.h>
 
 #include <bslmt_barrier.h>           // for testing only
@@ -16,14 +8,13 @@
 
 #include <bslim_testutil.h>
 
-#include <bsls_timeinterval.h>       // for testing only
 #include <bsls_atomic.h>             // for testing only
-
-#include <bsl_map.h>                 // for usage example
+#include <bsls_timeinterval.h>       // for testing only
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_map.h>                 // for usage example
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>
@@ -31,7 +22,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

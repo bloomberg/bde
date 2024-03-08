@@ -9,15 +9,15 @@
 
 #include <bslmt_threadutil.h>
 
+#include <bslmt_configuration.h>
+#include <bslmt_platform.h>
+#include <bslmt_threadattributes.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-
-#include <bslmt_configuration.h>
-#include <bslmt_threadattributes.h>
-#include <bslmt_platform.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -60,7 +60,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION

@@ -1,12 +1,4 @@
 // bslmt_threadgroup.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_THREADGROUP
 #define INCLUDED_BSLMT_THREADGROUP
 
@@ -36,6 +28,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following usage example illustrates how 'bslmt::ThreadGroup' might be
 // used in a typical test driver to simplify the execution of a common function
 // in multiple threads.  Suppose that we are interested in creating a

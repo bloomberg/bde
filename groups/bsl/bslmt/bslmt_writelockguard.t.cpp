@@ -1,12 +1,4 @@
 // bslmt_writelockguard.t.cpp                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_writelockguard.h>
 
 #include <bslim_testutil.h>
@@ -16,7 +8,7 @@
 #include <bsl_cstdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -143,6 +135,10 @@ struct my_Object {
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Use this component to ensure that in the event of an exception or exit from
 // any point in a given scope, the synchronization object will be properly
 // unlocked.  The following function, 'errorProneFunc', is overly complex, not

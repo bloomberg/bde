@@ -59,6 +59,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example illustrates the use of 'bslmt::Turnstile' to control
 // the rate of output being written to a specified output stream.  The example
 // function, 'heartbeat', prints a specified message at a specified rate for a

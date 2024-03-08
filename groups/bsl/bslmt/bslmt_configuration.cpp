@@ -1,21 +1,16 @@
 // bslmt_configuration.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_configuration.h>
 
-#include <bslmt_threadattributes.h>
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bslmt_configuration_cpp,"$Id$ $CSID$")
 
-#include <bsls_atomicoperations.h>
+#include <bslmt_threadattributes.h>
 #include <bslmt_platform.h>
 
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
+#include <bsls_atomicoperations.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -29,9 +24,6 @@
 #else
 # error unrecognized threading platform
 #endif
-
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslmt_configuration_cpp,"$Id$ $CSID$")
 
 #if defined(BSLMT_PLATFORM_POSIX_THREADS)
 

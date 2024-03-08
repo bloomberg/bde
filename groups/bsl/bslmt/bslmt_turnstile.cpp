@@ -1,15 +1,14 @@
 // bslmt_turnstile.cpp                                                -*-C++-*-
-
 #include <bslmt_turnstile.h>
-
-#include <bslmt_threadutil.h>
-
-#include <bsls_timeinterval.h>
-#include <bsls_systemtime.h>
-#include <bsls_assert.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_turnstile_cpp,"$Id$ $CSID$")
+
+#include <bslmt_threadutil.h>
+
+#include <bsls_assert.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 namespace BloombergLP {
 namespace {

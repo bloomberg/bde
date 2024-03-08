@@ -1,12 +1,4 @@
 // bslmt_condition.h                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_CONDITION
 #define INCLUDED_BSLMT_CONDITION
 
@@ -82,6 +74,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose we have a 'bslmt::Condition' object, 'condition', and a boolean
 // predicate associated with 'condition' (represented here as a free function
 // that returns a 'bool' value):

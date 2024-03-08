@@ -1,12 +1,4 @@
 // bslmt_sluice.h                                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_SLUICE
 #define INCLUDED_BSLMT_SLUICE
 
@@ -46,6 +38,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // 'bslmt::Sluice' is intended to be used to implement other synchronization
 // mechanisms.  In particular, the functionality provided by 'bslmt::Sluice' is
 // useful for implementing a condition variable:

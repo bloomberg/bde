@@ -14,15 +14,16 @@
 #include <bslmt_semaphore.h>    // for testing only
 #include <bslmt_threadutil.h>   // for testing only
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 
 #include <bsls_atomic.h>
-#include <bsla_maybeunused.h>
-#include <bsls_timeinterval.h>
-#include <bsls_systemtime.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -32,7 +33,7 @@
 #include <bsl_c_stdio.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

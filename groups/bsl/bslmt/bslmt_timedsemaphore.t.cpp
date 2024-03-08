@@ -1,24 +1,16 @@
 // bslmt_timedsemaphore.t.cpp                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_timedsemaphore.h>
 
 #include <bslim_testutil.h>
 
 #include <bsls_systemtime.h>
 
-#include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 #include <bsl_deque.h>
+#include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bslmt_rwmutex.h>
 
 #include <bslmt_barrier.h>
@@ -28,15 +27,15 @@
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
-#include <bsl_iostream.h>
-#include <bsl_algorithm.h>
 #include <bsl_functional.h>
+#include <bsl_iostream.h>
 #include <bsl_numeric.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION

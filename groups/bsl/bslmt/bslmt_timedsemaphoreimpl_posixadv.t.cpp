@@ -1,12 +1,4 @@
 // bslmt_timedsemaphoreimpl_posixadv.t.cpp                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_timedsemaphoreimpl_posixadv.h>
 
 #include <bslim_testutil.h>
@@ -17,19 +9,17 @@
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
-#include <bsls_timeinterval.h>
-#include <bsls_systemtime.h>
 #include <bsls_platform.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 
-#include <bsl_cstdlib.h>
-
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 #if defined(BSLS_PLATFORM_OS_SUNOS)   ||     \
     defined(BSLS_PLATFORM_OS_SOLARIS) ||     \

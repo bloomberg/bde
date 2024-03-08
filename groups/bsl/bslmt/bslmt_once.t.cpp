@@ -1,33 +1,22 @@
 // bslmt_once.t.cpp                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_once.h>
 
 #include <bslmt_barrier.h>
-
-#include <bslim_testutil.h>
-
-#include <bsls_timeutil.h>
-#include <bsls_types.h>
-
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
-#include <bslma_default.h>
-
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
+#include <bslim_testutil.h>
+
+#include <bslma_default.h>
+
 #include <bsls_timeinterval.h>
+#include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iostream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
