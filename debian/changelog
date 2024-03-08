@@ -1,5 +1,23 @@
-bsl-internal (4.4.0.0) unstable; urgency=low
+bsl-internal (4.4.1.0) unstable; urgency=low
 
+  * cf3b86eff Bumped version to 4.4.1.0
+  * 439ccf0c9 Remove out-of-date markers from ball (#4658)
+  * 381523644 Remove out-of-date markers from bslmt (#4656)
+  * 3ceb421e8 bdlcc::Cache respects allocator_arg (#4651)
+  * 1fb1fc3fa Revert "Fix for range-v3 spaceshipless iterator support (#4644)" (#4655)
+  * e6ff4a515 drqs-173827946: 'bdljsn_{json,number}util.t.cpp': Fix C++03 warnings. (#4620)
+  * 036a23176 Add hashing support to NullableAllocatedValue {DRQS 174516518} (#4648)
+  * 4e0db5690 disable BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS (#4647)
+  * 987e42372 Fix for range-v3 spaceshipless iterator support (#4644)
+  * 656c7e1c7 No bsl::flush in the example (#4646)
+  * 8a91be56a bdlbb_blobutil.h: improve doc of 'append' and 'copy' (#4640)
+  * 65defaf9e optional<Incomplete> (DRQS 173457570) (#4519)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 8 Mar 2024 12:23:44 -0500
+
+bsl-internal (4.4.0.0) git; urgency=low
+
+  * 9686d612a Changelog for version 4.4.0.0
   * e17a0cd6c Bumped version to 4.4.0.0
   * 204d5a550 Implement owner_equal and owner_hash from C++26 (DRQS 174172604) (#4638)
   * 495a30526 Remove unused BAEJSN_BEGIN (#4639)
@@ -9,7 +27,7 @@ bsl-internal (4.4.0.0) unstable; urgency=low
   * 9c6d14c09 Add 'emplace' (and variants) to the flat associative containers {DRQS 166844030} (#4601)
   * c5bf4f1ac Balcl nightly build warnings drqs 174193974 (#4610)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 3 Mar 2024 17:35:50 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 3 Mar 2024 17:39:57 -0500
 
 bsl-internal (4.3.0.0) git; urgency=low
 
