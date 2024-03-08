@@ -170,6 +170,9 @@ bool veryVeryVerbose;
                   case 8: // unsigned long long
                     return lhs.value().the<unsigned long long>()
                          < rhs.value().the<unsigned long long>();     // RETURN
+                  case 9: // Guid
+                    return lhs.value().the<bdlb::Guid>()
+                         < rhs.value().the<bdlb::Guid>();             // RETURN
                 }
                 BSLS_ASSERT_OPT(false);
                 return false;

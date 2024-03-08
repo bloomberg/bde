@@ -215,6 +215,9 @@ BSLS_IDENT("$Id: $")
 //                case 8: // const void *
 //                  return lhs.value().the<const void *>() <
 //                         rhs.value().the<const void *>();
+//                case 9: // Guid
+//                  return lhs.value().the<bdlb::Guid>() <
+//                         rhs.value().the<bdlb::Guid>();
 //              }
 //              BSLS_ASSERT(false);
 //              return false;

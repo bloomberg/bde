@@ -211,6 +211,9 @@ struct AttributeComparator {
           case 8: // const void *
             return lhs.value().the<const void *>() <
                    rhs.value().the<const void *>();                   // RETURN
+          case 9: // Guid
+            return lhs.value().the<bdlb::Guid>() <
+                   rhs.value().the<bdlb::Guid>();                     // RETURN
         }
         BSLS_ASSERT_OPT(false);
         return false;

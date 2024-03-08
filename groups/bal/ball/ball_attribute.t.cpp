@@ -1,6 +1,7 @@
 // ball_attribute.t.cpp                                               -*-C++-*-
 #include <ball_attribute.h>
 
+#include <bdlb_guidutil.h>
 #include <bdlb_hashutil.h>
 
 #include <bslim_printer.h>
@@ -48,7 +49,8 @@ using namespace bsl;
 // [11] Attribute(const char *n, long long, const alct& a);
 // [11] Attribute(const char *n, unsigned int v, const alct& a);
 // [11] Attribute(const char *n, unsigned long v, const alct& a);
-// [11] Attribute(const char *n, unsigned long long, const alct& a);
+// [11] Attribute(const char *n, unsigned long long v, const alct& a);
+// [11] Attribute(const char *n, bdlb::Guid v, const alct& a);
 // [11] Attribute(const char *n, const str_view& v, const alct& a);
 // [11] Attribute(const char *n, const char *v, const alct& a);
 // [11] Attribute(const char *n, const void *v, const alct& a);
@@ -64,6 +66,7 @@ using namespace bsl;
 // [13] void setValue(unsigned int n);
 // [13] void setValue(unsigned long n);
 // [13] void setValue(unsigned long long n);
+// [13] void setValue(bdlb::Guid n);
 // [13] void setValue(const bsl::string_view& s);
 // [13] void setValue(const char *v);
 // [13] void setValue(const void *v);
@@ -169,6 +172,9 @@ const char *LONG_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+const bdlb::Guid NO_GUID;
+const bdlb::Guid SOME_GUID = bdlb::GuidUtil::guidFromString(
+                                       "45d5a7a3-83c7-4a14-8b53-1140245c3c56");
 
 const struct {
     int         d_line;     // line number
@@ -204,52 +210,56 @@ static const struct Values {
 
     unsigned long long  d_uivalue; // integer value - used when d_type == 3-5
 
-    const char         *d_svalue;  // string value  - used when d_type == 6
+    bdlb::Guid          d_guidvalue; // Guid value - used when d_type == 6
 
-    const void         *d_pvalue;  // const void * value - when d_type == 7
+    const char         *d_svalue;  // string value  - used when d_type == 7
+
+    const void         *d_pvalue;  // const void * value - when d_type == 8
 } VALUES[] = {
-    ///line  type  ivalue     uivalue     svalue       pvalue
-    ///----  ----  ------     -------     ------       ------
-    {  L_,   0,    0,         0,          0,           0             },
-    {  L_,   0,    1,         0,          0,           0             },
-    {  L_,   0,    -1,        0,          0,           0             },
-    {  L_,   0,    INT_MAX,   0,          0,           0             },
-    {  L_,   0,    INT_MIN,   0,          0,           0             },
+    ///line  type  ivalue     uivalue    guidvalue  svalue       pvalue
+    ///----  ----  ------     -------    ---------  ------       ------
+    {  L_,   0,    0,         0,         NO_GUID,   0,           0             },
+    {  L_,   0,    1,         0,         NO_GUID,   0,           0             },
+    {  L_,   0,    -1,        0,         NO_GUID,   0,           0             },
+    {  L_,   0,    INT_MAX,   0,         NO_GUID,   0,           0             },
+    {  L_,   0,    INT_MIN,   0,         NO_GUID,   0,           0             },
 
-    {  L_,   1,    0,         0,          0,           0             },
-    {  L_,   1,    1,         0,          0,           0             },
-    {  L_,   1,    -1,        0,          0,           0             },
-    {  L_,   1,    LONG_MAX,  0,          0,           0             },
-    {  L_,   1,    LONG_MIN,  0,          0,           0             },
+    {  L_,   1,    0,         0,         NO_GUID,   0,           0             },
+    {  L_,   1,    1,         0,         NO_GUID,   0,           0             },
+    {  L_,   1,    -1,        0,         NO_GUID,   0,           0             },
+    {  L_,   1,    LONG_MAX,  0,         NO_GUID,   0,           0             },
+    {  L_,   1,    LONG_MIN,  0,         NO_GUID,   0,           0             },
 
-    {  L_,   2,    0,         0,          0,           0             },
-    {  L_,   2,    1,         0,          0,           0             },
-    {  L_,   2,    -1,        0,          0,           0             },
-    {  L_,   2,    LLONG_MAX, 0,          0,           0             },
-    {  L_,   2,    LLONG_MIN, 0,          0,           0             },
+    {  L_,   2,    0,         0,         NO_GUID,   0,           0             },
+    {  L_,   2,    1,         0,         NO_GUID,   0,           0             },
+    {  L_,   2,    -1,        0,         NO_GUID,   0,           0             },
+    {  L_,   2,    LLONG_MAX, 0,         NO_GUID,   0,           0             },
+    {  L_,   2,    LLONG_MIN, 0,         NO_GUID,   0,           0             },
 
-    {  L_,   3,    0,         0,          0,           0             },
-    {  L_,   3,    0,         1,          0,           0             },
-    {  L_,   3,    0,         INT_MAX,    0,           0             },
+    {  L_,   3,    0,         0,         NO_GUID,   0,           0             },
+    {  L_,   3,    0,         1,         NO_GUID,   0,           0             },
+    {  L_,   3,    0,         INT_MAX,   NO_GUID,   0,           0             },
 
-    {  L_,   4,    0,         0,          0,           0             },
-    {  L_,   4,    0,         1,          0,           0             },
-    {  L_,   4,    0,         LONG_MAX,   0,           0             },
+    {  L_,   4,    0,         0,         NO_GUID,   0,           0             },
+    {  L_,   4,    0,         1,         NO_GUID,   0,           0             },
+    {  L_,   4,    0,         LONG_MAX,  NO_GUID,   0,           0             },
 
-    {  L_,   5,    0,         0,          0,           0             },
-    {  L_,   5,    0,         1,          0,           0             },
-    {  L_,   5,    0,         LLONG_MAX,  0,           0             },
+    {  L_,   5,    0,         0,         NO_GUID,   0,           0             },
+    {  L_,   5,    0,         1,         NO_GUID,   0,           0             },
+    {  L_,   5,    0,         LLONG_MAX, NO_GUID,   0,           0             },
 
-    {  L_,   6,    0,         0,          "",          0             },
-    {  L_,   6,    0,         0,          "0",         0             },
-    {  L_,   6,    0,         0,          "A",         0             },
-    {  L_,   6,    0,         0,          "B",         0             },
-    {  L_,   6,    0,         0,          "a",         0             },
-    {  L_,   6,    0,         0,          "AA",        0             },
-    {  L_,   6,    0,         0,          LONG_STRING, 0             },
+    {  L_,   6,    0,         0,         SOME_GUID, 0,           0             },
 
-    {  L_,   7,    0,         0,          0,           0             },
-    {  L_,   7,    0,         0,          0,           &SIMPLE_VALUE },
+    {  L_,   7,    0,         0,         NO_GUID,   "",          0             },
+    {  L_,   7,    0,         0,         NO_GUID,   "0",         0             },
+    {  L_,   7,    0,         0,         NO_GUID,   "A",         0             },
+    {  L_,   7,    0,         0,         NO_GUID,   "B",         0             },
+    {  L_,   7,    0,         0,         NO_GUID,   "a",         0             },
+    {  L_,   7,    0,         0,         NO_GUID,   "AA",        0             },
+    {  L_,   7,    0,         0,         NO_GUID,   LONG_STRING, 0             },
+
+    {  L_,   8,    0,         0,         NO_GUID,   0,           0             },
+    {  L_,   8,    0,         0,         NO_GUID,   0,           &SIMPLE_VALUE },
 };
 
 enum { NUM_VALUES = sizeof VALUES / sizeof *VALUES };
@@ -265,221 +275,223 @@ static const struct HashData {
     int                 d_type;       // type of attribute value
     long long           d_ivalue;     // integer attribute value
     long long           d_uivalue;    // unsigned integer value
+    bdlb::Guid          d_guidvalue;  // Guid value
     const char         *d_svalue;     // string attribute value
     const void         *d_pvalue;     // const void* attribute value
     int                 d_hashSize;   // hashtable size
     int                 d_hashValue;  // expected hash value
 } HASH_DATA[] = {
-// line  name  type  ivalue     uivalue    svalue  pvalue  hsize   hash value
-// ----  ----  ----  ------     -------    ------  ------  -----   ----------
-{  L_,   "",   0,    0,         0,         0,      0,        256,        246 },
-{  L_,   "A",  0,    0,         0,         0,      0,        256,        54  },
-{  L_,   "A",  0,    1,         0,         0,      0,        256,        35  },
-{  L_,   "A",  0,    INT_MAX,   0,         0,      0,        256,        194 },
-{  L_,   "A",  0,    INT_MIN,   0,         0,      0,        256,        82  },
+// line  name  type  ivalue     uivalue    guidvalue svalue  pvalue  hsize   hash value
+// ----  ----  ----  ------     -------    --------- ------  ------  -----   ----------
+{  L_,   "",   0,    0,         0,         NO_GUID,  0,      0,        256,        246 },
+{  L_,   "A",  0,    0,         0,         NO_GUID,  0,      0,        256,        54  },
+{  L_,   "A",  0,    1,         0,         NO_GUID,  0,      0,        256,        35  },
+{  L_,   "A",  0,    INT_MAX,   0,         NO_GUID,  0,      0,        256,        194 },
+{  L_,   "A",  0,    INT_MIN,   0,         NO_GUID,  0,      0,        256,        82  },
 
-{  L_,   "",   1,    0,         0,         0,      0,        256,
+{  L_,   "",   1,    0,         0,         NO_GUID,  0,      0,        256,
                                                            LONG_HASH(246,72) },
-{  L_,   "A",  1,    0,         0,         0,      0,        256,
+{  L_,   "A",  1,    0,         0,         NO_GUID,  0,      0,        256,
                                                            LONG_HASH(54,136) },
-{  L_,   "A",  1,    1,         0,         0,      0,        256,
+{  L_,   "A",  1,    1,         0,         NO_GUID,  0,      0,        256,
                                                            LONG_HASH(35,34)  },
-{  L_,   "A",  1,    LONG_MAX,  0,         0,      0,        256,
+{  L_,   "A",  1,    LONG_MAX,  0,         NO_GUID,  0,      0,        256,
                                                            LONG_HASH(194,15) },
-{  L_,   "A",  1,    LONG_MIN,  0,         0,      0,        256,
+{  L_,   "A",  1,    LONG_MIN,  0,         NO_GUID,  0,      0,        256,
                                                            LONG_HASH(82,10)  },
-{  L_,   "",   2,    0,         0,         0,      0,        256,        72  },
-{  L_,   "A",  2,    0,         0,         0,      0,        256,        136 },
-{  L_,   "A",  2,    1,         0,         0,      0,        256,        34  },
-{  L_,   "A",  2,    INT_MAX,   0,         0,      0,        256,        122 },
-{  L_,   "A",  2,    INT_MIN,   0,         0,      0,        256,        50  },
-{  L_,   "A",  2,    LLONG_MAX, 0,         0,      0,        256,        15  },
-{  L_,   "A",  2,    LLONG_MIN, 0,         0,      0,        256,        10  },
-{  L_,   "",   3,    0,         0,         0,      0,        256,        246 },
-{  L_,   "A",  3,    0,         0,         0,      0,        256,        54  },
-{  L_,   "A",  3,    0,         1,         0,      0,        256,        35  },
-{  L_,   "A",  3,    0,         INT_MAX,   0,      0,        256,        194 },
-{  L_,   "",   4,    0,         0,         0,      0,        256,
+{  L_,   "",   2,    0,         0,         NO_GUID,  0,      0,        256,        72  },
+{  L_,   "A",  2,    0,         0,         NO_GUID,  0,      0,        256,        136 },
+{  L_,   "A",  2,    1,         0,         NO_GUID,  0,      0,        256,        34  },
+{  L_,   "A",  2,    INT_MAX,   0,         NO_GUID,  0,      0,        256,        122 },
+{  L_,   "A",  2,    INT_MIN,   0,         NO_GUID,  0,      0,        256,        50  },
+{  L_,   "A",  2,    LLONG_MAX, 0,         NO_GUID,  0,      0,        256,        15  },
+{  L_,   "A",  2,    LLONG_MIN, 0,         NO_GUID,  0,      0,        256,        10  },
+{  L_,   "",   3,    0,         0,         NO_GUID,  0,      0,        256,        246 },
+{  L_,   "A",  3,    0,         0,         NO_GUID,  0,      0,        256,        54  },
+{  L_,   "A",  3,    0,         1,         NO_GUID,  0,      0,        256,        35  },
+{  L_,   "A",  3,    0,         INT_MAX,   NO_GUID,  0,      0,        256,        194 },
+{  L_,   "",   4,    0,         0,         NO_GUID,  0,      0,        256,
                                                           ULONG_HASH(246,72) },
-{  L_,   "A",  4,    0,         0,         0,      0,        256,
+{  L_,   "A",  4,    0,         0,         NO_GUID,  0,      0,        256,
                                                           ULONG_HASH(54,136) },
-{  L_,   "A",  4,    0,         1,         0,      0,        256,
+{  L_,   "A",  4,    0,         1,         NO_GUID,  0,      0,        256,
                                                           ULONG_HASH(35,34)  },
-{  L_,   "A",  4,    0,         LONG_MAX,  0,      0,        256,
+{  L_,   "A",  4,    0,         LONG_MAX,  NO_GUID,  0,      0,        256,
                                                           ULONG_HASH(194,15) },
-{  L_,   "",   5,    0,         0,         0,      0,        256,        72  },
-{  L_,   "A",  5,    0,         0,         0,      0,        256,        136 },
-{  L_,   "A",  5,    0,         1,         0,      0,        256,        34  },
-{  L_,   "A",  5,    0,         INT_MAX,   0,      0,        256,        122 },
-{  L_,   "A",  5,    0,         INT_MIN,   0,      0,        256,        50  },
-{  L_,   "A",  5,    0,         LLONG_MAX, 0,      0,        256,        15  },
-{  L_,   "A",  5,    0,         LLONG_MIN, 0,      0,        256,        10  },
-{  L_,   "",   6,    0,         0,         "",     0,        256,        26  },
-{  L_,   "A",  6,    0,         0,         "",     0,        256,        90  },
-{  L_,   "A",  6,    0,         0,         "A",    0,        256,        154 },
-{  L_,   "",   6,    0,         0,         "ABCD", 0,        256,        162 },
-{  L_,   "A",  6,    0,         0,         "ABCD", 0,        256,        226 },
-{  L_,   "",   7,    0,         0,         0,      0,        256,
+{  L_,   "",   5,    0,         0,         NO_GUID,  0,      0,        256,        72  },
+{  L_,   "A",  5,    0,         0,         NO_GUID,  0,      0,        256,        136 },
+{  L_,   "A",  5,    0,         1,         NO_GUID,  0,      0,        256,        34  },
+{  L_,   "A",  5,    0,         INT_MAX,   NO_GUID,  0,      0,        256,        122 },
+{  L_,   "A",  5,    0,         INT_MIN,   NO_GUID,  0,      0,        256,        50  },
+{  L_,   "A",  5,    0,         LLONG_MAX, NO_GUID,  0,      0,        256,        15  },
+{  L_,   "A",  5,    0,         LLONG_MIN, NO_GUID,  0,      0,        256,        10  },
+{  L_,   "",   7,    0,         0,         NO_GUID,  "",     0,        256,        26  },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "",     0,        256,        90  },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "A",    0,        256,        154 },
+{  L_,   "",   7,    0,         0,         NO_GUID,  "ABCD", 0,        256,        162 },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "ABCD", 0,        256,        226 },
+{  L_,   "",   8,    0,         0,         NO_GUID,  0,      0,        256,
                                                             PTR_HASH(246,72) },
-{  L_,   "A",  7,    0,         0,         0,      0,        256,
+{  L_,   "A",  8,    0,         0,         NO_GUID,  0,      0,        256,
                                                             PTR_HASH(54,136) },
-{  L_,   "A",  7,    0,         0,         0,     VV,        256,
+{  L_,   "A",  8,    0,         0,         NO_GUID,  0,     VV,        256,
                                                             PTR_HASH(35, 34) },
-{  L_,   "",   0,    0,         0,         0,      0,      65536,      36086 },
-{  L_,   "A",  0,    0,         0,         0,      0,      65536,      1846  },
-{  L_,   "A",  0,    1,         0,         0,      0,      65536,      55843 },
-{  L_,   "A",  0,    INT_MAX,   0,         0,      0,      65536,      4290  },
-{  L_,   "A",  0,    INT_MIN,   0,         0,      0,      65536,      26706 },
-{  L_,   "",   1,    0,         0,         0,      0,      65536,
+{  L_,   "",   0,    0,         0,         NO_GUID,  0,      0,      65536,      36086 },
+{  L_,   "A",  0,    0,         0,         NO_GUID,  0,      0,      65536,      1846  },
+{  L_,   "A",  0,    1,         0,         NO_GUID,  0,      0,      65536,      55843 },
+{  L_,   "A",  0,    INT_MAX,   0,         NO_GUID,  0,      0,      65536,      4290  },
+{  L_,   "A",  0,    INT_MIN,   0,         NO_GUID,  0,      0,      65536,      26706 },
+{  L_,   "",   1,    0,         0,         NO_GUID,  0,      0,      65536,
                                                      LONG_HASH(36086, 45128) },
-{  L_,   "A",  1,    0,         0,         0,      0,      65536,
+{  L_,   "A",  1,    0,         0,         NO_GUID,  0,      0,      65536,
                                                      LONG_HASH(1846,  10888) },
-{  L_,   "A",  1,    1,         0,         0,      0,      65536,
+{  L_,   "A",  1,    1,         0,         NO_GUID,  0,      0,      65536,
                                                      LONG_HASH(55843, 40738) },
-{  L_,   "A",  1,    LONG_MAX,  0,         0,      0,      65536,
+{  L_,   "A",  1,    LONG_MAX,  0,         NO_GUID,  0,      0,      65536,
                                                      LONG_HASH(4290,  61711) },
-{  L_,   "A",  1,    LONG_MIN,  0,         0,      0,      65536,
+{  L_,   "A",  1,    LONG_MIN,  0,         NO_GUID,  0,      0,      65536,
                                                      LONG_HASH(26706, 10506) },
-{  L_,   "",   2,    0,         0,         0,      0,      65536,      45128 },
-{  L_,   "A",  2,    0,         0,         0,      0,      65536,      10888 },
-{  L_,   "A",  2,    1,         0,         0,      0,      65536,      40738 },
-{  L_,   "A",  2,    INT_MAX,   0,         0,      0,      65536,      20346 },
-{  L_,   "A",  2,    INT_MIN,   0,         0,      0,      65536,      17970 },
-{  L_,   "A",  2,    LLONG_MAX, 0,         0,      0,      65536,      61711 },
-{  L_,   "A",  2,    LLONG_MIN, 0,         0,      0,      65536,      10506 },
-{  L_,   "",   3,    0,         0,         0,      0,      65536,      36086 },
-{  L_,   "A",  3,    0,         0,         0,      0,      65536,      1846  },
-{  L_,   "A",  3,    0,         1,         0,      0,      65536,      55843 },
-{  L_,   "A",  3,    0,         INT_MAX,   0,      0,      65536,      4290  },
-{  L_,   "",   4,    0,         0,         0,      0,      65536,
+{  L_,   "",   2,    0,         0,         NO_GUID,  0,      0,      65536,      45128 },
+{  L_,   "A",  2,    0,         0,         NO_GUID,  0,      0,      65536,      10888 },
+{  L_,   "A",  2,    1,         0,         NO_GUID,  0,      0,      65536,      40738 },
+{  L_,   "A",  2,    INT_MAX,   0,         NO_GUID,  0,      0,      65536,      20346 },
+{  L_,   "A",  2,    INT_MIN,   0,         NO_GUID,  0,      0,      65536,      17970 },
+{  L_,   "A",  2,    LLONG_MAX, 0,         NO_GUID,  0,      0,      65536,      61711 },
+{  L_,   "A",  2,    LLONG_MIN, 0,         NO_GUID,  0,      0,      65536,      10506 },
+{  L_,   "",   3,    0,         0,         NO_GUID,  0,      0,      65536,      36086 },
+{  L_,   "A",  3,    0,         0,         NO_GUID,  0,      0,      65536,      1846  },
+{  L_,   "A",  3,    0,         1,         NO_GUID,  0,      0,      65536,      55843 },
+{  L_,   "A",  3,    0,         INT_MAX,   NO_GUID,  0,      0,      65536,      4290  },
+{  L_,   "",   4,    0,         0,         NO_GUID,  0,      0,      65536,
                                                     ULONG_HASH(36086, 45128) },
-{  L_,   "A",  4,    0,         0,         0,      0,      65536,
+{  L_,   "A",  4,    0,         0,         NO_GUID,  0,      0,      65536,
                                                     ULONG_HASH(1846,  10888) },
-{  L_,   "A",  4,    0,         1,         0,      0,      65536,
+{  L_,   "A",  4,    0,         1,         NO_GUID,  0,      0,      65536,
                                                     ULONG_HASH(55843, 40738) },
-{  L_,   "A",  4,    0,         LONG_MAX,  0,      0,      65536,
+{  L_,   "A",  4,    0,         LONG_MAX,  NO_GUID,  0,      0,      65536,
                                                     ULONG_HASH(4290,  61711) },
-{  L_,   "",   5,    0,         0,         0,      0,      65536,      45128 },
-{  L_,   "A",  5,    0,         0,         0,      0,      65536,      10888 },
-{  L_,   "A",  5,    0,         1,         0,      0,      65536,      40738 },
-{  L_,   "A",  5,    0,         INT_MAX,   0,      0,      65536,      20346 },
-{  L_,   "A",  5,    0,         INT_MIN,   0,      0,      65536,      17970 },
-{  L_,   "A",  5,    0,         LLONG_MAX, 0,      0,      65536,      61711 },
-{  L_,   "A",  5,    0,         LLONG_MIN, 0,      0,      65536,      10506 },
-{  L_,   "",   6,    0,         0,         "",     0,      65536,      41498 },
-{  L_,   "A",  6,    0,         0,         "",     0,      65536,      7258  },
-{  L_,   "A",  6,    0,         0,         "A",    0,      65536,      38554 },
-{  L_,   "",   6,    0,         0,         "ABCD", 0,      65536,      52898 },
-{  L_,   "A",  6,    0,         0,         "ABCD", 0,      65536,      18658 },
-{  L_,   "",   7,    0,         0,         0,      0,      65535,
+{  L_,   "",   5,    0,         0,         NO_GUID,  0,      0,      65536,      45128 },
+{  L_,   "A",  5,    0,         0,         NO_GUID,  0,      0,      65536,      10888 },
+{  L_,   "A",  5,    0,         1,         NO_GUID,  0,      0,      65536,      40738 },
+{  L_,   "A",  5,    0,         INT_MAX,   NO_GUID,  0,      0,      65536,      20346 },
+{  L_,   "A",  5,    0,         INT_MIN,   NO_GUID,  0,      0,      65536,      17970 },
+{  L_,   "A",  5,    0,         LLONG_MAX, NO_GUID,  0,      0,      65536,      61711 },
+{  L_,   "A",  5,    0,         LLONG_MIN, NO_GUID,  0,      0,      65536,      10506 },
+{  L_,   "",   7,    0,         0,         NO_GUID,  "",     0,      65536,      41498 },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "",     0,      65536,      7258  },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "A",    0,      65536,      38554 },
+{  L_,   "",   7,    0,         0,         NO_GUID,  "ABCD", 0,      65536,      52898 },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "ABCD", 0,      65536,      18658 },
+{  L_,   "",   8,    0,         0,         NO_GUID,  0,      0,      65535,
                                                       PTR_HASH(54181, 50129) },
-{  L_,   "A",  7,    0,         0,         0,      0,      65535,
+{  L_,   "A",  8,    0,         0,         NO_GUID,  0,      0,      65535,
                                                       PTR_HASH(12797,  8746) },
-{  L_,   "A",  7,    0,         0,         0,     VV,      65535,
+{  L_,   "A",  8,    0,         0,         NO_GUID,  0,     VV,      65535,
                                                       PTR_HASH(11033, 44110) },
-{  L_,   "",   0,    0,         0,         0,      0,          7,          1 },
-{  L_,   "A",  0,    0,         0,         0,      0,          7,          4 },
-{  L_,   "A",  0,    1,         0,         0,      0,          7,          0 },
-{  L_,   "A",  0,    INT_MAX,   0,         0,      0,          7,          0 },
-{  L_,   "A",  0,    INT_MIN,   0,         0,      0,          7,          5 },
-{  L_,   "",   1,    0,         0,         0,      0,          7,
+{  L_,   "",   0,    0,         0,         NO_GUID,  0,      0,          7,          1 },
+{  L_,   "A",  0,    0,         0,         NO_GUID,  0,      0,          7,          4 },
+{  L_,   "A",  0,    1,         0,         NO_GUID,  0,      0,          7,          0 },
+{  L_,   "A",  0,    INT_MAX,   0,         NO_GUID,  0,      0,          7,          0 },
+{  L_,   "A",  0,    INT_MIN,   0,         NO_GUID,  0,      0,          7,          5 },
+{  L_,   "",   1,    0,         0,         NO_GUID,  0,      0,          7,
                                                              LONG_HASH(1, 5) },
-{  L_,   "A",  1,    0,         0,         0,      0,          7,
+{  L_,   "A",  1,    0,         0,         NO_GUID,  0,      0,          7,
                                                              LONG_HASH(4, 5) },
-{  L_,   "A",  1,    1,         0,         0,      0,          7,
+{  L_,   "A",  1,    1,         0,         NO_GUID,  0,      0,          7,
                                                              LONG_HASH(0, 1) },
-{  L_,   "A",  1,    LONG_MAX,  0,         0,      0,          7,
+{  L_,   "A",  1,    LONG_MAX,  0,         NO_GUID,  0,      0,          7,
                                                              LONG_HASH(0, 6) },
-{  L_,   "A",  1,    LONG_MIN,  0,         0,      0,          7,
+{  L_,   "A",  1,    LONG_MIN,  0,         NO_GUID,  0,      0,          7,
                                                              LONG_HASH(5, 0) },
-{  L_,   "",   2,    0,         0,         0,      0,          7,          5 },
-{  L_,   "A",  2,    0,         0,         0,      0,          7,          5 },
-{  L_,   "A",  2,    1,         0,         0,      0,          7,          1 },
-{  L_,   "A",  2,    INT_MAX,   0,         0,      0,          7,          6 },
-{  L_,   "A",  2,    INT_MIN,   0,         0,      0,          7,          0 },
-{  L_,   "A",  2,    LLONG_MAX, 0,         0,      0,          7,          6 },
-{  L_,   "A",  2,    LLONG_MIN, 0,         0,      0,          7,          0 },
-{  L_,   "",   3,    0,         0,         0,      0,          7,          1 },
-{  L_,   "A",  3,    0,         0,         0,      0,          7,          4 },
-{  L_,   "A",  3,    0,         1,         0,      0,          7,          0 },
-{  L_,   "A",  3,    0,         INT_MAX,   0,      0,          7,          0 },
-{  L_,   "",   4,    0,         0,         0,      0,          7,
+{  L_,   "",   2,    0,         0,         NO_GUID,  0,      0,          7,          5 },
+{  L_,   "A",  2,    0,         0,         NO_GUID,  0,      0,          7,          5 },
+{  L_,   "A",  2,    1,         0,         NO_GUID,  0,      0,          7,          1 },
+{  L_,   "A",  2,    INT_MAX,   0,         NO_GUID,  0,      0,          7,          6 },
+{  L_,   "A",  2,    INT_MIN,   0,         NO_GUID,  0,      0,          7,          0 },
+{  L_,   "A",  2,    LLONG_MAX, 0,         NO_GUID,  0,      0,          7,          6 },
+{  L_,   "A",  2,    LLONG_MIN, 0,         NO_GUID,  0,      0,          7,          0 },
+{  L_,   "",   3,    0,         0,         NO_GUID,  0,      0,          7,          1 },
+{  L_,   "A",  3,    0,         0,         NO_GUID,  0,      0,          7,          4 },
+{  L_,   "A",  3,    0,         1,         NO_GUID,  0,      0,          7,          0 },
+{  L_,   "A",  3,    0,         INT_MAX,   NO_GUID,  0,      0,          7,          0 },
+{  L_,   "",   4,    0,         0,         NO_GUID,  0,      0,          7,
                                                             ULONG_HASH(1, 5) },
-{  L_,   "A",  4,    0,         0,         0,      0,          7,
+{  L_,   "A",  4,    0,         0,         NO_GUID,  0,      0,          7,
                                                             ULONG_HASH(4, 5) },
-{  L_,   "A",  4,    0,         1,         0,      0,          7,
+{  L_,   "A",  4,    0,         1,         NO_GUID,  0,      0,          7,
                                                             ULONG_HASH(0, 1) },
-{  L_,   "A",  4,    0,         LONG_MAX,  0,      0,          7,
+{  L_,   "A",  4,    0,         LONG_MAX,  NO_GUID,  0,      0,          7,
                                                             ULONG_HASH(0, 6) },
-{  L_,   "",   5,    0,         0,         0,      0,          7,          5 },
-{  L_,   "A",  5,    0,         0,         0,      0,          7,          5 },
-{  L_,   "A",  5,    0,         1,         0,      0,          7,          1 },
-{  L_,   "A",  5,    0,         INT_MAX,   0,      0,          7,          6 },
-{  L_,   "A",  5,    0,         INT_MIN,   0,      0,          7,          0 },
-{  L_,   "A",  5,    0,         LLONG_MAX, 0,      0,          7,          6 },
-{  L_,   "A",  5,    0,         LLONG_MIN, 0,      0,          7,          0 },
-{  L_,   "",   6,    0,         0,         "",     0,          7,          5 },
-{  L_,   "A",  6,    0,         0,         "",     0,          7,          1 },
-{  L_,   "A",  6,    0,         0,         "A",    0,          7,          4 },
-{  L_,   "",   6,    0,         0,         "ABCD", 0,          7,          0 },
-{  L_,   "A",  6,    0,         0,         "ABCD", 0,          7,          3 },
-{  L_,   "",   7,    0,         0,         0,      0,          7,
+{  L_,   "",   5,    0,         0,         NO_GUID,  0,      0,          7,          5 },
+{  L_,   "A",  5,    0,         0,         NO_GUID,  0,      0,          7,          5 },
+{  L_,   "A",  5,    0,         1,         NO_GUID,  0,      0,          7,          1 },
+{  L_,   "A",  5,    0,         INT_MAX,   NO_GUID,  0,      0,          7,          6 },
+{  L_,   "A",  5,    0,         INT_MIN,   NO_GUID,  0,      0,          7,          0 },
+{  L_,   "A",  5,    0,         LLONG_MAX, NO_GUID,  0,      0,          7,          6 },
+{  L_,   "A",  5,    0,         LLONG_MIN, NO_GUID,  0,      0,          7,          0 },
+{  L_,   "",   7,    0,         0,         NO_GUID,  "",     0,          7,          5 },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "",     0,          7,          1 },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "A",    0,          7,          4 },
+{  L_,   "",   7,    0,         0,         NO_GUID,  "ABCD", 0,          7,          0 },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "ABCD", 0,          7,          3 },
+{  L_,   "",   8,    0,         0,         NO_GUID,  0,      0,          7,
                                                               PTR_HASH(1, 5) },
-{  L_,   "A",  7,    0,         0,         0,      0,          7,
+{  L_,   "A",  8,    0,         0,         NO_GUID,  0,      0,          7,
                                                               PTR_HASH(4, 5) },
-{  L_,   "A",  7,    0,         0,         0,     VV,          7,
+{  L_,   "A",  8,    0,         0,         NO_GUID,  0,     VV,          7,
                                                               PTR_HASH(0, 1) },
-{  L_,   "",   0,    0,         0,         0,      0, 1610612741, 1185910006 },
-{  L_,   "A",  0,    0,         0,         0,      0, 1610612741, 717686582  },
-{  L_,   "A",  0,    1,         0,         0,      0, 1610612741, 1358289443 },
-{  L_,   "A",  0,    INT_MAX,   0,         0,      0, 1610612741, 981602493  },
-{  L_,   "A",  0,    INT_MIN,   0,         0,      0, 1610612741, 388327501  },
-{  L_,   "",   1,    0,         0,         0,      0, 1610612741,
+{  L_,   "",   0,    0,         0,         NO_GUID,  0,      0, 1610612741, 1185910006 },
+{  L_,   "A",  0,    0,         0,         NO_GUID,  0,      0, 1610612741, 717686582  },
+{  L_,   "A",  0,    1,         0,         NO_GUID,  0,      0, 1610612741, 1358289443 },
+{  L_,   "A",  0,    INT_MAX,   0,         NO_GUID,  0,      0, 1610612741, 981602493  },
+{  L_,   "A",  0,    INT_MIN,   0,         NO_GUID,  0,      0, 1610612741, 388327501  },
+{  L_,   "",   1,    0,         0,         NO_GUID,  0,      0, 1610612741,
                                             LONG_HASH(1185910006, 327790664) },
-{  L_,   "A",  1,    0,         0,         0,      0, 1610612741,
+{  L_,   "A",  1,    0,         0,         NO_GUID,  0,      0, 1610612741,
                                             LONG_HASH(717686582,  933309054) },
-{  L_,   "A",  1,    1,         0,         0,      0, 1610612741,
+{  L_,   "A",  1,    1,         0,         NO_GUID,  0,      0, 1610612741,
                                             LONG_HASH(1358289443, 221028130) },
-{  L_,   "A",  1,    LONG_MAX,  0,         0,      0, 1610612741,
+{  L_,   "A",  1,    LONG_MAX,  0,         NO_GUID,  0,      0, 1610612741,
                                             LONG_HASH(981602493,  1138749706) },
-{  L_,   "A",  1,    LONG_MIN,  0,         0,      0, 1610612741,
+{  L_,   "A",  1,    LONG_MIN,  0,         NO_GUID,  0,      0, 1610612741,
                                             LONG_HASH(388327501,  60893445) },
-{  L_,   "",   2,    0,         0,         0,      0, 1610612741, 327790664  },
-{  L_,   "A",  2,    0,         0,         0,      0, 1610612741, 933309054  },
-{  L_,   "A",  2,    1,         0,         0,      0, 1610612741, 221028130  },
-{  L_,   "A",  2,    INT_MAX,   0,         0,      0, 1610612741, 371216250  },
-{  L_,   "A",  2,    INT_MIN,   0,         0,      0, 1610612741, 929711661  },
-{  L_,   "A",  2,    LLONG_MAX, 0,         0,      0, 1610612741, 1138749706 },
-{  L_,   "A",  2,    LLONG_MIN, 0,         0,      0, 1610612741, 60893445   },
-{  L_,   "",   3,    0,         0,         0,      0, 1610612741, 1185910006 },
-{  L_,   "A",  3,    0,         0,         0,      0, 1610612741, 717686582  },
-{  L_,   "A",  3,    0,         1,         0,      0, 1610612741, 1358289443 },
-{  L_,   "A",  3,    0,         INT_MAX,   0,      0, 1610612741, 981602493  },
-{  L_,   "",   4,    0,         0,         0,      0, 1610612741,
+{  L_,   "",   2,    0,         0,         NO_GUID,  0,      0, 1610612741, 327790664  },
+{  L_,   "A",  2,    0,         0,         NO_GUID,  0,      0, 1610612741, 933309054  },
+{  L_,   "A",  2,    1,         0,         NO_GUID,  0,      0, 1610612741, 221028130  },
+{  L_,   "A",  2,    INT_MAX,   0,         NO_GUID,  0,      0, 1610612741, 371216250  },
+{  L_,   "A",  2,    INT_MIN,   0,         NO_GUID,  0,      0, 1610612741, 929711661  },
+{  L_,   "A",  2,    LLONG_MAX, 0,         NO_GUID,  0,      0, 1610612741, 1138749706 },
+{  L_,   "A",  2,    LLONG_MIN, 0,         NO_GUID,  0,      0, 1610612741, 60893445   },
+{  L_,   "",   3,    0,         0,         NO_GUID,  0,      0, 1610612741, 1185910006 },
+{  L_,   "A",  3,    0,         0,         NO_GUID,  0,      0, 1610612741, 717686582  },
+{  L_,   "A",  3,    0,         1,         NO_GUID,  0,      0, 1610612741, 1358289443 },
+{  L_,   "A",  3,    0,         INT_MAX,   NO_GUID,  0,      0, 1610612741, 981602493  },
+{  L_,   "",   4,    0,         0,         NO_GUID,  0,      0, 1610612741,
                                            ULONG_HASH(1185910006, 327790664) },
-{  L_,   "A",  4,    0,         0,         0,      0, 1610612741,
+{  L_,   "A",  4,    0,         0,         NO_GUID,  0,      0, 1610612741,
                                            ULONG_HASH(717686582,  933309054) },
-{  L_,   "A",  4,    0,         1,         0,      0, 1610612741,
+{  L_,   "A",  4,    0,         1,         NO_GUID,  0,      0, 1610612741,
                                            ULONG_HASH(1358289443, 221028130) },
-{  L_,   "A",  4,    0,         LONG_MAX,  0,      0, 1610612741,
+{  L_,   "A",  4,    0,         LONG_MAX,  NO_GUID,  0,      0, 1610612741,
                                            ULONG_HASH(981602493, 1138749706) },
-{  L_,   "",   5,    0,         0,         0,      0, 1610612741, 327790664  },
-{  L_,   "A",  5,    0,         0,         0,      0, 1610612741, 933309054  },
-{  L_,   "A",  5,    0,         1,         0,      0, 1610612741, 221028130  },
-{  L_,   "A",  5,    0,         INT_MAX,   0,      0, 1610612741, 371216250  },
-{  L_,   "A",  5,    0,         INT_MIN,   0,      0, 1610612741, 929711661  },
-{  L_,   "A",  5,    0,         LLONG_MAX, 0,      0, 1610612741, 1138749706 },
-{  L_,   "A",  5,    0,         LLONG_MIN, 0,      0, 1610612741, 60893445   },
-{  L_,   "",   6,    0,         0,         "",     0, 1610612741, 445882901  },
-{  L_,   "A",  6,    0,         0,         "",     0, 1610612741, 1588272218 },
-{  L_,   "A",  6,    0,         0,         "A",    0, 1610612741, 1120048794 },
-{  L_,   "",   6,    0,         0,         "ABCD", 0, 1610612741, 427544216  },
-{  L_,   "A",  6,    0,         0,         "ABCD", 0, 1610612741, 1569933533 },
-{  L_,   "",   7,    0,         0,         0,      0, 1610612741,
+{  L_,   "",   5,    0,         0,         NO_GUID,  0,      0, 1610612741, 327790664  },
+{  L_,   "A",  5,    0,         0,         NO_GUID,  0,      0, 1610612741, 933309054  },
+{  L_,   "A",  5,    0,         1,         NO_GUID,  0,      0, 1610612741, 221028130  },
+{  L_,   "A",  5,    0,         INT_MAX,   NO_GUID,  0,      0, 1610612741, 371216250  },
+{  L_,   "A",  5,    0,         INT_MIN,   NO_GUID,  0,      0, 1610612741, 929711661  },
+{  L_,   "A",  5,    0,         LLONG_MAX, NO_GUID,  0,      0, 1610612741, 1138749706 },
+{  L_,   "A",  5,    0,         LLONG_MIN, NO_GUID,  0,      0, 1610612741, 60893445   },
+{  L_,   "",   7,    0,         0,         NO_GUID,  "",     0, 1610612741, 445882901  },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "",     0, 1610612741, 1588272218 },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "A",    0, 1610612741, 1120048794 },
+{  L_,   "",   7,    0,         0,         NO_GUID,  "ABCD", 0, 1610612741, 427544216  },
+{  L_,   "A",  7,    0,         0,         NO_GUID,  "ABCD", 0, 1610612741, 1569933533 },
+{  L_,   "A",  6,    0,         0,         SOME_GUID,"ABCD", 0, 1610612741, 868924300 },
+{  L_,   "",   8,    0,         0,         NO_GUID,  0,      0, 1610612741,
                                              PTR_HASH(1185910006, 327790664) },
-{  L_,   "A",  7,    0,         0,         0,      0, 1610612741,
+{  L_,   "A",  8,    0,         0,         NO_GUID,  0,      0, 1610612741,
                                              PTR_HASH( 717686582, 933309054) },
-{  L_,   "A",  7,    0,         0,         0,     VV, 1610612741,
+{  L_,   "A",  8,    0,         0,         NO_GUID,  0,     VV, 1610612741,
                                              PTR_HASH(1358289443, 221028130) }
 };
 
@@ -491,22 +503,24 @@ static const struct PrintData {
     int                 d_type;            // type of attribute value
     int                 d_ivalue;          // integer attribute value
     unsigned long long  d_uivalue;         // unsigned integer attribute value
+    bdlb::Guid          d_guidvalue;       // Guid value
     const char         *d_svalue;          // string attribute value
     const void         *d_pvalue;          // const void * attribute value
     const char         *d_output;          // expected output format
 } PRINT_DATA[] = {
-    // line name type ivalue uivalue svalue pvalue     expected
-    // ---- ---- ---- ------ ------- ------ ------     --------
-    {  L_,  "",  0,   0,     0,      0,     0,         " [ \"\" = 0 ]"    },
-    {  L_,  "",  1,   0,     0,      0,     0,         " [ \"\" = 0 ]"    },
-    {  L_,  "",  2,   0,     0,      0,     0,         " [ \"\" = 0 ]"    },
-    {  L_,  "",  3,   0,     0,      0,     0,         " [ \"\" = 0 ]"    },
-    {  L_,  "",  4,   0,     0,      0,     0,         " [ \"\" = 0 ]"    },
-    {  L_,  "",  5,   0,     0,      0,     0,         " [ \"\" = 0 ]"    },
-    {  L_,  "",  6 ,  0,     0,      "0",   0,         " [ \"\" = 0 ]"    },
-    {  L_,  "",  7 ,  0,     0,      0,     (void*)42, " [ \"\" = 0x2a ]" },
-    {  L_,  "A", 0,   1,     0,      0,     0,         " [ \"A\" = 1 ]"   },
-    {  L_,  "A", 6,   0,     0,      "1",   0,         " [ \"A\" = 1 ]"   },
+    // line name type ivalue uivalue guidvalue svalue pvalue     expected
+    // ---- ---- ---- ------ ------- --------- ------ ------     --------
+    {  L_,  "",  0,   0,     0,      NO_GUID,  0,     0,         " [ \"\" = 0 ]"    },
+    {  L_,  "",  1,   0,     0,      NO_GUID, 0,     0,         " [ \"\" = 0 ]"    },
+    {  L_,  "",  2,   0,     0,      NO_GUID, 0,     0,         " [ \"\" = 0 ]"    },
+    {  L_,  "",  3,   0,     0,      NO_GUID, 0,     0,         " [ \"\" = 0 ]"    },
+    {  L_,  "",  4,   0,     0,      NO_GUID, 0,     0,         " [ \"\" = 0 ]"    },
+    {  L_,  "",  5,   0,     0,      NO_GUID, 0,     0,         " [ \"\" = 0 ]"    },
+    {  L_,  "",  7 ,  0,     0,      NO_GUID, "0",   0,         " [ \"\" = 0 ]"    },
+    {  L_,  "",  8 ,  0,     0,      NO_GUID, 0,     (void*)42, " [ \"\" = 0x2a ]" },
+    {  L_,  "A", 0,   1,     0,      NO_GUID, 0,     0,         " [ \"A\" = 1 ]"   },
+    {  L_,  "A", 7,   0,     0,      NO_GUID, "1",   0,         " [ \"A\" = 1 ]"   },
+    {  L_,  "",  6,   0,     0,      SOME_GUID, 0,   0,         " [ \"\" = \"45d5a7a3-83c7-4a14-8b53-1140245c3c56\" ]"   },
 };
 
 enum { NUM_PRINT_DATA = sizeof PRINT_DATA / sizeof *PRINT_DATA };
@@ -547,9 +561,12 @@ Obj::Value createValue(const VALUE *values, int size, int i)
         variant.assign<unsigned long long>(values[i].d_uivalue);
       } break;
       case 6: {
-        variant.assign<string>(values[i].d_svalue);
+        variant.assign<bdlb::Guid>(values[i].d_guidvalue);
       } break;
       case 7: {
+        variant.assign<string>(values[i].d_svalue);
+      } break;
+      case 8: {
         variant.assign<const void *>(values[i].d_pvalue);
       } break;
       default: {
@@ -616,7 +633,8 @@ class MyAttributeValue {
         k_INT32 = 0,
         k_LONG_LONG,
         k_STRING,
-        k_UNSIGNED_LONG_LONG
+        k_UNSIGNED_LONG_LONG,
+        k_GUID
     };
 
   private:
@@ -629,6 +647,7 @@ class MyAttributeValue {
         long long                           d_llValue;
         char                                d_stringValue[sizeof(bsl::string)];
         unsigned long long                  d_ullValue;
+        char                                d_guidValue[sizeof(bdlb::Guid)];
     };
 
   public:
@@ -658,6 +677,13 @@ class MyAttributeValue {
         d_ullValue = value;
     }
 
+    MyAttributeValue(bdlb::Guid value, bslma::Allocator *basicAllocator = 0)
+    : d_type(k_GUID)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        new (d_guidValue) bdlb::Guid(value);
+    }
+
     MyAttributeValue(const char *value, bslma::Allocator *basicAllocator = 0)
     : d_type(k_STRING)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -685,6 +711,11 @@ class MyAttributeValue {
           case k_UNSIGNED_LONG_LONG: {
             d_ullValue = rhs.d_ullValue;
           } break;
+          case k_GUID: {
+            const bdlb::Guid *guid_p = static_cast<const bdlb::Guid *>(
+                            reinterpret_cast<const void *>(rhs.d_guidValue));
+            new (d_guidValue) bdlb::Guid(*guid_p);
+          } break;
           default: {
               BSLS_ASSERT_INVOKE_NORETURN("unreachable");
           }
@@ -698,6 +729,10 @@ class MyAttributeValue {
             static_cast<bsl::string *>(
                            reinterpret_cast<void *>(d_stringValue))->~string();
         }
+        else if (k_GUID == d_type) {
+            static_cast<bdlb::Guid *>(
+                           reinterpret_cast<void *>(d_guidValue))->~Guid();
+        }
     }
 
     MyAttributeValue& operator=(const MyAttributeValue& rhs)
@@ -709,6 +744,12 @@ class MyAttributeValue {
               } break;
               case k_LONG_LONG: {
                 d_llValue = rhs.d_llValue;
+              } break;
+              case k_GUID: {
+                bdlb::Guid *guid_p = static_cast<bdlb::Guid *>(
+                                      reinterpret_cast<void *>(d_guidValue));
+                *guid_p = *static_cast<const bdlb::Guid *>(
+                            reinterpret_cast<const void *>(rhs.d_guidValue));
               } break;
               case k_STRING: {
                 bsl::string *string_p = static_cast<bsl::string *>(
@@ -747,6 +788,12 @@ class MyAttributeValue {
         return d_ullValue;
     }
 
+    bdlb::Guid guidValue() const
+    {
+        return *static_cast<const bdlb::Guid *>(
+                                  reinterpret_cast<const void *>(d_guidValue));
+    }
+
     const char *stringValue() const
     {
         return static_cast<const bsl::string *>(
@@ -764,6 +811,13 @@ class MyAttributeValue {
           }
           case k_LONG_LONG: {
             return d_llValue == rhs.d_llValue;                        // RETURN
+          }
+          case k_GUID: {
+            return *static_cast<const bdlb::Guid *>(
+                                 reinterpret_cast<const void *>(d_guidValue))
+                == *static_cast<const bdlb::Guid *>(
+                            reinterpret_cast<const void *>(rhs.d_guidValue));
+                                                                      // RETURN
           }
           case k_STRING: {
             return *static_cast<const bsl::string *>(
@@ -792,6 +846,10 @@ class MyAttributeValue {
           } break;
           case k_LONG_LONG: {
             stream << d_llValue;
+          } break;
+          case k_GUID: {
+            stream << *static_cast<const bdlb::Guid *>(
+                                reinterpret_cast<const void *>(d_guidValue));
           } break;
           case k_STRING: {
             stream << *static_cast<const bsl::string *>(
@@ -873,6 +931,16 @@ class MyAttribute {
         // the currently installed default allocator will be used.  Note that
         // 'name' is not managed by this object and therefore must remain valid
         // while in use by any 'MyAttribute' object.
+
+    MyAttribute(const char         *name,
+                bdlb::Guid          value,
+                bslma::Allocator   *basicAllocator = 0 );
+        // Create a 'MyAttribute' object having the specified (literal) 'name'
+        // and (Guid) 'value'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator will be used.  Note that 'name' is not managed by
+        // this object and therefore must remain valid while in use by any
+        // 'MyAttribute' object.
 
     MyAttribute(const char       *name,
                 const char       *value,
@@ -1428,6 +1496,7 @@ int main(int argc, char *argv[])
         //   void setValue(unsigned int n);
         //   void setValue(unsigned long n);
         //   void setValue(unsigned long long n);
+        //   void setValue(bdlb::Guid g);
         //   void setValue(const bsl::string_view& s);
         //   void setValue(const char *s);
         //   void setValue(const void *s);
@@ -1495,6 +1564,9 @@ int main(int argc, char *argv[])
                 else if (U.value().is<unsigned long long>()) {
                     mW1.setValue(U.value().the<unsigned long long>());
                 }
+                else if (U.value().is<bdlb::Guid>()) {
+                    mW1.setValue(U.value().the<bdlb::Guid>());
+                }
                 else if (U.value().is<bsl::string>()) {
                     mW1.setValue(U.value().the<bsl::string>().c_str());
                     ASSERTV(LINE1, LINE2, LINE3, LINE4, W1 == U);
@@ -1540,6 +1612,9 @@ int main(int argc, char *argv[])
                 }
                 else if (U.value().is<unsigned long long>()) {
                     mW2.setValue(U.value().the<unsigned long long>());
+                }
+                else if (U.value().is<bdlb::Guid>()) {
+                    mW2.setValue(U.value().the<bdlb::Guid>());
                 }
                 else if (U.value().is<bsl::string>()) {
                     mW2.setValue(U.value().the<bsl::string>().c_str());
@@ -1688,6 +1763,7 @@ int main(int argc, char *argv[])
         //   Attribute(const char *n, unsigned int v, const alct& a);
         //   Attribute(const char *n, unsigned long v, const alct& a);
         //   Attribute(const char *n, unsigned long long v, const alct& a);
+        //   Attribute(const char *n, bdlb::Guid v, const alct& a);
         //   Attribute(const char *n, const str_view& v, const alct& a);
         //   Attribute(const char *n, const char *v, const alct& a);
         //   Attribute(const char *n, const void *v, const alct& a);
@@ -1785,6 +1861,20 @@ int main(int argc, char *argv[])
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
               } break;
               case 6: {
+                const Obj X1(name, VALUES[j].d_guidvalue);
+                ASSERTV(LINE1, LINE2, X1 == Y);
+                const Obj X2(name,
+                             VALUES[j].d_guidvalue,
+                             &testAllocator);
+                ASSERTV(LINE1, LINE2, X2 == Y);
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    const Obj X3(name,
+                                 VALUES[j].d_guidvalue,
+                                 &testAllocator);
+                    ASSERTV(LINE1, LINE2, X3 == Y);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+              } break;
+              case 7: {
                 const Obj X1(name, VALUES[j].d_svalue);
                 ASSERTV(LINE1, LINE2, X1 == Y);
                 const Obj X2(name, VALUES[j].d_svalue, &testAllocator);
@@ -1794,7 +1884,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE1, LINE2, X3 == Y);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
               } break;
-              case 7: {
+              case 8: {
                 const Obj X1(name, VALUES[j].d_pvalue);
                 ASSERTV(LINE1, LINE2, X1 == Y);
                 const Obj X2(name,
@@ -2223,10 +2313,14 @@ int main(int argc, char *argv[])
                               value.the<unsigned long long>());
               } break;
               case 6: {
+                ASSERTV(LINE, value.is<bdlb::Guid>());
+                ASSERTV(LINE, VALUES[i].d_guidvalue == value.the<bdlb::Guid>());
+              } break;
+              case 7: {
                 ASSERTV(LINE, value.is<string>());
                 ASSERTV(LINE, VALUES[i].d_svalue == value.the<string>());
               } break;
-              case 7: {
+              case 8: {
                 ASSERTV(LINE, value.is<const void *>());
                 ASSERTV(LINE, VALUES[i].d_pvalue == value.the<const void *>());
               } break;

@@ -5,7 +5,10 @@
 BSLS_IDENT_RCSID(ball_attribute_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitutil.h>
+#include <bdlb_guidutil.h>
 #include <bdlb_hashutil.h>
+
+#include <bdlma_localsequentialallocator.h>
 
 #include <bslim_printer.h>
 
@@ -49,7 +52,13 @@ int Attribute::hash(const Attribute& attribute, int size)
             hash += bdlb::HashUtil::hash1(
                                   attribute.d_value.the<unsigned long long>());
         }
-        else  if (attribute.d_value.is<bsl::string>()) {
+        else if (attribute.d_value.is<bdlb::Guid>()) {
+            hash += bdlb::HashUtil::hash1(
+                reinterpret_cast<const char *>(
+                                   attribute.d_value.the<bdlb::Guid>().data()),
+                bdlb::Guid::k_GUID_NUM_BYTES);
+        }
+        else if (attribute.d_value.is<bsl::string>()) {
             hash += bdlb::HashUtil::hash1(
                 attribute.d_value.the<bsl::string>().c_str(),
                 static_cast<int>(
@@ -86,6 +95,12 @@ bsl::ostream& Attribute::print(bsl::ostream& stream,
     stream << " =";
     if (d_value.is<const void *>()) {
         printer.printHexAddr(d_value.the<const void *>(), 0);
+    }
+    else if (d_value.is<bdlb::Guid>()) {
+        bdlma::LocalSequentialAllocator<64> lsa;
+        bsl::string str(&lsa);
+        bdlb::GuidUtil::guidToString(&str, d_value.the<bdlb::Guid>());
+        printer.printValue(str);
     }
     else {
         printer.printValue(d_value);

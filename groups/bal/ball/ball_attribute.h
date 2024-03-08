@@ -16,7 +16,8 @@ BSLS_IDENT("$Id: $")
 // class, 'ball::Attribute'.  Each instance of this type represents an
 // attribute that consists of a (literal) name (held but not owned), and an
 // associated value (owned) that can be an 'int', 'long', 'long long',
-// 'unsigned int', unsigned long', 'unsigned long long', or a 'bsl::string'.
+// 'unsigned int', unsigned long', 'unsigned long long', 'bdlb::Guid', or a
+// 'bsl::string'.
 //
 // This component participates in the implementation of "Rule-Based Logging".
 // For more information on how to use that feature, please see the package
@@ -125,6 +126,7 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <bdlb_guid.h>
 #include <bdlb_variant.h>
 
 #include <bslma_allocator.h>
@@ -158,7 +160,8 @@ class Attribute {
                           unsigned long,
                           unsigned long long,
                           bsl::string,
-                          const void *> Value;
+                          const void *,
+                          bdlb::Guid> Value;
         // 'Value' is an alias for the attribute type variant.
 
   private:
@@ -230,6 +233,9 @@ class Attribute {
     Attribute(const char            *name,
               unsigned long long     value,
               const allocator_type&  allocator = allocator_type());
+    Attribute(const char            *name,
+              bdlb::Guid             value,
+              const allocator_type&  allocator = allocator_type());
         // Create an 'Attribute' object having the specified (literal) 'name'
         // and 'value'.  Optionally specify an 'allocator' (e.g., the address
         // of a 'bslma::Allocator' object) to supply memory; otherwise, the
@@ -281,6 +287,7 @@ class Attribute {
     void setValue(unsigned int             value);
     void setValue(unsigned long            value);
     void setValue(unsigned long long       value);
+    void setValue(bdlb::Guid               value);
     void setValue(const bsl::string_view&  value);
     void setValue(const char              *value);
     void setValue(const void              *value);
@@ -438,6 +445,19 @@ Attribute::Attribute(const char            *name,
     d_value.assign<unsigned long long>(value);
 }
 
+
+inline
+Attribute::Attribute(const char            *name,
+                     bdlb::Guid             value,
+                     const allocator_type&  allocator)
+: d_name(name)
+, d_value(allocator.mechanism())
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+    d_value.assign<bdlb::Guid>(value);
+}
+
 inline
 Attribute::Attribute(const char            *name,
                      const void            *value,
@@ -533,6 +553,13 @@ void Attribute::setValue(unsigned long value)
 
 inline
 void Attribute::setValue(unsigned long long value)
+{
+    d_value.assign(value);
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(bdlb::Guid value)
 {
     d_value.assign(value);
     d_hashValue = -1;
