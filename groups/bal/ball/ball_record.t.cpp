@@ -1,13 +1,4 @@
 // ball_record.t.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_record.h>
 
 #include <ball_severity.h>
@@ -21,6 +12,8 @@
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -28,13 +21,13 @@
 
 #include <bslmt_threadutil.h>
 
-#include <bslim_testutil.h>
-
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>      // atoi()
+#include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>
 #include <bsl_iostream.h>
 #include <bsl_new.h>          // placement 'new' syntax
@@ -42,14 +35,13 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <bsl_cstdlib.h>      // atoi()
-#include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
+
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>           // getpid()
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

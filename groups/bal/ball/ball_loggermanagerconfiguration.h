@@ -1,12 +1,4 @@
 // ball_loggermanagerconfiguration.h                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_LOGGERMANAGERCONFIGURATION
 #define INCLUDED_BALL_LOGGERMANAGERCONFIGURATION
 
@@ -124,9 +116,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate how to use a
-// 'ball::LoggerManagerConfiguration' object.
+// This section illustrates intended use of this component.
 //
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // First, we define a simple function that will serve as a
 // 'UserFieldsPopulatorCallback', a callback that will be invoked for each
 // logged message to populate user defined fields for the log record:

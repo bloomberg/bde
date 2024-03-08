@@ -1,12 +1,4 @@
 // ball_recordbuffer.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_RECORDBUFFER
 #define INCLUDED_BALL_RECORDBUFFER
 
@@ -44,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Defining a Concrete 'RecordBuffer' Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows the definition of a simple concrete record buffer.  The
 // requisite steps are:
 //

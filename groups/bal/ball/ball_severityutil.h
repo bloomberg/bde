@@ -1,12 +1,4 @@
 // ball_severityutil.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_SEVERITYUTIL
 #define INCLUDED_BALL_SEVERITYUTIL
 
@@ -34,47 +26,51 @@ BSLS_IDENT("$Id: $")
 ///--------
 // The following is a list of functions available in this component:
 //..
-//    static int  ball::SeverityUtil::fromAsciiCaseless(
+//  static int  ball::SeverityUtil::fromAsciiCaseless(
 //                                              ball::Severity::Level *level,
 //                                              const char            *name);
 //
-//    static bool ball::SeverityUtil::isValidNameCaseless(const char *name);
+//  static bool ball::SeverityUtil::isValidNameCaseless(const char *name);
 //..
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In this example, we show how to validate that a set of C-style strings
 // correspond to 'ball::Severity::Level' enumerators, and then use those
 // strings to generate enumerator values that, in turn, may be used to
 // administer a logger manager.  Here, for convenience, we define our strings
 // in an array, much as how we might receive them from a command line:
 //..
-//    const char *argv[] = {
-//        "INFO",   // record
-//        "WARN",   // pass
-//        "ERROR",  // trigger
-//        "FATAL"   // trigger-all
-//    };
+//  const char *argv[] = {
+//      "INFO",   // record
+//      "WARN",   // pass
+//      "ERROR",  // trigger
+//      "FATAL"   // trigger-all
+//  };
 //
-//    assert(ball::SeverityUtil::isValidNameCaseless(argv[0]));
-//    assert(ball::SeverityUtil::isValidNameCaseless(argv[1]));
-//    assert(ball::SeverityUtil::isValidNameCaseless(argv[2]));
-//    assert(ball::SeverityUtil::isValidNameCaseless(argv[3]));
+//  assert(ball::SeverityUtil::isValidNameCaseless(argv[0]));
+//  assert(ball::SeverityUtil::isValidNameCaseless(argv[1]));
+//  assert(ball::SeverityUtil::isValidNameCaseless(argv[2]));
+//  assert(ball::SeverityUtil::isValidNameCaseless(argv[3]));
 //
-//    ball::Severity::Level record;
-//    ball::Severity::Level pass;
-//    ball::Severity::Level trigger;
-//    ball::Severity::Level triggerAll;
+//  ball::Severity::Level record;
+//  ball::Severity::Level pass;
+//  ball::Severity::Level trigger;
+//  ball::Severity::Level triggerAll;
 //
-//    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&record,     argv[0]));
-//    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&pass,       argv[1]));
-//    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&trigger,    argv[2]));
-//    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&triggerAll, argv[3]));
+//  assert(0 == ball::SeverityUtil::fromAsciiCaseless(&record,     argv[0]));
+//  assert(0 == ball::SeverityUtil::fromAsciiCaseless(&pass,       argv[1]));
+//  assert(0 == ball::SeverityUtil::fromAsciiCaseless(&trigger,    argv[2]));
+//  assert(0 == ball::SeverityUtil::fromAsciiCaseless(&triggerAll, argv[3]));
 //
-//    assert(ball::Severity::e_INFO  == record);
-//    assert(ball::Severity::e_WARN  == pass);
-//    assert(ball::Severity::e_ERROR == trigger);
-//    assert(ball::Severity::e_FATAL == triggerAll);
+//  assert(ball::Severity::e_INFO  == record);
+//  assert(ball::Severity::e_WARN  == pass);
+//  assert(ball::Severity::e_ERROR == trigger);
+//  assert(ball::Severity::e_FATAL == triggerAll);
 //..
 
 #include <balscm_version.h>

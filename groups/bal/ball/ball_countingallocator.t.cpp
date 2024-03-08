@@ -1,13 +1,4 @@
 // ball_countingallocator.t.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_countingallocator.h>
 
 #include <bslma_testallocator.h>
@@ -15,15 +6,15 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_types.h>
 
-#include <bsl_c_stdlib.h>     // atoi()
-
 #include <bsl_cstddef.h>
-#include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_iostream.h>
+#include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_vector.h>
 
+#include <bsl_c_stdlib.h>     // atoi()
+
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

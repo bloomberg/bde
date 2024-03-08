@@ -1,21 +1,13 @@
 // ball_rule.t.cpp                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_rule.h>
 
-#include <ball_severity.h>                      // for testing only
+#include <ball_attribute.h>
 #include <ball_attributecontainerlist.h>        // for testing only
 #include <ball_defaultattributecontainer.h>     // for testing only
-#include <ball_attribute.h>
+#include <ball_severity.h>                      // for testing only
 
 #include <bslim_testutil.h>
+
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -25,8 +17,8 @@
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
-#include <bsl_unordered_set.h>
 #include <bsl_sstream.h>
+#include <bsl_unordered_set.h>
 
 using namespace BloombergLP;
 using namespace ball;

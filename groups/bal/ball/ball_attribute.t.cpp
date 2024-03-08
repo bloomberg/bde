@@ -1,31 +1,19 @@
 // ball_attribute.t.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_attribute.h>
 
 #include <bdlb_hashutil.h>
 
+#include <bslim_printer.h>
+#include <bslim_testutil.h>
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_usesbslmaallocator.h>
 #include <bslmf_nestedtraitdeclaration.h>
-#include <bslim_testutil.h>
-#include <bsls_platform.h>
-
-#include <bslma_default.h>
-
-#include <bslim_printer.h>
-
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsltf_simpletesttype.h>

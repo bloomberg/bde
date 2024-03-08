@@ -1,12 +1,4 @@
 // ball_transmission.t.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_transmission.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
@@ -19,7 +11,6 @@
 
 #include <bsl_cstdlib.h>  // atoi()
 #include <bsl_cstring.h>  // strcmp(), memcmp(), memcpy()
-
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;

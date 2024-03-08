@@ -1,12 +1,4 @@
 // ball_loggermanagerdefaults.h                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_LOGGERMANAGERDEFAULTS
 #define INCLUDED_BALL_LOGGERMANAGERDEFAULTS
 
@@ -83,55 +75,59 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate how to use a
 // 'ball::LoggerManagerDefaults' object.  First, create a configuration object
 // 'lmd'.  Note that it is necessarily configured to valid but unpublished
 // defaults.
 //..
-//    ball::LoggerManagerDefaults lmd;
+//  ball::LoggerManagerDefaults lmd;
 //..
 // Next, set each attribute.  Note that the four severity threshold levels must
 // be set atomically (i.e., with a single four-argument "set" method).  Note
 // also that each "set" method will fail if the argument or set of arguments is
 // not valid, and so each method returns a status value.
 //..
-//    assert(    0 == lmd.setDefaultRecordBufferSizeIfValid(32768));
-//    assert(32768 == lmd.defaultRecordBufferSize());
+//  assert(    0 == lmd.setDefaultRecordBufferSizeIfValid(32768));
+//  assert(32768 == lmd.defaultRecordBufferSize());
 //
-//    assert(   0 == lmd.setDefaultLoggerBufferSizeIfValid(2048));
-//    assert(2048 == lmd.defaultLoggerBufferSize());
+//  assert(   0 == lmd.setDefaultLoggerBufferSizeIfValid(2048));
+//  assert(2048 == lmd.defaultLoggerBufferSize());
 //
-//    assert(  0 == lmd.setDefaultThresholdLevelsIfValid(192, 64, 48, 32));
-//    assert(192 == lmd.defaultRecordLevel());
-//    assert( 64 == lmd.defaultPassLevel());
-//    assert( 48 == lmd.defaultTriggerLevel());
-//    assert( 32 == lmd.defaultTriggerAllLevel());
+//  assert(  0 == lmd.setDefaultThresholdLevelsIfValid(192, 64, 48, 32));
+//  assert(192 == lmd.defaultRecordLevel());
+//  assert( 64 == lmd.defaultPassLevel());
+//  assert( 48 == lmd.defaultTriggerLevel());
+//  assert( 32 == lmd.defaultTriggerAllLevel());
 //..
 // The configuration object is now validly configured with our choice of
 // parameters.  If, however, we attempt to set an invalid configuration, the
 // "set" method will fail (with a non-zero return status), and the
 // configuration will be left unchanged.
 //..
-//    assert(  0 != lmd.setDefaultThresholdLevelsIfValid(256, 90, 60, 30));
-//    assert(192 == lmd.defaultRecordLevel());
-//    assert( 64 == lmd.defaultPassLevel());
-//    assert( 48 == lmd.defaultTriggerLevel());
-//    assert( 32 == lmd.defaultTriggerAllLevel());
+//  assert(  0 != lmd.setDefaultThresholdLevelsIfValid(256, 90, 60, 30));
+//  assert(192 == lmd.defaultRecordLevel());
+//  assert( 64 == lmd.defaultPassLevel());
+//  assert( 48 == lmd.defaultTriggerLevel());
+//  assert( 32 == lmd.defaultTriggerAllLevel());
 //..
 // Finally, we can print the configuration value to 'stdout'.
 //..
-//    bsl::cout << lmd << bsl::endl;
+//  bsl::cout << lmd << bsl::endl;
 //..
 // This produces the following (multi-line) output:
 //..
-// [
-//     recordBufferSize : 32768
-//     loggerBufferSize : 2048
-//     recordLevel      : 192
-//     passLevel        : 64
-//     triggerLevel     : 48
-//     triggerAllLevel  : 32
-// ]
+//  [
+//      recordBufferSize : 32768
+//      loggerBufferSize : 2048
+//      recordLevel      : 192
+//      passLevel        : 64
+//      triggerLevel     : 48
+//      triggerAllLevel  : 32
+//  ]
 //..
 
 #include <balscm_version.h>

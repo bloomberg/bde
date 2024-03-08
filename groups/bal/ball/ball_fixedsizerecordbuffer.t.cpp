@@ -1,38 +1,29 @@
 // ball_fixedsizerecordbuffer.t.cpp                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_fixedsizerecordbuffer.h>
 
 #include <ball_severity.h>
-
-#include <bslmt_barrier.h>
-#include <bslmt_mutex.h>
-#include <bslmt_threadutil.h>
 
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 
 #include <bslma_default.h>
+
+#include <bslmt_barrier.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_ctime.h>
-
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                   TEST PLAN

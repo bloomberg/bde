@@ -1,12 +1,4 @@
 // ball_context.h                                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_CONTEXT
 #define INCLUDED_BALL_CONTEXT
 
@@ -62,6 +54,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // A 'ball::Context' object holds sufficient information to determine the
 // length of a message sequence and the index of a message within that
 // sequence.  In addition, 'ball::Context' indicates the cause for the

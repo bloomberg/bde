@@ -1,12 +1,4 @@
 // ball_scopedattributes.t.cpp                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_scopedattributes.h>
 
 #include <ball_attributecontext.h>
@@ -15,8 +7,10 @@
 #include <bdlb_print.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>

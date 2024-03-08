@@ -1,12 +1,4 @@
 // ball_fixedsizerecordbuffer.h                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_FIXEDSIZERECORDBUFFER
 #define INCLUDED_BALL_FIXEDSIZERECORDBUFFER
 
@@ -59,6 +51,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In the following example we demonstrate creation of a limited record buffer
 // followed by concurrent access to it by multiple threads.
 //..

@@ -1,19 +1,11 @@
 // ball_attributecontainer.t.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_attributecontainer.h>
 
 #include <ball_attribute.h>             // for testing only
 
+#include <bslim_printer.h>
 #include <bslim_testutil.h>
 
-#include <bslim_printer.h>
 #include <bsls_assert.h>
 #include <bsls_protocoltest.h>
 #include <bsls_types.h>
@@ -25,8 +17,7 @@
 #include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
-
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

@@ -1,22 +1,15 @@
 // ball_context.t.cpp                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_context.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
-#include <bsls_platform.h>                      // for testing only
+
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bslim_testutil.h>
+#include <bsls_platform.h>    // for testing only
 
 #include <bsl_climits.h>      // INT_MAX
 #include <bsl_cstdlib.h>      // atoi()

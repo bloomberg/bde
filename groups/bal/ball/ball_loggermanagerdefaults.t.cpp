@@ -1,23 +1,15 @@
 // ball_loggermanagerdefaults.t.cpp                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_loggermanagerdefaults.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
-#include <bsl_string.h>
+
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -63,7 +55,9 @@ static void aSsErT(int c, const char *s, int i)
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 

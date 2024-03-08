@@ -1,18 +1,10 @@
 // ball_scopedattribute.t.cpp                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_scopedattribute.h>
 
-#include <ball_categorymanager.h>
 #include <ball_attributecontext.h>
-#include <ball_rule.h>
+#include <ball_categorymanager.h>
 #include <ball_predicate.h>
+#include <ball_rule.h>
 #include <ball_severity.h>
 #include <ball_thresholdaggregate.h>
 
@@ -21,14 +13,14 @@
 
 #include <bslim_testutil.h>
 
-#include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_nameof.h>
 #include <bsls_types.h>
 
-#include <bsltf_templatetestfacility.h>
 #include <bsltf_simpletesttype.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>

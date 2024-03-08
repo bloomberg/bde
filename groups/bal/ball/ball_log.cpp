@@ -1,12 +1,4 @@
 // ball_log.cpp                                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_log.h>
 
 #include <bsls_ident.h>
@@ -29,9 +21,9 @@ BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 #include <bsl_cstdarg.h>
+#include <bsl_cstdio.h>
 #include <bsl_new.h>
 #include <bsl_ostream.h>
-#include <bsl_cstdio.h>
 
 #include <stdio.h>  // *NOT* <bsl_cstdio.h>, which does not declare 'vsnprintf'
 

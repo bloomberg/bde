@@ -1,13 +1,4 @@
 // ball_testobserver.t.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_testobserver.h>
 
 #include <ball_recordattributes.h>
@@ -29,7 +20,6 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>       // time()
-
 #include <bsl_iostream.h>
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_string.h>

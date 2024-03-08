@@ -1,31 +1,21 @@
 // ball_loggermanagerconfiguration.t.cpp                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_loggermanagerconfiguration.h>
 
 #include <ball_userfields.h>                                // for testing only
 
 #include <bslim_testutil.h>
-#include <bsls_assert.h>
 
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
-#include <bsl_string.h>
+#include <bsls_assert.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_functional.h>
-
+#include <bsl_iostream.h>
+#include <bsl_sstream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                 TEST PLAN

@@ -1,12 +1,4 @@
 // ball_thresholdaggregate.h                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
 #define INCLUDED_BALL_THRESHOLDAGGREGATE
 
@@ -28,6 +20,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following code fragment illustrates some of the basic operations on
 // threshold levels provided by 'ball::ThresholdAggregate'.
 //..

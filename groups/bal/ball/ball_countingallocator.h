@@ -1,12 +1,4 @@
 // ball_countingallocator.h                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_COUNTINGALLOCATOR
 #define INCLUDED_BALL_COUNTINGALLOCATOR
 
@@ -55,10 +47,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In the following example we demonstrate how the counting allocator can
-// be used to know the amount of dynamic memory allocated by a
-// 'vector<int>' after pushing one integer.  Let us assume that memory for
-// the vector comes from a 'bslma::Allocator' named 'allocator'.
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// In the following example we demonstrate how the counting allocator can be
+// used to know the amount of dynamic memory allocated by a 'vector<int>' after
+// pushing one integer.  Let us assume that memory for the vector comes from a
+// 'bslma::Allocator' named 'allocator'.
 //..
 //    // First create the counting allocator using 'allocator'.
 //    BloombergLP::ball::CountingAllocator countingAllocator(allocator);

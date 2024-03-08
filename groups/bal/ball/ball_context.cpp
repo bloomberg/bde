@@ -1,18 +1,11 @@
 // ball_context.cpp                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_context.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_context_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
+
 #include <bsl_ostream.h>
 
 namespace BloombergLP {

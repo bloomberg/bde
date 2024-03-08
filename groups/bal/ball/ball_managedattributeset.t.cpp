@@ -1,22 +1,14 @@
 // ball_managedattributeset.t.cpp                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_managedattributeset.h>
 
 #include <ball_attributecontainerlist.h>        // for testing only
 #include <ball_defaultattributecontainer.h>     // for testing only
 
+#include <bslim_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
-#include <bslim_testutil.h>
 #include <bsls_asserttest.h>
 #include <bsls_types.h>
 

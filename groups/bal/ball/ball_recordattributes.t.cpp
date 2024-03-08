@@ -1,18 +1,12 @@
 // ball_recordattributes.t.cpp                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_recordattributes.h>
 
 #include <bslim_testutil.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
+
 #include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 

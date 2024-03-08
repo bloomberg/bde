@@ -1,12 +1,4 @@
 // ball_patternutil.h                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_PATTERNUTIL
 #define INCLUDED_BALL_PATTERNUTIL
 
@@ -28,45 +20,49 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following code fragments illustrate basic usage of this component's
 // utility functions.
 //
 // A string matches a pattern if they are identical:
 //..
-//     assert(ball::PatternUtil::isMatch("EQ",           "EQ"));
+//  assert(ball::PatternUtil::isMatch("EQ",           "EQ"));
 //..
 // A string matches a pattern containing an (unescaped) trailing '*' if that
 // pattern (without the trailing '*') is a prefix of the string:
 //..
-//     assert(ball::PatternUtil::isMatch("EQ.MARKET",    "EQ*"));
-//     assert(ball::PatternUtil::isMatch("EQ",           "EQ*"));
+//  assert(ball::PatternUtil::isMatch("EQ.MARKET",    "EQ*"));
+//  assert(ball::PatternUtil::isMatch("EQ",           "EQ*"));
 //..
 // An escaped '*' at the end loses its wild-card semantics and matches a single
 // '*':
 //..
-//     assert(false == ball::PatternUtil::isMatch("EQ.MARKET", "EQ\\*"));
-//     assert(ball::PatternUtil::isMatch("EQ*",          "EQ\\*"));
+//  assert(false == ball::PatternUtil::isMatch("EQ.MARKET", "EQ\\*"));
+//  assert(ball::PatternUtil::isMatch("EQ*",          "EQ\\*"));
 //..
 // Escape sequences include '\\' and '\*' only and they can appear anywhere in
 // the pattern:
 //..
-//     assert(ball::PatternUtil::isMatch("\\EQ",         "\\\\EQ"));
-//     assert(ball::PatternUtil::isMatch("E*Q",          "E\\*Q"));
+//  assert(ball::PatternUtil::isMatch("\\EQ",         "\\\\EQ"));
+//  assert(ball::PatternUtil::isMatch("E*Q",          "E\\*Q"));
 //..
 // A pattern is invalid if it contains a non-trailing '*', or any '\' that is
 // not followed by either '\' or '*'.  The 'isValidPattern' function can be
 // used to determine whether or not a pattern is valid:
 //..
-//     assert(false == ball::PatternUtil::isValidPattern("E\\Q"));
-//     assert(false == ball::PatternUtil::isValidPattern("E*Q"));
-//     assert(true  == ball::PatternUtil::isValidPattern("E\\\\Q"));
-//     assert(true  == ball::PatternUtil::isValidPattern("E\\*Q"));
+//  assert(false == ball::PatternUtil::isValidPattern("E\\Q"));
+//  assert(false == ball::PatternUtil::isValidPattern("E*Q"));
+//  assert(true  == ball::PatternUtil::isValidPattern("E\\\\Q"));
+//  assert(true  == ball::PatternUtil::isValidPattern("E\\*Q"));
 //..
 // The 'isMatch' function always returns 'false' on an invalid pattern:
 //..
-//     assert(false == ball::PatternUtil::isMatch("E\\Q","E\\Q"));
-//     assert(false == ball::PatternUtil::isMatch("E*Q", "E*Q"));
-//     assert(false == ball::PatternUtil::isMatch("ETQ", "E*Q"));
+//  assert(false == ball::PatternUtil::isMatch("E\\Q","E\\Q"));
+//  assert(false == ball::PatternUtil::isMatch("E*Q", "E*Q"));
+//  assert(false == ball::PatternUtil::isMatch("ETQ", "E*Q"));
 //..
 
 #include <balscm_version.h>

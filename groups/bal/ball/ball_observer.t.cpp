@@ -1,13 +1,4 @@
 // ball_observer.t.cpp                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_observer.h>
 
 #include <ball_recordattributes.h>              // for testing only
@@ -17,12 +8,14 @@
 #include <ball_userfields.h>                    // for testing only
 
 #include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
-#include <bslma_testallocator.h>
 
 #include <bslim_testutil.h>
+
+#include <bslma_testallocator.h>
 
 #include <bsls_annotation.h>
 #include <bsls_protocoltest.h>
@@ -30,9 +23,8 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>       // time()
-
-#include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_iostream.h>
+#include <bsl_new.h>         // placement 'new' syntax
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

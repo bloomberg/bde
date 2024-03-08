@@ -1,12 +1,4 @@
 // ball_ruleset.cpp                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_ruleset.h>
 
 #include <bsls_ident.h>
@@ -16,7 +8,9 @@ BSLS_IDENT_RCSID(ball_ruleset_cpp,"$Id$ $CSID$")
 #include <bdlb_bitutil.h>
 
 #include <bslim_printer.h>
+
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_climits.h>
