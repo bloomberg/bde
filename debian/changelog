@@ -1,5 +1,13 @@
-bsl-internal (4.4.1.0) unstable; urgency=low
+bsl-internal (4.5.0.0) unstable; urgency=low
 
+  * cd5b1062b Bumped version to 4.5.0.0
+  * cf9479753 Make `bdlb::Guid` a first-class `ball::Attribute` type - {DRQS 174264326} (#4625)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 11 Mar 2024 11:01:15 -0400
+
+bsl-internal (4.4.1.0) git; urgency=low
+
+  * 432715edb Changelog for version 4.4.1.0
   * cf3b86eff Bumped version to 4.4.1.0
   * 439ccf0c9 Remove out-of-date markers from ball (#4658)
   * 381523644 Remove out-of-date markers from bslmt (#4656)
@@ -13,7 +21,7 @@ bsl-internal (4.4.1.0) unstable; urgency=low
   * 8a91be56a bdlbb_blobutil.h: improve doc of 'append' and 'copy' (#4640)
   * 65defaf9e optional<Incomplete> (DRQS 173457570) (#4519)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 8 Mar 2024 12:23:44 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 8 Mar 2024 12:48:06 -0500
 
 bsl-internal (4.4.0.0) git; urgency=low
 
