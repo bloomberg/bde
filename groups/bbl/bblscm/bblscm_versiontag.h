@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 #define BBL_VERSION_MAJOR     4
     // Provide the major version number of the current (latest) BBL release.
 
-#define BBL_VERSION_MINOR     4
+#define BBL_VERSION_MINOR     5
     // Provide the minor version number of the current (latest) BBL release.
 
 #define BBL_VERSION BSL_MAKE_VERSION(BBL_VERSION_MAJOR, \
