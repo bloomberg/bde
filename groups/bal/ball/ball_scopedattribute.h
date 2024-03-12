@@ -53,6 +53,8 @@
 #include <ball_attributecontainerlist.h>
 #include <ball_attributecontext.h>
 
+#include <bdlb_guid.h>
+
 #include <bslma_allocator.h>
 #include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -124,6 +126,10 @@ class ScopedAttribute_Container : public AttributeContainer {
     ScopedAttribute_Container(
                         const char              *name,
                         unsigned long long       value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
+                        bdlb::Guid               value,
                         const allocator_type&    allocator = allocator_type());
     ScopedAttribute_Container(
                         const char              *name,
@@ -219,6 +225,9 @@ class ScopedAttribute {
                     const allocator_type&    allocator = allocator_type());
     ScopedAttribute(const char              *name,
                     unsigned long long       value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
+                    bdlb::Guid               value,
                     const allocator_type&    allocator = allocator_type());
     ScopedAttribute(const char              *name,
                     const void              *value,
@@ -317,6 +326,15 @@ inline
 ScopedAttribute_Container::ScopedAttribute_Container(
                                              const char             *name,
                                              unsigned long long      value,
+                                             const allocator_type&   allocator)
+: d_attribute(name, value, allocator)
+{
+}
+
+inline
+ScopedAttribute_Container::ScopedAttribute_Container(
+                                             const char             *name,
+                                             bdlb::Guid              value,
                                              const allocator_type&   allocator)
 : d_attribute(name, value, allocator)
 {
@@ -425,6 +443,15 @@ ScopedAttribute::ScopedAttribute(const char            *name,
 inline
 ScopedAttribute::ScopedAttribute(const char            *name,
                                  unsigned long long     value,
+                                 const allocator_type&  allocator)
+: d_container(name, value, allocator)
+, d_it(AttributeContext::getContext()->addAttributes(&d_container))
+{
+}
+
+inline
+ScopedAttribute::ScopedAttribute(const char            *name,
+                                 bdlb::Guid             value,
                                  const allocator_type&  allocator)
 : d_container(name, value, allocator)
 , d_it(AttributeContext::getContext()->addAttributes(&d_container))
