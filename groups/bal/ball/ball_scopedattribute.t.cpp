@@ -8,6 +8,8 @@
 #include <ball_severity.h>
 #include <ball_thresholdaggregate.h>
 
+#include <bdlb_guidutil.h>
+
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
@@ -196,6 +198,17 @@ int main(int argc, char *argv[])
                                                    testPointerType,
                                                    bsltf::SimpleTestType
                                                    );
+
+          // Testing Guid separately
+          {
+              bdlb::Guid       value = bdlb::GuidUtil::generateNonSecure();
+              Obj              mX("name", value);
+              ball::Attribute  attribute("name", value);
+
+              ASSERTV(true ==
+                      ball::AttributeContext::getContext()->hasAttribute(
+                          attribute));
+          }
 
           // Testing const char* separately
           {
@@ -409,6 +422,24 @@ int main(int argc, char *argv[])
                 // Test that we do not convert value type when visiting.
                 ASSERTV(result[0],
                         ball::Attribute("name", 15) != result[0]);
+            }
+        }
+        {
+            bdlb::Guid    guid = bdlb::GuidUtil::generateNonSecure();
+            Obj_Container mX("name", guid);
+
+            {
+                bsl::vector<ball::Attribute> result;
+
+                mX.visitAttributes(
+                    bdlf::BindUtil::bind(&testVisitor,
+                                         &result,
+                                         bdlf::PlaceHolders::_1));
+
+                ASSERTV(result.size(), 1 == result.size());
+                ASSERTV(result[0],
+                        ball::Attribute("name", guid)
+                            == result[0]);
             }
         }
       } break;
