@@ -86,27 +86,27 @@ void aSsErT(bool condition, const char *message, int line)
 # define BSLMF_ISMEMBEROBJECTPOINTER_NO_ABOMINABLE_TYPES 1
 #endif
 
-// Visual Studio 2017 and 2019 in C++17 mode (when 'noexcept' types are
-// supported) runs out of heap space.  Factoring out the large test case (case
-// 1) was attempted and it made no difference.  The conditions below are
-// structured so that they remove tests for known (not future) compiler
-// versions only, so we automatically put them back once the compilers are
-// fixed.
+// Visual Studio 2017, 2019 and 2022 in C++17 mode (when 'noexcept' types are
+// supported) run out of heap space under certain circumstances specified
+// below.  Factoring out the large test case (case 1) was attempted and it made
+// no difference.  The conditions below are structured so that they remove
+// tests for known (not future) compiler versions only, so we automatically put
+// them back once the compilers are fixed.
 #if defined(BSLS_PLATFORM_CMP_MSVC) &&                                        \
     defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-// Visual Studio 2019 runs out of memory compiling this file.  If you have
-// installed a new update and still runs out of memory, bump the upper limit
-// number in the '#if' below to 1929, and do not forget to update the number in
-// this comment as well.
-# if (BSLS_PLATFORM_CMP_VERSION >= 1920) && (BSLS_PLATFORM_CMP_VERSION <= 1928)
+// Visual Studio 2017 runs out of memory optimizing this file.
+# if (BSLS_PLATFORM_CMP_VERSION >= 1910) && (BSLS_PLATFORM_CMP_VERSION <= 1919)
+#   if defined(BDE_BUILD_TARGET_OPT)
+#     define DO_FEWER_TESTS 1
+#   endif
+# endif
+// Visual Studio 2019 runs out of memory compiling this file.
+# if (BSLS_PLATFORM_CMP_VERSION >= 1920) && (BSLS_PLATFORM_CMP_VERSION <= 1929)
 #   define DO_FEWER_TESTS 1
 # endif
-// Visual Studio 2017 runs out of memory optimizing this file.  If you have
-// installed a new update and still runs out of memory, bump the upper limit
-// number in the '#if' below to 1917, and do not forget to update the number in
-// this comment as well.
-# if (BSLS_PLATFORM_CMP_VERSION >= 1910) && (BSLS_PLATFORM_CMP_VERSION <= 1916)
-#   if defined(BDE_BUILD_TARGET_OPT)
+// Visual Studio 2022 runs out of memory compiling this file on 32-bit builds.
+# if (BSLS_PLATFORM_CMP_VERSION >= 1930) && (BSLS_PLATFORM_CMP_VERSION <= 1939)
+#   if defined(BSLS_PLATFORM_CPU_32_BIT)
 #     define DO_FEWER_TESTS 1
 #   endif
 # endif
