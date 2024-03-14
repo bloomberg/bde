@@ -1,22 +1,22 @@
-// bdlm_metricsregistrar.cpp                                          -*-C++-*-
+// bdlm_metricsadapter.cpp                                            -*-C++-*-
 
-#include <bdlm_metricsregistrar.h>
+#include <bdlm_metricsadapter.h>
 
 #include <bdlm_metric.h>            // for testing only
 #include <bdlm_metricdescriptor.h>  // for testing only
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlm_metricsregistrar_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlm_metricsadapter_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlm {
 
-                          // ----------------------
-                          // class MetricsRegistrar
-                          // ----------------------
+                           // --------------------
+                           // class MetricsAdapter
+                           // --------------------
 
 // CREATORS
-MetricsRegistrar::~MetricsRegistrar()
+MetricsAdapter::~MetricsAdapter()
 {
 }
 
@@ -24,7 +24,7 @@ MetricsRegistrar::~MetricsRegistrar()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

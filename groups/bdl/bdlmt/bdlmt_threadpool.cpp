@@ -9,7 +9,7 @@
 
 #include <bdlmt_threadpool.h>
 
-#include <bdlm_defaultmetricsregistrar.h>
+#include <bdlm_instancecount.h>
 #include <bdlm_metric.h>
 #include <bdlm_metricdescriptor.h>
 
@@ -38,8 +38,6 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
 #include <bsl_string.h>
 
 namespace {
@@ -132,7 +130,8 @@ void ThreadPool::doEnqueueJob(bslmf::MovableRef<Job> job)
     wakeThreadIfNeeded();
 }
 
-void ThreadPool::initialize(const bsl::string_view& metricsIdentifier)
+void ThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
+                            const bsl::string_view& metricsIdentifier)
 {
     if (d_threadAttributes.threadName().empty()) {
         d_threadAttributes.setThreadName(s_defaultThreadName);
@@ -147,20 +146,22 @@ void ThreadPool::initialize(const bsl::string_view& metricsIdentifier)
     initBlockSet();
 #endif
 
-    bdlm::MetricDescriptor md(d_metricsRegistrar_p->defaultMetricNamespace(),
-                              "backlog",
-                              "bdlmt.threadpool",
-                              metricsIdentifier);
+    bdlm::MetricsRegistry *registry = metricsRegistry
+                                    ? metricsRegistry
+                                    : &bdlm::MetricsRegistry::singleton();
 
-    if (metricsIdentifier.empty()) {
-        bsl::stringstream identifier;
-        identifier << d_metricsRegistrar_p->defaultObjectIdentifierPrefix()
-                   << ".tp."
-                   << d_metricsRegistrar_p->incrementInstanceCount(md);
-        md.setObjectIdentifier(identifier.str());
-    }
+    bdlm::InstanceCount::Value instanceNumber =
+                         bdlm::InstanceCount::nextInstanceNumber<ThreadPool>();
 
-    d_backlogHandle = d_metricsRegistrar_p->registerCollectionCallback(
+    bdlm::MetricDescriptor md(
+             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
+             "backlog",
+             instanceNumber,
+             "bdlmt.threadpool",
+             "tp",
+             metricsIdentifier);
+
+    d_backlogHandle = registry->registerCollectionCallback(
                                    md,
                                    bdlf::BindUtil::bind(&backlogMetric,
                                                         bdlf::PlaceHolders::_1,
@@ -423,7 +424,6 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
-, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
     BSLS_ASSERT(0          <= minThreads);
     BSLS_ASSERT(minThreads <= maxThreads);
@@ -431,7 +431,9 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 
     d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
 
-    initialize("");
+    initialize(
+            0,
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -439,7 +441,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                        int                             maxThreads,
                        int                             maxIdleTime,
                        const bsl::string_view&         metricsIdentifier,
-                       bdlm::MetricsRegistrar         *metricsRegistrar,
+                       bdlm::MetricsRegistry          *metricsRegistry,
                        bslma::Allocator               *basicAllocator)
 : d_queue(basicAllocator)
 , d_threadAttributes(threadAttributes, basicAllocator)
@@ -451,8 +453,6 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
-, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar(
-                                                             metricsRegistrar))
 {
     BSLS_ASSERT(0          <= minThreads);
     BSLS_ASSERT(minThreads <= maxThreads);
@@ -460,7 +460,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 
     d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
 
-    initialize(metricsIdentifier);
+    initialize(metricsRegistry, metricsIdentifier);
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -479,14 +479,15 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
-, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
     BSLS_ASSERT(0                        <= minThreads);
     BSLS_ASSERT(minThreads               <= maxThreads);
     BSLS_ASSERT(bsls::TimeInterval(0, 0) <= maxIdleTime);
     BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
 
-    initialize("");
+    initialize(
+            0,
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -494,7 +495,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                        int                             maxThreads,
                        bsls::TimeInterval              maxIdleTime,
                        const bsl::string_view&         metricsIdentifier,
-                       bdlm::MetricsRegistrar         *metricsRegistrar,
+                       bdlm::MetricsRegistry          *metricsRegistry,
                        bslma::Allocator               *basicAllocator)
 : d_queue(basicAllocator)
 , d_threadAttributes(threadAttributes, basicAllocator)
@@ -507,22 +508,19 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
-, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar(
-                                                             metricsRegistrar))
 {
     BSLS_ASSERT(0                        <= minThreads);
     BSLS_ASSERT(minThreads               <= maxThreads);
     BSLS_ASSERT(bsls::TimeInterval(0, 0) <= maxIdleTime);
     BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
 
-    initialize(metricsIdentifier);
+    initialize(metricsRegistry, metricsIdentifier);
 }
 
 ThreadPool::~ThreadPool()
 {
     shutdown();
-
-    d_metricsRegistrar_p->removeCollectionCallback(d_backlogHandle);
+    d_backlogHandle.unregister();
 }
 
 // MANIPULATORS
@@ -678,7 +676,7 @@ double ThreadPool::percentBusy() const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

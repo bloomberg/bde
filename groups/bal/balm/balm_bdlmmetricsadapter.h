@@ -1,21 +1,21 @@
-// balm_bdlmmetricsregistrar.h                                        -*-C++-*-
+// balm_bdlmmetricsadapter.h                                          -*-C++-*-
 
-#ifndef INCLUDED_BALM_BDLMMETRICSREGISTRAR
-#define INCLUDED_BALM_BDLMMETRICSREGISTRAR
+#ifndef INCLUDED_BALM_BDLMMETRICSADAPTER
+#define INCLUDED_BALM_BDLMMETRICSADAPTER
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a concrete instance of the 'bdlm' metrics registrar.
+//@PURPOSE: Provide a concrete instance of the 'bdlm' metrics adapter.
 //
 //@CLASSES:
-// balm::BdlmMetricsRegistrar: concrete instance of the metrics registar
+// balm::BdlmMetricsAdapter: concrete instance of the metrics registar
 //
 //@DESCRIPTION: This component provides a concrete instance,
-// 'balm::BdlmMetricsRegistrar', of the 'bdlm::MetricsRegistrar' protocol,
-// enabling registration of metric collection callbacks with a provided
-// 'balm::MetricsManager'.  'balm::BdlmMetricsRegistrar' also provides methods
-// to aid in population of default 'bdlm::MetricDescriptor' attribute values.
+// 'balm::BdlmMetricsAdapter', of the 'bdlm::MetricsAdapter' protocol, enabling
+// registration of metric collection callbacks with a provided
+// 'balm::MetricsManager'.  'balm::BdlmMetricsAdapter' also provides methods to
+// aid in population of default 'bdlm::MetricDescriptor' attribute values.
 //
 ///Thread Safety
 ///-------------
@@ -25,11 +25,11 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'balm::BdlmMetricsRegistrar'
+///Example 1: Using 'balm::BdlmMetricsAdapter'
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the initialization and usage of the
-// 'balm::BdlmMetricsRegistrar' object, allowing for registering metric
-// callback functions with the 'balm' monitoring system.
+// 'balm::BdlmMetricsAdapter' object, allowing for registering metric callback
+// functions with the 'balm' monitoring system.
 //
 // First, we provide a metric function to be used during callback registration
 // with the 'balm' monitoring system:
@@ -41,47 +41,43 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Then, we construct a 'balm::MetricsManager' object and use it to construct a
-// 'balm::BdlmMetricsRegistrar' that will use "bdlm" as its default metric
+// 'balm::BdlmMetricsAdapter' that will use "bdlm" as its default metric
 // namespace, "svc" as its default object indentifier prefix, and will not
-// attempt to set itself as the default metrics registrar:
+// attempt to set itself as the default metrics adapter:
 //..
-//  balm::MetricsManager manager;
-//  balm::BdlmMetricsRegistrar registrar(&manager, "bdlm", "svc", false);
+//  balm::MetricsManager     manager;
+//  balm::BdlmMetricsAdapter adapter(&manager, "bdlm", "svc");
 //..
 // Next, we construct a 'bdlm::MetricsDescriptor' object to be used when
-// registering the callback function, making use of the helper methods in the
-// 'bdlm::MetricsRegistrar' protocol:
+// registering the callback function, using constants from
+// 'bdlm::MetricDescriptor' for the namespace and identifier to indicate the
+// implementation of the 'bdlm::MetricsAdapter' protocol should supply values:
 //..
-//  bdlm::MetricDescriptor descriptor(registrar.defaultMetricNamespace(),
-//                                    "example",
-//                                    "balm.bdlmmetricsregistrar",
-//                                    "");
-//  {
-//      bsl::stringstream identifier;
-//      identifier << registrar.defaultObjectIdentifierPrefix()
-//                 << ".bmr."
-//                 << registrar.incrementInstanceCount(descriptor);
-//      descriptor.setObjectIdentifier(identifier.str());
-//  }
+//  bdlm::MetricDescriptor descriptor(
+//          bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
+//          "example",
+//          1,
+//          "balm.bdlmmetricsadapter",
+//          "bmr",
+//          bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
 //..
 // Now, we register the collection callback:
 //..
-//  bdlm::MetricsRegistrar::CallbackHandle handle =
-//                          registrar.registerCollectionCallback(descriptor,
+//  bdlm::MetricsAdapter::CallbackHandle handle =
+//                            adapter.registerCollectionCallback(descriptor,
 //                                                               elidedMetric);
 //..
 // Finally, presumably during shutdown of the application, we remove the
 // callback from the monitoring system, and verify the callback was
 // successfully removed:
 //..
-//  assert(0 == registrar.removeCollectionCallback(handle));
+//  assert(0 == adapter.removeCollectionCallback(handle));
 //..
 
 #include <bdlf_bind.h>
 
 #include <bdlm_metricdescriptor.h>
-#include <bdlm_metricsregistrar.h>
-#include <bdlm_defaultmetricsregistrar.h>
+#include <bdlm_metricsadapter.h>
 
 #include <balm_collectorrepository.h>
 #include <balm_defaultmetricsmanager.h>
@@ -102,13 +98,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace balm {
 
-                        // ==========================
-                        // class BdlmMetricsRegistrar
-                        // ==========================
+                         // ========================
+                         // class BdlmMetricsAdapter
+                         // ========================
 
-class BdlmMetricsRegistrar : public bdlm::MetricsRegistrar {
+class BdlmMetricsAdapter : public bdlm::MetricsAdapter {
     // This class implements a pure abstract interface for clients and
-    // suppliers of metrics registrars.  The implementation registers callbacks
+    // suppliers of metrics adapters.  The implementation registers callbacks
     // with a provided 'balm::MetricsManager' to enable monitoring of
     // statistics collection objects.
 
@@ -133,55 +129,53 @@ class BdlmMetricsRegistrar : public bdlm::MetricsRegistrar {
                                                   // identifier attribute
                                                   // values
 
-    bsl::map<bsl::string, int>
-                       d_count;                   // stores instance counts
-
-    bslmt::Mutex       d_mutex;                   // mutex to protect 'd_count'
-
     // NOT IMPLEMENTED
-    BdlmMetricsRegistrar() BSLS_KEYWORD_DELETED;
-    BdlmMetricsRegistrar(const BdlmMetricsRegistrar&) BSLS_KEYWORD_DELETED;
-    BdlmMetricsRegistrar operator=(const BdlmMetricsRegistrar&)
+    BdlmMetricsAdapter() BSLS_KEYWORD_DELETED;
+    BdlmMetricsAdapter(const BdlmMetricsAdapter&) BSLS_KEYWORD_DELETED;
+    BdlmMetricsAdapter operator=(const BdlmMetricsAdapter&)
                                                           BSLS_KEYWORD_DELETED;
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(BdlmMetricsRegistrar,
+    BSLMF_NESTED_TRAIT_DECLARATION(BdlmMetricsAdapter,
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    BdlmMetricsRegistrar(MetricsManager          *metricsManager,
-                         const bsl::string_view&  metricNamespace,
-                         const bsl::string_view&  objectIdentifierPrefix,
-                         bool                     installAsDefault = false,
-                         bslma::Allocator        *basicAllocator = 0);
-        // Create a 'BdlmMetricsRegistrar' object that uses the specified
+    BdlmMetricsAdapter(MetricsManager          *metricsManager,
+                       const bsl::string_view&  metricNamespace,
+                       const bsl::string_view&  objectIdentifierPrefix,
+                       bslma::Allocator        *basicAllocator = 0);
+        // Create a 'BdlmMetricsAdapter' object that uses the specified
         // 'metricsManager' to register and unregister collection callback
         // functors, the specified 'metricNamespace' as the value returned by
-        // 'defaultNamespace()', the specified 'objectIdentifierPrefix' as the
-        // value returned by 'defaultObjectIdentifierPrefix', and if the
-        // specified 'installAsDefault' is 'true', attempt to install this
-        // registrar as the one obtained by
-        // 'bdlm::DefaultMetricsRegistrar::defaultMetricsRegistrar()'.  If the
-        // default registrar has already been set, this attempt will have no
-        // effect.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // 'defaultNamespace()', and the specified 'objectIdentifierPrefix' as
+        // the value returned by 'defaultObjectIdentifierPrefix'.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
-    ~BdlmMetricsRegistrar();
-        // Destroy this 'BdlmMetricsRegistrar' object.
+    ~BdlmMetricsAdapter();
+        // Destroy this 'BdlmMetricsAdapter' object.
 
     // MANIPULATORS
-    int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor);
-        // Return the incremented invocation count of this method with the
-        // provided 'metricDescriptor' attributes, excluding object identifier.
-
     CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
         // Register the specified 'callback' with the metrics manager specified
-        // at construction, using the specified 'metricDescriptor'.  Return the
-        // callback handle to be used with 'removeCollectionCallback'.
+        // at construction, using the specified 'metricDescriptor'.  If
+        // 'metricDescriptor.metricsNamspace()' equals
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION',
+        // use 'defaultMetricNamespace()' for the namespace attribute during
+        // registration.  If 'metricDescriptor.objectIdentifier()' equals
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION',
+        // use the concatination of 'defaultObjectIdentifierPrefix()', a
+        // period, 'metricDescriptor.objectTypeAbbreviation()', a period, and
+        // 'metricDescriptor.instanceNumber()' for the object identifier
+        // attribute during registration.  The category name supplied to the
+        // 'MetricsManager' provided at construction is the concatenation of
+        // the object type name attribute, a period, the metric name attribute,
+        // a period, and the object identifier attribute.  Return the callback
+        // handle to be used with 'removeCollectionCallback'.
 
     int removeCollectionCallback(const CallbackHandle& handle);
         // Remove the callback associated with the specified 'handle' from the
@@ -207,73 +201,45 @@ class BdlmMetricsRegistrar : public bdlm::MetricsRegistrar {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // class BdlmMetricsRegistrar
-                        // --------------------------
+                         // ------------------------
+                         // class BdlmMetricsAdapter
+                         // ------------------------
 
 // CREATORS
 inline
-BdlmMetricsRegistrar::BdlmMetricsRegistrar(
+BdlmMetricsAdapter::BdlmMetricsAdapter(
                                balm::MetricsManager    *metricsManager,
                                const bsl::string_view&  metricNamespace,
                                const bsl::string_view&  objectIdentifierPrefix,
-                               bool                     installAsDefault,
                                bslma::Allocator        *basicAllocator)
 : d_metricsManager_p(metricsManager)
 , d_metricNamespace(metricNamespace, basicAllocator)
 , d_objectIdentifierPrefix(objectIdentifierPrefix, basicAllocator)
-, d_count(basicAllocator)
 {
-    if (installAsDefault) {
-        bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(this);
-    }
 }
 
 // MANIPULATORS
 inline
-bdlm::MetricsRegistrar::CallbackHandle
-BdlmMetricsRegistrar::registerCollectionCallback(
-                                const bdlm::MetricDescriptor& metricDescriptor,
-                                const Callback&               callback)
-{
-    bsl::string name = metricDescriptor.objectTypeName()   + '.'
-                     + metricDescriptor.metricName()       + '.'
-                     + metricDescriptor.objectIdentifier();
-
-    MetricId id = d_metricsManager_p->metricRegistry().getId(
-                     metricDescriptor.metricNamespace().c_str(), name.c_str());
-
-    return d_metricsManager_p->registerCollectionCallback(
-                                   metricDescriptor.metricNamespace().c_str(),
-                                   bdlf::BindUtil::bind(&metricCb,
-                                                        bdlf::PlaceHolders::_1,
-                                                        bdlf::PlaceHolders::_2,
-                                                        id,
-                                                        callback));
-}
-
-inline
-int BdlmMetricsRegistrar::removeCollectionCallback(
-                                                  const CallbackHandle& handle)
+int BdlmMetricsAdapter::removeCollectionCallback(const CallbackHandle& handle)
 {
     return d_metricsManager_p->removeCollectionCallback(handle);
 }
 
 // ACCESSORS
 inline
-const bsl::string& BdlmMetricsRegistrar::defaultMetricNamespace() const
+const bsl::string& BdlmMetricsAdapter::defaultMetricNamespace() const
 {
     return d_metricNamespace;
 }
 
 inline
-const bsl::string& BdlmMetricsRegistrar::defaultObjectIdentifierPrefix() const
+const bsl::string& BdlmMetricsAdapter::defaultObjectIdentifierPrefix() const
 {
     return d_objectIdentifierPrefix;
 }
 
 inline
-bslma::Allocator *BdlmMetricsRegistrar::allocator() const
+bslma::Allocator *BdlmMetricsAdapter::allocator() const
 {
     return d_metricNamespace.get_allocator().mechanism();
 }
@@ -284,7 +250,7 @@ bslma::Allocator *BdlmMetricsRegistrar::allocator() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

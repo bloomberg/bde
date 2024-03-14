@@ -427,7 +427,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlcc_skiplist.h>
 
-#include <bdlm_metricsregistrar.h>
+#include <bdlm_metricsregistry.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -698,14 +698,8 @@ class EventScheduler {
     bsls::SystemClockType::Enum
                           d_clockType;          // clock type used
 
-    bdlm::MetricsRegistrar
-                         *d_metricsRegistrar_p; // metrics registrar
-
-    bdlm::MetricsRegistrar::CallbackHandle
-                          d_metricsCallbackHandle;
-                                                // callback handle used with
-                                                // 'd_metricsRegistrar' for
-                                                // 'd_metrics'
+    bdlm::MetricsRegistryRegistrationHandle
+                          d_startLagHandle;     // start lag metric handle
 
     // PRIVATE CLASS METHODS
     static bsls::Types::Int64 returnZero();
@@ -769,9 +763,12 @@ class EventScheduler {
         // event queues at their scheduled times.  Note that this method
         // implements the dispatching thread.
 
-    void initialize(const bsl::string_view& metricsIdentifier);
+    void initialize(bdlm::MetricsRegistry   *metricsRegistry,
+                    const bsl::string_view&  metricsIdentifier);
         // Initialize this event scheduler using the stored attributes and the
-        // specified 'metricsIdentifier' to identify this event scheduler.
+        // specified 'metricsRegistry' and 'metricsIdentifier'.  If
+        // 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()'  is
+        // used.
 
     void releaseCurrentEvents();
         // Release 'd_currentRecurringEvent' and 'd_currentEvent', if they
@@ -847,25 +844,24 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the default identifier generation for the metrics
-        // identifier.  Use the currently installed default metrics registrar
-        // to report metrics.
+        // used.  Use
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
+        // to identify this event scheduler.  Use
+        // 'bdlm::MetricsRegistry::singleton()' to report metrics.
 
     explicit EventScheduler(const bsl::string_view&  metricsIdentifier,
-                            bdlm::MetricsRegistrar  *metricsRegistrar,
+                            bdlm::MetricsRegistry   *metricsRegistry,
                             bslma::Allocator        *basicAllocator = 0);
         // Create an event scheduler using the default dispatcher functor (see
         // {The Dispatcher Thread and the Dispatcher Functor} in the
         // component-level documentation), using the system realtime clock to
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
-        // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsIdentifier' is empty, use the default identifier
-        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the specified 'metricsRegistry' to be used for reporting metrics.
+        // If 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()' is
+        // used.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
     explicit EventScheduler(bsls::SystemClockType::Enum  clockType,
                             bslma::Allocator            *basicAllocator = 0);
@@ -875,13 +871,14 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals (see {Supported
         // Clock Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use the default
-        // identifier generation for the metrics identifier.  Use the currently
-        // installed default metrics registrar to report metrics.
+        // the currently installed default allocator is used.  Use
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
+        // to identify this event scheduler.  Use
+        // 'bdlm::MetricsRegistry::singleton()' to report metrics.
 
     explicit EventScheduler(bsls::SystemClockType::Enum  clockType,
                             const bsl::string_view&      metricsIdentifier,
-                            bdlm::MetricsRegistrar      *metricsRegistrar,
+                            bdlm::MetricsRegistry       *metricsRegistry,
                             bslma::Allocator            *basicAllocator = 0);
         // Create an event scheduler using the default dispatcher functor (see
         // {The Dispatcher Thread and the Dispatcher Functor} in the
@@ -889,13 +886,11 @@ class EventScheduler {
         // indicate the epoch used for all time intervals (see {Supported Clock
         // Types} in the component documentation), the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
-        // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsIdentifier' is empty, use the default identifier
-        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the specified 'metricsRegistry' to be used for reporting metrics.
+        // If 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()' is
+        // used.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     explicit EventScheduler(
@@ -907,27 +902,26 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the default identifier generation for the metrics
-        // identifier.  Use the currently installed default metrics registrar
-        // to report metrics.
+        // used.  Use
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
+        // to identify this event scheduler.  Use
+        // 'bdlm::MetricsRegistry::singleton()' to report metrics.
 
     explicit EventScheduler(
                          const bsl::chrono::system_clock&,
                          const bsl::string_view&           metricsIdentifier,
-                         bdlm::MetricsRegistrar           *metricsRegistrar,
+                         bdlm::MetricsRegistry            *metricsRegistry,
                          bslma::Allocator                 *basicAllocator = 0);
         // Create an event scheduler using the default dispatcher functor (see
         // {The Dispatcher Thread and the Dispatcher Functor} in the
         // component-level documentation), using the system realtime clock to
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
-        // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsIdentifier' is empty, use the default identifier
-        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the specified 'metricsRegistry' to be used for reporting metrics.
+        // If 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()' is
+        // used.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
     explicit EventScheduler(
                          const bsl::chrono::steady_clock&,
@@ -938,27 +932,26 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the default identifier generation for the metrics
-        // identifier.  Use the currently installed default metrics registrar
-        // to report metrics.
+        // used.  Use
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
+        // to identify this event scheduler.  Use
+        // 'bdlm::MetricsRegistry::singleton()' to report metrics.
 
     explicit EventScheduler(
                          const bsl::chrono::steady_clock&,
                          const bsl::string_view&           metricsIdentifier,
-                         bdlm::MetricsRegistrar           *metricsRegistrar,
+                         bdlm::MetricsRegistry            *metricsRegistry,
                          bslma::Allocator                 *basicAllocator = 0);
         // Create an event scheduler using the default dispatcher functor (see
         // {The Dispatcher Thread and the Dispatcher Functor} in the
         // component-level documentation), using the system monotonic clock to
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
-        // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsIdentifier' is empty, use the default identifier
-        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the specified 'metricsRegistry' to be used for reporting metrics.
+        // If 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()' is
+        // used.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 #endif
 
     explicit EventScheduler(const Dispatcher&  dispatcherFunctor,
@@ -969,26 +962,25 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the default identifier generation for the metrics
-        // identifier.  Use the currently installed default metrics registrar
-        // to report metrics.
+        // used.  Use
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
+        // to identify this event scheduler.  Use
+        // 'bdlm::MetricsRegistry::singleton()' to report metrics.
 
     explicit EventScheduler(const Dispatcher&        dispatcherFunctor,
                             const bsl::string_view&  metricsIdentifier,
-                            bdlm::MetricsRegistrar  *metricsRegistrar,
+                            bdlm::MetricsRegistry   *metricsRegistry,
                             bslma::Allocator        *basicAllocator = 0);
         // Create an event scheduler using the specified 'dispatcherFunctor'
         // (see {The Dispatcher Thread and the Dispatcher Functor} in the
         // component-level documentation), using the system realtime clock to
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
-        // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsIdentifier' is empty, use the default identifier
-        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the specified 'metricsRegistry' to be used for reporting metrics.
+        // If 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()' is
+        // used.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
     EventScheduler(const Dispatcher&            dispatcherFunctor,
                    bsls::SystemClockType::Enum  clockType,
@@ -999,14 +991,15 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals (see {Supported
         // Clock Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use the default
-        // identifier generation for the metrics identifier.  Use the currently
-        // installed default metrics registrar to report metrics.
+        // the currently installed default allocator is used.  Use
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
+        // to identify this event scheduler.  Use
+        // 'bdlm::MetricsRegistry::singleton()' to report metrics.
 
     EventScheduler(const Dispatcher&            dispatcherFunctor,
                    bsls::SystemClockType::Enum  clockType,
                    const bsl::string_view&      metricsIdentifier,
-                   bdlm::MetricsRegistrar      *metricsRegistrar,
+                   bdlm::MetricsRegistry       *metricsRegistry,
                    bslma::Allocator            *basicAllocator = 0);
         // Create an event scheduler using the specified 'dispatcherFunctor'
         // (see {The Dispatcher Thread and the Dispatcher Functor} in the
@@ -1014,13 +1007,11 @@ class EventScheduler {
         // indicate the epoch used for all time intervals (see {Supported Clock
         // Types} in the component documentation), the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
-        // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsIdentifier' is empty, use the default identifier
-        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the specified 'metricsRegistry' to be used for reporting metrics.
+        // If 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()' is
+        // used.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     EventScheduler(const Dispatcher&                 dispatcherFunctor,
@@ -1032,27 +1023,26 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the default identifier generation for the metrics
-        // identifier.  Use the currently installed default metrics registrar
-        // to report metrics.
+        // used.  Use
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
+        // to identify this event scheduler.  Use
+        // 'bdlm::MetricsRegistry::singleton()' to report metrics.
 
     EventScheduler(const Dispatcher&                 dispatcherFunctor,
                    const bsl::chrono::system_clock&,
                    const bsl::string_view&           metricsIdentifier,
-                   bdlm::MetricsRegistrar           *metricsRegistrar,
+                   bdlm::MetricsRegistry            *metricsRegistry,
                    bslma::Allocator                 *basicAllocator = 0);
         // Create an event scheduler using the specified 'dispatcherFunctor'
         // (see {The Dispatcher Thread and the Dispatcher Functor} in the
         // component-level documentation), using the system realtime clock to
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
-        // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsIdentifier' is empty, use the default identifier
-        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the specified 'metricsRegistry' to be used for reporting metrics.
+        // If 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()' is
+        // used.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
     EventScheduler(const Dispatcher&                 dispatcherFunctor,
                    const bsl::chrono::steady_clock&,
@@ -1063,27 +1053,26 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the default identifier generation for the metrics
-        // identifier.  Use the currently installed default metrics registrar
-        // to report metrics.
+        // used.  Use
+        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
+        // to identify this event scheduler.  Use
+        // 'bdlm::MetricsRegistry::singleton()' to report metrics.
 
     EventScheduler(const Dispatcher&                 dispatcherFunctor,
                    const bsl::chrono::steady_clock&,
                    const bsl::string_view&           metricsIdentifier,
-                   bdlm::MetricsRegistrar           *metricsRegistrar,
+                   bdlm::MetricsRegistry            *metricsRegistry,
                    bslma::Allocator                 *basicAllocator = 0);
         // Create an event scheduler using the specified 'dispatcherFunctor'
         // (see {The Dispatcher Thread and the Dispatcher Functor} in the
         // component-level documentation), using the system monotonic clock to
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
-        // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsIdentifier' is empty, use the default identifier
-        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the specified 'metricsRegistry' to be used for reporting metrics.
+        // If 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()' is
+        // used.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 #endif
 
     ~EventScheduler();
@@ -2217,7 +2206,7 @@ bslma::Allocator *EventScheduler::allocator() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

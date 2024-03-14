@@ -1,4 +1,5 @@
-bdlm_defaultmetricsregistrar
+bdlm_instancecount
 bdlm_metric
 bdlm_metricdescriptor
-bdlm_metricsregistrar
+bdlm_metricsadapter
+bdlm_metricsregistry

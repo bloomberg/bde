@@ -15,7 +15,7 @@ BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
-#include <bdlm_defaultmetricsregistrar.h>
+#include <bdlm_instancecount.h>
 #include <bdlm_metric.h>
 #include <bdlm_metricdescriptor.h>
 
@@ -29,8 +29,6 @@ BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 #endif
 
 #include <bsl_functional.h>
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
 #include <bsl_string.h>
 
 namespace {
@@ -90,7 +88,8 @@ namespace bdlmt {
 const char FixedThreadPool::s_defaultThreadName[16] = { "bdl.FixedPool" };
 
 // PRIVATE MANIPULATORS
-void FixedThreadPool::initialize(const bsl::string_view& metricsIdentifier)
+void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
+                                 const bsl::string_view&  metricsIdentifier)
 {
     d_queue.disablePushBack();
     d_queue.disablePopFront();
@@ -103,34 +102,36 @@ void FixedThreadPool::initialize(const bsl::string_view& metricsIdentifier)
     initBlockSet(&d_blockSet);
 #endif
 
+    bdlm::MetricsRegistry *registry = metricsRegistry
+                                    ? metricsRegistry
+                                    : &bdlm::MetricsRegistry::singleton();
+
+    bdlm::InstanceCount::Value instanceNumber =
+                    bdlm::InstanceCount::nextInstanceNumber<FixedThreadPool>();
+
     bdlm::MetricDescriptor mdBacklog(
-                                d_metricsRegistrar_p->defaultMetricNamespace(),
-                                "backlog",
-                                "bdlmt.fixedthreadpool",
-                                metricsIdentifier);
+             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
+             "backlog",
+             instanceNumber,
+             "bdlmt.fixedthreadpool",
+             "ftp",
+             metricsIdentifier);
 
     bdlm::MetricDescriptor mdUsedCapacity(
-                                d_metricsRegistrar_p->defaultMetricNamespace(),
-                                "usedcapacity",
-                                "bdlmt.fixedthreadpool",
-                                metricsIdentifier);
+             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
+             "usedcapacity",
+             instanceNumber,
+             "bdlmt.fixedthreadpool",
+             "ftp",
+             metricsIdentifier);
 
-    if (metricsIdentifier.empty()) {
-        bsl::stringstream identifier;
-        identifier << d_metricsRegistrar_p->defaultObjectIdentifierPrefix()
-                   << ".ftp."
-                   << d_metricsRegistrar_p->incrementInstanceCount(mdBacklog);
-        mdBacklog.setObjectIdentifier(identifier.str());
-        mdUsedCapacity.setObjectIdentifier(identifier.str());
-    }
-
-    d_backlogHandle = d_metricsRegistrar_p->registerCollectionCallback(
+    d_backlogHandle = registry->registerCollectionCallback(
                                 mdBacklog,
                                 bdlf::BindUtil::bind(&backlogMetric,
                                                      bdlf::PlaceHolders::_1,
                                                      this));
 
-    d_usedCapacityHandle = d_metricsRegistrar_p->registerCollectionCallback(
+    d_usedCapacityHandle = registry->registerCollectionCallback(
                                  mdUsedCapacity,
                                  bdlf::BindUtil::bind(&usedCapacityMetric,
                                                       bdlf::PlaceHolders::_1,
@@ -193,11 +194,12 @@ FixedThreadPool::FixedThreadPool(
 , d_threadGroup(basicAllocator)
 , d_threadAttributes(threadAttributes, basicAllocator)
 , d_numThreads(numThreads)
-, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
-    initialize("");
+    initialize(
+            0,
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
 }
 
 FixedThreadPool::FixedThreadPool(
@@ -205,7 +207,7 @@ FixedThreadPool::FixedThreadPool(
                              int                             numThreads,
                              int                             maxNumPendingJobs,
                              const bsl::string_view&         metricsIdentifier,
-                             bdlm::MetricsRegistrar         *metricsRegistrar,
+                             bdlm::MetricsRegistry          *metricsRegistry,
                              bslma::Allocator               *basicAllocator)
 : d_queue(maxNumPendingJobs, basicAllocator)
 , d_numActiveThreads(0)
@@ -214,12 +216,10 @@ FixedThreadPool::FixedThreadPool(
 , d_threadGroup(basicAllocator)
 , d_threadAttributes(threadAttributes, basicAllocator)
 , d_numThreads(numThreads)
-, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar(
-                                                             metricsRegistrar))
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
-    initialize(metricsIdentifier);
+    initialize(metricsRegistry, metricsIdentifier);
 }
 
 FixedThreadPool::FixedThreadPool(int               numThreads,
@@ -232,17 +232,18 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
 , d_threadGroup(basicAllocator)
 , d_threadAttributes(basicAllocator)
 , d_numThreads(numThreads)
-, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
-    initialize("");
+    initialize(
+            0,
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
 }
 
 FixedThreadPool::FixedThreadPool(int                      numThreads,
                                  int                      maxNumPendingJobs,
                                  const bsl::string_view&  metricsIdentifier,
-                                 bdlm::MetricsRegistrar  *metricsRegistrar,
+                                 bdlm::MetricsRegistry  *metricsRegistry,
                                  bslma::Allocator        *basicAllocator)
 : d_queue(maxNumPendingJobs, basicAllocator)
 , d_numActiveThreads(0)
@@ -251,20 +252,17 @@ FixedThreadPool::FixedThreadPool(int                      numThreads,
 , d_threadGroup(basicAllocator)
 , d_threadAttributes(basicAllocator)
 , d_numThreads(numThreads)
-, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar(
-                                                             metricsRegistrar))
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
-    initialize(metricsIdentifier);
+    initialize(metricsRegistry, metricsIdentifier);
 }
 
 FixedThreadPool::~FixedThreadPool()
 {
     shutdown();
-
-    d_metricsRegistrar_p->removeCollectionCallback(d_backlogHandle);
-    d_metricsRegistrar_p->removeCollectionCallback(d_usedCapacityHandle);
+    d_backlogHandle.unregister();
+    d_usedCapacityHandle.unregister();
 }
 
 // MANIPULATORS
@@ -302,7 +300,7 @@ int FixedThreadPool::start()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

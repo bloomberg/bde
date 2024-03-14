@@ -1,5 +1,5 @@
-// balm_bdlmmetricsregistrar.t.cpp                                    -*-C++-*-
-#include <balm_bdlmmetricsregistrar.h>
+// balm_bdlmmetricsadapter.t.cpp                                      -*-C++-*-
+#include <balm_bdlmmetricsadapter.h>
 
 #include <balm_metricsmanager.h>
 
@@ -34,22 +34,20 @@ using bsl::endl;
 //                                 --------
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] BdlmMetricsRegistrar(*mM, mN, oIP, iAD, *bA = 0);
+// [ 1] BdlmMetricsAdapter(*mM, mN, oIP, *bA = 0);
 //
 // MANIPULATORS
-// [ 3] int incrementInstanceCount(metricDescriptor);
-// [ 4] CH registerCollectionCallback(metricDescriptor, cb);
-// [ 4] int removeCollectionCallback(const CH& handle);
+// [ 2] CH registerCollectionCallback(metricDescriptor, cb);
+// [ 2] int removeCollectionCallback(const CH& handle);
 //
 // ACCESSORS
-// [ 2] const bsl::string& defaultMetricNamespace();
-// [ 2] const bsl::string& defaultObjectIdentifierPrefix();
-// [ 2] bslma::Allocator *allocator() const;
+// [ 1] const bsl::string& defaultMetricNamespace();
+// [ 1] const bsl::string& defaultObjectIdentifierPrefix();
+// [ 1] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
-// [ 1] CONCERN: 'false == installAsDefault' works correctly
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: In no case does memory come from the default allocator.
-// [ 5] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -106,7 +104,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef balm::BdlmMetricsRegistrar Obj;
+typedef balm::BdlmMetricsAdapter Obj;
 
 // ============================================================================
 //                   GLOBAL FUNCTIONS FOR TESTING
@@ -128,11 +126,11 @@ void testMetric(BloombergLP::bdlm::Metric *value)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'balm::BdlmMetricsRegistrar'
+///Example 1: Using 'balm::BdlmMetricsAdapter'
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the initialization and usage of the
-// 'balm::BdlmMetricsRegistrar' object, allowing for registering metric
-// callback functions with the 'balm' monitoring system.
+// 'balm::BdlmMetricsAdapter' object, allowing for registering metric callback
+// functions with the 'balm' monitoring system.
 //
 // First, we provide a metric function to be used during callback registration
 // with the 'balm' monitoring system:
@@ -177,7 +175,7 @@ int main(int argc, char *argv[])
     bool expectDefaultAllocation = false;
 
     switch (test) { case 0:
-      case 5: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -203,44 +201,41 @@ int main(int argc, char *argv[])
         expectDefaultAllocation = true;
 
 // Then, we construct a 'balm::MetricsManager' object and use it to construct a
-// 'balm::BdlmMetricsRegistrar' that will use "bdlm" as its default metric
+// 'balm::BdlmMetricsAdapter' that will use "bdlm" as its default metric
 // namespace, "svc" as its default object indentifier prefix, and will not
-// attempt to set itself as the default metrics registrar:
+// attempt to set itself as the default metrics adapter:
 //..
-    balm::MetricsManager manager;
-    balm::BdlmMetricsRegistrar registrar(&manager, "bdlm", "svc", false);
+    balm::MetricsManager     manager;
+    balm::BdlmMetricsAdapter adapter(&manager, "bdlm", "svc");
 //..
 // Next, we construct a 'bdlm::MetricsDescriptor' object to be used when
-// registering the callback function, making use of the helper methods in the
-// 'bdlm::MetricsRegistrar' protocol:
+// registering the callback function, using constants from
+// 'bdlm::MetricDescriptor' for the namespace and identifier to indicate the
+// implementation of the 'bdlm::MetricsAdapter' protocol should supply values:
 //..
-    bdlm::MetricDescriptor descriptor(registrar.defaultMetricNamespace(),
-                                      "example",
-                                      "balm.bdlmmetricsregistrar",
-                                      "");
-    {
-        bsl::stringstream identifier;
-        identifier << registrar.defaultObjectIdentifierPrefix()
-                   << ".bmr."
-                   << registrar.incrementInstanceCount(descriptor);
-        descriptor.setObjectIdentifier(identifier.str());
-    }
+    bdlm::MetricDescriptor descriptor(
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
+            "example",
+            1,
+            "balm.bdlmmetricsadapter",
+            "bmr",
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
 //..
 // Now, we register the collection callback:
 //..
-    bdlm::MetricsRegistrar::CallbackHandle handle =
-                            registrar.registerCollectionCallback(descriptor,
+    bdlm::MetricsAdapter::CallbackHandle handle =
+                              adapter.registerCollectionCallback(descriptor,
                                                                  elidedMetric);
 //..
 // Finally, presumably during shutdown of the application, we remove the
 // callback from the monitoring system, and verify the callback was
 // successfully removed:
 //..
-    ASSERT(0 == registrar.removeCollectionCallback(handle));
+    ASSERT(0 == adapter.removeCollectionCallback(handle));
 //..
 
       } break;
-      case 4: {
+      case 2: {
         // --------------------------------------------------------------------
         // CALLBACK REGISTRATON
         //   Ensure the callback registration and removal manipulators function
@@ -266,21 +261,22 @@ int main(int argc, char *argv[])
         //:   indicates no callback was removed.  (C-2)
         //
         // Testing:
-        //   int incrementInstanceCount(metricDescriptor);
+        //   CH registerCollectionCallback(metricDescriptor, cb);
+        //   int removeCollectionCallback(const CH& handle);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'incrementInstanceCount'" << endl
-                                  << "========================" << endl;
+        if (verbose) cout << endl << "CALLBACK REGISTRATION" << endl
+                                  << "=====================" << endl;
 
         expectDefaultAllocation = true;
 
         balm::MetricsManager manager;
 
-        Obj mX(&manager, "namespace", "prefix", false);
+        Obj mX(&manager, "namespace", "prefix");
 
-        bdlm::MetricDescriptor descriptor("ns", "n", "otn", "oid");
+        bdlm::MetricDescriptor descriptor("ns", "n", 1, "otn", "oa", "oid");
 
-        bdlm::MetricsRegistrar::CallbackHandle handle =
+        bdlm::MetricsAdapter::CallbackHandle handle =
                                      mX.registerCollectionCallback(descriptor,
                                                                    testMetric);
         ASSERT(0 == s_testMetricCount);
@@ -297,15 +293,17 @@ int main(int argc, char *argv[])
 
         ASSERT(0 != mX.removeCollectionCallback(handle));
       } break;
-      case 3: {
+      case 1: {
         // --------------------------------------------------------------------
-        // 'incrementInstanceCount'
-        //   Ensure the manipulator functions as expected.
+        // CONSTRUCTOR & BASIC ACCESSORS
+        //   Ensure the constructor appropriatly stores the specified values
+        //   and that the basic accessors return these values.
         //
         // Concerns:
-        //: 1 The method correctly provides the instances counts.
+        //: 1 The constructor correctly stores the default metric namespace,
+        //:   default object identifier prefix, and the allocator.
         //:
-        //: 2 The method ignores the object identifier attribute.
+        //: 2 The basic accessors return these values.
         //:
         //: 3 The constructor has the internal memory management system hooked
         //:   up properly so that *all* internally allocated memory draws from
@@ -315,104 +313,15 @@ int main(int argc, char *argv[])
         //:   deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create a sequence of 'bdlm::MetricDescriptor', invoke
-        //:   'incrementInstanceCount', and verify the resultant count.
-        //:   (C-1,2)
+        //: 1 Create objects and verify the values returned by the basic
+        //:   accessors.  (C-1,2)
         //:
         //: 2 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
         //:   at the conclusion of each test to ensure all memory is taken from
         //:   and returned to the allocator.  (C-3,4)
         //
         // Testing:
-        //   int incrementInstanceCount(metricDescriptor);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "'incrementInstanceCount'" << endl
-                                  << "========================" << endl;
-
-        static const struct {
-            const char *d_metricNamespace;
-            const char *d_metricName;
-            const char *d_objectTypeName;
-            const char *d_objectIdentifier;
-            const int   d_exp;
-        } VALUES[] = {
-            {  "a", "a", "a", "a", 1 },
-            {  "a", "a", "a", "b", 2 },
-            {  "b", "a", "a", "a", 1 },
-            {  "b", "a", "a", "b", 2 },
-            {  "a", "b", "a", "a", 1 },
-            {  "a", "b", "a", "b", 2 },
-            {  "a", "a", "b", "a", 1 },
-            {  "a", "a", "b", "b", 2 },
-            {  "a", "a", "a", "a", 3 },
-            {  "b", "a", "a", "a", 3 },
-            {  "a", "b", "a", "a", 3 },
-            {  "a", "a", "b", "a", 3 },
-            {  "a", "a", "a", "b", 4 },
-            {  "b", "a", "a", "b", 4 },
-            {  "a", "b", "a", "b", 4 },
-            {  "a", "a", "b", "b", 4 },
-        };
-        const int NUM_VALUES =
-                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
-
-        bslma::TestAllocator testAllocator;
-        balm::MetricsManager manager(&testAllocator);
-
-        Obj mX(&manager, "namespace", "prefix", false, &testAllocator);
-
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            const char *METRIC_NAMESPACE  = VALUES[i].d_metricNamespace;
-            const char *METRIC_NAME       = VALUES[i].d_metricName;
-            const char *OBJECT_TYPE_NAME  = VALUES[i].d_objectTypeName;
-            const char *OBJECT_IDENTIFIER = VALUES[i].d_objectIdentifier;
-            const int   EXP               = VALUES[i].d_exp;
-
-            bdlm::MetricDescriptor descriptor(METRIC_NAMESPACE,
-                                              METRIC_NAME,
-                                              OBJECT_TYPE_NAME,
-                                              OBJECT_IDENTIFIER,
-                                              &testAllocator);
-
-            ASSERT(EXP == mX.incrementInstanceCount(descriptor));
-        }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // CONSTRUCTOR & BASIC ACCESSORS
-        //   Ensure the constructor appropriatly stores the specified values
-        //   and that the basic accessors return these values.
-        //
-        // Concerns:
-        //: 1 Construct an object with 'true == installAsDefault' and verofy
-        //:   the registrar is installed as the default.
-        //:
-        //: 2 The constructor correctly stores the default metric namespace,
-        //:   default object identifier prefix, and the allocator.
-        //:
-        //: 3 The basic accessors return these values.
-        //:
-        //: 4 The constructor has the internal memory management system hooked
-        //:   up properly so that *all* internally allocated memory draws from
-        //:   the same user-supplied allocator whenever one is specified.
-        //:
-        //: 5 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
-        //
-        // Plan:
-        //: 1 Create an object with 'true == installAsDefault' and verify the
-        //:   resultant default metrics registrar.  (C-1)
-        //:
-        //: 2 Create objects and verify the values returned by the basic
-        //:   accessors.  (C-2,3)
-        //:
-        //: 3 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is taken from
-        //:   and returned to the allocator.  (C-4,5)
-        //
-        // Testing:
-        //   BdlmMetricsRegistrar(*mM, mN, oIP, iAD, *bA = 0);
+        //   BdlmMetricsAdapter(*mM, mN, oIP, *bA = 0);
         //   const bsl::string& defaultMetricNamespace();
         //   const bsl::string& defaultObjectIdentifierPrefix();
         //   bslma::Allocator *allocator() const;
@@ -426,11 +335,8 @@ int main(int argc, char *argv[])
         balm::MetricsManager manager(&managerTestAllocator);
 
         {
-            Obj mX(&manager, "namespace", "prefix", true);
+            Obj mX(&manager, "namespace", "prefix");
             const Obj& X = mX;
-
-            ASSERT(bdlm::DefaultMetricsRegistrar::defaultMetricsRegistrar() ==
-                                                                          &mX);
 
             ASSERT("namespace"       == X.defaultMetricNamespace());
             ASSERT("prefix"          == X.defaultObjectIdentifierPrefix());
@@ -450,7 +356,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator testAllocator;
 
-            Obj mX(&manager, metricNamespace, prefix, false, &testAllocator);
+            Obj mX(&manager, metricNamespace, prefix, &testAllocator);
             const Obj& X = mX;
 
             ASSERT(metricNamespace == X.defaultMetricNamespace());
@@ -459,36 +365,6 @@ int main(int argc, char *argv[])
 
             ASSERT(2 == testAllocator.numAllocations());
         }
-      } break;
-      case 1: {
-        // --------------------------------------------------------------------
-        // 'false == installAsDefault'
-        //   Ensure when the constructor 'installAsDefault' is 'false', the
-        //   default metrics registrar is not affectd.
-        //
-        // Concerns:
-        //: 1 When 'false == installAsDefault', the constructor does not
-        //:   attempt to install the default metrics registrar.
-        //
-        // Plan:
-        //: 1 Create an object with 'false == installAsDefault'  and verify
-        //:   default metrics registrar is unset.  (C-1)
-        //
-        // Testing:
-        //   CONCERN: 'false == installAsDefault' works correctly
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "'false == installAsDefault'" << endl
-                                  << "===========================" << endl;
-
-        bslma::TestAllocator testAllocator;
-
-        balm::MetricsManager manager(&testAllocator);
-
-        Obj mX(&manager, "namespace", "prefix", false, &testAllocator);
-
-        ASSERT(bdlm::DefaultMetricsRegistrar::defaultMetricsRegistrar() ==
-                bdlm::DefaultMetricsRegistrar::notMonitoredMetricsRegistrar());
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
@@ -521,7 +397,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -9,9 +9,10 @@
 
 #include <bdlmt_threadpool.h>
 
-#include <bdlm_defaultmetricsregistrar.h>
+#include <bdlm_instancecount.h>
 #include <bdlm_metricdescriptor.h>
-#include <bdlm_metricsregistrar.h>
+#include <bdlm_metricsadapter.h>
+#include <bdlm_metricsregistry.h>
 
 #include <bslmt_configuration.h>
 
@@ -46,6 +47,7 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_set.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -182,36 +184,29 @@ int veryVeryVerbose;
 //                       GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-                        // ==========================
-                        // class TestMetricsRegistrar
-                        // ==========================
+                         // ========================
+                         // class TestMetricsAdapter
+                         // ========================
 
-class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
+class TestMetricsAdapter : public bdlm::MetricsAdapter {
     // This class implements a pure abstract interface for clients and
-    // suppliers of metrics registrars.  The implemtation does not register
+    // suppliers of metrics adapters.  The implemtation does not register
     // callbacks with any monitoring system, but does track registrations to
     // enable testing of thread-enabled objects metric registration.
 
     // DATA
     bsl::vector<bdlm::MetricDescriptor> d_descriptors;
     bsl::set<int>                       d_handles;
-    bsl::map<bsl::string, int>          d_count;
-    bsl::string                         d_metricNamespace;
-    bsl::string                         d_objectIdentifierPrefix;
 
   public:
     // CREATORS
-    TestMetricsRegistrar();
-        // Create a 'TestMetricsRegistrar'.
+    TestMetricsAdapter();
+        // Create a 'TestMetricsAdapter'.
 
-    ~TestMetricsRegistrar();
+    ~TestMetricsAdapter();
         // Destroy this object.
 
     // MANIPULATORS
-    int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor);
-        // Return the incremented invocation count of this method with the
-        // provided 'metricDescriptor' attributes, excluding object identifier.
-
     CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
@@ -228,46 +223,28 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Return this object to its constructed state.
     
     // ACCESSORS
-    const bsl::string& defaultMetricNamespace() const;
-        // Return the namespace attribute value to be used as the default value
-        // for 'MetricDescriptor' instances.
-
-    const bsl::string& defaultObjectIdentifierPrefix() const;
-        // Return a string to be used as the default prefix for a
-        // 'MetricDescriptor' object identifier attribute value.
-
     bool verify(const bsl::string& name) const;
         // Return 'true' if the registered descriptors match the ones expected
         // for the supplied 'name' and the provided callback handles were
         // removed, and 'false' otherwise.
 };
 
-                        // --------------------------
-                        // class TestMetricsRegistrar
-                        // --------------------------
+                         // ------------------------
+                         // class TestMetricsAdapter
+                         // ------------------------
 
 // CREATORS
-TestMetricsRegistrar::TestMetricsRegistrar()
-: d_metricNamespace("bdlm")
-, d_objectIdentifierPrefix("svc")
+TestMetricsAdapter::TestMetricsAdapter()
 {
 }
 
-TestMetricsRegistrar::~TestMetricsRegistrar()
+TestMetricsAdapter::~TestMetricsAdapter()
 {
 }
 
 // MANIPULATORS
-int TestMetricsRegistrar::incrementInstanceCount(
-                                const bdlm::MetricDescriptor& metricDescriptor)
-{
-    return ++d_count[  metricDescriptor.metricNamespace() + '.'
-                     + metricDescriptor.metricName() + '.'
-                     + metricDescriptor.objectTypeName()];
-}
-
-bdlm::MetricsRegistrar::CallbackHandle
-                              TestMetricsRegistrar::registerCollectionCallback(
+bdlm::MetricsAdapter::CallbackHandle
+                                TestMetricsAdapter::registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               /* callback */)
 {
@@ -279,46 +256,42 @@ bdlm::MetricsRegistrar::CallbackHandle
     return h;
 }
 
-int TestMetricsRegistrar::removeCollectionCallback(
-                                                  const CallbackHandle& handle)
+int TestMetricsAdapter::removeCollectionCallback(const CallbackHandle& handle)
 {
     d_handles.erase(handle);
     return 0;
 }
 
-void TestMetricsRegistrar::reset()
+void TestMetricsAdapter::reset()
 {
     d_descriptors.clear();
     d_handles.clear();
-    d_count.clear();
 }
 
 // ACCESSORS
-const bsl::string& TestMetricsRegistrar::defaultMetricNamespace() const
+bool TestMetricsAdapter::verify(const bsl::string& name) const
 {
-    return d_metricNamespace;
-}
+    static bdlm::InstanceCount::Value count = 0;
 
-const bsl::string& TestMetricsRegistrar::defaultObjectIdentifierPrefix() const
-{
-    return d_objectIdentifierPrefix;
-}
-
-bool TestMetricsRegistrar::verify(const bsl::string& name) const
-{
+    ++count;
+    
     ASSERT(d_handles.empty());
     ASSERT(1 == d_descriptors.size());
-    ASSERT(d_descriptors[0].metricNamespace() == "bdlm");
-    ASSERT(d_descriptors[0].metricName()      == "backlog");
-    ASSERT(d_descriptors[0].objectTypeName()  == "bdlmt.threadpool");
-    ASSERT(d_descriptors[0].objectIdentifier() == name);
+    ASSERT(d_descriptors[0].metricNamespace()        == "");
+    ASSERT(d_descriptors[0].metricName()             == "backlog");
+    ASSERT(d_descriptors[0].objectTypeAbbreviation() == "tp");
+    ASSERT(d_descriptors[0].objectTypeName()         == "bdlmt.threadpool");
+    ASSERT(d_descriptors[0].instanceNumber()         == count);
+    ASSERT(d_descriptors[0].objectIdentifier()       == name);
     
     return d_handles.empty()
         && 1 == d_descriptors.size()
-        && d_descriptors[0].metricNamespace()  == "bdlm"
-        && d_descriptors[0].metricName()       == "backlog"
-        && d_descriptors[0].objectTypeName()   == "bdlmt.threadpool"
-        && d_descriptors[0].objectIdentifier() == name;
+        && d_descriptors[0].metricNamespace()        == ""
+        && d_descriptors[0].metricName()             == "backlog"
+        && d_descriptors[0].objectTypeAbbreviation() == "tp"
+        && d_descriptors[0].objectTypeName()         == "bdlmt.threadpool"
+        && d_descriptors[0].instanceNumber()         == count
+        && d_descriptors[0].objectIdentifier()       == name;
 }
 
 // ============================================================================
@@ -1049,6 +1022,9 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
+    // access the metrics registry singleton before assign the global allocator
+    bdlm::MetricsRegistry::singleton();
+
     bslmt::Configuration::setDefaultThreadStackSize(
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
 
@@ -1746,11 +1722,15 @@ int main(int argc, char *argv[])
 
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-        TestMetricsRegistrar defaultRegistrar;
-        TestMetricsRegistrar otherRegistrar;
+        TestMetricsAdapter defaultAdapter;
+        TestMetricsAdapter otherAdapter;
 
-        bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
-                                                            &defaultRegistrar);
+        bdlm::MetricsRegistry& defaultRegistry =
+                                            bdlm::MetricsRegistry::singleton();
+        bdlm::MetricsRegistry  otherRegistry;
+
+        defaultRegistry.setMetricsAdapter(&defaultAdapter);
+        otherRegistry.setMetricsAdapter(&otherAdapter);
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int          MIN  = VALUES[i].d_minThreads;
@@ -1774,8 +1754,8 @@ int main(int argc, char *argv[])
                 ASSERTV(i, IDLE     == X.maxIdleTime());
                 ASSERTV(i, 0        == X.threadFailures());
             }
-            ASSERT(defaultRegistrar.verify("svc.tp.1"));
-            defaultRegistrar.reset();
+            ASSERT(defaultAdapter.verify(""));
+            defaultAdapter.reset();
 
             {
                 Obj        mX(attr, MIN, MAX, IDLE, "", 0);
@@ -1791,8 +1771,8 @@ int main(int argc, char *argv[])
                 ASSERTV(i, IDLE     == X.maxIdleTime());
                 ASSERTV(i, 0        == X.threadFailures());
             }
-            ASSERT(defaultRegistrar.verify("svc.tp.1"));
-            defaultRegistrar.reset();
+            ASSERT(defaultAdapter.verify(""));
+            defaultAdapter.reset();
 
             {
                 Obj        mX(attr, MIN, MAX, IDLE, "a", 0);
@@ -1808,11 +1788,11 @@ int main(int argc, char *argv[])
                 ASSERTV(i, IDLE     == X.maxIdleTime());
                 ASSERTV(i, 0        == X.threadFailures());
             }
-            ASSERT(defaultRegistrar.verify("a"));
-            defaultRegistrar.reset();
+            ASSERT(defaultAdapter.verify("a"));
+            defaultAdapter.reset();
 
             {
-                Obj        mX(attr, MIN, MAX, IDLE, "b", &otherRegistrar);
+                Obj        mX(attr, MIN, MAX, IDLE, "b", &otherRegistry);
                 const Obj& X = mX;
 
                 if (veryVerbose) {
@@ -1825,8 +1805,8 @@ int main(int argc, char *argv[])
                 ASSERTV(i, IDLE     == X.maxIdleTime());
                 ASSERTV(i, 0        == X.threadFailures());
             }
-            ASSERT(otherRegistrar.verify("b"));
-            otherRegistrar.reset();
+            ASSERT(otherAdapter.verify("b"));
+            otherAdapter.reset();
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -2332,11 +2312,15 @@ int main(int argc, char *argv[])
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            TestMetricsRegistrar defaultRegistrar;
-            TestMetricsRegistrar otherRegistrar;
+            TestMetricsAdapter defaultAdapter;
+            TestMetricsAdapter otherAdapter;
 
-            bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
-                                                            &defaultRegistrar);
+            bdlm::MetricsRegistry& defaultRegistry =
+                                            bdlm::MetricsRegistry::singleton();
+            bdlm::MetricsRegistry  otherRegistry;
+
+            defaultRegistry.setMetricsAdapter(&defaultAdapter);
+            otherRegistry.setMetricsAdapter(&otherAdapter);
             
             for (int i = 0; i < NUM_VALUES; ++i) {
                 // SEC and NANOSEC conflict with Solaris macros
@@ -2363,8 +2347,8 @@ int main(int argc, char *argv[])
                     ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
                     ASSERTV(i, 0         == X.threadFailures());
                 }
-                ASSERT(defaultRegistrar.verify("svc.tp.1"));
-                defaultRegistrar.reset();
+                ASSERT(defaultAdapter.verify(""));
+                defaultAdapter.reset();
 
                 {
                     Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME, "", 0);
@@ -2379,8 +2363,8 @@ int main(int argc, char *argv[])
                     ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
                     ASSERTV(i, 0         == X.threadFailures());
                 }
-                ASSERT(defaultRegistrar.verify("svc.tp.1"));
-                defaultRegistrar.reset();
+                ASSERT(defaultAdapter.verify(""));
+                defaultAdapter.reset();
 
                 {
                     Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME, "a", 0);
@@ -2395,8 +2379,8 @@ int main(int argc, char *argv[])
                     ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
                     ASSERTV(i, 0         == X.threadFailures());
                 }
-                ASSERT(defaultRegistrar.verify("a"));
-                defaultRegistrar.reset();
+                ASSERT(defaultAdapter.verify("a"));
+                defaultAdapter.reset();
 
                 {
                     Obj        mX(attr,
@@ -2404,7 +2388,7 @@ int main(int argc, char *argv[])
                                   k_MAX,
                                   IDLE_TIME,
                                   "b",
-                                  &otherRegistrar);
+                                  &otherRegistry);
                     const Obj& X = mX;
 
                     if (veryVerbose) {
@@ -2416,8 +2400,8 @@ int main(int argc, char *argv[])
                     ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
                     ASSERTV(i, 0         == X.threadFailures());
                 }
-                ASSERT(otherRegistrar.verify("b"));
-                otherRegistrar.reset();
+                ASSERT(otherAdapter.verify("b"));
+                otherAdapter.reset();
             }
 
 #ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
@@ -2810,7 +2794,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

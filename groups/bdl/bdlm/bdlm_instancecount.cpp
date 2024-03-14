@@ -1,25 +1,8 @@
-// bdlm_metricdescriptor.cpp                                          -*-C++-*-
-#include <bdlm_metricdescriptor.h>
+// bdlm_instancecount.cpp                                             -*-C++-*-
+#include <bdlm_instancecount.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlm_metricdescriptor_cpp,"$Id$ $CSID$")
-
-namespace BloombergLP {
-namespace bdlm {
-
-                          // ----------------------
-                          // class MetricDescriptor
-                          // ----------------------
-
-// CONSTANTS
-const char *bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION =
-                                                                            "";
-
-const char *bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION =
-                                                                            "";
-
-}  // close package namespace
-}  // close enterprise namespace
+BSLS_IDENT_RCSID(bdlm_instancecount_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2024 Bloomberg Finance L.P.

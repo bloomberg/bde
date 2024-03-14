@@ -1,6 +1,8 @@
 // bdlm_metricdescriptor.t.cpp                                        -*-C++-*-
 #include <bdlm_metricdescriptor.h>
 
+#include <bdlm_instancecount.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
@@ -30,16 +32,20 @@ using bsl::atoi;
 // functionality: Primary Manipulators and Basic Accessors.
 //
 // Primary Manipulators:
-//: o 'setMetricNamespace'
 //: o 'setMetricName'
-//: o 'setObjectTypeName'
+//: o 'setMetricNamespace'
+//: o 'setInstanceNumber'
 //: o 'setObjectIdentifier'
+//: o 'setObjectTypeAbbreviation'
+//: o 'setObjectTypeName'
 //
 // Basic Accessors:
-//: o 'metricNamespace'
 //: o 'metricName'
-//: o 'objectTypeName'
+//: o 'metricNamespace'
+//: o 'instanceNumber'
 //: o 'objectIdentifier'
+//: o 'objectTypeAbbreviation'
+//: o 'objectTypeName'
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
@@ -58,21 +64,25 @@ using bsl::atoi;
 // CREATORS
 // [ 2] MetricDescriptor(bslma::Allocator *basicAllocator = 0);
 // [ 7] MetricDescriptor(const MetricDescriptor&, *bA = 0);
-// [ 3] MetricDescriptor(mNs, mN, oTN, oI, bA = 0);
+// [ 3] MetricDescriptor(mNs, mN, oTIN, oTN, oTA, oI, bA = 0);
 // [ 2] ~MetricDescriptor();
 //
 // MANIPULATORS
 // [ 9] MetricDescriptor& operator=(const MetricDescriptor&);
-// [ 2] void setMetricNamespace(const bsl::string_view& value);
+// [ 2] void setInstanceNumber(Value value);
 // [ 2] void setMetricName(const bsl::string_view& value);
-// [ 2] void setObjectTypeName(const bsl::string_view& value);
+// [ 2] void setMetricNamespace(const bsl::string_view& value);
 // [ 2] void setObjectIdentifier(const bsl::string_view& value);
+// [ 2] void setObjectTypeAbbreviation(const bsl::string_view& value);
+// [ 2] void setObjectTypeName(const bsl::string_view& value);
 //
 // ACCESSORS
-// [ 4] const bsl::string& metricNamespace() const;
+// [ 4] const Value        instanceNumber() const;
 // [ 4] const bsl::string& metricName() const;
-// [ 4] const bsl::string& objectTypeName() const;
+// [ 4] const bsl::string& metricNamespace() const;
 // [ 4] const bsl::string& objectIdentifier() const;
+// [ 4] const bsl::string& objectTypeAbbreviation() const;
+// [ 4] const bsl::string& objectTypeName() const;
 //
 // FREE OPERATORS
 // [ 6] bool operator==(const MetricDescriptor& lhs, rhs);
@@ -101,7 +111,6 @@ static int             verbose;
 static int         veryVerbose;
 static int     veryVeryVerbose;
 static int veryVeryVeryVerbose;
-static bslma::TestAllocator *pa;
 
 // ============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
@@ -139,7 +148,8 @@ static bslma::TestAllocator *pa;
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlm::MetricDescriptor Obj;
+typedef bdlm::MetricDescriptor     Obj;
+typedef bdlm::InstanceCount::Value Value;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -162,7 +172,6 @@ int main(int argc, char* argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator  ta(veryVeryVeryVerbose);
-    pa = &ta;
 
     switch (test) { case 0:
       case 10: {
@@ -283,26 +292,39 @@ int main(int argc, char* argv[])
         if (verbose) cout << "\nUse table of distinct object values." << endl;
 
         static const struct {
-            int         d_line;  // source line number
-            const char *d_mns;   // metric namespace
-            const char *d_mn;    // metric name
-            const char *d_otn;   // object type name
-            const char *d_oi;    // object identifier
+            int          d_line;  // source line number
+            const char  *d_mns;   // metric namespace
+            const char  *d_mn;    // metric name
+            const Value  d_otin;  // object type instance number
+            const char  *d_otn;   // object type name
+            const char  *d_ota;   // object type abbreviation
+            const char  *d_oi;    // object identifier
         } DATA[] = {
-            //LN  MNS  MN   OTN  OI
-            //--  ---  ---  ---  ---
-            { L_,  "",  "",  "",  "" },
-            { L_, " ", " ", " ", " " },
-            { L_, "a", " ", " ", " " },
-            { L_, "a", "b", " ", " " },
-            { L_, " ", "b", " ", " " },
-            { L_, " ", "b", "c", " " },
-            { L_, " ", " ", "c", " " },
-            { L_, " ", " ", "c", "d" },
-            { L_, " ", " ", " ", "d" },
-            { L_, "a", "b", "c", " " },
-            { L_, " ", "b", "c", "d" },
-            { L_, "a", "b", "c", "d" },
+            //LN  MNS  MN   OTIN  OTN  OTA  OI
+            //--  ---  ---  ----  ---  ---  ---
+            { L_,  "",  "",    0,  "",  "",  "" },
+            { L_, " ", " ",    0, " ", " ", " " },
+            { L_, "a", " ",    0, " ", " ", " " },
+            { L_, "a", "b",    0, " ", " ", " " },
+            { L_, " ", "b",    0, " ", " ", " " },
+            { L_, " ", "b",    1, " ", " ", " " },
+            { L_, " ", " ",    1, " ", " ", " " },
+            { L_, " ", " ",    1, "c", " ", " " },
+            { L_, " ", " ",    0, "c", " ", " " },
+            { L_, " ", " ",    0, "c", "d", " " },
+            { L_, " ", " ",    0, " ", "d", " " },
+            { L_, " ", " ",    0, " ", "d", "e" },
+            { L_, " ", " ",    0, " ", " ", "e" },
+            { L_, "a", "b",    1, " ", " ", " " },
+            { L_, " ", "b",    1, "c", " ", " " },
+            { L_, " ", " ",    1, "c", "d", " " },
+            { L_, " ", " ",    0, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", " ", " " },
+            { L_, " ", "b",    1, "c", "d", " " },
+            { L_, " ", " ",    1, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", "d", " " },
+            { L_, " ", "b",    1, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", "d", "e" },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -310,15 +332,17 @@ int main(int argc, char* argv[])
                          "\nCopy-assign every value into every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE1 = DATA[ti].d_line;
-            const char *MNS1  = DATA[ti].d_mns;
-            const char *MN1   = DATA[ti].d_mn;
-            const char *OTN1  = DATA[ti].d_otn;
-            const char *OI1   = DATA[ti].d_oi;
+            const int    LINE1 = DATA[ti].d_line;
+            const char  *MNS1  = DATA[ti].d_mns;
+            const char  *MN1   = DATA[ti].d_mn;
+            const Value  OTIN1 = DATA[ti].d_otin;
+            const char  *OTN1  = DATA[ti].d_otn;
+            const char  *OTA1  = DATA[ti].d_ota;
+            const char  *OI1   = DATA[ti].d_oi;
 
-            Obj mZ(MNS1, MN1, OTN1, OI1);  const Obj& Z = mZ;
+            Obj mZ(MNS1, MN1, OTIN1, OTN1, OTA1, OI1);  const Obj& Z = mZ;
 
-            Obj mZZ(MNS1, MN1, OTN1, OI1);  const Obj& ZZ = mZZ;
+            Obj mZZ(MNS1, MN1, OTIN1, OTN1, OTA1, OI1);  const Obj& ZZ = mZZ;
 
             // Ensure the first row of the table contains the
             // default-constructed value.
@@ -330,13 +354,15 @@ int main(int argc, char* argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int   LINE2 = DATA[tj].d_line;
-                const char *MNS2  = DATA[tj].d_mns;
-                const char *MN2   = DATA[tj].d_mn;
-                const char *OTN2  = DATA[tj].d_otn;
-                const char *OI2   = DATA[tj].d_oi;
+                const int   LINE2  = DATA[tj].d_line;
+                const char  *MNS2  = DATA[tj].d_mns;
+                const char  *MN2   = DATA[tj].d_mn;
+                const Value  OTIN2 = DATA[tj].d_otin;
+                const char  *OTN2  = DATA[tj].d_otn;
+                const char  *OTA2  = DATA[tj].d_ota;
+                const char  *OI2   = DATA[tj].d_oi;
 
-                Obj mX(MNS2, MN2, OTN2, OI2);  const Obj& X = mX;
+                Obj mX(MNS2, MN2, OTIN2, OTN2, OTA2, OI2);  const Obj& X = mX;
 
                 LOOP2_ASSERT(LINE1, LINE2, (Z == X) == (LINE1 == LINE2));
 
@@ -350,9 +376,10 @@ int main(int argc, char* argv[])
             if (verbose) cout << "Testing self-assignment" << endl;
 
             {
-                Obj mX(MNS1, MN1, OTN1, OI1);
+                Obj mX(MNS1, MN1, OTIN1, OTN1, OTA1, OI1);
 
-                Obj mZZ(MNS1, MN1, OTN1, OI1);  const Obj& ZZ = mZZ;
+                Obj        mZZ(MNS1, MN1, OTIN1, OTN1, OTA1, OI1);
+                const Obj& ZZ = mZZ;
 
                 const Obj& Z = mX;
 
@@ -497,23 +524,36 @@ int main(int argc, char* argv[])
             int         d_line;  // source line number
             const char *d_mns;   // metric namespace
             const char *d_mn;    // metric name
+            const int   d_otin;  // object type instance number
             const char *d_otn;   // object type name
+            const char *d_ota;   // object type abbreviation
             const char *d_oi;    // object identifier
         } DATA[] = {
-            //LN  MNS  MN   OTN  OI
-            //--  ---  ---  ---  ---
-            { L_,  "",  "",  "",  "" },
-            { L_, " ", " ", " ", " " },
-            { L_, "a", " ", " ", " " },
-            { L_, "a", "b", " ", " " },
-            { L_, " ", "b", " ", " " },
-            { L_, " ", "b", "c", " " },
-            { L_, " ", " ", "c", " " },
-            { L_, " ", " ", "c", "d" },
-            { L_, " ", " ", " ", "d" },
-            { L_, "a", "b", "c", " " },
-            { L_, " ", "b", "c", "d" },
-            { L_, "a", "b", "c", "d" },
+            //LN  MNS  MN   OTIN  OTN  OTA  OI
+            //--  ---  ---  ----  ---  ---  ---
+            { L_,  "",  "",    0,  "",  "",  "" },
+            { L_, " ", " ",    0, " ", " ", " " },
+            { L_, "a", " ",    0, " ", " ", " " },
+            { L_, "a", "b",    0, " ", " ", " " },
+            { L_, " ", "b",    0, " ", " ", " " },
+            { L_, " ", "b",    1, " ", " ", " " },
+            { L_, " ", " ",    1, " ", " ", " " },
+            { L_, " ", " ",    1, "c", " ", " " },
+            { L_, " ", " ",    0, "c", " ", " " },
+            { L_, " ", " ",    0, "c", "d", " " },
+            { L_, " ", " ",    0, " ", "d", " " },
+            { L_, " ", " ",    0, " ", "d", "e" },
+            { L_, " ", " ",    0, " ", " ", "e" },
+            { L_, "a", "b",    1, " ", " ", " " },
+            { L_, " ", "b",    1, "c", " ", " " },
+            { L_, " ", " ",    1, "c", "d", " " },
+            { L_, " ", " ",    0, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", " ", " " },
+            { L_, " ", "b",    1, "c", "d", " " },
+            { L_, " ", " ",    1, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", "d", " " },
+            { L_, " ", "b",    1, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", "d", "e" },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -524,14 +564,17 @@ int main(int argc, char* argv[])
             const int   LINE = DATA[ti].d_line;
             const char *MNS  = DATA[ti].d_mns;
             const char *MN   = DATA[ti].d_mn;
+            const int   OTIN = DATA[ti].d_otin;
             const char *OTN  = DATA[ti].d_otn;
+            const char *OTA  = DATA[ti].d_ota;
             const char *OI   = DATA[ti].d_oi;
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            Obj mZ(MNS, MN, OTN, OI, &scratch);   const Obj& Z = mZ;
+            Obj mZ(MNS, MN, OTIN, OTN, OTA, OI, &scratch);   const Obj& Z = mZ;
 
-            Obj mZZ(MNS, MN, OTN, OI, &scratch);  const Obj& ZZ = mZZ;
+            Obj        mZZ(MNS, MN, OTIN, OTN, OTA, OI, &scratch);
+            const Obj& ZZ = mZZ;
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -709,68 +752,85 @@ int main(int argc, char* argv[])
             "\nCreate a table of distinct, but similar object values." << endl;
 
         static const struct {
-            int         d_line;  // source line number
-            const char *d_mns;   // metric namespace
-            const char *d_mn;    // metric name
-            const char *d_otn;   // object type name
-            const char *d_oi;    // object identifier
+            int          d_line;  // source line number
+            const char  *d_mns;   // metric namespace
+            const char  *d_mn;    // metric name
+            const Value  d_otin;  // object type instance number
+            const char  *d_otn;   // object type name
+            const char  *d_ota;   // object type abbreviation
+            const char  *d_oi;    // object identifier
         } DATA[] = {
             // The first row of the table below represents an object value
             // consisting of "baseline" attribute values.  Each subsequent row
             // differs (slightly) from the first in exactly one attribute
             // value.
 
-            //LN  MNS  MN   OTN  OI
-            //--  ---  ---  ---  ---
-            { L_, " ", " ", " ", " " },  // baseline
+            //LN  MNS  MN   OTIN  OTN  OTA  OI
+            //--  ---  ---  ----  ---  ---  ---
+            { L_, " ", " ",    0, " ", " ", " " },  // baseline
 
-            { L_, "a", " ", " ", " " },
-            { L_, "a", "b", " ", " " },
-            { L_, " ", "b", " ", " " },
-            { L_, " ", "b", "c", " " },
-            { L_, " ", " ", "c", " " },
-            { L_, " ", " ", "c", "d" },
-            { L_, " ", " ", " ", "d" },
-            { L_, "a", "b", "c", " " },
-            { L_, " ", "b", "c", "d" },
-            { L_, "a", "b", "c", "d" },
+            { L_, "a", " ",    0, " ", " ", " " },
+            { L_, "a", "b",    0, " ", " ", " " },
+            { L_, " ", "b",    0, " ", " ", " " },
+            { L_, " ", "b",    1, " ", " ", " " },
+            { L_, " ", " ",    1, " ", " ", " " },
+            { L_, " ", " ",    1, "c", " ", " " },
+            { L_, " ", " ",    0, "c", " ", " " },
+            { L_, " ", " ",    0, "c", "d", " " },
+            { L_, " ", " ",    0, " ", "d", " " },
+            { L_, " ", " ",    0, " ", "d", "e" },
+            { L_, " ", " ",    0, " ", " ", "e" },
+            { L_, "a", "b",    1, " ", " ", " " },
+            { L_, " ", "b",    1, "c", " ", " " },
+            { L_, " ", " ",    1, "c", "d", " " },
+            { L_, " ", " ",    0, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", " ", " " },
+            { L_, " ", "b",    1, "c", "d", " " },
+            { L_, " ", " ",    1, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", "d", " " },
+            { L_, " ", "b",    1, "c", "d", "e" },
+            { L_, "a", "b",    1, "c", "d", "e" },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE1 = DATA[ti].d_line;
-            const char *MNS1  = DATA[ti].d_mns;
-            const char *MN1   = DATA[ti].d_mn;
-            const char *OTN1  = DATA[ti].d_otn;
-            const char *OI1   = DATA[ti].d_oi;
+            const int    LINE1 = DATA[ti].d_line;
+            const char  *MNS1  = DATA[ti].d_mns;
+            const char  *MN1   = DATA[ti].d_mn;
+            const Value  OTIN1 = DATA[ti].d_otin;
+            const char  *OTN1  = DATA[ti].d_otn;
+            const char  *OTA1  = DATA[ti].d_ota;
+            const char  *OI1   = DATA[ti].d_oi;
 
             if (veryVerbose) { T_ P_(LINE1) P_(MNS1)  P_(MN1)  P_(OTN1)
                                   P(OI1) }
 
             // Ensure an object compares correctly with itself (alias test).
             {
-                Obj mX(MNS1, MN1, OTN1, OI1);  const Obj& X = mX;
+                Obj mX(MNS1, MN1, OTIN1, OTN1, OTA1, OI1);  const Obj& X = mX;
 
                 LOOP1_ASSERT(LINE1,   X == X);
                 LOOP1_ASSERT(LINE1, !(X != X));
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int   LINE2 = DATA[tj].d_line;
-                const char *MNS2  = DATA[tj].d_mns;
-                const char *MN2   = DATA[tj].d_mn;
-                const char *OTN2  = DATA[tj].d_otn;
-                const char *OI2   = DATA[tj].d_oi;
+                const int    LINE2 = DATA[tj].d_line;
+                const char  *MNS2  = DATA[tj].d_mns;
+                const char  *MN2   = DATA[tj].d_mn;
+                const Value  OTIN2 = DATA[tj].d_otin;
+                const char  *OTN2  = DATA[tj].d_otn;
+                const char  *OTA2  = DATA[tj].d_ota;
+                const char  *OI2   = DATA[tj].d_oi;
 
                 if (veryVerbose) { T_ P_(LINE2) P_(MNS2)  P_(MN2)  P_(OTN2)
                                    P(OI2) }
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
-                Obj mX(MNS1, MN1, OTN1, OI1);  const Obj& X = mX;
-                Obj mY(MNS2, MN2, OTN2, OI2);  const Obj& Y = mY;
+                Obj mX(MNS1, MN1, OTIN1, OTN1, OTA1, OI1);  const Obj& X = mX;
+                Obj mY(MNS2, MN2, OTIN2, OTN2, OTA2, OI2);  const Obj& Y = mY;
 
                 // Verify value, and commutative.
 
@@ -816,10 +876,12 @@ int main(int argc, char* argv[])
         //:   to the object, return the correct values.  (C-1,2)
         //
         // Testing:
-        //   const bsl::string& metricNamespace() const;
+        //   const Value        instanceNumber() const;
         //   const bsl::string& metricName() const;
-        //   const bsl::string& objectTypeName() const;
+        //   const bsl::string& metricNamespace() const;
         //   const bsl::string& objectIdentifier() const;
+        //   const bsl::string& objectTypeAbbreviation() const;
+        //   const bsl::string& objectTypeName() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -827,34 +889,42 @@ int main(int argc, char* argv[])
                           << "=================" << endl;
 
         {
-            bsl::string mns = "namespace";
-            bsl::string mn  = "name";
-            bsl::string otn = "object type name";
-            bsl::string oi  = "object identifier";
+            bsl::string mns  = "namespace";
+            bsl::string mn   = "name";
+            Value       otin = 1;
+            bsl::string otn  = "object type name";
+            bsl::string ota  = "object type abbr";
+            bsl::string oi   = "object identifier";
 
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-            Obj mX(mns, mn, otn, oi, &sa);  const Obj& X = mX;
+            Obj mX(mns, mn, otin, otn, ota, oi, &sa);  const Obj& X = mX;
 
-            ASSERT(mns == X.metricNamespace());
-            ASSERT(mn  == X.metricName());
-            ASSERT(otn == X.objectTypeName());
-            ASSERT(oi  == X.objectIdentifier());
+            ASSERT(mns  == X.metricNamespace());
+            ASSERT(mn   == X.metricName());
+            ASSERT(otin == X.instanceNumber());
+            ASSERT(otn  == X.objectTypeName());
+            ASSERT(ota  == X.objectTypeAbbreviation());
+            ASSERT(oi   == X.objectIdentifier());
         }
         {
-            bsl::string mns = "namespace2";
-            bsl::string mn  = "name2";
-            bsl::string otn = "object type name2";
-            bsl::string oi  = "object identifier2";
+            bsl::string mns  = "namespace2";
+            bsl::string mn   = "name2";
+            Value       otin = 2;
+            bsl::string otn  = "object type name2";
+            bsl::string ota  = "object type abbr2";
+            bsl::string oi   = "object identifier2";
 
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-            Obj mX(mns, mn, otn, oi, &sa);  const Obj& X = mX;
+            Obj mX(mns, mn, otin, otn, ota, oi, &sa);  const Obj& X = mX;
 
-            ASSERT(mns == X.metricNamespace());
-            ASSERT(mn  == X.metricName());
-            ASSERT(otn == X.objectTypeName());
-            ASSERT(oi  == X.objectIdentifier());
+            ASSERT(mns  == X.metricNamespace());
+            ASSERT(mn   == X.metricName());
+            ASSERT(otin == X.instanceNumber());
+            ASSERT(otn  == X.objectTypeName());
+            ASSERT(ota  == X.objectTypeAbbreviation());
+            ASSERT(oi   == X.objectIdentifier());
         }
       } break;
       case 3: {
@@ -874,7 +944,7 @@ int main(int argc, char* argv[])
         //:   (untested) basic accessors.  (C-1)
         //
         // Testing:
-        //   MetricDescriptor(mNs, mN, oTN, oI, bA = 0);
+        //   MetricDescriptor(mNs, mN, oTIN, oTN, oTA, oI, bA = 0);
         //   CONCERN: Allocator is propagated to the stored objects.
         // --------------------------------------------------------------------
 
@@ -887,46 +957,57 @@ int main(int argc, char* argv[])
                 cout << "Test value constructor without allocator." << endl;
             }
 
-            bsl::string mns = "namespace";
-            bsl::string mn  = "name";
-            bsl::string otn = "object type name";
-            bsl::string oi  = "object identifier";
+            bsl::string mns  = "namespace";
+            bsl::string mn   = "name";
+            Value       otin = 1;
+            bsl::string otn  = "object type name";
+            bsl::string ota  = "object type abbr";
+            bsl::string oi   = "object identifier";
 
-            Obj mX(mns, mn, otn, oi);  const Obj& X = mX;
+            Obj mX(mns, mn, otin, otn, ota, oi);  const Obj& X = mX;
 
             ASSERT(&defaultAllocator == X.metricNamespace().get_allocator());
             ASSERT(&defaultAllocator == X.metricName().get_allocator());
             ASSERT(&defaultAllocator == X.objectTypeName().get_allocator());
+            ASSERT(&defaultAllocator ==
+                                   X.objectTypeAbbreviation().get_allocator());
             ASSERT(&defaultAllocator == X.objectIdentifier().get_allocator());
 
-            ASSERT(mns == X.metricNamespace());
-            ASSERT(mn  == X.metricName());
-            ASSERT(otn == X.objectTypeName());
-            ASSERT(oi  == X.objectIdentifier());
+            ASSERT(mns  == X.metricNamespace());
+            ASSERT(mn   == X.metricName());
+            ASSERT(otin == X.instanceNumber());
+            ASSERT(otn  == X.objectTypeName());
+            ASSERT(ota  == X.objectTypeAbbreviation());
+            ASSERT(oi   == X.objectIdentifier());
         }
         {
             if (verbose) {
                 cout << "Test value constructor with allocator." << endl;
             }
 
-            bsl::string mns = "namespace2";
-            bsl::string mn  = "name2";
-            bsl::string otn = "object type name2";
-            bsl::string oi  = "object identifier2";
+            bsl::string mns  = "namespace2";
+            bsl::string mn   = "name2";
+            Value       otin = 2;
+            bsl::string otn  = "object type name2";
+            bsl::string ota  = "object type abbr2";
+            bsl::string oi   = "object identifier2";
 
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-            Obj mX(mns, mn, otn, oi, &sa);  const Obj& X = mX;
+            Obj mX(mns, mn, otin, otn, ota, oi, &sa);  const Obj& X = mX;
 
             ASSERT(&sa == X.metricNamespace().get_allocator());
             ASSERT(&sa == X.metricName().get_allocator());
             ASSERT(&sa == X.objectTypeName().get_allocator());
+            ASSERT(&sa == X.objectTypeAbbreviation().get_allocator());
             ASSERT(&sa == X.objectIdentifier().get_allocator());
 
-            ASSERT(mns == X.metricNamespace());
-            ASSERT(mn  == X.metricName());
-            ASSERT(otn == X.objectTypeName());
-            ASSERT(oi  == X.objectIdentifier());
+            ASSERT(mns  == X.metricNamespace());
+            ASSERT(mn   == X.metricName());
+            ASSERT(otin == X.instanceNumber());
+            ASSERT(otn  == X.objectTypeName());
+            ASSERT(ota  == X.objectTypeAbbreviation());
+            ASSERT(oi   == X.objectIdentifier());
         }
       } break;
       case 2: {
@@ -935,10 +1016,12 @@ int main(int argc, char* argv[])
         //   The basic concern is that the default constructor, the destructor,
         //   and, under normal conditions (i.e., no aliasing), the primary
         //   manipulators:
-        //      - 'setMetricNamespace'
+        //      - 'setInstanceNumber'
         //      - 'setMetricName'
-        //      - 'setObjectTypeName'
+        //      - 'setMetricNamespace'
         //      - 'setObjectIdentifier'
+        //      - 'setObjectTypeAbbreviation'
+        //      - 'setObjectTypeName'
         //   operate as expected.
         //
         // Concerns:
@@ -961,10 +1044,12 @@ int main(int argc, char* argv[])
         // Testing:
         //   MetricDescriptor();
         //   ~MetricDescriptor();
-        //   void setMetricNamespace(const bsl::string_view& value);
+        //   void setInstanceNumber(Value value);
         //   void setMetricName(const bsl::string_view& value);
-        //   void setObjectTypeName(const bsl::string_view& value);
+        //   void setMetricNamespace(const bsl::string_view& value);
         //   void setObjectIdentifier(const bsl::string_view& value);
+        //   void setObjectTypeAbbreviation(const bsl::string_view& value);
+        //   void setObjectTypeName(const bsl::string_view& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -985,11 +1070,14 @@ int main(int argc, char* argv[])
             ASSERT(empty == X.metricNamespace());
             ASSERT(empty == X.metricName());
             ASSERT(empty == X.objectTypeName());
+            ASSERT(empty == X.objectTypeAbbreviation());
             ASSERT(empty == X.objectIdentifier());
 
             ASSERT(&defaultAllocator == X.metricNamespace().get_allocator());
             ASSERT(&defaultAllocator == X.metricName().get_allocator());
             ASSERT(&defaultAllocator == X.objectTypeName().get_allocator());
+            ASSERT(&defaultAllocator ==
+                                   X.objectTypeAbbreviation().get_allocator());
             ASSERT(&defaultAllocator == X.objectIdentifier().get_allocator());
         }
         {
@@ -1002,14 +1090,17 @@ int main(int argc, char* argv[])
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
             Obj mX(&sa);  const Obj& X = mX;
 
+            ASSERT(    0 == X.instanceNumber());
             ASSERT(empty == X.metricNamespace());
             ASSERT(empty == X.metricName());
             ASSERT(empty == X.objectTypeName());
+            ASSERT(empty == X.objectTypeAbbreviation());
             ASSERT(empty == X.objectIdentifier());
 
             ASSERT(&sa == X.metricNamespace().get_allocator());
             ASSERT(&sa == X.metricName().get_allocator());
             ASSERT(&sa == X.objectTypeName().get_allocator());
+            ASSERT(&sa == X.objectTypeAbbreviation().get_allocator());
             ASSERT(&sa == X.objectIdentifier().get_allocator());
         }
         {
@@ -1020,41 +1111,70 @@ int main(int argc, char* argv[])
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
             Obj mX(&sa);  const Obj& X = mX;
 
+            ASSERT(0     == X.instanceNumber());
             ASSERT(empty == X.metricNamespace());
             ASSERT(empty == X.metricName());
             ASSERT(empty == X.objectTypeName());
+            ASSERT(empty == X.objectTypeAbbreviation());
+            ASSERT(empty == X.objectIdentifier());
+
+            mX.setInstanceNumber(123);
+
+            ASSERT(123   == X.instanceNumber());
+            ASSERT(empty == X.metricNamespace());
+            ASSERT(empty == X.metricName());
+            ASSERT(empty == X.objectTypeName());
+            ASSERT(empty == X.objectTypeAbbreviation());
             ASSERT(empty == X.objectIdentifier());
 
             bsl::string mns = "namespace";
             mX.setMetricNamespace(mns);
 
+            ASSERT(123   == X.instanceNumber());
             ASSERT(mns   == X.metricNamespace());
             ASSERT(empty == X.metricName());
             ASSERT(empty == X.objectTypeName());
+            ASSERT(empty == X.objectTypeAbbreviation());
             ASSERT(empty == X.objectIdentifier());
 
             bsl::string mn = "name";
             mX.setMetricName(mn);
 
+            ASSERT(123   == X.instanceNumber());
             ASSERT(mns   == X.metricNamespace());
             ASSERT(mn    == X.metricName());
             ASSERT(empty == X.objectTypeName());
+            ASSERT(empty == X.objectTypeAbbreviation());
             ASSERT(empty == X.objectIdentifier());
 
             bsl::string otn = "object type name";
             mX.setObjectTypeName(otn);
 
+            ASSERT(123   == X.instanceNumber());
             ASSERT(mns   == X.metricNamespace());
             ASSERT(mn    == X.metricName());
             ASSERT(otn   == X.objectTypeName());
+            ASSERT(empty == X.objectTypeAbbreviation());
+            ASSERT(empty == X.objectIdentifier());
+
+            bsl::string ota = "object type abbr";
+            mX.setObjectTypeAbbreviation(ota);
+
+            ASSERT(123   == X.instanceNumber());
+            ASSERT(mns   == X.metricNamespace());
+            ASSERT(mn    == X.metricName());
+            ASSERT(otn   == X.objectTypeName());
+            ASSERT(ota   == X.objectTypeAbbreviation());
             ASSERT(empty == X.objectIdentifier());
 
             bsl::string oi = "object identifier";
             mX.setObjectIdentifier(oi);
 
+            ASSERT(123   == X.instanceNumber());
             ASSERT(mns   == X.metricNamespace());
             ASSERT(mn    == X.metricName());
             ASSERT(otn   == X.objectTypeName());
+            ASSERT(ota   == X.objectTypeAbbreviation());
             ASSERT(oi    == X.objectIdentifier());
         }
       } break;
@@ -1086,6 +1206,7 @@ int main(int argc, char* argv[])
         ASSERT(empty == X.metricNamespace());
         ASSERT(empty == X.metricName());
         ASSERT(empty == X.objectTypeName());
+        ASSERT(empty == X.objectTypeAbbreviation());
         ASSERT(empty == X.objectIdentifier());
 
       } break;
@@ -1113,7 +1234,7 @@ int main(int argc, char* argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

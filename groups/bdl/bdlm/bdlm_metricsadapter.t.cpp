@@ -1,5 +1,5 @@
-// bdlm_metricsregistrar.t.cpp                                        -*-C++-*-
-#include <bdlm_metricsregistrar.h>
+// bdlm_metricsadapter.t.cpp                                          -*-C++-*-
+#include <bdlm_metricsadapter.h>
 
 #include <bdlm_metric.h>            // for testing only
 #include <bdlm_metricdescriptor.h>  // for testing only
@@ -44,16 +44,11 @@ using bsl::endl;
 //: o At no time is memory allocated from the default alloc. except examples.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 1] virtual ~MetricsRegistrar();
+// [ 1] virtual ~MetricsAdapter();
 //
 // MANIPULATORS
-// [ 1] virtual int incrementInstanceCount(metricDescriptor) = 0;
 // [ 1] virtual CH registerCollectionCallback(metricDescriptor, cb) = 0;
 // [ 1] virtual int removeCollectionCallback(const CH& handle) = 0;
-//
-// ACCESSORS
-// [ 1] virtual const bsl::string& defaultMetricNamespace() const = 0;
-// [ 1] virtual c bsl::string& defaultObjectIdentifierPrefix() c = 0;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
@@ -123,7 +118,7 @@ void testMetric(BloombergLP::bdlm::Metric *value)
 
 namespace {
 
-typedef bdlm::MetricsRegistrar ProtocolClass;
+typedef bdlm::MetricsAdapter ProtocolClass;
 
 static bsl::string s_returnString;
 
@@ -148,18 +143,6 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         (void)handle;
         return markDone();
     }
-
-    const bsl::string& defaultMetricNamespace() const
-    {
-        markDone();
-        return s_returnString;
-    }
-
-    const bsl::string& defaultObjectIdentifierPrefix() const
-    {
-        markDone();
-        return s_returnString;
-    }
 };
 
 }  // close unnamed namespace
@@ -172,11 +155,11 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing the 'bdlt::TimetableLoader' Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing the 'bdlm::MetricsAdapter' Protocol
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates an elided concrete implementation of the
-// 'bdlm::MetricsRegistrar' protocol that allows for registering metric
-// callback functions with a monitoring system.
+// 'bdlm::MetricsAdapter' protocol that allows for registering metric callback
+// functions with a monitoring system.
 //
 // First, we define the interface of a limited 'my_MetricsMonitor' class that
 // allows only one metric collection function to be registered:
@@ -187,26 +170,25 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         // ...
 
         // DATA
-        bdlm::Metric                     d_value;    // metric supplied to
-                                                     // 'd_callback'
+        bdlm::Metric                   d_value;     // metric supplied to
+                                                    // 'd_callback'
 
-        bsl::string                      d_name;     // register metric name
+        bsl::string                    d_name;      // register metric name
 
-        bdlm::MetricsRegistrar::Callback d_callback; // registered callback
+        bdlm::MetricsAdapter::Callback d_callback;  // registered callback
 
       public:
         // ...
 
         // MANIPULATORS
-        bdlm::MetricsRegistrar::CallbackHandle registerCallback(
-                              const bsl::string&                     name,
-                              const bdlm::MetricsRegistrar::Callback callback);
+        bdlm::MetricsAdapter::CallbackHandle registerCallback(
+                                const bsl::string&                   name,
+                                const bdlm::MetricsAdapter::Callback callback);
             // Register the specified 'callback' with this monitoring system,
             // using the specified 'name' for display purposes.  Return a
             // callback handle to be used with 'removeCallback'.
 
-        int removeCallback(
-                         const bdlm::MetricsRegistrar::CallbackHandle& handle);
+        int removeCallback(const bdlm::MetricsAdapter::CallbackHandle& handle);
             // Remove the callback associated with the specified 'handle'.
             // Return 0 on success, or a non-zero value if 'handle' cannot be
             // found.
@@ -226,9 +208,9 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // Then, we implement the functions:
 //..
     // MANIPULATORS
-    bdlm::MetricsRegistrar::CallbackHandle my_MetricsMonitor::registerCallback(
-                               const bsl::string&                     name,
-                               const bdlm::MetricsRegistrar::Callback callback)
+    bdlm::MetricsAdapter::CallbackHandle my_MetricsMonitor::registerCallback(
+                                 const bsl::string&                   name,
+                                 const bdlm::MetricsAdapter::Callback callback)
     {
         d_value    = bdlm::Metric::Gauge(0.0);
         d_name     = name;
@@ -238,7 +220,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     }
 
     int my_MetricsMonitor::removeCallback(
-                          const bdlm::MetricsRegistrar::CallbackHandle& handle)
+                            const bdlm::MetricsAdapter::CallbackHandle& handle)
     {
         (void)handle;
         return 0;
@@ -260,43 +242,27 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         return d_value.theGauge();
     }
 //..
-// Next, we define the implementation class of the 'bdlm::MetricsRegistrar'
+// Next, we define the implementation class of the 'bdlm::MetricsAdapter'
 // protocol:
 //..
-    class my_MetricsRegistrar : public bdlm::MetricsRegistrar {
+    class my_MetricsAdapter : public bdlm::MetricsAdapter {
         // This class implements an interface for clients and suppliers of
-        // metrics registrars.
+        // metrics adapters.
 
         // DATA
-        my_MetricsMonitor          *d_monitor_p;               // pointer to
-                                                               // monitor to
-                                                               // use for
-                                                               // metrics (held
-                                                               // not owned)
-
-        bsl::string                 d_metricNamespace;         // namespace
-
-        bsl::string                 d_objectIdentifierPrefix;  // prefix
-
-        bsl::map<bsl::string, int>  d_count;                   // instance
-                                                               // counts
+        my_MetricsMonitor *d_monitor_p;  // pointer to monitor to use for
+                                         // metrics (held not owned)
 
       public:
         // CREATORS
-        my_MetricsRegistrar(my_MetricsMonitor *monitor);
-            // Create a 'my_MetricsRegistrar' using the specified 'monitor' for
+        my_MetricsAdapter(my_MetricsMonitor *monitor);
+            // Create a 'my_MetricsAdapter' using the specified 'monitor' for
             // registered callbacks.
 
-        ~my_MetricsRegistrar();
+        ~my_MetricsAdapter();
             // Destroy this object.
 
         // MANIPULATORS
-        int incrementInstanceCount(
-                               const bdlm::MetricDescriptor& metricDescriptor);
-            // Return the incremented invocation count of this method with the
-            // provided 'metricDescriptor' attributes, excluding object
-            // identifier.
-
         CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
@@ -311,67 +277,39 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
             // Remove the callback associated with the specified 'handle'.
             // Return 0 on success, or a non-zero value if 'handle' cannot be
             // found.
-
-        // ACCESSORS
-        const bsl::string& defaultMetricNamespace() const;
-            // Return the namespace attribute value to be used as the default
-            // value for 'MetricDescriptor' instances.
-
-        const bsl::string& defaultObjectIdentifierPrefix() const;
-            // Return a string to be used as the default prefix for a
-            // 'MetricDescriptor' object identifier attribute value.
     };
 //..
-// Then, we implement the methods of 'myMetricsRegistrar':
+// Then, we implement the methods of 'myMetricsAdapter':
 //..
     // CREATORS
-    my_MetricsRegistrar::my_MetricsRegistrar(my_MetricsMonitor *monitor)
+    my_MetricsAdapter::my_MetricsAdapter(my_MetricsMonitor *monitor)
     : d_monitor_p(monitor)
     {
     }
 
-    my_MetricsRegistrar::~my_MetricsRegistrar()
+    my_MetricsAdapter::~my_MetricsAdapter()
     {
     }
 
     // MANIPULATORS
-    int my_MetricsRegistrar::incrementInstanceCount(
-                                const bdlm::MetricDescriptor& metricDescriptor)
-    {
-        return ++d_count[  metricDescriptor.metricNamespace() + '.'
-                         + metricDescriptor.metricName() + '.'
-                         + metricDescriptor.objectTypeName()];
-    }
-
-    bdlm::MetricsRegistrar::CallbackHandle
-                               my_MetricsRegistrar::registerCollectionCallback(
+    bdlm::MetricsAdapter::CallbackHandle
+                                 my_MetricsAdapter::registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback)
     {
         bsl::string name = metricDescriptor.metricNamespace() + '.'
                          + metricDescriptor.metricName() + '.'
                          + metricDescriptor.objectTypeName() + '.'
+                         + metricDescriptor.objectTypeAbbreviation() + '.'
                          + metricDescriptor.objectIdentifier();
 
         return d_monitor_p->registerCallback(name, callback);
     }
 
-    int my_MetricsRegistrar::removeCollectionCallback(
-                          const bdlm::MetricsRegistrar::CallbackHandle& handle)
+    int my_MetricsAdapter::removeCollectionCallback(
+                            const bdlm::MetricsAdapter::CallbackHandle& handle)
     {
         return d_monitor_p->removeCallback(handle);
-    }
-
-    // ACCESSORS
-    const bsl::string& my_MetricsRegistrar::defaultMetricNamespace() const
-    {
-        return d_metricNamespace;
-    }
-
-    const bsl::string&
-                     my_MetricsRegistrar::defaultObjectIdentifierPrefix() const
-    {
-        return d_objectIdentifierPrefix;
     }
 //..
 // Next, we provide the metric method, 'my_metric', which will compute its
@@ -439,20 +377,20 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Then, we instantiate a 'my_MetricsMonitor' and a 'myMetricsRegistrar':
+// Then, we instantiate a 'my_MetricsMonitor' and a 'myMetricsAdapter':
 //..
-        my_MetricsMonitor   monitor;
-        my_MetricsRegistrar registrar(&monitor);
+        my_MetricsMonitor monitor;
+        my_MetricsAdapter adapter(&monitor);
 //..
 // Next, we construct a 'bdlm::MetricDescriptor', register the 'my_metric'
 // method with the 'monitor', and verify the 'monitor' has the expected name
 // for the metric:
 //..
-        bdlm::MetricDescriptor descriptor("a", "b", "c", "d");
+        bdlm::MetricDescriptor descriptor("a", "b", 1, "c", "d", "e");
 
-        registrar.registerCollectionCallback(descriptor, my_metric);
+        adapter.registerCollectionCallback(descriptor, my_metric);
 
-        ASSERT(monitor.name() == "a.b.c.d");
+        ASSERT(monitor.name() == "a.b.c.d.e");
 //..
 // Now, we invoke the 'update' method a few times:
 //..
@@ -503,12 +441,9 @@ int main(int argc, char *argv[])
         //:   2 publicly accessible. (C-5)
         //
         // Testing:
-        //   virtual ~MetricsRegistrar();
-        //   virtual int incrementInstanceCount(metricDescriptor) = 0;
+        //   virtual ~MetricsAdapter();
         //   virtual CH registerCollectionCallback(metricDescriptor, cb) = 0;
         //   virtual int removeCollectionCallback(const CH& handle) = 0;
-        //   virtual const bsl::string& defaultMetricNamespace() const = 0;
-        //   virtual c bsl::string& defaultObjectIdentifierPrefix() c = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
@@ -573,7 +508,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

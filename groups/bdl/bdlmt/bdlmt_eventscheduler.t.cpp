@@ -15,9 +15,10 @@
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
 
-#include <bdlm_defaultmetricsregistrar.h>
+#include <bdlm_instancecount.h>
 #include <bdlm_metricdescriptor.h>
-#include <bdlm_metricsregistrar.h>
+#include <bdlm_metricsadapter.h>
+#include <bdlm_metricsregistry.h>
 
 #include <bdlt_datetime.h>
 #include <bdlt_epochutil.h>
@@ -63,6 +64,7 @@
 #include <bsl_memory.h>
 #include <bsl_ostream.h>
 #include <bsl_set.h>
+#include <bsl_sstream.h>
 #include <bsl_utility.h>
 
 using namespace BloombergLP;
@@ -104,14 +106,14 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 1] bdlmt::EventScheduler(allocator = 0);
-// [ 1] bdlmt::EventScheduler(identifier, registrar, allocator = 0);
+// [ 1] bdlmt::EventScheduler(identifier, adapter, allocator = 0);
 // [19] bdlmt::EventScheduler(clockType, allocator = 0);
-// [19] bdlmt::EventScheduler(clockType, ident, registrar, allocator = 0);
+// [19] bdlmt::EventScheduler(clockType, ident, adapter, allocator = 0);
 //
 // [ 8] bdlmt::EventScheduler(dispatcher, allocator = 0);
-// [ 8] bdlmt::EventScheduler(dispatcher, ident, registrar, alloc = 0);
+// [ 8] bdlmt::EventScheduler(dispatcher, ident, adapter, alloc = 0);
 // [20] bdlmt::EventScheduler(disp, clockType, alloc = 0);
-// [20] bdlmt::EventScheduler(disp, clockType, id, registrar, alloc = 0);
+// [20] bdlmt::EventScheduler(disp, clockType, id, adapter, alloc = 0);
 //
 // [ 1] ~bdlmt::EventScheduler();
 //
@@ -995,36 +997,29 @@ MakeChronoTest(bsl::chrono::duration<REP1, PER1> start_time,
 }
 #endif
 
-                        // ==========================
-                        // class TestMetricsRegistrar
-                        // ==========================
+                         // ========================
+                         // class TestMetricsAdapter
+                         // ========================
 
-class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
+class TestMetricsAdapter : public bdlm::MetricsAdapter {
     // This class implements a pure abstract interface for clients and
-    // suppliers of metrics registrars.  The implemtation does not register
+    // suppliers of metrics adapters.  The implemtation does not register
     // callbacks with any monitoring system, but does track registrations to
     // enable testing of thread-enabled objects metric registration.
 
     // DATA
     bsl::vector<bdlm::MetricDescriptor> d_descriptors;
     bsl::set<int>                       d_handles;
-    bsl::map<bsl::string, int>          d_count;
-    bsl::string                         d_metricNamespace;
-    bsl::string                         d_objectIdentifierPrefix;
 
   public:
     // CREATORS
-    TestMetricsRegistrar();
-        // Create a 'TestMetricsRegistrar'.
+    TestMetricsAdapter();
+        // Create a 'TestMetricsAdapter'.
 
-    ~TestMetricsRegistrar();
+    ~TestMetricsAdapter();
         // Destroy this object.
 
     // MANIPULATORS
-    int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor);
-        // Return the incremented invocation count of this method with the
-        // provided 'metricDescriptor' attributes, excluding object identifier.
-
     CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
@@ -1041,46 +1036,28 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Return this object to its constructed state.
     
     // ACCESSORS
-    const bsl::string& defaultMetricNamespace() const;
-        // Return the namespace attribute value to be used as the default value
-        // for 'MetricDescriptor' instances.
-
-    const bsl::string& defaultObjectIdentifierPrefix() const;
-        // Return a string to be used as the default prefix for a
-        // 'MetricDescriptor' object identifier attribute value.
-
     bool verify(const bsl::string& name) const;
         // Return 'true' if the registered descriptors match the ones expected
         // for the supplied 'name' and the provided callback handles were
         // removed, and 'false' otherwise.
 };
 
-                        // --------------------------
-                        // class TestMetricsRegistrar
-                        // --------------------------
+                         // ------------------------
+                         // class TestMetricsAdapter
+                         // ------------------------
 
 // CREATORS
-TestMetricsRegistrar::TestMetricsRegistrar()
-: d_metricNamespace("bdlm")
-, d_objectIdentifierPrefix("svc")
+TestMetricsAdapter::TestMetricsAdapter()
 {
 }
 
-TestMetricsRegistrar::~TestMetricsRegistrar()
+TestMetricsAdapter::~TestMetricsAdapter()
 {
 }
 
 // MANIPULATORS
-int TestMetricsRegistrar::incrementInstanceCount(
-                                const bdlm::MetricDescriptor& metricDescriptor)
-{
-    return ++d_count[  metricDescriptor.metricNamespace() + '.'
-                     + metricDescriptor.metricName() + '.'
-                     + metricDescriptor.objectTypeName()];
-}
-
-bdlm::MetricsRegistrar::CallbackHandle
-                              TestMetricsRegistrar::registerCollectionCallback(
+bdlm::MetricsAdapter::CallbackHandle
+                                TestMetricsAdapter::registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               /* callback */)
 {
@@ -1092,46 +1069,43 @@ bdlm::MetricsRegistrar::CallbackHandle
     return h;
 }
 
-int TestMetricsRegistrar::removeCollectionCallback(
-                                                  const CallbackHandle& handle)
+int TestMetricsAdapter::removeCollectionCallback(const CallbackHandle& handle)
 {
     d_handles.erase(handle);
     return 0;
 }
 
-void TestMetricsRegistrar::reset()
+void TestMetricsAdapter::reset()
 {
     d_descriptors.clear();
     d_handles.clear();
-    d_count.clear();
 }
 
 // ACCESSORS
-const bsl::string& TestMetricsRegistrar::defaultMetricNamespace() const
+bool TestMetricsAdapter::verify(const bsl::string& name) const
 {
-    return d_metricNamespace;
-}
+    static bdlm::InstanceCount::Value count = 0;
 
-const bsl::string& TestMetricsRegistrar::defaultObjectIdentifierPrefix() const
-{
-    return d_objectIdentifierPrefix;
-}
+    ++count;
 
-bool TestMetricsRegistrar::verify(const bsl::string& name) const
-{
     ASSERT(d_handles.empty());
     ASSERT(1 == d_descriptors.size());
-    ASSERT(d_descriptors[0].metricNamespace()  == "bdlm");
-    ASSERT(d_descriptors[0].metricName()       == "startlag");
-    ASSERT(d_descriptors[0].objectTypeName()   == "bdlmt.eventscheduler");
-    ASSERT(d_descriptors[0].objectIdentifier() == name);
+    ASSERT(d_descriptors[0].metricNamespace()        == "");
+    ASSERT(d_descriptors[0].metricName()             == "startlag");
+    ASSERT(d_descriptors[0].objectTypeAbbreviation() == "es");
+    ASSERT(d_descriptors[0].objectTypeName()         ==
+                                                       "bdlmt.eventscheduler");
+    ASSERT(d_descriptors[0].instanceNumber()         == count);
+    ASSERT(d_descriptors[0].objectIdentifier()       == name);
     
     return d_handles.empty()
         && 1 == d_descriptors.size()
-        && d_descriptors[0].metricNamespace()  == "bdlm"
-        && d_descriptors[0].metricName()       == "startlag"
-        && d_descriptors[0].objectTypeName()   == "bdlmt.eventscheduler"
-        && d_descriptors[0].objectIdentifier() == name;
+        && d_descriptors[0].metricNamespace()        == ""
+        && d_descriptors[0].metricName()             == "startlag"
+        && d_descriptors[0].objectTypeAbbreviation() == "es"
+        && d_descriptors[0].objectTypeName()         == "bdlmt.eventscheduler"
+        && d_descriptors[0].instanceNumber()         == count
+        && d_descriptors[0].objectIdentifier()       == name;
 }
 
 // ============================================================================
@@ -2902,6 +2876,9 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     int nExec;
 
+    // access the metrics registry singleton before assign the global allocator
+    bdlm::MetricsRegistry::singleton();
+
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
@@ -2948,6 +2925,11 @@ int main(int argc, char *argv[])
 
             Obj mX(&oa);
 
+            // The constructor creates temporary values which may require
+            // allocation.
+
+            const bsls::Types::Int64 daNumBytes = da.numBytesInUse();
+
             // Schedule an event at T2 and schedule its cancellation at T1
             // where T1 < T2.
 
@@ -2964,7 +2946,7 @@ int main(int argc, char *argv[])
                       now + T2,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
-            ASSERT(0 == da.numBytesInUse());
+            ASSERT(daNumBytes == da.numBytesInUse());
 
             bslma::TestAllocatorMonitor dam(&da);
             bslma::TestAllocatorMonitor oam(&oa);
@@ -3906,7 +3888,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::EventScheduler(disp, clockType, alloc = 0);
-        //   bdlmt::EventScheduler(disp, clockType, id, registrar, alloc = 0);
+        //   bdlmt::EventScheduler(disp, clockType, id, adapter, alloc = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3915,11 +3897,15 @@ int main(int argc, char *argv[])
                           << "============================"
                           << "=============================" << endl;
 
-        TestMetricsRegistrar defaultRegistrar;
-        TestMetricsRegistrar otherRegistrar;
+        TestMetricsAdapter defaultAdapter;
+        TestMetricsAdapter otherAdapter;
 
-        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
-                                                           &defaultRegistrar));
+        bdlm::MetricsRegistry& defaultRegistry =
+                                            bdlm::MetricsRegistry::singleton();
+        bdlm::MetricsRegistry  otherRegistry;
+
+        defaultRegistry.setMetricsAdapter(&defaultAdapter);
+        otherRegistry.setMetricsAdapter(&otherAdapter);
 
         using namespace EVENTSCHEDULER_TEST_CASE_20;
         using namespace bdlf::PlaceHolders;
@@ -3931,50 +3917,53 @@ int main(int argc, char *argv[])
         bdlmt::EventScheduler::Dispatcher dispatcher =
                                  bdlf::BindUtil::bind(&dispatcherFunction, _1);
 
-        bslma::TestAllocator ta(veryVeryVerbose);
-        Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC, &ta); x.start();
+        {
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC, &ta);
+            x.start();
 
-        TestClass1 testObj;
+            TestClass1 testObj;
 
-        x.scheduleEvent(
+            x.scheduleEvent(
                  bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
-        microSleep(T2, 0);
-        makeSureTestObjectIsExecuted(testObj, mT, 100);
-        ASSERT( 1 == testObj.numExecuted() );
-        x.stop();
+            microSleep(T2, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            ASSERT(1 == testObj.numExecuted() );
+            x.stop();
+        }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         // verify metric registration
-
-        defaultRegistrar.reset();
 
         {
             Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC, "", 0);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC, "a", 0);
         }
-        ASSERT(defaultRegistrar.verify("a"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify("a"));
+        defaultAdapter.reset();
 
         {
             Obj x(dispatcher,
                   bsls::SystemClockType::e_MONOTONIC,
                   "b",
-                  &otherRegistrar);
+                  &otherRegistry);
         }
-        ASSERT(otherRegistrar.verify("b"));
-        otherRegistrar.reset();
+        ASSERT(otherAdapter.verify("b"));
+        otherAdapter.reset();
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {
@@ -3982,64 +3971,64 @@ int main(int argc, char *argv[])
 
             Obj x(dispatcher, clock);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::system_clock clock;
 
             Obj x(dispatcher, clock, "", 0);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::system_clock clock;
 
             Obj x(dispatcher, clock, "a", 0);
         }
-        ASSERT(defaultRegistrar.verify("a"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify("a"));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::system_clock clock;
 
-            Obj x(dispatcher, clock, "b", &otherRegistrar);
+            Obj x(dispatcher, clock, "b", &otherRegistry);
         }
-        ASSERT(otherRegistrar.verify("b"));
-        otherRegistrar.reset();
+        ASSERT(otherAdapter.verify("b"));
+        otherAdapter.reset();
 
         {
             bsl::chrono::steady_clock clock;
 
             Obj x(dispatcher, clock);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::steady_clock clock;
 
             Obj x(dispatcher, clock, "", 0);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::steady_clock clock;
 
             Obj x(dispatcher, clock, "a", 0);
         }
-        ASSERT(defaultRegistrar.verify("a"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify("a"));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::steady_clock clock;
 
-            Obj x(dispatcher, clock, "b", &otherRegistrar);
+            Obj x(dispatcher, clock, "b", &otherRegistry);
         }
-        ASSERT(otherRegistrar.verify("b"));
-        otherRegistrar.reset();
+        ASSERT(otherAdapter.verify("b"));
+        otherAdapter.reset();
 #endif
       } break;
       case 19: {
@@ -4059,7 +4048,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::EventScheduler(clockType, allocator = 0);
-        //   bdlmt::EventScheduler(clockType, ident, registrar, allocator = 0);
+        //   bdlmt::EventScheduler(clockType, ident, adapter, allocator = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4068,11 +4057,15 @@ int main(int argc, char *argv[])
                           << "============================"
                           << "=======================" << endl;
 
-        TestMetricsRegistrar defaultRegistrar;
-        TestMetricsRegistrar otherRegistrar;
+        TestMetricsAdapter defaultAdapter;
+        TestMetricsAdapter otherAdapter;
 
-        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
-                                                           &defaultRegistrar));
+        bdlm::MetricsRegistry& defaultRegistry =
+                                            bdlm::MetricsRegistry::singleton();
+        bdlm::MetricsRegistry  otherRegistry;
+
+        defaultRegistry.setMetricsAdapter(&defaultAdapter);
+        otherRegistry.setMetricsAdapter(&otherAdapter);
 
         using namespace EVENTSCHEDULER_TEST_CASE_19;
         using namespace bdlf::PlaceHolders;
@@ -4081,47 +4074,49 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval T(1 * DECI_SEC);
         const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-        bslma::TestAllocator ta(veryVeryVerbose);
-        Obj x(bsls::SystemClockType::e_MONOTONIC, &ta); x.start();
+        {
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(bsls::SystemClockType::e_MONOTONIC, &ta); x.start();
 
-        TestClass1 testObj;
+            TestClass1 testObj;
 
-        x.scheduleEvent(
+            x.scheduleEvent(
                  bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
-        microSleep(T2, 0);
-        makeSureTestObjectIsExecuted(testObj, mT, 100);
-        ASSERT( 1 == testObj.numExecuted() );
-        x.stop();
+            microSleep(T2, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            ASSERT( 1 == testObj.numExecuted() );
+            x.stop();
+        }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         // verify metric registration
-
-        defaultRegistrar.reset();
 
         {
             Obj x(bsls::SystemClockType::e_MONOTONIC);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             Obj x(bsls::SystemClockType::e_MONOTONIC, "", 0);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             Obj x(bsls::SystemClockType::e_MONOTONIC, "a", 0);
         }
-        ASSERT(defaultRegistrar.verify("a"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify("a"));
+        defaultAdapter.reset();
 
         {
-            Obj x(bsls::SystemClockType::e_MONOTONIC, "b", &otherRegistrar);
+            Obj x(bsls::SystemClockType::e_MONOTONIC, "b", &otherRegistry);
         }
-        ASSERT(otherRegistrar.verify("b"));
-        otherRegistrar.reset();
+        ASSERT(otherAdapter.verify("b"));
+        otherAdapter.reset();
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {
@@ -4129,64 +4124,64 @@ int main(int argc, char *argv[])
 
             Obj x(clock);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::system_clock clock;
 
             Obj x(clock, "", 0);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::system_clock clock;
 
             Obj x(clock, "a", 0);
         }
-        ASSERT(defaultRegistrar.verify("a"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify("a"));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::system_clock clock;
 
-            Obj x(clock, "b", &otherRegistrar);
+            Obj x(clock, "b", &otherRegistry);
         }
-        ASSERT(otherRegistrar.verify("b"));
-        otherRegistrar.reset();
+        ASSERT(otherAdapter.verify("b"));
+        otherAdapter.reset();
 
         {
             bsl::chrono::steady_clock clock;
 
             Obj x(clock);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::steady_clock clock;
 
             Obj x(clock, "", 0);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::steady_clock clock;
 
             Obj x(clock, "a", 0);
         }
-        ASSERT(defaultRegistrar.verify("a"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify("a"));
+        defaultAdapter.reset();
 
         {
             bsl::chrono::steady_clock clock;
 
-            Obj x(clock, "b", &otherRegistrar);
+            Obj x(clock, "b", &otherRegistry);
         }
-        ASSERT(otherRegistrar.verify("b"));
-        otherRegistrar.reset();
+        ASSERT(otherAdapter.verify("b"));
+        otherAdapter.reset();
 #endif
       } break;
       case 18: {
@@ -5595,7 +5590,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::EventScheduler(dispatcher, allocator = 0);
-        //   bdlmt::EventScheduler(dispatcher, ident, registrar, alloc = 0);
+        //   bdlmt::EventScheduler(dispatcher, ident, adapter, alloc = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5604,11 +5599,15 @@ int main(int argc, char *argv[])
                           << "============================"
                           << "============================" << endl;
 
-        TestMetricsRegistrar defaultRegistrar;
-        TestMetricsRegistrar otherRegistrar;
+        TestMetricsAdapter defaultAdapter;
+        TestMetricsAdapter otherAdapter;
 
-        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
-                                                           &defaultRegistrar));
+        bdlm::MetricsRegistry& defaultRegistry =
+                                            bdlm::MetricsRegistry::singleton();
+        bdlm::MetricsRegistry  otherRegistry;
+
+        defaultRegistry.setMetricsAdapter(&defaultAdapter);
+        otherRegistry.setMetricsAdapter(&otherAdapter);
 
         using namespace EVENTSCHEDULER_TEST_CASE_8;
         using namespace bdlf::PlaceHolders;
@@ -5620,47 +5619,49 @@ int main(int argc, char *argv[])
         bdlmt::EventScheduler::Dispatcher dispatcher =
           bdlf::BindUtil::bind(&dispatcherFunction, _1);
 
-        bslma::TestAllocator ta(veryVeryVerbose);
-        Obj x(dispatcher, &ta); x.start();
+        {
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(dispatcher, &ta); x.start();
 
-        TestClass1 testObj;
+            TestClass1 testObj;
 
-        x.scheduleEvent(
+            x.scheduleEvent(
                       u::now() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
-        microSleep(T2, 0);
-        makeSureTestObjectIsExecuted(testObj, mT, 100);
-        ASSERT( 1 == testObj.numExecuted() );
-        x.stop();
+            microSleep(T2, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            ASSERT( 1 == testObj.numExecuted() );
+            x.stop();
+        }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         // verify metric registration
-
-        defaultRegistrar.reset();
 
         {
             Obj x(dispatcher);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             Obj x(dispatcher, "", 0);
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
             Obj x(dispatcher, "a", 0);
         }
-        ASSERT(defaultRegistrar.verify("a"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify("a"));
+        defaultAdapter.reset();
 
         {
-            Obj x(dispatcher, "b", &otherRegistrar);
+            Obj x(dispatcher, "b", &otherRegistry);
         }
-        ASSERT(otherRegistrar.verify("b"));
-        otherRegistrar.reset();
+        ASSERT(otherAdapter.verify("b"));
+        otherAdapter.reset();
 
       } break;
       case 7: {
@@ -7087,11 +7088,15 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        TestMetricsRegistrar defaultRegistrar;
-        TestMetricsRegistrar otherRegistrar;
+        TestMetricsAdapter defaultAdapter;
+        TestMetricsAdapter otherAdapter;
 
-        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
-                                                           &defaultRegistrar));
+        bdlm::MetricsRegistry& defaultRegistry =
+                                            bdlm::MetricsRegistry::singleton();
+        bdlm::MetricsRegistry  otherRegistry;
+
+        defaultRegistry.setMetricsAdapter(&defaultAdapter);
+        otherRegistry.setMetricsAdapter(&otherAdapter);
         
         using namespace EVENTSCHEDULER_TEST_CASE_1;
         {
@@ -7139,6 +7144,8 @@ int main(int argc, char *argv[])
           ASSERT(0 == x.numRecurringEvents());
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
           // Create and start a scheduler object, schedule an event at T2.
@@ -7150,6 +7157,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
+
           x.start();
 
           TestClass1 testObj;
@@ -7178,6 +7186,8 @@ int main(int argc, char *argv[])
           LOOP_ASSERT(nExec, 0 == nExec); // ok, even if overslept
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
           // Create and start a scheduler object, schedule 2 events at
@@ -7193,6 +7203,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
+
           x.start();
 
           ASSERT(0 == x.numEvents());
@@ -7253,6 +7264,8 @@ int main(int argc, char *argv[])
           ASSERT(0 == x.numRecurringEvents());
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
           // Create and start a scheduler object, schedule a clock of T3
@@ -7269,6 +7282,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
+
           x.start();
 
           TestClass1 testObj;
@@ -7311,6 +7325,8 @@ int main(int argc, char *argv[])
           // ASSERT(1 == x.numRecurringEvents());
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
           // Create and start a scheduler object, schedule a clock of T3
@@ -7328,6 +7344,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
+
           x.start();
 
           TestClass1 testObj1;
@@ -7389,6 +7406,8 @@ int main(int argc, char *argv[])
           LOOP_ASSERT(nExec, 1 == nExec);
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
           // Create and start a scheduler object, schedule an event at T2,
@@ -7401,6 +7420,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
+
           x.start();
 
           TestClass1 testObj;
@@ -7426,6 +7446,8 @@ int main(int argc, char *argv[])
           // case, this is not a failure, do not stop.
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
           // Create and start a scheduler object, schedule an event at T2,
@@ -7437,6 +7459,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
+
           x.start();
 
           TestClass1 testObj;
@@ -7455,6 +7478,8 @@ int main(int argc, char *argv[])
           ASSERT( 0 != x.cancelEvent(h) );
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
           // Create and start a scheduler object, schedule 3 events at T, T2,
@@ -7468,6 +7493,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
+
           x.start();
 
           TestClass1 testObj1;
@@ -7521,6 +7547,8 @@ int main(int argc, char *argv[])
           // case, this is not a failure, do not stop.
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
           // Create and start a scheduler object, schedule a clock of T3, let
@@ -7534,6 +7562,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj                  x(&ta);
+
           x.start();
 
           TestClass1 testObj;
@@ -7563,6 +7592,8 @@ int main(int argc, char *argv[])
           // Else complain but do not stop the test suite.
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {
@@ -7579,6 +7610,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj                  x(&ta);
+
           x.start();
 
           TestClass1 testObj;
@@ -7608,6 +7640,8 @@ int main(int argc, char *argv[])
           // Else complain but do not stop the test suite.
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 #endif
 
         {
@@ -7619,6 +7653,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj                  x(&ta);
+
           x.start();
 
           TestClass1 testObj1;
@@ -7648,6 +7683,8 @@ int main(int argc, char *argv[])
           LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {
@@ -7662,6 +7699,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj                  x(&ta);
+
           x.start();
 
           TestClass1 testObj1;
@@ -7691,6 +7729,8 @@ int main(int argc, char *argv[])
           LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
           x.stop();
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 #endif
 
         {
@@ -7705,6 +7745,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj                  x(&ta);
+
           x.start();
 
           TestClass1 testObj1;
@@ -7758,6 +7799,8 @@ int main(int argc, char *argv[])
               LOOP2_ASSERT(NEXEC2, elapsed, T6 < elapsed);
           }
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {
@@ -7775,6 +7818,7 @@ int main(int argc, char *argv[])
 
           bslma::TestAllocator ta(veryVeryVerbose);
           Obj                  x(&ta);
+
           x.start();
 
           TestClass1 testObj1;
@@ -7828,35 +7872,35 @@ int main(int argc, char *argv[])
               LOOP2_ASSERT(NEXEC2, elapsed, T6 < elapsed);
           }
         }
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 #endif
 
         // verify metric registration
 
-        defaultRegistrar.reset();
-
         {
             Obj x;
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
-            Obj x("", static_cast<bdlm::MetricsRegistrar *>(0));
+            Obj x("", static_cast<bdlm::MetricsRegistry *>(0));
         }
-        ASSERT(defaultRegistrar.verify("svc.es.1"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify(""));
+        defaultAdapter.reset();
 
         {
-            Obj x("a", static_cast<bdlm::MetricsRegistrar *>(0));
+            Obj x("a", static_cast<bdlm::MetricsRegistry *>(0));
         }
-        ASSERT(defaultRegistrar.verify("a"));
-        defaultRegistrar.reset();
+        ASSERT(defaultAdapter.verify("a"));
+        defaultAdapter.reset();
 
         {
-            Obj x("b", &otherRegistrar);
+            Obj x("b", &otherRegistry);
         }
-        ASSERT(otherRegistrar.verify("b"));
-        otherRegistrar.reset();
+        ASSERT(otherAdapter.verify("b"));
+        otherAdapter.reset();
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -7975,7 +8019,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

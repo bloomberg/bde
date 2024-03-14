@@ -29,6 +29,7 @@
 #include <bsl_sstream.h>
 
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf_s
@@ -1553,6 +1554,7 @@ int main(int argc, char *argv[])
         balm::MetricRegistry&  reg = manager.metricRegistry();
         bdlmt::TimerEventScheduler timer(Z);
         Obj mX(&manager, &timer, Z); const Obj& MX = mX;
+        const bsls::Types::Int64 daNumBytes = defaultAllocator.numBytesInUse();
         for (int i = 0; i < 10; ++i) {
             bsls::TimeInterval interval(i+1, 0);
             bsls::TimeInterval foundInterval;
@@ -1573,10 +1575,10 @@ int main(int argc, char *argv[])
                 mX.cancelCategorySchedule(CATEGORIES[j]);
                 ASSERT(!MX.findCategorySchedule(&foundInterval,CATEGORY));
                 ASSERT(!MX.findCategorySchedule(&foundInterval,CATEGORIES[j]));
-                ASSERT(0 == defaultAllocator.numBytesInUse());
+                ASSERT(daNumBytes == defaultAllocator.numBytesInUse());
             }
         }
-        ASSERT(0 == defaultAllocator.numBytesInUse());
+        ASSERT(daNumBytes == defaultAllocator.numBytesInUse());
 
       } break;
       case 9: {
@@ -2479,6 +2481,8 @@ int main(int argc, char *argv[])
                           << "===================================" << endl;
 
         bdlmt::TimerEventScheduler  timer(Z);
+        const bsls::Types::Int64 daNumBytes = defaultAllocator.numBytesInUse();
+
         balm::MetricsManager       manager(Z);
         balm::MetricRegistry&      registry = manager.metricRegistry();
 
@@ -2565,7 +2569,7 @@ int main(int argc, char *argv[])
                     mX.setDefaultSchedule(defaultInterval);
                 }
             }
-            ASSERT(0 == defaultAllocator.numBytesInUse());
+            ASSERT(daNumBytes == defaultAllocator.numBytesInUse());
 
             //   2.  Verify that the value returned from the basic accessors is
             //       equal to the "oracle" value and that the number of clocks
@@ -2593,7 +2597,7 @@ int main(int argc, char *argv[])
                                                        defaultInterval);
             ASSERT(uniqueIntervals == timer.numClocks());
             ASSERT(0               == timer.numEvents());
-            ASSERT(0 == defaultAllocator.numBytesInUse());
+            ASSERT(daNumBytes      == defaultAllocator.numBytesInUse());
         }
       } break;
       case 2: {
@@ -3129,8 +3133,6 @@ int main(int argc, char *argv[])
 
             ASSERT(3 == timer.numClocks());
             ASSERT(0 == timer.numEvents());
-
-            ASSERT(0 == defaultAllocator.numBytesInUse());
         }
         ASSERT(0 == timer.numClocks());
         ASSERT(0 == timer.numEvents());
@@ -3191,13 +3193,8 @@ int main(int argc, char *argv[])
             ASSERT(withinWindow(tp1.lastElapsedTime(), INTVL_A, 40));
             ASSERT(withinWindow(tp2.lastElapsedTime(), INTVL_B, 40));
             ASSERT(withinWindow(tp3.lastElapsedTime(), INTVL_A, 40));
-
-            ASSERT(0 == defaultAllocator.numBytesInUse());
             } BALM_END_RETRY_TEST
         }
-
-        ASSERT(0 == defaultAllocator.numBytesInUse());
-
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

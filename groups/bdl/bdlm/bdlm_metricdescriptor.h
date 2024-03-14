@@ -17,7 +17,9 @@ BSLS_IDENT("$Id$")
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {'bdlm_metricsregistrar'|Usage}.
+// {'bdlm_metricsadapter'|Usage}.
+
+#include <bdlm_instancecount.h>
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -38,16 +40,33 @@ class MetricDescriptor {
 
   private:
     // DATA
-    bsl::string d_metricNamespace;   // namespace for the metric
-    bsl::string d_metricName;        // name of the metric
-    bsl::string d_objectTypeName;    // name of the type generating the metric
-    bsl::string d_objectIdentifier;  // object identifier generating the metric
+    bsl::string          d_metricNamespace;         // namespace for the metric
+
+    bsl::string          d_metricName;              // name of the metric
+
+    InstanceCount::Value d_instanceNumber;          // instance number of the
+                                                    // type generating the
+                                                    // metric
+
+    bsl::string          d_objectTypeName;          // name of the type
+                                                    // generating the metric
+
+    bsl::string          d_objectTypeAbbreviation;  // abbreviation for the
+                                                    // type generating the
+                                                    // metric
+
+    bsl::string          d_objectIdentifier;        // object identifier
+                                                    // generating the metric
 
     // FRIENDS
     friend bool operator==(const MetricDescriptor&, const MetricDescriptor&);
     friend bool operator!=(const MetricDescriptor&, const MetricDescriptor&);
 
   public:
+    // CONSTANTS
+    static const char *k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION;
+    static const char *k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricDescriptor,
                                    bslma::UsesBslmaAllocator);
@@ -57,18 +76,36 @@ class MetricDescriptor {
         // Create an object of this class having the default attribute values.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // used.  The default value for the namespace attribute is
+        // 'k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' and the default value
+        // for the object identifier attribute is
+        // 'k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'.  The residual attibutes
+        // default to an empty string, except the instance number which
+        // defaults to 0.  Note that implementations of the
+        // 'bdlm::MetricsAdapter' protocal will typically use an implementation
+        // specific value for the namespace attribute when
+        // 'metricNamespace == k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' and
+        // the object identifier attribute when
+        // 'objectIdentrifier == k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'.
 
     MetricDescriptor(const bsl::string_view&  metricNamespace,
                      const bsl::string_view&  metricName,
+                     InstanceCount::Value     instanceNumber,
                      const bsl::string_view&  objectTypeName,
+                     const bsl::string_view&  objectTypeAbbreviation,
                      const bsl::string_view&  objectIdentifier,
                      bslma::Allocator        *basicAllocator = 0);
         // Create an object of this class having the specified
-        // 'metricNamespace', 'metricName', 'objectTypeName', and
-        // 'objectIdentifier' attribute values.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // 'metricNamespace', 'metricName', 'instanceNumber', 'objectTypeName',
+        // 'objectTypeAbbreviation', and 'objectIdentifier' attribute values.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  Note that implementations of the 'bdlm::MetricsAdapter'
+        // protocal will typically use an implementation specific value for the
+        // namespace attribute when
+        // 'metricNamespace == k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' and
+        // the object identifier attribute when
+        // 'objectIdentrifier == k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'.
 
     MetricDescriptor(const MetricDescriptor&  original,
                      bslma::Allocator        *basicAllocator = 0);
@@ -85,34 +122,48 @@ class MetricDescriptor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setMetricNamespace(const bsl::string_view& vale);
-        // Set the 'metricNamespace' attribute of this object to the specified
+    void setInstanceNumber(const InstanceCount::Value& value);
+        // Set the 'instanceNumber' attribute of this object to the specified
         // 'value'.
 
-    void setMetricName(const bsl::string_view& vale);
+    void setMetricName(const bsl::string_view& value);
         // Set the 'metricName' attribute of this object to the specified
         // 'value'.
 
-    void setObjectTypeName(const bsl::string_view& vale);
-        // Set the 'objectTypeName' attribute of this object to the specified
+    void setMetricNamespace(const bsl::string_view& value);
+        // Set the 'metricNamespace' attribute of this object to the specified
         // 'value'.
 
-    void setObjectIdentifier(const bsl::string_view& vale);
+    void setObjectIdentifier(const bsl::string_view& value);
         // Set the 'objectIdentifier' attribute of this object to the specified
         // 'value'.
 
+    void setObjectTypeAbbreviation(const bsl::string_view& value);
+        // Set the 'objectTypeAbbreviation' attribute of this object to the
+        // specified 'value'.
+
+    void setObjectTypeName(const bsl::string_view& value);
+        // Set the 'objectTypeName' attribute of this object to the specified
+        // 'value'.
+
     // ACCESSORS
-    const bsl::string& metricNamespace() const;
-        // Return the 'metricNamespace' attribute.
+    const InstanceCount::Value& instanceNumber() const;
+        // Return the 'instanceNumber' attribute.
 
     const bsl::string& metricName() const;
         // Return the 'metricName' attribute.
 
-    const bsl::string& objectTypeName() const;
-        // Return the 'objectTypeName' attribute.
+    const bsl::string& metricNamespace() const;
+        // Return the 'metricNamespace' attribute.
 
     const bsl::string& objectIdentifier() const;
         // Return the 'objectIdentifier' attribute.
+
+    const bsl::string& objectTypeAbbreviation() const;
+        // Return the 'objectTypeAbbreviation' attribute.
+
+    const bsl::string& objectTypeName() const;
+        // Return the 'objectTypeName' attribute.
 };
 
 // FREE OPERATORS
@@ -139,22 +190,29 @@ bool operator!=(const MetricDescriptor& lhs, const MetricDescriptor& rhs);
 // CREATORS
 inline
 MetricDescriptor::MetricDescriptor(bslma::Allocator *basicAllocator)
-: d_metricNamespace(basicAllocator)
+: d_metricNamespace(k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION, basicAllocator)
 , d_metricName(basicAllocator)
+, d_instanceNumber(0)
 , d_objectTypeName(basicAllocator)
-, d_objectIdentifier(basicAllocator)
+, d_objectTypeAbbreviation(basicAllocator)
+, d_objectIdentifier(k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION, basicAllocator)
 {
 }
 
 inline
-MetricDescriptor::MetricDescriptor(const bsl::string_view&  metricNamespace,
-                                   const bsl::string_view&  metricName,
-                                   const bsl::string_view&  objectTypeName,
-                                   const bsl::string_view&  objectIdentifier,
-                                   bslma::Allocator        *basicAllocator)
+MetricDescriptor::MetricDescriptor(
+                       const bsl::string_view&  metricNamespace,
+                       const bsl::string_view&  metricName,
+                       InstanceCount::Value     instanceNumber,
+                       const bsl::string_view&  objectTypeName,
+                       const bsl::string_view&  objectTypeAbbreviation,
+                       const bsl::string_view&  objectIdentifier,
+                       bslma::Allocator        *basicAllocator)
 : d_metricNamespace(metricNamespace, basicAllocator)
 , d_metricName(metricName, basicAllocator)
+, d_instanceNumber(instanceNumber)
 , d_objectTypeName(objectTypeName, basicAllocator)
+, d_objectTypeAbbreviation(objectTypeAbbreviation, basicAllocator)
 , d_objectIdentifier(objectIdentifier, basicAllocator)
 {
 }
@@ -164,7 +222,9 @@ MetricDescriptor::MetricDescriptor(const MetricDescriptor&  original,
                                    bslma::Allocator        *basicAllocator)
 : d_metricNamespace(original.d_metricNamespace, basicAllocator)
 , d_metricName(original.d_metricName, basicAllocator)
+, d_instanceNumber(original.d_instanceNumber)
 , d_objectTypeName(original.d_objectTypeName, basicAllocator)
+, d_objectTypeAbbreviation(original.d_objectTypeAbbreviation, basicAllocator)
 , d_objectIdentifier(original.d_objectIdentifier, basicAllocator)
 {
 }
@@ -173,18 +233,20 @@ MetricDescriptor::MetricDescriptor(const MetricDescriptor&  original,
 inline
 MetricDescriptor& MetricDescriptor::operator=(const MetricDescriptor& rhs)
 {
-    d_metricNamespace  = rhs.d_metricNamespace;
-    d_metricName       = rhs.d_metricName;
-    d_objectTypeName   = rhs.d_objectTypeName;
-    d_objectIdentifier = rhs.d_objectIdentifier;
+    d_metricNamespace        = rhs.d_metricNamespace;
+    d_metricName             = rhs.d_metricName;
+    d_instanceNumber         = rhs.d_instanceNumber;
+    d_objectTypeName         = rhs.d_objectTypeName;
+    d_objectTypeAbbreviation = rhs.d_objectTypeAbbreviation;
+    d_objectIdentifier       = rhs.d_objectIdentifier;
 
     return *this;
 }
 
 inline
-void MetricDescriptor::setMetricNamespace(const bsl::string_view& value)
+void MetricDescriptor::setInstanceNumber(const InstanceCount::Value& value)
 {
-    d_metricNamespace = value;
+    d_instanceNumber = value;
 }
 
 inline
@@ -194,9 +256,9 @@ void MetricDescriptor::setMetricName(const bsl::string_view& value)
 }
 
 inline
-void MetricDescriptor::setObjectTypeName(const bsl::string_view& value)
+void MetricDescriptor::setMetricNamespace(const bsl::string_view& value)
 {
-    d_objectTypeName = value;
+    d_metricNamespace = value;
 }
 
 inline
@@ -205,11 +267,23 @@ void MetricDescriptor::setObjectIdentifier(const bsl::string_view& value)
     d_objectIdentifier = value;
 }
 
+inline
+void MetricDescriptor::setObjectTypeAbbreviation(const bsl::string_view& value)
+{
+    d_objectTypeAbbreviation = value;
+}
+
+inline
+void MetricDescriptor::setObjectTypeName(const bsl::string_view& value)
+{
+    d_objectTypeName = value;
+}
+
 // ACCESSORS
 inline
-const bsl::string& MetricDescriptor::metricNamespace() const
+const InstanceCount::Value& MetricDescriptor::instanceNumber() const
 {
-    return d_metricNamespace;
+    return d_instanceNumber;
 }
 
 inline
@@ -219,9 +293,9 @@ const bsl::string& MetricDescriptor::metricName() const
 }
 
 inline
-const bsl::string& MetricDescriptor::objectTypeName() const
+const bsl::string& MetricDescriptor::metricNamespace() const
 {
-    return d_objectTypeName;
+    return d_metricNamespace;
 }
 
 inline
@@ -230,23 +304,39 @@ const bsl::string& MetricDescriptor::objectIdentifier() const
     return d_objectIdentifier;
 }
 
+inline
+const bsl::string& MetricDescriptor::objectTypeAbbreviation() const
+{
+    return d_objectTypeAbbreviation;
+}
+
+inline
+const bsl::string& MetricDescriptor::objectTypeName() const
+{
+    return d_objectTypeName;
+}
+
 // FREE OPERATORS
 inline
 bool operator==(const MetricDescriptor& lhs, const MetricDescriptor& rhs)
 {
-    return lhs.d_metricNamespace  == rhs.d_metricNamespace &&
-           lhs.d_metricName       == rhs.d_metricName      &&
-           lhs.d_objectTypeName   == rhs.d_objectTypeName  &&
-           lhs.d_objectIdentifier == rhs.d_objectIdentifier;
+    return lhs.d_metricNamespace        == rhs.d_metricNamespace        &&
+           lhs.d_metricName             == rhs.d_metricName             &&
+           lhs.d_instanceNumber         == rhs.d_instanceNumber         &&
+           lhs.d_objectTypeName         == rhs.d_objectTypeName         &&
+           lhs.d_objectTypeAbbreviation == rhs.d_objectTypeAbbreviation &&
+           lhs.d_objectIdentifier       == rhs.d_objectIdentifier;
 }
 
 inline
 bool operator!=(const MetricDescriptor& lhs, const MetricDescriptor& rhs)
 {
-    return lhs.d_metricNamespace  != rhs.d_metricNamespace ||
-           lhs.d_metricName       != rhs.d_metricName      ||
-           lhs.d_objectTypeName   != rhs.d_objectTypeName  ||
-           lhs.d_objectIdentifier != rhs.d_objectIdentifier;
+    return lhs.d_metricNamespace        != rhs.d_metricNamespace        ||
+           lhs.d_metricName             != rhs.d_metricName             ||
+           lhs.d_instanceNumber         != rhs.d_instanceNumber         ||
+           lhs.d_objectTypeName         != rhs.d_objectTypeName         ||
+           lhs.d_objectTypeAbbreviation != rhs.d_objectTypeAbbreviation ||
+           lhs.d_objectIdentifier       != rhs.d_objectIdentifier;
 }
 
 }  // close package namespace
@@ -255,7 +345,7 @@ bool operator!=(const MetricDescriptor& lhs, const MetricDescriptor& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
