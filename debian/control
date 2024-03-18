@@ -5,12 +5,6 @@ Maintainer: Mike Giroux <mgiroux@bloomberg.net>
 Build-Depends: bde-internal-tools (>> 3.11)
 Standards-Version: 3.8.4
 
-Package: bsl-internal-bdemeta
-Architecture: any
-Description: bsl-internal bde metadata
- bde metadata for the bsl-internal source package
-
-
 
 Package: libbal-dev-extra
 Depends: libbal-dev, libbdl-dev-extra, libbsl-dev-extra
@@ -43,7 +37,6 @@ Conflicts: libbsl-dev (<< 3.41.0.0), libbsl-extra-dev
 Replaces: libbsl-extra-dev
 Description: BSL
  groups/bsl extra libraries
-
 
 
 Package: libbal-dev
