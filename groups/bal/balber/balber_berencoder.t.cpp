@@ -3190,7 +3190,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Customized Types"
                                << "\n========================" << bsl::endl;
 
-        bdlsb::MemOutStreamBuf osb1, osb2;
+        bdlsb::MemOutStreamBuf osb1, osb2, osb3, osb4;
 
         const bsl::string VALUE = "Hello";
 
@@ -3222,9 +3222,43 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) bsl::cout << "\nEncoding bsl::string_view (control)."
+                               << bsl::endl;
+        {
+            bsl::string_view value = VALUE;
+
+            ASSERT(0 == encoder.encode(&osb3, value));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb3.length())
+                printBuffer(osb3.data(), osb3.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nEncoding bslstl::StringRef (control)."
+                               << bsl::endl;
+        {
+            bslstl::StringRef value = VALUE;
+
+            ASSERT(0 == encoder.encode(&osb4, value));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb4.length())
+                printBuffer(osb4.data(), osb4.length());
+            }
+        }
+
         LOOP2_ASSERT(osb1.length(),   osb2.length(),
                      osb1.length() == osb2.length());
+        LOOP2_ASSERT(osb1.length(),   osb3.length(),
+                     osb1.length() == osb3.length());
+        LOOP2_ASSERT(osb1.length(),   osb4.length(),
+                     osb1.length() == osb4.length());
         ASSERT(0 == bsl::memcmp(osb1.data(), osb2.data(), osb1.length()));
+        ASSERT(0 == bsl::memcmp(osb1.data(), osb3.data(), osb1.length()));
+        ASSERT(0 == bsl::memcmp(osb1.data(), osb4.data(), osb1.length()));
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;

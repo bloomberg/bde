@@ -140,7 +140,7 @@ using namespace bsl;
 // [11] CONCERN: 'get/putDoubleValue' (c-p) for 'float' and 'double'
 // [12] CONCERN: 'putLength' & 'getLength'
 // [13] CONCERN: 'putValue' & 'getValue' for 'bsl::string'
-// [14] CONCERN: 'putValue' & 'getValue' for 'bslstl::StringRef'
+// [14] CONCERN: 'putValue' for 'bsl::string_view' & 'bslstl::StringRef'
 // [15] CONCERN: 'putValue' & 'getValue' for date/time types
 // [18] CONCERN: 'putValue' & 'getValue' for date/time types
 // [19] CONCERN: 'putValue' & 'getVaule' for date/time types brute force
@@ -15357,7 +15357,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for 'bslstl::StringRef'
+        // TESTING 'putValue' for 'bsl::string_view' & 'bslstl::StringRef'
         //
         // Concerns:
         //
@@ -15366,9 +15366,10 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putValue', 'getValue' for string"
-                               << "\n========================================="
-                               << bsl::endl;
+        if (verbose) bsl::cout
+         << "\nTESTING 'putValue' for 'bsl::string_view' & 'bslstl::StringRef'"
+         << "\n==============================================================="
+         << bsl::endl;
 
         static const struct {
             int         d_lineNum;  // source line number
@@ -15400,7 +15401,7 @@ int main(int argc, char *argv[])
         for (int di = 0; di < NUM_DATA; ++di) {
             const int                LINE = DATA[di].d_lineNum;
             const bslstl::StringRef  SR   = DATA[di].d_string;
-            const bsl::string        S    = DATA[di].d_string;
+            const bsl::string_view   SV   = DATA[di].d_string;
             const char              *EXP  = DATA[di].d_exp;
             const int                LEN  = numOctets(EXP);
 
@@ -15433,12 +15434,12 @@ int main(int argc, char *argv[])
                              LEN == numBytesConsumed);
             }
 
-            if (veryVerbose) Q(bsl::string);
+            if (veryVerbose) Q(bsl::string_view);
             {
                 string  val;
 
                 bdlsb::MemOutStreamBuf osb;
-                LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, S));
+                LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, SV));
                 LOOP_ASSERT(LINE, LEN == (int)osb.length());
                 LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
@@ -15455,7 +15456,7 @@ int main(int argc, char *argv[])
                                                       &val,
                                                       &numBytesConsumed));
                 LOOP_ASSERT(LINE, 0 == isb.length());
-                LOOP2_ASSERT(S, val, S == val);
+                LOOP2_ASSERT(SV, val, SV == val);
                 LOOP3_ASSERT(LINE,
                              LEN,
                              numBytesConsumed,

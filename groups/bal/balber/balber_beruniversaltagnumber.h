@@ -53,7 +53,11 @@ BSLS_IDENT("$Id: $")
 //  float                              DEFAULT          e_BER_REAL
 //  double                             DEFAULT          e_BER_REAL
 //  bdldfp::Decimal64                  DEFAULT          e_BER_OCTET_STRING
-//  bsl::string                        DEFAULT          e_BER_UTF8_STRING
+//  bsl::string[_view]                 DEFAULT          e_BER_UTF8_STRING
+//                                     TEXT             e_BER_UTF8_STRING
+//                                     BASE64           e_BER_OCTET_STRING
+//                                     HEX              e_BER_OCTET_STRING
+//  bslstl::StringRef                  DEFAULT          e_BER_UTF8_STRING
 //                                     TEXT             e_BER_UTF8_STRING
 //                                     BASE64           e_BER_OCTET_STRING
 //                                     HEX              e_BER_OCTET_STRING
@@ -141,6 +145,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_ostream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -318,6 +323,8 @@ class BerUniversalTagNumber_Imp {
         // so improves the legibility of this class immensely.
 
     typedef bsl::string         String;
+    typedef bsl::string_view    StringView;
+    typedef bslstl::StringRef   StringRef;
     typedef bsls::Types::Int64  Int64;
     typedef bsls::Types::Uint64 Uint64;
     typedef bdldfp::Decimal64   Decimal64;
@@ -352,6 +359,8 @@ class BerUniversalTagNumber_Imp {
     typedef BerUniversalTagNumber_Sel<double        , SimpleCat> DoubleSel;
     typedef BerUniversalTagNumber_Sel<Decimal64     , SimpleCat> Decimal64Sel;
     typedef BerUniversalTagNumber_Sel<String        , SimpleCat> StringSel;
+    typedef BerUniversalTagNumber_Sel<StringView    , SimpleCat> StringViewSel;
+    typedef BerUniversalTagNumber_Sel<StringRef     , SimpleCat> StringRefSel;
     typedef BerUniversalTagNumber_Sel<Date          , SimpleCat> DateSel;
     typedef BerUniversalTagNumber_Sel<DateTz        , SimpleCat> DateTzSel;
     typedef BerUniversalTagNumber_Sel<Datetime      , SimpleCat> DatetimeSel;
@@ -379,6 +388,9 @@ class BerUniversalTagNumber_Imp {
         // into the internal 'alternateTag' data member the any alternative tag
         // numbers corresponding to those types.
 
+    TagVal selectForStringTypes();
+        // Return the universal tag number for string-like types.
+
   public:
     BerUniversalTagNumber_Imp(int fm, const BerEncoderOptions *options = 0)
     : d_formattingMode(fm)
@@ -405,6 +417,8 @@ class BerUniversalTagNumber_Imp {
     TagVal select(const DoubleSel&                  selector);
     TagVal select(const Decimal64Sel&               selector);
     TagVal select(const StringSel&                  selector);
+    TagVal select(const StringViewSel&              selector);
+    TagVal select(const StringRefSel&               selector);
     TagVal select(const DateSel&                    selector);
     TagVal select(const DateTzSel&                  selector);
     TagVal select(const DatetimeSel&                selector);
@@ -584,6 +598,22 @@ BerUniversalTagNumber_Imp::selectForDateAndTimeTypes()
 
         return BerUniversalTagNumber::e_BER_VISIBLE_STRING;
     }
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::selectForStringTypes()
+{
+    if (FMode::e_BASE64 == (d_formattingMode & FMode::e_TYPE_MASK)
+     || FMode::e_HEX    == (d_formattingMode & FMode::e_TYPE_MASK)) {
+        return BerUniversalTagNumber::e_BER_OCTET_STRING;
+    }
+
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
+       || FMode::e_TEXT    == (d_formattingMode & FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_UTF8_STRING;
 }
 
                                //  ** By Type **
@@ -821,16 +851,21 @@ inline
 BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const StringSel&)
 {
-    if (FMode::e_BASE64 == (d_formattingMode & FMode::e_TYPE_MASK)
-     || FMode::e_HEX    == (d_formattingMode & FMode::e_TYPE_MASK)) {
-        return BerUniversalTagNumber::e_BER_OCTET_STRING;
-    }
+    return selectForStringTypes();
+}
 
-    BSLS_ASSERT_SAFE(
-          FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
-       || FMode::e_TEXT    == (d_formattingMode & FMode::e_TYPE_MASK));
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const StringViewSel&)
+{
+    return selectForStringTypes();
+}
 
-    return BerUniversalTagNumber::e_BER_UTF8_STRING;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const StringRefSel&)
+{
+    return selectForStringTypes();
 }
 
 inline

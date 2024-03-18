@@ -891,6 +891,8 @@ int main(int argc, char *argv[])
         const double                               doubleVal        = 0.0;
         const bdldfp::Decimal64                    decimal64Val;
         const bsl::string                          stringVal;
+        const bsl::string_view                     stringViewVal;
+        const bslstl::StringRef                    stringRefVal;
         const Date                                 dateVal;
         const DateTz                               dateTzVal;
         const Datetime                             datetimeVal;
@@ -1232,6 +1234,18 @@ int main(int argc, char *argv[])
         PASS(stringVal         , DEFAULT, UTF8_STRING   , NONE          );
         PASS(stringVal         , HEX    , OCTET_STRING  , NONE          );
         PASS(stringVal         , TEXT   , UTF8_STRING   , NONE          );
+
+        PASS(stringViewVal     , BASE64 , OCTET_STRING  , NONE          );
+        FAIL(stringViewVal     , DEC                                    );
+        PASS(stringViewVal     , DEFAULT, UTF8_STRING   , NONE          );
+        PASS(stringViewVal     , HEX    , OCTET_STRING  , NONE          );
+        PASS(stringViewVal     , TEXT   , UTF8_STRING   , NONE          );
+
+        PASS(stringRefVal      , BASE64 , OCTET_STRING  , NONE          );
+        FAIL(stringRefVal      , DEC                                    );
+        PASS(stringRefVal      , DEFAULT, UTF8_STRING   , NONE          );
+        PASS(stringRefVal      , HEX    , OCTET_STRING  , NONE          );
+        PASS(stringRefVal      , TEXT   , UTF8_STRING   , NONE          );
 
         FAIL(dateVal           , BASE64                                 );
         FAIL(dateVal           , DEC                                    );
@@ -1764,6 +1778,38 @@ int main(int argc, char *argv[])
                                  FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bsl::string_view,
+                                 FM::e_DEFAULT,
+                                 Class::e_BER_UTF8_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bsl::string_view,
+                                 FM::e_TEXT,
+                                 Class::e_BER_UTF8_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bsl::string_view,
+                                 FM::e_BASE64,
+                                 Class::e_BER_OCTET_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bsl::string_view,
+                                 FM::e_HEX,
+                                 Class::e_BER_OCTET_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bslstl::StringRef,
+                                 FM::e_DEFAULT,
+                                 Class::e_BER_UTF8_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bslstl::StringRef,
+                                 FM::e_TEXT,
+                                 Class::e_BER_UTF8_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bslstl::StringRef,
+                                 FM::e_BASE64,
+                                 Class::e_BER_OCTET_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bslstl::StringRef,
+                                 FM::e_HEX,
+                                 Class::e_BER_OCTET_STRING,
+                                 &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
                                  FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
@@ -2068,6 +2114,38 @@ int main(int argc, char *argv[])
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bsl::string,
+                                 FM::e_HEX,
+                                 Class::e_BER_OCTET_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bsl::string_view,
+                                 FM::e_DEFAULT,
+                                 Class::e_BER_UTF8_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bsl::string_view,
+                                 FM::e_TEXT,
+                                 Class::e_BER_UTF8_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bsl::string_view,
+                                 FM::e_BASE64,
+                                 Class::e_BER_OCTET_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bsl::string_view,
+                                 FM::e_HEX,
+                                 Class::e_BER_OCTET_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bslstl::StringRef,
+                                 FM::e_DEFAULT,
+                                 Class::e_BER_UTF8_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bslstl::StringRef,
+                                 FM::e_TEXT,
+                                 Class::e_BER_UTF8_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bslstl::StringRef,
+                                 FM::e_BASE64,
+                                 Class::e_BER_OCTET_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bslstl::StringRef,
                                  FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &options);

@@ -15,7 +15,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides utility functions for encoding and
 // decoding of primitive BER constructs, such as tag identifier octets, length
 // octets, fundamental C++ types.  The encoding and decoding of 'bsl::string'
-// and BDE date/time types is also implemented.
+// and BDE date/time types is also implemented.  For 'bsl::string_view' and
+// 'bslstl::StringRef' types only encoding is supported.
 //
 // These utility functions operate on 'bsl::streambuf' for buffer management.
 //
@@ -134,6 +135,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -252,8 +254,8 @@ struct BerUtil {
         // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
         // on success, and a non-zero value otherwise.  Note that the value
         // consists of the length and contents primitives.  Also note that only
-        // fundamental C++ types, 'bsl::string', 'bslstl::StringRef' and BDE
-        // date/time types are supported.
+        // fundamental C++ types, 'bsl::string', 'bsl::string_view',
+        // 'bslstl::StringRef', and BDE date/time types are supported.
 };
 
 ///Implementation Note
@@ -1044,6 +1046,18 @@ struct BerUtil_StringImpUtil {
 
     static int putStringValue(bsl::streambuf     *streamBuf,
                               const bsl::string&  value);
+        // Write the length and contents octets of the BER encoding of the
+        // specified character string 'value' (as defined in the specification)
+        // to the output sequence of the specified 'streamBuf'.  Return 0 if
+        // successful, and a non-zero value otherwise.  The operation succeeds
+        // if all bytes corresponding to the length and contents octets are
+        // written to the 'streamBuf' without the write position becoming
+        // unavailable.
+
+    // 'bsl::string_view' Encoding
+
+    static int putStringViewValue(bsl::streambuf          *streamBuf,
+                                  const bsl::string_view&  value);
         // Write the length and contents octets of the BER encoding of the
         // specified character string 'value' (as defined in the specification)
         // to the output sequence of the specified 'streamBuf'.  Return 0 if
@@ -3734,6 +3748,9 @@ struct BerUtil_PutValueImpUtil {
     static int putValue(bsl::streambuf          *streamBuf,
                         const bsl::string&       value,
                         const BerEncoderOptions *options);
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bsl::string_view&  value,
+                        const BerEncoderOptions *options);
     static int putValue(bsl::streambuf           *streamBuf,
                         const bslstl::StringRef&  value,
                         const BerEncoderOptions  *options);
@@ -3758,8 +3775,8 @@ struct BerUtil_PutValueImpUtil {
         // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
         // on success, and a non-zero value otherwise.  Note that the value
         // consists of the length and contents primitives.  Also note that only
-        // fundamental C++ types, 'bsl::string', 'bslstl::StringRef' and BDE
-        // date/time types are supported.
+        // fundamental C++ types, 'bsl::string', 'bsl::string_view',
+        // 'bslstl::StringRef' and BDE date/time types are supported.
 };
 
                              // ==================
@@ -4404,6 +4421,17 @@ int BerUtil_StringImpUtil::putRawStringValue(bsl::streambuf *streamBuf,
 inline
 int BerUtil_StringImpUtil::putStringValue(bsl::streambuf     *streamBuf,
                                           const bsl::string&  value)
+{
+    return putRawStringValue(
+        streamBuf, value.data(), static_cast<int>(value.length()));
+}
+
+// 'bsl::string_view' Encoding
+
+inline
+int BerUtil_StringImpUtil::putStringViewValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bsl::string_view&  value)
 {
     return putRawStringValue(
         streamBuf, value.data(), static_cast<int>(value.length()));
@@ -6406,6 +6434,14 @@ int BerUtil_PutValueImpUtil::putValue(bsl::streambuf          *streamBuf,
                                       const BerEncoderOptions *)
 {
     return StringUtil::putStringValue(streamBuf, value);
+}
+
+inline
+int BerUtil_PutValueImpUtil::putValue(bsl::streambuf          *streamBuf,
+                                      const bsl::string_view&  value,
+                                      const BerEncoderOptions *)
+{
+    return StringUtil::putStringViewValue(streamBuf, value);
 }
 
 inline
