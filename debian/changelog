@@ -1,9 +1,16 @@
-bsl-internal (4.5.1.0) unstable; urgency=low
+bsl-internal (4.5.2.0) unstable; urgency=low
 
+  * 492ff163c Bumped version to 4.5.2.0
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 19 Mar 2024 11:54:34 -0400
+
+bsl-internal (4.5.1.0) git; urgency=low
+
+  * 3ab9adae9 Changelog for version 4.5.1.0
   * 0f343013e Bumped version to 4.5.1.0
   * 96d49adc4 Add support for bdlb::Guid to ball::ScopedAttribute (#4661)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 12 Mar 2024 13:01:01 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 12 Mar 2024 13:03:54 -0400
 
 bsl-internal (4.5.0.0) git; urgency=low
 
