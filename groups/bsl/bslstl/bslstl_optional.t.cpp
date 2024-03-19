@@ -95,22 +95,28 @@ using namespace bsl;
 // [ 2] optional(nullopt_t);
 // [ 7] optional(const optional&);
 // [ 7] optional(optional&&);
+// [ 3] optional(const TYPE&);
+// [ 3] optional(TYPE&&);
 // [ 7] optional(const optional<ANY_TYPE> &);
 // [ 7] optional(optional<ANY_TYPE>&&);
 // [ 7] optional(const std::optional<ANY_TYPE> &);
 // [ 7] optional(std::optional<ANY_TYPE>&&);
-// [ 3] template <class ANY_TYPE = TYPE> optional(ANY_TYPE&&);
+// [ 3] optional(const ANY_TYPE&);
+// [ 3] optional(ANY_TYPE&&);
 // [ 3] optional(in_place_t, ARGS&&...);
 // [ 3] optional(in_place_t, std::initializer_list, ARGS&&...);
 // [ 2] optional(alloc_arg, alloc);
 // [ 2] optional(alloc_arg, alloc, nullopt_t);
 // [ 7] optional(alloc_arg, alloc, const optional&);
 // [ 7] optional(alloc_arg, alloc, optional&&);
+// [ 3] optional(alloc_arg, alloc, const TYPE&);
+// [ 3] optional(alloc_arg, alloc, TYPE&&);
 // [ 7] optional(alloc_arg, alloc, const optional<ANY_TYPE> &);
 // [ 7] optional(alloc_arg, alloc, optional<ANY_TYPE>&&);
 // [ 7] optional(alloc_arg, alloc, const std::optional<ANY_TYPE> &);
 // [ 7] optional(alloc_arg, alloc, std::optional<ANY_TYPE>&&);
-// [ 3] template <class U = TYPE> optional(alloc_arg, alloc, U&&);
+// [ 3] optional(alloc_arg, alloc, const ANY_TYPE&);
+// [ 3] optional(alloc_arg, alloc, ANY_TYPE&&);
 // [ 3] optional(alloc_arg, alloc, in_place_t, ARGS&&...);
 // [ 3] optional(alloc_arg, alloc, in_place_t, init_list, ARGS&&...);
 // [ 2] ~optional(nullopt_t);
@@ -224,8 +230,6 @@ using namespace bsl;
 // [24] TESTING DERIVED -- 'TYPE' DOES NOT ALLOCATE
 // [25] IMPLICIT/EXPLICIT C'TORS TEST
 // [27] CONCEPTS
-// [29] INCOMPLETE TYPES
-// [30] CONSTRUCTION FROM NESTED BRACED LIST
 
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -390,18 +394,6 @@ void myMemcpy(void *dst, const void *src, size_t size)
         *dstChar++ = *srcChar++;
     }
 }
-
-                   // =====================================
-                   // Forward declarations for test case 29
-                   // =====================================
-
-struct MyClass1;
-struct MyClass2;
-namespace {
-bool testCase29(bsl::optional<MyClass1>);
-bool testCase29(bsl::optional<MyClass2>);
-    // Return 'true'.
-}  // close unnamed namespace
 
                               // ================
                               // class MyClassDef
@@ -961,7 +953,7 @@ struct MyClass2a {
     {
     }
 
-    explicit MyClass2a(int v)
+    explicit MyClass2a(int v)  // IMPLICIT
     : d_data(v)
     {
     }
@@ -5291,20 +5283,23 @@ struct ThrowMoveConstructible {
 };
 
                                 // ------------
-                                // Test Case 29
+                                // Test Case 26
                                 // ------------
 
-namespace {
-bool testCase29(bsl::optional<MyClass1>)
-{
-    return true;
-}
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
+   !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                      \
+     defined(BSLS_LIBRARYFEATURES_STDCPP_GNU))               &&               \
+   !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                      \
+     defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM))
+// Ensure that we can do 'bsl::optional<bslma::ManagedPtr<void> > on C++17.  As
+// per DRQS 168171178.  Note that there are differences in implementation
+// between pre-C++17 and C++17.
 
-bool testCase29(bsl::optional<MyClass2>)
-{
-    return true;
-}
-}  // close unnamed namespace
+// This is a compile-only test, and only test on C++17.
+
+template class bsl::optional<bslma::ManagedPtr<void>>;
+template class std::optional<bslma::ManagedPtr<void>>;
+#endif
 
                                 // ------------
                                 // Test Case 22
@@ -6123,21 +6118,21 @@ template <class TYPE,
 struct Derived;
 
 template <class TYPE>
-struct Derived<TYPE, true> : bsl::optional<TYPE> {
+struct Derived<TYPE, true> : bsl::optional<TYPE, true> {
     // CREATORS
     Derived(bsl::allocator_arg_t aarg,
             bsl::allocator<char> alloc,
             const TYPE&          value)
-    : bsl::optional<TYPE>(aarg, alloc, value)
+    : bsl::optional<TYPE, true>(aarg, alloc, value)
     {
     }
 };
 
 template <class TYPE>
-struct Derived<TYPE, false> : bsl::optional<TYPE> {
+struct Derived<TYPE, false> : bsl::optional<TYPE, false> {
     // CREATORS
     Derived(const TYPE& value)
-    : bsl::optional<TYPE>(value)
+    : bsl::optional<TYPE, false>(value)
     {
     }
 };
@@ -6199,64 +6194,6 @@ struct CustomHashAlgorithm {
         return 0;
     }
 };
-
-                              // ------------
-                              // Test Case 3e
-                              // ------------
-
-void testCase3e()
-{
-    // ------------------------------------------------------------------------
-    // TESTING CONSTRUCTION FROM A NESTED BRACED LIST
-    //
-    // Concerns:
-    //: 1 'bsl::optional<T>' is constructible from '{{args...}}' if 'T' is
-    //:   not allocator-aware and is constructible from '{args...}'.
-    //:
-    //: 2 'bsl::optional<T>' is constructible from
-    //:   '{bsl::allocator_arg, alloc, {args...}}' if 'T' is allocator-aware
-    //:   and constructible from '{args...}'.
-    //
-    // Plan:
-    //: 1 Construct a 'bsl::optional<MyClass1>' object from a nested braced
-    //:   list and check that the appropriate constructor was called.  (C-1)
-    //:
-    //: 2 Construct a 'bsl::optional<MyClass2>' object from a nested braced
-    //:   list and check that the appropriate constructor was called with the
-    //:   provided allocator.  (C-2)
-    //:
-    //: 3 Also test cases with 2 args, either with a constructor or with
-    //:   aggregate initialization (based on real code in dpkg).  (C-1)
-    //
-    // Testing:
-    //   template <class ANY_TYPE = TYPE> optional(ANY_TYPE&&);
-    //   template <class U = TYPE> optional(alloc_arg, alloc, U&&);
-    // ------------------------------------------------------------------------
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    bsl::optional<MyClass1> o1{{1}};
-    ASSERT(o1.has_value() && o1->value() == 1);
-
-    bslma::TestAllocator    ta("test", veryVeryVeryVerbose);
-    bsl::optional<MyClass2> o2{bsl::allocator_arg, &ta, {2}};
-    ASSERT(o2.has_value() && o2->value() == 2 &&
-           o2->get_allocator().mechanism() == &ta);
-
-    // a few extra cases
-    struct Pair {
-        Pair(int, int) {}
-    };
-    bsl::optional<Pair> o3{{3, 4}};
-
-    struct Agg {
-        int d_x;
-        int d_y;
-    };
-    bsl::optional<Agg> o4{{5, 6}};
-#else
-    if (verbose)
-        printf("Skipping case 3e on C++03...\n");
-#endif
-}
 
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
@@ -11460,6 +11397,7 @@ void TestDriver<TYPE>::testCase4a()
     }
 }
 
+
 template <class TYPE>
 void TestDriver<TYPE>::testCase3d()
 {
@@ -12960,7 +12898,11 @@ void TestDriver<TYPE>::testCase3b_imp()
     //:   object, and a const rvalue source object. [C-4]
     //
     // Testing:
-    //   template <class U = TYPE> optional(alloc_arg, alloc, U&&);
+    //
+    //   optional(allocator_arg_t, allocator_type, const TYPE&);
+    //   optional(allocator_arg_t, allocator_type, TYPE&&);
+    //   optional(allocator_arg_t, allocator_type, const ANY_TYPE&);
+    //   optional(allocator_arg_t, allocator_type, ANY_TYPE&&);
     // --------------------------------------------------------------------
 
     {
@@ -13021,14 +12963,14 @@ void TestDriver<TYPE>::testCase3a_imp()
     // Plan:
     //
     //: 1 Create a value object and use it as the source object for an
-    //:   'optional'.  Verify that the constructed 'optional' object is engaged
-    //:   and contains the value of the object used to initialise it.  [C-1]
+    //:   'optional'.  Verify that the constructed 'optional' object is engaged and
+    //:   contains the value of the object used to initialise it.  [C-1]
     //:
-    //: 2 Repeat step 1 using a 'value_type' object and an object of type
-    //:   convertible to 'value_type' as the source object.  [C-1]
+    //: 2 Repeat step 1 using a 'value_type' object and an object of type convertible
+    //:   to 'value_type' as the source object.  [C-1]
     //:
-    //: 3 If 'value_type' is allocator-aware, verify that the allocator of the
-    //:   new 'optional' object is the default allocator [C-2]
+    //: 3 If 'value_type' is allocator-aware, verify that the allocator of the new
+    //:   'optional' object is the default allocator [C-2]
     //:
     //: 4 In steps 1-3, verify that no unnecessary copies of the 'value_type'
     //:   are created by comparing the number of copy/move constructors invoked
@@ -13039,7 +12981,11 @@ void TestDriver<TYPE>::testCase3a_imp()
     //:   object, and a const rvalue source object.  [C-4]
     //
     // Testing:
-    //   template <class ANY_TYPE = TYPE> optional(ANY_TYPE&&);
+    //
+    //    optional(const TYPE&);
+    //    optional(TYPE&&);
+    //    optional(const ANY_TYPE&);
+    //    optional(ANY_TYPE&&);
     // --------------------------------------------------------------------
 
     {
@@ -13494,39 +13440,6 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
-      case 29: {
-        //---------------------------------------------------------------------
-        // TESTING INCOMPLETE TYPES
-        //
-        // Concern:
-        //: 1 When 'T' is an incomplete class type, a function can be declared
-        //:   that takes an argument of type 'bsl::optional<T>'.
-        //:
-        //: 2 If 'T' is subsequently completed, the aforementioned function can
-        //:   be defined and called.
-        //:
-        // Plan:
-        //: 1 Forward-declare 'MyClass1' (which is not allocator-aware) and
-        //:   'MyClass2' (which is allocator-aware).  Immediately afterward,
-        //:   declare a function with a parameter of type 'MyClass1' and a
-        //:   function with a parameter of type 'MyClass2'.  (C-1)
-        //:
-        //: 2 After the definitions of 'MyClass1' and 'MyClass2', provide the
-        //:   definitions of the two functions declared in P-1.  (C-2)
-        //:
-        //: 3 Call the functions declared in P-1.  (C-2)
-        //
-        // Testing:
-        //   INCOMPLETE TYPES
-        //---------------------------------------------------------------------
-        if (verbose) printf("\nTESTING INCOMPLETE TYPES"
-                            "\n========================\n");
-
-        bsl::optional<MyClass1> o1;
-        bsl::optional<MyClass2> o2;
-        ASSERT(testCase29(o1));
-        ASSERT(testCase29(o2));
-      } break;
       case 28: {
         //---------------------------------------------------------------------
         // Testing 'IsBitwiseMoveable' and 'IsBitwiseCopyable'.
@@ -13538,7 +13451,7 @@ int main(int argc, char **argv)
       } break;
       case 27: {
         //---------------------------------------------------------------------
-        // TESTING COMPONENT-PRIVATE CONCEPTS
+        // TESTING CONCEPTS
         //
         // Concern:
         //: 1 'Optional_ConvertibleToBool' is 'true' only for types convertible
@@ -13554,11 +13467,9 @@ int main(int argc, char **argv)
         // Testing:
         //   CONCEPTS
         //---------------------------------------------------------------------
-        if (verbose) printf("\nTESTING COMPONENT-PRIVATE CONCEPTS"
-                            "\n==================================\n");
+        if (verbose) printf("\nTESTING CONCEPTS"
+                            "\n================\n");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
-        using BloombergLP::bslstl::Optional_ConvertibleToBool;
-        using BloombergLP::bslstl::Optional_DerivedFromOptional;
         BSLMF_ASSERT(( Optional_ConvertibleToBool<bool>));
         BSLMF_ASSERT(( Optional_ConvertibleToBool<int>));
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
@@ -13581,17 +13492,18 @@ int main(int argc, char **argv)
         // bsl::optional<bslma::ManagedPtr<void>>
         //
         // Concern:
-        //: 1 That 'bsl::optional<bslma::ManagedPtr<void>>' is correctly
-        //:   detected as being non-copyable on C++17 when implementation of
-        //:   'bsl::optional' is delegated to 'std::optional' for
-        //:   non-allocator-aware types (see DRQS 168171178).  Note that we
-        //:   omit this test for clang where instantiation of
-        //:   'std::optional<bslma::ManagedPtr<void>>' fails to compile (even
-        //:   if the copy constructor and copy assignment operator are not
-        //:   used); see DRQS 165886885.
+        //: 1 That 'bsl::optional<bslma::ManagedPtr<void>>' can be explicitly
+        //:   instantiated on C++17 when implementation of 'bsl::optional' is
+        //:   delegated to 'std::optional' for non-allocator-aware types (see
+        //:   DRQS 168171178).  Note that we omit this test for clang with
+        //:   libstdc++ where the explicit instantiation of
+        //:   'std::optional<bslma::ManagedPtr<void>>' fails to compile.
         //
         // Plan:
-        //: 1 Use 'BSLMF_ASSERT' to examine type traits to verify that
+        //: 1 Do 'template class ...' declarations at file scope and see if
+        //:   they compile on C++17.
+        //:
+        //: 2 Use 'BSLMF_ASSERT' to examine type traits to verify that
         //:   'optional<bslma::ManagedPtr>' is neither copy-constructible nor
         //:   copy-assignable (due to the standard maintaining that the
         //:   corresponding functions having a const-reference argument).
@@ -13603,12 +13515,29 @@ int main(int argc, char **argv)
         if (verbose) printf("TEST bsl::optional<bslma::ManagedPtr<void>>\n"
                             "===========================================\n");
 
+        if (veryVerbose) {
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+            printf("stdcpp_gnu\n");
+#endif
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
+            printf("stdcpp_llvm\n");
+#endif
+        }
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
-   !defined(BSLS_PLATFORM_CMP_CLANG)
+   !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                      \
+     defined(BSLS_LIBRARYFEATURES_STDCPP_GNU))               &&               \
+   !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                      \
+     defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM))
         typedef bsl::optional<bslma::ManagedPtr<void>> Obj;
 
         BSLMF_ASSERT(!bsl::is_copy_constructible<Obj>::value);
         BSLMF_ASSERT(!std::is_copy_assignable<Obj>::value);
+
+        typedef std::optional<bslma::ManagedPtr<void>> SObj;
+
+        BSLMF_ASSERT(!bsl::is_copy_constructible<SObj>::value);
+        BSLMF_ASSERT(!std::is_copy_assignable<SObj>::value);
 #endif
       } break;
       case 25: {
@@ -14023,12 +13952,6 @@ int main(int argc, char **argv)
                       testCase3d,
                       ConstructTestTypeAlloc,
                       ConstructTestTypeAllocArgT);
-
-
-        if (verbose)
-            printf("\nTESTING CONSTRUCTION FROM A NESTED BRACED LIST"
-                   "\n==============================================\n");
-        testCase3e();
         break;
       case 2:
         if (verbose)
