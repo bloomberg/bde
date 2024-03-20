@@ -4,9 +4,18 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslmf_assert.h>
 #include <bslmf_isbitwisecopyable.h>
 
-#include <bslmf_assert.h>
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+    #if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
+        #error Must be aliased for C++20 and later.
+    #endif
+#else
+    #if defined(BSLSTL_STRING_VIEW_IS_ALIASED)
+        #error Must *not* be aliased prior to C++20.
+    #endif
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 //=============================================================================
 //                            // Implementation Note
@@ -23,26 +32,26 @@ BSLS_IDENT("$Id$ $CSID$")
 // identity metafunction is used.
 //
 // Using this approach provides a convenient way to implement comparison
-// operations for 'string_view', which is required to allow comparisons between
+// operations for 'string_view', that is required to allow comparisons between
 // 'string_view' objects and between one 'string_view' and one object that is
-// implictly convertible to a 'string_view'.  Unfortunately, some compilers are
-// not able to correctly hande the three overloads, two of which employ the
-// identity metafunction for one of their arguments.  Specifically, the MSVC
-// compiler can't handle partial ordering of function templates w.r.t.
-// non-deduced context which the use of identity metafunction introduces,
+// implicitly convertible to a 'string_view'.  Unfortunately, some compilers
+// are not able to correctly handle the three overloads, two of which employ
+// the identity metafunction for one of their arguments.  Specifically, the
+// MSVC compiler can't handle partial ordering of function templates w.r.t.
+// non-deduced context that the use of identity metafunction introduces,
 // whereas some Sun compilers (pre-5.12.4 and 5.12.6, see DRQS 169697089)
 // mangle the overloads in the same way, and compilation fails because multiple
 // functions are defined with the same symbol.
 //
 // As a workaround, we provide two implementations of 'StringView_Identity'
 // metafunction.  For compilers that do not have the deficiencies mentioned
-// above, we use the straigtforward identity transformation.  For MSVC and Sun
+// above, we use the straightforward identity transformation.  For MSVC and Sun
 // compilers, however, instead of aliasing the type itself, we alias a
-// lightweight wrapper which is implicitly constructible from any type
+// lightweight wrapper that is implicitly constructible from any type
 // convertible to a 'string_view' and is itself implicitly convertible to
 // 'string_view'.  This allows function implementation to remain the same on
 // all compilers.  In addition, since we know that this wrapper is only used
-// for 'string_view' objects which are very cheap to copy, this does not
+// for 'string_view' objects, which are very cheap to copy, this does not
 // introduce a significant performance penalty.
 //
 // The comparison operators '==', '!=', '<', '>', '<=', and '>=' are all

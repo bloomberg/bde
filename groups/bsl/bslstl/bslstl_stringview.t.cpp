@@ -17,13 +17,16 @@
 #include <bsls_platform.h>
 
 #include <cstddef>     // 'std::ptrdiff'
+#include <cstdlib>     // 'std::atoi'
 #include <cstring>     // 'std::memcpy', 'std::memcmp'
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <stdexcept>   // 'std::out_of_range'
 #include <string>
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <type_traits> // 'std::is_convertible', 'std::is_pointer'
+#include <type_traits> // 'std::is_convertible', 'std::is_pointer',
+                       // 'std::is_same'
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -133,7 +136,7 @@
 // [ 6] swap(basic_string_view& lhs, basic_string_view& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] CONCERN: HELPER CLASSES FOR ITERATOR INTEFACES WORK AS EXPECTED
+// [ 2] CONCERN: HELPER CLASSES FOR ITERATOR INTERFACES WORK AS EXPECTED
 // [25] USAGE EXAMPLE
 // [24] TRAITS
 
@@ -730,7 +733,7 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
 //              HELPER CLASSES FOR TESTING ITERATOR INTERFACES
 // ----------------------------------------------------------------------------
 
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
                         // ==================
                         // class TestIterator
@@ -740,9 +743,16 @@ template <class CHAR_TYPE>
 class TestIterator {
     // This class is used to test the constructor that accepts an iterator type
     // (and a sentinel type).
+    //
+    // Note that this test type is sufficient for by the BDE "backport"
+    // provided for pre-C++20 environments; however, C++20 and beyond require
+    // fully compliant contiguous iterators (as are provided by Standard
+    // containers).
 
   public:
+    // TYPES
     typedef const CHAR_TYPE (*Position);
+    typedef CHAR_TYPE value_type;      // Standard iterator type trait
 
   private:
     Position d_position;
@@ -819,8 +829,8 @@ class TestSentinel {
     // CREATORS
     TestSentinel(const CHAR_TYPE *end);
         // Create a 'TestSentinel' object that refers the specified 'end'
-        // position (address).  Note that no ay is provided to change the
-        // position of a 'TestSentinel' object.
+        // position (address).  Note that no facility is provided to change
+        // the position of a 'TestSentinel' object.
 
     // ACCESSORS
     const CHAR_TYPE *addr() const;
@@ -883,7 +893,7 @@ bool operator==(const TestIterator<CHAR_TYPE>& lhs,
     return lhs.addr() == rhs.addr();
 }
 
-#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
@@ -902,24 +912,25 @@ struct TestDriver {
     typedef typename Obj::const_reverse_iterator const_reverse_iterator;
 
     // CLASS DATA
+
     // We have to define 's_testStringLength' constant inside of the class
     // declaration to avoid MSVC build error "C2131: expression did not
     // evaluate to a constant".  And we have to initialize it with the literal
     // instead of using 'sizeof', because MSVC doesn't allow to use 'sizeof'
-    // for constant static arrays, defined outside  of the class declaration:
+    // for constant static arrays, defined outside of the class declaration:
     // "C2070: 'const char []': illegal sizeof operand".
 
     static const TYPE s_testString[];           // common test string
     static const int  s_testStringLength = 49;  // length of test string
 
+// BDE_VERIFY pragma: -FABC01  // not in alphanumeric order
+
     // TEST CASES
     static void testCase22();
         // Test 'operator ""_sv'.
 
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
     static void testCase21();
         // Test 'starts_with' and 'ends_with'.
-#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
     static void testCase20();
         // Test comparison operators.
@@ -976,6 +987,8 @@ struct TestDriver {
         // Test primary manipulators.
 
 };
+
+// BDE_VERIFY pragma: +FABC01  // not in alphanumeric order
 
                                 // ----------
                                 // CLASS DATA
@@ -1235,7 +1248,6 @@ void TestDriver<TYPE,TRAITS>::testCase22()
 
 }
 
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE, TRAITS>::testCase21() {
     // ------------------------------------------------------------------------
@@ -1287,6 +1299,18 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
     //   bool ends_with(const CHAR_TYPE* characterString) const;
     // ------------------------------------------------------------------------
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
+
+#if   defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        ASSERT(( bsl::is_same<Obj,
+                              std::basic_string_view<TYPE, TRAITS> >::value));
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+
+        // 'std::string_view' exists but, since it lacks '*_with' methods,
+        // we do not alias 'bsl::string_view' to it.
+
+        ASSERT((!bsl::is_same<Obj,
+                              std::basic_string_view<TYPE, TRAITS> >::value));
+#endif
 
     const TYPE      *STRING     = s_testString;
     const TYPE      *NULL_PTR   = 0;
@@ -1519,7 +1543,8 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
     }
 #endif
 }
-#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
+
+// BDE_VERIFY pragma: -FABC01  // not in alphanumeric order
 
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase20()
@@ -6309,14 +6334,14 @@ void TestDriver<TYPE, TRAITS>::testCase2()
     //:   allocated from the default allocator.  (C-3)
     //:
     //: 7 Create 'TestIterator' and 'TestSentinel' objects and confirm the
-    //:   required featurees in a series of ad hoc tests.  (C-8)
+    //:   required features in a series of ad hoc tests.  (C-8)
     //
     // Testing:
     //   basic_string_view(const CHAR_TYPE *str, size_type numChars);
     //   basic_string_view(CONTG_ITER first, SENTINEL last);
     //   size_type length() const;
     //   const_pointer data() const;
-    //   CONCERN: HELPER CLASSES FOR ITERATOR INTEFACES WORK AS EXPECTED
+    //   CONCERN: HELPER CLASSES FOR ITERATOR INTERFACES WORK AS EXPECTED
     // ------------------------------------------------------------------------
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
@@ -6329,9 +6354,14 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 
     if (verbose) printf("Validate 'TestIterator' and 'TestSentinel'.\n");
 
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
     {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+
+        ASSERT((true ==std::is_same<bsl::string_view,  // confirm alias
+                                    std::string_view>::value));
+#else
+
+#ifdef  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         ASSERT((true  == std::is_convertible<
                                  TestIterator<TYPE>,
                                  typename std::add_pointer<
@@ -6342,9 +6372,13 @@ void TestDriver<TYPE, TRAITS>::testCase2()
                                              std::size_t
                                              >::value));
 
-        ASSERT(false == std::is_pointer<TestIterator<TYPE> >::value);
-        ASSERT(false == std::is_pointer<TestSentinel<TYPE> >::value);
-#endif
+        ASSERT( false == std::is_pointer<TestIterator<TYPE> >::value);
+        ASSERT( false == std::is_pointer<TestSentinel<TYPE> >::value);
+
+        ASSERT((true == std::is_same<typename TestIterator<TYPE>::value_type,
+                                     TYPE
+                                    >::value));
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
         ASSERT((bsl::BasicStringView_IsCompatibleIterator<TYPE,
                                                          TestIterator<TYPE> >
@@ -6378,13 +6412,10 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         const TYPE valueNext = *iter;
         ASSERTV(valueNext, 48 == valueNext);
 
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     }
-#else
-        if (verbose) printf(
-                          "SKIP Test::Methods not available prior to C++20\n");
-#endif
 
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     const char CFG_LIMIT = 'c';
 #else
     const char CFG_LIMIT = 'a';
@@ -6408,7 +6439,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
                 objPtr              = new (fa) Obj(0, 0);
                 expectedDataAddress = 0;
               } break;
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
               case 'b': { // two pointers
                 objPtr              = new (fa) Obj(STRING, STRING);
                 expectedDataAddress = STRING;
@@ -6418,7 +6449,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
                                                    TestSentinel<TYPE>(STRING));
                 expectedDataAddress = STRING;
               } break;
-#endif
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
               default: {
                     BSLS_ASSERT_OPT(!"Expected configuration.");
               } break;
@@ -6458,15 +6489,14 @@ void TestDriver<TYPE, TRAITS>::testCase2()
                 bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
 
                 Obj *objPtr = 'a' == CONFIG ? new (fa) Obj(START, LENGTH)
-
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
                             : 'b' == CONFIG ? new (fa) Obj(START,
                                                            START + LENGTH)
 
                             : 'c' == CONFIG ? new (fa) Obj(
                                             TestIterator<TYPE>(START),
                                             TestSentinel<TYPE>(START + LENGTH))
-#endif
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
                             :  /*default */   0;
 
                 ASSERT(objPtr);
@@ -6497,7 +6527,6 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         ASSERT_SAFE_PASS((Obj(STRING, (Obj::npos - 1) / sizeof(TYPE))));
         ASSERT_SAFE_FAIL((Obj(STRING, Obj::npos    )));
 
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
         const TYPE *FIRST = STRING;
         const TYPE *LAST  = STRING + STRING_LENGTH;
 
@@ -6523,15 +6552,14 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         ASSERT_SAFE_PASS(Obj(UI_FIRST, US_FIRST));
         ASSERT_SAFE_PASS(Obj(UI_LAST,  US_LAST ));
         ASSERT_SAFE_FAIL(Obj(UI_LAST,  US_FIRST));
-#else
-        if (verbose) printf("Methods not available prior to C++20\n");
-#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
     }
 #endif
 
     // Verify no memory was ever allocated.
     ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 }
+
+// BDE_VERIFY pragma: +FABC01  // not in alphanumeric order
 
 //=============================================================================
 //                   FAKE 'bsl::string' FOR USAGE EXAMPLE
@@ -6541,7 +6569,7 @@ namespace bsl {
 
 class string {
     // The usage example uses 'bsl::string', which we can't access here because
-    // it would cause a cylce.  So this 'class' simulates the minimum necessary
+    // it would cause a cycle.  So this 'class' simulates the minimum necessary
     // exact function of 'bsl::string' to make the usage example work.
     //
     // Note that most of the functionality of the real 'bsl::string' is not
@@ -6627,7 +6655,7 @@ bool operator==(const char *cstr, const string& str)
 
 int main(int argc, char *argv[])
 {
-    int            test = argc > 1 ? atoi(argv[1]) : 0;
+    int            test = argc > 1 ? std::atoi(argv[1]) : 0;
                 verbose = argc > 2;
             veryVerbose = argc > 3;
         veryVeryVerbose = argc > 4;
@@ -6769,8 +6797,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING CONVERSION W.R.T. 'std::basic_string'"
-                   "\n============================================\n");
+            printf("\nCONSTRUCTION FROM 'std::basic_string'"
+                   "\n=====================================\n");
 
         if (verbose) printf("This test has been moved to\n"
                              "bslstl_stringret.t.cpp TC 15 to avoid\n"
@@ -6793,9 +6821,8 @@ int main(int argc, char *argv[])
       case 21: {
 
         if (verbose) printf ("\nTESTING 'STARTS_WITH' AND 'ENDS_WITH'"
-                             "\n====================================\n");
+                             "\n=====================================\n");
 
-#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
         TestDriver<char>::testCase21();
         TestDriver<wchar_t>::testCase21();
 
@@ -6807,9 +6834,6 @@ int main(int argc, char *argv[])
         TestDriver<char16_t>::testCase21();
         TestDriver<char32_t>::testCase21();
     #endif
-#else
-        if (verbose) printf ("Methods not available prior to C++20\n");
-#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
       } break;
       case 20: {
 
@@ -7103,7 +7127,6 @@ int main(int argc, char *argv[])
       case 3: {
         if (verbose) printf ("\nTESTING PRINT OPERATIONS"
                              "\n========================\n");
-
 
         if (verbose) printf("This test has been moved to\n"
                              "bslstl_string_test.t.cpp TC 46\n"
