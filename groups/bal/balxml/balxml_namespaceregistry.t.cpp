@@ -1,12 +1,4 @@
 // balxml_namespaceregistry.t.cpp                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_namespaceregistry.h>
 
 #include <bslim_testutil.h>
@@ -28,7 +20,8 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-//
+// The component under test...
+// TBD
 // ----------------------------------------------------------------------------
 // CREATORS
 // [01] balxml::NamespaceRegistry(bslma::Allocator *allocator = 0);
@@ -43,6 +36,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [06] USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION

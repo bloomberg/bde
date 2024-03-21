@@ -1,12 +1,4 @@
 // balxml_errorinfo.h                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_ERRORINFO
 #define INCLUDED_BALXML_ERRORINFO
 
@@ -36,6 +28,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In this example, we create a parser for a simple file of percentages.  The
 // file is formatted as a sequence of lines, with each line containing a
 // decimal number in the range "0" to "100", inclusive.  Leading whitespace and

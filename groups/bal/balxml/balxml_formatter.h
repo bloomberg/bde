@@ -1,12 +1,4 @@
 // balxml_formatter.h                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_FORMATTER
 #define INCLUDED_BALXML_FORMATTER
 
@@ -36,8 +28,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Here is a basic example showing ten steps of how to create an XML document
-// using this component's major manipulators:
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// This example shows ten steps of how to create an XML document using this
+// component's major manipulators:
 //..
 //  // 1. Create a formatter:
 //  balxml::Formatter formatter(bsl::cout);

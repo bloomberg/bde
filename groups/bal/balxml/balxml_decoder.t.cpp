@@ -11,13 +11,6 @@
 // remove this comment block as well.
 // ----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_decoder.h>
 
 #include <balxml_decoderoptions.h>

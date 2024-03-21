@@ -1,13 +1,5 @@
 // balxml_typesparserutil.t.cpp                                       -*-C++-*-
-
 #include <balxml_typesparserutil.h>
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
 
 #include <balxml_typesprintutil.h>  // for testing only
 
@@ -71,6 +63,8 @@ namespace test = BloombergLP::s_baltst;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// The component under test...
+// TBD
 // ----------------------------------------------------------------------------
 
 // ============================================================================

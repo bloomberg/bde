@@ -1,12 +1,4 @@
 // balxml_minireader.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_MINIREADER
 #define INCLUDED_BALXML_MINIREADER
 
@@ -43,6 +35,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // For this example, we will use 'balxml::MiniReader' to read each node in an
 // XML document.  We do not care about whitespace, so we use the following
 // utility function to skip over any whitespace nodes.  This makes our example
@@ -60,12 +56,12 @@ BSLS_IDENT("$Id: $")
 //          value = reader.nodeValue();
 //          type  = reader.nodeType();
 //      } while(0 == rc &&
-//              type == balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE ||
-//              (type == balxml::Reader::BAEXML_NODE_TYPE_TEXT &&
+//              type == balxml::Reader::e_NODE_TYPE_WHITESPACE ||
+//              (type == balxml::Reader::e_NODE_TYPE_TEXT &&
 //               bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 //
 //      assert( reader.nodeType() !=
-//                                balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE);
+//                                balxml::Reader::e_NODE_TYPE_WHITESPACE);
 //
 //      return rc;
 //  }
@@ -115,7 +111,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      assert( reader.isOpen());
 //      assert(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-//      assert( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 //      assert(!reader.nodeName());
 //      assert(!reader.nodeHasValue());
 //      assert(!reader.nodeValue());
@@ -131,7 +127,7 @@ BSLS_IDENT("$Id: $")
 //      int rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
 //      assert( reader.nodeType() ==
-//                           balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+//                           balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
 //      assert(!bsl::strcmp(reader.nodeName(), "xml"));
 //      assert( reader.nodeHasValue());
 //      assert(!bsl::strcmp(reader.nodeValue(),
@@ -148,7 +144,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "directory-entry"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 1);
@@ -165,7 +161,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "name"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 2);
@@ -174,7 +170,7 @@ BSLS_IDENT("$Id: $")
 //
 //      rc = reader.advanceToNextNode();
 //      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
 //      assert( reader.nodeHasValue());
 //      assert(!bsl::strcmp(reader.nodeValue(), "John Smith"));
 //      assert( reader.nodeDepth() == 3);
@@ -184,7 +180,7 @@ BSLS_IDENT("$Id: $")
 //      rc = reader.advanceToNextNode();
 //      assert( 0 == rc);
 //      assert( reader.nodeType() ==
-//                               balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+//                               balxml::Reader::e_NODE_TYPE_END_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "name"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 2);
@@ -196,7 +192,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "phone"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 2);
@@ -225,7 +221,7 @@ BSLS_IDENT("$Id: $")
 //
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
 //      assert( reader.nodeHasValue());
 //      assert(!bsl::strcmp(reader.nodeValue(), "212-318-2000"));
 //      assert( reader.nodeDepth() == 3);
@@ -235,7 +231,7 @@ BSLS_IDENT("$Id: $")
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
 //      assert( reader.nodeType() ==
-//                               balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+//                               balxml::Reader::e_NODE_TYPE_END_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "phone"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 2);
@@ -247,7 +243,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "address"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 2);
@@ -259,7 +255,7 @@ BSLS_IDENT("$Id: $")
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
 //      assert( reader.nodeType() ==
-//                               balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+//                               balxml::Reader::e_NODE_TYPE_END_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "directory-entry"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 1);
@@ -650,7 +646,7 @@ class MiniReader :  public Reader {
         // the elements being skipped are well-formed and do not contain any
         // parsing errors.  Return 0 on successful skip, and a negative number
         // otherwise (error).  The behavior is undefined unless
-        // 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.  Note that
+        // 'balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()'.  Note that
         // each call to 'advanceToEndNode' invalidates strings and data
         // structures returned when 'Reader' accessors were called for the
         // "prior node".  E.g., the pointer returned from 'nodeName' for this
@@ -667,7 +663,7 @@ class MiniReader :  public Reader {
         // being skipped are well-formed and that they do not contain any
         // parsing errors.  Return 0 on successful skip, and a negative number
         // otherwise (error).  The behavior is undefined unless
-        // 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.  Note that
+        // 'balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()'.  Note that
         // each call to 'advanceToEndNodeRaw' invalidates strings and data
         // structures returned when 'Reader' accessors were called for the
         // "prior node".  E.g., the pointer returned from 'nodeName' for this
@@ -686,8 +682,8 @@ class MiniReader :  public Reader {
         // expect (allow) comments or CDATA nodes in the input XML, in other
         // words it is expecting "bare" XML.  Return 0 on successful skip, and
         // a negative number otherwise (error).  The behavior is undefined
-        // unless 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.
-        // The behavior is also undefined if the input XML contains comment or
+        // unless 'balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()'.  The
+        // behavior is also undefined if the input XML contains comment or
         // CDATA nodes.  Note that each call to 'advanceToEndNodeRawBare'
         // invalidates strings and data structures returned when 'Reader'
         // accessors were called for the "prior node".  E.g., the pointer

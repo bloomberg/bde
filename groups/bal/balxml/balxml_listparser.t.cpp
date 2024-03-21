@@ -1,12 +1,4 @@
 // balxml_listparser.t.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_listparser.h>
 
 #include <bslim_testutil.h>
@@ -33,6 +25,8 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// The component under test...
+// TBD
 // ----------------------------------------------------------------------------
 
 // ============================================================================

@@ -1,12 +1,4 @@
 // balxml_typesprintutil.h                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_TYPESPRINTUTIL
 #define INCLUDED_BALXML_TYPESPRINTUTIL
 
@@ -58,54 +50,55 @@ BSLS_IDENT("$Id: $")
 //..
 //      C++ Type                            Formatting Mode
 //      --------                            ---------------
-//      bool                                DEFAULT, DEC, TEXT
-//      char                                DEFAULT, DEC, TEXT
-//      unsigned char                       DEFAULT, DEC
-//      [unsigned] short                    DEFAULT, DEC
-//      [unsigned] int                      DEFAULT, DEC
-//      [unsigned] long                     DEFAULT, DEC
-//      bsls::Types::[Uint64|Int64]         DEFAULT, DEC
-//      float                               DEFAULT, DEC
-//      double                              DEFAULT, DEC
-//      bdldfp::Decimal64                   DEFAULT, DEC
-//      bsl::string                         DEFAULT, TEXT, BASE64, HEX
-//      bdlt::Date                          DEFAULT
-//      bdlt::DateTz                        DEFAULT
-//      bdlt::Datetime                      DEFAULT
-//      bdlt::DateTimeTz                    DEFAULT
-//      bdlt::Time                          DEFAULT
-//      bdlt::TimeTz                        DEFAULT
-//      bdlb::Variant2<DateTz, Date>        DEFAULT
-//      bdlb::Variant2<TimeTz, Time>        DEFAULT
-//      Variant2<DatetimeTz, Datetime>      DEFAULT
-//      bsl::vector<char>                   DEFAULT, BASE64, HEX, TEXT, IS_LIST
+//      bool                                e_DEFAULT, e_DEC, e_TEXT
+//      char                                e_DEFAULT, e_DEC, e_TEXT
+//      unsigned char                       e_DEFAULT, e_DEC
+//      [unsigned] short                    e_DEFAULT, e_DEC
+//      [unsigned] int                      e_DEFAULT, e_DEC
+//      [unsigned] long                     e_DEFAULT, e_DEC
+//      bsls::Types::[Uint64|Int64]         e_DEFAULT, e_DEC
+//      float                               e_DEFAULT, e_DEC
+//      double                              e_DEFAULT, e_DEC
+//      bdldfp::Decimal64                   e_DEFAULT, e_DEC
+//      bsl::string                         e_DEFAULT, e_TEXT, e_BASE64, e_HEX
+//      bdlt::Date                          e_DEFAULT
+//      bdlt::DateTz                        e_DEFAULT
+//      bdlt::Datetime                      e_DEFAULT
+//      bdlt::DateTimeTz                    e_DEFAULT
+//      bdlt::Time                          e_DEFAULT
+//      bdlt::TimeTz                        e_DEFAULT
+//      bdlb::Variant2<DateTz, Date>        e_DEFAULT
+//      bdlb::Variant2<TimeTz, Time>        e_DEFAULT
+//      Variant2<DatetimeTz, Datetime>      e_DEFAULT
+//      bsl::vector<char>                   e_DEFAULT, e_BASE64, e_HEX, e_TEXT,
+//                                          e_IS_LIST
 //..
 // In addition to the types listed above, this component also recognizes the
 // following 'bdlat' type categories:
 //..
 //      'bdlat' Type Category               Formatting Mode
 //      ---------------------               ---------------
-//      Enumeration                         DEFAULT, TEXT, DECIMAL
+//      Enumeration                         e_DEFAULT, e_TEXT, e_DECIMAL
 //      CustomizedType                      Base type's formatting modes
-//      Array                               IS_LIST
+//      Array                               e_IS_LIST
 //..
 // When 'bdlat_FormattingMode::e_DEFAULT' is used, the actual formatting mode
 // selected is based on the following mapping:
 //..
 //      C++ Type                            Default Formatting Mode
 //      --------                            -----------------------
-//      bool                                DEC or TEXT
-//      [unsigned] char                     DEC
-//      [unsigned] short                    DEC
-//      [unsigned] int                      DEC
-//      [unsigned] long                     DEC
-//      bsls::Types::[Uint64|Int64]         DEC
-//      bsl::string                         TEXT
-//      bsl::vector<char>                   BASE64
+//      bool                                e_DEC or e_TEXT
+//      [unsigned] char                     e_DEC
+//      [unsigned] short                    e_DEC
+//      [unsigned] int                      e_DEC
+//      [unsigned] long                     e_DEC
+//      bsls::Types::[Uint64|Int64]         e_DEC
+//      bsl::string                         e_TEXT
+//      bsl::vector<char>                   e_BASE64
 //
 //      'bdlat' Type Category               Default Formatting Mode
 //      ---------------------               -----------------------
-//      Enumeration                         TEXT
+//      Enumeration                         e_TEXT
 //..
 //
 ///Behavior of 'printText' on Non-Valid Strings

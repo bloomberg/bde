@@ -1,13 +1,6 @@
 // balxml_formatter.cpp                                               -*-C++-*-
 #include <balxml_formatter.h>
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_formatter_cpp,"$Id$ $CSID$")
 

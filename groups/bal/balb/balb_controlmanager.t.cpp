@@ -1,12 +1,4 @@
 // balb_controlmanager.t.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balb_controlmanager.h>
 
 #include <bslim_testutil.h>
@@ -28,7 +20,14 @@
 #include <bsl_utility.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
+
+// ============================================================================
+//                                 TEST PLAN
+// ----------------------------------------------------------------------------
+// The component under test ...
+// TBD
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION

@@ -1,12 +1,4 @@
 // balxml_minireader.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_minireader.h>
 
 #include <bsls_ident.h>
@@ -215,8 +207,8 @@ void replaceCharReferences(char *text)
         return; // No ampersands                                      // RETURN
     }
 
-    //  Loop through rest of input, looking for ampersands.
-    //  Loop invariant: *input == '&'
+    // Loop through rest of input, looking for ampersands.
+    // Loop invariant: *input == '&'
     const char* input = output;
     do {
         Entity Numeric;

@@ -1,12 +1,4 @@
 // balxml_formatter.t.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_formatter.h>
 
 #include <bdlde_md5.h>
@@ -57,6 +49,8 @@ using namespace bsl;
 // e.g., the missing '>' indicates BAEXML_IN_TAG state, we use other
 // manipulators as helpers to indicate the such internal states have been
 // reached or avoided (such as the use of flush()).
+// ----------------------------------------------------------------------------
+// TBD: test table
 // ----------------------------------------------------------------------------
 
 #ifdef BDE_VERIFY

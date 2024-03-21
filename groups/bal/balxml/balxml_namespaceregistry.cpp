@@ -1,12 +1,4 @@
 // balxml_namespaceregistry.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_namespaceregistry.h>
 
 #include <bsls_ident.h>
@@ -27,13 +19,13 @@ namespace {
 
 const char *const predefinedNamespaces[] =
 {
-    "http://www.w3.org/XML/1998/namespace",       // BAEXML_XML
-    "http://www.w3.org/2000/xmlns/",              // BAEXML_XMLNS
-    "http://www.w3.org/2001/XMLSchema",           // BAEXML_XMLSCHEMA
-    "http://www.w3.org/2001/XMLSchema-instance",  // BAEXML_XMLSCHEMA_INSTANCE
-    "http://schemas.xmlsoap.org/wsdl/",           // BAEXML_WSDL
-    "http://schemas.xmlsoap.org/wsdl/soap/",      // BAEXML_WSDL_SOAP
-    "http://bloomberg.com/schemas/bdem"           // BAEXML_BDEM
+    "http://www.w3.org/XML/1998/namespace",       // e_XML
+    "http://www.w3.org/2000/xmlns/",              // e_XMLNS
+    "http://www.w3.org/2001/XMLSchema",           // e_XMLSCHEMA
+    "http://www.w3.org/2001/XMLSchema-instance",  // e_XMLSCHEMA_INSTANCE
+    "http://schemas.xmlsoap.org/wsdl/",           // e_WSDL
+    "http://schemas.xmlsoap.org/wsdl/soap/",      // e_WSDL_SOAP
+    "http://bloomberg.com/schemas/bdem"           // e_BDEM
 };
 
 int lookupPredefinedId(const bsl::string_view& namespaceUri)
@@ -116,8 +108,8 @@ NamespaceRegistry::print(bsl::ostream& stream) const
         stream << i << " => " << (*it1) << bsl::endl;
     }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

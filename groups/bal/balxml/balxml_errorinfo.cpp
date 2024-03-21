@@ -1,12 +1,4 @@
 // balxml_errorinfo.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_errorinfo.h>
 
 #include <bsls_ident.h>
@@ -17,6 +9,11 @@ BSLS_IDENT_RCSID(balxml_errorinfo_cpp,"$Id$ $CSID$")
 namespace BloombergLP  {
 
 namespace balxml {
+
+                               // ---------------
+                               // class ErrorInfo
+                               // ---------------
+
 ErrorInfo::ErrorInfo(bslma::Allocator *basicAllocator)
 : d_severity    (e_NO_ERROR)
 , d_lineNumber  (0)

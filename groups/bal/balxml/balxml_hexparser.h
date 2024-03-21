@@ -1,12 +1,4 @@
 // balxml_hexparser.h                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_HEXPARSER
 #define INCLUDED_BALXML_HEXPARSER
 
@@ -56,6 +48,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had an input stream that contained Hex data.  The following
 // 'loadFromHexStream' function loads this data into an 'bsl::vector<char>'

@@ -1,12 +1,4 @@
 // balxml_prefixstack.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_prefixstack.h>
 
 #include <bsls_ident.h>
@@ -56,6 +48,10 @@ const PredefinedPrefix& lookupPredefinedPrefix(const bsl::string_view& prefix)
 }  // close unnamed namespace
 
 namespace balxml {
+
+                         // -----------------
+                         // class PrefixStack
+                         // -----------------
 
 // CREATORS
 PrefixStack::PrefixStack(NamespaceRegistry *namespaceRegistry,

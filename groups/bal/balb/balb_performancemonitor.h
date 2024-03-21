@@ -1,12 +1,4 @@
 // balb_performancemonitor.h                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALB_PERFORMANCEMONITOR
 #define INCLUDED_BALB_PERFORMANCEMONITOR
 
@@ -93,7 +85,7 @@ BSLS_IDENT("$Id: $")
 ///Thread Safety
 ///-------------
 // The classes 'balb::PerformanceMonitor' and
-// 'balb::PerformanceMonitory::Statistics', provided by this component, are
+// 'balb::PerformanceMonitor::Statistics', provided by this component, are
 // both independently fully *thread-safe* (see 'bsldoc_glossary').  However,
 // 'balb::PerformanceMonitor::ConstIterator' is only *const* *thread-safe*,
 // meaning it is not safe to access or modify a 'ConstIterator' in one thread

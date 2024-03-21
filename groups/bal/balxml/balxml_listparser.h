@@ -1,12 +1,4 @@
 // balxml_listparser.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_LISTPARSER
 #define INCLUDED_BALXML_LISTPARSER
 
@@ -51,6 +43,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had an input stream that contained a list of doubles.  The
 // following 'loadDoublesFromListStream' function loads this data into an
@@ -335,8 +331,8 @@ int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end)
 
     return k_SUCCESS;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BAEXML_LISTPARSER)

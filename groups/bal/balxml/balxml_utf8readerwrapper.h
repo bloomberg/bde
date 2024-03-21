@@ -1,12 +1,4 @@
 // balxml_utf8readerwrapper.h                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_UTF8READERWRAPPER
 #define INCLUDED_BALXML_UTF8READERWRAPPER
 
@@ -18,9 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balxml::Utf8ReaderWrapper: Wrap a 'Reader', check UTF-8 input.
 //
-//@SEE_ALSO: balxml_reader
-//           balxml_errorinfo
-//           bdlde_utf8streambufinputwrapper
+//@SEE_ALSO: balxml_reader, balxml_errorinfo, bdlde_utf8streambufinputwrapper
 //
 //@DESCRIPTION: This component supplies a mechanism,
 // 'balxml::Utf8ReaderWrapper', which holds another object of type

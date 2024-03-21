@@ -1,12 +1,4 @@
 // balxml_elementattribute.h                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_ELEMENTATTRIBUTE
 #define INCLUDED_BALXML_ELEMENTATTRIBUTE
 
@@ -83,6 +75,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following function parses an XML-style attribute assignment in the form
 // "qname='value'", where 'qname' can be a qualified name in the form,
 // "prefix:localName".  The prefix (if any) must be registered in the specified

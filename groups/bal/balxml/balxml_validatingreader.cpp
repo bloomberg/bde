@@ -1,12 +1,4 @@
 // balxml_validatingreader.cpp                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balxml_validatingreader.h>
 
 #include <bsls_ident.h>
@@ -18,8 +10,8 @@ namespace balxml {
 ValidatingReader::~ValidatingReader()
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

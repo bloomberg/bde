@@ -1,12 +1,4 @@
 // balxml_prefixstack.h                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_PREFIXSTACK
 #define INCLUDED_BALXML_PREFIXSTACK
 
@@ -40,6 +32,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In this example we demonstrate registering several prefixes with different
 // namespaces and printing them along with their ID.
 //..
@@ -255,8 +251,8 @@ int PrefixStack::namespaceIdByIndex(int index) const
     BSLS_ASSERT(0 <= index && index < d_numPrefixes);
     return d_prefixes[index].second;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

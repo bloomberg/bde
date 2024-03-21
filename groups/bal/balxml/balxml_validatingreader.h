@@ -1,12 +1,4 @@
 // balxml_validatingreader.h                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_VALIDATINGREADER
 #define INCLUDED_BALXML_VALIDATINGREADER
 
@@ -105,6 +97,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In this example, we will create a validating parser that parses and
 // validates document again the schema.
 //..
@@ -314,12 +310,8 @@ class ValidatingReader : public Reader {
     virtual bool validationFlag() const = 0;
         // Return true if the reader has validation turned on false otherwise.
 };
+
 }  // close package namespace
-
-// ============================================================================
-//                            INLINE DEFINITIONS
-// ============================================================================
-
 }  // close enterprise namespace
 
 #endif
