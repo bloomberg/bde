@@ -650,7 +650,7 @@ class TestComparator {
         // 'rhs'.
     {
         if (!g_enableLessThanFunctorFlag) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
+            ASSERTV("'TestComparator' was invoked when disabled", false);
         }
 
         ++d_count;
@@ -1743,7 +1743,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase27()
                     othAllocatorPtr = &da;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
 
@@ -3766,7 +3766,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase16()
                         hint = X.end();
                       } break;
                       default: {
-                        ASSERTV(!"Unexpected configuration");
+                        ASSERTV("Unexpected configuration", false);
                       } return;                                       // RETURN
                     }
 
@@ -3896,7 +3896,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase16()
                         hint = X.end();
                       } break;
                       default: {
-                        ASSERTV(!"Unexpected configuration");
+                        ASSERTV("Unexpected configuration", false);
                       } return;                                       // RETURN
                     }
 
@@ -4654,7 +4654,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                    ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
                 ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());

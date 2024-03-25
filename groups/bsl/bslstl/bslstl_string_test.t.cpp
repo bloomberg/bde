@@ -12669,7 +12669,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                  ASSERT(&result == &mX);
                                } break;
                                default: {
-                                 ASSERTV(MODE, !"Bad insert mode.");
+                                 ASSERTV(MODE, "Bad insert mode.", false);
                                } return;                              // RETURN
                             }
 
@@ -13339,7 +13339,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                     }
                                   } break;
                                   default: {
-                                    ASSERTV(MODE, !"Bad insert mode.");
+                                    ASSERTV(MODE, "Bad insert mode.", false);
                                   } return;                           // RETURN
                                 }
                                 if (veryVerbose) {
@@ -14278,7 +14278,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                                     ASSERT(&result == &mX);
                                   } break;
                                   default: {
-                                    ASSERTV(MODE, !"Bad insert mode.");
+                                    ASSERTV(MODE, "Bad insert mode.", false);
                                   } return;                           // RETURN
                                 }
 
@@ -14408,7 +14408,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                                     ASSERT(&result == &mX);
                                   } break;
                                   default: {
-                                    ASSERTV(MODE, !"Bad insert mode.");
+                                    ASSERTV(MODE, "Bad insert mode.", false);
                                   } return;                           // RETURN
                                 }
 
@@ -15029,7 +15029,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                                 }
                               } break;
                               default: {
-                                ASSERTV(MODE, !"Bad append mode.");
+                                ASSERTV(MODE, "Bad append mode.", false);
                               } return;                               // RETURN
                             }
 
@@ -18013,7 +18013,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
 
@@ -18112,7 +18112,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
 
@@ -18211,7 +18211,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, "Bad allocator config.", false);
                       } return;                                       // RETURN
                     }
 
@@ -18316,7 +18316,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, "Bad allocator config.", false);
                       } return;                                       // RETURN
                     }
 
@@ -18426,7 +18426,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             objAllocatorPtr = &sa;
                           } break;
                           default: {
-                            ASSERTV(CONFIG, !"Bad allocator config.");
+                            ASSERTV(CONFIG, "Bad allocator config.", false);
                           } return;                                   // RETURN
                         }
 
@@ -18537,7 +18537,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
 
@@ -18637,7 +18637,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
 
@@ -18738,7 +18738,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
 
@@ -18849,7 +18849,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             objAllocatorPtr = &sa;
                           } break;
                           default: {
-                            ASSERTV(CONFIG, !"Bad allocator config.");
+                            ASSERTV(CONFIG, "Bad allocator config.", false);
                           } return;                                   // RETURN
                         }
 
@@ -18971,7 +18971,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             objAllocatorPtr = &sa;
                           } break;
                           default: {
-                            ASSERTV(CONFIG, !"Bad allocator config.");
+                            ASSERTV(CONFIG, "Bad allocator config.", false);
                           } return;                                   // RETURN
                         }
 
@@ -19094,7 +19094,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             objAllocatorPtr = &sa;
                           } break;
                           default: {
-                            ASSERTV(CONFIG, !"Bad allocator config.");
+                            ASSERTV(CONFIG, "Bad allocator config.", false);
                           } return;                                   // RETURN
                         }
 
@@ -19219,7 +19219,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             objAllocatorPtr = &sa;
                           } break;
                           default: {
-                            ASSERTV(CONFIG, !"Bad allocator config.");
+                            ASSERTV(CONFIG, "Bad allocator config.", false);
                           } return;                                   // RETURN
                         }
 
@@ -22868,7 +22868,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                     try {
                         float value = bsl::stof(inV, NULL);
-                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                        ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
+                                                                        false);
                     }
                     catch(const std::out_of_range&) {
                         // Expected code path
@@ -22883,10 +22884,12 @@ int main(int argc, char *argv[])
                                 k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Unknown 'std' exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                                                                        false);
                     }
                     catch(...) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Non-standard exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Non-standard exception",
+                                                                       false);
                     }
 #endif
                 }
@@ -22927,7 +22930,8 @@ int main(int argc, char *argv[])
 
                     try {
                         double value = bsl::stod(inV, NULL);
-                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                        ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
+                                                                        false);
                     }
                     catch(const std::out_of_range&) {
                         // Expected code path
@@ -22942,10 +22946,12 @@ int main(int argc, char *argv[])
                                 k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Unknown 'std' exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                                                                        false);
                     }
                     catch(...) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Non-standard exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Non-standard exception",
+                                                                        false);
                     }
 #endif
                 }
@@ -22984,7 +22990,8 @@ int main(int argc, char *argv[])
 
                     try {
                         long double value = bsl::stold(inV, NULL);
-                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                        ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
+                                                                        false);
                     }
                     catch(const std::out_of_range&) {
                         // Expected code path
@@ -22999,10 +23006,12 @@ int main(int argc, char *argv[])
                                 k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Unknown 'std' exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                                                                        false);
                     }
                     catch(...) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Non-standard exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Non-standard exception",
+                                                                        false);
                     }
 #endif
                 }
@@ -23090,7 +23099,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                     try {
                         float value = bsl::stof(inV, NULL);
-                        ASSERTV(LINE, inV, value, SPEC, !"Did not throw");
+                        ASSERTV(LINE, inV, value, SPEC, "Did not throw",
+                                                                        false);
                     }
                     catch(const std::out_of_range&) {
                         // Expected code path
@@ -23103,10 +23113,12 @@ int main(int argc, char *argv[])
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Unknown 'std' exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                                                                        false);
                     }
                     catch(...) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Non-standard exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Non-standard exception",
+                                                                        false);
                     }
 #endif
                 }
@@ -23136,7 +23148,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                     try {
                         double value = bsl::stod(inV, NULL);
-                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                        ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
+                                                                        false);
                     }
                     catch(const std::out_of_range&) {
                         // Expected code path
@@ -23149,10 +23162,12 @@ int main(int argc, char *argv[])
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Unknown 'std' exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                                                                        false);
                     }
                     catch(...) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Non-standard exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Non-standard exception",
+                                                                        false);
                     }
 #endif
                 }
@@ -23184,7 +23199,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                     try {
                         long double value = bsl::stold(inV, NULL);
-                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                        ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
+                                                                        false);
                     }
                     catch(const std::out_of_range&) {
                         // Expected code path
@@ -23197,10 +23213,12 @@ int main(int argc, char *argv[])
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Unknown 'std' exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                                                                        false);
                     }
                     catch(...) {
-                        ASSERTV(LINE, INPUT, SPEC, !"Non-standard exception");
+                        ASSERTV(LINE, INPUT, SPEC, "Non-standard exception",
+                                                                        false);
                     }
 #endif
                 }
@@ -23370,7 +23388,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                 try {
                     int value = bsl::stoi(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23406,7 +23425,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                 try {
                     long value = bsl::stol(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23444,7 +23464,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                 try {
                     unsigned long value = bsl::stoul(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23476,7 +23497,8 @@ int main(int argc, char *argv[])
 # if defined(BDE_BUILD_TARGET_EXC)
                 try {
                     long long value = bsl::stoll(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23512,7 +23534,8 @@ int main(int argc, char *argv[])
                 try {
                     unsigned long long value =
                                          bsl::stoull(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23623,7 +23646,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                 try {
                     int value = bsl::stoi(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23658,7 +23682,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                 try {
                     long value = bsl::stol(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23695,7 +23720,8 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_EXC)
                 try {
                     unsigned long value = bsl::stoul(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23727,7 +23753,8 @@ int main(int argc, char *argv[])
 # if defined(BDE_BUILD_TARGET_EXC)
                 try {
                     long long value = bsl::stoll(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23762,7 +23789,8 @@ int main(int argc, char *argv[])
                 try {
                     unsigned long long value =
                                          bsl::stoull(STRING_VALUE, NULL, BASE);
-                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
+                                                                        false);
                 }
                 catch(const std::out_of_range&) {
                     // Expected code path
@@ -23873,30 +23901,30 @@ int main(int argc, char *argv[])
                           case e_INT : {
                             int value = bsl::stoi(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                           case e_LONG_INT : {
                             long value = bsl::stol(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                           case e_UNSIGNED_LONG_INT : {
                             unsigned long value =
                                           bsl::stoul(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                           case e_LONG_LONG_INT : {
                             long long value =
                                           bsl::stoll(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                           case e_UNSIGNEDLONG_LONG_INT : {
                             unsigned long long value =
                                          bsl::stoull(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                         }
                     }
@@ -23915,34 +23943,34 @@ int main(int argc, char *argv[])
                           case e_INT : {
                             int value = bsl::stoi(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                           case e_LONG_INT : {
                             long value = bsl::stol(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                           case e_UNSIGNED_LONG_INT : {
                             unsigned long value =
                                          bsl::stoul(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                           case e_LONG_LONG_INT : {
                             long long value =
                                          bsl::stoll(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                           case e_UNSIGNEDLONG_LONG_INT : {
                             unsigned long long value =
                                         bsl::stoull(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                         }
@@ -24074,30 +24102,30 @@ int main(int argc, char *argv[])
                           case e_INT : {
                             int value = bsl::stoi(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                           case e_LONG_INT : {
                             long value = bsl::stol(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                           case e_UNSIGNED_LONG_INT : {
                             unsigned long value =
                                           bsl::stoul(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                           case e_LONG_LONG_INT : {
                             long long value =
                                           bsl::stoll(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, intType, INPUT, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                           case e_UNSIGNEDLONG_LONG_INT : {
                             unsigned long long value =
                                          bsl::stoull(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                           } break;
                         }
                     }
@@ -24116,34 +24144,34 @@ int main(int argc, char *argv[])
                           case e_INT : {
                             int value = bsl::stoi(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                           case e_LONG_INT : {
                             long value = bsl::stol(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                           case e_UNSIGNED_LONG_INT : {
                             unsigned long value =
                                          bsl::stoul(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                           case e_LONG_LONG_INT : {
                             long long value =
                                          bsl::stoll(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                           case e_UNSIGNEDLONG_LONG_INT : {
                             unsigned long long value =
                                         bsl::stoull(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
-                                    e_PASS == ERROR || !"Did not throw");
+                                    "Did not throw", e_PASS == ERROR);
                             ASSERTV(next, 0 != next);
                           } break;
                         }

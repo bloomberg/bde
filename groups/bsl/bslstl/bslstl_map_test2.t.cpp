@@ -585,7 +585,7 @@ class TestComparator {
         // 'rhs'.
     {
         if (!g_enableLessThanFunctorFlag) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
+            ASSERTV("'TestComparator' was invoked when disabled", false);
         }
 
         ++d_count;

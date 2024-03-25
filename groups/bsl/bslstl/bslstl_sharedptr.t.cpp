@@ -2998,7 +2998,7 @@ MyAllocTestDeleter::~MyAllocTestDeleter()
 MyAllocTestDeleter& MyAllocTestDeleter::operator=(
                                                  const MyAllocTestDeleter& rhs)
 {
-    ASSERT(!"I think we do not use operator =");
+    ASSERTV("I think we do not use operator =", false);
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }
@@ -3052,8 +3052,8 @@ MyAllocArgTestDeleter::~MyAllocArgTestDeleter()
 MyAllocArgTestDeleter& MyAllocArgTestDeleter::operator=(
                                               const MyAllocArgTestDeleter& rhs)
 {
-    ASSERT(!"'MyAllocArgTestDeleter::operator=(const MyAllocArgTestDeleter&)'"
-            " should not be used.");
+    ASSERTV("'MyAllocArgTestDeleter::operator=(const MyAllocArgTestDeleter&)'"
+            " should not be used.", false);
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }
@@ -3112,8 +3112,8 @@ MyBslAllocArgTestDeleter::~MyBslAllocArgTestDeleter()
 MyBslAllocArgTestDeleter& MyBslAllocArgTestDeleter::operator=(
                                            const MyBslAllocArgTestDeleter& rhs)
 {
-    ASSERT(!"'MyBslAllocArgTestDeleter::operator=("
-            "const MyBslAllocArgTestDeleter&)' should not be used.");
+    ASSERTV("'MyBslAllocArgTestDeleter::operator=("
+            "const MyBslAllocArgTestDeleter&)' should not be used.", false);
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }
@@ -6548,7 +6548,8 @@ void Harness::testCase33_RunTest(ALLOCATOR basicAllocator)
     bslma::TestAllocator  *wrappedTest = dynamic_cast<bslma::TestAllocator *>(
                                                              wrappedAllocator);
     if (!wrappedTest) {
-        ASSERT(!"Allocator for case 33 does not wrap a bslma::TestAllocator");
+        ASSERTV("Allocator for case 33 does not wrap a bslma::TestAllocator",
+                                                                        false);
         return;                                                       // RETURN
     }
 
@@ -14731,7 +14732,7 @@ int main(int argc, char *argv[])
                                                        &constructCount,
                                                        &destroyCount,
                                                         true);
-            ASSERT(!"The previous expression should throw");
+            ASSERTV("The previous expression should throw", false);
         }
         catch (const ConstructorFailed&) {
         }
@@ -14888,7 +14889,7 @@ int main(int argc, char *argv[])
                                                       &constructCount,
                                                       &destroyCount,
                                                        true);
-            ASSERT(!"The previous expression should throw");
+            ASSERTV("The previous expression should throw", false);
         }
         catch (const ConstructorFailed&) {
         }
@@ -15645,7 +15646,7 @@ int main(int argc, char *argv[])
             bsl::make_shared<MyInstrumentedObject>(&constructCount,
                                                    &destroyCount,
                                                     true);
-            ASSERT(!"The previous expression should throw");
+            ASSERTV("The previous expression should throw", false);
         }
         catch (const ConstructorFailed&) {
         }
@@ -15819,7 +15820,7 @@ int main(int argc, char *argv[])
                         z = y;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad config.");
+                        ASSERTV(CONFIG, "Bad config.", false);
                         BSLS_ASSERT_INVOKE_NORETURN("Bad test config.");
                       } break;
                     }
@@ -15903,7 +15904,7 @@ int main(int argc, char *argv[])
                         z = y;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad config.");
+                        ASSERTV(CONFIG, "Bad config.", false);
                         BSLS_ASSERT_INVOKE_NORETURN("Bad test config.");
                       } break;
                     }
@@ -16075,7 +16076,7 @@ int main(int argc, char *argv[])
                         z = y;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad config.");
+                        ASSERTV(CONFIG, "Bad config.", false);
                         BSLS_ASSERT_INVOKE_NORETURN("Bad test config.");
                       } break;
                     }

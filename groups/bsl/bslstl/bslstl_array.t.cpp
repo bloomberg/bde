@@ -549,7 +549,7 @@ struct AggregateTest
     static void testAggregate(const char* spec)
     {
         (void) spec;  // suppress compiler warning
-        ASSERTV(SIZE, !"Test is not implemented for this size!");
+        ASSERTV(SIZE, "Test is not implemented for this size!", false);
     }
 };
 
@@ -905,7 +905,7 @@ struct TupleApiTest
 
     static void testTupleApi()
     {
-        ASSERTV(SIZE, !"Test is not implemented for this size!");
+        ASSERTV(SIZE, "Test is not implemented for this size!", false);
     }
 };
 

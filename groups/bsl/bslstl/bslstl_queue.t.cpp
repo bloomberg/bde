@@ -1810,7 +1810,8 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
                 addressOfResult = bsls::Util::addressOf(result);
               } break;
               default:
-                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'");
+                  ASSERTV("'value' not in range '[0, k_MAX_NUM_PARAMS]'",
+                                                                        false);
             }
             ASSERTV(
                    numArgs,
@@ -1958,7 +1959,8 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
                       expectedCtor    = e_CTOR_MOV_AVEC_ALLOC;
                   } break;
                   default: {
-                      ASSERTV(LINE, SPEC, CONFIG, !"Bad constructor config.");
+                      ASSERTV(LINE, SPEC, CONFIG, "Bad constructor config.",
+                                                                        false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -2385,7 +2387,8 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
                 addressOfResult = bsls::Util::addressOf(result);
               } break;
               default:
-                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'");
+                  ASSERTV("'value' not in range '[0, k_MAX_NUM_PARAMS]'",
+                                                                        false);
             }
             ASSERTV(
                    numArgs,
@@ -2641,7 +2644,8 @@ void TestDriver<VALUE, CONTAINER>::testCase18(bool isMovableContainer)
                                         : e_CTOR_CPY_AVEC_ALLOC;
                   } break;
                   default: {
-                      ASSERTV(LINE, SPEC, CONFIG, !"Bad constructor config.");
+                      ASSERTV(LINE, SPEC, CONFIG, "Bad constructor config.",
+                                                                        false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -3113,7 +3117,7 @@ void TestDriver<VALUE, CONTAINER>::testCase12()
                       objAllocatorPtr = &sa;
                   } break;
                   default: {
-                      ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                      ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -4748,7 +4752,7 @@ void TestDriver<VALUE, CONTAINER>::testCase4()
                       objAllocatorPtr = &sa2;
                   } break;
                   default: {
-                      ASSERTV(CONFIG, !"Bad allocator config.");
+                      ASSERTV(CONFIG, "Bad allocator config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -5064,7 +5068,7 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
                   objAllocatorPtr = &sa;
               } break;
               default: {
-                  ASSERTV(CONFIG, !"Bad allocator config.");
+                  ASSERTV(CONFIG, "Bad allocator config.", false);
                   return;                                             // RETURN
               } break;
             }

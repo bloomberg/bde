@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Mon May 15 17:16:26 2023
+// Generated on Thu Mar 21 21:19:56 2024
 // Command line: sim_cpp11_features.pl bslstl_queue.t.cpp
 
 // Expanded test driver only when compiling bslstl_queue.cpp
@@ -2325,7 +2325,8 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
                 addressOfResult = bsls::Util::addressOf(result);
               } break;
               default:
-                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'");
+                  ASSERTV("'value' not in range '[0, k_MAX_NUM_PARAMS]'",
+                                                                        false);
             }
             ASSERTV(
                    numArgs,
@@ -2473,7 +2474,8 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
                       expectedCtor    = e_CTOR_MOV_AVEC_ALLOC;
                   } break;
                   default: {
-                      ASSERTV(LINE, SPEC, CONFIG, !"Bad constructor config.");
+                      ASSERTV(LINE, SPEC, CONFIG, "Bad constructor config.",
+                                                                        false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -2900,7 +2902,8 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
                 addressOfResult = bsls::Util::addressOf(result);
               } break;
               default:
-                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'");
+                  ASSERTV("'value' not in range '[0, k_MAX_NUM_PARAMS]'",
+                                                                        false);
             }
             ASSERTV(
                    numArgs,
@@ -3156,7 +3159,8 @@ void TestDriver<VALUE, CONTAINER>::testCase18(bool isMovableContainer)
                                         : e_CTOR_CPY_AVEC_ALLOC;
                   } break;
                   default: {
-                      ASSERTV(LINE, SPEC, CONFIG, !"Bad constructor config.");
+                      ASSERTV(LINE, SPEC, CONFIG, "Bad constructor config.",
+                                                                        false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -3628,7 +3632,7 @@ void TestDriver<VALUE, CONTAINER>::testCase12()
                       objAllocatorPtr = &sa;
                   } break;
                   default: {
-                      ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                      ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -5263,7 +5267,7 @@ void TestDriver<VALUE, CONTAINER>::testCase4()
                       objAllocatorPtr = &sa2;
                   } break;
                   default: {
-                      ASSERTV(CONFIG, !"Bad allocator config.");
+                      ASSERTV(CONFIG, "Bad allocator config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -5579,7 +5583,7 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
                   objAllocatorPtr = &sa;
               } break;
               default: {
-                  ASSERTV(CONFIG, !"Bad allocator config.");
+                  ASSERTV(CONFIG, "Bad allocator config.", false);
                   return;                                             // RETURN
               } break;
             }
@@ -6867,7 +6871,7 @@ int main() {
 #endif // defined(COMPILING_BSLSTL_QUEUE_T_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

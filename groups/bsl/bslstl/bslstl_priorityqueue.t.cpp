@@ -2069,7 +2069,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase19a()
                   calledMethod = e_EMPLACE_10;
               } break;
               default: {
-                  ASSERTV(CONFIG, !"Bad constructor config.");
+                  ASSERTV(CONFIG, "Bad constructor config.", false);
                   return;                                         // RETURN
               } break;
             }
@@ -2874,7 +2874,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase16()
                       flag = e_APPROPRIATE_CTOR_WITH_ALLOCATOR;
                   } break;
                   default: {
-                      ASSERTV(SPEC, CONFIG, !"Bad constructor config.");
+                      ASSERTV(SPEC, CONFIG, "Bad constructor config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -3151,7 +3151,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase15()
                       calledMethod = e_APPROPRIATE_CTOR_WITH_ALLOCATOR;
                   } break;
                   default: {
-                      ASSERTV(SPEC, CONFIG, !"Bad constructor config.");
+                      ASSERTV(SPEC, CONFIG, "Bad constructor config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -4576,7 +4576,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase8()
                       objAllocatorPtr = &ta;
                   } break;
                   default: {
-                      ASSERTV(SPEC, CONFIG, !"Bad constructor config.");
+                      ASSERTV(SPEC, CONFIG, "Bad constructor config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -4912,7 +4912,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
                       expectedValues = &EXP;
                   } break;
                   default: {
-                      ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                      ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -5054,7 +5054,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase4()
                       objAllocatorPtr = &sa2;
                   } break;
                   default: {
-                      ASSERTV(CONFIG, !"Bad allocator config.");
+                      ASSERTV(CONFIG, "Bad allocator config.", false);
                       return;                                         // RETURN
                   } break;
                 }
@@ -5370,7 +5370,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
                   objAllocatorPtr = &sa;
               } break;
               default: {
-                  ASSERTV(CONFIG, !"Bad allocator config.");
+                  ASSERTV(CONFIG, "Bad allocator config.", false);
                   return;                                             // RETURN
               } break;
             }

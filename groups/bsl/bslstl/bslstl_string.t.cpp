@@ -2017,7 +2017,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                         mU = SVL; // test assignment here
                       } break;
                       default: {
-                        ASSERTV(MODE, !"Bad assignment mode.");
+                        ASSERTV(MODE, "Bad assignment mode.", false);
                       } return;                                       // RETURN
                     }
 
@@ -2165,7 +2165,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                             mU = SVL; // test assignment here
                           } break;
                           default: {
-                            ASSERTV(MODE, !"Bad assignment mode.");
+                            ASSERTV(MODE, "Bad assignment mode.", false);
                           } return;                                   // RETURN
                         }
                         guard.release();

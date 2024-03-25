@@ -856,7 +856,7 @@ struct less<TestType> {
         // Return 'true' if the specified 'a' is less than the specified 'b'
         // and 'false' otherwise.
     {
-        ASSERT(!"less<TestType> should not be called");
+        ASSERTV("less<TestType> should not be called", false);
         return a < b;
     }
 };
@@ -872,7 +872,7 @@ struct equal_to<TestType> {
         // Return 'true' if the specified 'a' is equal to the specified 'b' and
         // 'false' otherwise.
     {
-        ASSERT(!"equal_to<TestType> should not be called");
+        ASSERTV("equal_to<TestType> should not be called", false);
         return a == b;
     }
 };

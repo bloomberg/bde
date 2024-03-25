@@ -2445,7 +2445,7 @@ void TestDriver2<TYPE,ALLOC>::test28_sortComp()
             caught_ex = true;
         }
         catch (...) {
-            ASSERTV(threshold, !"Caught unexpected exception");
+            ASSERTV(threshold, "Caught unexpected exception", false);
             caught_ex = true;
         }
 
@@ -2897,7 +2897,8 @@ void TestDriver2<TYPE,ALLOC>::test27_mergeComp()
                         // A stable merge requires that the iterator must match
                         // the next iterator on the save x or y list.
 
-                        ASSERTV(X_SPEC, Y_SPEC, xi, yi, !"Invalid merge");
+                        ASSERTV(X_SPEC, Y_SPEC, xi, yi, "Invalid merge",
+                                                                        false);
                     }
                 }
                 // Test end iterators
@@ -2982,7 +2983,7 @@ void TestDriver2<TYPE,ALLOC>::test27_mergeComp()
                 caught_ex = true;
             }
             catch (...) {
-                ASSERTV(threshold, !"Caught unexpected exception");
+                ASSERTV(threshold, "Caught unexpected exception", false);
                 caught_ex = true;
             }
 
@@ -3266,7 +3267,8 @@ void TestDriver2<TYPE,ALLOC>::test27_mergeNoComp()
                     else {
                         // A stable merge requires that the iterator must match
                         // the next iterator on the save x or y list.
-                        ASSERTV(X_SPEC, Y_SPEC, xi, yi, !"Invalid merge");
+                        ASSERTV(X_SPEC, Y_SPEC, xi, yi, "Invalid merge",
+                                                                        false);
                     }
                 }
                 // Test end iterators
@@ -3391,7 +3393,7 @@ void TestDriver2<TYPE,ALLOC>::test26_unique()
             perturb_bit = 2;
             break;
           default:
-            ASSERT(!"Bad operation requested for test");
+            ASSERTV("Bad operation requested for test", false);
             return;                                                   // RETURN
         }
 
@@ -5088,7 +5090,7 @@ void TestDriver2<TYPE,ALLOC>::test18_erase()
                     pos_last  = 0;
                     break;
                 default: // gcc static analysis requires this to avoid warnings
-                    ASSERT(!"Bad operation requested for test");
+                    ASSERTV("Bad operation requested for test", false);
                     return;                                           // RETURN
             } // end switch
 
@@ -7484,7 +7486,7 @@ void TestDriver2<TYPE,ALLOC>::test12_initialLengthConstructorNonDefault()
                   objAllocatorPtr = &sa;
               } break;
               default: {
-                  ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                  ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
               } return;                                               // RETURN
             }
             ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -7564,7 +7566,7 @@ void TestDriver2<TYPE,ALLOC>::test12_initialLengthConstructorNonDefault()
                   objAllocatorPtr = &sa;
               } break;
               default: {
-                  ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                  ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
               } return;                                               // RETURN
             }
             ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());

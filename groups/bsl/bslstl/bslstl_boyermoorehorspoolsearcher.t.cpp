@@ -3658,7 +3658,7 @@ static void testMoveConstructors()
                 mechDstPtr = new (fa) Mech(MoveUtil::move(mZ), &za); // ACTIONd
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, "Bad allocator config.", false);
               } return;                                               // RETURN
             }
 
@@ -4789,7 +4789,7 @@ int main(int argc, char *argv[])
                     srcNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   default: {
-                    ASSERTV(srcCfg, !"Bad allocator config.");
+                    ASSERTV(srcCfg, "Bad allocator config.", false);
                   } break;
                 }
 
@@ -4803,7 +4803,8 @@ int main(int argc, char *argv[])
                     case 'e': ASSERT(SHRT == srcNumBytes); break;
                     case 'c':
                     case 'f': ASSERT(TALL == srcNumBytes); break;
-                    default : ASSERTV(dstCfg, !"Bad allocator config."); break;
+                    default : ASSERTV(dstCfg, "Bad allocator config.", false);
+                              break;
                 }
 
                 Mech                 *dstMechPtr          = 0;
@@ -4890,7 +4891,7 @@ int main(int argc, char *argv[])
                     dstNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   default: {
-                    ASSERTV(dstCfg, !"Bad allocator config.");
+                    ASSERTV(dstCfg, "Bad allocator config.", false);
                   } break;
                 }
 
@@ -4901,7 +4902,8 @@ int main(int argc, char *argv[])
                     case 'e': ASSERT(SHRT == dstNumBytes); break;
                     case 'c':
                     case 'f': ASSERT(TALL == dstNumBytes); break;
-                    default : ASSERTV(dstCfg, !"Bad allocator config."); break;
+                    default : ASSERTV(dstCfg, "Bad allocator config.", false);
+                              break;
                 }
 
                 Mech&  mD  = *dstMechPtr;
@@ -5077,7 +5079,7 @@ int main(int argc, char *argv[])
                                              &sa);
                   } break;
                   default: {
-                    ASSERTV(cfg, !"Bad allocator config.");
+                    ASSERTV(cfg, "Bad allocator config.", false);
                   } break;
                 }
 
@@ -5168,7 +5170,7 @@ int main(int argc, char *argv[])
                                              &ta);  // same allocator as target
                   } break;
                   default: {
-                    ASSERTV(cfg, !"Bad allocator config.");
+                    ASSERTV(cfg, "Bad allocator config.", false);
                   } break;
                 }
 
@@ -5604,7 +5606,7 @@ int main(int argc, char *argv[])
                     srcNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   default: {
-                    ASSERTV(srcCfg, !"Bad allocator config.");
+                    ASSERTV(srcCfg, "Bad allocator config.", false);
                   } break;
                 }
 
@@ -5651,7 +5653,7 @@ int main(int argc, char *argv[])
                     dstNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   default: {
-                    ASSERTV(dstCfg, !"Bad allocator config.");
+                    ASSERTV(dstCfg, "Bad allocator config.", false);
                   } break;
                 }
 
@@ -5689,7 +5691,7 @@ int main(int argc, char *argv[])
                       case '=': ASSERT(0 == numBytesInUseChange); break;
                       case '+': ASSERT(0 <  numBytesInUseChange); break;
                       default: {
-                        ASSERTV(dstCfg, !"Expected memory change.");
+                        ASSERTV(dstCfg, "Expected memory change.", false);
                       } break;
                     };
 
@@ -6625,7 +6627,7 @@ int main(int argc, char *argv[])
                     mechAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } break;
                 }
 

@@ -1062,7 +1062,7 @@ class TestEqualityComparator {
         // 'rhs'.
     {
         if (!g_enableLessThanFunctorFlag) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
+            ASSERTV("'TestComparator' was invoked when disabled", false);
         }
 
         ++d_count;
@@ -1178,7 +1178,7 @@ class TestHashFunctor {
         // identifier of the specified 'obj' otherwise.
     {
         if (!g_enableLessThanFunctorFlag) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
+            ASSERTV("'TestComparator' was invoked when disabled", false);
         }
 
         ++d_count;
@@ -3570,7 +3570,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                       objAllocatorPtr = &sa2;
                   } break;
                   default: {
-                      ASSERTV(CONFIG, !"Bad allocator config.");
+                      ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
 
@@ -4040,7 +4040,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                                             xsa);
                   } break;
                   default: {
-                      ASSERTV(CONFIG, !"Bad allocator config.");
+                      ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END

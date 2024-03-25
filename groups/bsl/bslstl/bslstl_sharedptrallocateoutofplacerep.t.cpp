@@ -332,7 +332,7 @@ MyAllocTestDeleter::~MyAllocTestDeleter()
 MyAllocTestDeleter& MyAllocTestDeleter::operator=(
                                                  const MyAllocTestDeleter& rhs)
 {
-    ASSERT(!"I think we do not use operator =");
+    ASSERTV("I think we do not use operator =", false);
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }

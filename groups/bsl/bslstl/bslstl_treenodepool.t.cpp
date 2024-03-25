@@ -573,7 +573,7 @@ void TestDriver<VALUE>::testCase15()
               objAllocatorPtr = &sa2;
           } break;
           default: {
-              ASSERTV(CONFIG, !"Bad allocator config.");
+              ASSERTV(CONFIG, "Bad allocator config.", false);
               return;                                                 // RETURN
           } break;
         }
@@ -1515,7 +1515,7 @@ void TestDriver<VALUE>::testCase4()
               objAllocatorPtr = &sa2;
           } break;
           default: {
-              ASSERTV(CONFIG, !"Bad allocator config.");
+              ASSERTV(CONFIG, "Bad allocator config.", false);
               return;                                                 // RETURN
           } break;
         }
@@ -1636,7 +1636,7 @@ void TestDriver<VALUE>::testCase2()
             objAllocatorPtr = &sa;
           } break;
           default: {
-            ASSERTV(CONFIG, !"Bad allocator config.");
+            ASSERTV(CONFIG, "Bad allocator config.", false);
             return;                                                   // RETURN
           } break;
         }

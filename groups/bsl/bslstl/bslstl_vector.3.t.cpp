@@ -2532,7 +2532,7 @@ TestDriver3<TYPE, ALLOC>::testCase28a_RunTest(Obj            *target,
     bslma::TestAllocator *testAlloc = dynamic_cast<bslma::TestAllocator *>(
                                           target->get_allocator().mechanism());
     if (!testAlloc) {
-        ASSERT(!"Allocator in test case 30 is not a test allocator!");
+        ASSERTV("Allocator in test case 30 is not a test allocator!", false);
         return;                                                       // RETURN
     }
     bslma::TestAllocator& oa = *testAlloc;
@@ -2689,7 +2689,7 @@ TestDriver3<TYPE, ALLOC>::testCase28a_RunTest(Obj            *target,
                        testArg(A10, MOVE_10));
           } break;
           default: {
-            ASSERTV(!"Invalid # of args!");
+            ASSERTV("Invalid # of args!", false);
           } break;
         }
         proctor.release();
@@ -3185,7 +3185,7 @@ TestDriver3<TYPE, ALLOC>::testCase26a_RunTest(Obj *target)
     bslma::TestAllocator *testAlloc = dynamic_cast<bslma::TestAllocator *>(
                                           target->get_allocator().mechanism());
     if (!testAlloc) {
-        ASSERT(!"Allocator in test case 30 is not a test allocator!");
+        ASSERTV("Allocator in test case 30 is not a test allocator!", false);
         return;                                                       // RETURN
     }
     bslma::TestAllocator& oa = *testAlloc;
@@ -3332,7 +3332,7 @@ TestDriver3<TYPE, ALLOC>::testCase26a_RunTest(Obj *target)
                             testArg(A10, MOVE_10));
           } break;
           default: {
-            ASSERTV(!"Invalid # of args!");
+            ASSERTV("Invalid # of args!", false);
           } break;
         }
         proctor.release();
@@ -3932,7 +3932,7 @@ void TestDriver3<TYPE, ALLOC>::testCase27()
                     valAllocator = &za;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
                 bslma::TestAllocator& sa = *valAllocator;
@@ -4060,7 +4060,7 @@ void TestDriver3<TYPE, ALLOC>::testCase27()
                     valAllocator = &za;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } break;
                 }
                 bslma::TestAllocator& sa = *valAllocator;
@@ -4590,7 +4590,7 @@ void TestDriver3<TYPE, ALLOC>::testCase25()
                     valAllocator = &za;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } break;
                 }
                 bslma::TestAllocator& sa = *valAllocator;
@@ -4706,7 +4706,7 @@ void TestDriver3<TYPE, ALLOC>::testCase25()
                     valAllocator = &za;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } break;
                 }
                 bslma::TestAllocator& sa = *valAllocator;
