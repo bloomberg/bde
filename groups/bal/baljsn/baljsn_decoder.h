@@ -952,7 +952,7 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
 
     d_tokenizer.reset(streamBuf);
     d_tokenizer.setAllowStandAloneValues(false);
-    d_tokenizer.setAllowHeterogenousArrays(false);
+    d_tokenizer.setAllowHeterogenousArrays(true); // needed for nillable arrays
     d_tokenizer.setAllowNonUtf8StringLiterals(!options.validateInputIsUtf8());
 
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
