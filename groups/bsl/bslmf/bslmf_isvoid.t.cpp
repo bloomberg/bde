@@ -2,7 +2,6 @@
 #include <bslmf_isvoid.h>
 
 #include <bslmf_integralconstant.h>
-#include <bslmf_metaint.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -30,7 +29,7 @@ using namespace BloombergLP;
 // [ 4] bsl::is_void conversion to bool
 // [ 4] bsl::is_void conversion to bsl::true_type and bsl::false_type
 // [ 4] bslmf::IsVoid conversion to bool
-// [ 4] bslmf::IsVoid conversion to bslmf::MetaInt
+// [ 4] bslmf::IsVoid conversion to bslmf::integral_constant
 // [ 3] bsl::is_void::type
 // [ 3] bslmf::IsVoid::type
 // [ 2] bsl::is_void::value
@@ -100,20 +99,20 @@ struct Incomplete;
     // testing the meta-functions with incomplete types.
 
 template <int N>
-bool dispatchFalseType(...)                 { return false; }
-bool dispatchFalseType(bsl::false_type)     { return true;  }
+bool dispatchFalseType(...)                             { return false; }
+bool dispatchFalseType(bsl::false_type)                 { return true;  }
 
 template <int N>
-bool dispatchTrueType(...)                  { return false; }
-bool dispatchTrueType(bsl::true_type)       { return true;  }
+bool dispatchTrueType(...)                              { return false; }
+bool dispatchTrueType(bsl::true_type)                   { return true;  }
 
 template <int N>
-bool dispatchMeta0Type(...)                 { return false; }
-bool dispatchMeta0Type(bslmf::MetaInt<0>)   { return true;  }
+bool dispatchMeta0Type(...)                             { return false; }
+bool dispatchMeta0Type(bsl::integral_constant<bool, 0>) { return true;  }
 
 template <int N>
-bool dispatchMeta1Type(...)                  { return false; }
-bool dispatchMeta1Type(bslmf::MetaInt<1>)    { return true;  }
+bool dispatchMeta1Type(...)                             { return false; }
+bool dispatchMeta1Type(bsl::integral_constant<bool, 1>) { return true;  }
 
 template <class PREDICATE>
 bool isFalseType() { return false; }
@@ -204,8 +203,9 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Objects of type 'bslmf::IsVoid' are unambiguously convertible to
-        //:   'bslmf::MetaInt<1>' if the (template parameter) type is the
-        //:   cv-qualified 'void' type, and 'bslmf::MetaInt<0>' otherwise.
+        //:   'bslmf::integral_constant<1>' if the (template parameter) type is
+        //:   the cv-qualified 'void' type, and 'bslmf::integral_constant<0>'
+        //:   otherwise.
         //:
         //: 2 Objects of type 'bsl::is_void' are unambiguously convertible to
         //:   'bsl::true_type' if the (template parameter) type is the
@@ -219,8 +219,8 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Define a set of one-parameter function overloads that return
         //:   'true' if and only if the argument is one of the following types:
-        //:   'bsl::true_type', 'bsl::false_type', 'bslmf::MetaInt<0>', and
-        //:   'bslmf::MetaInt<1>'.
+        //:   'bsl::true_type', 'bsl::false_type',
+        //:   'bslmf::integral_constant<0>', and 'bslmf::integral_constant<1>'.
         //:
         //: 2 For 'bslmf::IsVoid' instantiated on a variety of ('void' and
         //:   non-'void') types, verify the return values from the functions
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bslmf::IsVoid conversion to bool
-        //   bslmf::IsVoid conversion to bslmf::MetaInt
+        //   bslmf::IsVoid conversion to bslmf::integral_constant
         //   bsl::is_void conversion to bool
         //   bsl::is_void conversion to bsl::true_type and bsl::false_type
         // --------------------------------------------------------------------

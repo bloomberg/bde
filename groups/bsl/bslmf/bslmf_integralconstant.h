@@ -162,16 +162,6 @@ BSLS_IDENT("$Id: $")
     BSLS_DEPRECATE_FEATURE("bsl", "legacy_true_and_false_VALUE", \
                                    "use standard, lower-case, 'value' instead")
 
-namespace BloombergLP {
-namespace bslmf {
-template <int> struct
-BSLS_DEPRECATE_FEATURE("bsl",
-                       "bslmf_MetaInt",
-                       "use 'integral_constant' instead")
-MetaInt;
-}  // close package namespace
-}  // close enterprise namespace
-
 namespace bsl {
 
                         // ================================
@@ -190,8 +180,6 @@ struct integral_constant<bool, false> : ::std::false_type
     typedef integral_constant type;
 
     // COMPATIBILITY MEMBERS
-    typedef BloombergLP::bslmf::MetaInt<false> Type;
-
     BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE
     static const bool VALUE = false;
 };
@@ -202,8 +190,6 @@ struct integral_constant<bool, true> : ::std::true_type
     typedef integral_constant type;
 
     // COMPATIBILITY MEMBERS
-    typedef BloombergLP::bslmf::MetaInt<true> Type;
-
     BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE
     static const bool VALUE = true;
 };
@@ -255,8 +241,6 @@ struct integral_constant<bool, t_VAL> {
         // Return 't_VAL'.
 
     // COMPATIBILITY MEMBERS
-    typedef BloombergLP::bslmf::MetaInt<t_VAL> Type;
-
     BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE
     static const bool  VALUE = t_VAL;
 };

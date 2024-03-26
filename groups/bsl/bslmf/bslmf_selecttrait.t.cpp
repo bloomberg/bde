@@ -195,7 +195,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                : Imp::NIL_TRAITS
 //      };
 //      Imp::copyConstruct(address, original, allocator,
-//                         (bslmf::MetaInt<VALUE>*)0);
+//                         (bslmf::integral_constant<VALUE>*)0);
 //  }
 //..
 // We would like to replace the cumbersome chain of '?:' operations with a

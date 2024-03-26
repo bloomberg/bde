@@ -79,7 +79,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_integralconstant.h>
-#include <bslmf_metaint.h>
 #include <bslmf_removecv.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
