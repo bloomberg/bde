@@ -13,6 +13,7 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#include <bsls_libraryfeatures.h>
 #include <thread>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -29,6 +30,10 @@ namespace bsl {
         using std::this_thread::sleep_for;
     }  // close namespace this_thread
     using std::thread;
+
+    #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    using std::jthread;
+    #endif
 }  // close package namespace
 
 #endif

@@ -2306,14 +2306,19 @@ int main(int argc, char *argv[])
         //: 5 'bind_front' is available in C++20 mode in the 'bsl' namespace to
         //:   users who include 'bsl_functional.h'.
         //:
-        //: 6 The feature test macros defined for the imported features are
-        //:   available and have appropriate values.
+        //: 6 'jthread' is available in C++20 mode in the 'bsl' namespace to
+        //:   users who include `bsl_thread.h", and is an alias to the
+        //:   standard library type.
         //
+        //: 7 The feature test macros defined for the imported features are
+        //:   available and have appropriate values.
+        //:
         // Plan:
         //: 1 Verify that
         //:    o '__cpp_lib_interpolate >= 201902L',
         //:    o '__cpp_lib_execution >= 201902L',
-        //:    o '__cpp_lib_bind_front >= 201907L'.
+        //:    o '__cpp_lib_bind_front >= 201907L',
+        //:    o '__cpp_lib_jthread >= 201911L'.
         //:
         //: 2 Form some valid expression with every name with 'bsl' prefix.
         //
@@ -2345,6 +2350,11 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT(__cpp_lib_bind_front >= 201907L);
         (void) bsl::bind_front([](int){}, 1);
+
+        BSLMF_ASSERT(__cpp_lib_jthread>= 201911L);
+        bsl::jthread jthread;
+        (void) jthread;
+        ASSERT((bsl::is_same_v<std::jthread, bsl::jthread>));
 #endif
       } break;
       case 30: {
