@@ -1498,9 +1498,6 @@ int main(int argc, char *argv[]) {
     bslma::TestAllocator ta("test"), da("default");
     bslma::DefaultAllocatorGuard dGuard(&da);
 
-    bslma::NewDeleteAllocator  globalAllocator;
-    bslma::Default::setGlobalAllocator(&globalAllocator);
-
     switch (test) { case 0:
       case 34: {
         // --------------------------------------------------------------------
@@ -5163,8 +5160,6 @@ int main(int argc, char *argv[]) {
           testStatus = -1;
       }
     }
-
-//  ASSERT(0 == globalAllocator.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

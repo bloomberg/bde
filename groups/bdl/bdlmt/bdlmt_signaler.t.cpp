@@ -186,14 +186,31 @@ static bool verbose;
 static bool veryVerbose;
 static bool veryVeryVerbose;
 
-static bool               ignoreCheckGblAlloc = false;
-
-                          // Global flag which can be set to ignore checking
-                          // the global allocator usage for a specific test
-                          // case.
-
 static bslmt::ThreadAttributes attr;
 
+class GlobalAllocatorInstallation {
+    // This mechanism class installs a test allocator as the global allocator
+    // upon construction, and upon destruction it uninstalls the allocator and
+    // checks that no memory leaks have occurred.
+
+    // DATA
+    bslma::TestAllocator        d_ga;
+    bslma::TestAllocatorMonitor d_gam;
+
+  public:
+    // CREATORS
+    GlobalAllocatorInstallation()
+    : d_ga("global")
+    , d_gam(&d_ga)
+    {
+        bslma::Default::setGlobalAllocator(&d_ga);
+    }
+};
+
+const GlobalAllocatorInstallation globalAllocatorInstallation;
+    // This global variable ensures that a test allocator is installed as the
+    // global allocator before main starts, and that there is no global memory
+    // leak after main exits.
 
 // ============================================================================
 //                            TEST HELPERS UTILITY
@@ -3626,6 +3643,7 @@ static void test25_usageExample()
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
+
 int main(int argc, char *argv[])
 {
     int  test       = argc > 1 ? atoi(argv[1]) : 0;
@@ -3635,11 +3653,6 @@ int main(int argc, char *argv[])
 
     // Install an assert handler to 'gracefully' mark the test as failure in
     // case of assert.
-
-    // Global Allocator
-    bslma::TestAllocator        _ga("global", veryVeryVerbose);
-    bslma::TestAllocatorMonitor _gam(&_ga);
-    bslma::Default::setGlobalAllocator(&_ga);
 
     // Default allocator
     bslma::TestAllocator         _da("default", veryVeryVerbose);
@@ -3698,12 +3711,6 @@ int main(int argc, char *argv[])
 //  if (!s_ignoreCheckDefAlloc) {
 //      ASSERT(_dam.isTotalSame());
 //  }
-
-    // Verify no global allocator usage
-
-    if (ignoreCheckGblAlloc) {
-        ASSERT(_gam.isTotalSame());
-    }
 
     // Check test result
 
