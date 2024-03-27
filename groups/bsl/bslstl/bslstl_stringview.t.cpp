@@ -6451,7 +6451,8 @@ void TestDriver<TYPE, TRAITS>::testCase2()
               } break;
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
               default: {
-                    BSLS_ASSERT_OPT(!"Expected configuration.");
+                    BSLS_ASSERT_OPT(
+                                !static_cast<bool>("Expected configuration."));
               } break;
             }
             ASSERTV(fa.numBytesInUse(), sizeof(Obj) == fa.numBytesInUse());

@@ -706,7 +706,8 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                     objPtr = new (fa) Obj(initialString, objAllocatorPtr);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(!"Bad allocator config.");
+                    BSLS_ASSERT_OPT(
+                                  !static_cast<bool>("Bad allocator config."));
                   } break;
                 }
 
@@ -783,7 +784,8 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                         objPtr = new (fa) Obj(initialString, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(
+                                  !static_cast<bool>("Bad allocator config."));
                       } break;
                     }
 
@@ -1078,7 +1080,8 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                     objPtr = new (fa) Obj(initialString, objAllocatorPtr);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(!"Bad allocator config.");
+                    BSLS_ASSERT_OPT(
+                                  !static_cast<bool>("Bad allocator config."));
                   } break;
                 }
 

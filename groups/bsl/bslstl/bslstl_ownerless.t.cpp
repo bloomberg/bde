@@ -295,7 +295,7 @@ SimpleRep & SimpleRepArray::operator[](int index)
       case 2: return d_2;
     };
 
-    BSLS_ASSERT_OPT(!"Array index is out of bounds");
+    BSLS_ASSERT_OPT(!static_cast<bool>("Array index is out of bounds"));
     // silence bad return path warning
 #if !defined(BSLSTL_OWNERLESS_WANT_RETURN_AFTER_ABORT)
     abort();
@@ -315,7 +315,7 @@ const SimpleRep & SimpleRepArray::operator[](int index) const
       case 2: return d_2;
     };
 
-    BSLS_ASSERT_OPT(!"Array index is out of bounds");
+    BSLS_ASSERT_OPT(!static_cast<bool>("Array index is out of bounds"));
     // silence bad return path warning
 #if !defined(BSLSTL_OWNERLESS_WANT_RETURN_AFTER_ABORT)
     abort();
