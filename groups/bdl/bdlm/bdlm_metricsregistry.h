@@ -93,6 +93,35 @@ namespace bdlm {
 
 class MetricsRegistryRegistrationHandle;
 
+                       // ==========================
+                       // class MetricsRegistry_Data
+                       // ==========================
+
+class MetricsRegistry_Data {
+  public:
+    // PUBLIC DATA
+    MetricDescriptor               d_descriptor;
+    MetricsAdapter::Callback       d_callback;
+    MetricsAdapter::CallbackHandle d_handle;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricsRegistry_Data,
+                                   bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit MetricsRegistry_Data(bslma::Allocator *basicAllocator);
+        // Create a 'MetricsRegistry_Data' object that uses the specified
+        // 'basicAllocator' to supply memory.
+
+    MetricsRegistry_Data();
+        // Create a 'MetricsRegistry_Data' object that uses the default
+        // allocator to supply memory.
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+};
+
                           // =====================
                           // class MetricsRegistry
                           // =====================
@@ -110,18 +139,14 @@ class MetricsRegistry {
 
   private:
     // PRIVATE TYPES
-    struct Data {
-        MetricDescriptor d_descriptor;
-        Callback         d_callback;
-        CallbackHandle   d_handle;
-    };
+    typedef bsl::map<CallbackHandle, MetricsRegistry_Data> MetricDataMap;
 
     // DATA
     MetricsAdapter                 *d_metricsAdapter_p;  // held, but not
                                                          // owned, metrics
                                                          // adapter
 
-    bsl::map<CallbackHandle, Data>  d_metricData;        // registration data
+    MetricDataMap                   d_metricData;        // registration data
 
     CallbackHandle                  d_nextKey;           // next key for
                                                          // inserting into
@@ -318,6 +343,37 @@ int MetricsRegistryRegistrationHandle::unregister()
     }
 
     return rv;
+}
+
+
+                       // ==========================
+                       // class MetricsRegistry_Data
+                       // ==========================
+
+// CREATORS
+inline
+MetricsRegistry_Data::MetricsRegistry_Data()
+: d_descriptor()
+, d_callback()
+, d_handle()
+{
+}
+
+inline
+MetricsRegistry_Data::MetricsRegistry_Data(bslma::Allocator *basicAllocator)
+: d_descriptor(basicAllocator)
+, d_callback(bsl::allocator_arg, basicAllocator)
+, d_handle()
+{
+}
+
+// ACCESSORS
+                                  // Aspects
+
+inline
+bslma::Allocator *MetricsRegistry_Data::allocator() const
+{
+    return d_descriptor.allocator();
 }
 
 }  // close package namespace

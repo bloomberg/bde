@@ -21,7 +21,7 @@ int MetricsRegistry::removeCollectionCallback(const CallbackHandle& handle)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    bsl::map<CallbackHandle, Data>::iterator iter = d_metricData.find(handle);
+    MetricDataMap::iterator iter = d_metricData.find(handle);
     if (iter != d_metricData.end()) {
         if (d_metricsAdapter_p) {
             d_metricsAdapter_p->removeCollectionCallback(
@@ -54,8 +54,7 @@ MetricsRegistry::~MetricsRegistry()
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     if (d_metricsAdapter_p) {
-        for (bsl::map<CallbackHandle, Data>::iterator iter =
-                                                          d_metricData.begin();
+        for (MetricDataMap::iterator iter = d_metricData.begin();
              iter != d_metricData.end();
              ++iter) {
             d_metricsAdapter_p->removeCollectionCallback(
@@ -72,7 +71,7 @@ MetricsRegistryRegistrationHandle MetricsRegistry::registerCollectionCallback(
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    Data& data        = d_metricData[d_nextKey];
+    MetricsRegistry_Data& data        = d_metricData[d_nextKey];
     data.d_descriptor = descriptor;
     data.d_callback   = callback;
 
@@ -93,8 +92,7 @@ void MetricsRegistry::removeMetricsAdapter(MetricsAdapter *adapter)
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     if (d_metricsAdapter_p && d_metricsAdapter_p == adapter) {
-        for (bsl::map<CallbackHandle, Data>::iterator iter =
-                                                          d_metricData.begin();
+        for (MetricDataMap::iterator iter = d_metricData.begin();
              iter != d_metricData.end();
              ++iter) {
             d_metricsAdapter_p->removeCollectionCallback(
@@ -108,7 +106,7 @@ void MetricsRegistry::setMetricsAdapter(MetricsAdapter *adapter)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    for (bsl::map<CallbackHandle, Data>::iterator iter = d_metricData.begin();
+    for (MetricDataMap::iterator iter = d_metricData.begin();
          iter != d_metricData.end();
          ++iter) {
         if (d_metricsAdapter_p) {

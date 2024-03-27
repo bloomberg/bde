@@ -20,6 +20,7 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_string.h>
+#include <bsl_functional.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -39,6 +40,7 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] USAGE EXAMPLE
+// [ 3] DRQS 174793420
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -98,6 +100,9 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlm::MetricsRegistry                   Obj;
 typedef bdlm::MetricsRegistryRegistrationHandle ObjHandle;
 
+const char longName[] = "abcdefghijklmnopqrstuvwxyz01234567890123456789012345";
+BSLMF_ASSERT(sizeof(longName) > sizeof(bsl::string));
+
 // ============================================================================
 //                   GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -113,6 +118,31 @@ void testMetric(BloombergLP::bdlm::Metric *value)
 // ============================================================================
 //                       GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
+
+                           // ===================
+                           // class LargeCallback
+                           // ===================
+
+class LargeCallback {
+    // This class implements the callback type 'MetricsAdapter::Callback' and
+    // is very large so as to trigger allocation.
+
+    // DATA
+    char d_large[1024];
+
+    public:
+    // MANIPULATORS
+    void operator()(BloombergLP::bdlm::Metric*);
+        // Do nothing.
+};
+
+                           // ===================
+                           // class LargeCallback
+                           // ===================
+
+void LargeCallback::operator()(BloombergLP::bdlm::Metric*)
+{
+}
 
                          // ========================
                          // class TestMetricsAdapter
@@ -262,6 +292,48 @@ int main(int argc, char *argv[])
     bool expectDefaultAllocation = false;
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        //   DRQS 174793420
+        //
+        // Concerns:
+        //: 1 All allocations are from the specified allocator.
+        //
+        // Plan:
+        //: 1 Provide an allocator to an object, then exercise it while
+        //:   monitoring the default and global allocators.
+        //
+        // Testing:
+        //   DRQS 174793420
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "DRQS 174793420" << endl
+                          << "==============" << endl;
+
+        bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj mX(&oa);
+
+        bdlm::MetricDescriptor md(longName,
+                                  longName,
+                                  1,
+                                  longName,
+                                  longName,
+                                  longName,
+                                  &oa);
+
+        typedef bsl::function<void(BloombergLP::bdlm::Metric*)> Callback;
+        Callback fn(bsl::allocator_arg, &oa, LargeCallback());
+        BloombergLP::bdlm::MetricsRegistryRegistrationHandle handle =
+                                     mX.registerCollectionCallback(md, fn);
+
+        ASSERTV(da.numBytesInUse(),
+                da.numBlocksInUse(),
+                0 == da.numBlocksInUse());
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

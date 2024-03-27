@@ -164,6 +164,9 @@ class MetricDescriptor {
 
     const bsl::string& objectTypeName() const;
         // Return the 'objectTypeName' attribute.
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
@@ -314,6 +317,14 @@ inline
 const bsl::string& MetricDescriptor::objectTypeName() const
 {
     return d_objectTypeName;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *MetricDescriptor::allocator() const
+{
+    return d_metricNamespace.get_allocator().mechanism();
 }
 
 // FREE OPERATORS
