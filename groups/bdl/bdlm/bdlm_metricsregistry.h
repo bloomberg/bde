@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 // providing a metric registry that is transferable to implementations of the
 // 'bdlm::MetricsAdapter' protocol, a singleton that is the default registry
 // for the process, and a registration handle class,
-// 'bdlm::MetricsRegistryRegistrationHandle', that provides RAII symantics for
+// 'bdlm::MetricsRegistryRegistrationHandle', that provides RAII semantics for
 // metric registration.
 //
 ///Thread Safety
@@ -78,6 +78,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_allocatorargt.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -98,6 +99,9 @@ class MetricsRegistryRegistrationHandle;
                        // ==========================
 
 class MetricsRegistry_Data {
+    // This is a *component* *private* type used to describe the data
+    // associated with a metrics registration.  DO NOT USE.
+
   public:
     // PUBLIC DATA
     MetricDescriptor               d_descriptor;
@@ -109,13 +113,37 @@ class MetricsRegistry_Data {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+    MetricsRegistry_Data();
+        // Create a 'MetricsRegistry_Data' object that uses the default
+        // allocator to supply memory.
+
     explicit MetricsRegistry_Data(bslma::Allocator *basicAllocator);
         // Create a 'MetricsRegistry_Data' object that uses the specified
         // 'basicAllocator' to supply memory.
 
-    MetricsRegistry_Data();
-        // Create a 'MetricsRegistry_Data' object that uses the default
-        // allocator to supply memory.
+    MetricsRegistry_Data(const MetricsRegistry_Data& original,
+                         bslma::Allocator           *basicAllocator = 0);
+        // Create a 'MetricsRegistry_Data' object having the same value as the
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // to supply memory; otherwise, the default allocator is used.
+
+    MetricsRegistry_Data(bslmf::MovableRef<MetricsRegistry_Data> original)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+        // Create a 'MetricsRegistry_Data' object having the same value and the
+        // same allocator as the specified 'original' object.  The value of
+        // 'original' becomes unspecified but valid, and its allocator remains
+        // unchanged.
+
+    MetricsRegistry_Data(
+                      bslmf::MovableRef<MetricsRegistry_Data>  original,
+                      bslma::Allocator                        *basicAllocator);
+        // Create a 'MetricsRegistry_Data' object having the same value as the
+        // specified 'original' object, using the specified 'basicAllocator' to
+        // supply memory.  The allocator of 'original' remains unchanged.  If
+        // 'original' and the newly created object have the same allocator,
+        // then the value of 'original' becomes unspecified but valid, and no
+        // exceptions will be thrown; otherwise 'original' is unchanged and an
+        // exception may be thrown.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
@@ -201,7 +229,7 @@ class MetricsRegistry {
         // invoking 'unsubscribe'.
 
     void removeMetricsAdapter(MetricsAdapter *adapter);
-        // If the specified 'adapter' is the currently associated regsitrar,
+        // If the specified 'adapter' is the currently associated registrar,
         // remove all metrics from it and disassociate the registry.
 
     void setMetricsAdapter(MetricsAdapter *adapter);
@@ -263,6 +291,70 @@ class MetricsRegistryRegistrationHandle {
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
+
+                       // ==========================
+                       // class MetricsRegistry_Data
+                       // ==========================
+
+// CREATORS
+inline
+MetricsRegistry_Data::MetricsRegistry_Data()
+: d_descriptor()
+, d_callback()
+, d_handle()
+{
+}
+
+inline
+MetricsRegistry_Data::MetricsRegistry_Data(bslma::Allocator *basicAllocator)
+: d_descriptor(basicAllocator)
+, d_callback(bsl::allocator_arg, basicAllocator)
+, d_handle()
+{
+}
+
+inline
+MetricsRegistry_Data::MetricsRegistry_Data(
+                                    const MetricsRegistry_Data& original,
+                                    bslma::Allocator           *basicAllocator)
+: d_descriptor(original.d_descriptor, basicAllocator)
+, d_callback(bsl::allocator_arg, basicAllocator, original.d_callback)
+, d_handle(original.d_handle)
+{
+}
+
+inline
+MetricsRegistry_Data::MetricsRegistry_Data(
+        bslmf::MovableRef<MetricsRegistry_Data> original) BSLS_KEYWORD_NOEXCEPT
+: d_descriptor(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_descriptor))
+, d_callback(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_callback))
+, d_handle(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_handle))
+{
+}
+
+inline
+MetricsRegistry_Data::MetricsRegistry_Data(
+                        bslmf::MovableRef<MetricsRegistry_Data> original,
+                        bslma::Allocator                       *basicAllocator)
+: d_descriptor(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_descriptor), basicAllocator)
+, d_callback(bsl::allocator_arg, basicAllocator, bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_callback))
+, d_handle(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_handle))
+{
+}
+
+// ACCESSORS
+                                  // Aspects
+inline
+bslma::Allocator *MetricsRegistry_Data::allocator() const
+{
+    return d_descriptor.allocator();
+}
 
                           // ---------------------
                           // class MetricsRegistry
@@ -343,37 +435,6 @@ int MetricsRegistryRegistrationHandle::unregister()
     }
 
     return rv;
-}
-
-
-                       // ==========================
-                       // class MetricsRegistry_Data
-                       // ==========================
-
-// CREATORS
-inline
-MetricsRegistry_Data::MetricsRegistry_Data()
-: d_descriptor()
-, d_callback()
-, d_handle()
-{
-}
-
-inline
-MetricsRegistry_Data::MetricsRegistry_Data(bslma::Allocator *basicAllocator)
-: d_descriptor(basicAllocator)
-, d_callback(bsl::allocator_arg, basicAllocator)
-, d_handle()
-{
-}
-
-// ACCESSORS
-                                  // Aspects
-
-inline
-bslma::Allocator *MetricsRegistry_Data::allocator() const
-{
-    return d_descriptor.allocator();
 }
 
 }  // close package namespace
