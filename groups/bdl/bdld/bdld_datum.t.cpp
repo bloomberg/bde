@@ -1918,7 +1918,8 @@ bool MockAccumulatingHashingAlgorithm::regionAtIndexIs(
         return false;                                                 // RETURN
     }
 
-    return memcmp(d_data[idx].data(), region.data(), region.size()) == 0;
+    return region.size() == 0 ||
+        memcmp(d_data[idx].data(), region.data(), region.size()) == 0;
 }
 
 inline
