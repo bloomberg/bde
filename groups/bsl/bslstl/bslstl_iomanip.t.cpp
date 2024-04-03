@@ -171,7 +171,7 @@ const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class t_CHAR_TYPE, class t_CHAR_TRAITS>
 bool operator==(
            const bslstl::IoManip_QuotedStringViewFormatter<t_CHAR_TYPE,
@@ -267,7 +267,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase2_string()
     //   t_TYPE IoManip_QuotedStringFormatter::escape();
     // ------------------------------------------------------------------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     if (verbose)
         printf("Testing 'IoManip_QuotedStringFormatter<%s>'\n",
                NameOf<t_TYPE>().name());
@@ -336,7 +336,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase2_stringView()
     //   t_TYPE IoManip_QuotedStringViewFormatter::escape();
     // ------------------------------------------------------------------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     if (verbose)
         printf("Testing 'IoManip_QuotedStringViewFormatter<%s>'\n",
                NameOf<t_TYPE>().name());
@@ -419,7 +419,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase3_string()
     //   ostream& operator<<(ostream&, const IoManip_QuotedStringFormatter&);
     // ------------------------------------------------------------------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     if (verbose)
         printf("Testing IoManip_QuotedStringFormatter<%s>'\n",
                 NameOf<t_TYPE>().name());
@@ -537,7 +537,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase3_stringView()
     //   ostream& operator<<(ostream&,const IoManip_QuotedStringViewFormatter&)
     // ------------------------------------------------------------------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     if (verbose)
         printf("Testing IoManip_QuotedStringViewFormatter<%s>'\n",
                NameOf<t_TYPE>().name());
@@ -648,7 +648,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase4()
     //   decltype(auto) quoted(basic_string_view& val, t_TYPE del ,t_TYPE esc);
     // ------------------------------------------------------------------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     if (verbose) printf("Testing %s\n", NameOf<t_TYPE>().name());
 
     typedef bsl::basic_string<t_TYPE, t_TRAITS, t_ALLOC> String;
@@ -682,7 +682,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase4()
         ASSERTV(NOT, LINE, modelSDefault  == bsl::quoted(str));
         ASSERTV(NOT, LINE,
                 modelSCustom == bsl::quoted(str, DELIM, ESCAPE));
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
         ASSERTV(NOT, LINE, modelSVDefault == bsl::quoted(strView));
         ASSERTV(NOT, LINE,
                 modelSVCustom == bsl::quoted(strView, DELIM, ESCAPE));
@@ -765,7 +765,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -976,7 +976,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("BREATHING TEST\n"
                             "==============\n");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
         // Testing with 'bsl::string' and default delimiters
         {
@@ -1033,7 +1033,7 @@ int main(int argc, char *argv[])
         }
 #else
         ASSERT(1);
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

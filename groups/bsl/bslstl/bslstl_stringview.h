@@ -222,6 +222,11 @@ BSLS_IDENT("$Id: $")
 # include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
+&&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#define BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#endif
+
 // 'BDE_DISABLE_CPP17_ABI' is intended for CI builds only, to allow simulation
 // of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
 // Bloomberg production builds.
@@ -230,7 +235,7 @@ BSLS_IDENT("$Id: $")
 
 #   include <string_view>
 
-namespace bsl {
+    namespace bsl {
 
 using std::basic_string_view;
 using std::string_view;
@@ -254,7 +259,7 @@ using std::operator>=;
 
 }
 # define BSLSTL_STRING_VIEW_IS_ALIASED
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
@@ -481,6 +486,15 @@ class basic_string_view {
               const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
                                                                     // IMPLICIT
         // Create a view of the specified 'string'.
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    basic_string_view(
+                   const std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& view);
+                                                                    // IMPLICIT
+        // Create a view identical to the specified 'view'.
+
+#endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
     //! ~basic_string_view() = default;
         // Destroy this object.
@@ -969,10 +983,11 @@ class basic_string_view {
     BSLS_KEYWORD_EXPLICIT
     operator std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>()
     const
-        // Convert this object to a string type native to the compiler's
-        // library, instantiated with the same character type and traits type.
-        // The return string will contain the same sequence of characters as
-        // this object and will have a default-constructed allocator.
+        // Convert this 'const' object to a string type native to the
+        // compiler's library, instantiated with the same character type and
+        // traits type.  The return string will contain the same sequence of
+        // characters as this object and will have a default-constructed
+        // allocator.
     {
         // See {DRQS 131792157} for why this is inline.
         return std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(d_start_p,
@@ -1466,6 +1481,18 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     d_start_p = str.data();
     d_length  = str.size();
 }
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+template <class CHAR_TYPE, class CHAR_TRAITS>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
+                    const std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& view)
+: d_start_p(view.data())
+, d_length (view.size())
+{
+}
+#endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
 // MANIPULATORS
 template <class CHAR_TYPE, class CHAR_TRAITS>
@@ -2748,6 +2775,8 @@ void bslh::hashAppend(
 
 }  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
+
+#undef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
 #endif
 

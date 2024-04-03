@@ -6,6 +6,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_isbitwisecopyable.h>
 
@@ -24,6 +25,11 @@
 #include <sstream>
 #include <stdexcept>   // 'std::out_of_range'
 #include <string>
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#include <string_view>     // 'std::string_view'
+#endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <type_traits> // 'std::is_convertible', 'std::is_pointer',
                        // 'std::is_same'
@@ -53,6 +59,7 @@
 // CREATORS
 // [ 2] basic_string_view(const CHAR_TYPE *str, size_type numChars);
 // [ 5] basic_string_view(const basic_string_view& original);
+// [25] basic_string_view(const std::string_view& view);
 // [ 8] basic_string_view();
 // [ 2] basic_string_view(CONTG_ITER first, SENTINEL last);
 // [ 8] basic_string_view(const CHAR_TYPE *str);
@@ -60,6 +67,7 @@
 // MANIPULATORS
 // [ 6] swap(basic_string_view& rhs);
 // [ 7] basic_string_view& operator=(const basic_string_view& rhs);
+// [25] basic_string_view& operator=(const std::string_view& rhs);
 // [12] void remove_prefix(size_type numChars);
 // [12] void remove_suffix(size_type numChars);
 //
@@ -119,6 +127,7 @@
 // [21] bool ends_with(basic_string_view subview) const;
 // [21] bool ends_with(CHAR_TYPE character) const;
 // [21] bool ends_with(const CHAR_TYPE* characterString) const;
+// [25] operator std::string<>();
 //
 // FREE OPERATORS
 // [ 3] operator<<(std::basic_ostream& stream, basic_string_view view);
@@ -137,7 +146,7 @@
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] CONCERN: HELPER CLASSES FOR ITERATOR INTERFACES WORK AS EXPECTED
-// [25] USAGE EXAMPLE
+// [26] USAGE EXAMPLE
 // [24] TRAITS
 
 // ============================================================================
@@ -895,6 +904,11 @@ bool operator==(const TestIterator<CHAR_TYPE>& lhs,
 
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
+#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
+&&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#define BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#endif
+
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
@@ -926,6 +940,11 @@ struct TestDriver {
 // BDE_VERIFY pragma: -FABC01  // not in alphanumeric order
 
     // TEST CASES
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+    static void testCase25();
+        // Test compatibility with 'std::string_view'.
+#endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+
     static void testCase22();
         // Test 'operator ""_sv'.
 
@@ -1009,6 +1028,136 @@ const TYPE TestDriver<TYPE, TRAITS>::s_testString [] =
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+template <class TYPE, class TRAITS>
+void TestDriver<TYPE,TRAITS>::testCase25()
+{
+    // ------------------------------------------------------------------------
+    // COEXISTING 'std::string_view'
+    //
+    // Concerns:
+    //: 1 A 'std::string_view' can be used to construct a 'bsl::string_view'
+    //:   that refers to the same span of memory (initial address and length)
+    //:   as the original 'std::string_view'.
+    //:
+    //: 2 A 'std::string_view' can be assigned to an existing
+    //:   'bsl::string_view' that will refer to the same span of memory as the
+    //:   original 'std::string_view'.
+    //:
+    //: 3 A 'bsl::string_view' can be created from a 'std::string' and the
+    //:   resulting 'bsl::string_view' can be cast to 'std::string' having the
+    //:   same value as the original.
+    //
+    // Plan:
+    //: 1 Given an original 'std::string_view' object, use the copy constructor
+    //:   to create a 'bsl::string_view' object.  Also assign a
+    //:   'std::string_view' object another existing, 'bsl::string_view'
+    //:   object.  Confirm that the created (assigned to) object has the
+    //:   expected starting address and length of the original
+    //:   'std::string_view' object.
+    //:
+    //: 2 Perform P-1 for original 'std::string_view' objects that are
+    //:   empty and non-empty.  Create the non-empty 'std::string_view' object
+    //:   from 's_testString' and 's_testStringLength' as is done on the test
+    //:   of 'bsl::string_view's copy constructor (see TC 5).
+    //:
+    //: 3 Construct 'bsl::string_view' objects from 'std::string' objects and
+    //:   confirm that they have the same starting address and length as the
+    //:   original string.  Cast the created 'bsl::string_view' to a
+    //:   'std::string' and confirm that the contents match that of the
+    //:   original string.
+    //
+    // Testing:
+    //   basic_string_view(const std::string_view& view);
+    //   basic_string_view& operator=(const std::string_view& rhs);
+    //   operator std::string<>();
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
+
+    const TYPE      *STRING        = s_testString;
+    const size_type  STRING_LENGTH = s_testStringLength;
+
+        ASSERT((!bsl::is_same<Obj,
+                              std::basic_string_view<TYPE, TRAITS> >::value));
+
+    typedef std::basic_string_view<TYPE, TRAITS> StdObj;
+    typedef std::basic_string     <TYPE, TRAITS> StdString;
+
+    if (veryVerbose) printf("Testing empty objects.\n");
+    {
+            StdObj mS; const StdObj S = mS;
+
+            Obj mX(S); const Obj& X = mX;                               // TEST
+
+            ASSERT(X.data()   == S.data());
+            ASSERT(X.length() == S.length());
+
+            Obj mY; const Obj& Y = mY;
+            mY = S;                                                     // TEST
+
+            ASSERT(X.data()   == Y.data());
+            ASSERT(X.length() == Y.length());
+    }
+
+    if (veryVerbose) printf("Testing non-empty objects.\n");
+
+    for (size_type i = 0; i < STRING_LENGTH; ++i) {
+        for (size_type j = 0; j <= STRING_LENGTH - i; ++j) {
+            const TYPE      *START  = STRING + i;
+            const size_type  LENGTH = j;
+
+            if (veryVerbose) {
+                P_(LENGTH); P(STRING);
+            }
+
+            StdObj mS(START, LENGTH); const StdObj S = mS;
+
+            Obj mX(S); const Obj& X = mX;                               // TEST
+
+            ASSERT(X.data()   == S.data());
+            ASSERT(X.length() == S.length());
+
+            Obj mY; const Obj& Y = mY;
+            mY = S;                                                     // TEST
+
+            ASSERT(X.data()   == Y.data());
+            ASSERT(X.length() == Y.length());
+        }
+    }
+
+    if (veryVerbose) printf(
+          "Testing compatibility with 'std::string'.\n");
+
+    {
+        // Confirm baseline behavior and replicate using 'bsl::string_view'.
+
+        StdString stdString;
+        Obj       bslStringViewFromStdString(stdString);                // TEST
+
+        StdObj stdStringViewFromStdString(stdString);
+
+        ASSERT(stdStringViewFromStdString.data()
+                             == stdString.data());
+        ASSERT(stdStringViewFromStdString.length()
+                             == stdString.length());
+
+        ASSERT(bslStringViewFromStdString.data()
+                             == stdString.data());
+        ASSERT(bslStringViewFromStdString.length()
+                             == stdString.length());
+
+        // Test Conversion to 'std::string'.
+
+        const Obj& BslStringViewFromStdString =
+                   bslStringViewFromStdString;
+
+        ASSERT(stdString == (StdString)BslStringViewFromStdString);     // TEST
+        ASSERT(stdString == (StdString)bslStringViewFromStdString);     // TEST
+    }
+}
+#endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase22()
@@ -6694,7 +6843,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6764,6 +6913,56 @@ int main(int argc, char *argv[])
         sfa.deleteObject(sPtr);
         svfa.deleteObject(svPtr);
 //..
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // COEXISTING 'std::string_view'
+        //   Prior to C++17 there is no native 'std::string_view' so the
+        //   'bsl::string_view' uses the BDE implementation.  As of C++20,
+        //   'bsl::string_view' is aliased to the 'std::string_view' (they are
+        //   the same class).  However, for C++17 'bsl::string_view' uses the
+        //   BDE implementation although 'std::string_view' *also* exists
+        //   (albeit lacking the '*_with' methods [see TC 21] and the iterator
+        //   CTOR [see TC 2]).  Thus, in C++17 exactly, 'bsl::string_view' must
+        //   be convertible to and from, and assignable from
+        //   'std::string_view'.
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   basic_string_view(const std::string_view& view);
+        //   basic_string_view& operator=(const std::string_view& rhs);
+        //   operator std::string_view<>();
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nCOEXISTING 'std::string_view'"
+                   "\n=============================\n");
+
+#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST)
+
+        TestDriver<char>::testCase25();
+        TestDriver<wchar_t>::testCase25();
+
+    #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        TestDriver<char8_t>::testCase25();
+    #endif
+
+    #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TestDriver<char16_t>::testCase25();
+        TestDriver<char32_t>::testCase25();
+    #endif
+
+#elif defined(BSLSTL_STRING_VIEW_IS_ALIASED)
+        if (veryVerbose)
+            printf(
+                  "SKIP: 'bsl::string_view' ALIASED to 'std::string_view'.\n");
+#else
+        if (veryVerbose)
+            printf("SKIP: 'std::string_view' is not available.\n");
+#endif
       } break;
       case 24: {
         // --------------------------------------------------------------------
