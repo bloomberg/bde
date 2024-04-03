@@ -941,8 +941,11 @@ Datum Datum::copyBinary(const void       *value,
     Datum result;
 
     if (static_cast<unsigned>(size) <= k_SMALLBINARY_SIZE) {
-        if (size) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
             bsl::memcpy(result.d_data.buffer(), value, size);
+        }
+        else {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         }
         result.d_as.d_type = e_INTERNAL_BINARY;
         result.d_data.buffer()[k_SMALLBINARY_SIZE_OFFSET] =
