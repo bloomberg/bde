@@ -310,7 +310,7 @@ BSLS_IDENT("$Id: $")
 //          // Generate random bits in 'd_seed' based on the time of day in
 //          // nanoseconds.
 //
-//          bsls::Types::Int64 nano =
+//          bsls::Types::Uint64 nano =
 //                    bsls::SystemTime::nowMonotonicClock().totalNanoseconds();
 //          const int iterations = static_cast<int>(nano & 7) + 1;
 //          for (int ii = 0; ii < iterations; ++ii) {
@@ -727,7 +727,18 @@ WyHashIncrementalAlgorithm::WyHashIncrementalAlgorithm(const char *seed)
 inline
 void WyHashIncrementalAlgorithm::operator()(const void *data, size_t numBytes)
 {
-    BSLS_ASSERT_SAFE(0 != data || 0 == numBytes);
+    if (0 == numBytes) {
+        // In all cases when '0 == numBytes', all we do is a 'memcpy' of 0
+        // length, which is a no-op.  In the cases where '0 == data' (for
+        // example, hashing a default-constructed 'bsl::string_view') this
+        // 'memcpy' gets 'p' (0) passed to the second arg, which is technically
+        // UB.  To avoid this UB, just return.
+
+        return;                                                       // RETURN
+    }
+    else {
+        BSLS_ASSERT_SAFE(0 != data);
+    }
 
     const uint8_t *p   = static_cast<const uint8_t *>(data);
     const uint8_t *end = p + numBytes;

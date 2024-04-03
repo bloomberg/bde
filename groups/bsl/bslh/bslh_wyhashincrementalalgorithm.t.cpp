@@ -358,7 +358,7 @@ void aSsErT(bool condition, const char *message, int line)
             // Generate random bits in 'd_seed' based on the time of day in
             // nanoseconds.
 
-            bsls::Types::Int64 nano =
+            bsls::Types::Uint64 nano =
                       bsls::SystemTime::nowMonotonicClock().totalNanoseconds();
             const int iterations = static_cast<int>(nano & 7) + 1;
             for (int ii = 0; ii < iterations; ++ii) {
@@ -3729,9 +3729,17 @@ int main(int argc, char *argv[])
 
             bsls::AssertTestHandlerGuard guard;
 
+            ASSERT_SAFE_FAIL(Obj().operator()(   0, 1));
             ASSERT_SAFE_FAIL(Obj().operator()(   0, 5));
-            ASSERT_PASS(Obj().operator()(   0, 0));
-            ASSERT_PASS(Obj().operator()(data, 5));
+            ASSERT_PASS(Obj().operator()(        0, 0));
+            ASSERT_PASS(Obj().operator()(     data, 5));
+
+            Obj a;
+            ASSERT_PASS(a(   0, 0));
+            ASSERT_PASS(a.computeHash());
+            Obj b;
+            ASSERT_PASS(b(data, 5));
+            ASSERT_PASS(b.computeHash());
         }
       } break;
       case 2: {
@@ -3864,6 +3872,17 @@ int main(int argc, char *argv[])
             hashAlg1(&int1, sizeof(int));
             hashAlg2(&int2, sizeof(int));
             ASSERT(hashAlg1.computeHash() == hashAlg2.computeHash());
+        }
+
+        if (verbose) printf("Observe hash of 0 bytes\n");
+        {
+            // In earlier implementations, this code resulted in a null ptr
+            // being passed to a 'memcpy' of 0 length, which offended the
+            // undefined behavior sanitizer ('ubsan').
+
+            Obj hashAlg;
+            hashAlg(0, 0);
+            (void) hashAlg.computeHash();
         }
       } break;
       case -1: {
