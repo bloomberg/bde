@@ -39,7 +39,7 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // This test plan follows the standard approach for Attribute Classes.
-// There are three main tests:
+// There are four main areas under test:
 //
 // 1. *Basic Value Semantics*
 //    This tests all constructors and basic manipulators (setters and getters)
@@ -55,20 +55,24 @@ using namespace bsl;
 //    but not specific value.  The test suite verifies object consistency
 //    simply by allowing the object destructor to work correctly.
 //
-// 3. *Usage Test*
+// 3. 'setMessage', 'clearMessage'
+//    This tests 'setMessage' and 'clearMessage', and, in particular, their
+//    interaction with the 'messageStream' and 'messageStreamBuf' accessors.
+//
+// 4. *Usage Test*
 //    This illustrates simple usage examples, taken from the component
 //    header file.
 //-----------------------------------------------------------------------------
 // 'ball::RecordAttributes' public interface:
 // [ 2] ball::RecordAttributes(bslma::Allocator *ba = 0);
-// [ 4] ball::RecordAttributes(ts, pid, tid, fn, ln, cat, sev, msg, *ba=0);
+// [ 3] ball::RecordAttributes(ts, pid, tid, fn, ln, cat, sev, msg, *ba=0);
 // [ 2] ball::RecordAttributes(const ball::RecordAttributes& orig, *ba = 0);
 // [ 2] ~ball::RecordAttributes();
 // [ 2] ball::RecordAttributes& operator=(const ball::RecordAttributes&);
 // [ 2] void setCategory(const char *category);
 // [ 2] void setFileName(const char *fileName);
 // [ 2] void setLineNumber(int lineNumber);
-// [ 2] void setMessage(const char *message);
+// [ 4] void setMessage(const char *message);
 // [ 2] void setProcessID(int processID);
 // [ 2] void setSeverity(int severity);
 // [ 2] void setThreadID(bsls::Types::Uint64 threadID);
@@ -82,9 +86,10 @@ using namespace bsl;
 // [ 2] int severity() const;
 // [ 2] bsls::Types::Uint64 threadID() const;
 // [ 2] const bdlt::Datetime& timestamp() const;
-// [ 2] void clearMessage();
+// [ 4] void clearMessage();
 // [ 2] bdlsb::MemOutStreamBuf& messageStreamBuf();
-// [ 3] ostream& print(ostream& os, int level = 0, int spl = 4) const;
+// [ 2] bsl::ostream& messageStream();
+// [ 2] ostream& print(ostream& os, int level = 0, int spl = 4) const;
 //
 // [ 2] bool operator==(const Obj& lhs, const Obj& rhs);
 // [ 2] bool operator!=(const Obj& lhs, const Obj& rhs);
@@ -192,6 +197,9 @@ my_TestMessage testMsgs[] = {
 };
 
 enum { NUM_TEST_MSGS = sizeof(testMsgs) / sizeof(testMsgs[0]) };
+
+static const bsl::string PALATE_CLEANSER1 = "lime sorbet";
+static const bsl::string PALATE_CLEANSER2 = "coffee grounds";
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -320,7 +328,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -348,7 +356,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -393,6 +401,139 @@ int main(int argc, char *argv[])
 
             printMessage(out, attributes);
             if (veryVerbose) { out << ends; cout << buf << endl; }
+        }
+      } break;
+
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'setMessage', 'clearMessage' METHODS
+        //
+        // Concerns:
+        //: 1 Calling 'setMessage' results in the message being set to the
+        //:   expected value.
+        //:
+        //: 2 Calling 'clearMessage' results in the message being cleared.
+        //:
+        //: 3 Streaming into the message following a call to 'setMessage' or
+        //:   'clearMessage' extends the clobbered message.
+        //:
+        //: 4 Stream state is reset when clobbering the message via a call to
+        //:   'setMessage' or 'clearMessage'.
+        //
+        // Plan:
+        //: 1 Set the message to a series of test messages, in isolation then
+        //:   in series, verifying at each step.
+        //:
+        //: 2 Starting from a series of different test messages, verify that
+        //:   clearing the message works.
+        //:
+        //: 3 Using a table of sample messages, test starting with each of
+        //:   them, then clobbering with a palate cleanser, followed by
+        //:   streaming in another message from the table.  Manipulate the
+        //:   stream state before clobbering, then assert that it's reset
+        //:   afterwards.
+        //
+        // Testing:
+        //   void setMessage(const char *message);
+        //   void clearMessage();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "'setMessage', 'clearMessage' METHODS" << endl
+                          << "====================================" << endl;
+
+        if (veryVerbose) cout << "Test 'setMessage'." << endl;
+
+        for (int i = 0; i < NUM_TEST_MSGS; ++i) {
+            Obj mX;
+            ASSERT(mX.messageRef() == "");
+            mX.setMessage(testMsgs[i].msg);
+            LOOP_ASSERT(i, mX.messageRef() == testMsgs[i].msg);
+        }
+        {
+            Obj mX;
+            for (int i = 0; i < NUM_TEST_MSGS; ++i) {
+                mX.setMessage(testMsgs[i].msg);
+                LOOP_ASSERT(i, mX.messageRef() == testMsgs[i].msg);
+            }
+        }
+
+        if (veryVerbose) cout << "Test 'clearMessage'." << endl;
+
+        for (int i = 0; i < NUM_TEST_MSGS; ++i) {
+            Obj mX;
+            mX.clearMessage();
+            LOOP_ASSERT(i, mX.messageRef() == "");
+            mX.setMessage(testMsgs[i].msg);
+            mX.clearMessage();
+            LOOP_ASSERT(i, mX.messageRef() == "");
+        }
+        {
+            Obj mX;
+            for (int i = 0; i < NUM_TEST_MSGS; ++i) {
+                mX.setMessage(testMsgs[i].msg);
+                LOOP_ASSERT(i, mX.messageRef() == testMsgs[i].msg);
+                mX.clearMessage();
+                LOOP_ASSERT(i, mX.messageRef() == "");
+            }
+        }
+
+        if (veryVerbose) cout << "Test interaction between message clobbering "
+                                 "and streaming." << endl;
+
+        for (int i = 0; i != NUM_TEST_MSGS; ++i) {
+            for (int j = 0; j != NUM_TEST_MSGS; ++j) {
+                {
+                    // setMessage
+                    Obj mX;
+                    mX.messageStream() << testMsgs[i].msg;
+                    LOOP2_ASSERT(i, j, mX.messageRef() == testMsgs[i].msg);
+
+                    mX.messageStream().setstate(bsl::ios_base::failbit);
+                    LOOP2_ASSERT(i, j, !mX.messageStream());
+
+                    mX.setMessage(PALATE_CLEANSER1.c_str());
+                    LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER1);
+                    LOOP2_ASSERT(i, j, !!mX.messageStream());
+
+                    mX.messageStream() << testMsgs[j].msg;
+                    LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER1 +
+                                                              testMsgs[j].msg);
+
+                    mX.setMessage(PALATE_CLEANSER2.c_str());
+                    LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER2);
+                    {
+                        bsl::ostream ostr(&mX.messageStreamBuf());
+                        ostr << testMsgs[j].msg;
+                    }
+                    LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER2 +
+                                                              testMsgs[j].msg);
+                }
+                {
+                    // clearMessage
+                    Obj mX;
+                    mX.messageStream() << testMsgs[i].msg;
+                    LOOP2_ASSERT(i, j, mX.messageRef() == testMsgs[i].msg);
+
+                    mX.messageStream().setstate(bsl::ios_base::failbit);
+                    LOOP2_ASSERT(i, j, !mX.messageStream());
+
+                    mX.clearMessage();
+                    LOOP2_ASSERT(i, j, mX.messageRef() == "");
+                    LOOP2_ASSERT(i, j, !!mX.messageStream());
+
+                    mX.messageStream() << testMsgs[j].msg;
+                    LOOP2_ASSERT(i, j, mX.messageRef() == testMsgs[j].msg);
+
+                    mX.clearMessage();
+                    LOOP2_ASSERT(i, j, mX.messageRef() == "");
+                    {
+                        bsl::ostream ostr(&mX.messageStreamBuf());
+                        ostr << testMsgs[j].msg;
+                    }
+                    LOOP2_ASSERT(i, j, mX.messageRef() == testMsgs[j].msg);
+                }
+            }
         }
       } break;
 
@@ -519,6 +660,7 @@ int main(int argc, char *argv[])
         //   const bdlt::Datetime& timestamp() const;
         //   void clearMessage();
         //   bdlsb::MemOutStreamBuf& messageStreamBuf();
+        //   bsl::ostream& messageStream();
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
         //   bool operator==(const Obj& lhs, const Obj& rhs);
         //   bool operator!=(const Obj& lhs, const Obj& rhs);
@@ -709,6 +851,39 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp("str1str2", mA.message()));
 
             os << str3;
+            ASSERT(0 == strcmp("str1str2str3", mA.message()));
+        }
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (veryVerbose) {
+             cout << "\tTesting 'messageStream'" << endl;
+        }
+        {
+            Obj mA;
+            ASSERT(0 == strcmp("", mA.message()));
+
+            char str1[] = "str1";
+            char str2[] = "str2";
+            char str3[] = "str3";
+
+            mA.messageStream() << str1;
+            ASSERT(0 == strcmp("str1", mA.message()));
+
+            mA.messageStream() << str2;
+            ASSERT(0 == strcmp("str1str2", mA.message()));
+
+            mA.messageStream() << str3;
+            ASSERT(0 == strcmp("str1str2str3", mA.message()));
+
+            mA.clearMessage();
+
+            mA.messageStream() << str1;
+            ASSERT(0 == strcmp("str1", mA.message()));
+
+            mA.messageStream() << str2;
+            ASSERT(0 == strcmp("str1str2", mA.message()));
+
+            mA.messageStream() << str3;
             ASSERT(0 == strcmp("str1str2str3", mA.message()));
         }
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1227,6 +1402,41 @@ int main(int argc, char *argv[])
 
             // No destructor is called; will produce memory leak in purify
             // if internal allocators are not hooked up properly.
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (veryVerbose) cout << "Test interaction between message clobbering "
+                                 "via operator= and streaming." << endl;
+
+        for (int i = 0; i != NUM_TEST_MSGS; ++i) {
+            for (int j = 0; j != NUM_TEST_MSGS; ++j) {
+                Obj mX, mY;
+                mX.messageStream() << testMsgs[i].msg;
+                LOOP2_ASSERT(i, j, mX.messageRef() == testMsgs[i].msg);
+
+                mX.messageStream().setstate(bsl::ios_base::failbit);
+                LOOP2_ASSERT(i, j, !mX.messageStream());
+
+                mY.setMessage(PALATE_CLEANSER1.c_str());
+                mX = mY;
+                LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER1);
+                LOOP2_ASSERT(i, j, !!mX.messageStream());
+
+                mX.messageStream() << testMsgs[j].msg;
+                LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER1 +
+                                                          testMsgs[j].msg);
+
+                mY.setMessage(PALATE_CLEANSER2.c_str());
+                mX = mY;
+                LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER2);
+                {
+                    bsl::ostream ostr(&mX.messageStreamBuf());
+                    ostr << testMsgs[j].msg;
+                }
+                LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER2 +
+                                                          testMsgs[j].msg);
+            }
         }
       } break;
       case 1: {
