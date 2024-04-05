@@ -1427,12 +1427,10 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
                                               const CHAR_TYPE *characterString)
+: d_start_p(characterString)
+, d_length(characterString ? CHAR_TRAITS::length(characterString) : 0)
 {
     BSLS_ASSERT_SAFE(characterString);
-
-    d_start_p = characterString;
-    d_length  = CHAR_TRAITS::length(characterString);
-
     BSLS_ASSERT_SAFE(d_length <= max_size());
 }
 
@@ -1442,12 +1440,11 @@ BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
                                              const CHAR_TYPE  *characterString,
                                              size_type         numChars)
+: d_start_p(characterString)
+, d_length(numChars)
 {
     BSLS_ASSERT_SAFE(characterString || (numChars == 0));
     BSLS_ASSERT_SAFE(numChars <= max_size());
-
-    d_start_p = characterString;
-    d_length  = numChars;
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
@@ -1463,12 +1460,11 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
                                                            CONTG_ITER>::value
                    && BasicStringView_IsCompatibleSentinel<SENTINEL  >::value
                       >::type *)
+: d_start_p(first)
+, d_length(last - first)
 {
     BSLS_ASSERT_SAFE(first || last - first == 0);
     BSLS_ASSERT_SAFE(         last - first >= 0);
-
-    d_start_p = first;
-    d_length  = last - first;
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
@@ -1477,9 +1473,9 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
                const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
+: d_start_p(str.data())
+, d_length(str.size())
 {
-    d_start_p = str.data();
-    d_length  = str.size();
 }
 
 #ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST

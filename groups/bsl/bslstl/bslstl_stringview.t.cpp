@@ -1127,6 +1127,14 @@ void TestDriver<TYPE,TRAITS>::testCase25()
         }
     }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // check constexpr construction
+    constexpr std::string_view dummy1("0123456789");
+    constexpr bsl::string_view dummy2(dummy1);
+# endif
+#endif
+
     if (veryVerbose) printf(
           "Testing compatibility with 'std::string'.\n");
 
@@ -6241,6 +6249,12 @@ void TestDriver<TYPE, TRAITS>::testCase5()
 
     // Check that no additional memory has been allocated.
     ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+    // check constexpr construction
+    constexpr bsl::string_view dummy1("0123456789");
+    constexpr bsl::string_view dummy2(dummy1);
+#endif
 }
 
 template <class TYPE, class TRAITS>
@@ -6615,6 +6629,9 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 
             fa.deleteObject(objPtr);
         }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        constexpr Obj dummy;
+#endif
     }
 
     if (veryVerbose) { printf("Testing construction of non-empty objects.\n");
@@ -6662,6 +6679,12 @@ void TestDriver<TYPE, TRAITS>::testCase2()
             }
         }
         }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        // check constexpr construction
+        constexpr bsl::string_view dummy1("0123456789");
+        constexpr bsl::string_view dummy2("0123456789", 9);
+        constexpr bsl::string_view dummy3(dummy2.begin(), dummy2.end());
+#endif
     }
 
 #if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
