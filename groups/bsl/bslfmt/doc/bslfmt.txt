@@ -1,0 +1,43 @@
+bslfmt.txt
+
+@PURPOSE: Provide implementation mechanisms for bsl::format.
+
+@MNEMONIC: Basic Standard Library Format Implementation (bslfmt)
+
+@DESCRIPTION: The 'bslfmt' package provides implementation mechanisms for
+              bsl::format and associated types.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslfmt' package currently has TBD components having TBD levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bslfmt_tbd
+
+  1. bslfmt_tbd
+..
+
+/Component Synopsis
+/------------------
+: 'bslfmt_tbd':
+:      Provide a location for testing 'bsl' standard library headers.
+:
+: 'bslfmt_tbd':
+:      Provide a guard for saving the state of a stream object.
+:
+: 'bslfmt_tbd':
+:      Provide a view of a buffer of fuzz data bytes.
+:
+: 'bslfmt_tbd':
+:      Provide fuzz test utilities for basic types.
+:
+: 'bslfmt_tbd':
+:      Provide facilities for debugging BDE with gtest.
+:
+: 'bslfmt_tbd':
+:      Provide a mechanism to implement standard 'print' methods.
+:
+: 'bslfmt_tbd':
+:      Provide test utilities for components above 'bsl'.
