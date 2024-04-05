@@ -7,6 +7,8 @@ BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide an attribute class to describe a metric.
 //
+//@DEPRECATED: This component is not ready for public use.
+//
 //@CLASSES:
 //  bdlm::MetricDescriptor: descriptive information for a metric
 //

@@ -4,6 +4,8 @@
 
 //@PURPOSE: Provide a type specific instance count.
 //
+//@DEPRECATED: This component is not ready for public use.
+//
 //@CLASSES:
 // bdlm::InstanceCount: type specific instance count
 //

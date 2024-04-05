@@ -8,6 +8,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a transferable registry of metric registrations.
 //
+//@DEPRECATED: This component is not ready for public use.
+//
 //@CLASSES:
 // bdlm::MetricsRegistry: transferable registry of metric registrations
 // bdlm::MetricsRegistryRegistrationHandle: registration handle providing RAII

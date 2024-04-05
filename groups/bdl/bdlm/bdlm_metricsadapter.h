@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an abstract interface for metrics registration mechanisms.
 //
+//@DEPRECATED: This component is not ready for public use.
+//
 //@CLASSES:
 //  bdlm::MetricsAdapter: protocol class for registration and de-registration
 //
