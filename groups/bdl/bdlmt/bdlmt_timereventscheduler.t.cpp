@@ -749,6 +749,8 @@ static void cancelAllClocksCallback(Obj *scheduler, int wait)
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ============================================================================
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
+
 static bdlm::InstanceCount::Value s_count = 0;
 
                          // ========================
@@ -789,7 +791,7 @@ class TestMetricsAdapter : public bdlm::MetricsAdapter {
 
     void reset();
         // Return this object to its constructed state.
-    
+
     // ACCESSORS
     bool verify(const bsl::string& name) const;
         // Return 'true' if the registered descriptors match the ones expected
@@ -817,7 +819,7 @@ bdlm::MetricsAdapter::CallbackHandle
                                 const Callback&               /* callback */)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    
+
     d_descriptors.push_back(metricDescriptor);
 
     int h = 7 + static_cast<int>(d_descriptors.size());
@@ -829,7 +831,7 @@ bdlm::MetricsAdapter::CallbackHandle
 int TestMetricsAdapter::removeCollectionCallback(const CallbackHandle& handle)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    
+
     d_handles.erase(handle);
     return 0;
 }
@@ -837,7 +839,7 @@ int TestMetricsAdapter::removeCollectionCallback(const CallbackHandle& handle)
 void TestMetricsAdapter::reset()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    
+
     d_descriptors.clear();
     d_handles.clear();
 }
@@ -858,7 +860,7 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
                                                   "bdlmt.timereventscheduler");
     ASSERT(d_descriptors[0].instanceNumber()         == s_count);
     ASSERT(d_descriptors[0].objectIdentifier()       == name);
-    
+
     return d_handles.empty()
         && 1 == d_descriptors.size()
         && d_descriptors[0].metricNamespace()        == ""
@@ -869,6 +871,8 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
         && d_descriptors[0].instanceNumber()         == s_count
         && d_descriptors[0].objectIdentifier()       == name;
 }
+
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 // ----------------------------------------------------------------------------
 //                       USAGE EXAMPLE RELATED ENTITIES
@@ -3106,8 +3110,10 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = argc > 5;
     int nExec;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     // access the metrics registry singleton before assign the global allocator
     bdlm::MetricsRegistry::singleton();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     bslma::TestAllocator ta;
 
@@ -3487,6 +3493,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "===========================" << endl;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
@@ -3496,6 +3503,7 @@ int main(int argc, char *argv[])
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24;
         using namespace bdlf::PlaceHolders;
@@ -3522,6 +3530,7 @@ int main(int argc, char *argv[])
             makeSureTestObjectIsExecuted(testObj, mT, 100);
             ASSERT( 1 == testObj.numExecuted() );
         }
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -3565,6 +3574,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 23: {
         // -----------------------------------------------------------------
@@ -3594,6 +3604,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "=======================" << endl;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
@@ -3603,6 +3614,7 @@ int main(int argc, char *argv[])
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_23;
         using namespace bdlf::PlaceHolders;
@@ -3628,6 +3640,7 @@ int main(int argc, char *argv[])
             makeSureTestObjectIsExecuted(testObj, mT, 100);
             ASSERT( 1 == testObj.numExecuted() );
         }
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -3656,6 +3669,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 22: {
         // -----------------------------------------------------------------
@@ -3684,6 +3698,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "=====================" << endl;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
@@ -3693,6 +3708,7 @@ int main(int argc, char *argv[])
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_22;
         using namespace bdlf::PlaceHolders;
@@ -3715,6 +3731,7 @@ int main(int argc, char *argv[])
             makeSureTestObjectIsExecuted(testObj, mT, 100);
             ASSERT( 1 == testObj.numExecuted() );
         }
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -3747,6 +3764,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 21: {
         // -----------------------------------------------------------------
@@ -3775,6 +3793,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "=================" << endl;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
@@ -3784,6 +3803,7 @@ int main(int argc, char *argv[])
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21;
         using namespace bdlf::PlaceHolders;
@@ -3806,6 +3826,7 @@ int main(int argc, char *argv[])
             makeSureTestObjectIsExecuted(testObj, mT, 100);
             ASSERT( 1 == testObj.numExecuted() );
         }
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -3834,6 +3855,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 20: {
         // -----------------------------------------------------------------
@@ -3863,6 +3885,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "=============================" << endl;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
@@ -3872,6 +3895,7 @@ int main(int argc, char *argv[])
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20;
         using namespace bdlf::PlaceHolders;
@@ -3898,6 +3922,7 @@ int main(int argc, char *argv[])
             makeSureTestObjectIsExecuted(testObj, mT, 100);
             ASSERT( 1 == testObj.numExecuted() );
         }
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -3929,6 +3954,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 19: {
         // -----------------------------------------------------------------
@@ -3957,6 +3983,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "===========================" << endl;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
@@ -3966,6 +3993,7 @@ int main(int argc, char *argv[])
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19;
         using namespace bdlf::PlaceHolders;
@@ -3988,6 +4016,7 @@ int main(int argc, char *argv[])
             makeSureTestObjectIsExecuted(testObj, mT, 100);
             ASSERT( 1 == testObj.numExecuted() );
         }
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -4016,6 +4045,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 18: {
         // -----------------------------------------------------------------
@@ -5022,6 +5052,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "============================" << endl;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
@@ -5031,6 +5062,7 @@ int main(int argc, char *argv[])
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8;
         using namespace bdlf::PlaceHolders;
@@ -5056,6 +5088,7 @@ int main(int argc, char *argv[])
             makeSureTestObjectIsExecuted(testObj, mT, 100);
             ASSERT( 1 == testObj.numExecuted() );
         }
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -5084,6 +5117,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 7: {
         // -----------------------------------------------------------------
@@ -6056,6 +6090,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
@@ -6065,6 +6100,7 @@ int main(int argc, char *argv[])
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1;
 
@@ -6083,6 +6119,7 @@ int main(int argc, char *argv[])
 
         tg.joinAll();
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
         // verify metric registration
 
         s_count = NUM_THREADS;
@@ -6111,6 +6148,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case -1: {
         // --------------------------------------------------------------------

@@ -59,6 +59,7 @@ void initBlockSet(sigset_t *blockSet)
 }
 #endif
 
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
 void backlogMetric(BloombergLP::bdlm::Metric           *value,
                    BloombergLP::bdlmt::FixedThreadPool *object)
 {
@@ -74,6 +75,7 @@ void usedCapacityMetric(BloombergLP::bdlm::Metric           *value,
                                   static_cast<double>(object->numPendingJobs())
                                                     / object->queueCapacity());
 }
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
 }  // close unnamed namespace
 
@@ -88,6 +90,7 @@ namespace bdlmt {
 const char FixedThreadPool::s_defaultThreadName[16] = { "bdl.FixedPool" };
 
 // PRIVATE MANIPULATORS
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
 void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
                                  const bsl::string_view&  metricsIdentifier)
 {
@@ -137,6 +140,21 @@ void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
                                                       bdlf::PlaceHolders::_1,
                                                       this));
 }
+#else
+void FixedThreadPool::initialize()
+{
+    d_queue.disablePushBack();
+    d_queue.disablePopFront();
+
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(s_defaultThreadName);
+    }
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    initBlockSet(&d_blockSet);
+#endif
+}
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
 void FixedThreadPool::workerThread()
 {
@@ -197,11 +215,16 @@ FixedThreadPool::FixedThreadPool(
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#else
+    initialize();
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
 FixedThreadPool::FixedThreadPool(
                              const bslmt::ThreadAttributes&  threadAttributes,
                              int                             numThreads,
@@ -221,6 +244,7 @@ FixedThreadPool::FixedThreadPool(
 
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
 FixedThreadPool::FixedThreadPool(int               numThreads,
                                  int               maxNumPendingJobs,
@@ -235,11 +259,16 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#else
+    initialize();
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
 FixedThreadPool::FixedThreadPool(int                      numThreads,
                                  int                      maxNumPendingJobs,
                                  const bsl::string_view&  metricsIdentifier,
@@ -257,12 +286,15 @@ FixedThreadPool::FixedThreadPool(int                      numThreads,
 
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
 FixedThreadPool::~FixedThreadPool()
 {
     shutdown();
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
     d_backlogHandle.unregister();
     d_usedCapacityHandle.unregister();
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 }
 
 // MANIPULATORS

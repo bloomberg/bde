@@ -203,6 +203,8 @@ bslma::TestAllocator taDefault;
 //                       GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
+
                          // ========================
                          // class TestMetricsAdapter
                          // ========================
@@ -240,7 +242,7 @@ class TestMetricsAdapter : public bdlm::MetricsAdapter {
 
     void reset();
         // Return this object to its constructed state.
-    
+
     // ACCESSORS
     bool verify(const bsl::string& name) const;
         // Return 'true' if the registered descriptors match the ones expected
@@ -293,7 +295,7 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
     static bdlm::InstanceCount::Value count = 0;
 
     ++count;
-    
+
     ASSERT(d_handles.empty());
     ASSERT(2 == d_descriptors.size());
     ASSERT(d_descriptors[0].metricNamespace()        == "");
@@ -310,7 +312,7 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
                                                       "bdlmt.fixedthreadpool");
     ASSERT(d_descriptors[1].instanceNumber()         == count);
     ASSERT(d_descriptors[1].objectIdentifier()       == name);
-    
+
     return d_handles.empty()
         && 2 == d_descriptors.size()
         && d_descriptors[0].metricNamespace()        == ""
@@ -328,6 +330,8 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
         && d_descriptors[1].instanceNumber()         == count
         && d_descriptors[1].objectIdentifier()       == name;
 }
+
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -1089,9 +1093,11 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
     // access the metrics registry singleton before assign the global allocator
     bdlm::MetricsRegistry::singleton();
-    
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
+
     bslma::DefaultAllocatorGuard guard(&taDefault);
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
 
@@ -2260,6 +2266,7 @@ int main(int argc, char *argv[])
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
             TestMetricsAdapter defaultAdapter;
             TestMetricsAdapter otherAdapter;
 
@@ -2269,6 +2276,7 @@ int main(int argc, char *argv[])
 
             defaultRegistry.setMetricsAdapter(&defaultAdapter);
             otherRegistry.setMetricsAdapter(&otherAdapter);
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int THREADS  = VALUES[i].d_numThreads;
@@ -2287,6 +2295,7 @@ int main(int argc, char *argv[])
                     ASSERTV(i, 0              == X.numThreadsStarted());
                     ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
                 }
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
                 ASSERT(defaultAdapter.verify(""));
                 defaultAdapter.reset();
 
@@ -2329,6 +2338,7 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(otherAdapter.verify("b"));
                 otherAdapter.reset();
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
                 {
                     bslmt::ThreadAttributes attr;
@@ -2340,6 +2350,7 @@ int main(int argc, char *argv[])
                     ASSERTV(i, 0              == X.numThreadsStarted());
                     ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
                 }
+#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
                 ASSERT(defaultAdapter.verify(""));
                 defaultAdapter.reset();
 
@@ -2396,6 +2407,7 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(otherAdapter.verify("b"));
                 otherAdapter.reset();
+#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
             }
         }
       } break;

@@ -349,6 +349,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_memory.h>
 #include <bsl_vector.h>
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
+#error "This component does not support metric collection at this time."
+#endif
+
 namespace BloombergLP {
 namespace bdlmt {
 
@@ -526,8 +530,10 @@ class TimerEventScheduler {
                                             // microseconds from epoch of next
                                             // cached event
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     bdlm::MetricsRegistryRegistrationHandle
                       d_startLagHandle;     // start lag handle
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
   private:
     // NOT IMPLEMENTED
@@ -540,12 +546,14 @@ class TimerEventScheduler {
 
   private:
     // PRIVATE MANIPULATORS
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     void initialize(bdlm::MetricsRegistry   *metricsRegistry,
                     const bsl::string_view&  metricsIdentifier);
         // Initialize this event scheduler using the stored attributes and the
         // specified 'metricsRegistry' and 'metricsIdentifier'.  If
         // 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()'  is
         // used.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     void yieldToDispatcher();
         // Repeatedly wake up dispatcher thread until it noticeably starts
@@ -564,13 +572,11 @@ class TimerEventScheduler {
         // time intervals (see {Supported Clock-Types} in the component
         // documentation).  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Use
-        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
-        // to identify this event scheduler.  Use
-        // 'bdlm::MetricsRegistry::singleton()' to report metrics.  Note that
-        // the maximal number of scheduled non-recurring events and recurring
-        // events defaults to an implementation defined constant.
+        // default allocator is used.  Note that the maximal number of
+        // scheduled non-recurring events and recurring events defaults to an
+        // implementation defined constant.
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     explicit TimerEventScheduler(const bsl::string_view&  metricsIdentifier,
                                  bdlm::MetricsRegistry   *metricsRegistry,
                                  bslma::Allocator        *basicAllocator = 0);
@@ -586,6 +592,7 @@ class TimerEventScheduler {
         // the currently installed default allocator is used.  Note that the
         // maximal number of scheduled non-recurring events and recurring
         // events defaults to an implementation defined constant.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     explicit TimerEventScheduler(
                               bsls::SystemClockType::Enum  clockType,
@@ -596,13 +603,11 @@ class TimerEventScheduler {
         // indicate the epoch used for all time intervals (see {Supported
         // Clock-Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use
-        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
-        // to identify this event scheduler.  Use
-        // 'bdlm::MetricsRegistry::singleton()' to report metrics.  Note that
-        // the maximal number of scheduled non-recurring events and recurring
+        // the currently installed default allocator is used.  Note that the
+        // maximal number of scheduled non-recurring events and recurring
         // events defaults to an implementation defined constant.
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     explicit TimerEventScheduler(
                               bsls::SystemClockType::Enum  clockType,
                               const bsl::string_view&      metricsIdentifier,
@@ -621,6 +626,7 @@ class TimerEventScheduler {
         // is used.  Note that the maximal number of scheduled non-recurring
         // events and recurring events defaults to an implementation defined
         // constant.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     explicit TimerEventScheduler(const Dispatcher&  dispatcherFunctor,
                                  bslma::Allocator  *basicAllocator = 0);
@@ -630,13 +636,11 @@ class TimerEventScheduler {
         // intervals (see {Supported Clock-Types} in the component
         // documentation).  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Use
-        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
-        // to identify this event scheduler.  Use
-        // 'bdlm::MetricsRegistry::singleton()' to report metrics.  Note that
-        // the maximal number of scheduled non-recurring events and recurring
-        // events defaults to an implementation defined constant.
+        // default allocator is used.  Note that the maximal number of
+        // scheduled non-recurring events and recurring events defaults to an
+        // implementation defined constant.
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     explicit TimerEventScheduler(const Dispatcher&        dispatcherFunctor,
                                  const bsl::string_view&  metricsIdentifier,
                                  bdlm::MetricsRegistry   *metricsRegistry,
@@ -653,6 +657,7 @@ class TimerEventScheduler {
         // the currently installed default allocator is used.  Note that the
         // maximal number of scheduled non-recurring events and recurring
         // events defaults to an implementation defined constant.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     explicit TimerEventScheduler(
                               const Dispatcher&            dispatcherFunctor,
@@ -664,13 +669,11 @@ class TimerEventScheduler {
         // the epoch used for all time intervals (see {Supported Clock-Types}
         // in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use
-        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
-        // to identify this event scheduler.  Use
-        // 'bdlm::MetricsRegistry::singleton()' to report metrics.  Note that
-        // the maximal number of scheduled non-recurring events and recurring
+        // the currently installed default allocator is used.  Note that the
+        // maximal number of scheduled non-recurring events and recurring
         // events defaults to an implementation defined constant.
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     explicit TimerEventScheduler(
                               const Dispatcher&            dispatcherFunctor,
                               bsls::SystemClockType::Enum  clockType,
@@ -690,6 +693,7 @@ class TimerEventScheduler {
         // is used.  Note that the maximal number of scheduled non-recurring
         // events and recurring events defaults to an implementation defined
         // constant.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     TimerEventScheduler(int               numEvents,
                         int               numClocks,
@@ -702,13 +706,10 @@ class TimerEventScheduler {
         // (see {Supported Clock-Types} in the component documentation).
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use
-        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
-        // to identify this event scheduler.  Use
-        // 'bdlm::MetricsRegistry::singleton()' to report metrics.  The
-        // behavior is undefined unless '0 <= numEvents < 2**24' and
+        // used.  The behavior is undefined unless '0 <= numEvents < 2**24' and
         // '0 <= numClocks < 2**24'.
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     TimerEventScheduler(int                      numEvents,
                         int                      numClocks,
                         const bsl::string_view&  metricsIdentifier,
@@ -728,6 +729,7 @@ class TimerEventScheduler {
         // the currently installed default allocator is used.  The behavior is
         // undefined unless '0 <= numEvents < 2**24' and
         // '0 <= numClocks < 2**24'.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     TimerEventScheduler(int                          numEvents,
                         int                          numClocks,
@@ -741,13 +743,10 @@ class TimerEventScheduler {
         // used for all time intervals (see {Supported Clock-Types} in the
         // component documentation).  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  Use
-        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
-        // to identify this event scheduler.  Use
-        // 'bdlm::MetricsRegistry::singleton()' to report metrics.  The
-        // behavior is undefined unless '0 <= numEvents < 2**24' and
-        // '0 <= numClocks < 2**24'.
+        // installed default allocator is used.  The behavior is undefined
+        // unless '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     TimerEventScheduler(int                          numEvents,
                         int                          numClocks,
                         bsls::SystemClockType::Enum  clockType,
@@ -768,6 +767,7 @@ class TimerEventScheduler {
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.  The behavior is undefined unless '0 <= numEvents < 2**24'
         // and '0 <= numClocks < 2**24'.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     TimerEventScheduler(int                numEvents,
                         int                numClocks,
@@ -781,13 +781,10 @@ class TimerEventScheduler {
         // (see {Supported Clock-Types} in the component documentation).
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use
-        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
-        // to identify this event scheduler.  Use
-        // 'bdlm::MetricsRegistry::singleton()' to report metrics.  The
-        // behavior is undefined unless '0 <= numEvents < 2**24' and
+        // used.  The behavior is undefined unless '0 <= numEvents < 2**24' and
         // '0 <= numClocks < 2**24'.
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     TimerEventScheduler(int                      numEvents,
                         int                      numClocks,
                         const Dispatcher&        dispatcherFunctor,
@@ -808,6 +805,7 @@ class TimerEventScheduler {
         // the currently installed default allocator is used.  The behavior is
         // undefined unless '0 <= numEvents < 2**24' and
         // '0 <= numClocks < 2**24'.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     TimerEventScheduler(int                          numEvents,
                         int                          numClocks,
@@ -822,13 +820,10 @@ class TimerEventScheduler {
         // used for all time intervals (see {Supported Clock-Types} in the
         // component documentation).  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  Use
-        // 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'
-        // to identify this event scheduler.  Use
-        // 'bdlm::MetricsRegistry::singleton()' to report metrics.  The
-        // behavior is undefined unless '0 <= numEvents < 2**24' and
-        // '0 <= numClocks < 2**24'.
+        // installed default allocator is used.  The behavior is undefined
+        // unless '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     TimerEventScheduler(int                          numEvents,
                         int                          numClocks,
                         const Dispatcher&            dispatcherFunctor,
@@ -850,6 +845,7 @@ class TimerEventScheduler {
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.  The behavior is undefined unless '0 <= numEvents < 2**24'
         // and '0 <= numClocks < 2**24'.
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
     ~TimerEventScheduler();
         // Stop this scheduler, discard all the unprocessed events and destroy

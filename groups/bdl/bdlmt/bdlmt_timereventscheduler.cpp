@@ -69,6 +69,7 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
               clockType);
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 void startLagMetric(BloombergLP::bdlm::Metric               *value,
                     BloombergLP::bdlmt::TimerEventScheduler *object)
 {
@@ -82,6 +83,7 @@ void startLagMetric(BloombergLP::bdlm::Metric               *value,
                                           (now - next).totalSecondsAsDouble());
     }
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 }  // close unnamed namespace
 
@@ -383,6 +385,7 @@ namespace bdlmt {
 const char TimerEventScheduler::s_defaultThreadName[16] = { "bdl.TimerEvent" };
 
 // PRIVATE MANIPULATORS
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 void TimerEventScheduler::initialize(
                                     bdlm::MetricsRegistry   *metricsRegistry,
                                     const bsl::string_view&  metricsIdentifier)
@@ -408,6 +411,7 @@ void TimerEventScheduler::initialize(
                                                         bdlf::PlaceHolders::_1,
                                                         this));
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 void TimerEventScheduler::yieldToDispatcher()
 {
@@ -448,11 +452,14 @@ TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 {
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 TimerEventScheduler::TimerEventScheduler(
                                     const bsl::string_view&  metricsIdentifier,
                                     bdlm::MetricsRegistry  *metricsRegistry,
@@ -479,6 +486,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 TimerEventScheduler::TimerEventScheduler(
                                    bsls::SystemClockType::Enum  clockType,
@@ -504,11 +512,14 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 {
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 TimerEventScheduler::TimerEventScheduler(
                                 bsls::SystemClockType::Enum  clockType,
                                 const bsl::string_view&      metricsIdentifier,
@@ -537,6 +548,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
@@ -561,15 +573,18 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 {
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
                      const bsl::string_view&                 metricsIdentifier,
-                     bdlm::MetricsRegistry                 *metricsRegistry,
+                     bdlm::MetricsRegistry                  *metricsRegistry,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
@@ -593,6 +608,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
@@ -618,11 +634,14 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 {
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
                      bsls::SystemClockType::Enum             clockType,
@@ -651,6 +670,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 TimerEventScheduler::TimerEventScheduler(int               numEvents,
                                          int               numClocks,
@@ -680,11 +700,14 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 TimerEventScheduler::TimerEventScheduler(
                                     int                      numEvents,
                                     int                      numClocks,
@@ -718,6 +741,7 @@ TimerEventScheduler::TimerEventScheduler(
 
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 TimerEventScheduler::TimerEventScheduler(
                                    int                          numEvents,
@@ -750,11 +774,14 @@ TimerEventScheduler::TimerEventScheduler(
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 TimerEventScheduler::TimerEventScheduler(
                                 int                          numEvents,
                                 int                          numClocks,
@@ -790,6 +817,7 @@ TimerEventScheduler::TimerEventScheduler(
 
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 TimerEventScheduler::TimerEventScheduler(
                      int                                     numEvents,
@@ -822,11 +850,14 @@ TimerEventScheduler::TimerEventScheduler(
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 TimerEventScheduler::TimerEventScheduler(
                      int                                     numEvents,
                      int                                     numClocks,
@@ -862,6 +893,7 @@ TimerEventScheduler::TimerEventScheduler(
 
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 TimerEventScheduler::TimerEventScheduler(
                      int                                     numEvents,
@@ -894,11 +926,14 @@ TimerEventScheduler::TimerEventScheduler(
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
 TimerEventScheduler::TimerEventScheduler(
                      int                                     numEvents,
                      int                                     numClocks,
@@ -934,12 +969,15 @@ TimerEventScheduler::TimerEventScheduler(
 
     initialize(metricsRegistry, metricsIdentifier);
 }
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 
 TimerEventScheduler::~TimerEventScheduler()
 {
     stop();
 
+#ifdef BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS
     d_startLagHandle.unregister();
+#endif // defined(BDLMT_TIMEREVENTSCHEDULER_ENABLE_METRICS)
 }
 
 // MANIPULATORS
