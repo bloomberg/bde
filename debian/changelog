@@ -1,9 +1,40 @@
-bsl-internal (4.5.0.0) unstable; urgency=low
+bsl-internal (4.6.0.0) unstable; urgency=low
 
+  * ef80a546a Bumped version to 4.6.0.0
+  * d95e6826a Add member initializers to string_view (#4691)
+  * 4fc9b4597 Mark bdlm for internal use for the moment (#4690)
+  * 4646452d4 Disable thread-enabled object metric collection (#4686)
+  * 18c4d1a27 Reuse `bsl::ostream` to reduce locale overhead when logging - {DRQS 174266061} (#4626)
+  * ebb30c0b8 Added missing perf-hint to bdld::Datum. (#4689)
+  * 0716f01a9 bslh_wyhashincrementalalgorithm: avoid UB on 0-length hashes with nul… (#4677)
+  * 5f0855ebb Enable starts_with and ends_with for `bsl::string_view` (#4687)
+  * 32b003967 Merge pull request #4684 from afeher/drqs-174837494-fix-bdld_datum-UBs
+  * a30b9d4cb bdlm_metricsregistry allocating move constructor and so drqs 174793420 (#4681)
+  * cb39367c0 Allocator aware data for metrics type (#4680)
+  * c704fe0b7 Squelch clang warnings when using BSLS_ASSERT_OPT (#4679)
+  * 9df0e05e1 drqs-167908706: 'baljsn_decoder': nillable arrays of complex types (#4663)
+  * d924fb6a3 Fix nightly build failues in a couple bdlmt components (#4675)
+  * bbc1e2a4b Support non spaceship iterators drqs 174349363 version 2 (#4659)
+  * bde0be612 Remove metaint references from non-metaint type (#4660)
+  * 5ceac4711 Create alias to std::jthread (#4666)
+  * e61cac024 Suppress clang warnings from test files. NFCI {DRQS 174735513} (#4672)
+  * c43b00799 Remove out-of-date markers (#4671)
+  * 531e480a0 drqs-172566764: 'bslstl_stringview': '*_with' methods and itr CTOR. (#4664)
+  * f4a4f4fad Revert "optional<Incomplete> (DRQS 173457570) (#4519)" (#4669)
+  * d6674e1df string_view & StringRef support (#4630)
+  * ffd312390 Integration/teom 20240123 (#4653)
+  * 88f20d805 Fix 32-bit MSVC bslmf test driver build errors (#4649)
+  * 27757c461 Add support for bdlb::Guid to ball::ScopedAttribute (#4661)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 7 Apr 2024 19:37:47 -0400
+
+bsl-internal (4.5.0.0) git; urgency=low
+
+  * a31a60feb Changelog for version 4.5.0.0
   * cd5b1062b Bumped version to 4.5.0.0
   * cf9479753 Make `bdlb::Guid` a first-class `ball::Attribute` type - {DRQS 174264326} (#4625)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 11 Mar 2024 11:01:15 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 11 Mar 2024 11:02:00 -0400
 
 bsl-internal (4.4.1.0) git; urgency=low
 
