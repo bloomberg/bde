@@ -30,6 +30,16 @@ BSLS_IDENT("$Id: $")
 // factory allocates the shared pointer representation together with the buffer
 // (contiguously).
 //
+///Thread Safety
+///-------------
+// The 'bdlbb::PooledBlobBufferFactory' class is *fully thread-safe* (i.e., all
+// non-creator methods can correctly execute concurrently).  See
+// 'bsldoc_glossary' for complete definitions of *fully thread-safe*.
+//
+// It is safe to access and modify factory from multiple threads.  However, it
+// is *not* safe to allocate and load a new buffer into the same 'BlobBuffer'
+// object simultaneously from multiple threads.
+//
 ///Potential Lifetime Issues
 ///-------------------------
 // Be aware that the destruction of a 'bdlbb::PooledBlobBufferFactory' object
