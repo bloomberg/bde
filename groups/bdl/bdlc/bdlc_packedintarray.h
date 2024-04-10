@@ -1857,7 +1857,10 @@ bool PackedIntArrayImp<STORAGE>::isEqual(
                                  const PackedIntArrayImp<STORAGE>& other) const
 {
     if (d_length == other.d_length) {
-        if (d_bytesPerElement == other.d_bytesPerElement) {
+        if (0 == d_length) {
+            return true;                                              // RETURN
+        }
+        else if (d_bytesPerElement == other.d_bytesPerElement) {
             return 0 == bsl::memcmp(d_storage_p,
                                     other.d_storage_p,
                                     d_length * d_bytesPerElement);    // RETURN

@@ -711,9 +711,11 @@ PackedIntArrayImp<STORAGE>::PackedIntArrayImp(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_storage_p = d_allocator_p->allocate(d_capacityInBytes);
-    bsl::memcpy(d_storage_p,
-                original.d_storage_p,
-                d_length * d_bytesPerElement);
+    if (0 < d_length) {
+        bsl::memcpy(d_storage_p,
+                    original.d_storage_p,
+                    d_length * d_bytesPerElement);
+    }
 }
 
 template <class STORAGE>
@@ -754,7 +756,9 @@ PackedIntArrayImp<STORAGE>& PackedIntArrayImp<STORAGE>::
 
         d_length = rhs.d_length;
         d_bytesPerElement = rhs.d_bytesPerElement;
-        bsl::memcpy(d_storage_p, rhs.d_storage_p, numBytes);
+        if (0 < d_length) {
+            bsl::memcpy(d_storage_p, rhs.d_storage_p, numBytes);
+        }
     }
     return *this;
 }
@@ -871,9 +875,11 @@ void PackedIntArrayImp<STORAGE>::append(
     // Append the values.
 
     if (d_bytesPerElement == srcArray.d_bytesPerElement) {
-        bsl::memcpy(address() + d_length * d_bytesPerElement,
-                    srcArray.address() + srcIndex * d_bytesPerElement,
-                    numElements * d_bytesPerElement);
+        if (0 < numElements) {
+            bsl::memcpy(address() + d_length * d_bytesPerElement,
+                        srcArray.address() + srcIndex * d_bytesPerElement,
+                        numElements * d_bytesPerElement);
+        }
         d_length = newLength;
     }
     else {
@@ -919,13 +925,15 @@ void PackedIntArrayImp<STORAGE>::insert(bsl::size_t dstIndex,
         // Copy existing data and update 'd_length'.
 
         if (d_bytesPerElement == rbpe) {
-            bsl::memcpy(static_cast<char *>(dst)
+            if (0 < d_length) {
+                bsl::memcpy(static_cast<char *>(dst)
                                           + (dstIndex + 1) * d_bytesPerElement,
-                        address() + dstIndex * d_bytesPerElement,
-                        (d_length - dstIndex) * d_bytesPerElement);
-            bsl::memcpy(dst,
-                        d_storage_p,
-                        dstIndex * d_bytesPerElement);
+                            address() + dstIndex * d_bytesPerElement,
+                            (d_length - dstIndex) * d_bytesPerElement);
+                bsl::memcpy(dst,
+                            d_storage_p,
+                            dstIndex * d_bytesPerElement);
+            }
             d_length = newLength;
         }
         else {
@@ -1042,13 +1050,17 @@ void PackedIntArrayImp<STORAGE>::insert(
         // Copy existing data and update 'd_length'.
 
         if (d_bytesPerElement == rbpe) {
-            bsl::memcpy(static_cast<char *>(dst)
+            if (d_length > dstIndex) {
+                bsl::memcpy(static_cast<char *>(dst)
                                 + (dstIndex + numElements) * d_bytesPerElement,
-                        address() + dstIndex * d_bytesPerElement,
-                        (d_length - dstIndex) * d_bytesPerElement);
-            bsl::memcpy(dst,
-                        d_storage_p,
-                        dstIndex * d_bytesPerElement);
+                            address() + dstIndex * d_bytesPerElement,
+                            (d_length - dstIndex) * d_bytesPerElement);
+            }
+            if (0 < dstIndex) {
+                bsl::memcpy(dst,
+                            d_storage_p,
+                            dstIndex * d_bytesPerElement);
+            }
             d_length = newLength;
         }
         else {
@@ -1102,10 +1114,12 @@ void PackedIntArrayImp<STORAGE>::insert(
         // Copy existing data and update 'd_length'.
 
         if (d_bytesPerElement == rbpe) {
-            bsl::memmove(address()
+            if (d_length > dstIndex) {
+                bsl::memmove(address()
                                 + (dstIndex + numElements) * d_bytesPerElement,
-                         address() + dstIndex * d_bytesPerElement,
-                         (d_length - dstIndex) * d_bytesPerElement);
+                             address() + dstIndex * d_bytesPerElement,
+                             (d_length - dstIndex) * d_bytesPerElement);
+            }
             d_length = newLength;
         }
         else {
@@ -1132,9 +1146,11 @@ void PackedIntArrayImp<STORAGE>::insert(
         // Place new data.
 
         if (rbpe == srcArray.d_bytesPerElement) {
-            bsl::memcpy(address() + dstIndex * rbpe,
-                        srcArray.address() + srcIndex * rbpe,
-                        numElements * rbpe);
+            if (0 < numElements) {
+                bsl::memcpy(address() + dstIndex * rbpe,
+                            srcArray.address() + srcIndex * rbpe,
+                            numElements * rbpe);
+            }
         }
         else {
             replaceImp(d_storage_p,
@@ -1152,14 +1168,19 @@ void PackedIntArrayImp<STORAGE>::insert(
     }
     else {
         // Perform the operation without allocation while aliased.
-        bsl::memmove(address() + (dstIndex + numElements) * d_bytesPerElement,
-                     address() + dstIndex * d_bytesPerElement,
-                     (d_length - dstIndex) * d_bytesPerElement);
+        if (d_length > dstIndex) {
+            bsl::memmove(address() +
+                                  (dstIndex + numElements) * d_bytesPerElement,
+                         address() + dstIndex * d_bytesPerElement,
+                         (d_length - dstIndex) * d_bytesPerElement);
+        }
 
         if (srcIndex + numElements <= dstIndex) {
-            bsl::memcpy(address() + dstIndex * d_bytesPerElement,
-                        address() + srcIndex * d_bytesPerElement,
-                        numElements * d_bytesPerElement);
+            if (0 < numElements) {
+                bsl::memcpy(address() + dstIndex * d_bytesPerElement,
+                            address() + srcIndex * d_bytesPerElement,
+                            numElements * d_bytesPerElement);
+            }
         }
         else if (srcIndex >= dstIndex) {
             bsl::memcpy(address() + dstIndex * d_bytesPerElement,
@@ -1237,9 +1258,11 @@ void PackedIntArrayImp<STORAGE>::replace(
 
     if (this != &srcArray) {
         if (d_bytesPerElement == srcArray.d_bytesPerElement) {
-            bsl::memcpy(address() + dstIndex * d_bytesPerElement,
-                        srcArray.address() + srcIndex * d_bytesPerElement,
-                        numElements * d_bytesPerElement);
+            if (0 < numElements) {
+                bsl::memcpy(address() + dstIndex * d_bytesPerElement,
+                            srcArray.address() + srcIndex * d_bytesPerElement,
+                            numElements * d_bytesPerElement);
+            }
         }
         else {
             int rbpe;
@@ -1399,7 +1422,9 @@ void PackedIntArrayImp<STORAGE>::reserveCapacityImp(
 
         // Copy existing data.
 
-        bsl::memcpy(d_storage_p, src, d_length * d_bytesPerElement);
+        if (0 < d_length) {
+            bsl::memcpy(d_storage_p, src, d_length * d_bytesPerElement);
+        }
 
         // Deallocate original memory.
 

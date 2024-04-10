@@ -5736,20 +5736,22 @@ int main(int argc, char *argv[])
                 X.bdexStreamOut(out, VERSION);
 
                 LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
-                LOOP_ASSERT(LINE, 0 == memcmp(out.data(),
-                                              FMT,
-                                              LEN));
+                if (0 < LEN) {
+                    LOOP_ASSERT(LINE, 0 == memcmp(out.data(),
+                                                  FMT,
+                                                  LEN));
 
-                if (memcmp(out.data(), FMT, LEN)) {
-                    if (veryVerbose) {
-                        const char *hex = "0123456789abcdef";
-                        P_(LINE);
-                        for (bsl::size_t j = 0; j < out.length(); ++j) {
-                            cout << "\\x"
-                                 << hex[*(out.data() + j) >> 4]
-                                 << hex[*(out.data() + j) & 0x0f];
+                    if (memcmp(out.data(), FMT, LEN)) {
+                        if (veryVerbose) {
+                            const char *hex = "0123456789abcdef";
+                            P_(LINE);
+                            for (bsl::size_t j = 0; j < out.length(); ++j) {
+                                cout << "\\x"
+                                     << hex[*(out.data() + j) >> 4]
+                                     << hex[*(out.data() + j) & 0x0f];
+                            }
+                            cout << endl;
                         }
-                        cout << endl;
                     }
                 }
 
