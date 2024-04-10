@@ -163,13 +163,13 @@ int    u_TestValueCount = 0;
 Uint64 u_TestValueMask  = 0;
 
 #define DECLARE_STATIC_TEST_CASE(n)                                 \
-    static Uint64 u_static_val         ## n;                        \
-    static int    u_static_test_result ## n =                       \
+    static Uint64    u_static_val         ## n;                     \
+    static const int u_static_test_result ## n =                    \
            baljsn::ParserUtil::getValue(&u_static_val ## n, #n);    \
-    static int    u_TestValueCount_increment ## n =                 \
+    static int       u_TestValueCount_increment ## n =              \
            ++u_TestValueCount;                                      \
     static Uint64    u_TestValueMask_update ## n =                  \
-        (u_TestValueMask ^= n)
+        (u_TestValueMask ^= n ## ull)
 
 DECLARE_STATIC_TEST_CASE(1234567890);
 DECLARE_STATIC_TEST_CASE(0);
@@ -461,12 +461,14 @@ int main(int argc, char *argv[])
                           << "\n=================================" << endl;
 
         Uint64 testedValuesMask = 0;
-#define CHECK_STATIC(n)                             \
-            ASSERTV(u_static_val ## n,              \
-                    u_static_test_result ## n,      \
-                    n == u_static_val ## n);        \
-            --u_TestValueCount;                     \
-            testedValuesMask ^= n
+#define CHECK_STATIC(n)                                  \
+            ASSERTV(u_static_test_result ## n,           \
+                    0 == u_static_test_result ## n);     \
+            ASSERTV(u_static_val ## n,                   \
+                    u_static_test_result ## n,           \
+                    n ## ull == u_static_val ## n);      \
+            --u_TestValueCount;                          \
+            testedValuesMask ^= n ## ull
 
         CHECK_STATIC(1234567890);
         CHECK_STATIC(0);
@@ -2452,7 +2454,7 @@ int main(int argc, char *argv[])
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
 
                 // Verify that default options are the same as no options
-                //*** NOT done because the default without options is different
+                // ** NOT done because the default without options is different
 
                 // Verify that 'setEncodeQuotedDecimal64' 'false' behaves the
                 // same way as no options in that it round trips.
