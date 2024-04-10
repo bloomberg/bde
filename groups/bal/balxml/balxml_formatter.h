@@ -26,6 +26,49 @@ BSLS_IDENT("$Id: $")
 // care of proper indentation and line wrapping.  Visit
 // http://www.w3schools.com/xml/xml_syntax.asp for a complete tutorial.
 //
+///Special Characters
+///------------------
+// XML defines five special characters that must not appear text; instead
+// these characters are must be represented by multi-byte escape sequences.
+//..
+//  Special    (Hex)                 XML Escape
+//  Character  Value  Description    Sequence
+//  ---------  -----  -----------    ----------
+//  "          x22    quote          &quot;
+//  &          x26    ampersand      &amp;
+//  '          x27    apostrophe     &apos;
+//  <          x3C    less than      &lt;  
+//  >          x3E    greater than   &gt;
+//..
+// The following methods:
+//: o 'addAttribute',
+//: o 'addData', and
+//: o 'addListData'
+// implicitly convert each special character found in string input to the
+// appropriate escape sequence in the resulting XML document.
+//
+///Valid Strings
+///-------------
+// Strings used to set element attributes and element data (see 'addAttribute',
+// 'addData', and 'addListData') must consist of (valid) UTF-8 byte sequences
+// excepting certain control characters.
+//..
+//   Control
+//   Characters  Description                 Allowed
+//   ----------- --------------------------  -------
+//   x09         HT  '\t' (horizontal tab)   true
+//   x0A         LF  '\n' (new line)         true
+//   x0D         CR  '\r' (carriage return)  true
+//   x7F         DEL      (delete)           false
+//
+//   x01 .. 0x1F Other than HT, LF, and CR.  false
+//..
+// Notice that range of 31 control characters between '0x01' and '0x1F'
+// (inclusive) consist of three that are allowed and 28 that are not.
+//
+// The detection of an invalid character in an input stream stops the transfer
+// of data to the output stream.  The output stream is put into a failed state.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -513,15 +556,15 @@ class Formatter {
         // (write the attribute on next line with proper indentation), if the
         // length of name="value" is too long.  Optionally specify a
         // 'formattingMode' used to control the formatting of the 'value'.  If
-        // 'value' is of type 'bsl::string', it is truncated at any invalid
-        // UTF-8 byte-sequence or any control character.  The list of invalid
-        // control characters includes characters in the range '[0x00, 0x20)'
-        // and '0x7F' (DEL) but does not include '0x9', '0xA', and '0x0D'.  The
-        // five special characters: apostrophe, double quote, ampersand, less
-        // than, and greater than are escaped in the output XML.  If 'value' is
-        // of type 'char', it is cast to a signed byte value with a range '[
-        // -128 .. 127 ]'.  The behavior is undefined unless the last
-        // manipulator was 'openElement' or 'addAttribute'.
+        // 'value' is of type 'bsl::string' or convertible to
+        // 'bsl::string_view', the presence of invalid input stops the transfer
+        // of data to the output specified on construction (see {Valid
+        // Strings}).  If 'value' is of type 'bsl::string' or convertible to
+        // 'bsl::string_view', any special characters in 'value' are escaped
+        // (see {Special Characters}).  If 'value' is of type 'char', it is
+        // cast to a signed byte value with a range '[ -128 .. 127 ]'.  The
+        // behavior is undefined unless the last manipulator was 'openElement'
+        // or 'addAttribute'.
 
     void addBlankLine();
         // Insert one or two newline characters into the output stream such
@@ -549,16 +592,16 @@ class Formatter {
         // always 'BAEXML_PRESERVE_WHITESPACE' in 'openElement', with the only
         // exception that an initial newline and an initial indent is added
         // when 'openElement' specifies 'BAEXML_NEWLINE_INDENT' option.  If
-        // 'value' is of type 'bsl::string', it is truncated at any invalid
-        // UTF-8 byte-sequence or any control character.  The list of invalid
-        // control characters includes characters in the range '[0x00, 0x20)'
-        // and '0x7F' (DEL) but does not include '0x9', '0xA', and '0x0D'.  The
-        // five special characters: apostrophe, double quote, ampersand, less
-        // than, and greater than are escaped in the output XML.  If 'value' is
-        // of type 'char', it is cast to a signed byte value with a range of '[
-        // -128 .. 127 ]'.  Optionally specify the 'formattingMode' to specify
-        // the format used to encode 'value'.  The behavior is undefined if the
-        // call is made when there are no opened elements.
+        // 'value' is of type 'bsl::string' or convertible to
+        // 'bsl::string_view', the presence of invalid input stops the transfer
+        // of data to the output specified on construction (see {Valid
+        // Strings}).  If 'value' is of type 'bsl::string' or convertible to
+        // 'bsl::string_view', characters in 'value' are escaped (see {Special
+        // Characters}).  If 'value' is of type 'char', it is cast to a signed
+        // byte value with a range of '[ -128 .. 127 ]'.  Optionally specify
+        // the 'formattingMode' to specify the format used to encode 'value'.
+        // The behavior is undefined if the call is made when there are no
+        // opened elements.
 
     template <class TYPE>
     void addElementAndData(const bsl::string_view& name,
@@ -585,17 +628,16 @@ class Formatter {
         // first data on a line.  When adding the data makes the line too long,
         // perform line-wrapping and indentation as determined by the
         // whitespace constraint used when the current element is opened with
-        // 'openElement'.  If 'value' is of type 'bsl::string', it is truncated
-        // at any invalid UTF-8 byte-sequence or any control character.  The
-        // list of invalid control characters includes characters in the range
-        // '[0x00, 0x20)' and '0x7F' (DEL) but does not include '0x9', '0xA',
-        // and '0x0D'.  The five special characters: apostrophe, double quote,
-        // ampersand, less than, and greater than are escaped in the output
-        // XML.  If 'value' is of type 'char', it is cast to a signed byte
-        // value with a range of '[ -128 .. 127 ]'.  Optionally specify the
-        // 'formattingMode' to specify the format used to encode 'value'.  The
-        // behavior is undefined if the call is made when there are no opened
-        // elements.
+        // 'openElement'.  If 'value' is of type 'bsl::string' or convertible
+        // to 'bsl::string_view', the presence of invalid input stops the
+        // transfer of data to the output specified on construction (see {Valid
+        // Strings}).  If 'value' is of type 'bsl::string' or convertible to
+        // 'bsl::string_view', any special characters in 'value' are escaped
+        // (see {Special Characters}).  If 'value' is of type 'char', it is
+        // cast to a signed byte value with a range of '[ -128 .. 127 ]'.
+        // Optionally specify the 'formattingMode' to specify the format used
+        // to encode 'value'.  The behavior is undefined if the call is made
+        // when there are no opened elements.
 
     void addNewline();
         // Insert a literal newline into the XML output.  If following a call
