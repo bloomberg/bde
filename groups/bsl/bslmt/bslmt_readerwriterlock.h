@@ -252,36 +252,36 @@ class ReaderWriterLock {
     };
 
     // CLASS DATA
-    static const long long WRITER_MASK         = 0x000000000000FFFFLL;
+    static const unsigned long long WRITER_MASK         = 0x000000000000FFFFLL;
         // mask for writer portion of the counter
 
-    static const long long READER_MASK         = 0x00000000FFFF0000LL;
+    static const unsigned long long READER_MASK         = 0x00000000FFFF0000LL;
         // mask for active reader potion of the counter
 
-    static const long long READER_INC          = 0x0000000000010000LL;
+    static const unsigned long long READER_INC          = 0x0000000000010000LL;
         // value used to increment and decrement the active reader count by 1
 
-    static const long long BLOCKED_READER_MASK = 0x0000FFFF00000000LL;
+    static const unsigned long long BLOCKED_READER_MASK = 0x0000FFFF00000000LL;
         // mask for waiting reader portion of the counter
 
-    static const long long BLOCKED_READER_INC = 0x00000000100000000LL;
+    static const unsigned long long BLOCKED_READER_INC = 0x00000000100000000LL;
         // value used to increment and decrement the blocked reader count by 1
 
-    static const long long READ_OK             = 0x0001000000000000LL;
+    static const unsigned long long READ_OK             = 0x0001000000000000LL;
         // mask for read ok flag which indicates that readers can acquire a
         // lock without blocking.
 
-    static const long long UPGRADE_PENDING     = 0x0002000000000000LL;
+    static const unsigned long long UPGRADE_PENDING     = 0x0002000000000000LL;
         // mask for upgrade pending flag which indicates that a reader thread
         // is waiting to upgrade to a writer
 
-    static const long long RESERVATION_PENDING = 0x0004000000000000LL;
+    static const unsigned long long RESERVATION_PENDING = 0x0004000000000000LL;
         // mask for reservation pending flag
 
-    static const long long READ_BCAST_MASK     = 0xFFF0000000000000LL;
+    static const unsigned long long READ_BCAST_MASK     = 0xFFF0000000000000LL;
         // mask for the read broadcast state portion of counter
 
-    static const long long READ_BCAST_INC      = 0x0010000000000000LL;
+    static const unsigned long long READ_BCAST_INC      = 0x0010000000000000LL;
         // value used to increment the read broadcast count by 1
 
     // INSTANCE DATA

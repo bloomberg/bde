@@ -25,16 +25,16 @@ BSLS_IDENT_RCSID(bslmt_readerwriterlock_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 #ifdef BSLS_PLATFORM_OS_AIX // IBM does not properly inline these constants
-const long long bslmt::ReaderWriterLock::WRITER_MASK;
-const long long bslmt::ReaderWriterLock::READER_MASK;
-const long long bslmt::ReaderWriterLock::READER_INC;
-const long long bslmt::ReaderWriterLock::BLOCKED_READER_MASK;
-const long long bslmt::ReaderWriterLock::BLOCKED_READER_INC;
-const long long bslmt::ReaderWriterLock::READ_OK;
-const long long bslmt::ReaderWriterLock::UPGRADE_PENDING;
-const long long bslmt::ReaderWriterLock::RESERVATION_PENDING;
-const long long bslmt::ReaderWriterLock::READ_BCAST_MASK;
-const long long bslmt::ReaderWriterLock::READ_BCAST_INC;
+const unsigned long long bslmt::ReaderWriterLock::WRITER_MASK;
+const unsigned long long bslmt::ReaderWriterLock::READER_MASK;
+const unsigned long long bslmt::ReaderWriterLock::READER_INC;
+const unsigned long long bslmt::ReaderWriterLock::BLOCKED_READER_MASK;
+const unsigned long long bslmt::ReaderWriterLock::BLOCKED_READER_INC;
+const unsigned long long bslmt::ReaderWriterLock::READ_OK;
+const unsigned long long bslmt::ReaderWriterLock::UPGRADE_PENDING;
+const unsigned long long bslmt::ReaderWriterLock::RESERVATION_PENDING;
+const unsigned long long bslmt::ReaderWriterLock::READ_BCAST_MASK;
+const unsigned long long bslmt::ReaderWriterLock::READ_BCAST_INC;
 
 #endif
 
