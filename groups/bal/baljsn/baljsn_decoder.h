@@ -55,6 +55,21 @@ BSLS_IDENT("$Id: $")
 // non-UTF-8 with no adverse effects to their clients.  Consequently, this
 // option is 'false' by default to maintain backward compatibility.
 //
+///Strict Conformance
+///------------------
+// The 'baljsn::Decoder' class allows several convenient variances from the
+// JSON grammar as described in RFC8259 (see
+// https://www.rfc-editor.org/rfc/rfc8259).  If strict conformance is needed,
+// users should use the 'read' overloads that accept a 'baljsn::DecoderOptions'
+// object and set the following attributes to the values shown below:
+//..
+//  validateInputIsUtf8()             == true;
+//  allowConsecutiveSeparators()      == false;
+//  allowFormFeedAsWhitespace()       == false;
+//  allowUnescapedControlCharacters() == false;
+//..
+// See also {'bdljsn_tokenizer'|Strict Conformance}.
+///
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -65,7 +80,7 @@ BSLS_IDENT("$Id: $")
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use 'bas_codegen.pl' to create the 'Employee'
 // 'class' for storing that information, and decode into that object using the
-// baljsn decoder.
+// 'baljsn' decoder.
 //
 // First, we will define the XML schema inside a file called 'employee.xsd':
 //..
@@ -366,7 +381,7 @@ struct Decoder_DecodeImpProxy {
 
     // DATA
     Decoder *d_decoder_p;  // decoder (held, not owned)
-    int             d_mode;       // formatting mode
+    int      d_mode;       // formatting mode
 
     // CREATORS
 
@@ -461,6 +476,7 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
         }
 
         while (Tokenizer::e_ELEMENT_NAME == d_tokenizer.tokenType()) {
+
             bslstl::StringRef elementName;
             rc = d_tokenizer.value(&elementName);
             if (rc) {
@@ -720,7 +736,7 @@ int Decoder::decodeImp(TYPE *value, int, bdlat_TypeCategory::Enumeration)
     rc = ParserUtil::getValue(&intValue, dataValue);
     if (rc) {
         d_logStream << "Error reading enumeration value\n";
-        return -1;                                                // RETURN
+        return -1;                                                    // RETURN
     }
 
     rc = bdlat::EnumUtil::fromIntOrFallbackIfEnabled(value, intValue);
@@ -892,10 +908,10 @@ int Decoder::decodeImp(TYPE                              *value,
         }
 
         if (k_NULL_VALUE_LENGTH == dataValue.length()
-         && 'n'                      == dataValue[0]
-         && 'u'                      == dataValue[1]
-         && 'l'                      == dataValue[2]
-         && 'l'                      == dataValue[3]) {
+         && 'n'                 == dataValue[0]
+         && 'u'                 == dataValue[1]
+         && 'l'                 == dataValue[2]
+         && 'l'                 == dataValue[3]) {
             return 0;                                                 // RETURN
         }
     }
@@ -951,9 +967,15 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
     }
 
     d_tokenizer.reset(streamBuf);
-    d_tokenizer.setAllowStandAloneValues(false);
-    d_tokenizer.setAllowHeterogenousArrays(true); // needed for nillable arrays
-    d_tokenizer.setAllowNonUtf8StringLiterals(!options.validateInputIsUtf8());
+    d_tokenizer
+    .setAllowStandAloneValues(false)
+    .setAllowHeterogenousArrays(true) // needed for nillable arrays
+    .setAllowNonUtf8StringLiterals(!options.validateInputIsUtf8())
+    .setAllowConsecutiveSeparators( options.allowConsecutiveSeparators())
+    .setAllowFormFeedAsWhitespace(  options.allowFormFeedAsWhitespace())
+    .setAllowTrailingTopLevelComma(true)
+    .setAllowUnescapedControlCharacters(
+                                    options.allowUnescapedControlCharacters());
 
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 

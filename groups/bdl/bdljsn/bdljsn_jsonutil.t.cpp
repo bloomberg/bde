@@ -2220,6 +2220,7 @@ int main(int argc, char *argv[])
             , { L_, "\"text\" a",    ' ' }
             , { L_, "\"text\"a",     'a' }
             , { L_, "\"text\"{",     '{' }
+            , { L_, "\"text\",",     ',' }
             };
 
             const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);

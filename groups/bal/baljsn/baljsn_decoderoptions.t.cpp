@@ -35,11 +35,17 @@ using namespace bsl;
 //: o 'setMaxDepth'
 //: o 'setSkipUnknownElements'
 //: o 'setValidateInputIsUtf8'
+//: o 'setAllowConsecutiveSeparators'
+//: o 'setAllowFormFeedAsWhitespace'
+//: o 'setAllowUnescapedControlCharacters'
 //
 // Basic Accessors:
 //: o 'maxDepth'
 //: o 'skipUnknownElements'
 //: o 'validateInputIsUtf8'
+//: o 'allowConsecutiveSeparators'
+//: o 'allowFormFeedAsWhitespace'
+//: o 'allowUnescapedControlCharacters'
 //
 // Certain standard value-semantic-type test cases are omitted:
 //: o [ 8] -- 'swap' is not implemented for this class.
@@ -67,12 +73,18 @@ using namespace bsl;
 // [ 3] setMaxDepth(int value);
 // [ 3] setSkipUnknownElements(bool value);
 // [ 3] setValidateInputIsUtf8(bool value);
+// [ 3] setAllowConsecutiveSeparators(bool value);
+// [ 3] setAllowFormFeedAsWhitespace(bool value);
+// [ 3] setAllowUnescapedControlCharacters(bool value);
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 4] int  maxDepth() const;
 // [ 4] bool skipUnknownElements() const;
 // [ 4] bool validateInputIsUtf8() const;
+// [ 4] bool allowConsecutiveSeparators() const;
+// [ 4] bool allowFormFeedAsWhitespace() const;
+// [ 4] bool allowUnescapedControlCharacters() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -167,34 +179,59 @@ struct DefaultDataRow {
     int         d_maxDepth;
     bool        d_skipUnknownElements;
     bool        d_validateInputIsUtf8;
+    bool        d_allowConsecutiveSeparators;
+    bool        d_allowFormFeedAsWhitespace;
+    bool        d_allowUnescapedControlCharacters;
 };
 
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE  MAX_DEPTH   SKIP_ELEMS   VALID_UTF8
-    //----  ---------   ----------   ----------
+    //LINE DEPTH    SKIP   UTF8   CONS   FORM   UNES
+    //---- -------  ----   ----   ----   ----   ---- 
 
-    // default (must be first)
-    { L_,        32,    true,        false },
-    { L_,        32,    true,        true  },
-    { L_,        32,    false,       false },
-    { L_,        32,    false,       true  },
+    { L_,       32, true,  false, true,  true,  true  } // default first
 
-    { L_,         1,   false,        true  },
-    { L_,         1,    true,        true  },
-    { L_,         1,   false,        false },
-    { L_,         1,    true,        false },
+,   { L_,       32, false, false, false, false, false } 
+,   { L_,       32, false, false, false, false, true  } 
+,   { L_,       32, false, false, false, true,  false } 
+,   { L_,       32, false, false, false, true,  true  } 
 
-    { L_,   INT_MAX,   false,        true  },
-    { L_,   INT_MAX,    true,        true  },
-    { L_,   INT_MAX,   false,        false },
-    { L_,   INT_MAX,    true,        false },
+,   { L_,        1, false, false, true,  false, false } 
+,   { L_,        1, false, false, true,  false, true  } 
+,   { L_,        1, false, false, true,  true,  false } 
+,   { L_,        1, false, false, true,  true,  true  } 
 
-    { L_,         0,   false,        true  },
-    { L_,         0,    true,        true  },
-    { L_,         0,   false,        false },
-    { L_,         0,    true,        false },
+,   { L_,  INT_MAX, false, true,  false, false, false } 
+,   { L_,  INT_MAX, false, true,  false, false, true  } 
+,   { L_,  INT_MAX, false, true,  false, true,  false } 
+,   { L_,  INT_MAX, false, true,  false, true,  true  } 
+
+,   { L_,        0, false, true,  true,  false, false } 
+,   { L_,        0, false, true,  true,  false, true  } 
+,   { L_,        0, false, true,  true,  true,  false } 
+,   { L_,        0, false, true,  true,  true,  true  } 
+
+,   { L_,       32, true,  false, false, false, false } 
+,   { L_,       32, true,  false, false, false, true  } 
+,   { L_,       32, true,  false, false, true,  false } 
+,   { L_,       32, true,  false, false, true,  true  } 
+
+,   { L_,        1, true,  false, true,  false, false } 
+,   { L_,        1, true,  false, true,  false, true  } 
+,   { L_,        1, true,  false, true,  true,  false } 
+,   { L_,        1, true,  false, true,  true,  true  } 
+
+,   { L_,  INT_MAX, true,  true,  false, false, false } 
+,   { L_,  INT_MAX, true,  true,  false, false, true  } 
+,   { L_,  INT_MAX, true,  true,  false, true,  false } 
+,   { L_,  INT_MAX, true,  true,  false, true,  true  } 
+
+,   { L_,        0, true,  true,  true,  false, false } 
+,   { L_,        0, true,  true,  true,  false, true  } 
+,   { L_,        0, true,  true,  true,  true,  false } 
+,   { L_,        0, true,  true,  true,  true,  true  } 
+
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
@@ -397,20 +434,29 @@ int main(int argc, char *argv[])
                          "\nCopy-assign every value into every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE1    = DATA[ti].d_line;
-            const int   DEPTH1   = DATA[ti].d_maxDepth;
-            const bool  SKIP1    = DATA[ti].d_skipUnknownElements;
-            const bool  UTF81    = DATA[ti].d_validateInputIsUtf8;
+            const int   LINE1  = DATA[ti].d_line;
+            const int   DEPTH1 = DATA[ti].d_maxDepth;
+            const bool  SKIP1  = DATA[ti].d_skipUnknownElements;
+            const bool  UTF81  = DATA[ti].d_validateInputIsUtf8;
+            const bool  CONS1  = DATA[ti].d_allowConsecutiveSeparators;
+            const bool  FORM1  = DATA[ti].d_allowFormFeedAsWhitespace;
+            const bool  UNES1  = DATA[ti].d_allowUnescapedControlCharacters;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setMaxDepth(DEPTH1);
             mZ.setSkipUnknownElements(SKIP1);
             mZ.setValidateInputIsUtf8(UTF81);
+            mZ.setAllowConsecutiveSeparators(CONS1);
+            mZ.setAllowFormFeedAsWhitespace(FORM1);
+            mZ.setAllowUnescapedControlCharacters(UNES1);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setMaxDepth(DEPTH1);
             mZZ.setSkipUnknownElements(SKIP1);
             mZZ.setValidateInputIsUtf8(UTF81);
+            mZZ.setAllowConsecutiveSeparators(CONS1);
+            mZZ.setAllowFormFeedAsWhitespace(FORM1);
+            mZZ.setAllowUnescapedControlCharacters(UNES1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
@@ -424,15 +470,21 @@ int main(int argc, char *argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int   LINE2   = DATA[tj].d_line;
-                const int   DEPTH2  = DATA[tj].d_maxDepth;
-                const bool  SKIP2   = DATA[tj].d_skipUnknownElements;
-                const bool  UTF82   = DATA[tj].d_validateInputIsUtf8;
+                const int  LINE2  = DATA[tj].d_line;
+                const int  DEPTH2 = DATA[tj].d_maxDepth;
+                const bool SKIP2  = DATA[tj].d_skipUnknownElements;
+                const bool UTF82  = DATA[tj].d_validateInputIsUtf8;
+                const bool CONS2  = DATA[tj].d_allowConsecutiveSeparators;
+                const bool FORM2  = DATA[tj].d_allowFormFeedAsWhitespace;
+                const bool UNES2  = DATA[tj].d_allowUnescapedControlCharacters;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setMaxDepth(DEPTH2);
                 mX.setSkipUnknownElements(SKIP2);
                 mX.setValidateInputIsUtf8(UTF82);
+                mX.setAllowConsecutiveSeparators(CONS2);
+                mX.setAllowFormFeedAsWhitespace(FORM2);
+                mX.setAllowUnescapedControlCharacters(UNES2);
 
                 if (veryVerbose) { T_ P_(LINE2) P(X) }
 
@@ -542,20 +594,29 @@ int main(int argc, char *argv[])
                         "\nCopy construct an object from every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE    = DATA[ti].d_line;
-            const int   DEPTH   = DATA[ti].d_maxDepth;
-            const bool  SKIP    = DATA[ti].d_skipUnknownElements;
-            const bool  UTF8    = DATA[ti].d_validateInputIsUtf8;
+            const int   LINE  = DATA[ti].d_line;
+            const int   DEPTH = DATA[ti].d_maxDepth;
+            const bool  SKIP  = DATA[ti].d_skipUnknownElements;
+            const bool  UTF8  = DATA[ti].d_validateInputIsUtf8;
+            const bool  CONS  = DATA[ti].d_allowConsecutiveSeparators;
+            const bool  FORM  = DATA[ti].d_allowFormFeedAsWhitespace;
+            const bool  UNES  = DATA[ti].d_allowUnescapedControlCharacters;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setMaxDepth(DEPTH);
             mZ.setSkipUnknownElements(SKIP);
             mZ.setValidateInputIsUtf8(UTF8);
+            mZ.setAllowConsecutiveSeparators(CONS);
+            mZ.setAllowFormFeedAsWhitespace(FORM);
+            mZ.setAllowUnescapedControlCharacters(UNES);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setMaxDepth(DEPTH);
             mZZ.setSkipUnknownElements(SKIP);
             mZZ.setValidateInputIsUtf8(UTF8);
+            mZZ.setAllowConsecutiveSeparators(CONS);
+            mZZ.setAllowFormFeedAsWhitespace(FORM);
+            mZZ.setAllowUnescapedControlCharacters(UNES);
 
             if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
@@ -568,8 +629,7 @@ int main(int argc, char *argv[])
 
             static bool firstFlag = true;
             if (firstFlag) {
-                LOOP3_ASSERT(LINE, Obj(), Z,
-                             Obj() == Z)
+                LOOP3_ASSERT(LINE, Obj(), Z, Obj() == Z)
                 firstFlag = false;
             }
 
@@ -611,25 +671,15 @@ int main(int argc, char *argv[])
         //:
         //:10 Non-modifiable objects can be compared (i.e., objects or
         //:   references providing only non-modifiable access).
-        //:
-        //:11 The equality operator's signature and return type are standard.
-        //:
-        //:12 The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-9..12)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
+        //: 1 Using the table-driven technique, specify a set of distinct
         //:   object values (one per row) in terms of their individual salient
         //:   attributes such that for each salient attribute, there exists a
         //:   pair of rows that differ (slightly) in only the column
         //:   corresponding to that attribute.
         //:
-        //: 3 For each row 'R1' in the table of P-3:  (C-1..8)
+        //: 2 For each row 'R1' in the table of P-3:  (C-1..8)
         //:
         //:   1 Create a single object, and use it to verify the reflexive
         //:     (anti-reflexive) property of equality (inequality) in the
@@ -658,21 +708,6 @@ int main(int argc, char *argv[])
                           << "=====================================" << endl;
 
         if (verbose) cout <<
-                "\nAssign the address of each operator to a variable." << endl;
-        {
-            using namespace baljsn;
-            typedef bool (*operatorPtr)(const Obj&, const Obj&);
-
-            // Verify that the signatures and return types are standard.
-
-            operatorPtr operatorEq = operator==;
-            operatorPtr operatorNe = operator!=;
-
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
-        }
-
-        if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
                                                                        << endl;
         // ---------------
@@ -682,6 +717,9 @@ int main(int argc, char *argv[])
         typedef int   T1;        // 'maxDepth'
         typedef bool  T2;        // 'skipUnknownElements'
         typedef bool  T3;        // 'validateInputIsUtf8'
+        typedef bool  T4;        // 'allowConsecutiveSeparators'
+        typedef bool  T5;        // 'allowFormFeedAsWhitespace'
+        typedef bool  T6;        // 'allowUnescapedControlCharacters'
 
                       // ------------------------------
                       // Attribute 1 Values: 'maxDepth'
@@ -698,11 +736,32 @@ int main(int argc, char *argv[])
         const T2 B2 = false;
 
                 // -----------------------------------------
-                // Attribute 2 Values: 'skipUnknownElements'
+                // Attribute 3 Values: 'validateInputIsUtf8'
                 // -----------------------------------------
 
-        const T3 A3 = false;                 // baseline
-        const T3 B3 = true;
+        const T3 A3 = true;                  // baseline
+        const T3 B3 = false;
+
+                // -----------------------------------------
+                // Attribute 4 Values: allowConsecutiveSeparators
+                // -----------------------------------------
+
+        const T4 A4 = true ;                 // baseline
+        const T4 B4 = false;
+
+                // -----------------------------------------
+                // Attribute 5 Values: allowFormFeedAsWhitespace
+                // -----------------------------------------
+
+        const T5 A5 = true;                  // baseline
+        const T5 B5 = false;
+
+                // -----------------------------------------
+                // Attribute 6 Values: allowUnescapedControlCharacters
+                // -----------------------------------------
+
+        const T6 A6 = true;                  // baseline
+        const T6 B6 = false;
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -712,6 +771,9 @@ int main(int argc, char *argv[])
             int   d_maxDepth;
             bool  d_skipUnknownElements;
             bool  d_validateInputIsUtf8;
+            bool  d_allowConsecutiveSeparators;
+            bool  d_allowFormFeedAsWhitespace;
+            bool  d_allowUnescapedControlCharacters;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -719,14 +781,17 @@ int main(int argc, char *argv[])
         // row differs (slightly) from the first in exactly one attribute value
         // (Bi).
 
-        //LINE  DEPTH   SKIP   UTF8
-        //----  -----   ----   ----
+        //LINE  DEPTH   SKIP   UTF8  CONS FORM UNESC
+        //----  -----   ----   ----  ---- ---- -----
 
-        { L_,       A1,   A2,   A3 },          // baseline
+        { L_,       A1,   A2,    A3,   A4,  A5,   A6 }, // baseline
 
-        { L_,       B1,   A2,   A3 },
-        { L_,       A1,   B2,   A3 },
-        { L_,       A1,   A2,   B3 },
+        { L_,       B1,   A2,    A3,   A4,  A5,   A6 },
+        { L_,       A1,   B2,    A3,   A4,  A5,   A6 },
+        { L_,       A1,   A2,    B3,   A4,  A5,   A6 },
+        { L_,       A1,   A2,    A3,   B4,  A5,   A6 },
+        { L_,       A1,   A2,    A3,   A4,  B5,   A6 },
+        { L_,       A1,   A2,    A3,   A4,  A5,   B6 },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -738,8 +803,18 @@ int main(int argc, char *argv[])
             const int   DEPTH1   = DATA[ti].d_maxDepth;
             const bool  SKIP1    = DATA[ti].d_skipUnknownElements;
             const bool  UTF81    = DATA[ti].d_validateInputIsUtf8;
+            const bool  CONS1    = DATA[ti].d_allowConsecutiveSeparators;
+            const bool  FORM1    = DATA[ti].d_allowFormFeedAsWhitespace;
+            const bool  UNESC1   = DATA[ti].d_allowUnescapedControlCharacters;
 
-            if (veryVerbose) { T_ P_(LINE1) P_(DEPTH1) P_(SKIP1) P(UTF81)  }
+            if (veryVerbose) {
+                T_ P_(LINE1) P_(DEPTH1)
+                             P_(SKIP1)
+                             P_(UTF81)
+                             P_(CONS1)
+                             P_(FORM1)   
+                             P(UNESC1)   
+            }
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -748,6 +823,9 @@ int main(int argc, char *argv[])
                 mX.setMaxDepth(DEPTH1);
                 mX.setSkipUnknownElements(SKIP1);
                 mX.setValidateInputIsUtf8(UTF81);
+                mX.setAllowConsecutiveSeparators(CONS1);
+                mX.setAllowFormFeedAsWhitespace(FORM1);   
+                mX.setAllowUnescapedControlCharacters(UNESC1);   
 
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
@@ -758,11 +836,21 @@ int main(int argc, char *argv[])
                 const int   DEPTH2   = DATA[tj].d_maxDepth;
                 const bool  SKIP2    = DATA[tj].d_skipUnknownElements;
                 const bool  UTF82    = DATA[tj].d_validateInputIsUtf8;
+                const bool  CONS2    = DATA[tj].d_allowConsecutiveSeparators;
+                const bool  FORM2    = DATA[tj].d_allowFormFeedAsWhitespace;
+                const bool  UNESC2   =
+                                   DATA[tj].d_allowUnescapedControlCharacters;
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
-                if (veryVerbose) { T_ P_(LINE2) P_(DEPTH2) P_(SKIP2) P_(UTF82)
-                                                                       P(EXP) }
+                if (veryVerbose) {
+                    T_ T_ P_(LINE2) P_(DEPTH2)
+                                    P_(SKIP2)
+                                    P_(UTF82)
+                                    P_(CONS2)
+                                    P_(FORM2)   
+                                    P(UNESC2)   
+                }
 
                 Obj mX;  const Obj& X = mX;
                 Obj mY;  const Obj& Y = mY;
@@ -770,10 +858,20 @@ int main(int argc, char *argv[])
                 mX.setMaxDepth(DEPTH1);
                 mX.setSkipUnknownElements(SKIP1);
                 mX.setValidateInputIsUtf8(UTF81);
+                mX.setAllowConsecutiveSeparators(CONS1);
+                mX.setAllowFormFeedAsWhitespace(FORM1);   
+                mX.setAllowUnescapedControlCharacters(UNESC1);   
 
                 mY.setMaxDepth(DEPTH2);
                 mY.setSkipUnknownElements(SKIP2);
                 mY.setValidateInputIsUtf8(UTF82);
+                mX.setMaxDepth(DEPTH1);
+
+                mY.setSkipUnknownElements(SKIP2);
+                mY.setValidateInputIsUtf8(UTF82);
+                mY.setAllowConsecutiveSeparators(CONS2);
+                mY.setAllowFormFeedAsWhitespace(FORM2);   
+                mY.setAllowUnescapedControlCharacters(UNESC2);   
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -801,21 +899,10 @@ int main(int argc, char *argv[])
         //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
         //:   but with each "attributeName = " elided.
         //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 7 The output 'operator<<' returns the supplied 'ostream'.
+        //: 4 The output 'operator<<' returns the supplied 'ostream'.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 6)
-        //:
-        //: 2 Using the table-driven technique, define twelve carefully
+        //: 1 Using the table-driven technique, define twelve carefully
         //:   selected combinations of (two) object values ('A' and 'B'),
         //:   having distinct values for each corresponding salient attribute,
         //:   and various values for the two formatting parameters, along with
@@ -826,7 +913,7 @@ int main(int argc, char *argv[])
         //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
         //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
         //:
-        //: 3 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
+        //: 2 For each row in the table defined in P-2.1:  (C-1..5)
         //:
         //:   1 Using a 'const' 'Obj', supply each object value and pair of
         //:     formatting parameters to 'print', unless the parameters are,
@@ -836,7 +923,7 @@ int main(int argc, char *argv[])
         //:   2 Use a standard 'ostringstream' to capture the actual output.
         //:
         //:   3 Verify the address of what is returned is that of the
-        //:     supplied stream.  (C-5, 7)
+        //:     supplied stream.  (C-4, 5)
         //:
         //:   4 Compare the contents captured in P-2.2.2 with what is
         //:     expected.  (C-1..3)
@@ -853,22 +940,6 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
-        {
-            using namespace baljsn;
-            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
-            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
-
-            // Verify that the signatures and return types are standard.
-
-            funcPtr     printMember = &Obj::print;
-            operatorPtr operatorOp  = operator<<;
-
-            (void)printMember;  // quash potential compiler warnings
-            (void)operatorOp;
-        }
-
         if (verbose) cout <<
              "\nCreate a table of distinct value/format combinations." << endl;
 
@@ -880,6 +951,9 @@ int main(int argc, char *argv[])
             int         d_maxDepth;
             bool        d_skipUnknownElements;
             bool        d_validateInputIsUtf8;
+            bool        d_allowConsecutiveSeparators;
+            bool        d_allowFormFeedAsWhitespace;
+            bool        d_allowUnescapedControlCharacters;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -891,27 +965,39 @@ int main(int argc, char *argv[])
         // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
         // ------------------------------------------------------------------
 
-        //LINE L SPL  MD  S  U   EXP
-        //---- - ---  --- -  -   ---
+        //LINE L SPL  MD  S  U  C  F  E       EXP
+        //---- - ---  --- -  -  -  -  -  ...  ---
 
-        { L_,  0,  0, 89, 1, 0, "["                                          NL
+        { L_,  0,  0, 89, 1, 0, 1, 1, 1,
+                                 "["                                         NL
                                  "maxDepth = 89"                             NL
                                  "skipUnknownElements = true"                NL
                                  "validateInputIsUtf8 = false"               NL
+                                 "allowConsecutiveSeparators = true"         NL
+                                 "allowFormFeedAsWhitespace = true"          NL
+                                 "allowUnescapedControlCharacters = true"    NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  0,  1, 89, 1, 0,  "["                                         NL
+        { L_,  0,  1, 89, 1, 0, 1, 1, 1,
+                                 "["                                         NL
                                  " maxDepth = 89"                            NL
                                  " skipUnknownElements = true"               NL
                                  " validateInputIsUtf8 = false"              NL
+                                 " allowConsecutiveSeparators = true"        NL
+                                 " allowFormFeedAsWhitespace = true"         NL
+                                 " allowUnescapedControlCharacters = true"   NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  0, -1, 89, 0, 1,  "["                                         SP
+        { L_,  0, -1, 89, 0, 1, 0, 0, 0,
+                                 "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "skipUnknownElements = false"               SP
                                  "validateInputIsUtf8 = true"                SP
+                                 "allowConsecutiveSeparators = false"        SP
+                                 "allowFormFeedAsWhitespace = false"         SP
+                                 "allowUnescapedControlCharacters = false"   SP
                                  "]"
                                                                              },
 
@@ -919,48 +1005,72 @@ int main(int argc, char *argv[])
         // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
         // ------------------------------------------------------------------
 
-        //LINE L SPL  MD  S U    EXP
-        //---- - ---  --- - -    ---
+        //LINE L SPL  MD  S  U  C  F  E       EXP
+        //---- - ---  --- -  -  -  -  -  ...  ---
 
-        { L_,  3,  0, 89, 1, 1,  "["                                         NL
+        { L_,  3,  0, 89, 1, 1, 1, 1, 1,
+                                 "["                                         NL
                                  "maxDepth = 89"                             NL
                                  "skipUnknownElements = true"                NL
                                  "validateInputIsUtf8 = true"                NL
+                                 "allowConsecutiveSeparators = true"         NL
+                                 "allowFormFeedAsWhitespace = true"          NL
+                                 "allowUnescapedControlCharacters = true"    NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  3,  2, 89, 0, 0,  "      ["                                   NL
-                                 "        maxDepth = 89"                     NL
-                                 "        skipUnknownElements = false"       NL
-                                 "        validateInputIsUtf8 = false"       NL
-                                 "      ]"                                   NL
+        { L_,  3,  2, 89, 0, 0, 0, 0, 0,
+                         "      ["                                           NL
+                         "        maxDepth = 89"                             NL
+                         "        skipUnknownElements = false"               NL
+                         "        validateInputIsUtf8 = false"               NL
+                         "        allowConsecutiveSeparators = false"        NL
+                         "        allowFormFeedAsWhitespace = false"         NL
+                         "        allowUnescapedControlCharacters = false"   NL
+                         "      ]"                                           NL
                                                                              },
 
-        { L_,  3, -2, 89, 0, 1,  "      ["                                   SP
+        { L_,  3, -2, 89, 0, 1, 0, 0, 0,
+                                 "      ["                                   SP
                                  "maxDepth = 89"                             SP
                                  "skipUnknownElements = false"               SP
                                  "validateInputIsUtf8 = true"                SP
+                                 "allowConsecutiveSeparators = false"        SP
+                                 "allowFormFeedAsWhitespace = false"         SP
+                                 "allowUnescapedControlCharacters = false"   SP
                                  "]"
                                                                              },
 
-        { L_, -3,  0, 89, 1, 0,  "["                                         NL
+        { L_, -3,  0, 89, 1, 0, 1, 1, 1,
+                                 "["                                         NL
                                  "maxDepth = 89"                             NL
                                  "skipUnknownElements = true"                NL
                                  "validateInputIsUtf8 = false"               NL
+                                 "allowConsecutiveSeparators = true"         NL
+                                 "allowFormFeedAsWhitespace = true"          NL
+                                 "allowUnescapedControlCharacters = true"    NL
                                  "]"                                         NL
                                                                              },
 
-        { L_, -3,  2, 89, 0, 0,  "["                                         NL
-                                 "        maxDepth = 89"                     NL
-                                 "        skipUnknownElements = false"       NL
-                                 "        validateInputIsUtf8 = false"       NL
-                                 "      ]"                                   NL
+        { L_, -3,  2, 89, 0, 0, 0, 0, 0,
+                        "["                                                  NL
+                        "        maxDepth = 89"                              NL
+                        "        skipUnknownElements = false"                NL
+                        "        validateInputIsUtf8 = false"                NL
+                        "        allowConsecutiveSeparators = false"         NL
+                        "        allowFormFeedAsWhitespace = false"          NL
+                        "        allowUnescapedControlCharacters = false"    NL
+                        "      ]"                                            NL
                                                                              },
 
-        { L_, -3, -2, 89, 1, 1,  "["                                         SP
+        { L_, -3, -2, 89, 1, 1, 1, 1, 1,
+                                 "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "skipUnknownElements = true"                SP
                                  "validateInputIsUtf8 = true"                SP
+                                 "allowConsecutiveSeparators = true"         SP
+                                 "allowFormFeedAsWhitespace = true"          SP
+                                 "allowUnescapedControlCharacters = true"    SP
                                  "]"
                                                                              },
 
@@ -968,33 +1078,45 @@ int main(int argc, char *argv[])
         // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected output
         // -----------------------------------------------------------------
 
-        //LINE L SPL  MD  S  U   EXP
-        //---- - ---  --  -  -   ---
+        //LINE L SPL  MD  S  U  C  F  E       EXP
+        //---- - ---  --- -  -  -  -  -  ...  ---
 
-        { L_,  2,  3, 89, 1, 0,  "      ["                                   NL
-                                 "         maxDepth = 89"                    NL
-                                 "         skipUnknownElements = true"       NL
-                                 "         validateInputIsUtf8 = false"      NL
-                                 "      ]"                                   NL
+        { L_,  2,  3, 89, 1, 0, 1, 1, 1,
+                        "      ["                                            NL
+                        "         maxDepth = 89"                             NL
+                        "         skipUnknownElements = true"                NL
+                        "         validateInputIsUtf8 = false"               NL
+                        "         allowConsecutiveSeparators = true"         NL
+                        "         allowFormFeedAsWhitespace = true"          NL
+                        "         allowUnescapedControlCharacters = true"    NL
+                        "      ]"                                            NL
                                                                              },
 
         // -----------------------------------------------------------------
         // P-2.1.4: { A B } x { -9 } x { -9 } --> 2 expected outputs
         // -----------------------------------------------------------------
 
-        //LINE L SPL  MD   S  U  EXP
-        //---- - ---  ---  -  -  ---
+        //LINE L SPL  MD  S  U  C  F  E       EXP
+        //---- - ---  --- -  -  -  -  -  ...  ---
 
-        { L_, -9, -9,  89, 1, 1, "["                                         SP
+        { L_, -9, -9, 89, 1, 1, 0, 1, 1,
+                                 "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "skipUnknownElements = true"                SP
                                  "validateInputIsUtf8 = true"                SP
+                                 "allowConsecutiveSeparators = false"        SP
+                                 "allowFormFeedAsWhitespace = true"          SP
+                                 "allowUnescapedControlCharacters = true"    SP
                                  "]"                                         },
 
-        { L_, -9, -9,   7, 0, 1, "["                                         SP
+        { L_, -9, -9,  7, 0, 1, 1, 0, 0,
+                                 "["                                         SP
                                  "maxDepth = 7"                              SP
                                  "skipUnknownElements = false"               SP
                                  "validateInputIsUtf8 = true"                SP
+                                 "allowConsecutiveSeparators = true"         SP
+                                 "allowFormFeedAsWhitespace = false"         SP
+                                 "allowUnescapedControlCharacters = false"   SP
                                  "]"                                         },
 
 #undef NL
@@ -1007,17 +1129,30 @@ int main(int argc, char *argv[])
                           << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE   = DATA[ti].d_line;
-                const int         L      = DATA[ti].d_level;
-                const int         S      = DATA[ti].d_spl;
+                const int   LINE       = DATA[ti].d_line;
+                const int   L          = DATA[ti].d_level;
+                const int   S          = DATA[ti].d_spl;
 
-                const int         MAX_DEPTH  = DATA[ti].d_maxDepth;
-                const int         SKIP_ELEMS = DATA[ti].d_skipUnknownElements;
-                const int         VALID_UTF8 = DATA[ti].d_validateInputIsUtf8;
+                const int   MAX_DEPTH  = DATA[ti].d_maxDepth;
+                const int   SKIP_ELEMS = DATA[ti].d_skipUnknownElements;
+                const int   VALID_UTF8 = DATA[ti].d_validateInputIsUtf8;
+                const bool  CONS       = DATA[ti].d_allowConsecutiveSeparators;
+                const bool  FORM       = DATA[ti].d_allowFormFeedAsWhitespace;
+                const bool  UNESC      = DATA[ti]
+                                            .d_allowUnescapedControlCharacters;
 
                 const char *const EXP    = DATA[ti].d_expected_p;
 
                 if (veryVerbose) { T_ P_(L) P_(MAX_DEPTH) P_(SKIP_ELEMS)}
+
+                if (veryVerbose) {
+                    T_ P_(L) P_(MAX_DEPTH)
+                             P_(SKIP_ELEMS)
+                             P_(VALID_UTF8)
+                             P_(CONS)
+                             P_(FORM)   
+                             P(UNESC)   
+                }
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
@@ -1025,6 +1160,9 @@ int main(int argc, char *argv[])
                 mX.setMaxDepth(MAX_DEPTH);
                 mX.setSkipUnknownElements(SKIP_ELEMS);
                 mX.setValidateInputIsUtf8(VALID_UTF8);
+                mX.setAllowConsecutiveSeparators(CONS);
+                mX.setAllowFormFeedAsWhitespace(FORM);
+                mX.setAllowUnescapedControlCharacters(UNESC);
 
                 ostringstream os;
 
@@ -1086,6 +1224,9 @@ int main(int argc, char *argv[])
         //   int  maxDepth() const;
         //   bool skipUnknownElements() const;
         //   bool validateInputIsUtf8() const;
+        //   bool allowConsecutiveSeparators() const;
+        //   bool allowFormFeedAsWhitespace() const;
+        //   bool allowUnescapedControlCharacters() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1097,6 +1238,9 @@ int main(int argc, char *argv[])
         typedef int   T1;        // 'maxDepth'
         typedef bool  T2;        // 'skipUnknownElements'
         typedef bool  T3;        // 'validateInputIsUtf8'
+        typedef bool  T4;        // 'allowConsecutiveSeparators'
+        typedef bool  T5;        // 'allowFormFeedAsWhitespace'
+        typedef bool  T6;        // 'allowUnescapedControlCharacters'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1104,17 +1248,23 @@ int main(int argc, char *argv[])
           // 'D' values: These are the default-constructed values.
           // -----------------------------------------------------
 
-        const int   D1   = 32;                    // 'maxDepth'
-        const bool  D2   = true;                  // 'skipUnknownElements'
-        const bool  D3   = false;                 // 'validateInputIsUtf8'
+        const int   D1   = 32;             // 'maxDepth'
+        const bool  D2   = true;           // 'skipUnknownElements'
+        const bool  D3   = false;          // 'validateInputIsUtf8'
+        const bool  D4   = true;           // 'allowConsecutiveSeparators'
+        const bool  D5   = true;           // 'allowFormFeedAsWhitespace'
+        const bool  D6   = true;           // 'allowUnescapedControlCharacters'
 
                        // ----------------------------
                        // 'A' values: Boundary values.
                        // ----------------------------
 
-        const int   A1   = INT_MAX;              // 'maxDepth'
-        const bool  A2   = false;                // 'skipUnknownElements'
-        const bool  A3   = true;                 // 'validateInputIsUtf8'
+        const int   A1   = INT_MAX;        // 'maxDepth'
+        const bool  A2   = false;          // 'skipUnknownElements'
+        const bool  A3   = true;           // 'validateInputIsUtf8'
+        const bool  A4   = false;          // 'allowConsecutiveSeparators'
+        const bool  A5   = false;          // 'allowFormFeedAsWhitespace'
+        const bool  A6   = false;          // 'allowUnescapedControlCharacters'
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1123,14 +1273,35 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                 "\nVerify all basic accessors report expected values." << endl;
         {
-            const T1& maxDepth = X.maxDepth();
-            LOOP2_ASSERT(D1, maxDepth, D1 == maxDepth);
+            const T1 maxDepth =
+                   X.maxDepth();
+            ASSERTV(D1,   maxDepth,
+                    D1 == maxDepth);
 
-            const T2& skipUnknownElements = X.skipUnknownElements();
-            LOOP2_ASSERT(D2, skipUnknownElements, D2 == skipUnknownElements);
+            const T2 skipUnknownElements =
+                   X.skipUnknownElements();
+            ASSERTV(D2,   skipUnknownElements,
+                    D2 == skipUnknownElements);
 
-            const T3& validateInputIsUtf8 = X.validateInputIsUtf8();
-            ASSERTV(D3, validateInputIsUtf8, D3 == validateInputIsUtf8);
+            const T3 validateInputIsUtf8 =
+                   X.validateInputIsUtf8();
+            ASSERTV(D3,   validateInputIsUtf8,
+                    D3 == validateInputIsUtf8);
+
+            const T4 allowConsecutiveSeparators =
+                   X.allowConsecutiveSeparators();
+            ASSERTV(D4,   allowConsecutiveSeparators,
+                    D4 == allowConsecutiveSeparators);
+
+            const T5 allowFormFeedAsWhitespace =
+                   X.allowFormFeedAsWhitespace();
+            ASSERTV(D5,   allowFormFeedAsWhitespace,
+                    D5 == allowFormFeedAsWhitespace);
+
+            const T6 allowUnescapedControlCharacters =
+                   X.allowUnescapedControlCharacters();
+            ASSERTV(D6,   allowUnescapedControlCharacters,
+                    D6 == allowUnescapedControlCharacters);
         }
 
         if (verbose) cout <<
@@ -1140,25 +1311,61 @@ int main(int argc, char *argv[])
         {
             mX.setMaxDepth(A1);
 
-            const T1& maxDepth = X.maxDepth();
-            LOOP2_ASSERT(A1, maxDepth, A1 == maxDepth);
+            const T1 maxDepth = X.maxDepth();
+            ASSERTV(A1,   maxDepth,
+                    A1 == maxDepth);
         }
 
         if (veryVerbose) { T_ Q(skipUnknownElements) }
         {
             mX.setSkipUnknownElements(A2);
 
-            const T2& skipUnknownElements = X.skipUnknownElements();
-            LOOP2_ASSERT(A2, skipUnknownElements, A2 == skipUnknownElements);
+            const T2 skipUnknownElements =
+                   X.skipUnknownElements();
+            ASSERTV(A2,   skipUnknownElements,
+                    A2 == skipUnknownElements);
         }
 
         if (veryVerbose) { T_ Q(validateInputIsUtf8) }
         {
             mX.setValidateInputIsUtf8(A3);
 
-            const T3& validateInputIsUtf8 = X.validateInputIsUtf8();
-            ASSERTV(A3, validateInputIsUtf8, A3 == validateInputIsUtf8);
+            const T3 validateInputIsUtf8 =
+                   X.validateInputIsUtf8();
+            ASSERTV(A3,   validateInputIsUtf8,
+                    A3 == validateInputIsUtf8);
         }
+
+        if (veryVerbose) { T_ Q(allowConsecutiveSeparators) }
+        {
+            mX.setAllowConsecutiveSeparators(A4);
+
+            const T4 allowConsecutiveSeparators =
+                   X.allowConsecutiveSeparators();
+            ASSERTV(A4,   allowConsecutiveSeparators,
+                    A4 == allowConsecutiveSeparators);
+        }
+
+        if (veryVerbose) { T_ Q(allowFormFeedAsWhitespace) }
+        {
+            mX.setAllowFormFeedAsWhitespace(A5);
+
+            const T5 allowFormFeedAsWhitespace =
+                   X.allowFormFeedAsWhitespace();
+            ASSERTV(A5,   allowFormFeedAsWhitespace,
+                    A5 == allowFormFeedAsWhitespace);
+        }
+
+        if (veryVerbose) { T_ Q(allowUnescapedControlCharacters) }
+        {
+            mX.setAllowUnescapedControlCharacters(A6);
+
+            const T6 allowUnescapedControlCharacters =
+                   X.allowUnescapedControlCharacters();
+            ASSERTV(A6,   allowUnescapedControlCharacters,
+                    A6 == allowUnescapedControlCharacters);
+        }
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1205,6 +1412,9 @@ int main(int argc, char *argv[])
         //   setMaxDepth(int value);
         //   setSkipUnknownElements(int value);
         //   setValidateInputIsUtf8(bool value);
+        //   setAllowConsecutiveSeparators(bool value);
+        //   setAllowFormFeedAsWhitespace(bool value);
+        //   setAllowUnescapedControlCharacters(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1215,21 +1425,30 @@ int main(int argc, char *argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const int   D1   = 32;                   // 'maxDepth'
-        const bool  D2   = true;                 // 'skipUnknownElements'
-        const bool  D3   = false;                // 'validateInputIsUtf8'
+        const int   D1   = 32;      // 'maxDepth'
+        const bool  D2   = true;    // 'skipUnknownElements'
+        const bool  D3   = false;   // 'validateInputIsUtf8'
+        const bool  D4   = true;    // 'allowConsecutiveSeparators'
+        const bool  D5   = true;    // 'allowFormFeedAsWhitespace'
+        const bool  D6   = true;    // 'allowUnescapedControlCharacters'
 
         // 'A' values.
 
-        const int   A1   = 1;                    // 'maxDepth'
-        const bool  A2   = false;                // 'skipUnknownElements'
-        const bool  A3   = true;                 // 'validateInputIsUtf8'
+        const int   A1   = 1;       // 'maxDepth'
+        const bool  A2   = false;   // 'skipUnknownElements'
+        const bool  A3   = true;    // 'validateInputIsUtf8'
+        const bool  A4   = false;   // 'allowConsecutiveSeparators'
+        const bool  A5   = false;   // 'allowFormFeedAsWhitespace'
+        const bool  A6   = false;   // 'allowUnescapedControlCharacters'
 
         // 'B' values.
 
-        const int   B1   = INT_MAX;              // 'maxDepth'
-        const bool  B2   = true;                 // 'skipUnknownElements'
-        const bool  B3   = false;                // 'validateInputIsUtf8'
+        const int   B1   = INT_MAX; // 'maxDepth'
+        const bool  B2   = true;    // 'skipUnknownElements'
+        const bool  B3   = false;   // 'validateInputIsUtf8'
+        const bool  B4   = true;    // 'allowConsecutiveSeparators'
+        const bool  B5   = true;    // 'allowFormFeedAsWhitespace'
+        const bool  B6   = true;    // 'allowUnescapedControlCharacters'
 
         Obj mX;  const Obj& X = mX;
 
@@ -1241,19 +1460,28 @@ int main(int argc, char *argv[])
         // ----------
         {
             mX.setMaxDepth(A1);
-            ASSERT(A1 == X.maxDepth());
+            ASSERT(A1 == X.maxDepth());                         // <= 1
             ASSERT(D2 == X.skipUnknownElements());
             ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
 
             mX.setMaxDepth(B1);
-            ASSERT(B1 == X.maxDepth());
+            ASSERT(B1 == X.maxDepth());                         // <= 1
             ASSERT(D2 == X.skipUnknownElements());
             ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
 
             mX.setMaxDepth(D1);
-            ASSERT(D1 == X.maxDepth());
+            ASSERT(D1 == X.maxDepth());                         // <= 1
             ASSERT(D2 == X.skipUnknownElements());
             ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
         }
 
         // ---------------------
@@ -1262,18 +1490,27 @@ int main(int argc, char *argv[])
         {
             mX.setSkipUnknownElements(A2);
             ASSERT(D1 == X.maxDepth());
-            ASSERT(A2 == X.skipUnknownElements());
+            ASSERT(A2 == X.skipUnknownElements());              // <= 2
             ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
 
             mX.setSkipUnknownElements(B2);
             ASSERT(D1 == X.maxDepth());
-            ASSERT(B2 == X.skipUnknownElements());
+            ASSERT(B2 == X.skipUnknownElements());              // <= 2
             ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
 
             mX.setSkipUnknownElements(D2);
             ASSERT(D1 == X.maxDepth());
-            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D2 == X.skipUnknownElements());              // <= 2
             ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
         }
 
         // ---------------------
@@ -1283,17 +1520,113 @@ int main(int argc, char *argv[])
             mX.setValidateInputIsUtf8(A3);
             ASSERT(D1 == X.maxDepth());
             ASSERT(D2 == X.skipUnknownElements());
-            ASSERT(A3 == X.validateInputIsUtf8());
+            ASSERT(A3 == X.validateInputIsUtf8());              // <= 3
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
 
             mX.setValidateInputIsUtf8(B3);
             ASSERT(D1 == X.maxDepth());
             ASSERT(D2 == X.skipUnknownElements());
-            ASSERT(B3 == X.validateInputIsUtf8());
+            ASSERT(B3 == X.validateInputIsUtf8());              // <= 3
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
 
             mX.setValidateInputIsUtf8(D3);
             ASSERT(D1 == X.maxDepth());
             ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());              // <= 3
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
+        }
+
+        // ----------------------------
+        // 'allowConsecutiveSeparators'
+        // ----------------------------
+        {
+            mX.setAllowConsecutiveSeparators(A4);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
             ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(A4 == X.allowConsecutiveSeparators());       // <= 4
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
+
+            mX.setAllowConsecutiveSeparators(B4);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(B4 == X.allowConsecutiveSeparators());       // <= 4
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
+
+            mX.setAllowConsecutiveSeparators(D4);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());       // <= 4
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
+        }
+
+        // ---------------------------
+        // 'allowFormFeedAsWhitespace'
+        // ---------------------------
+        {
+            mX.setAllowFormFeedAsWhitespace(A5);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(A5 == X.allowFormFeedAsWhitespace());        // <= 5
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
+
+            mX.setAllowFormFeedAsWhitespace(B5);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(B5 == X.allowFormFeedAsWhitespace());        // <= 5
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
+
+            mX.setAllowFormFeedAsWhitespace(D5);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());        // <= 5
+            ASSERT(D6 == X.allowUnescapedControlCharacters());
+        }
+
+        // ---------------------------------
+        // 'allowUnescapedControlCharacters'
+        // ---------------------------------
+        {
+            mX.setAllowUnescapedControlCharacters(A6);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(A6 == X.allowUnescapedControlCharacters());  // <= 7
+
+            mX.setAllowUnescapedControlCharacters(B6);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(B6 == X.allowUnescapedControlCharacters());  // <= 7
+
+            mX.setAllowUnescapedControlCharacters(D6);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+            ASSERT(D4 == X.allowConsecutiveSeparators());
+            ASSERT(D5 == X.allowFormFeedAsWhitespace());
+            ASSERT(D6 == X.allowUnescapedControlCharacters());  // <= 7
         }
 
         if (verbose) cout << "Corroborate attribute independence." << endl;
@@ -1373,10 +1706,12 @@ int main(int argc, char *argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const int   D1   = 32;                   // 'maxDepth'
-        const bool  D2   = true;                 // 'skipUnknownElements'
-        const bool  D3   = false;                // 'validateInputIsUtf8'
-
+        const int   D1   = 32;     // 'maxDepth'
+        const bool  D2   = true;   // 'skipUnknownElements'
+        const bool  D3   = false;  // 'validateInputIsUtf8'
+        const bool  D4   = true;   // 'allowConsecutiveSeparators'
+        const bool  D5   = true;   // 'allowFormFeedAsWhitespace'
+        const bool  D6   = true;   // 'allowUnescapedControlCharacters'
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
 
@@ -1388,11 +1723,18 @@ int main(int argc, char *argv[])
                   // Verify the object's attribute values.
                   // -------------------------------------
 
-        LOOP2_ASSERT(D1, X.maxDepth(), D1 == X.maxDepth());
-        LOOP2_ASSERT(D2, X.skipUnknownElements(),
+        LOOP2_ASSERT(D1,   X.maxDepth(),
+                     D1 == X.maxDepth());
+        LOOP2_ASSERT(D2,   X.skipUnknownElements(),
                      D2 == X.skipUnknownElements());
-        LOOP2_ASSERT(D3, X.validateInputIsUtf8(),
+        LOOP2_ASSERT(D3,   X.validateInputIsUtf8(),
                      D3 == X.validateInputIsUtf8());
+        LOOP2_ASSERT(D4,   X.allowConsecutiveSeparators(),
+                     D4 == X.allowConsecutiveSeparators());
+        LOOP2_ASSERT(D5,   X.allowFormFeedAsWhitespace(),
+                     D5 == X.allowFormFeedAsWhitespace());
+        LOOP2_ASSERT(D6,   X.allowUnescapedControlCharacters(),
+                     D6 == X.allowUnescapedControlCharacters());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1426,6 +1768,10 @@ int main(int argc, char *argv[])
 
         typedef int    T1;        // 'maxDepth'
         typedef bool   T2;        // 'skipUnknownElements'
+        typedef bool   T3;        // 'validateInputIsUtf8'
+        typedef bool   T4;        // 'allowConsecutiveSeparators'
+        typedef bool   T5;        // 'allowFormFeedAsWhitespace'
+        typedef bool   T6;        // 'allowUnescapedControlCharacters'
 
         // Attribute 1 Values: 'maxDepth'
 
@@ -1439,8 +1785,23 @@ int main(int argc, char *argv[])
 
         // Attribute 3 Values: 'validateInputIsUtf8'
 
-        const T2 D3 = false;    // default value
-        const T2 A3 = true;
+        const T3 D3 = false;    // default value
+        const T3 A3 = true;
+
+        // Attribute 4 Values: 'allowConsecutiveSeparators'
+
+        const T4 D4 = true;    // default value
+        const T4 A4 = false;
+
+        // Attribute 5 Values: 'allowFormFeedAsWhitespace'
+
+        const T5 D5 = true;    // default value
+        const T5 A5 = false;
+
+        // Attribute 6 Values: 'allowUnescapedControlCharacters'
+
+        const T6 D6 = true;    // default value
+        const T6 A6 = false;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1455,6 +1816,9 @@ int main(int argc, char *argv[])
         ASSERT(D1 == W.maxDepth());
         ASSERT(D2 == W.skipUnknownElements());
         ASSERT(D3 == W.validateInputIsUtf8());
+        ASSERT(D4 == W.allowConsecutiveSeparators());
+        ASSERT(D5 == W.allowFormFeedAsWhitespace());
+        ASSERT(D6 == W.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -1474,6 +1838,9 @@ int main(int argc, char *argv[])
         ASSERT(D1 == X.maxDepth());
         ASSERT(D2 == X.skipUnknownElements());
         ASSERT(D3 == X.validateInputIsUtf8());
+        ASSERT(D4 == X.allowConsecutiveSeparators());
+        ASSERT(D5 == X.allowFormFeedAsWhitespace());
+        ASSERT(D6 == X.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1489,6 +1856,9 @@ int main(int argc, char *argv[])
         mX.setMaxDepth(A1);
         mX.setSkipUnknownElements(A2);
         mX.setValidateInputIsUtf8(A3);
+        mX.setAllowConsecutiveSeparators(A4);
+        mX.setAllowFormFeedAsWhitespace(A5);
+        mX.setAllowUnescapedControlCharacters(A6);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
@@ -1496,6 +1866,9 @@ int main(int argc, char *argv[])
         ASSERT(A1 == X.maxDepth());
         ASSERT(A2 == X.skipUnknownElements());
         ASSERT(A3 == X.validateInputIsUtf8());
+        ASSERT(A4 == X.allowConsecutiveSeparators());
+        ASSERT(A5 == X.allowFormFeedAsWhitespace());
+        ASSERT(A6 == X.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1512,6 +1885,9 @@ int main(int argc, char *argv[])
         mY.setMaxDepth(A1);
         mY.setSkipUnknownElements(A2);
         mY.setValidateInputIsUtf8(A3);
+        mY.setAllowConsecutiveSeparators(A4);
+        mY.setAllowFormFeedAsWhitespace(A5);
+        mY.setAllowUnescapedControlCharacters(A6);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -1519,6 +1895,9 @@ int main(int argc, char *argv[])
         ASSERT(A1 == Y.maxDepth());
         ASSERT(A2 == Y.skipUnknownElements());
         ASSERT(A3 == Y.validateInputIsUtf8());
+        ASSERT(A4 == Y.allowConsecutiveSeparators());
+        ASSERT(A5 == Y.allowFormFeedAsWhitespace());
+        ASSERT(A6 == Y.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -1540,6 +1919,9 @@ int main(int argc, char *argv[])
         ASSERT(A1 == Z.maxDepth());
         ASSERT(A2 == Z.skipUnknownElements());
         ASSERT(A3 == Z.validateInputIsUtf8());
+        ASSERT(A4 == Z.allowConsecutiveSeparators());
+        ASSERT(A5 == Z.allowFormFeedAsWhitespace());
+        ASSERT(A6 == Z.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1557,6 +1939,9 @@ int main(int argc, char *argv[])
         mZ.setMaxDepth(D1);
         mZ.setSkipUnknownElements(D2);
         mZ.setValidateInputIsUtf8(D3);
+        mZ.setAllowConsecutiveSeparators(D4);
+        mZ.setAllowFormFeedAsWhitespace(D5);
+        mZ.setAllowUnescapedControlCharacters(D6);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
@@ -1564,6 +1949,9 @@ int main(int argc, char *argv[])
         ASSERT(D1 == Z.maxDepth());
         ASSERT(D2 == Z.skipUnknownElements());
         ASSERT(D3 == Z.validateInputIsUtf8());
+        ASSERT(D4 == Z.allowConsecutiveSeparators());
+        ASSERT(D5 == Z.allowFormFeedAsWhitespace());
+        ASSERT(D6 == Z.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1585,6 +1973,9 @@ int main(int argc, char *argv[])
         ASSERT(A1 == W.maxDepth());
         ASSERT(A2 == W.skipUnknownElements());
         ASSERT(A3 == W.validateInputIsUtf8());
+        ASSERT(A4 == W.allowConsecutiveSeparators());
+        ASSERT(A5 == W.allowFormFeedAsWhitespace());
+        ASSERT(A6 == W.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1606,6 +1997,9 @@ int main(int argc, char *argv[])
         ASSERT(D1 == W.maxDepth());
         ASSERT(D2 == W.skipUnknownElements());
         ASSERT(D3 == W.validateInputIsUtf8());
+        ASSERT(D4 == W.allowConsecutiveSeparators());
+        ASSERT(D5 == W.allowFormFeedAsWhitespace());
+        ASSERT(D6 == W.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1627,6 +2021,9 @@ int main(int argc, char *argv[])
         ASSERT(A1 == X.maxDepth());
         ASSERT(A2 == X.skipUnknownElements());
         ASSERT(A3 == X.validateInputIsUtf8());
+        ASSERT(A4 == X.allowConsecutiveSeparators());
+        ASSERT(A5 == X.allowFormFeedAsWhitespace());
+        ASSERT(A6 == X.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

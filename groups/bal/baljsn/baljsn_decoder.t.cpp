@@ -138,7 +138,8 @@ namespace test = BloombergLP::s_baltst;
 // [13] FALLBACK ENUMERATORS
 // [14] DECODING INTS AS ENUMS AND VICE VERSA              {DRQS 166048981<GO>}
 // [15] ARRAY HAVING NULLABLE COMPLEX ELEMENTS             {DRQS 167908706<GO>}
-// [16] USAGE EXAMPLE
+// [17] 'DecoderOptions' CAN BE CONFIGURED FOR STRICT CONFORMANCE
+// [18] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -36932,14 +36933,15 @@ void roundTripTestNonNumericValues()
 
 int main(int argc, char *argv[])
 {
-    int         test = argc > 1 ? atoi(argv[1]) : 0;
-    bool     verbose = argc > 2;
-    bool veryVerbose = argc > 3;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -36970,7 +36972,7 @@ int main(int argc, char *argv[])
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use 'bas_codegen.pl' to create the 'Employee'
 // 'class' for storing that information, and decode into that object using the
-// baljsn decoder.
+// 'baljsn' decoder.
 //
 // First, we will define the XML schema inside a file called 'employee.xsd':
 //..
@@ -37044,6 +37046,462 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 //..
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // STRICT CONFORMANCE
+        //
+        // Concerns:
+        //: 1 Invoking 'decode' with 'DecoderOptions' configured for strict
+        //:   compliance detects violations fails when any of the strict
+        //:   requirements is violated.  Specifically:
+        //:
+        //:   o 'setValidateInputIsUtf8(true)'
+        //:   o 'setAllowConsecutiveSeparators(false)'
+        //:   o 'setAllowFormFeedAsWhitespace(false)'
+        //:   o 'setAllowUnescapedControlCharacters(false)'
+        //:
+        //: 1 On failure, the log message correctly describes the nature of the
+        //:   failure.
+        //:
+        //: 2 Given either a default configured or a strictly configured
+        //:   'DecoderOptions' object, 'decode' ignores arbitrary text
+        //:   following a valid JSON document.
+        //:
+        //: 3 Given either a default configured or a strictly configured
+        //:   'DecoderOptions' object, two valid JSON documents in a stream can
+        //:   correctly parsed, by successive calls to 'decode', if and only if
+        //:   the two documents are separated by zero or more whitespace
+        //:   characters.
+        //
+        // Plan:
+        //: 1 Attempt to initialize a 'test::Employee' object from a series of
+        //:   JSON documents in which each document has a single violation of
+        //:   the requirements of strictness.  'decode' calls using the default
+        //:   'DecoderOptions' are expected to succeed but those using a
+        //:   strictly configured 'DecoderOptions' options are expected to
+        //:   fail.  (C-1)
+        //:
+        //:   1 Compare the log message to the expected value.  (C-1.1)
+        //:
+        //:   2 Note that TC 9 (TESTING UTF-8 DETECTION) provides a more
+        //:     comprehensive test of the 'setValidateInputIsUtf8' option.
+        //:
+        //: 2 Append to a valid JSON document additional text consisting of
+        //:   different combinations of whitespace and non-whitespace
+        //:   characters.  Confirm that the all-whitespace suffices do not
+        //:   interfere with the 'decode' of the JSON document for either
+        //:   default or strictly-configures 'DecoderOptions'; however, if any
+        //:   non-whitespace characters are appended, 'decode' fails.  (C-2)
+        //:
+        //: 3 Given a valid JSON document describing a 'test::Employee' object,
+        //:   append a second version of that document having different values.
+        //:   Confirm that 'decode' of the combined text fails when using a
+        //:   strictly-configured 'DecoderOptions' but the second JSON document
+        //:   is ignored when a default 'DecoderOptions' is used.  (C-3)
+        //:
+        //:   1 Repeat with various combinations of whitespace (including no
+        //:     whitespace separating the two JSON documents.
+        //:
+        //:   2 Confirm that when 'decode' is successful, the values in the
+        //:     resulting 'test::Employee' object correspond to the first JSON
+        //:     document in the text.
+        //
+        // Testing:
+        //   'DecoderOptions' CAN BE CONFIGURED FOR STRICT CONFORMANCE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "STRICT CONFORMANCE" << endl
+                          << "==================" << endl;
+
+        if (veryVerbose) {
+            cout << "Check violations of strictness" << endl;
+        }
+
+        baljsn::DecoderOptions mDO;
+        mDO.setValidateInputIsUtf8(true);
+        mDO.setAllowConsecutiveSeparators(false);
+        mDO.setAllowFormFeedAsWhitespace(false);
+        mDO.setAllowUnescapedControlCharacters(false);
+
+        const baljsn::DecoderOptions& OPTIONS_STRICT = mDO;
+        const baljsn::DecoderOptions  OPTIONS_DEFAULT;
+
+        const char BASELINE[] =
+                               "{\"name\":\"Bob\",\"homeAddress\":{\"street\":"
+                               "\"Lexington Ave\",\"city\":\"New York City\","
+                               "\"state\":\"New York\"},\"age\":21}";
+                                                             // ^^
+
+        const char BASELINE2[] =
+                               "{\"name\":\"Bob\",\"homeAddress\":{\"street\":"
+                               "\"Lexington Ave\",\"city\":\"New York City\","
+                               "\"state\":\"New York\"},\"age\":22}";
+                                                             // ^^
+
+        const char DOUBLE_COLON[] =
+                              "{\"name\"::\"Bob\",\"homeAddress\":{\"street\":"
+                                      // ^^
+                               "\"Lexington Ave\",\"city\":\"New York City\","
+                               "\"state\":\"New York\"},\"age\":21}";
+
+        const char MSG_DOUBLE_COLON[] =
+                                 "Error reading value for attribute 'name' \n";
+
+        const char DOUBLE_COMMA[] =
+                              "{\"name\":\"Bob\",,\"homeAddress\":{\"street\":"
+                                             // ^^
+                               "\"Lexington Ave\",\"city\":\"New York City\","
+                               "\"state\":\"New York\"},\"age\":21}";
+
+        const char MSG_DOUBLE_COMMA[] =
+                     "Could not decode sequence, "
+                     "error reading token after value for attribute 'name' \n";
+
+        const char FORMFEED_AS_WHITESPACE[] =
+                               "{\"name\":\"Bob\",\"homeAddress\":{\"street\":"
+                               "\f"
+                             // ^^
+                               "\"Lexington Ave\",\"city\":\"New York City\","
+                               "\"state\":\"New York\"},\"age\":21}";
+
+        const char MSG_FORMFEED_AS_WHITESPACE[] =
+                      "Could not decode sequence, "
+                      "error decoding element or bad element name 'street' \n"
+                      "Could not decode sequence, "
+                      "error decoding element or bad element name 'street' \n";
+                      // Yes, message is generated twice.
+
+        const char INVALID_UTF8[] =
+                               "{\"name\":\"Bob\",\"homeAddress\":{\"street\":"
+                               "\"Lexington Ave\",\"city\":\"New York City\","
+                         "\"state\xf4\xa0\x80\x80\":\"New York\"},\"age\":21}";
+                              // ^^^^^^^^^^^^^^^^ VALUE_LARGER_THAN_0X10FFFF
+
+        const char MSG_INVALID_UTF8[] =
+             "Could not decode sequence, "
+             "UTF-8 error VALUE_LARGER_THAN_0X10FFFF "
+             "at offset 155 reading token after value for attribute 'city' \n"
+             "Could not decode sequence, "
+             "error decoding element or bad element name 'city' \n";
+
+        const char UNESCAPED_CONTROL_CHARACTER[] =
+                             "{\"name\":\"Bob\n\",\"homeAddress\":{\"street\":"
+                                          // ^^
+                             "\"Lexington Ave\",\"city\":\"New York City\","
+                             "\"state\":\"New York\"},\"age\":21}";
+
+        const char MSG_UNESCAPED_CONTROL_CHARACTER[] =
+                                 "Error reading value for attribute 'name' \n";
+
+        const struct  {
+            int         d_line;
+            const char *d_input;
+            const char *d_errorMsg;
+
+        } DATA[] = {
+          { L_,  DOUBLE_COLON               , MSG_DOUBLE_COLON                }
+        , { L_,  DOUBLE_COMMA               , MSG_DOUBLE_COMMA                }
+        , { L_,  FORMFEED_AS_WHITESPACE     , MSG_FORMFEED_AS_WHITESPACE      }
+        , { L_,  INVALID_UTF8               , MSG_INVALID_UTF8                }
+        , { L_,  UNESCAPED_CONTROL_CHARACTER, MSG_UNESCAPED_CONTROL_CHARACTER }
+        };
+
+        const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+
+            const int         LINE = DATA[ti].d_line;
+            const char *const JSON = DATA[ti].d_input;
+            const char *const MSG  = DATA[ti].d_errorMsg;
+
+            if (veryVerbose) {
+                T_; P_(LINE); P(JSON);
+            }
+
+            if (veryVeryVerbose) {
+                T_; T_; P_(LINE); P(MSG);
+            }
+
+            test::Employee      employee;
+            int                 rc;
+            bsl::istringstream  is(JSON);
+            Obj                 mX; const Obj& X = mX;
+
+            if (veryVerbose) {
+                Q(Test Default);
+            }
+
+            rc = mX.decode(is, &employee, OPTIONS_DEFAULT);             // TEST
+            ASSERTV(LINE, rc, JSON, 0 == rc);
+
+            if (veryVeryVerbose && 0 != rc) {
+                cout << "|" << X.loggedMessages() << "|" << endl;
+            }
+
+            is.clear(); is.str(JSON);
+
+            if (veryVerbose) {
+                Q(Test Strict);
+            }
+
+            rc = mX.decode(is, &employee, OPTIONS_STRICT);              // TEST
+            ASSERTV(LINE, rc, JSON, 0 != rc);
+
+            if (veryVeryVerbose && 0 != rc) {
+                cout << "|" << X.loggedMessages() << "|" << endl;
+            }
+
+            if (0 != rc) {
+                ASSERTV(MSG,   X.loggedMessages(),
+                        MSG == X.loggedMessages());
+            }
+
+            if (veryVeryVerbose && 0 != rc) {
+                Q(DEBUG: EXPECTED);
+                P(LINE);
+                cout << "|" << MSG                << "|" << endl;
+                Q(DEBUG: ACTUAL);
+                cout << "|" << X.loggedMessages() << "|" << endl;
+            }
+
+            is.clear(); is.str(JSON);
+
+            if (veryVerbose) {
+                Q(Test Default Again);
+            }
+
+            rc = mX.decode(is, &employee, OPTIONS_DEFAULT);             // TEST
+            ASSERTV(LINE, rc, JSON, 0 == rc);
+
+            if (veryVeryVerbose && 0 != rc) {
+                cout << "|" << X.loggedMessages() << "|" << endl;
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "Check characters trailing JSON document" << endl;
+        }
+
+        const struct  {
+            int         d_line;
+            const char *d_suffix;
+            bool        d_expDefault;
+            bool        d_expStrict;
+
+        } DATA2[] = {
+        //    LINE SUFFIX      EXP_DFT EXP_SRT
+        //    ---- ------      ------- -------
+
+            // Just Trailing whitespace
+            { L_,  "",         true,   true     }
+          , { L_,  " ",        true,   true     }
+          , { L_,  "   ",      true,   true     }
+          , { L_,  " \t\n\r",  true,   true     }
+
+            // Comma, then trailing whitespace
+          , { L_,  ",",        true,   true     }
+          , { L_,  ", ",       true,   true     }
+          , { L_,  ",   ",     true,   true     }
+          , { L_,  ", \t\n\r", true,   true     }
+
+            // Trailing whitespace, then comma
+          , { L_,  ",",        true,   true     }
+          , { L_,  " ,",       true,   true     }
+          , { L_,  "   ,",     true,   true     }
+          , { L_,  " \t\n\r,", true,   true     }
+
+            // Other character, then trailing whitespace
+          , { L_,  "W",        true,   true     }
+          , { L_,  "X ",       true,   true     }
+          , { L_,  "Y   ",     true,   true     }
+          , { L_,  "Z \t\n\r", true,   true     }
+
+            // Trailing whitespace, then other character
+          , { L_,  "A",        true,   true     }
+          , { L_,  " B",       true,   true     }
+          , { L_,  "   C",     true,   true     }
+          , { L_,  " \t\n\rD", true,   true     }
+        };
+
+        const bsl::size_t NUM_DATA2 = sizeof DATA2 / sizeof *DATA2;
+
+        for (bsl::size_t ti = 0; ti < NUM_DATA2; ++ti) {
+
+            const int         LINE    = DATA2[ti].d_line;
+            const char *const SUFFIX  = DATA2[ti].d_suffix;
+            const bool        EXP_DFT = DATA2[ti].d_expDefault;
+            const bool        EXP_SRT = DATA2[ti].d_expStrict;
+
+            if (veryVerbose) {
+                T_; P_(LINE); P_(EXP_DFT); P_(EXP_SRT); P(SUFFIX);
+            }
+
+            bsl::string input(BASELINE); const bsl::string& INPUT = input;
+            input.append(SUFFIX);
+
+            if (veryVeryVerbose) {
+                T_; T_; P(INPUT);
+            }
+
+            test::Employee        employee;
+            const test::Employee& EMPLOYEE = employee;
+            int                 rc;
+            bsl::istringstream  is(INPUT.c_str());
+            Obj                 mX; const Obj& X = mX;
+
+            if (veryVerbose) {
+                Q(Test Default);
+            }
+
+            rc = mX.decode(is, &employee, OPTIONS_DEFAULT);             // TEST
+            ASSERTV(LINE, rc, SUFFIX, EXP_DFT,
+                    (true == EXP_DFT) == (0 == rc));
+
+            if (0 == rc) {
+                ASSERT(21 == EMPLOYEE.age());
+            }
+
+            is.clear(); is.str(INPUT.c_str());
+
+            if (veryVerbose) {
+                Q(Test Strict);
+            }
+
+            rc = mX.decode(is, &employee, OPTIONS_STRICT);              // TEST
+            ASSERTV(LINE, rc, SUFFIX, EXP_SRT,
+                    (true == EXP_SRT) == (0 == rc));
+
+            if (veryVeryVerbose && 0 != rc) {
+                cout << "|" << X.loggedMessages() << "|" << endl;
+            }
+
+            if (0 == rc) {
+                ASSERTV(EMPLOYEE.age(), 21 == EMPLOYEE.age());
+            }
+        }
+
+        const struct  {
+            int         d_line;
+            const char *d_whitespace;
+            bool        d_expDefault;
+            bool        d_expStrict;
+
+        } DATA3[] = {
+        //    LINE WSPACE        EXP_DFT2 EXP_SRT2
+        //    ---- ------        -------  -------
+            { L_,  "",           true,    true     }
+
+          , { L_,  " ",          true,    true     }
+          , { L_,  "   ",        true,    true     }
+          , { L_,  " \t\n\r",    true,    true     }
+
+          , { L_,  ",",          false,   false    }
+          , { L_,  " , ",        false,   false    }
+          , { L_,  " \t,\n\r",   false,   false    }
+
+          , { L_,  ",",          false,   false    }
+          , { L_,  " , ",        false,   false    }
+          , { L_,  "X\tY\nZ\r",  false,   false    }
+        };
+
+        const bsl::size_t NUM_DATA3 = sizeof DATA3 / sizeof *DATA3;
+
+        for (bsl::size_t ti = 0; ti < NUM_DATA3; ++ti) {
+
+            const int         LINE     = DATA3[ti].d_line;
+            const char *const WSPACE   = DATA3[ti].d_whitespace;;
+            const bool        EXP_DFT2 = DATA3[ti].d_expDefault;
+            const bool        EXP_SRT2 = DATA3[ti].d_expStrict;
+
+            const bool        EXP_DFT1 = true;
+            const bool        EXP_SRT1 = true;
+
+            if (veryVerbose) {
+                T_; P_(LINE);
+                    P_(EXP_DFT1);
+                    P_(EXP_SRT1);
+                    P_(EXP_DFT2);
+                    P_(EXP_SRT2);
+                    P(WSPACE);
+            }
+
+            ASSERTV(LINE, EXP_DFT1,   EXP_SRT1,
+                          EXP_DFT1 == EXP_SRT1);
+            ASSERTV(LINE, EXP_DFT2,   EXP_SRT2,
+                          EXP_DFT2 == EXP_SRT2);
+
+            bsl::string input; const bsl::string& INPUT = input;
+            input.append(BASELINE);
+            input.append(WSPACE);
+            input.append(BASELINE2);
+
+            if (veryVeryVerbose) {
+                T_; T_; P(INPUT);
+            }
+
+            test::Employee        employee1;
+            const test::Employee& EMPLOYEE1 = employee1;
+            test::Employee        employee2;
+            const test::Employee& EMPLOYEE2 = employee2;
+
+            int                 rc;
+            bsl::istringstream  is(INPUT.c_str());
+            Obj                 mX; const Obj& X = mX;
+
+            if (veryVerbose) {
+                Q(Test Default);
+            }
+
+            rc = mX.decode(is, &employee1, OPTIONS_DEFAULT);            // TEST
+            ASSERTV(LINE, rc, WSPACE, EXP_DFT1,
+                    (true == EXP_DFT1) == (0 == rc));
+
+            if (0 == rc) {
+                ASSERTV(EMPLOYEE1.age(), 21 == EMPLOYEE1.age());
+            }
+
+            rc = mX.decode(is, &employee2, OPTIONS_DEFAULT);            // TEST
+            ASSERTV(LINE, rc, WSPACE, EXP_DFT2,
+                    (true == EXP_DFT2) == (0 == rc));
+
+            if (0 == rc) {
+                ASSERTV(EMPLOYEE2.age(), 22 == EMPLOYEE2.age());
+            }
+
+            // Reset stream
+            is.clear(); is.str(INPUT.c_str());
+
+            if (veryVerbose) {
+                Q(Test Strict);
+            }
+
+            rc = mX.decode(is, &employee1, OPTIONS_STRICT);             // TEST
+            ASSERTV(LINE, rc, WSPACE, EXP_SRT1,
+                    (true == EXP_SRT1) == (0 == rc));
+
+            if (veryVeryVerbose && 0 != rc) {
+                cout << "|" << X.loggedMessages() << "|" << endl;
+            }
+
+            if (0 == rc) {
+                ASSERTV(EMPLOYEE1.age(), 21 == EMPLOYEE1.age());
+            }
+
+            rc = mX.decode(is, &employee2, OPTIONS_STRICT);             // TEST
+            ASSERTV(LINE, rc, WSPACE, EXP_SRT2,
+                    (true == EXP_SRT2) == (0 == rc));
+
+            if (veryVeryVerbose && 0 != rc) {
+                cout << "|" << X.loggedMessages() << "|" << endl;
+            }
+
+            if (0 == rc) {
+                ASSERTV(EMPLOYEE2.age(), 22 == EMPLOYEE2.age());
+            }
+
+        };
       } break;
       case 15: {
         // --------------------------------------------------------------------

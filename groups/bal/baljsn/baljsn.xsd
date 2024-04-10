@@ -207,6 +207,41 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='AllowConsecutiveSeparators' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='true'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+              Option to allow multiple consecutive colons or commas.
+              Set to 'false' for strictly conformining JSON.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='AllowFormFeedAsWhitespace' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='true'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+              Option to allow '\f' (form feed) as whitespace in addition to
+              ' ', '\n', '\t', '\r', and '\v'.
+              Set to 'false' for strictly conformining JSON.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='AllowUnescapedControlCharacters' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='true'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+              Option to allow characters in the range '[0x00 .. 0x1F]' 
+              (e.g., '\0', '\t', '\n') in JSON strings.
+              Set to 'false' for strictly conformining JSON.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>

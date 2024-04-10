@@ -70,8 +70,9 @@ using bsl::endl;
 // [15] Tokenizer& setAllowHeterogenousArrays(bool value);
 // [18] Tokenizer& setAllowNonUtf8StringLiterals(bool);
 // [14] Tokenizer& setAllowStandAloneValues(bool value);
-// [ 3] Tokenizer& setAllowTrailingTopLevelComma();
-// [21] Tokenizer& setConformanceMode(ConformanceMode mode);
+// [ 3] Tokenizer& setAllowTrailingTopLevelComma(bool value));
+// [21] Tokenizer& setAllowUnescapedControlCharacters(bool value)
+// [22] Tokenizer& setConformanceMode(ConformanceMode mode);
 //
 // ACCESSORS
 // [20] bool allowConsecutiveSeparators() const;
@@ -79,7 +80,8 @@ using bsl::endl;
 // [18] bool allowNonUtf8StringLiterals() const;
 // [14] bool allowStandAloneValues() const;
 // [ 3] bool allowTrailingTopLevelComma() const;
-// [21] ConformanceMode conformanceMode() const;
+// [21] bool allowUnescapedControlCharacters() const
+// [23] ConformanceMode conformanceMode() const;
 // [19] Uint64 currentPosition() const;
 // [18] Uint64 readOffset() const;
 // [18] int readStatus() const;
@@ -87,7 +89,7 @@ using bsl::endl;
 // [ 4] int value(bslstl::StringRef *data) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [22] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
 // [ 2] CONCERN: 'advanceToNextToken' FIRST CHARACTER
 // [ 4] CONCERN: 'advanceToNextToken' TO 'e_START_OBJECT'
 // [ 5] CONCERN: 'advanceToNextToken' TO 'e_NAME'
@@ -530,7 +532,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -662,7 +664,7 @@ int main(int argc, char *argv[])
     ASSERT(55              == address.d_floorCount);
 //..
       } break;
-      case 21: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING 'conformanceMode'
         //
@@ -720,6 +722,7 @@ int main(int argc, char *argv[])
             Obj mX; const Obj& X = mX;                                  // TEST
 
             ASSERT(Obj::e_RELAXED == X.conformanceMode());
+            ASSERT(true           == X.allowFormFeedAsWhitespace());
             ASSERT(true           == X.allowNonUtf8StringLiterals());
             ASSERT(true           == X.allowTrailingTopLevelComma());
             ASSERT(true           == X.allowHeterogenousArrays());
@@ -728,30 +731,36 @@ int main(int argc, char *argv[])
 
             Obj& RETVAL_STRICT = mX.setConformanceMode(Obj::e_STRICT_20240119);
                                                                         // TEST
+            ASSERT(&mX           == &RETVAL_STRICT);
             ASSERT(Obj::e_STRICT_20240119
                                  == X.conformanceMode());
+
+            ASSERT(false         == X.allowFormFeedAsWhitespace());
             ASSERT(false         == X.allowNonUtf8StringLiterals());
             ASSERT(false         == X.allowTrailingTopLevelComma());
             ASSERT(true          == X.allowHeterogenousArrays());
             ASSERT(true          == X.allowStandAloneValues());
             ASSERT(false         == X.allowConsecutiveSeparators());
-            ASSERT(&X            == &RETVAL_STRICT);
 
             Obj& RETVAL_RELAXED = mX.setConformanceMode(Obj::e_RELAXED);// TEST
             ASSERT(Obj::e_RELAXED == X.conformanceMode());
+            ASSERT(&X             == &RETVAL_RELAXED);
+
+            ASSERT(false          == X.allowFormFeedAsWhitespace());
             ASSERT(false          == X.allowNonUtf8StringLiterals());
             ASSERT(false          == X.allowTrailingTopLevelComma());
             ASSERT(true           == X.allowHeterogenousArrays());
             ASSERT(true           == X.allowStandAloneValues());
             ASSERT(false          == X.allowConsecutiveSeparators());
-            ASSERT(&X             == &RETVAL_RELAXED);
 
+            mX.setAllowFormFeedAsWhitespace(true);
             mX.setAllowNonUtf8StringLiterals(true);
             mX.setAllowTrailingTopLevelComma(true);
             mX.setAllowHeterogenousArrays(false);
             mX.setAllowStandAloneValues(false);
             mX.setAllowConsecutiveSeparators(true);
 
+            ASSERT(true           == X.allowFormFeedAsWhitespace());
             ASSERT(true           == X.allowNonUtf8StringLiterals());
             ASSERT(true           == X.allowTrailingTopLevelComma());
             ASSERT(false          == X.allowHeterogenousArrays());
@@ -767,6 +776,9 @@ int main(int argc, char *argv[])
             Obj mX;
 
             mX.setConformanceMode(Obj::e_STRICT_20240119);
+
+            ASSERT_FAIL(mX.setAllowFormFeedAsWhitespace(true ));
+            ASSERT_FAIL(mX.setAllowFormFeedAsWhitespace(false));
 
             ASSERT_FAIL(mX.setAllowNonUtf8StringLiterals(true ));
             ASSERT_FAIL(mX.setAllowNonUtf8StringLiterals(false));
@@ -788,6 +800,9 @@ int main(int argc, char *argv[])
             ASSERT_PASS(mX.setAllowNonUtf8StringLiterals(true ));
             ASSERT_PASS(mX.setAllowNonUtf8StringLiterals(false));
 
+            ASSERT_PASS(mX.setAllowNonUtf8StringLiterals(true ));
+            ASSERT_PASS(mX.setAllowNonUtf8StringLiterals(false));
+
             ASSERT_PASS(mX.setAllowTrailingTopLevelComma(true ));
             ASSERT_PASS(mX.setAllowTrailingTopLevelComma(false));
 
@@ -799,23 +814,395 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 20: {
+      case 22: {
         // --------------------------------------------------------------------
-        // TESTING OPTIONS FOR CONSECUTIVE COLONS AND COMMAS
+        // TESTING OPTION FOR FORMFEED AS WHITESPACE
         //
         // Concerns:
         //: 1 A newly created 'Tokenizer' object has the expected value,
-        //:   'true', for both options.
+        //:   'true', for the option.
         //:
-        //: 2 The 'set*' methods for each option:
+        //: 2 The 'set*' method for the option:
         //:
-        //:   1 Can be used to the corresponding option to either 'true' or
-        //:     'false'.
+        //:   1 Can be used to the option to either 'true' or 'false'.
         //:
         //:   2 Does not change the value of any of the other options.
         //:
-        //: 3 The two accessors report the expected value for the respective
-        //;   option.
+        //:   3 The value returned is a non-'const' reference to the tokenizer.
+        //:
+        //: 3 The two accessor reports the expected value for the option.
+        //:
+        //: 4 When the option is 'true', strings containing multiple, control
+        //:   characters are allowed in JSON strings; otherwise, only the
+        //:   escaped representation(s) are allowed.
+        //
+        // Plan:
+        //: 1 For each control character, create several input strings:
+        //:   each having once occurrence of the control character but using
+        //:   different representations:  (C-4)
+        //:  
+        //:   o The actual control character using \ooo representation.
+        //:   o The \uhhhh represenation.
+        //:   o For the several control characters also having two-letter
+        //:     representation, create additional input strings, one
+        //:     escaped, and one not:  e.g., \\t and \t.
+        //:
+        //:   1 Confirm that 'advanceToNextToken' succeeds until the end of
+        //:     input is reached when the option is 'true'.
+        //:
+        //:   2 Confirm that 'advancetoNextToken fails before the end of input
+        //:     when the option is 'false'.  To avoid ambiguity, the point
+        //:     of error must not be the last character of the input.
+        //:
+        //: 2 Confirm correctness (P-1) for a newly created 'Tokenizer'
+        //:   (unsescaped control characters allowed), after the option has
+        //:   been set to 'false', and after the option has been set back to
+        //:   'true'.  (C-2.1)
+        //:
+        //: 3 Confirm that the option accessors show the expected value at each
+        //:   stage.  (C-3)
+        //:
+        //: 4 Save the value of each of the other options before each 'set'
+        //:   options and confirm that the values are *not* changed by the
+        //:   after the 'set'.  (C-2.2)
+        //:
+        //: 5 Compare the address of the value returned to the address of the
+        //:   tokenizer object.  (C-2.3)
+        //
+        // Testing:
+        //   Tokenizer& setAllowFormFeedAsWhitespace(bool value)
+        //   bool allowFormFeedAsWhitespace() const
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                        << "TESTING OPTION FOR FORMFEED AS WHITESPACE" << endl
+                        << "=========================================" << endl;
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING OPTION FOR UNESCAPED CONTROL CHARACTERS
+        //
+        // Concerns:
+        //: 1 A newly created 'Tokenizer' object has the expected value,
+        //:   'true', for the option.
+        //:
+        //: 2 The 'set*' method for the option:
+        //:
+        //:   1 Can be used to the option to either 'true' or 'false'.
+        //:
+        //:   2 Does not change the value of any of the other options.
+        //:
+        //:   3 The value returned is a non-'const' reference to the tokenizer.
+        //:
+        //: 3 The two accessor reports the expected value for the option.
+        //:
+        //: 4 When the option is 'true', strings containing multiple, control
+        //:   characters are allowed in JSON strings; otherwise, only the
+        //:   escaped representation(s) are allowed.
+        //
+        // Plan:
+        //: 1 For each control character, create several input strings:
+        //:   each having once occurrence of the control character but using
+        //:   different representations:  (C-4)
+        //:  
+        //:   o The actual control character using \ooo representation.
+        //:   o The \uhhhh represenation.
+        //:   o For the several control characters also having two-letter
+        //:     representation, create additional input strings, one
+        //:     escaped, and one not:  e.g., \\t and \t.
+        //:
+        //:   1 Confirm that 'advanceToNextToken' succeeds until the end of
+        //:     input is reached when the option is 'true'.
+        //:
+        //:   2 Confirm that 'advancetoNextToken fails before the end of input
+        //:     when the option is 'false'.  To avoid ambiguity, the point
+        //:     of error must not be the last character of the input.
+        //:
+        //: 2 Confirm correctness (P-1) for a newly created 'Tokenizer'
+        //:   (unsescaped control characters allowed), after the option has
+        //:   been set to 'false', and after the option has been set back to
+        //:   'true'.  (C-2.1)
+        //:
+        //: 3 Confirm that the option accessors show the expected value at each
+        //:   stage.  (C-3)
+        //:
+        //: 4 Save the value of each of the other options before each 'set'
+        //:   options and confirm that the values are *not* changed by the
+        //:   after the 'set'.  (C-2.2)
+        //:
+        //: 5 Compare the address of the value returned to the address of the
+        //:   tokenizer object.  (C-2.3)
+        //
+        // Testing:
+        //   Tokenizer& setAllowUnescapedControlCharacters(bool value)
+        //   bool allowUnescapedControlCharacters() const
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                  << "TESTING OPTION FOR UNESCAPED CONTROL CHARACTERS" << endl
+                  << "===============================================" << endl;
+
+        bool                 afore1;
+        bool                 afore2;
+        bool                 afore3;
+        bool                 afore4;
+        bool                 afore5;
+        Obj::ConformanceMode afore6;
+
+        const struct {
+            int         d_line;
+            bsl::size_t d_length;
+            const char *d_json_p;
+            bool        d_expDefault;
+            bool        d_expStrict;
+        } DATA[] = {
+
+        // unescaped
+          { L_,  5, "\"A\nB\"" , true , false  }
+        , { L_,  5, "\"A\bB\"" , true , false  }
+        , { L_,  5, "\"A\tB\"" , true , false  }
+        , { L_,  5, "\"A\fB\"" , true , false  }
+        , { L_,  5, "\"A\rB\"" , true , false  }
+        //   escaped
+        , { L_,  6, "\"A\\nB\"", true , true   }
+        , { L_,  6, "\"A\\bB\"", true , true   }
+        , { L_,  6, "\"A\\tB\"", true , true   }
+        , { L_,  6, "\"A\\fB\"", true , true   }
+        , { L_,  6, "\"A\\rB\"", true , true   }
+
+        , { L_,  5, "\"A\000B\"" , true , false  } // 0x00 NUL '\0'
+        , { L_,  5, "\"A\001B\"" , true , false  } // 0x01 SOH
+        , { L_,  5, "\"A\002B\"" , true , false  } // 0x02 STX
+        , { L_,  5, "\"A\003B\"" , true , false  } // 0x03 ETX
+        , { L_,  5, "\"A\004B\"" , true , false  } // 0x04 EOT
+        , { L_,  5, "\"A\005B\"" , true , false  } // 0x05 ENQ
+        , { L_,  5, "\"A\006B\"" , true , false  } // 0x06 ACK
+        , { L_,  5, "\"A\007B\"" , true , false  } // 0x07 BEL
+        , { L_,  5, "\"A\010B\"" , true , false  } // 0x08 BS '\b'
+        , { L_,  5, "\"A\011B\"" , true , false  } // 0x09 HT '\t'
+        , { L_,  5, "\"A\012B\"" , true , false  } // 0x0A LF '\n'
+        , { L_,  5, "\"A\013B\"" , true , false  } // 0x0B VT '\v'
+        , { L_,  5, "\"A\014B\"" , true , false  } // 0x0C FF '\f'
+        , { L_,  5, "\"A\015B\"" , true , false  } // 0x0D CR '\r'
+        , { L_,  5, "\"A\016B\"" , true , false  } // 0x0E SO
+        , { L_,  5, "\"A\017B\"" , true , false  } // 0x0F SI
+        , { L_,  5, "\"A\020B\"" , true , false  } // 0x10 DLE
+        , { L_,  5, "\"A\021B\"" , true , false  } // 0x11 DC1
+        , { L_,  5, "\"A\022B\"" , true , false  } // 0x12 DC2
+        , { L_,  5, "\"A\023B\"" , true , false  } // 0x13 DC3
+        , { L_,  5, "\"A\024B\"" , true , false  } // 0x14 DC4
+        , { L_,  5, "\"A\025B\"" , true , false  } // 0x15 NAK
+        , { L_,  5, "\"A\026B\"" , true , false  } // 0x16 SYN
+        , { L_,  5, "\"A\027B\"" , true , false  } // 0x17 ETV
+        , { L_,  5, "\"A\030B\"" , true , false  } // 0x18 CAN
+        , { L_,  5, "\"A\031B\"" , true , false  } // 0x19 EM
+        , { L_,  5, "\"A\032B\"" , true , false  } // 0x1A SUM
+        , { L_,  5, "\"A\033B\"" , true , false  } // 0x1B ESC
+        , { L_,  5, "\"A\034B\"" , true , false  } // 0x1C FS
+        , { L_,  5, "\"A\035B\"" , true , false  } // 0x1D GS
+        , { L_,  5, "\"A\036B\"" , true , false  } // 0x1E RS
+        , { L_,  5, "\"A\037B\"" , true , false  } // 0x1F FS
+
+        , { L_,  5, "\"A\177B\"" , true , true   } // 0x7F DEL  TBD
+
+        , { L_, 10, "\"a\\u0000b\"", true, true }
+        , { L_, 10, "\"a\\u0001b\"", true, true }
+        , { L_, 10, "\"a\\u0002b\"", true, true }
+        , { L_, 10, "\"a\\u0003b\"", true, true }
+        , { L_, 10, "\"a\\u0004b\"", true, true }
+        , { L_, 10, "\"a\\u0005b\"", true, true }
+        , { L_, 10, "\"a\\u0006b\"", true, true }
+        , { L_, 10, "\"a\\u0007b\"", true, true }
+        , { L_, 10, "\"a\\u0008b\"", true, true }
+        , { L_, 10, "\"a\\u0009b\"", true, true }
+        , { L_, 10, "\"a\\u000Ab\"", true, true }
+        , { L_, 10, "\"a\\u000Bb\"", true, true }
+        , { L_, 10, "\"a\\u000Cb\"", true, true }
+        , { L_, 10, "\"a\\u000Db\"", true, true }
+        , { L_, 10, "\"a\\u000Eb\"", true, true }
+        , { L_, 10, "\"a\\u000Fb\"", true, true }
+        , { L_, 10, "\"a\\u0010b\"", true, true }
+        , { L_, 10, "\"a\\u0011b\"", true, true }
+        , { L_, 10, "\"a\\u0012b\"", true, true }
+        , { L_, 10, "\"a\\u0013b\"", true, true }
+        , { L_, 10, "\"a\\u0014b\"", true, true }
+        , { L_, 10, "\"a\\u0015b\"", true, true }
+        , { L_, 10, "\"a\\u0016b\"", true, true }
+        , { L_, 10, "\"a\\u0017b\"", true, true }
+        , { L_, 10, "\"a\\u0018b\"", true, true }
+        , { L_, 10, "\"a\\u0019b\"", true, true }
+        , { L_, 10, "\"a\\u001Ab\"", true, true }
+        , { L_, 10, "\"a\\u001Bb\"", true, true }
+        , { L_, 10, "\"a\\u001Cb\"", true, true }
+        , { L_, 10, "\"a\\u001Db\"", true, true }
+        , { L_, 10, "\"a\\u001Eb\"", true, true }
+        , { L_, 10, "\"a\\u001Fb\"", true, true }
+
+        , { L_, 10, "\"a\\u007Fb\"", true, true }  // DEL
+        };
+
+        const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE    = DATA[ti].d_line;
+            const bsl::size_t LENGTH  = DATA[ti].d_length;
+            const char *const JSON    = DATA[ti].d_json_p;
+            const bool        EXP_DFT = DATA[ti].d_expDefault;
+            const bool        EXP_SRT = DATA[ti].d_expStrict;
+
+            const bsl::string JSON_STRING(JSON, LENGTH);
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(EXP_DFT) P_(EXP_SRT) P_(LENGTH) P(JSON)
+            }
+
+            Obj mX; const Obj& X = mX;
+            ASSERT(true  == X.allowUnescapedControlCharacters());
+
+            int rc;
+
+            bsl::istringstream iss(JSON_STRING);
+            mX.reset(iss.rdbuf());
+
+            if (veryVeryVerbose) {
+                P_(X.allowUnescapedControlCharacters()) P(iss.str())
+            }
+
+            while (0 == (rc = mX.advanceToNextToken())) {               // TEST
+                if (veryVeryVerbose) {
+                    P_(X.tokenType())
+                    P_(X.readStatus())
+                    P_(X.currentPosition())
+                    P(X.readOffset())
+                }
+            }
+
+            if (veryVeryVerbose) {
+                T_ T_
+                P_(rc)
+                P_(X.tokenType())
+                P( X.readStatus())
+            }
+
+            ASSERTV(LINE, JSON,     X.tokenType(),
+                    Obj::e_ERROR == X.tokenType());
+            ASSERTV(LINE, JSON,     X.readStatus(), EXP_DFT,
+                    EXP_DFT ==
+                   (Obj::k_EOF   == X.readStatus())); // at end-of-input
+
+            iss.clear(); iss.str(JSON_STRING); mX.reset(iss.rdbuf());
+
+            afore1 = X.allowFormFeedAsWhitespace();
+            afore2 = X.allowHeterogenousArrays();
+            afore3 = X.allowNonUtf8StringLiterals();
+            afore4 = X.allowStandAloneValues();
+            afore5 = X.allowTrailingTopLevelComma();
+            afore6 = X.conformanceMode();
+
+            Obj& retvalF = mX.setAllowUnescapedControlCharacters(false);// TEST
+            ASSERT(false  == X.allowUnescapedControlCharacters());
+            ASSERT(&mX    == &retvalF);
+
+            ASSERT(afore1 == X.allowFormFeedAsWhitespace());
+            ASSERT(afore2 == X.allowHeterogenousArrays());
+            ASSERT(afore3 == X.allowNonUtf8StringLiterals());
+            ASSERT(afore4 == X.allowStandAloneValues());
+            ASSERT(afore5 == X.allowTrailingTopLevelComma());
+            ASSERT(afore6 == X.conformanceMode());
+
+            if (veryVeryVerbose) {
+                P_(X.allowUnescapedControlCharacters()) P(iss.str())
+            }
+
+            while (0 == (rc = mX.advanceToNextToken())) {               // TEST
+                if (veryVeryVerbose) {
+                    P_(X.tokenType())
+                    P_(X.readStatus())
+                    P_(X.currentPosition())
+                    P(X.readOffset())
+                }
+            }
+
+            if (veryVeryVerbose) {
+                T_ T_
+                P_(X.allowUnescapedControlCharacters())
+                P_(rc)
+                P_(X.tokenType())
+                P( X.readStatus())
+            }
+
+            ASSERTV(LINE, JSON,     X.tokenType(),
+                    Obj::e_ERROR == X.tokenType());
+            ASSERTV(LINE, JSON,     X.readStatus(), EXP_SRT,
+                    EXP_SRT ==
+                   (Obj::k_EOF   == X.readStatus())); // before end-of-input
+
+            iss.clear(); iss.str(JSON_STRING); mX.reset(iss.rdbuf());
+
+            afore1 = X.allowFormFeedAsWhitespace();
+            afore2 = X.allowHeterogenousArrays();
+            afore3 = X.allowNonUtf8StringLiterals();
+            afore4 = X.allowStandAloneValues();
+            afore5 = X.allowTrailingTopLevelComma();
+            afore6 = X.conformanceMode();
+
+            Obj& retvalT = mX.setAllowUnescapedControlCharacters(true); // TEST
+            ASSERT(true   == X.allowUnescapedControlCharacters());
+            ASSERT(&mX    == &retvalT);
+
+            ASSERT(afore1 == X.allowFormFeedAsWhitespace());
+            ASSERT(afore2 == X.allowHeterogenousArrays());
+            ASSERT(afore3 == X.allowNonUtf8StringLiterals());
+            ASSERT(afore4 == X.allowStandAloneValues());
+            ASSERT(afore5 == X.allowTrailingTopLevelComma());
+            ASSERT(afore6 == X.conformanceMode());
+
+            if (veryVeryVerbose) {
+                P_(X.allowUnescapedControlCharacters()) P(iss.str())
+            }
+
+            while (0 == (rc = mX.advanceToNextToken())) {               // TEST
+                if (veryVeryVerbose) {
+                    P_(X.tokenType())
+                    P_(X.readStatus())
+                    P_(X.currentPosition())
+                    P(X.readOffset())
+                }
+            }
+
+            if (veryVeryVerbose) {
+                T_ T_
+                P_(X.allowUnescapedControlCharacters())
+                P_(rc)
+                P_(X.tokenType())
+                P( X.readStatus())
+            }
+
+            ASSERTV(LINE, JSON,     X.tokenType(),
+                    Obj::e_ERROR == X.tokenType());
+            ASSERTV(LINE, JSON,     X.readStatus(), EXP_DFT,
+                    EXP_DFT ==
+                   (Obj::k_EOF   == X.readStatus())); // at end-of-input
+        }
+
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING OPTION FOR CONSECUTIVE SEPARATORS
+        //
+        // Concerns:
+        //: 1 A newly created 'Tokenizer' object has the expected value,
+        //:   'true', for the option.
+        //:
+        //: 2 The 'set*' method for the option:
+        //:
+        //:   1 Can be used to the option to either 'true' or 'false'.
+        //:
+        //:   2 Does not change the value of any of the other options.
+        //:
+        //:   3 The value returned is a non-'const' reference to the tokenizer.
+        //:
+        //: 3 The two accessor reports the expected value for the option.
         //:
         //: 4 When the option is 'true' strings containing multiple,
         //:   consecutive colons (commas) can be processed successfully but not
@@ -830,11 +1217,12 @@ int main(int argc, char *argv[])
         //:     input is reached when the option is 'true'.
         //:
         //:   2 Confirm that 'advancetoNextToken fails before the end of input
-        //:     when the option is 'false'.
+        //:     when the option is 'false'.  To avoid ambiguity, the point
+        //:     of error must not be the last character of the input.
         //:
         //: 2 Confirm correctness (P-1) for a newly created 'Tokenizer'
         //:   (multiple consecutive allowed), after the option has been
-        // ; set to 'false', and after the option has been set back to 'true'.
+        //;   set to 'false', and after the option has been set back to 'true'.
         //:   (C-2.1)
         //:
         //: 3 Confirm that the option accessors show the expected value at each
@@ -843,6 +1231,9 @@ int main(int argc, char *argv[])
         //: 4 Save the value of each of the other options before each 'set'
         //:   options and confirm that the values are *not* changed by the
         //:   after the 'set'.  (C-2.2)
+        //:
+        //: 5 Compare the address of the value returned to the address of the
+        //:   tokenizer object.  (C-2.3)
         //
         // Testing:
         //   Tokenizer& setAllowConsecutiveSeparators(bool value);
@@ -850,299 +1241,165 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                << "TESTING OPTIONS FOR CONSECUTIVE COLONS AND COMMAS" << endl
-                << "=================================================" << endl;
+                        << "TESTING OPTION FOR CONSECUTIVE SEPARATORS" << endl
+                        << "=========================================" << endl;
 
         bool                 afore1;
         bool                 afore2;
         bool                 afore3;
         bool                 afore4;
-        Obj::ConformanceMode afore5;
+        bool                 afore5;
+        Obj::ConformanceMode afore6;
 
-        if (verbose) cout << "Test Conecutive Colons" << endl;
-        {
-            const struct {
-                int         d_line;
-                const char *d_json_p;
-            } DATA[] = {
-                { L_, "{\"x\"::\"b\"}" } // 'n_object_double_colon.json'
-            };
-            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const struct {
+            int         d_line;
+            const char *d_json_p;
+        } DATA[] = {
+            { L_, "{\"x\"::\"b\"}" } // 'n_object_double_colon.json'
+          , { L_, "[[0,,0]]"       }
+          , { L_, "[[0,,,0]]"      }
+          , { L_, "[[0],,[0]]"     }
+          , { L_, "[[0],,,[0]]"    }
+          , { L_, "[1,,2]"         } // 'n_array_double_comma.json'
+          , { L_, "{\"a\":\"b\",,\"c\":\"d\"}" }
+                                    // 'n_object_two_commas_in_a_row.json'
+      
+        //, { L_, "[1,,::,,2]"         }  // mixed
+        //, { L_, "{\"x\"::,,::\"b\"}" }  // mixed
+        };
+        const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (bsl::size_t i = 0; i != NUM_DATA; ++i) {
-                const int         LINE   = DATA[i].d_line;
-                const char *const JSON   = DATA[i].d_json_p;
-                const bsl::size_t LENGTH = bsl::strlen(JSON);
+        for (bsl::size_t i = 0; i != NUM_DATA; ++i) {
+            const int         LINE   = DATA[i].d_line;
+            const char *const JSON   = DATA[i].d_json_p;
+            const bsl::size_t LENGTH = bsl::strlen(JSON);
 
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(LENGTH) P(JSON)
-                }
-
-                Obj mX; const Obj& X = mX;
-                ASSERT(true  == X.allowConsecutiveSeparators());
-
-                int rc;
-
-                bsl::istringstream iss(JSON);
-                mX.reset(iss.rdbuf());
-
-                if (veryVeryVerbose) {
-                    P_(X.allowConsecutiveSeparators()) P(iss.str())
-                }
-
-                while (0 == (rc = mX.advanceToNextToken())) {           // TEST
-                    if (veryVeryVerbose) {
-                        P_(X.tokenType())
-                        P_(X.readStatus())
-                        P_(X.currentPosition())
-                        P(X.readOffset())
-                    }
-                }
-
-                if (veryVeryVerbose) {
-                    T_ T_
-                    P_(rc)
-                    P_(X.tokenType())
-                    P( X.readStatus())
-                }
-
-                ASSERTV(LINE, JSON,     X.tokenType(),
-                        Obj::e_ERROR == X.tokenType());
-                ASSERTV(LINE, JSON,     X.readStatus(),
-                        Obj::k_EOF   == X.readStatus()); // at end-of-input
-
-                iss.clear(); iss.str(JSON); mX.reset(iss.rdbuf());
-
-                afore1 = X.allowHeterogenousArrays();
-                afore2 = X.allowNonUtf8StringLiterals();
-                afore3 = X.allowStandAloneValues();
-                afore4 = X.allowTrailingTopLevelComma();
-                afore5 = X.conformanceMode();
-
-                mX.setAllowConsecutiveSeparators(false);                // TEST
-                ASSERT(false == X.allowConsecutiveSeparators());
-
-                ASSERT(afore1 == X.allowHeterogenousArrays());
-                ASSERT(afore2 == X.allowNonUtf8StringLiterals());
-                ASSERT(afore3 == X.allowStandAloneValues());
-                ASSERT(afore4 == X.allowTrailingTopLevelComma());
-                ASSERT(afore5 == X.conformanceMode());
-
-                if (veryVeryVerbose) {
-                    P_(X.allowConsecutiveSeparators()) P(iss.str())
-                }
-
-                while (0 == (rc = mX.advanceToNextToken())) {           // TEST
-                    if (veryVeryVerbose) {
-                        P_(X.tokenType())
-                        P_(X.readStatus())
-                        P_(X.currentPosition())
-                        P(X.readOffset())
-                    }
-                }
-
-                if (veryVeryVerbose) {
-                    T_ T_
-                    P_(X.allowConsecutiveSeparators())
-                    P_(rc)
-                    P_(X.tokenType())
-                    P( X.readStatus())
-                }
-
-                ASSERTV(LINE, JSON,     X.tokenType(),
-                        Obj::e_ERROR == X.tokenType());
-                ASSERTV(LINE, JSON,     X.readStatus(),
-                        Obj::k_EOF   != X.readStatus()); // before end-of-input
-
-                iss.clear(); iss.str(JSON); mX.reset(iss.rdbuf());
-
-                afore1 = X.allowHeterogenousArrays();
-                afore2 = X.allowNonUtf8StringLiterals();
-                afore3 = X.allowStandAloneValues();
-                afore4 = X.allowTrailingTopLevelComma();
-                afore5 = X.conformanceMode();
-
-                mX.setAllowConsecutiveSeparators(true);                 // TEST
-                ASSERT(true   == X.allowConsecutiveSeparators());
-
-                ASSERT(afore1 == X.allowHeterogenousArrays());
-                ASSERT(afore2 == X.allowNonUtf8StringLiterals());
-                ASSERT(afore3 == X.allowStandAloneValues());
-                ASSERT(afore4 == X.allowTrailingTopLevelComma());
-                ASSERT(afore5 == X.conformanceMode());
-
-                if (veryVeryVerbose) {
-                    P_(X.allowConsecutiveSeparators()) P(iss.str())
-                }
-
-                while (0 == (rc = mX.advanceToNextToken())) {           // TEST
-                    if (veryVeryVerbose) {
-                        P_(X.tokenType())
-                        P_(X.readStatus())
-                        P_(X.currentPosition())
-                        P(X.readOffset())
-                    }
-                }
-
-                if (veryVeryVerbose) {
-                    T_ T_
-                    P_(X.allowConsecutiveSeparators())
-                    P_(rc)
-                    P_(X.tokenType())
-                    P( X.readStatus())
-                }
-
-                ASSERTV(LINE, JSON,     X.tokenType(),
-                        Obj::e_ERROR == X.tokenType());
-                ASSERTV(LINE, JSON,     X.readStatus(),
-                        Obj::k_EOF   == X.readStatus()); // at end-of-input
+            if (veryVerbose) {
+                T_ P_(LINE) P_(LENGTH) P(JSON)
             }
-        }
 
-        if (verbose) cout << "Test Conecutive Commas" << endl;
-        {
-            const struct {
-                int         d_line;
-                const char *d_json_p;
-            } DATA[] = {
-                { L_, "[[0,,0]]"    }
-              , { L_, "[[0,,,0]]"   }
-              , { L_, "[[0],,[0]]"  }
-              , { L_, "[[0],,,[0]]" }
-              , { L_, "[1,,2]"      } // 'n_array_double_comma.json'
-              , { L_, "{\"a\":\"b\",,\"c\":\"d\"}" }
-                                      // 'n_object_two_commas_in_a_row.json'
-            };
-            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+            Obj mX; const Obj& X = mX;
+            ASSERT(true  == X.allowConsecutiveSeparators());
 
-            for (bsl::size_t i = 0; i != NUM_DATA; ++i) {
-                const int         LINE   = DATA[i].d_line;
-                const char *const JSON   = DATA[i].d_json_p;
-                const bsl::size_t LENGTH = bsl::strlen(JSON);
+            int rc;
 
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(LENGTH) P(JSON)
-                }
+            bsl::istringstream iss(JSON);
+            mX.reset(iss.rdbuf());
 
-                Obj mX; const Obj& X = mX;
-                ASSERT(true  == X.allowConsecutiveSeparators());
-
-                int rc;
-
-                bsl::istringstream iss(JSON);
-                mX.reset(iss.rdbuf());
-
-                if (veryVeryVerbose) {
-                    P_(X.allowConsecutiveSeparators()) P(iss.str())
-                }
-
-                while (0 == (rc = mX.advanceToNextToken())) {           // TEST
-                    if (veryVeryVerbose) {
-                        P_(X.tokenType())
-                        P_(X.readStatus())
-                        P_(X.currentPosition())
-                        P(X.readOffset())
-                    }
-                }
-
-                if (veryVeryVerbose) {
-                    T_ T_
-                    P_(rc)
-                    P_(X.tokenType())
-                    P( X.readStatus())
-                }
-
-                ASSERTV(LINE, JSON,     X.tokenType(),
-                        Obj::e_ERROR == X.tokenType());
-                ASSERTV(LINE, JSON,     X.readStatus(),
-                        Obj::k_EOF   == X.readStatus()); // at end-of-input
-
-                iss.clear(); iss.str(JSON); mX.reset(iss.rdbuf());
-
-                afore1 = X.allowHeterogenousArrays();
-                afore2 = X.allowNonUtf8StringLiterals();
-                afore3 = X.allowStandAloneValues();
-                afore4 = X.allowTrailingTopLevelComma();
-                afore5 = X.conformanceMode();
-
-                mX.setAllowConsecutiveSeparators(false);
-                ASSERT(false  == X.allowConsecutiveSeparators());
-
-                ASSERT(afore1 == X.allowHeterogenousArrays());
-                ASSERT(afore2 == X.allowNonUtf8StringLiterals());
-                ASSERT(afore3 == X.allowStandAloneValues());
-                ASSERT(afore4 == X.allowTrailingTopLevelComma());
-                ASSERT(afore5 == X.conformanceMode());
-
-                if (veryVeryVerbose) {
-                    P_(X.allowConsecutiveSeparators()) P(iss.str())
-                }
-
-                while (0 == (rc = mX.advanceToNextToken())) {           // TEST
-                    if (veryVeryVerbose) {
-                        P_(X.tokenType())
-                        P_(X.readStatus())
-                        P_(X.currentPosition())
-                        P(X.readOffset())
-                    }
-                }
-
-                if (veryVeryVerbose) {
-                    T_ T_
-                    P_(X.allowConsecutiveSeparators())
-                    P_(rc)
-                    P_(X.tokenType())
-                    P( X.readStatus())
-                }
-
-                ASSERTV(LINE, JSON,     X.tokenType(),
-                        Obj::e_ERROR == X.tokenType());
-                ASSERTV(LINE, JSON,     X.readStatus(),
-                        Obj::k_EOF   != X.readStatus()); // before end-of-input
-
-                iss.clear(); iss.str(JSON); mX.reset(iss.rdbuf());
-
-                afore1 = X.allowHeterogenousArrays();
-                afore2 = X.allowNonUtf8StringLiterals();
-                afore3 = X.allowStandAloneValues();
-                afore4 = X.allowTrailingTopLevelComma();
-                afore5 = X.conformanceMode();
-
-                mX.setAllowConsecutiveSeparators(true);
-                ASSERT(true   == X.allowConsecutiveSeparators());
-
-                ASSERT(afore1 == X.allowHeterogenousArrays());
-                ASSERT(afore2 == X.allowNonUtf8StringLiterals());
-                ASSERT(afore3 == X.allowStandAloneValues());
-                ASSERT(afore4 == X.allowTrailingTopLevelComma());
-                ASSERT(afore5 == X.conformanceMode());
-
-                if (veryVeryVerbose) {
-                    P_(X.allowConsecutiveSeparators()) P(iss.str())
-                }
-
-                while (0 == (rc = mX.advanceToNextToken())) {           // TEST
-                    if (veryVeryVerbose) {
-                        P_(X.tokenType())
-                        P_(X.readStatus())
-                        P_(X.currentPosition())
-                        P(X.readOffset())
-                    }
-                }
-
-                if (veryVeryVerbose) {
-                    T_ T_
-                    P_(X.allowConsecutiveSeparators())
-                    P_(rc)
-                    P_(X.tokenType())
-                    P( X.readStatus())
-                }
-
-                ASSERTV(LINE, JSON,     X.tokenType(),
-                        Obj::e_ERROR == X.tokenType());
-                ASSERTV(LINE, JSON,     X.readStatus(),
-                        Obj::k_EOF   == X.readStatus()); // at end-of-input
+            if (veryVeryVerbose) {
+                P_(X.allowConsecutiveSeparators()) P(iss.str())
             }
+
+            while (0 == (rc = mX.advanceToNextToken())) {               // TEST
+                if (veryVeryVerbose) {
+                    P_(X.tokenType())
+                    P_(X.readStatus())
+                    P_(X.currentPosition())
+                    P(X.readOffset())
+                }
+            }
+
+            if (veryVeryVerbose) {
+                T_ T_
+                P_(rc)
+                P_(X.tokenType())
+                P( X.readStatus())
+            }
+
+            ASSERTV(LINE, JSON,     X.tokenType(),
+                    Obj::e_ERROR == X.tokenType());
+            ASSERTV(LINE, JSON,     X.readStatus(),
+                    Obj::k_EOF   == X.readStatus()); // at end-of-input
+
+            iss.clear(); iss.str(JSON); mX.reset(iss.rdbuf());
+
+            afore1 = X.allowFormFeedAsWhitespace();
+            afore2 = X.allowHeterogenousArrays();
+            afore3 = X.allowNonUtf8StringLiterals();
+            afore4 = X.allowStandAloneValues();
+            afore5 = X.allowTrailingTopLevelComma();
+            afore6 = X.conformanceMode();
+
+            mX.setAllowConsecutiveSeparators(false);
+            ASSERT(false  == X.allowConsecutiveSeparators());
+
+            ASSERT(afore1 == X.allowFormFeedAsWhitespace());
+            ASSERT(afore2 == X.allowHeterogenousArrays());
+            ASSERT(afore3 == X.allowNonUtf8StringLiterals());
+            ASSERT(afore4 == X.allowStandAloneValues());
+            ASSERT(afore5 == X.allowTrailingTopLevelComma());
+            ASSERT(afore6 == X.conformanceMode());
+
+            if (veryVeryVerbose) {
+                P_(X.allowConsecutiveSeparators()) P(iss.str())
+            }
+
+            while (0 == (rc = mX.advanceToNextToken())) {               // TEST
+                if (veryVeryVerbose) {
+                    P_(X.tokenType())
+                    P_(X.readStatus())
+                    P_(X.currentPosition())
+                    P(X.readOffset())
+                }
+            }
+
+            if (veryVeryVerbose) {
+                T_ T_
+                P_(X.allowConsecutiveSeparators())
+                P_(rc)
+                P_(X.tokenType())
+                P( X.readStatus())
+            }
+
+            ASSERTV(LINE, JSON,     X.tokenType(),
+                    Obj::e_ERROR == X.tokenType());
+            ASSERTV(LINE, JSON,     X.readStatus(),
+                    Obj::k_EOF   != X.readStatus()); // before end-of-input
+
+            iss.clear(); iss.str(JSON); mX.reset(iss.rdbuf());
+
+            afore1 = X.allowFormFeedAsWhitespace();
+            afore2 = X.allowHeterogenousArrays();
+            afore3 = X.allowNonUtf8StringLiterals();
+            afore4 = X.allowStandAloneValues();
+            afore5 = X.allowTrailingTopLevelComma();
+            afore6 = X.conformanceMode();
+
+            mX.setAllowConsecutiveSeparators(true);
+            ASSERT(true   == X.allowConsecutiveSeparators());
+
+            ASSERT(afore1 == X.allowFormFeedAsWhitespace());
+            ASSERT(afore2 == X.allowHeterogenousArrays());
+            ASSERT(afore3 == X.allowNonUtf8StringLiterals());
+            ASSERT(afore4 == X.allowStandAloneValues());
+            ASSERT(afore5 == X.allowTrailingTopLevelComma());
+            ASSERT(afore6 == X.conformanceMode());
+
+            if (veryVeryVerbose) {
+                P_(X.allowConsecutiveSeparators()) P(iss.str())
+            }
+
+            while (0 == (rc = mX.advanceToNextToken())) {               // TEST
+                if (veryVeryVerbose) {
+                    P_(X.tokenType())
+                    P_(X.readStatus())
+                    P_(X.currentPosition())
+                    P(X.readOffset())
+                }
+            }
+
+            if (veryVeryVerbose) {
+                T_ T_
+                P_(X.allowConsecutiveSeparators())
+                P_(rc)
+                P_(X.tokenType())
+                P( X.readStatus())
+            }
+
+            ASSERTV(LINE, JSON,     X.tokenType(),
+                    Obj::e_ERROR == X.tokenType());
+            ASSERTV(LINE, JSON,     X.readStatus(),
+                    Obj::k_EOF   == X.readStatus()); // at end-of-input
         }
 
       } break;
@@ -1284,8 +1541,8 @@ int main(int argc, char *argv[])
                 mX.setAllowTrailingTopLevelComma(bool(topLevelComma));
 
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
-                ASSERTV(X.currentPosition(), 0 == X.currentPosition());
-                ASSERTV(X.readOffset(), 0 == X.readOffset());
+                ASSERTV(X.currentPosition(),      0 == X.currentPosition());
+                ASSERTV(X.readOffset(),           0 == X.readOffset());
 
                 int currOffsetIndex = 0;
 
@@ -7762,7 +8019,7 @@ int main(int argc, char *argv[])
         //:     under test.
         //
         // Testing:
-        //   Tokenizer& setAllowTrailingTopLevelComma();
+        //   Tokenizer& setAllowTrailingTopLevelComma(bool value);
         //   bool allowTrailingTopLevelComma() const;
         // --------------------------------------------------------------------
 

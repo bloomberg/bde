@@ -63,8 +63,8 @@ BSLS_IDENT_RCSID(bdljsn_tokenizer_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 namespace {
 
-static const char *g_WHITESPACE_RELAXED = " \n\t\v\r\f";
-static const char *g_WHITESPACE_STRICT  = " \n\t\v\r";
+static const char *g_WHITESPACE_DEFAULT = " \n\t\v\r\f";
+static const char *g_WHITESPACE_STRICT  = " \n\t\v\r";  // no form-feed
 static const char *g_TOKENS             = "{}[]:,\"";
 
 }  // close unnamed namespace
@@ -129,9 +129,9 @@ int Tokenizer::extractStringValue()
             else {
                 previousChar = d_stringBuffer[d_valueIter];
 
-                if (e_STRICT_20240119 == d_conformanceMode
-                && '\0' <= previousChar
-                &&         previousChar <= 0x1F) {
+                if (false == d_allowUnescapedControlCharacters
+                 && 0x00  <= previousChar
+                 &&          previousChar <= 0x1F) {
                     return -2;                                        // RETURN
                 }
             }
@@ -311,9 +311,9 @@ int Tokenizer::skipNonWhitespaceOrTillToken()
 
 int Tokenizer::skipWhitespace()
 {
-    const char *k_WHITESPACE = e_STRICT_20240119 == d_conformanceMode
-                             ? g_WHITESPACE_STRICT
-                             : g_WHITESPACE_RELAXED;
+    const char *k_WHITESPACE = d_allowFormFeedAsWhitespace
+                             ? g_WHITESPACE_DEFAULT
+                             : g_WHITESPACE_STRICT;
     while (true) {
         bsl::size_t pos = d_stringBuffer.find_first_not_of(k_WHITESPACE,
                                                            d_cursor);

@@ -28,6 +28,34 @@ BSLS_IDENT("$Id: $")
 // but not all such errors are detected.  In particular, callers should check
 // that closing brackets and braces match opening ones.
 //
+///Strict Conformance
+///------------------
+// The 'bdljsn::Tokenizer' class allows several convenient variances from the
+// JSON grammar as described in RFC8259 (see
+// https://www.rfc-editor.org/rfc/rfc8259).  If strict conformance is needed,
+// users can put the tokenizer into strict conformance mode (see
+// 'setConformanceMode').  The behavioral differences are each controlled by
+// options.  The differences between a default constructed tokenizer and one in
+// strict mode are:
+//..
+//  Option                           Default  Strict
+//  -------------------------------- -------  ------
+//  allowConsecutiveSeparators       true     false
+//  allowFormFeedAsWhitespace        true     false
+//  allowHeterogenousArrays          true     true
+//  allowNonUtf8StringLiterals       true     false
+//  allowStandAloneValues            true     true
+//  allowTrailingTopLevelComma       true     false
+//  allowUnescapedControlCharacters  true     false
+//..
+// The default-constructed 'bdljsn::Tokenizer' is created having the options
+// shown above (in the"Default" column) and a 'conformancemode' of
+// 'bdljsn::e_RELAXED'.  Accordingly, users are free to change any of the
+// option values to any combination that may be needed; however, once a
+// tokenizer is set to strict mode the options are set to the values shown
+// above (in the "Strict" column) and changes are not allowed (doing so leads
+// to undefined behavior) unless the conformance mode is again set to relaxed.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -264,10 +292,11 @@ class Tokenizer {
     bool                d_allowConsecutiveSeparators;
                                             // option for allowing consecutive
                                             // separators (i.e., ':', or ',')
-
-    bool                d_allowStandAloneValues;
-                                            // option for allowing stand alone
-                                            // values
+    
+    bool                d_allowFormFeedAsWhitespace;
+                                            // option for allowing '\f' as
+                                            // whitespace in addition to ' ',
+                                            // '\n', '\t', '\r', and '\v'.
 
     bool                d_allowHeterogenousArrays;
                                             // option for allowing arrays of
@@ -276,8 +305,16 @@ class Tokenizer {
     bool                d_allowNonUtf8StringLiterals;
                                             // Disables UTF-8 validation
 
+    bool                d_allowStandAloneValues;
+                                            // option for allowing stand alone
+                                            // values
+
     bool                d_allowTrailingTopLevelComma;
                                             // if 'true', allows '{},'
+
+    bool                d_allowUnescapedControlCharacters;
+                                            // option for unescaped control
+                                            // characters in JSON strings.
 
     ConformanceMode     d_conformanceMode;  // "relaxed" (default) or "strict"
 
@@ -347,11 +384,13 @@ class Tokenizer {
         // 'conformanceMode' is 'e_RELAXED' and the value of the 'Tokenizer'
         // options are:
         //..
-        //  allowConsecutiveSeparators() == true;
-        //  allowHeterogeneousArrays()   == true;
-        //  allowNonUtf8StringLiterals() == true;
-        //  allowStandAloneValues()      == true;
-        //  allowTrailingTopLevelComma() == true;
+        //  allowConsecutiveSeparators()      == true;
+        //  allowFormFeedAsWhitespace()       == true;
+        //  allowHeterogeneousArrays()        == true;
+        //  allowNonUtf8StringLiterals()      == true;
+        //  allowStandAloneValues()           == true;
+        //  allowTrailingTopLevelComma()      == true;
+        //  allowUnescapedControlCharacters() == true;
         //..
         // The 'reset' method must be called before any calls to
         // 'advanceToNextToken' or 'resetStreamBufGetPointer'.
@@ -376,10 +415,13 @@ class Tokenizer {
         // 'advanceToNextToken' is called.  Note that this function does not
         // change the the 'conformanceMode' nor the values of any of the
         // individual token options:
+        //: o 'allowConsecutiveSeparators'
+        //: o 'allowFormFeedAsWhitespace'
         //: o 'allowHeterogenousArrays'
         //: o 'allowNonUtf8StringLiterals'
         //: o 'allowStandAloneValues'
         //: o 'allowTrailingTopLevelComma'
+        //: o 'allowUnescapedControlCharacters'
 
     int resetStreamBufGetPointer();
         // Reset the get pointer of the 'streambuf' held by this object to
@@ -395,7 +437,7 @@ class Tokenizer {
         // a new 'streambuf'.
 
     Tokenizer& setAllowConsecutiveSeparators(bool value);
-        // Set the 'allowConsecutiveSeparartors' option to the specified
+        // Set the 'allowConsecutiveSeparators' option to the specified
         // 'value' and return a non-'const' reference to this tokenizer.  JSON
         // defines two separator tokens: the colon (':') and the comma (',').
         // If the 'allowConsecutiveSeparartors' value is 'true' this tokenizer
@@ -407,7 +449,15 @@ class Tokenizer {
         // default, the value of the 'allo ConsecutiveSeparators' option is
         // 'true'.  The behavior is undefined unless
         // 'e_RELAXED == conformanceMode()'.  Note that consecutive sequences
-        // of both tokens (e.g., ':,:,:,') is always an error.
+        // using both tokens (e.g., '::,,::') is always an error.
+
+    Tokenizer& setAllowFormFeedAsWhitespace(bool value);
+        // Set the 'allowFormFeedAsWhitespace' option to the specifiedd value
+        // and return a non-'const' reference to this tokenizer.  If the
+        // 'allowFormFeedAsWhitespace' value is 'true' the formfeed character
+        // ('\f') is recognized as a whitespace character in addition to '\n',
+        // '\t', '\r', and '\v'.  Otherwise, formfeed is diallowed a
+        // whitewpace.
 
     Tokenizer& setAllowHeterogenousArrays(bool value);
         // Set the 'allowHeterogenousArrays' option to the specified 'value'
@@ -454,6 +504,41 @@ class Tokenizer {
         // commas.  The behavior is undefined unless
         // 'e_RELAXED == conformanceMode()'.
 
+    Tokenizer& setAllowUnescapedControlCharacters(bool value);
+        // Set the 'allowUnescapedControlCharacters' option of this tokenizer
+        // to the specified 'value'.  If 'true', characters in the range
+        // '[ 0x00 .. 0x1F ]' are allowed in JSON strings.  If the option is
+        // 'false', these characters must be represented by their six byte
+        // escape sequences '[ \u0000 .. \u001F ]'.  Several values in that
+        // range are also (conveniently) represented by two byte sequences:
+        //..
+        //  \"    quotation mark
+        //  \\    reverse solidus
+        //  \/    solidus
+        //  \b    backspace
+        //  \f    form feed
+        //  \n    line feed
+        //  \r    carriage return
+        //  \t    tab
+        //..
+        // The 'DEL' control character ('0x7F') is accepted even in strict
+        // mode.
+        //
+        // The behavior is undefined unless 'e_RELAXED == conformanceMode()'.
+        // Note that the representation of these byte sequences as C/C++ string
+        // literals requires that the escape character itself must be escaped:
+        //..
+        //  "Hello,\\tworld\\n";  // Can alwas initialize a JSON string with
+        //                        // containing tab and a newline
+        //                        // escape sequences
+        //                        // whether the option is set or not.
+        //
+        //  "Hello,\tworld\n";    // When this option is 'true'.
+        //                        // can also initialize a JSON string
+        //                        // with an actual and newline characters.
+        //..
+        // Also note that the two resulting strings do *not* compare equal. 
+
     Tokenizer& setConformanceMode(ConformanceMode mode);
         // Set the 'conformanceMode' of this tokenizer to the specified 'mode'
         // and return a non-'const' reference to this tokenizer.  If 'mode' is
@@ -463,11 +548,13 @@ class Tokenizer {
         //
         // Specifically, those option values are:
         //..
-        //  allowConsecutiveSeparartor   == false;
-        //  allowHeterogeneousArrays()   == true;
-        //  allowNonUtf8StringLiterals() == false;
-        //  allowStandAloneValues()      == true;
-        //  allowTrailingTopLevelComma() == false;
+        //  allowConsecutiveSeparartor       == false;
+        //  allowFormFeedAsWhitespace()      == false;
+        //  allowHeterogeneousArrays()       == true;
+        //  allowNonUtf8StringLiterals()     == false;
+        //  allowStandAloneValues()          == true;
+        //  allowTrailingTopLevelComma()     == false;
+        //  allowUnescapedControlCharacters() = false;
         //..
         // Otherwise (i.e., 'mode' is 'e_RELAXED'), those option values can be
         // set in any combination.  Note that the behavior is undefined if
@@ -477,6 +564,10 @@ class Tokenizer {
     // ACCESSORS
     bool allowConsecutiveSeparators() const;
         // Return the value of the 'allowConsecutiveSeparators' option of this
+        // tokenizer.
+
+    bool allowFormFeedAsWhitespace() const;
+        // Return the value of the 'allowFormFeedAsWhitespace' option of this
         // tokenizer.
 
     bool allowHeterogenousArrays() const;
@@ -494,6 +585,10 @@ class Tokenizer {
     bool allowTrailingTopLevelComma() const;
         // Return the value of the 'allowTrailingTopLevelComma' option of this
         // tokenizer.
+
+    bool allowUnescapedControlCharacters() const;
+        // Return the value of the 'allowUnescapedControlCharacters' option of
+        // this tokenizer.
 
     ConformanceMode conformanceMode() const;
         // Return the 'conformanceMode' of this tokenizer.
@@ -588,10 +683,12 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_readStatus(0)
 , d_bufEndStatus(0)
 , d_allowConsecutiveSeparators(true)
-, d_allowStandAloneValues(true)
+, d_allowFormFeedAsWhitespace(true)
 , d_allowHeterogenousArrays(true)
 , d_allowNonUtf8StringLiterals(true)
+, d_allowStandAloneValues(true)
 , d_allowTrailingTopLevelComma(true)
+, d_allowUnescapedControlCharacters(true)
 , d_conformanceMode(e_RELAXED)
 {
     d_stringBuffer.reserve(k_MAX_STRING_SIZE);
@@ -642,6 +739,15 @@ Tokenizer& Tokenizer::setAllowHeterogenousArrays(bool value)
 }
 
 inline
+Tokenizer& Tokenizer::setAllowFormFeedAsWhitespace(bool value)
+{
+    BSLS_ASSERT(e_RELAXED == d_conformanceMode);
+
+    d_allowFormFeedAsWhitespace = value;
+    return *this;
+}
+
+inline
 Tokenizer& Tokenizer::setAllowNonUtf8StringLiterals(bool value)
 {
     BSLS_ASSERT(e_RELAXED == d_conformanceMode);
@@ -669,6 +775,15 @@ Tokenizer& Tokenizer::setAllowTrailingTopLevelComma(bool value)
 }
 
 inline
+Tokenizer& Tokenizer::setAllowUnescapedControlCharacters(bool value)
+{
+    BSLS_ASSERT(e_RELAXED == d_conformanceMode);
+
+    d_allowUnescapedControlCharacters = value;
+    return *this;
+}
+
+inline
 Tokenizer& Tokenizer::setConformanceMode(Tokenizer::ConformanceMode mode)
 {
     d_conformanceMode = mode;
@@ -677,11 +792,13 @@ Tokenizer& Tokenizer::setConformanceMode(Tokenizer::ConformanceMode mode)
       case e_RELAXED: {
       } break;
       case e_STRICT_20240119: {
-        d_allowConsecutiveSeparators = false;
-        d_allowHeterogenousArrays    = true;
-        d_allowNonUtf8StringLiterals = false;
-        d_allowStandAloneValues      = true;
-        d_allowTrailingTopLevelComma = false;
+        d_allowConsecutiveSeparators      = false;
+        d_allowFormFeedAsWhitespace       = false;
+        d_allowHeterogenousArrays         = true;
+        d_allowNonUtf8StringLiterals      = false;
+        d_allowStandAloneValues           = true;
+        d_allowTrailingTopLevelComma      = false;
+        d_allowUnescapedControlCharacters = false;
       } break;
       default: {
         BSLS_ASSERT_OPT(!"reached");
@@ -695,6 +812,12 @@ inline
 bool Tokenizer::allowConsecutiveSeparators() const
 {
     return d_allowConsecutiveSeparators;
+}
+
+inline
+bool Tokenizer::allowFormFeedAsWhitespace() const
+{
+    return d_allowFormFeedAsWhitespace;
 }
 
 inline
@@ -719,6 +842,12 @@ inline
 bool Tokenizer::allowTrailingTopLevelComma() const
 {
     return d_allowTrailingTopLevelComma;
+}
+
+inline
+bool Tokenizer::allowUnescapedControlCharacters() const
+{
+    return d_allowUnescapedControlCharacters;
 }
 
 inline

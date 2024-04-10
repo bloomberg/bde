@@ -19,11 +19,14 @@ BSLS_IDENT("$Id: $")
 ///Attributes
 ///----------
 //..
-//  Name                  Type           Default         Simple Constraints
-//  ------------------    -----------    -------         ------------------
-//  maxDepth              int            32              >= 0
-//  skipUnknownElements   bool           true            none
-//  validateInputIsUtf8   bool           false           none
+//  Name                             Type  Default  Simple Constraints
+//  ------------------               ----  -------  ------------------
+//  maxDepth                         int   32       >= 0
+//  skipUnknownElements              bool  true     none
+//  validateInputIsUtf8              bool  false    none
+//  allowConsecutiveSeparators       bool  false    none
+//  allowFormFeedAsWhitespace        bool  false    none
+//  allowUnescapedControlCharacters  bool  false    none
 //..
 //: o 'maxDepth': maximum depth of the decoded data
 //:
@@ -31,6 +34,19 @@ BSLS_IDENT("$Id: $")
 //:
 //: o 'validateInputIsUtf8': flag specifying whether UTF-8 correctness checking
 //:   is enabled.
+//:
+//: o 'allowConsecutiveSeparators': flag specifying if multiple consecutive
+//:   separators -- e.g., '"a" :: 1', '[ 1,, 2 ]' -- are accepted and treated
+//:   as if one separator had been input.
+//:
+//: o 'allowFormFeedAsWhitespace': flag specifying if the form-feed character,
+//:   '\f', is treaded as whitespace in addition to ' ', '\t', '\n', '\r', and
+//:   '\v'.
+//
+//: o 'allowUnescapedControlCharacters': flag specifying if unescaped (raw)
+//:   control characters (e.g., '\n', '\n') are allowed in JSON strings.
+//:   Otherwise, control characters are represented by multi-character
+//:   sequences (e.g., '\\t' or '\u000A').
 //
 ///Implementation Note
 ///- - - - - - - - - -
@@ -101,23 +117,46 @@ class DecoderOptions {
         // option to skip unknown elements
     bool  d_validateInputIsUtf8;
         // option to check that input is valid UTF-8
+    bool  d_allowConsecutiveSeparators;
+        // Option to allow multiple consecutive colons or commas.  Set to
+        // 'false' for strictly conformining JSON.
+    bool  d_allowFormFeedAsWhitespace;
+        // Option to allow '\f' (form feed) as whitespace in addition to ' ',
+        // '\n', '\t', '\r', and '\v'.  Set to 'false' for strictly
+        // conformining JSON.
+    bool  d_allowUnescapedControlCharacters;
+        // Option to allow characters in the range '[0x00 ..  0x1F]'  (e.g.,
+        // '\0', '\t', '\n') in JSON strings.  Set to 'false' for strictly
+        // conformining JSON.
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
+
+    bool isEqualTo(const DecoderOptions& rhs) const;
 
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_MAX_DEPTH              = 0
-      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS  = 1
-      , ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8 = 2
+        ATTRIBUTE_ID_MAX_DEPTH                          = 0
+      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS              = 1
+      , ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8             = 2
+      , ATTRIBUTE_ID_ALLOW_CONSECUTIVE_SEPARATORS       = 3
+      , ATTRIBUTE_ID_ALLOW_FORM_FEED_AS_WHITESPACE      = 4
+      , ATTRIBUTE_ID_ALLOW_UNESCAPED_CONTROL_CHARACTERS = 5
     };
 
     enum {
-        NUM_ATTRIBUTES = 3
+        NUM_ATTRIBUTES = 6
     };
 
     enum {
-        ATTRIBUTE_INDEX_MAX_DEPTH              = 0
-      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS  = 1
-      , ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8 = 2
+        ATTRIBUTE_INDEX_MAX_DEPTH                          = 0
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS              = 1
+      , ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8             = 2
+      , ATTRIBUTE_INDEX_ALLOW_CONSECUTIVE_SEPARATORS       = 3
+      , ATTRIBUTE_INDEX_ALLOW_FORM_FEED_AS_WHITESPACE      = 4
+      , ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS = 5
     };
 
     // CONSTANTS
@@ -128,6 +167,12 @@ class DecoderOptions {
     static const bool DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS;
 
     static const bool DEFAULT_INITIALIZER_VALIDATE_INPUT_IS_UTF8;
+
+    static const bool DEFAULT_INITIALIZER_ALLOW_CONSECUTIVE_SEPARATORS;
+
+    static const bool DEFAULT_INITIALIZER_ALLOW_FORM_FEED_AS_WHITESPACE;
+
+    static const bool DEFAULT_INITIALIZER_ALLOW_UNESCAPED_CONTROL_CHARACTERS;
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -179,8 +224,8 @@ class DecoderOptions {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
@@ -188,8 +233,8 @@ class DecoderOptions {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
         // Invoke the specified 'manipulator' on the address of
         // the (modifiable) attribute indicated by the specified 'id',
         // supplying 'manipulator' with the corresponding attribute
@@ -197,8 +242,8 @@ class DecoderOptions {
         // invocation of 'manipulator' if 'id' identifies an attribute of this
         // class, and -1 otherwise.
 
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
         // Invoke the specified 'manipulator' on the address of
@@ -220,9 +265,21 @@ class DecoderOptions {
         // Set the "ValidateInputIsUtf8" attribute of this object to the
         // specified 'value'.
 
+    void setAllowConsecutiveSeparators(bool value);
+        // Set the "AllowConsecutiveSeparators" attribute of this object to the
+        // specified 'value'.
+
+    void setAllowFormFeedAsWhitespace(bool value);
+        // Set the "AllowFormFeedAsWhitespace" attribute of this object to the
+        // specified 'value'.
+
+    void setAllowUnescapedControlCharacters(bool value);
+        // Set the "AllowUnescapedControlCharacters" attribute of this object
+        // to the specified 'value'.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
         // optionally specified indentation 'level' and return a reference to
@@ -236,8 +293,8 @@ class DecoderOptions {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
         // with the corresponding attribute information structure until such
@@ -245,16 +302,16 @@ class DecoderOptions {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
@@ -265,42 +322,64 @@ class DecoderOptions {
         // class, and -1 otherwise.
 
     int maxDepth() const;
-        // Return a reference to the non-modifiable "MaxDepth" attribute of
-        // this object.
+        // Return the value of the "MaxDepth" attribute of this object.
 
     bool skipUnknownElements() const;
-        // Return a reference to the non-modifiable "SkipUnknownElements"
-        // attribute of this object.
+        // Return the value of the "SkipUnknownElements" attribute of this
+        // object.
 
     bool validateInputIsUtf8() const;
-        // Return a reference to the non-modifiable "ValidateInputIsUtf8"
-        // attribute of this object.
+        // Return the value of the "ValidateInputIsUtf8" attribute of this
+        // object.
+
+    bool allowConsecutiveSeparators() const;
+        // Return the value of the "AllowConsecutiveSeparators" attribute of
+        // this object.
+
+    bool allowFormFeedAsWhitespace() const;
+        // Return the value of the "AllowFormFeedAsWhitespace" attribute of
+        // this object.
+
+    bool allowUnescapedControlCharacters() const;
+        // Return the value of the "AllowUnescapedControlCharacters" attribute
+        // of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const DecoderOptions& lhs,
+                           const DecoderOptions& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    friend bool operator!=(const DecoderOptions& lhs,
+                           const DecoderOptions& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(bsl::ostream&         stream,
+                                    const DecoderOptions& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&     hashAlg,
+                           const DecoderOptions& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'DecoderOptions'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-inline
-bool operator==(const DecoderOptions& lhs, const DecoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
-
-inline
-bool operator!=(const DecoderOptions& lhs, const DecoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
-
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const DecoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::DecoderOptions& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'DecoderOptions'.
 
 }  // close package namespace
 
@@ -308,9 +387,9 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::DecoderOptions& object);
 
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(baljsn::DecoderOptions)
 
-// ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
-// ============================================================================
+//=============================================================================
+//                          INLINE DEFINITIONS
+//=============================================================================
 
 namespace baljsn {
 
@@ -318,10 +397,34 @@ namespace baljsn {
                             // class DecoderOptions
                             // --------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void DecoderOptions::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->maxDepth());
+    hashAppend(hashAlgorithm, this->skipUnknownElements());
+    hashAppend(hashAlgorithm, this->validateInputIsUtf8());
+    hashAppend(hashAlgorithm, this->allowConsecutiveSeparators());
+    hashAppend(hashAlgorithm, this->allowFormFeedAsWhitespace());
+    hashAppend(hashAlgorithm, this->allowUnescapedControlCharacters());
+}
+
+inline
+bool DecoderOptions::isEqualTo(const DecoderOptions& rhs) const
+{
+    return this->maxDepth() == rhs.maxDepth() &&
+           this->skipUnknownElements() == rhs.skipUnknownElements() &&
+           this->validateInputIsUtf8() == rhs.validateInputIsUtf8() &&
+           this->allowConsecutiveSeparators() == rhs.allowConsecutiveSeparators() &&
+           this->allowFormFeedAsWhitespace() == rhs.allowFormFeedAsWhitespace() &&
+           this->allowUnescapedControlCharacters() == rhs.allowUnescapedControlCharacters();
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int DecoderOptions::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -340,11 +443,26 @@ int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
-    return ret;
+    ret = manipulator(&d_allowConsecutiveSeparators, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONSECUTIVE_SEPARATORS]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_allowFormFeedAsWhitespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_FORM_FEED_AS_WHITESPACE]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_allowUnescapedControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS]);
+    if (ret) {
+        return ret;
+    }
+
+    return 0;
 }
 
-template <class MANIPULATOR>
-int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int DecoderOptions::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -358,16 +476,25 @@ int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8: {
         return manipulator(&d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
       }
+      case ATTRIBUTE_ID_ALLOW_CONSECUTIVE_SEPARATORS: {
+        return manipulator(&d_allowConsecutiveSeparators, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONSECUTIVE_SEPARATORS]);
+      }
+      case ATTRIBUTE_ID_ALLOW_FORM_FEED_AS_WHITESPACE: {
+        return manipulator(&d_allowFormFeedAsWhitespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_FORM_FEED_AS_WHITESPACE]);
+      }
+      case ATTRIBUTE_ID_ALLOW_UNESCAPED_CONTROL_CHARACTERS: {
+        return manipulator(&d_allowUnescapedControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS]);
+      }
       default:
         return NOT_FOUND;
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int DecoderOptions::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -400,9 +527,27 @@ void DecoderOptions::setValidateInputIsUtf8(bool value)
     d_validateInputIsUtf8 = value;
 }
 
+inline
+void DecoderOptions::setAllowConsecutiveSeparators(bool value)
+{
+    d_allowConsecutiveSeparators = value;
+}
+
+inline
+void DecoderOptions::setAllowFormFeedAsWhitespace(bool value)
+{
+    d_allowFormFeedAsWhitespace = value;
+}
+
+inline
+void DecoderOptions::setAllowUnescapedControlCharacters(bool value)
+{
+    d_allowUnescapedControlCharacters = value;
+}
+
 // ACCESSORS
-template <class ACCESSOR>
-int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int DecoderOptions::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -421,11 +566,26 @@ int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    ret = accessor(d_allowConsecutiveSeparators, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONSECUTIVE_SEPARATORS]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_allowFormFeedAsWhitespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_FORM_FEED_AS_WHITESPACE]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_allowUnescapedControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS]);
+    if (ret) {
+        return ret;
+    }
+
+    return 0;
 }
 
-template <class ACCESSOR>
-int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int DecoderOptions::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -439,16 +599,25 @@ int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8: {
         return accessor(d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
       }
+      case ATTRIBUTE_ID_ALLOW_CONSECUTIVE_SEPARATORS: {
+        return accessor(d_allowConsecutiveSeparators, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONSECUTIVE_SEPARATORS]);
+      }
+      case ATTRIBUTE_ID_ALLOW_FORM_FEED_AS_WHITESPACE: {
+        return accessor(d_allowFormFeedAsWhitespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_FORM_FEED_AS_WHITESPACE]);
+      }
+      case ATTRIBUTE_ID_ALLOW_UNESCAPED_CONTROL_CHARACTERS: {
+        return accessor(d_allowUnescapedControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS]);
+      }
       default:
         return NOT_FOUND;
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int DecoderOptions::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -479,54 +648,35 @@ bool DecoderOptions::validateInputIsUtf8() const
     return d_validateInputIsUtf8;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::DecoderOptions& object)
+inline
+bool DecoderOptions::allowConsecutiveSeparators() const
 {
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.maxDepth());
-    hashAppend(hashAlg, object.skipUnknownElements());
-    hashAppend(hashAlg, object.validateInputIsUtf8());
+    return d_allowConsecutiveSeparators;
+}
+
+inline
+bool DecoderOptions::allowFormFeedAsWhitespace() const
+{
+    return d_allowFormFeedAsWhitespace;
+}
+
+inline
+bool DecoderOptions::allowUnescapedControlCharacters() const
+{
+    return d_allowUnescapedControlCharacters;
 }
 
 }  // close package namespace
 
 // FREE FUNCTIONS
 
-inline
-bool baljsn::operator==(
-        const baljsn::DecoderOptions& lhs,
-        const baljsn::DecoderOptions& rhs)
-{
-    return  lhs.maxDepth() == rhs.maxDepth()
-         && lhs.skipUnknownElements() == rhs.skipUnknownElements()
-         && lhs.validateInputIsUtf8() == rhs.validateInputIsUtf8();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::DecoderOptions& lhs,
-        const baljsn::DecoderOptions& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::DecoderOptions& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.04.20.1
-// USING bas_codegen.pl -m msg -p baljsn -E --noExternalization --noAggregateConversion baljsn.xsd
+// GENERATED BY BLP_BAS_CODEGEN_2024.03.02
+// USING bas_codegen.pl -m msg -p baljsn -E --noExternalization --noAggregateConversion ../baljsn.xsd
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
