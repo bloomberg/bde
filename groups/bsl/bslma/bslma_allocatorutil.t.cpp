@@ -116,6 +116,13 @@ typedef bslma::AllocatorUtil Util;
 const std::size_t k_MAX_ALIGNMENT = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 template <class TYPE>
+bool isAligned(const TYPE *p)
+{
+    static const std::size_t k_T_ALIGN = bsls::AlignmentFromType<TYPE>::VALUE;
+    return 0 == bsls::AlignmentUtil::calculateAlignmentOffset(p, k_T_ALIGN);
+}
+
+template <class TYPE>
 class DerivedAllocator : public bsl::allocator<TYPE> {
     typedef bsl::allocator<TYPE> Base;
 
@@ -235,15 +242,17 @@ class CheckedResource : public bslma::TestAllocator {
     // 'bslma::TestAllocator' functionality will eventually be moved into
     // 'bslma_testallocator' itself, at which point this class will be removed
     // and the test driver will use 'bslma::TestAllocator' directly.
+    // See {DRQS 174865686}.
 
     // PRIVATE TYPES
     typedef bslma::TestAllocator Base;
 
     struct BlockInfo {
         // Information about a block of memory allocated from this resource.
-        void        *d_block_p;
-        std::size_t  d_bytes;
-        std::size_t  d_alignment;
+        std::size_t  d_bytes;          // requested bytes
+        std::size_t  d_alignment;      // requested alignment
+        void        *d_block_p;        // raw allocated block
+        void        *d_alignedBlock_p; // block after alignment correction
     };
 
     // DATA
@@ -301,7 +310,7 @@ class CheckedResource : public bslma::TestAllocator {
 int CheckedResource::blockIndex(void *blockPtr) const
 {
     for (const BlockInfo *bp = d_blocks; bp < d_nextBlock; ++bp) {
-        if (blockPtr == bp->d_block_p) {
+        if (blockPtr == bp->d_alignedBlock_p) {
             return int(bp - d_blocks);
         }
     }
@@ -367,14 +376,25 @@ void *CheckedResource::do_allocate(std::size_t bytes, std::size_t alignment)
 {
     BSLS_ASSERT_OPT(d_nextBlock < d_blocks + k_MAX_OUTSTANDING_BLOCKS);
 
-    void *block_p = Base::allocate(bytes);
+    // 'slack' is the amount of extra memory we need to allocate to be able to
+    // correct for 'alignment' greater than max alignment.
+    std::ptrdiff_t slack = 0;
+    if (alignment > k_MAX_ALIGNMENT)
+        slack = alignment - k_MAX_ALIGNMENT;
 
-    d_nextBlock->d_block_p   = block_p;
-    d_nextBlock->d_bytes     = bytes;
-    d_nextBlock->d_alignment = alignment;
+    // Allocate memory and compute the first address with the desired
+    // 'alignment'.
+    void *block_p        = Base::allocate(bytes + slack);
+    void *alignedBlock_p = static_cast<char*>(block_p) +
+        bsls::AlignmentUtil::calculateAlignmentOffset(block_p, int(alignment));
+
+    d_nextBlock->d_bytes          = bytes;
+    d_nextBlock->d_alignment      = alignment;
+    d_nextBlock->d_block_p        = block_p;
+    d_nextBlock->d_alignedBlock_p = alignedBlock_p;
     ++d_nextBlock;
 
-    return block_p;
+    return alignedBlock_p;
 }
 
 void CheckedResource::do_deallocate(void        *p,
@@ -390,8 +410,8 @@ void CheckedResource::do_deallocate(void        *p,
         BlockInfo *bp = &d_blocks[index];
         d_numSizeMismatches += (0 != bytes && bp->d_bytes != bytes);
         d_numAlignmentMismatches += (bp->d_alignment != alignment);
+        Base::deallocate(bp->d_block_p);
         *bp = *--d_nextBlock;  // Remove from block info array
-        Base::deallocate(p);
     }
 }
 
@@ -690,6 +710,9 @@ struct OveralignedObj {
 #else
     bsls::AlignmentUtil::MaxAlignedType d_data;
 #endif
+
+    OveralignedObj()                      { ASSERTV(this, isAligned(this)); }
+    OveralignedObj(const OveralignedObj&) { ASSERTV(this, isAligned(this)); }
 };
 
 BSLA_MAYBE_UNUSED
@@ -853,6 +876,7 @@ void testAllocObjImp(int Tline, int Aline)
     POINTER      obj1_p = Util::allocateObject<TYPE>(alloc);
     TYPE        *raw1_p  = rawPtr(obj1_p);
     std::size_t  expSize = sizeof(TYPE);
+    ASSERTV(Tline, Aline, expSize, expAlign, (void*)raw1_p, isAligned(raw1_p));
     ASSERTV(Tline, Aline, expSize, expAlign, 0 != raw1_p);
     ASSERTV(Tline, Aline, expSize, expAlign, cr.numBlocksInUse() == 1);
     ASSERTV(Tline, Aline, expSize, expAlign, cr.hasExpSize(raw1_p, expSize));
@@ -921,7 +945,7 @@ void testNewObjImp(int Tline, int Aline)
     CheckedResource cr;
     ALLOCATOR alloc(&cr);
 
-    ASSERT(typeid(Util::allocateObject<TYPE>(alloc)) == typeid(POINTER));
+    ASSERT(typeid(Util::newObject<TYPE>(alloc)) == typeid(POINTER));
 
     POINTER      obj_p = Util::newObject<TYPE>(alloc);
     TYPE        *raw_p  = rawPtr(obj_p);
