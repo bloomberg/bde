@@ -1624,6 +1624,8 @@ class Log_Stream {
 
     const int       d_severity;    // severity at which record is logged
 
+    bsl::ostream    d_stream;      // stream to which log message is put
+
   private:
     // NOT IMPLEMENTED
     Log_Stream(const Log_Stream&);
@@ -1824,7 +1826,7 @@ Record *Log_Stream::record()
 inline
 bsl::ostream& Log_Stream::stream()
 {
-    return d_record_p->fixedFields().messageStream();
+    return d_stream;
 }
 
 // ACCESSORS

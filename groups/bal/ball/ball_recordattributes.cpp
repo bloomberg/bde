@@ -30,7 +30,6 @@ RecordAttributes::RecordAttributes(bslma::Allocator *basicAllocator)
 , d_category(basicAllocator)
 , d_severity(0)
 , d_messageStreamBuf(basicAllocator)
-, d_messageStream(&d_messageStreamBuf)
 {
 }
 
@@ -51,7 +50,6 @@ RecordAttributes::RecordAttributes(const bdlt::Datetime&  timestamp,
 , d_category(category, basicAllocator)
 , d_severity(severity)
 , d_messageStreamBuf(basicAllocator)
-, d_messageStream(&d_messageStreamBuf)
 {
     setMessage(message);
 }
@@ -66,7 +64,6 @@ RecordAttributes::RecordAttributes(const RecordAttributes&  original,
 , d_category(original.d_category, basicAllocator)
 , d_severity(original.d_severity)
 , d_messageStreamBuf(basicAllocator)
-, d_messageStream(&d_messageStreamBuf)
 {
     d_messageStreamBuf.pubseekpos(0);
     d_messageStreamBuf.sputn(original.d_messageStreamBuf.data(),
@@ -81,7 +78,6 @@ void RecordAttributes::setMessage(const char *message)
         d_messageStreamBuf.sputc(*message);
         ++message;
     }
-    d_messageStream.clear();
 }
 
 RecordAttributes& RecordAttributes::operator=(const RecordAttributes& rhs)
@@ -97,7 +93,6 @@ RecordAttributes& RecordAttributes::operator=(const RecordAttributes& rhs)
         d_messageStreamBuf.pubseekpos(0);
         d_messageStreamBuf.sputn(rhs.d_messageStreamBuf.data(),
                                  rhs.d_messageStreamBuf.length());
-        d_messageStream.clear();
     }
     return *this;
 }
