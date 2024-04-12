@@ -226,7 +226,7 @@ BSLS_IDENT("$Id: $")
 // of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
 // Bloomberg production builds.
 #ifndef BDE_DISABLE_CPP17_ABI
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #   include <string_view>
 
@@ -326,6 +326,8 @@ struct StringView_Identity {
 
 namespace bsl {
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+
             // ===========================================
             // struct BasicStringView_IsCompatibleIterator
             // ===========================================
@@ -354,6 +356,7 @@ struct BasicStringView_IsCompatibleSentinel :
     // convertible to 'size_type', and 0 otherwise.
 {
 };
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string_view'
 // and 'char_traits' are always in the same namespace.
@@ -454,6 +457,7 @@ class basic_string_view {
         // the specified 'characterString'.  The behavior is undefined unless
         // 'characterString || (numChars == 0)' and 'numChars <= max_size()'.
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
     template <class CONTG_ITER, class SENTINEL>
     BSLS_KEYWORD_CONSTEXPR_CPP14
     basic_string_view(CONTG_ITER first,
@@ -474,6 +478,8 @@ class basic_string_view {
         // Note that contiguous iterator types also provide random access.
         // Also note that pointers to 'CHAR_TYPE' can be used as iterator and
         // sentinel types.
+
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
 
     template <class ALLOCATOR>
     BSLS_KEYWORD_CONSTEXPR_CPP14
@@ -704,6 +710,7 @@ class basic_string_view {
         // Throw 'std::out_of_range' if 'lhsPosition > length()'.  The behavior
         // is undefined unless 'other || 0 == otherNumChars'.
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
     BSLS_KEYWORD_CONSTEXPR_CPP14
     bool starts_with(basic_string_view subview) const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this view starts with the specified 'subview', and
@@ -733,6 +740,7 @@ class basic_string_view {
     bool ends_with(const CHAR_TYPE* characterString) const;
         // Return 'true' if this view ends with the specified
         // 'characterString', and 'false' otherwise.
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     size_type find(basic_string_view subview,
@@ -1432,6 +1440,7 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     BSLS_ASSERT_SAFE(numChars <= max_size());
 }
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
 template <class CHAR_TYPE, class CHAR_TRAITS>
 template <class CONTG_ITER,  class SENTINEL>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
@@ -1451,6 +1460,7 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     BSLS_ASSERT_SAFE(first || last - first == 0);
     BSLS_ASSERT_SAFE(         last - first >= 0);
 }
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 template <class ALLOCATOR>
@@ -1866,6 +1876,7 @@ int basic_string_view<CHAR_TYPE, CHAR_TRAITS>::compare(
                              otherNumChars);
 }
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
@@ -1933,6 +1944,7 @@ bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::ends_with(
 {
     return ends_with(basic_string_view(characterString));
 }
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
