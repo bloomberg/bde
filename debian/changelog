@@ -1,5 +1,12 @@
-bsl-internal (4.6.0.0) unstable; urgency=low
+bsl-internal (4.6.1.0) unstable; urgency=low
 
+  * 7ce66eab8 Bumped version to 4.6.1.0
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 12 Apr 2024 15:08:01 -0400
+
+bsl-internal (4.6.0.0) git; urgency=low
+
+  * 389eacc67 Changelog for version 4.6.0.0
   * ef80a546a Bumped version to 4.6.0.0
   * d95e6826a Add member initializers to string_view (#4691)
   * 4fc9b4597 Mark bdlm for internal use for the moment (#4690)
@@ -26,7 +33,7 @@ bsl-internal (4.6.0.0) unstable; urgency=low
   * 88f20d805 Fix 32-bit MSVC bslmf test driver build errors (#4649)
   * 27757c461 Add support for bdlb::Guid to ball::ScopedAttribute (#4661)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 7 Apr 2024 19:37:47 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 7 Apr 2024 19:41:33 -0400
 
 bsl-internal (4.5.0.0) git; urgency=low
 
