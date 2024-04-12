@@ -29,15 +29,8 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_string_view.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
-
-#include <string>  // 'std::string', 'std::pmr::string' (when available)
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-#include <string_view> // 'std::string_view'
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 using namespace BloombergLP;
 using namespace BloombergLP::bdljsn;
@@ -214,7 +207,7 @@ using bsl::flush;
 //
 // JSON CLASS METHODS
 //
-// CREATORS
+// CONSTRUCTORS
 // [28] Json();
 // [28] Json(bslma::Allocator *basicAllocator);
 // [33] Json(const Json &original, *a);
