@@ -341,6 +341,10 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // allocations.  The effect of subsequently - to this invokation of
         // 'rewind' - using a pointer obtained from this object prior to this
         // call to 'rewind' is undefined.
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator passed at construction.
 };
 
 // ============================================================================
@@ -468,6 +472,13 @@ inline
 void BufferedSequentialAllocator::rewind()
 {
     d_pool.rewind();
+}
+
+// ACCESSORS
+inline
+bslma::Allocator *BufferedSequentialAllocator::allocator() const
+{
+    return d_pool.allocator();
 }
 
 }  // close package namespace

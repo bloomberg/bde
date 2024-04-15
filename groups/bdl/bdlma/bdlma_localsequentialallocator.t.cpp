@@ -691,7 +691,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting constructor." << endl;
         {
-            Obj mX(&objectAllocator);
+            Obj mX(&objectAllocator);    const Obj& X = mX;
+
+            ASSERT(&objectAllocator == X.allocator());
 
             if (verbose) cout << "\nTesting allocate from buffer." << endl;
             void *addr1 = mX.allocate(k_ALLOC_SIZE1);

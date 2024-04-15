@@ -1586,7 +1586,7 @@ int main(int argc, char *argv[])
         for (int runNumber = 0; runNumber < NUM_RUNS; ++runNumber) {
 
             if (veryVerbose) { P(runNumber) }
-    
+
             bslmt::ThreadAttributes       attributes;
             bslmt::Barrier                barrier(2);
 

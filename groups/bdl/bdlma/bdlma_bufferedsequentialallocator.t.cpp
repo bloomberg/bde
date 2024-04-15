@@ -67,13 +67,16 @@ using namespace bsl;
 //
 // [ 5] ~bdlma::BufferedSequentialAllocator();
 //
-// // MANIPULATORS
+// MANIPULATORS
 // [ 2] void *allocate(size_type size);
 // [ 3] void deallocate(void *address);
 // [ 4] void release();
+//
+// ACCESSOR
+// [ 6] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE TEST
+// [ 7] USAGE TEST
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -248,7 +251,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -330,6 +333,89 @@ int main(int argc, char *argv[])
             if (verbose) P(objectAllocator.numBytesTotal())
         }
 
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING ALLOCATOR ACCESSOR
+        //
+        // Concerns:
+        //: 1 That the 'allocator' accessor returns the allocator passed at
+        //:   construction, or the default allocator if none was passed.
+        //:
+        //: 2 That the allocator returned by the 'allocator' accessor is the
+        //:   one used when the buffer is exhausted.
+        //
+        // Plan:
+        //: 1 Repeat the following test, once passing an allocator to the
+        //:   object at construction, once passing no allocator (expecting the
+        //:   default allocator to be used in that case):
+        //:   o create the object
+        //:
+        //:   o query 'allocator()' and verify its return value
+        //:
+        //:   o query the state of the allocator we expect to be used
+        //:
+        //:   o do an allocation larger than the arena buffer
+        //:
+        //:   o query 'allocator()' again and verify its return value
+        //:
+        //:   o verify that the allocator we expect to be used has been used.
+        //
+        // Testing:
+        //   bslma::Allocator *allocator() const;
+        // --------------------------------------------------------------------
+
+        char *buffer = bufferStorage.buffer();
+
+        if (verbose) cout << "\nTesting allocate when buffer runs out."
+                          << endl;
+        {
+            Obj mY(buffer, k_BUFFER_SIZE, &objectAllocator); const Obj& Y = mY;
+
+            ASSERT(&objectAllocator == Y.allocator());
+            ASSERT(0 == objectAllocator.numBlocksTotal());
+
+            void *addr1 = mY.allocate(k_BUFFER_SIZE + 1);
+
+            ASSERT(&objectAllocator == Y.allocator());
+
+            // Allocation request is satisfied even when larger than the
+            // supplied buffer.
+
+            LOOP_ASSERT(addr1, 0 != addr1);
+
+            // Allocation comes from the objectAllocator.
+
+            ASSERT(0 <  objectAllocator.numBlocksInUse());
+            ASSERT(0 <  objectAllocator.numBlocksTotal());
+            ASSERT(0 == defaultAllocator.numBlocksTotal());
+            ASSERT(0 == globalAllocator.numBlocksTotal());
+        }
+
+        if (verbose) cout << "\nDefault allocator when buffer runs out."
+                          << endl;
+        {
+            Obj mY(buffer, k_BUFFER_SIZE);    const Obj& Y = mY;
+
+            ASSERT(&defaultAllocator == Y.allocator());
+            ASSERT(0 == defaultAllocator.numBlocksTotal());
+
+            void *addr1 = mY.allocate(k_BUFFER_SIZE + 1);
+
+            ASSERT(&defaultAllocator == Y.allocator());
+
+            // Allocation request is satisfied even when larger than the
+            // supplied buffer.
+
+            LOOP_ASSERT(addr1, 0 != addr1);
+
+            // Allocation comes from the objectAllocator.
+
+            ASSERT(0 == objectAllocator.numBlocksInUse());
+            ASSERT(0 <  defaultAllocator.numBlocksInUse());
+            ASSERT(0 <  defaultAllocator.numBlocksTotal());
+            ASSERT(0 == globalAllocator.numBlocksTotal());
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
