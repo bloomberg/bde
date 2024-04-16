@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 21 07:47:34 2023
+// Generated on Fri Apr 12 11:17:21 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -1441,6 +1441,415 @@ class unordered_map {
 
 
 #if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+    template<class LOOKUP_KEY>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+    template<class LOOKUP_KEY, class Args_01>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08,
+                               class Args_09>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08,
+                               class Args_09,
+                               class Args_10>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
     iterator
     try_emplace(const_iterator hint, const KEY& key);
 #endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
@@ -1771,6 +2180,371 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
 #endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
 
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+    template<class LOOKUP_KEY>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+    template<class LOOKUP_KEY, class Args_01>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08,
+                               class Args_09>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08,
+                               class Args_09,
+                               class Args_10>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+        return iterator(result);
+    }
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -1783,6 +2557,29 @@ class unordered_map {
                               BloombergLP::bslmf::MovableRef<KEY> key,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
 
+    template<class LOOKUP_KEY, class... Args>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+
     template<class... Args>
     iterator
     try_emplace(const_iterator hint, const KEY& key,
@@ -1792,6 +2589,25 @@ class unordered_map {
     iterator try_emplace(const_iterator                      hint,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
+    template<class LOOKUP_KEY, class... Args>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+        return iterator(result);
+    }
 // }}} END GENERATED CODE
 #endif
 
@@ -5697,7 +6513,7 @@ struct IsBitwiseMoveable<
 #endif // ! defined(INCLUDED_BSLSTL_UNORDEREDMAP_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

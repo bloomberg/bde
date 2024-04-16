@@ -2303,7 +2303,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -2360,7 +2360,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -2401,7 +2401,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -2461,7 +2461,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -3814,13 +3814,15 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
             Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
             try {
                 mX.rehashForNumBuckets(std::numeric_limits<size_t>::max());
-                ASSERT(!"rehash(max size_t) should throw a 'logic_error'");
+                ASSERTV("rehash(max size_t) should throw a 'logic_error'",
+                                                                        false);
             }
             catch (const std::logic_error &) {
                 // This is the expected code path
             }
             catch (...) {
-                ASSERT(!"rehash(max size_t) threw the wrong exception type");
+                ASSERTV("rehash(max size_t) threw the wrong exception type",
+                                                                        false);
             }
         }
 //        {
@@ -4475,7 +4477,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!"The wrong exception type was thrown.");
+            ASSERTV("The wrong exception type was thrown.", false);
         }
     }
 #endif  // BDE_BUILD_TARGET_EXC
@@ -4702,6 +4704,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP05 // Test doc is in delegated functions
 // BDE_VERIFY pragma: -TP17 // No test-banners in a delegating switch statement
     switch (test) { case 0:
+      case 17:  // falls through
       case 16:  // falls through
       case 15:  // falls through
       case 14: {

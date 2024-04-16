@@ -1337,6 +1337,14 @@ class map {
     template <class... Args>
     pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
                                      Args&&...                           args);
+    template<class LOOKUP_KEY, class... Args>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<LOOKUP_KEY&&, const_iterator>::value &&
+        !bsl::is_convertible<LOOKUP_KEY&&, iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(LOOKUP_KEY&& key, Args&&... args)
         // If a key equivalent to the specified 'key' already exists in this
         // map, return a pair containing an iterator referring to the existing
         // item and 'false'.  Otherwise, insert into this map a newly-created
@@ -1345,6 +1353,43 @@ class map {
         // 'true'.  This method requires that the (template parameter) types
         // 'KEY' and 'VALUE' are 'emplace-constructible' from 'key' and 'args'
         // respectively.  For C++03, 'VALUE' must also be 'copy-constructible'.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false); // RETURN
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(std::forward<LOOKUP_KEY>(key)),
+                    std::forward_as_tuple(std::forward<Args>(args)...));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::forward<LOOKUP_KEY>(key),
+                    mapped_type(std::forward<Args>(args)...));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
 
     template<class... Args>
     iterator try_emplace(const_iterator hint, const KEY& key, Args&&... args);
@@ -1352,6 +1397,12 @@ class map {
     iterator try_emplace(const_iterator                      hint,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          Args&&...                           args);
+    template<class LOOKUP_KEY, class... Args>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint, LOOKUP_KEY&& key, Args&&... args)
         // If a key equivalent to the specified 'key' already exists in this
         // map, return an iterator referring to the existing item.  Otherwise,
         // insert into this map a newly-created 'value_type' object,
@@ -1361,6 +1412,47 @@ class map {
         // the map.  This method requires that the (template parameter) types
         // 'KEY' and 'VALUE' are 'emplace-constructible' from 'key' and 'args'
         // respectively.  For C++03, 'VALUE' must also be 'copy-constructible'.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);                      // RETURN
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(std::forward<LOOKUP_KEY>(key)),
+                    std::forward_as_tuple(std::forward<Args>(args)...));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::forward<LOOKUP_KEY>(key),
+                    mapped_type(std::forward<Args>(args)...));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
 #endif
 
     void clear() BSLS_KEYWORD_NOEXCEPT;

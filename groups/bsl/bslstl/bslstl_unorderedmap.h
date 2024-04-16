@@ -1820,6 +1820,38 @@ class unordered_map {
         // 'KEY' and 'VALUE' are 'emplace-constructible' from 'key' and 'args'
         // respectively.  For C++03, 'VALUE' must also be 'copy-constructible'.
 
+    template<class LOOKUP_KEY, class... Args>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<LOOKUP_KEY&&, const_iterator>::value
+        && !bsl::is_convertible<LOOKUP_KEY&&, iterator>::value,
+           pair<iterator, bool> >::type
+    try_emplace(LOOKUP_KEY&& key, Args&&... args)
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, return a pair containing an iterator referring to the
+        // existing item and 'false'.  Otherwise, insert into this map a
+        // newly-created 'value_type' object, constructed from
+        // 'std::forward<LOOKUP_KEY>(key)' and the specified 'args', and return
+        // a pair containing an iterator referring to the newly-created entry,
+        // and 'true'.  This method requires that the (template parameter)
+        // types 'KEY' and 'VALUE' are 'emplace-constructible' from 'key' and
+        // 'args' respectively.  For C++03, 'VALUE' must also be
+        // 'copy-constructible'.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+
     template<class... Args>
     iterator
     try_emplace(const_iterator hint, const KEY& key, Args&&... args);
@@ -1848,6 +1880,35 @@ class unordered_map {
         // (template parameter) types 'KEY' and 'VALUE' are
         // 'emplace-constructible' from 'key' and 'args' respectively.  For
         // C++03, 'VALUE' must also be 'copy-constructible'.
+
+    template<class LOOKUP_KEY, class... Args>
+    typename bsl::enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+           iterator>::type
+    try_emplace(const_iterator hint, LOOKUP_KEY&& key, Args&&... args)
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, return an iterator referring to the existing item.
+        // Otherwise, insert into this map a newly-created 'value_type' object,
+        // constructed from 'std::forward<LOOKUP_KEY>(key)' and the specified
+        // 'args', and return an iterator referring to the newly-created entry.
+        // Use the specified 'hint' as a starting point for checking to see if
+        // the key already in the unordered_map.  This method requires that the
+        // (template parameter) types 'KEY' and 'VALUE' are
+        // 'emplace-constructible' from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be 'copy-constructible'.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+        return iterator(result);
+    }
 #endif
 
     // ACCESSORS

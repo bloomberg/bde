@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Jan 22 11:19:53 2024
+// Generated on Wed Mar 27 09:12:28 2024
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -376,12 +376,13 @@ class HashTable {
 
   public:
     // TYPES
-    typedef ALLOCATOR                              AllocatorType;
-    typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
-    typedef typename KEY_CONFIG::KeyType           KeyType;
-    typedef typename KEY_CONFIG::ValueType         ValueType;
-    typedef bslalg::BidirectionalNode<ValueType>   NodeType;
-    typedef typename AllocatorTraits::size_type    SizeType;
+    typedef ALLOCATOR                                 AllocatorType;
+    typedef ::bsl::allocator_traits<AllocatorType>    AllocatorTraits;
+    typedef typename KEY_CONFIG::KeyType              KeyType;
+    typedef typename KEY_CONFIG::ValueType            ValueType;
+    typedef bslalg::BidirectionalNode<ValueType>      NodeType;
+    typedef typename AllocatorTraits::size_type       SizeType;
+    typedef typename bsl::remove_const<KeyType>::type NonConstKeyType;
 
   private:
     // PRIVATE TYPES
@@ -1160,7 +1161,7 @@ class HashTable {
 
     bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
     bslalg::BidirectionalLink *insertIfMissing(
-             bslmf::MovableRef<typename bsl::remove_const<KeyType>::type> key);
+                                       bslmf::MovableRef<NonConstKeyType> key);
         // Insert into this hash-table a newly-created 'ValueType' object,
         // constructed by forwarding the specified 'key' and a
         // default-constructed object of the type 'ValueType::second_type', to
@@ -1375,202 +1376,1413 @@ class HashTable {
 #define BSLSTL_HASHTABLE_VARIADIC_LIMIT_C BSLSTL_HASHTABLE_VARIADIC_LIMIT
 #endif
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
-    template <class KEY_ARG>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key);
+                    const KeyType&                              key);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
-    template <class KEY_ARG, class Args_01>
+    template <class ARGS_01>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
-    template <class KEY_ARG, class Args_01,
-                             class Args_02>
+    template <class ARGS_01,
+              class ARGS_02>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
-    template <class KEY_ARG, class Args_01,
-                             class Args_02,
-                             class Args_03>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
-    template <class KEY_ARG, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
-    template <class KEY_ARG, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
-    template <class KEY_ARG, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
-    template <class KEY_ARG, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
-    template <class KEY_ARG, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
-    template <class KEY_ARG, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
-    template <class KEY_ARG, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+    template <class ARGS_01>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+    template <class ARGS_01,
+              class ARGS_02>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+
+
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple());
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address());
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+    template <class LOOKUP_KEY, class ARGS_01>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08,
+                                class ARGS_09>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08,
+                                class ARGS_09,
+                                class ARGS_10>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
 #endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-    template <class KEY_ARG, class... Args>
+    template <class... ARGS>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+
+    template <class... ARGS>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+
+
+    template <class LOOKUP_KEY, class... ARGS>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+    bslalg::BidirectionalLink *>::type tryEmplace(
+                                    bool                       *isInsertedFlag,
+                                    bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        const LOOKUP_KEY& lvalue = key;
+        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+        if (!hint
+            || !d_parameters.comparator()(
+                                      lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+
+                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+         std::piecewise_construct,
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
+         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...));
+    #else
+        typedef typename ValueType::second_type MappedType;
+
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                         defaultMapped.object());
+    #endif
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
 // }}} END GENERATED CODE
 #endif
 
@@ -3227,10 +4439,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01>
+template <class ARGS_01>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3242,7 +4454,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3271,12 +4483,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02>
+template <class ARGS_01,
+          class ARGS_02>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3288,8 +4500,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3318,14 +4530,14 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3337,9 +4549,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3368,16 +4580,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3389,10 +4601,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3421,18 +4633,18 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3444,11 +4656,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3477,20 +4689,20 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3502,12 +4714,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3536,22 +4748,22 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3563,13 +4775,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3598,24 +4810,24 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3627,14 +4839,14 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3663,26 +4875,26 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08,
-          class Args_09>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3694,15 +4906,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3731,28 +4943,28 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08,
-          class Args_09,
-          class Args_10>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3764,16 +4976,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3848,11 +5060,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01>
+template <class ARGS_01>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3864,7 +5076,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3895,13 +5107,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02>
+template <class ARGS_01,
+          class ARGS_02>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3913,8 +5125,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3945,15 +5157,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3965,9 +5177,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -3998,17 +5210,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4020,10 +5232,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4054,19 +5266,19 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4078,11 +5290,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4113,21 +5325,21 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4139,12 +5351,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4175,23 +5387,23 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4203,13 +5415,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4240,25 +5452,25 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4270,14 +5482,14 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4308,27 +5520,27 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08,
-          class Args_09>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4340,15 +5552,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4379,29 +5591,29 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08,
-          class Args_09,
-          class Args_10>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4413,16 +5625,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4503,11 +5715,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01>
+template <class ARGS_01>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -4521,7 +5733,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4554,13 +5766,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02>
+template <class ARGS_01,
+          class ARGS_02>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -4574,8 +5786,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4608,15 +5820,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -4630,9 +5842,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4665,17 +5877,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -4689,10 +5901,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4725,19 +5937,19 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -4751,11 +5963,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4788,21 +6000,21 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -4816,12 +6028,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4854,23 +6066,23 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -4884,13 +6096,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4923,25 +6135,25 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -4955,14 +6167,14 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -4995,27 +6207,27 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08,
-          class Args_09>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -5029,15 +6241,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5070,29 +6282,29 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class Args_01,
-          class Args_02,
-          class Args_03,
-          class Args_04,
-          class Args_05,
-          class Args_06,
-          class Args_07,
-          class Args_08,
-          class Args_09,
-          class Args_10>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -5106,16 +6318,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5150,10 +6362,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -5165,7 +6377,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+                            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5192,11 +6404,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -5208,7 +6420,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+                            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5237,11 +6449,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class... Args>
+template <class... ARGS>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -5255,7 +6467,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     bslalg::BidirectionalLink *newNode =
         d_parameters.nodeFactory().emplaceIntoNewNode(
-                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+                            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
 
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -5299,11 +6511,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-              bslmf::MovableRef<typename bsl::remove_const<KeyType>::type> key)
+                                        bslmf::MovableRef<NonConstKeyType> key)
 {
     bool dummy = false;
-    return tryEmplace(&dummy, (bslalg::BidirectionalLink *)0,
-                                        MoveUtil::move(MoveUtil::access(key)));
+    return tryEmplace(&dummy,
+                      (bslalg::BidirectionalLink *)0,
+                       MoveUtil::move(key));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -5596,22 +6809,21 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 #endif
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 0
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key)
+                    const KeyType&                              key)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -5626,7 +6838,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple());
 #else
     typedef typename ValueType::second_type MappedType;
@@ -5639,7 +6851,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -5656,23 +6868,23 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01>
+template <class ARGS_01>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -5687,9 +6899,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -5698,11 +6910,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -5719,25 +6932,25 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02>
+template <class ARGS_01,
+          class ARGS_02>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -5752,10 +6965,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -5764,12 +6977,14 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -5786,27 +7001,27 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02,
-                         class Args_03>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -5821,11 +7036,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -5834,13 +7049,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -5857,29 +7075,29 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02,
-                         class Args_03,
-                         class Args_04>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -5894,12 +7112,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -5908,14 +7126,18 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -5932,31 +7154,31 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02,
-                         class Args_03,
-                         class Args_04,
-                         class Args_05>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -5971,13 +7193,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -5986,15 +7208,20 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -6011,33 +7238,33 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02,
-                         class Args_03,
-                         class Args_04,
-                         class Args_05,
-                         class Args_06>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -6052,14 +7279,14 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -6068,16 +7295,22 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -6094,35 +7327,35 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02,
-                         class Args_03,
-                         class Args_04,
-                         class Args_05,
-                         class Args_06,
-                         class Args_07>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -6137,15 +7370,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -6154,17 +7387,24 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -6181,37 +7421,37 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02,
-                         class Args_03,
-                         class Args_04,
-                         class Args_05,
-                         class Args_06,
-                         class Args_07,
-                         class Args_08>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -6226,16 +7466,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -6244,18 +7484,26 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -6272,39 +7520,39 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02,
-                         class Args_03,
-                         class Args_04,
-                         class Args_05,
-                         class Args_06,
-                         class Args_07,
-                         class Args_08,
-                         class Args_09>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -6319,17 +7567,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -6338,19 +7586,28 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09,
+                                         args_09));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
 #endif
 
@@ -6367,41 +7624,41 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
 #if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class Args_01,
-                         class Args_02,
-                         class Args_03,
-                         class Args_04,
-                         class Args_05,
-                         class Args_06,
-                         class Args_07,
-                         class Args_08,
-                         class Args_09,
-                         class Args_10>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -6416,18 +7673,18 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(key),
           std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10)));
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -6436,21 +7693,1024 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09,
+                                         args_09),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10,
+                                         args_10));
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 10
+
+
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 0
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                           ));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address());
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 1
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 2
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 3
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 4
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 5
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 6
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 7
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 8
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 9
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09,
+                                         args_09)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09,
+                                         args_09));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 10
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09,
+                                         args_09),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10,
+                                         args_10)));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09,
+                                         args_09),
+                                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10,
+                                         args_10));
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6468,23 +8728,23 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class... Args>
+template <class... ARGS>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+                    const KeyType&                              key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-    const KEY_ARG& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
 
     if (!hint
-        || !d_parameters.comparator()(lvalue,
+        || !d_parameters.comparator()(key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
+         hint = this->find(key, hashCode);
     }
 
     if (hint) {
@@ -6499,8 +8759,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
           std::piecewise_construct,
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
-          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+          std::forward_as_tuple(key),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...));
 #else
     typedef typename ValueType::second_type MappedType;
 
@@ -6509,12 +8769,78 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
 
     bsls::ObjectBuffer<MappedType> defaultMapped;
     AllocatorTraits::construct(alloc, defaultMapped.address(),
-                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+                                           BSLS_COMPILERFEATURES_FORWARD(ARGS,
+                                           args)...);
     bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     key,
                      defaultMapped.object());
+#endif
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class... ARGS>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    bslmf::MovableRef<NonConstKeyType>          key,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+         hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                           std::piecewise_construct,
+                           std::forward_as_tuple(MoveUtil::move(key)),
+                           std::forward_as_tuple(
+                                           BSLS_COMPILERFEATURES_FORWARD(ARGS,
+                                           args)...));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address(),
+                                           BSLS_COMPILERFEATURES_FORWARD(ARGS,
+                                           args)...);
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(key),
+                                                       defaultMapped.object());
 #endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
@@ -6994,7 +9320,7 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
 #endif // ! defined(INCLUDED_BSLSTL_HASHTABLE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2024 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

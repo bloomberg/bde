@@ -20,6 +20,8 @@
 
 #include <bslalg_swaputil.h>
 
+#include <bslh_hash.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -928,7 +930,7 @@ class TestEqualityComparator {
         // 'rhs'.
     {
         if (!g_enableAllFunctorsFlag) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
+            ASSERTV("'TestComparator' was invoked when disabled", false);
         }
 
         ++d_count;
@@ -1009,7 +1011,7 @@ class TestHashFunctor {
         // 'rhs'.
     {
         if (!g_enableAllFunctorsFlag) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
+            ASSERTV("'TestComparator' was invoked when disabled", false);
         }
 
         ++d_count;
@@ -1521,6 +1523,35 @@ struct TransparentHasher
         return static_cast<size_t>(value);
     }
 };
+
+                      // ===================
+                      // struct HashAnything
+                      // ===================
+
+struct HashAnyStr
+    // This class can be used as a hasher for containers.  It has a nested
+    // type 'is_transparent', so it is classified as transparent by the
+    // 'bslmf::IsTransparentPredicate' metafunction and can be used for
+    // heterogeneous hashing.
+ {
+    typedef void is_transparent;
+
+    size_t operator()(const char *s) const
+    {
+        return bslh::Hash<>()(bsl::string_view(s));
+    }
+
+    size_t operator()(bsl::string_view sv) const
+    {
+        return bslh::Hash<>()(sv);
+    }
+
+    size_t operator()(const bsl::string & str) const
+    {
+        return bslh::Hash<>()(str);
+    }
+};
+
 
 template <class Container>
 void testTransparentComparator(Container& container,
@@ -2526,7 +2557,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
     bslma::TestAllocator *testAlloc = dynamic_cast<bslma::TestAllocator *>(
                                           target->get_allocator().mechanism());
     if (!testAlloc) {
-        ASSERT(!"Allocator in test case 32 is not a test allocator!");
+        ASSERTV("Allocator in test case 32 is not a test allocator!", false);
         return target->end();                                         // RETURN
     }
 
@@ -2609,7 +2640,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                                                       testArg(&AV3, MOVE_V3)));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                ASSERTV("Invalid # of args!", false);
               } break;
             }
           } break;
@@ -2647,7 +2678,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                                                       testArg(&AV3, MOVE_V3)));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                ASSERTV("Invalid # of args!", false);
               } break;
             }
           } break;
@@ -2689,7 +2720,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                                                       testArg(&AV3, MOVE_V3)));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                ASSERTV("Invalid # of args!", false);
               } break;
             }
           } break;
@@ -2735,12 +2766,12 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                                                       testArg(&AV3, MOVE_V3)));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                ASSERTV("Invalid # of args!", false);
               } break;
             }
           } break;
           default: {
-            ASSERTV(!"Invalid # of args!");
+            ASSERTV("Invalid # of args!", false);
           } break;
         }
 
@@ -2811,7 +2842,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
     bslma::TestAllocator *testAlloc = dynamic_cast<bslma::TestAllocator *>(
                                           target->get_allocator().mechanism());
     if (!testAlloc) {
-        ASSERT(!"Allocator in test case 31 is not a test allocator!");
+        ASSERTV("Allocator in test case 31 is not a test allocator!", false);
         return;                                                       // RETURN
     }
 
@@ -2890,7 +2921,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                                                       testArg(&AV3, MOVE_V3)));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                ASSERTV("Invalid # of args!", false);
               } break;
             }
           } break;
@@ -2924,7 +2955,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                                                       testArg(&AV3, MOVE_V3)));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                ASSERTV("Invalid # of args!", false);
               } break;
             }
           } break;
@@ -2962,7 +2993,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                                                       testArg(&AV3, MOVE_V3)));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                ASSERTV("Invalid # of args!", false);
               } break;
             }
           } break;
@@ -3004,12 +3035,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                                                       testArg(&AV3, MOVE_V3)));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                ASSERTV("Invalid # of args!", false);
               } break;
             }
           } break;
           default: {
-            ASSERTV(!"Invalid # of args!");
+            ASSERTV("Invalid # of args!", false);
           } break;
         }
 
@@ -3577,7 +3608,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
                 valAllocator = &za;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, "Bad allocator config.", false);
               } return;                                               // RETURN
             }
             bslma::TestAllocator& sa = *valAllocator;
@@ -6183,7 +6214,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                         srcAllocatorPtr = &oa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, "Bad allocator config.", false);
                       } return;                                       // RETURN
                     }
 
@@ -6416,7 +6447,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                         srcAllocatorPtr = &oa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, "Bad allocator config.", false);
                       } break;
                     }
                     bslma::TestAllocator& sa = *srcAllocatorPtr;
@@ -6695,7 +6726,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase27()
                     doneA |= LENGTH == MAX_SPEC_LEN;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
                 }
                 Obj& mX = *objPtr;      const Obj& X = mX;
@@ -9621,25 +9652,52 @@ int main(int argc, char *argv[])
             PAIR p;
 
             p = m.try_emplace(1);
+            ASSERT(m.size() == 1);
             ASSERT(p.second);
             ASSERT(1 == p.first->first);
             ASSERT(0 == p.first->second.d_value);
 
             p = m.try_emplace(2, 3);
+            ASSERT(m.size() == 2);
             ASSERT(p.second);
             ASSERT(2 == p.first->first);
             ASSERT(3 == p.first->second.d_value);
 
-            p = m.try_emplace(4, 5, 6);
-            ASSERT(p.second);
+            p.first = m.try_emplace(m.end(), 4, 5, 6);
+            ASSERT(m.size() == 3);
             ASSERT(4 == p.first->first);
             ASSERT(11 == p.first->second.d_value);
 
-            p = m.try_emplace(7, 8, 9, 10);
-            ASSERT(p.second);
+            p.first = m.try_emplace(m.cend(), 7, 8, 9, 10);
+            ASSERT(m.size() == 4);
             ASSERT(7 == p.first->first);
             ASSERT(27 == p.first->second.d_value);
         }
+
+        // test 'try_emplace' with a different key type
+        {
+            typedef bsl::unordered_map<bsl::string, IntValue,
+                                       HashAnyStr, TransparentComparator> Map;
+            typedef bsl::pair<Map::iterator, bool> PAIR;
+
+            Map  m;
+            PAIR p;
+
+            const char       *key1 = "abc";
+            bsl::string_view  svKey1(key1);
+
+            p = m.try_emplace(key1, 23);
+            ASSERT(m.size() == 1);
+            ASSERT( p.second);
+            ASSERT(p.first->first == key1);
+            ASSERT(p.first->second.d_value == 23);
+
+            p.first = m.try_emplace(m.end(), svKey1, 4, 5);
+            ASSERT(m.size() == 1);
+            ASSERT(p.first->first == key1);
+            ASSERT(p.first->second.d_value == 23);
+        }
+
       } break;
       case 42: {
         // --------------------------------------------------------------------

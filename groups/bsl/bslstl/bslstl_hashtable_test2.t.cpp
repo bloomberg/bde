@@ -6,10 +6,14 @@
 #include <bslstl_hashtable.h>
 #include <bslstl_hashtableiterator.h>  // usage example
 #include <bslstl_iterator.h>           // 'distance', in usage example
+#include <bslstl_string.h>
+#include <bslstl_stringview.h>
 
 #include <bslalg_bidirectionallink.h>
 #include <bslalg_bidirectionallinklistutil.h>
 #include <bslalg_swaputil.h>
+
+#include <bslh_hash.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -170,6 +174,9 @@ using bslstl::CallableVariable;
 //*[12] reserveForNumElements(SizeType numElements);
 //*[14] setMaxLoadFactor(float loadFactor);
 // [ 8] swap(HashTable& other);
+// [17] tryEmplace(bool *, BidirectionalLink *, const KeyType&, Args...);
+// [17] tryEmplace(bool *, BidirectionalLink *, MovableRef<KeyType>, Args...);
+// [17] tryEmplace(bool *, BidirectionalLink *, LOOKUP_KEY&&, Args...);
 //
 // ACCESSORS
 // [ 4] allocator() const;
@@ -2238,7 +2245,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -2295,7 +2302,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -2336,7 +2343,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -2396,7 +2403,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -3371,24 +3378,28 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
         Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
         try {
             mX.setMaxLoadFactor(std::numeric_limits<float>::min());
-            ASSERT(!"setMaxLoadFactor(min) should throw a 'logic_error'");
+            ASSERTV("setMaxLoadFactor(min) should throw a 'logic_error'",
+                                                                        false);
         }
         catch (const std::logic_error &) {
             // This is the expected code path
         }
         catch (...) {
-            ASSERT(!"rehash(max size_t) threw the wrong exception type");
+            ASSERTV("rehash(max size_t) threw the wrong exception type",
+                                                                        false);
         }
 
         try {
             mX.setMaxLoadFactor(std::numeric_limits<float>::denorm_min());
-            ASSERT(!"setMaxLoadFactor(denorm) should throw a 'logic_error'");
+            ASSERTV("setMaxLoadFactor(denorm) should throw a 'logic_error'",
+                                                                        false);
         }
         catch (const std::logic_error &) {
             // This is the expected code path
         }
         catch (...) {
-            ASSERT(!"rehash(max size_t) threw the wrong exception type");
+            ASSERTV("rehash(max size_t) threw the wrong exception type",
+                                                                        false);
         }
     }
 #endif
@@ -3966,6 +3977,189 @@ void mainTestCase16()
     TestDriver_AwkwardMaplike::testCase16();
 }
 
+namespace {
+                     // ==========================
+                     // struct MapKeyConfiguration
+                     // ==========================
+
+template <class KEY, class VALUE>
+struct MapKeyConfiguration {
+  public:
+    typedef   bsl::pair<const KEY, VALUE>  ValueType;
+    typedef   KEY                          KeyType;
+
+    // CLASS METHODS
+    static const KeyType& extractKey(const ValueType& obj)
+        // Return the member 'first' of the specified object 'obj'.
+        // 'obj.first' must be of type 'VALUE_TYPE::first_type', which is the
+        // 'key' portion of 'obj'.
+    {
+        return obj.first;
+    }
+};
+
+                    // ============================
+                    // struct TransparentComparator
+                    // ============================
+
+struct TransparentComparator
+    // This class can be used as a comparator for containers.  It has a nested
+    // type 'is_transparent', so it is classified as transparent by the
+    // 'bslmf::IsTransparentPredicate' metafunction and can be used for
+    // heterogeneous comparison.
+ {
+    typedef void is_transparent;
+
+    template <class LHS, class RHS>
+    bool operator()(const LHS& lhs, const RHS& rhs) const
+        // Return 'true' if the specified 'lhs' is equivalent to the specified
+        // 'rhs' and 'false' otherwise.
+    {
+        return lhs == rhs;
+    }
+};
+
+                      // =================
+                      // struct HashAnyStr
+                      // =================
+
+struct HashAnyStr
+    // This class can be used as a hasher for containers.  It has a nested
+    // type 'is_transparent', so it is classified as transparent by the
+    // 'bslmf::IsTransparentPredicate' metafunction and can be used for
+    // heterogeneous hashing.
+ {
+    typedef void is_transparent;
+
+    size_t operator()(const char *s) const
+    {
+        return bslh::Hash<>()(bsl::string_view(s));
+    }
+
+    size_t operator()(bsl::string_view sv) const
+    {
+        return bslh::Hash<>()(sv);
+    }
+
+    size_t operator()(const bsl::string & str) const
+    {
+        return bslh::Hash<>()(str);
+    }
+};
+
+
+}  // close unnamed namespace
+
+static
+void mainTestCase17()
+    // --------------------------------------------------------------------
+    // TESTING 'tryEmplace'
+    // --------------------------------------------------------------------
+    // For this test, the standard "minimal" set of test types provides
+    // adequate coverage for the different properties dependent on the value
+    // type.  We must simply test sufficient pre-packaged configurations to
+    // cover the possibilities of the hash functor, comparator and allocator
+    // too.  As of this writing, there is no package that separately isolates
+    // bitwise copyable hasher and comparator, to test as separate dimensions.
+    //
+    // Testing:
+    //   tryEmplace(bool *, BidirectionalLink *, const KeyType&, Args...);
+    //   tryEmplace(bool *, BidirectionalLink *, MovableRef<KeyType>, Args...);
+    //   tryEmplace(bool *, BidirectionalLink *, LOOKUP_KEY&&, Args...);
+{
+    if (verbose) printf("\nTESTING 'tryEmplace'"
+                        "\n---------------------\n");
+    typedef MapKeyConfiguration<bsl::string, bsl::string> MyMapConfig;
+
+//    typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR> Obj;
+    typedef bslstl::HashTable<MyMapConfig,
+                              HashAnyStr,
+                              TransparentComparator> Obj;
+
+    // Use a key that is implicitly convertible to a bsl::string
+    {
+        Obj         m;
+        bool        wasInserted = false;
+        Link       *returnLocation = NULL;
+        const char *key1 = "ABC";
+        const char *key2 = "XYZ";
+        const char *val1 = "DEF";
+
+        returnLocation = m.tryEmplace(&wasInserted, NULL, key1, val1);
+        ASSERT( wasInserted);
+        ASSERT(m.size() == 1);
+        ASSERT(ImpUtil::extractKey<MyMapConfig>(returnLocation) == key1);
+        ASSERT(ImpUtil::extractValue<MyMapConfig>(returnLocation).second
+                                                                      == val1);
+
+        returnLocation = m.tryEmplace(&wasInserted, NULL, key1, 5, 'c');
+        ASSERT(!wasInserted);
+        ASSERT(m.size() == 1);
+        ASSERT(ImpUtil::extractKey<MyMapConfig>(returnLocation) == key1);
+        ASSERT(ImpUtil::extractValue<MyMapConfig>(returnLocation).second
+                                                                      == val1);
+
+        returnLocation = m.tryEmplace(&wasInserted, returnLocation, key2);
+        ASSERT(wasInserted);
+        ASSERT(m.size() == 2);
+        ASSERT(ImpUtil::extractKey<MyMapConfig>(returnLocation) == key2);
+        ASSERT(ImpUtil::extractValue<MyMapConfig>(returnLocation).second
+                                                                        == "");
+    }
+
+    // Use a key that is implicitly convertible to a bsl::string
+    {
+        Obj                m;
+        bool               wasInserted = false;
+        Link              *returnLocation = NULL;
+        const bsl::string  val1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abdef";
+        bsl::string        key1 = val1;
+        bsl::string        valM = val1;
+
+        returnLocation = m.tryEmplace(&wasInserted, NULL,
+                               BloombergLP::bslmf::MovableRefUtil::move(key1),
+                               BloombergLP::bslmf::MovableRefUtil::move(valM));
+        ASSERT( wasInserted);
+        ASSERT(m.size() == 1);
+        ASSERT(ImpUtil::extractKey<MyMapConfig>(returnLocation) == val1);
+        ASSERT(ImpUtil::extractValue<MyMapConfig>(returnLocation).second
+                                                                      == val1);
+        ASSERT(key1.size() == 0);   // it was moved from
+        ASSERT(valM.size() == 0);   // it was moved from
+    }
+
+    // Use a key that is NOT implicitly convertible to a bsl::string
+    {
+        Obj               m;
+        bool              wasInserted = false;
+        Link             *returnLocation = NULL;
+        bsl::string_view  key1 = "ABC";
+        bsl::string_view  key2 = "XYZ";
+        const char       *val1 = "DEF";
+
+        returnLocation = m.tryEmplace(&wasInserted, NULL, key1, val1);
+        ASSERT( wasInserted);
+        ASSERT(m.size() == 1);
+        ASSERT(ImpUtil::extractKey<MyMapConfig>(returnLocation) == key1);
+        ASSERT(ImpUtil::extractValue<MyMapConfig>(returnLocation).second
+                                                                      == val1);
+
+        returnLocation = m.tryEmplace(&wasInserted, NULL, key1, 5, 'c');
+        ASSERT(!wasInserted);
+        ASSERT(m.size() == 1);
+        ASSERT(ImpUtil::extractKey<MyMapConfig>(returnLocation) == key1);
+        ASSERT(ImpUtil::extractValue<MyMapConfig>(returnLocation).second
+                                                                      == val1);
+
+        returnLocation = m.tryEmplace(&wasInserted, returnLocation, key2);
+        ASSERT(wasInserted);
+        ASSERT(m.size() == 2);
+        ASSERT(ImpUtil::extractKey<MyMapConfig>(returnLocation) == key2);
+        ASSERT(ImpUtil::extractValue<MyMapConfig>(returnLocation).second
+                                                                        == "");
+    }
+}
+
 #if 0  // Planned test cases, not yet implemented
 static
 void mainTestCase16()
@@ -4142,6 +4336,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP05 // Test doc is in delegated functions
 // BDE_VERIFY pragma: -TP17 // No test-banners in a delegating switch statement
     switch (test) { case 0:
+      case 17: { mainTestCase17(); } break;
       case 16: { mainTestCase16(); } break;
       case 15: { mainTestCase15(); } break;
       case 14: { mainTestCase14(); } break;

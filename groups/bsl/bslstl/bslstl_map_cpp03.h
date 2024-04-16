@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Jan 22 22:41:15 2024
+// Generated on Fri Apr 12 11:15:08 2024
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 #ifdef COMPILING_BSLSTL_MAP_H
@@ -1395,6 +1395,821 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
 #endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
 
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+    template<class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple());
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type());
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+    template<class LOOKUP_KEY, class Args_01>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_07,
+                                         args_07)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_08,
+                                         args_08)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08,
+                               class Args_09>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_09,
+                                         args_09)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08,
+                               class Args_09,
+                               class Args_10>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_09,
+                                         args_09),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_10,
+                                         args_10)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+
 
 #if BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
     iterator try_emplace(const_iterator hint, const KEY& key);
@@ -1715,6 +2530,832 @@ class map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
 #endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
 
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+    template<class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple());
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type());
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+    template<class LOOKUP_KEY, class Args_01>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_07,
+                                         args_07)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_08,
+                                         args_08)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08,
+                               class Args_09>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_09,
+                                         args_09)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+    template<class LOOKUP_KEY, class Args_01,
+                               class Args_02,
+                               class Args_03,
+                               class Args_04,
+                               class Args_05,
+                               class Args_06,
+                               class Args_07,
+                               class Args_08,
+                               class Args_09,
+                               class Args_10>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_01,
+                                         args_01),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_02,
+                                         args_02),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_03,
+                                         args_03),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_04,
+                                         args_04),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_05,
+                                         args_05),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_06,
+                                         args_06),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_07,
+                                         args_07),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_08,
+                                         args_08),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_09,
+                                         args_09),
+                                         BSLS_COMPILERFEATURES_FORWARD(Args_10,
+                                         args_10)));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10)));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -1724,6 +3365,55 @@ class map {
     template <class... Args>
     pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+    template<class LOOKUP_KEY, class... Args>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             const_iterator>::value &&
+        !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                             iterator>::value,
+        pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue);
+            if (!comparisonResult) {
+                return pair<iterator, bool>(
+                                    iterator(insertLocation), false);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args,
+                                          args)...));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return pair<iterator, bool>(iterator(node), true);
+        }
 
     template<class... Args>
     iterator try_emplace(const_iterator hint, const KEY& key,
@@ -1732,6 +3422,56 @@ class map {
     iterator try_emplace(const_iterator                      hint,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+    template<class LOOKUP_KEY, class... Args>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    try_emplace(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+        {
+            const LOOKUP_KEY& lvalue = key;
+
+            BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+            int comparisonResult;
+            BloombergLP::bslalg::RbTreeNode *insertLocation =
+                BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                       &comparisonResult,
+                                       &d_tree,
+                                       this->comparator(),
+                                       lvalue,
+                                       hintNode);
+
+            if (!comparisonResult) {
+                return iterator(insertLocation);
+            }
+
+        #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(
+                                     BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY,
+                                     key)),
+                    std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args,
+                                          args)...));
+        #else
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(
+                    BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                    mapped_type(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+        #endif
+
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      insertLocation,
+                                                      comparisonResult < 0,
+                                                      node);
+
+            return iterator(node);
+        }
 // }}} END GENERATED CODE
 #endif
 
@@ -7489,7 +9229,7 @@ struct UsesBslmaAllocator<bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> >
 #endif // ! defined(INCLUDED_BSLSTL_MAP_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2024 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

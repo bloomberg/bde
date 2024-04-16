@@ -3759,7 +3759,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -3816,7 +3816,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -3857,7 +3857,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -3917,7 +3917,7 @@ makeObject(Obj                  **objPtr,
       } break;
     }
 
-    ASSERTV(config, !"Bad allocator config.");
+    ASSERTV(config, "Bad allocator config.", false);
     abort();
 #if defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
@@ -6002,7 +6002,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!"The wrong exception type was thrown.");
+            ASSERTV("The wrong exception type was thrown.", false);
         }
 
         if (veryVerbose) printf(
@@ -6022,7 +6022,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!"The wrong exception type was thrown.");
+            ASSERTV("The wrong exception type was thrown.", false);
         }
 
 #if !defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -6048,7 +6048,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!"The wrong exception type was thrown.");
+            ASSERTV("The wrong exception type was thrown.", false);
         }
 #endif  // BSLS_PLATFORM_CPU_64_BIT
        if (veryVerbose) printf(
@@ -6065,7 +6065,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             // This is the expected code path
         }
         catch(...) {
-            ASSERT(!"The wrong exception type was thrown.");
+            ASSERTV("The wrong exception type was thrown.", false);
         }
     }
 #endif
@@ -9614,7 +9614,9 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP05 // Test doc is in delegated functions
 // BDE_VERIFY pragma: -TP17 // No test-banners in a delegating switch statement
     switch (test) { case 0:
-      case 16: { mainTestCaseUsageExample(); } break;
+      case 18: { mainTestCaseUsageExample(); } break;
+      case 17:
+      case 16:
       case 15: {
         if (verbose) printf(
         "\nREMAINING TEST CASES DELEGATED TO 'bslstl_hashtable_test.t.cpp'"
