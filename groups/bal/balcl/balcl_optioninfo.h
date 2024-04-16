@@ -110,14 +110,14 @@ struct OptionInfo {
     bsl::string    d_description;  // description used in printing usage
 
     TypeInfo       d_typeInfo;     // Optional field.  Within that,
-                                   //: o (optional) type/variable to be linked,
-                                   //: o (optional) constraint
+                                   // - (optional) type/variable to be linked,
+                                   // - (optional) constraint
 
     OccurrenceInfo d_defaultInfo;  // Optional -- two sub-parts:
-                                   //: o whether the option is required,
-                                   //:   optional, or hidden (default is
-                                   //:   optional)
-                                   //: o optionally, a default value.
+                                   // - whether the option is required,
+                                   //    optional, or hidden (default is
+                                   //    optional)
+                                   // - optionally, a default value.
 
     bsl::string    d_environmentVariableName;
                                    // Optional -- environment variable name
