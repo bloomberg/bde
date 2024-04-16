@@ -219,7 +219,7 @@ typedef Obj::allocator_type         AllocType; // Test 'allocator_type' exists.
 
 BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
-BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
+BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<> >::value));
 
 // ============================================================================
 //                             GLOBAL TEST DATA

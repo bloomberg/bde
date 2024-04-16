@@ -114,9 +114,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_swaputil.h>
 
-#include <bslma_allocator.h>
+#include <bslma_aatypeutil.h>
+#include <bslma_allocatorutil.h>
 #include <bslma_bslallocator.h>
-#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -161,12 +161,9 @@ class LocalTimeDescriptor {
 
   public:
     // TYPES
-    typedef bsl::allocator<char> allocator_type;
+    typedef bsl::allocator<> allocator_type;
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(LocalTimeDescriptor,
-                                   bslma::UsesBslmaAllocator);
-
     BSLMF_NESTED_TRAIT_DECLARATION(LocalTimeDescriptor,
                                    bslmf::IsBitwiseMoveable);
 
@@ -368,7 +365,7 @@ inline
 LocalTimeDescriptor::LocalTimeDescriptor(const allocator_type& allocator)
 : d_utcOffsetInSeconds(0)
 , d_dstInEffectFlag(false)
-, d_description(allocator)
+, d_description(bslma::AllocatorUtil::adapt(allocator))
 {
 }
 
@@ -380,7 +377,9 @@ LocalTimeDescriptor::LocalTimeDescriptor(
                                    const allocator_type&    allocator)
 : d_utcOffsetInSeconds(utcOffsetInSeconds)
 , d_dstInEffectFlag(dstInEffectFlag)
-, d_description(description.begin(), description.end(), allocator)
+, d_description(description.begin(),
+                description.end(),
+                bslma::AllocatorUtil::adapt(allocator))
 {
     BSLS_ASSERT(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
 }
@@ -390,7 +389,7 @@ LocalTimeDescriptor::LocalTimeDescriptor(const LocalTimeDescriptor& original,
                                          const allocator_type&      allocator)
 : d_utcOffsetInSeconds(original.d_utcOffsetInSeconds)
 , d_dstInEffectFlag(original.d_dstInEffectFlag)
-, d_description(original.d_description, allocator)
+, d_description(original.d_description, bslma::AllocatorUtil::adapt(allocator))
 {
 }
 
@@ -414,8 +413,10 @@ LocalTimeDescriptor::LocalTimeDescriptor(
       bslmf::MovableRefUtil::access(original).d_utcOffsetInSeconds))
 , d_dstInEffectFlag(bslmf::MovableRefUtil::move(
       bslmf::MovableRefUtil::access(original).d_dstInEffectFlag))
-, d_description(bslmf::MovableRefUtil::move(
-      bslmf::MovableRefUtil::access(original).d_description), allocator)
+, d_description(
+    bslmf::MovableRefUtil::move(
+                        bslmf::MovableRefUtil::access(original).d_description),
+    bslma::AllocatorUtil::adapt(allocator))
 {
 }
 
@@ -519,7 +520,8 @@ bslma::Allocator *LocalTimeDescriptor::allocator() const
 inline
 LocalTimeDescriptor::allocator_type LocalTimeDescriptor::get_allocator() const
 {
-    return d_description.get_allocator();
+    return bslma::AATypeUtil::getAllocatorFromSubobject<allocator_type>(
+                                                                d_description);
 }
 
 }  // close package namespace
