@@ -830,10 +830,10 @@ namespace bdld {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 // Sanity checks.
 BSLMF_ASSERT(sizeof(Datum) == sizeof(double));
-#else   // BSLS_PLATFORM_CPU_32_BIT
+#else   // end - 32 bit / begin - 64 bit
 BSLMF_ASSERT(sizeof(Datum) == 2 * sizeof(void *));
 BSLMF_ASSERT(sizeof(bdlt::Datetime) <= sizeof(void*));
-#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // end - 64 bit
 
 // Platform independent sanity checks
 BSLMF_ASSERT(sizeof(bdlt::Date) <= sizeof(int));
@@ -880,7 +880,7 @@ Datum Datum::createDecimal64(bdldfp::Decimal64  value,
                                         mem);
         }
     }
-#else   // BSLS_PLATFORM_CPU_32_BIT
+#else   // end - 32 bit / begin - 64 bit
     // Avoidance of compiler warning.  We don't need to allocate memory to
     // store Decimal64 values on 64-bit platform.
     (void) basicAllocator;
@@ -888,7 +888,7 @@ Datum Datum::createDecimal64(bdldfp::Decimal64  value,
     result.d_as.d_type = e_INTERNAL_DECIMAL64;
     new (result.theInlineStorage()) bdldfp::Decimal64(value);
     return result;
-#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // end - 64 bit
 }
 
 Datum Datum::createError(int                       code,
@@ -920,9 +920,9 @@ Datum Datum::createError(int                       code,
     bsl::memcpy(data, message.data(), length);
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     return createExtendedDataObject(e_EXTENDED_INTERNAL_ERROR_ALLOC, mem);
-#else   // BSLS_PLATFORM_CPU_32_BIT
+#else   // end - 32 bit / begin - 64 bit
     return createDatum(e_INTERNAL_ERROR_ALLOC, mem);
-#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // end - 64 bit
 }
 
 Datum Datum::copyBinary(const void       *value,
@@ -937,7 +937,7 @@ Datum Datum::copyBinary(const void       *value,
     new (mem) SizeType(size);
     bsl::memcpy(reinterpret_cast<char*>(mem) + sizeof(double), value, size);
     return createExtendedDataObject(e_EXTENDED_INTERNAL_BINARY_ALLOC, mem);
-#else   // BSLS_PLATFORM_CPU_32_BIT
+#else   // end - 32 bit / begin - 64 bit
     Datum result;
 
     if (static_cast<unsigned>(size) <= k_SMALLBINARY_SIZE) {
@@ -961,7 +961,7 @@ Datum Datum::copyBinary(const void       *value,
     bsl::memcpy(result.d_as.d_ptr, value, size);
 
     return result;
-#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // end - 64 bit
 }
 
 Datum Datum::copyString(const char       *string,
@@ -1010,7 +1010,7 @@ Datum Datum::copyString(const char       *string,
 
     bsl::memcpy(data, string, length);
     result.d_as.d_cvp = mem;
-#else   // BSLS_PLATFORM_CPU_32_BIT
+#else   // end - 32 bit / begin - 64 bit
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *inlineString =
             reinterpret_cast<char *>(result.theInlineStorage());
@@ -1026,7 +1026,7 @@ Datum Datum::copyString(const char       *string,
     result.d_as.d_int32 = static_cast<int>(length);
     result.d_as.d_ptr   = basicAllocator->allocate(length);
     bsl::memcpy(result.d_as.d_ptr, string, length);
-#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // end - 64 bit
 
     return result;
 }
@@ -1174,7 +1174,7 @@ char *Datum::createUninitializedString(Datum            *result,
     result->d_as.d_cvp = mem;
 
     return static_cast<char *>(mem) + sizeof(length);                 // RETURN
-#else   // BSLS_PLATFORM_CPU_32_BIT
+#else   // end - 32 bit / begin - 64 bit
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *str = reinterpret_cast<char *>(result->theInlineStorage());
         *str++ = static_cast<char>(length);
@@ -1188,7 +1188,7 @@ char *Datum::createUninitializedString(Datum            *result,
     result->d_as.d_int32 = static_cast<int>(length);
     result->d_as.d_ptr = basicAllocator->allocate(length);
     return static_cast<char *>(result->d_as.d_ptr);
-#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // end - 64 bit
 }
 
 const char *Datum::dataTypeToAscii(DataType type)
@@ -1279,7 +1279,7 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
         // Other enumerators require no special handling.
       } break;
     }
-#else   // BSLS_PLATFORM_CPU_32_BIT
+#else   // end - 32 bit / begin - 64 bit
     switch (type) {
       case e_INTERNAL_MAP      :
         BSLS_ANNOTATION_FALLTHROUGH;
@@ -1314,7 +1314,7 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
       default: {
       } break; // Other enumerators require no special handling.
     }
-#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // end - 64 bit
 }
 
 // ACCESSORS
