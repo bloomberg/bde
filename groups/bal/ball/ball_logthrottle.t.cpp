@@ -34,6 +34,7 @@
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
+#include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
 
@@ -486,6 +487,28 @@ double RadiationMeterReceiver::yield()
 //  474 RADIATION.MONITOR Radiation reading of 67.4
 //..
 
+void simpleExample()
+{
+    using namespace BloombergLP;
+
+     BALL_LOG_SET_CATEGORY("SIMPLE EXAMPLE");
+     bsls::Stopwatch s;
+     s.start();
+     while (s.elapsedTime() < 0.1) {
+//..
+    static const bsls::Types::Int64 k_NS_PER_S =
+                             bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
+//
+//  // Log 1 WARN-level message every second on average:
+    BALL_LOGTHROTTLE_WARN(1, k_NS_PER_S) << "message 1";
+//
+//  // Log 1 WARN-level message every second on average, but allow a "burst"
+//  // of up to 2 messages to be published simultaneously:
+    BALL_LOGTHROTTLE_WARN(2, k_NS_PER_S) << "message 2";
+//..
+     }
+}
+
 }  // close namespace usage
 
                                 // ---------------
@@ -847,6 +870,8 @@ int main(int argc, char *argv[])
                      bsl::make_shared<BloombergLP::ball::StreamObserver>(&oss);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(BloombergLP::ball::Severity::e_INFO);
+
         BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
         BloombergLP::ball::LoggerManager::singleton().registerObserver(sobs,
                                                                        "SO");
@@ -862,6 +887,8 @@ int main(int argc, char *argv[])
                                 0);
 
         Usage::radiationMonitorStreamDaemon();
+
+        Usage::simpleExample();
 
         if (veryVerbose) cout << oss.str();
       } break;

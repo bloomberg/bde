@@ -79,6 +79,23 @@ BSLS_IDENT("$Id: $")
 //: 'NANOSECONDS_PER_MESSAGE': configures (an approximation of) the minimum
 //:    period between messages (and, by extension, the maximum rate).
 //
+// So, for example:
+//..
+//  static const bsls::Types::Int64 k_NS_PER_S =
+//                           bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
+//
+//  // Log 1 WARN-level message every second on average:
+//  BALL_LOGTHROTTLE_WARN(1, k_NS_PER_S) << "message 1";
+//
+//  // Log 1 WARN-level message every second on average, but allow a "burst"
+//  // of up to 2 messages to be published simultaneously:
+//  BALL_LOGTHROTTLE_WARN(2, k_NS_PER_S) << "message 2";
+//..
+// Notice that 'NANOSECONDS_PER_MESSAGE' controls an approximation for the
+// average rate of messages to be published, and 'MAX_SIMULTANEOUS_MESSAGES'
+// controls an approximation for the size of bursts of messages to be
+// published.
+//
 // Note that this component is built on top of 'bdlmt_throttle', and mirrors
 // its behavior.
 //
