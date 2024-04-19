@@ -222,6 +222,7 @@ Log_Stream::Log_Stream(const Category *category,
 : d_category_p(category)
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)
+, d_stream(&d_record_p->fixedFields().messageStreamBuf())
 {
 }
 

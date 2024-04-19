@@ -37,35 +37,13 @@ BSLS_IDENT("$Id: $")
 // defined.  (See the 'bdlt_datetime' component-level documentation for more
 // information.)
 //
-// *Cached Stream State*: Although a 'RecordAttributes' object is nominally a
-// value-semantic attribute type whose attributes are described in the table
-// above, for performance and convenience a 'RecordAttributes' object provides
-// access to internal instances of 'bdlsb::MemOutStreamBuf' and 'bsl::ostream'
-// objects (via 'messageStreamBuf' and 'messageStream' accessors, respectively)
-// that allow users to build the 'message' directly without having to construct
-// any I/O stream objects independently.  This is useful because 'ball::Record'
-// objects and their 'RecordAttributes' are cached for performance.  Note that
-// it's possible for two equal instances of 'RecordAttributes' objects to have
-// different stream states if operations to manipulate the stream fail.
-//
 // For each attribute, there is a method to access its value and a method to
 // change its value.  E.g., for the timestamp attribute, there is the
-// 'timestamp' accessor and the 'setTimestamp' manipulator.  Note that for the
-// message attribute, there is a 'message' accessor which is *deprecated*; use
+// 'timestamp' accessor and the 'setTimestamp' manipulator.  Note, that for the
+// message attribute, there is 'message' accessor which is *deprecated*, use
 // the 'messageRef' accessor instead.  The class also provides the ability to
 // stream an object (whose class must support the 'operator<<') into the
 // message attribute using 'messageStreamBuf' method (see the usage example-2).
-//
-// Alternately, an object can be streamed directly into the message attribute
-// via the stream exposed by the 'messageStream' method: in that case, the
-// 'messageStreamBuf' should not also be used simultaneously.  More precisely,
-// use of the references returned by the 'messageStreamBuf' and 'messageStream'
-// methods to build a message results in undefined behavior if interleaved with
-// each other, or if interspersed with calls to 'setMessage', 'clearMessage',
-// 'operator=', or 'message' (but not 'messageRef').  In other words, streaming
-// an object into the message attribute must be done in one uninterrupted
-// sequence of operations.
-//
 // The default values listed in the table above are the values given to the
 // respective attributes by the default constructor of
 // 'ball::RecordAttributes'.
@@ -200,7 +178,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <bsl_ostream.h>
+
+#else
+#include <bsl_iosfwd.h>
+#endif
 #include <bsl_string.h>
 
 namespace BloombergLP {
@@ -250,9 +233,6 @@ class RecordAttributes {
     bdlsb::MemOutStreamBuf d_messageStreamBuf;  // stream buffer associated
                                                 // with the message attribute
 
-    bsl::ostream           d_messageStream;     // stream associated with the
-                                                // message attribute
-
     // FRIENDS
     friend bool operator==(const RecordAttributes&, const RecordAttributes&);
 
@@ -297,21 +277,15 @@ class RecordAttributes {
     // MANIPULATORS
     RecordAttributes& operator=(const RecordAttributes& rhs);
         // Assign to this record attributes object the value of the specified
-        // 'rhs' record attributes object.  Resets the objects returned by the
-        // 'messageStreamBuf' and 'messageStream' methods.
+        // 'rhs' record attributes object.
 
     void clearMessage();
         // Set the message attribute of this record attributes object to the
-        // empty string.  Resets the objects returned by the 'messageStreamBuf'
-        // and 'messageStream' methods.
+        // empty string.
 
     bdlsb::MemOutStreamBuf& messageStreamBuf();
         // Return a reference to the modifiable stream buffer associated with
         // the message attribute of this record attributes object.
-
-    bsl::ostream& messageStream();
-        // Return a reference to the modifiable stream associated with the
-        // message attribute of this record attributes object.
 
     void setCategory(const char *category);
         // Set the category attribute of this record attributes object to the
@@ -327,8 +301,7 @@ class RecordAttributes {
 
     void setMessage(const char *message);
         // Set the message attribute of this record attributes object to the
-        // specified (non-null) 'message'.  Resets the objects returned by the
-        // 'messageStreamBuf' and 'messageStream' methods.
+        // specified (non-null) 'message'.
 
     void setProcessID(int processID);
         // Set the processID attribute of this record attributes object to the
@@ -361,8 +334,7 @@ class RecordAttributes {
         // that this method will return a truncated message if it contains
         // embedded null ('\0') characters; see 'messageRef' for an alternative
         // to this method.  **Warning:** This method is *not* const thread-safe,
-        // and cannot be safely called concurrently.  It may modify the stream
-        // buffer returned by 'messageStreamBuf'.
+        // and cannot be safely called concurrently.
         //
         // !DEPRECATED!: Use 'messageRef' instead.
 
@@ -387,10 +359,6 @@ class RecordAttributes {
     const bdlsb::MemOutStreamBuf& messageStreamBuf() const;
         // Return a reference to the non-modifiable stream buffer associated
         // with the message attribute of this record attributes object.
-
-    const bsl::ostream& messageStream() const;
-        // Return a reference to the non-modifiable stream associated with the
-        // message attribute of this record attributes object.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -451,19 +419,12 @@ void RecordAttributes::clearMessage()
     else {
         d_messageStreamBuf.pubseekpos(0);
     }
-    d_messageStream.clear();
 }
 
 inline
 bdlsb::MemOutStreamBuf& RecordAttributes::messageStreamBuf()
 {
     return d_messageStreamBuf;
-}
-
-inline
-bsl::ostream& RecordAttributes::messageStream()
-{
-    return d_messageStream;
 }
 
 inline
@@ -549,12 +510,6 @@ inline
 const bdlsb::MemOutStreamBuf& RecordAttributes::messageStreamBuf() const
 {
     return d_messageStreamBuf;
-}
-
-inline
-const bsl::ostream& RecordAttributes::messageStream() const
-{
-    return d_messageStream;
 }
 
 inline
