@@ -154,15 +154,15 @@ namespace bsl {
 # endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-#if defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#if defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
    using std::quoted;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
 }  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslstl {
-#if defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#if defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 // 'std::quoted' function does not support the 'bsl::basic_string' and
 // proprietary implementation of the 'bsl::basic_string_view' classes.  To fix
 // this we need to add special overloads that return objects of the special
@@ -298,12 +298,12 @@ std::basic_ostream<t_CHAR_TYPE, t_CHAR_TRAITS>& operator<<(
     // Write the value of the specified 'object' to the specified 'output'
     // stream.
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 }  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 template <class t_CHAR_TYPE, class t_CHAR_TRAITS, class t_ALLOC>
 decltype(auto)
 quoted(const bsl::basic_string<t_CHAR_TYPE, t_CHAR_TRAITS, t_ALLOC>& value,
@@ -328,7 +328,7 @@ quoted(bsl::basic_string<t_CHAR_TYPE, t_CHAR_TRAITS, t_ALLOC>& value,
     // obtained using the optionally specified 'delim' and 'escape' characters,
     // and that can be inserted to output (or extracted from input) stream.
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class t_CHAR_TYPE, class t_CHAR_TRAITS>
 BloombergLP::bslstl::IoManip_QuotedStringViewFormatter<t_CHAR_TYPE,
                                                        t_CHAR_TRAITS>
@@ -340,15 +340,15 @@ quoted(const bsl::basic_string_view<t_CHAR_TYPE, t_CHAR_TRAITS>& value,
     // Return an object, containing quoted version of the specified 'value'
     // obtained using the optionally specified 'delim' and 'escape' characters,
     // and that can be inserted to output stream.
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 }  // close namespace bsl
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
                     // -----------------------------------
                     // class IoManip_QuotedStringFormatter
                     // -----------------------------------
@@ -523,7 +523,7 @@ bsl::quoted(bsl::basic_string<t_CHAR_TYPE, t_CHAR_TRAITS, t_ALLOC>& value,
                                                                        escape);
 }
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class t_CHAR_TYPE, class t_CHAR_TRAITS>
 BloombergLP::bslstl::IoManip_QuotedStringViewFormatter<t_CHAR_TYPE,
                                                        t_CHAR_TRAITS>
@@ -540,8 +540,8 @@ bsl::quoted(const bsl::basic_string_view<t_CHAR_TYPE, t_CHAR_TRAITS>& value,
                                                                        delim,
                                                                        escape);
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
 #endif
 
