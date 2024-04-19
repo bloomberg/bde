@@ -1,5 +1,12 @@
-bsl-internal (4.7.0.0) unstable; urgency=low
+bsl-internal (4.7.1.0) unstable; urgency=low
 
+  * e270bb1e5 Bumped version to 4.7.1.0
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Apr 2024 19:17:48 -0400
+
+bsl-internal (4.7.0.0) git; urgency=low
+
+  * 409d2da33 Changelog for version 4.7.0.0
   * a5060739d Bumped version to 4.7.0.0
   * 21151abb3 Add more usage to ball_throttle (#4712)
   * b5f293891 Copy over documentation from bdlmt_throttle (#4704)
@@ -15,7 +22,7 @@ bsl-internal (4.7.0.0) unstable; urgency=low
   * 5e34fc80e Add missing ull suffixes to check values (#4688)
   * 18c61e0fd Thread safety note has been added to 'bdlbb::PooledBlobBufferFactory' documentation. DRQS 174859592 (#4694)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Apr 2024 17:49:36 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Apr 2024 17:54:13 -0400
 
 bsl-internal (4.6.0.0) git; urgency=low
 
