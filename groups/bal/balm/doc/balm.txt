@@ -42,7 +42,7 @@
 
   11. balm_stopwatchscopedguard
 
-  10. balm_bdlmmetricsregistrar
+  10. balm_bdlmmetricsadapter
       balm_integermetric
       balm_metric
 
@@ -74,8 +74,8 @@
 
 /Component Synopsis
 /------------------
-: 'balm_bdlmmetricsregistrar':
-:      Provide a concrete instance of the 'bdlm' metrics registrar.
+: 'balm_bdlmmetricsadapter':
+:      Provide a concrete instance of the 'bdlm' metrics adapter.
 :
 : 'balm_category':
 :      Provide a representation of a metric category.

@@ -9,12 +9,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlma' package currently has 29 components having 7 levels of physical
+ The 'bdlma' package currently has 30 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  7. bdlma_multipoolallocator
+  7. bdlma_localbufferedobject
+     bdlma_multipoolallocator
 
   6. bdlma_aligningallocator
      bdlma_localsequentialallocator
@@ -115,6 +116,9 @@
 :
 : 'bdlma_infrequentdeleteblocklist':
 :      Provide allocation and management of infrequently deleted blocks.
+:
+: 'bdlma_localbufferedobject':
+:      Provide easy way to create an object with a local arena allocator.
 :
 : 'bdlma_localsequentialallocator':
 :      Provide an efficient managed allocator using a local buffer.
