@@ -301,7 +301,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslma {
 
-struct TestAllocator_List;
+struct TestAllocator_BlockHeader;
 
                              // ===================
                              // class TestAllocator
@@ -351,6 +351,11 @@ class TestAllocator : public Allocator {
 
                         // Statistics
 
+    // Statistics and other attributes are updated in bulk while holding an
+    // object-wide mutex ('d_lock') but are read atomically by individual
+    // accessors without acquiring the mutex; hence, each such data member has
+    // an atomic type.
+
     bsls::AtomicInt64
                 d_numAllocations;        // total number of allocation
                                          // requests on this object (including
@@ -395,7 +400,7 @@ class TestAllocator : public Allocator {
                 d_numBytesTotal;         // cumulative number of bytes ever
                                          // allocated from this object
 
-                        // Other Data
+                        // Other Attributes
 
     bsls::AtomicInt64
                 d_lastAllocatedNumBytes; // size (in bytes) of the most recent
@@ -415,15 +420,20 @@ class TestAllocator : public Allocator {
                                          // address of the most recently
                                          // deallocated memory (or 0)
 
-    TestAllocator_List
-               *d_list_p;                // list of allocated memory (owned)
+                        // Other Data
+
+    TestAllocator_BlockHeader
+               *d_blockListHead_p;      // first allocated block (owned)
+
+    TestAllocator_BlockHeader
+               *d_blockListTail_p;      // last allocated block (owned)
 
     mutable bsls::BslLock
-                d_lock;                  // ensure mutual exclusion in
-                                         // 'allocate', 'deallocate', 'print',
-                                         // and 'status'
+                d_lock;                 // Ensure mutual exclusion in
+                                        // 'allocate', 'deallocate', 'print',
+                                        // and 'status'.
 
-    Allocator  *d_allocator_p;           // memory allocator (held, not owned)
+    Allocator  *d_allocator_p;          // upstream allocator (held, not owned)
 
   private:
     // NOT IMPLEMENTED

@@ -80,34 +80,36 @@ using namespace BloombergLP;
 // [ 1] Int64 numBlocksInUse() const;
 // [ 1] Int64 numBlocksMax() const;
 // [ 1] Int64 numBlocksTotal() const;
-// [  ] Int64 numBoundsErrors() const;
+// [10] Int64 numBoundsErrors() const;
 // [ 1] Int64 numBytesInUse() const;
 // [ 1] Int64 numBytesMax() const;
 // [ 1] Int64 numBytesTotal() const;
 // [ 1] Int64 numDeallocations() const;
 // [ 1] Int64 numMismatches() const;
-// [12] void print() const;
+// [11] void print() const;
 // [ 2] int status() const;
 //-----------------------------------------------------------------------------
-// [16] USAGE EXAMPLE
-// [15] DRQS 129104858
-// [ 5] Ensure that exception is thrown after allocation limit is exceeded.
-// [ 1] Make sure that all counts are initialized to zero (placement new).
-// [ 1] Make sure that global operators new and delete are *not* called.
-// [ 3] Ensure that the allocator is incompatible with new/delete.
-// [ 3] Ensure that the allocator is incompatible with malloc/free.
-// [ 3] Ensure that mismatched deallocations are detected/reported.
-// [ 3] Ensure that repeated deallocations are detected/reported.
-// [ 3] Ensure that an invalid cached length is reported.
-// [ 3] Ensure that deallocated memory is scribbled.
-// [ 3] Ensure that memory leaks (byte/block) are detected/reported.
-// [ 7] Ensure that memory allocation list is kept track of properly.
-// [ 8] Ensure that cross allocation/deallocation is detected immediately.
-// [ 9] Ensure that 'std::bad_alloc' is thrown if 'malloc' fails.
-// [10] Test 'numBlocksInUse', 'numBlocksTotal'
-// [11] Ensure that over and underruns are properly caught.
-// [13] Ensure that 'allocate' and 'deallocate' are thread-safe.
-// [14] Ensure that 'allocate' obtains properly aligned memory.
+// [17] USAGE EXAMPLE
+// [16] DRQS 129104858
+// [ 1] BASIC TEST
+// [ 5] CONCERN: exception is thrown after allocation limit is exceeded.
+// [ 1] CONCERN: all counts are initialized to zero (placement new).
+// [ 1] CONCERN: global operators new and delete are *not* called.
+// [ 3] CONCERN: the allocator is incompatible with new/delete.
+// [ 3] CONCERN: the allocator is incompatible with malloc/free.
+// [ 3] CONCERN: mismatched deallocations are detected/reported.
+// [ 3] CONCERN: repeated deallocations are detected/reported.
+// [ 3] CONCERN: an invalid cached length is reported.
+// [ 3] CONCERN: deallocated memory is scribbled.
+// [ 3] CONCERN: memory leaks (byte/block) are detected/reported.
+// [ 7] CONCERN: memory allocation list is kept track of properly.
+// [ 8] CONCERN: cross allocation/deallocation is detected immediately.
+// [ 9] CONCERN: 'std::bad_alloc' is thrown if 'malloc' fails.
+// [10] CONCERN: over and underruns are properly caught.
+// [12] CONCERN: 'allocate' and 'deallocate' are thread-safe.
+// [13] CONCERN: 'allocate' obtains properly aligned memory.
+// [14] CONCERN: 1:1 blocks-in-use correspondence with upstream allocator
+// [15] CONCERN: Exception neutrality
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -798,7 +800,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -923,7 +925,7 @@ int main(int argc, char *argv[])
 // indicate whether or not exceptions are enabled.
 
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // DRQS 129104858
         //   Ensure that the unification of the tracing strings do not change
@@ -1009,7 +1011,200 @@ int main(int argc, char *argv[])
             LOOP1_ASSERT(ti, preBufS == postBufS);
         }
       } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // CONCERN: Exception Neutrality
+        //   Verify that 'allocate' propagates exceptions from the upstream
+        //   allocator and does not leak resources.
+        //
+        // Concerns:
+        //: 1 If 'allocate' causes the upstream allocator to throw an
+        //:   exception, that exception is propagated to the caller.
+        //: 2 No resources are leaked if the upstream allocator throws.
+        //
+        // Plan:
+        //: 1 Create a 'TestAllocator' to use as an upstream allocator.
+        //: 2 Within a 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' loop:
+        //:   1 Construct a second 'TestAllocator' that gets memory from the
+        //:     upstream allocator.
+        //:   2 Allocate a few bytes from the second 'TestAllocator'.
+        //:   3 Deallocate the allocated bytes.
+        //:   4 Perform one more allocation and deallocation.
+        //: 3 Verify that no allocated blocks remain allocated from the
+        //:   upstream allocator once the exception loop succeeds.  (C-2)
+        //: 4 Verify that the exception loop ran more than one iteration,
+        //:   indicating that at least one exception occured.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: Exception Neutrality
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: Exception Neutrality"
+                            "\n=============================\n");
+
+#ifdef BDE_BUILD_TARGET_EXC
+
+        bslma::TestAllocator upstream("upstream", veryVeryVeryVerbose);
+        int iterations = 0;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(upstream) {
+            ++iterations;
+            bslma::TestAllocator ta("excTest", veryVeryVeryVerbose, &upstream);
+
+            void *p = ta.allocate(13);  // Might throw from upstream allocator
+            ASSERT(p);
+            ta.deallocate(p);
+
+            p = ta.allocate(15);        // Might throw from upstream allocator
+            ASSERT(p);
+            ta.deallocate(p);
+
+            // If got here, then upstream allocator did not throw. Exception
+            // loop will end.
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+
+        ASSERTV(upstream.numBlocksInUse(), 0 == upstream.numBlocksInUse());
+        ASSERTV(upstream.numBlocksTotal(), 0 < upstream.numBlocksTotal());
+        ASSERTV(iterations, 1 < iterations);
+
+#endif // BDE_BUILD_TARGET_EXC
+
+      } break;
       case 14: {
+        // --------------------------------------------------------------------
+        // CONCERN: 1:1 Correspondence w/ Upstream Allocator
+        //   Ensure that allocations and deallocations correpsond 1:1 with
+        //   requests from the upstream allocator.
+        //
+        // Concerns:
+        //: 1 Every allocation from a 'TestAllocator' results in a single
+        //:   allocation from its upstream allocator (though the size and
+        //:   alignment might differ).
+        //: 2 Every deallocation from a 'TestAllocator' results in a single
+        //:   deallocation from its upstream allocator.
+        //: 3 The number of bytes allocated from the upstream allocator is
+        //:   never less than the number of bytes allocated from the test
+        //:   allocator (but might be more).
+        //: 4 If multiple 'TestAllocator' objects use the same upstream
+        //:   allocator, the total number of blocks allocated from the upstream
+        //:   allocator is the sum of the number of blocks allocated from the
+        //:   individual test allocators.
+        //
+        // Concerns:
+        //: 1 Construct a pair of 'TestAllocator' objects to act as upstream
+        //:   allocators.
+        //: 2 Construct three downstream 'TestAllocator' objects, two from one
+        //:   of the upstream allocators and one from the other.
+        //: 3 Loop through two lists of 'A' and 'D' characters, representing
+        //:   allocate and deallocate operations, such that each operation
+        //:   is chosen at random, but there are never more deallocations than
+        //:   allocations and the total is balanced.  For each operation:
+        //:   1 Perform the specified operation (allocate or deallocate) on the
+        //:     downstream allocators.
+        //:   2 Verify that the 'numAllocations' count for each upstream
+        //:     allocator is the sum of the 'numAllocations' for its downstream
+        //:     allocators.  (C-1, C-4)
+        //:   3 Verify that the 'numDeallocations' count for each upstream
+        //:     allocator is the sum of the 'numDeallocations' for its
+        //:     downstream allocators.  (C-2, C-4)
+        //:   4 Verify that the 'numBlocksInUse' count for each upstream
+        //:     allocator is the sum of the 'numBlocksInUse' for its downstream
+        //:     allocators.  (C-1, C-2, C-4)
+        //:   5 Verify that the 'numBytesInUse' count for each upstream
+        //:     allocator is no smaller than the sum of the 'numBytesInUse' for
+        //:     its downstream allocators.  (C-3, C-4)
+        //
+        // Testing
+        //   CONCERN: 1:1 blocks-in-use correspondence with upstream allocator
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nCONCERN: 1:1 Correspondence w/ Upstream Allococator"
+                   "\n===================================================\n");
+
+        const char ops1[] = "AADADAAAADDDDAADDADDADAADDADADADADAADDAD";
+        const char ops2[] = "AAAAADDDADADADAAADDADDDAAADADADDAADADDDD";
+        const std::size_t k_NUM_OPS = sizeof(ops1) - 1;
+
+        bslma::TestAllocator us1("upstream1", veryVeryVeryVerbose);
+        bslma::TestAllocator us2("upstream2", veryVeryVeryVerbose);
+        bslma::TestAllocator ds1("downstream1", veryVeryVeryVerbose, &us1);
+        bslma::TestAllocator ds2("downstream2", veryVeryVeryVerbose, &us2);
+        bslma::TestAllocator ds3("downstream3", veryVeryVeryVerbose, &us2);
+
+        void *blocks1[k_NUM_OPS/2];
+        void *blocks2[k_NUM_OPS/2];
+        void *blocks3[k_NUM_OPS/2];
+
+        int nBlocks1 = 0, nBlocks2 = 0, nBlocks3 = 0;
+
+        for (std::size_t i = 0; i < k_NUM_OPS; ++i) {
+            if ('A' == ops1[i]) {
+                blocks1[nBlocks1++] = ds1.allocate(i + 1);
+                blocks2[nBlocks2++] = ds2.allocate(i + 1);
+            }
+            else {
+                BSLS_ASSERT('D' == ops1[i]);
+                BSLS_ASSERT(nBlocks1 > 0);
+                BSLS_ASSERT(nBlocks2 > 0);
+                ds1.deallocate(blocks1[--nBlocks1]);
+                ds2.deallocate(blocks2[--nBlocks2]);
+            }
+            ASSERTV(us1.numAllocations(), ds1.numAllocations(),
+                    us1.numAllocations() == ds1.numAllocations());
+            ASSERTV(us2.numAllocations(),
+                    ds2.numAllocations(), ds3.numAllocations(),
+                    us2.numAllocations() == (ds2.numAllocations() +
+                                             ds3.numAllocations()));
+            ASSERTV(us1.numDeallocations(),
+                    ds1.numDeallocations(),
+                    us1.numDeallocations() == ds1.numDeallocations());
+            ASSERTV(us2.numDeallocations(),
+                    ds2.numDeallocations(), ds3.numDeallocations(),
+                    us2.numDeallocations() == (ds2.numDeallocations() +
+                                               ds3.numDeallocations()));
+            ASSERTV(nBlocks1, ds1.numBlocksInUse(),
+                    nBlocks1 == ds1.numBlocksInUse());
+            ASSERTV(nBlocks2, ds2.numBlocksInUse(),
+                    nBlocks2 == ds2.numBlocksInUse());
+            ASSERTV(nBlocks1, us1.numBlocksInUse(),
+                    nBlocks1 == us1.numBlocksInUse());
+            ASSERTV(nBlocks2 + nBlocks3, us2.numBlocksInUse(),
+                    nBlocks2 + nBlocks3 == us2.numBlocksInUse());
+            ASSERTV(us1.numBytesInUse(), ds1.numBytesInUse(),
+                    us1.numBytesInUse() >= ds1.numBytesInUse());
+            ASSERTV(us2.numBytesInUse(),
+                    ds2.numBytesInUse(), ds3.numBytesInUse(),
+                    us2.numBytesInUse() >= (ds2.numBytesInUse() +
+                                            ds3.numBytesInUse()));
+
+            if ('A' == ops2[i]) {
+                blocks3[nBlocks3++] = ds3.allocate(i + 1);
+            }
+            else {
+                BSLS_ASSERT('D' == ops2[i]);
+                BSLS_ASSERT(nBlocks3 > 0);
+                ds3.deallocate(blocks3[--nBlocks3]);
+            }
+            ASSERTV(us2.numAllocations(),
+                    ds2.numAllocations(), ds3.numAllocations(),
+                    us2.numAllocations() == (ds2.numAllocations() +
+                                             ds3.numAllocations()));
+            ASSERTV(us2.numDeallocations(),
+                    ds2.numDeallocations(), ds3.numDeallocations(),
+                    us2.numDeallocations() == (ds2.numDeallocations() +
+                                               ds3.numDeallocations()));
+            ASSERTV(nBlocks3, ds3.numBlocksInUse(),
+                    nBlocks3 == ds3.numBlocksInUse());
+            ASSERTV(nBlocks2 + nBlocks3, us2.numBlocksInUse(),
+                    nBlocks2 + nBlocks3 == us2.numBlocksInUse());
+            ASSERTV(us2.numBytesInUse(),
+                    ds2.numBytesInUse(), ds3.numBytesInUse(),
+                    us2.numBytesInUse() >= (ds2.numBytesInUse() +
+                                            ds3.numBytesInUse()));
+        }
+
+      } break;
+      case 13: {
         // --------------------------------------------------------------------
         // ALIGNMENT
         //   Ensure that 'allocate' obtains properly aligned memory.
@@ -1031,7 +1226,7 @@ int main(int argc, char *argv[])
         //:   every allocator must make).
         //
         // Testing:
-        //   CONCERN: Ensure that 'allocate' obtains properly aligned memory.
+        //   CONCERN: 'allocate' obtains properly aligned memory.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nALIGNMENT"
@@ -1056,7 +1251,7 @@ int main(int argc, char *argv[])
             mX.deallocate(allocated_p);
         }
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // CONCURRENCY
         //   Ensure that 'allocate' and 'deallocate' are thread-safe.
@@ -1128,7 +1323,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // TEST 'print' METHOD
         //
@@ -1422,7 +1617,7 @@ int main(int argc, char *argv[])
             ta.deleteObject(mXPtr);
         }
       } break;
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING BUFFER OVERRUN DETECTION
         //
@@ -1547,27 +1742,6 @@ int main(int argc, char *argv[])
         ASSERT(alloc.status() == expectedBoundsErrors + mismatchErrors);
         ASSERT(expectedBoundsErrors == alloc.numBoundsErrors());
         ASSERT(mismatchErrors       == alloc.numMismatches());
-      } break;
-      case 10: {
-        if (verbose) printf("\nExpose bug in 'bslma::TestAllocator'\n");
-        {
-            Obj testAllocator(veryVeryVerbose);
-            bslma::Allocator *ta = &testAllocator;
-
-            ASSERT(0 == testAllocator.numBlocksTotal());
-            ASSERT(0 == testAllocator.numBlocksInUse());
-
-            void *p = ta->allocate(123);
-            ASSERT(1 == testAllocator.numBlocksTotal());
-            ASSERT(1 == testAllocator.numBlocksInUse());
-
-            void *q = ta->allocate(456);
-
-            ASSERT(2 == testAllocator.numBlocksTotal());
-
-            ta->deallocate(q);
-            ta->deallocate(p);
-        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1964,7 +2138,7 @@ int main(int argc, char *argv[])
         //   exception is never thrown for negative allocation limits.
         //
         // Testing:
-        //   Ensure that exception is thrown after allocation limit is exceeded
+        //   CONCERN: exception is thrown after allocation limit is exceeded
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTEST ALLOCATION LIMIT"
@@ -2074,13 +2248,13 @@ int main(int argc, char *argv[])
         //   void *allocate(size_type size);
         //   void deallocate(void *address);
         //
-        //   Ensure that the allocator is incompatible with new/delete.
-        //   Ensure that the allocator is incompatible with malloc/free.
-        //   Ensure that mismatched deallocations are detected/reported.
-        //   Ensure that repeated deallocations are detected/reported.
-        //   Ensure that an invalid cached length is reported.
-        //   Ensure that deallocated memory is scribbled.
-        //   Ensure that memory leaks (byte/block) are detected/reported.
+        //   CONCERN: the allocator is incompatible with new/delete.
+        //   CONCERN: the allocator is incompatible with malloc/free.
+        //   CONCERN: mismatched deallocations are detected/reported.
+        //   CONCERN: repeated deallocations are detected/reported.
+        //   CONCERN: an invalid cached length is reported.
+        //   CONCERN: deallocated memory is scribbled.
+        //   CONCERN: memory leaks (byte/block) are detected/reported.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ERROR COUNTS"
@@ -2095,6 +2269,9 @@ int main(int argc, char *argv[])
         "-------------------------------------------------------------------";
 
         {
+            // Offset of payload within non-allocator-supplied block.
+            const std::size_t offset = 12 * sizeof(void*);
+
             int i;
             if (verbose) printf("\nEnsure incompatibility with new/delete.\n");
 
@@ -2103,21 +2280,21 @@ int main(int argc, char *argv[])
 
             if (verbose) printf("\t[deallocate unallocated pointer]\n");
             if (veryVerbose) puts(LINE);
-            void *p = operator new(100);
-            for (i = 0; i < 100; ++i) { ((char *)p)[i] = (char) i; }
+            char *p = static_cast<char *>(operator new(200));
+            for (i = 0; i < 200; ++i) { p[i] = (char) i; }
                                 ASSERT(0 == a.numBlocksInUse());
                                 ASSERT(0 == a.numBytesInUse());
                                 ASSERT(0 == a.status());
                                 ASSERT(0 == a.numMismatches());
 
-            a.deallocate(p);
+            a.deallocate(p + offset);
             if (veryVerbose) puts(LINE);
                                 ASSERT(0 == a.numBlocksInUse());
                                 ASSERT(0 == a.numBytesInUse());
                                 ASSERT(1 == a.status());
                                 ASSERT(1 == a.numMismatches());
             operator delete(p);
-            p = a.allocate(7);  ((char *)p)[0] = (char) 0xA7;
+            p = static_cast<char*>(a.allocate(7));  p[0] = (char) 0xA7;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(7 == a.numBytesInUse());
                                 ASSERT(0  < a.status());
@@ -2145,22 +2322,22 @@ int main(int argc, char *argv[])
 
             if (verbose) printf(
                                "\nEnsure incompatibility with malloc/free.\n");
-            p = malloc(200);
-            for (i = 0; i < 200; ++i) { ((char *)p)[i] = (char) i; }
+            p = static_cast<char*>(malloc(200));
+            for (i = 0; i < 200; ++i) { p[i] = (char) i; }
                                 ASSERT(0 == a.numBlocksInUse());
                                 ASSERT(0 == a.numBytesInUse());
                                 ASSERT(2 == a.status());
                                 ASSERT(2 == a.numMismatches());
             if (verbose) printf("\t[deallocate unallocated pointer]\n");
             if (veryVerbose) puts(LINE);
-            a.deallocate(p);
+            a.deallocate(p + offset);
             if (veryVerbose) puts(LINE);
                                 ASSERT(0 == a.numBlocksInUse());
                                 ASSERT(0 == a.numBytesInUse());
                                 ASSERT(3 == a.status());
                                 ASSERT(3 == a.numMismatches());
             free(p);
-            p = a.allocate(5);  ((char *)p)[0] = (char) 0xA5;
+            p = static_cast<char*>(a.allocate(5));  p[0] = (char) 0xA5;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(5 == a.numBytesInUse());
                                 ASSERT(0  < a.status());
@@ -2179,7 +2356,7 @@ int main(int argc, char *argv[])
                                 LOOP_ASSERT(a.status(), 4 == a.status());
                                 ASSERT(4 == a.numMismatches());
 
-            p = a.allocate(3);  ((char *)p)[0] = (char) 0xA3;
+            p = static_cast<char*>(a.allocate(3));  p[0] = (char) 0xA3;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());
                                 ASSERT(1 == a.numBlocksMax());
@@ -2251,7 +2428,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) puts(LINE);
 #endif
 
-            p = a.allocate(9);  ((char *)p)[0] = (char) 0xA9;
+            p = static_cast<char*>(a.allocate(9));  p[0] = (char) 0xA9;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(9 == a.numBytesInUse());
                                 ASSERT(0 <  a.status());
@@ -2390,6 +2567,26 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nBASIC TEST"
                             "\n==========\n");
+
+        if (verbose) printf("BREATHING TEST\n");
+        {
+            Obj testAllocator(veryVeryVerbose);
+            bslma::Allocator *ta = &testAllocator;
+
+            ASSERT(0 == testAllocator.numBlocksTotal());
+            ASSERT(0 == testAllocator.numBlocksInUse());
+
+            void *p = ta->allocate(123);
+            ASSERT(1 == testAllocator.numBlocksTotal());
+            ASSERT(1 == testAllocator.numBlocksInUse());
+
+            void *q = ta->allocate(456);
+
+            ASSERT(2 == testAllocator.numBlocksTotal());
+
+            ta->deallocate(q);
+            ta->deallocate(p);
+        }
 
         if (verbose) printf("\nCreate an allocator in a buffer\n");
 
