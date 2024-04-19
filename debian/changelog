@@ -1,5 +1,25 @@
-bsl-internal (4.6.0.0) unstable; urgency=low
+bsl-internal (4.7.0.0) unstable; urgency=low
 
+  * a5060739d Bumped version to 4.7.0.0
+  * 21151abb3 Add more usage to ball_throttle (#4712)
+  * b5f293891 Copy over documentation from bdlmt_throttle (#4704)
+  * 5e3954ae3 Code cleanup. (#4701)
+  * 317bbffc7 AP2 recommendations applied (#4698)
+  * 02d5b1f63 Add transparent try_emplace to map and unordered_map; {DRQS 174168910} (#4662)
+  * a839ca360 Bdlma localbufferedobject create drqs 173180716 (#4700)
+  * 40db3e939 Add conanfile.py (#4699)
+  * 926843d56 drqs-174572775: 'balxml_formatter.h': Clarify documentation. (#4695)
+  * 57b43e2bd Json strict drqs 173852177 (#4636)
+  * e3457969a Drqs 174849999/bdlc packedintarray ib 20240408 (#4693)
+  * 1662826ce bslmt_readerwriterlock correct ub by making consts unsigned (#4692)
+  * 5e34fc80e Add missing ull suffixes to check values (#4688)
+  * 18c61e0fd Thread safety note has been added to 'bdlbb::PooledBlobBufferFactory' documentation. DRQS 174859592 (#4694)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Apr 2024 17:49:36 -0400
+
+bsl-internal (4.6.0.0) git; urgency=low
+
+  * 389eacc67 Changelog for version 4.6.0.0
   * ef80a546a Bumped version to 4.6.0.0
   * d95e6826a Add member initializers to string_view (#4691)
   * 4fc9b4597 Mark bdlm for internal use for the moment (#4690)
@@ -26,7 +46,7 @@ bsl-internal (4.6.0.0) unstable; urgency=low
   * 88f20d805 Fix 32-bit MSVC bslmf test driver build errors (#4649)
   * 27757c461 Add support for bdlb::Guid to ball::ScopedAttribute (#4661)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 7 Apr 2024 19:37:47 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 7 Apr 2024 19:41:33 -0400
 
 bsl-internal (4.5.0.0) git; urgency=low
 
