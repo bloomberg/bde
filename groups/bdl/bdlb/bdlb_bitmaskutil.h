@@ -240,7 +240,7 @@ bsl::uint32_t BitMaskUtil::ge(int index)
 
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    index < static_cast<int>(k_BITS_PER_UINT32))
-           ? (~static_cast<bsl::uint32_t>(0) << index)
+           ? ~0U << index
            : 0;
 }
 
@@ -252,7 +252,7 @@ bsl::uint64_t BitMaskUtil::ge64(int index)
 
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    index < static_cast<int>(k_BITS_PER_UINT64))
-           ? (~0ULL << index)
+           ? ~0ULL << index
            : 0;
 }
 
@@ -265,7 +265,7 @@ bsl::uint32_t BitMaskUtil::gt(int index)
     ++index;
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    index < static_cast<int>(k_BITS_PER_UINT32))
-           ? ~((1u << index) - 1)
+           ? ~0U << index
            : 0;
 }
 
@@ -278,7 +278,7 @@ bsl::uint64_t BitMaskUtil::gt64(int index)
     ++index;
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    index < static_cast<int>(k_BITS_PER_UINT64))
-           ? ~((1LL << index) - 1)
+           ? ~0ULL << index
            : 0;
 }
 
@@ -291,7 +291,7 @@ bsl::uint32_t BitMaskUtil::le(int index)
     ++index;
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    index < static_cast<int>(k_BITS_PER_UINT32))
-           ? (1u << index) - 1
+           ? ~(~0U << index)
            : -1;
 }
 
@@ -304,7 +304,7 @@ bsl::uint64_t BitMaskUtil::le64(int index)
     ++index;
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    index < static_cast<int>(k_BITS_PER_UINT64))
-           ? (1LL << index) - 1
+           ? ~(~0ULL << index)
            : -1LL;
 }
 
@@ -315,9 +315,9 @@ bsl::uint32_t BitMaskUtil::lt(int index)
     BSLS_ASSERT(     index <= static_cast<int>(k_BITS_PER_UINT32));
 
     return BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                  index >= static_cast<int>(k_BITS_PER_UINT32))
-           ? -1
-           : (1u << index) - 1;
+                                   index < static_cast<int>(k_BITS_PER_UINT32))
+           ? ~(~0U << index)
+           : -1;
 }
 
 inline
@@ -327,9 +327,9 @@ bsl::uint64_t BitMaskUtil::lt64(int index)
     BSLS_ASSERT(     index <= static_cast<int>(k_BITS_PER_UINT64));
 
     return BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                  index >= static_cast<int>(k_BITS_PER_UINT64))
-           ? -1LL
-           : (1LL << index) - 1;
+                                   index < static_cast<int>(k_BITS_PER_UINT64))
+           ? ~(~0ULL << index)
+           : -1LL;
 }
 
 inline

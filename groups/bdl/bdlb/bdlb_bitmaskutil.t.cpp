@@ -469,7 +469,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Exhaustive 32-bit testing\n";
         for (int iNB = 0; iNB <= BPW; ++iNB) {
             uint32_t nbBits = Util::lt(iNB);
-            for (int iIdx = 0; iIdx <= BPW - iNB; ++iIdx) {
+            // When '((iIdx == BPW) && (iNB == 0))' this test is UB, but this
+            // case is covered by DATA_A table.
+            for (int iIdx = 0; (iIdx <= BPW - iNB) && (iIdx < BPW); ++iIdx) {
                 ASSERTV(iNB, iIdx, (nbBits << iIdx) == Util::one(iIdx, iNB));
                 ASSERTV(iNB, iIdx, (nbBits << iIdx) == ~Util::zero(iIdx, iNB));
             }
@@ -478,7 +480,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Exhaustive 64-bit testing\n";
         for (int iNB = 0; iNB <= BPS; ++iNB) {
             uint64_t nbBits = Util::lt64(iNB);
-            for (int iIdx = 0; iIdx <= BPS - iNB; ++iIdx) {
+            // When '((iIdx == BPW) && (iNB == 0))' this test is UB, but this
+            // case is covered by DATA_B table.
+            for (int iIdx = 0; (iIdx <= BPS - iNB) && (iIdx < BPS); ++iIdx) {
                 ASSERTV(iNB, iIdx, (nbBits << iIdx) == Util::one64(iIdx, iNB));
                 ASSERTV(iNB, iIdx, (nbBits << iIdx) ==
                                                      ~Util::zero64(iIdx, iNB));
