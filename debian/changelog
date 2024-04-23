@@ -1,8 +1,16 @@
-bsl-internal (4.7.1.0) unstable; urgency=low
+bsl-internal (4.7.2.0) unstable; urgency=low
 
+  * 7a5e861a5 Bumped version to 4.7.2.0
+  * ab4ab7a26 Fix link coercion symbols section. (#4709)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 23 Apr 2024 12:54:10 -0400
+
+bsl-internal (4.7.1.0) git; urgency=low
+
+  * 3c78bf55f Changelog for version 4.7.1.0
   * e270bb1e5 Bumped version to 4.7.1.0
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Apr 2024 19:17:48 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Apr 2024 19:19:07 -0400
 
 bsl-internal (4.7.0.0) git; urgency=low
 
