@@ -24,7 +24,9 @@
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_iostream.h>
+#include <bsl_iomanip.h>
 #include <bsl_new.h>          // placement 'new' syntax
+#include <bsl_sstream.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>           // getpid()
@@ -200,6 +202,8 @@ enum { NUM_TEST_MSGS = sizeof(testMsgs) / sizeof(testMsgs[0]) };
 
 static const bsl::string PALATE_CLEANSER1 = "lime sorbet";
 static const bsl::string PALATE_CLEANSER2 = "coffee grounds";
+
+const bsl::ostringstream REF_STREAM;
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -489,19 +493,38 @@ int main(int argc, char *argv[])
                     mX.messageStream() << testMsgs[i].msg;
                     LOOP2_ASSERT(i, j, mX.messageRef() == testMsgs[i].msg);
 
-                    mX.messageStream().setstate(bsl::ios_base::failbit);
-                    LOOP2_ASSERT(i, j, !mX.messageStream());
-
                     mX.setMessage(PALATE_CLEANSER1.c_str());
                     LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER1);
-                    LOOP2_ASSERT(i, j, !!mX.messageStream());
 
                     mX.messageStream() << testMsgs[j].msg;
                     LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER1 +
                                                               testMsgs[j].msg);
 
+                    mX.messageStream()
+                        << bsl::hex
+                        << bsl::setw(1)
+                        << bsl::setprecision(1)
+                        << bsl::setfill('*');
+                    mX.messageStream().exceptions(std::ios_base::failbit);
+                    mX.messageStream().tie(&bsl::cout);
+
                     mX.setMessage(PALATE_CLEANSER2.c_str());
                     LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER2);
+                    LOOP2_ASSERT(i, j, mX.messageStream().flags() ==
+                                                           REF_STREAM.flags());
+                    LOOP2_ASSERT(i, j, mX.messageStream().width() ==
+                                                           REF_STREAM.width());
+                    LOOP2_ASSERT(i, j, mX.messageStream().fill() ==
+                                                           REF_STREAM.fill());
+                    LOOP2_ASSERT(i, j, mX.messageStream().precision() ==
+                                                       REF_STREAM.precision());
+                    LOOP2_ASSERT(i, j, mX.messageStream().rdstate() ==
+                                                         REF_STREAM.rdstate());
+                    LOOP2_ASSERT(i, j, mX.messageStream().exceptions() ==
+                                                      REF_STREAM.exceptions());
+                    LOOP2_ASSERT(i, j, mX.messageStream().tie() ==
+                                                             REF_STREAM.tie());
+
                     {
                         bsl::ostream ostr(&mX.messageStreamBuf());
                         ostr << testMsgs[j].msg;
@@ -523,10 +546,33 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(i, j, !!mX.messageStream());
 
                     mX.messageStream() << testMsgs[j].msg;
+
+                    mX.messageStream()
+                        << bsl::hex
+                        << bsl::setw(1)
+                        << bsl::setprecision(1)
+                        << bsl::setfill('*');
+                    mX.messageStream().exceptions(std::ios_base::failbit);
+                    mX.messageStream().tie(&bsl::cout);
+
                     LOOP2_ASSERT(i, j, mX.messageRef() == testMsgs[j].msg);
 
                     mX.clearMessage();
                     LOOP2_ASSERT(i, j, mX.messageRef() == "");
+                    LOOP2_ASSERT(i, j, mX.messageStream().flags() ==
+                                                           REF_STREAM.flags());
+                    LOOP2_ASSERT(i, j, mX.messageStream().width() ==
+                                                           REF_STREAM.width());
+                    LOOP2_ASSERT(i, j, mX.messageStream().fill() ==
+                                                           REF_STREAM.fill());
+                    LOOP2_ASSERT(i, j, mX.messageStream().precision() ==
+                                                       REF_STREAM.precision());
+                    LOOP2_ASSERT(i, j, mX.messageStream().rdstate() ==
+                                                         REF_STREAM.rdstate());
+                    LOOP2_ASSERT(i, j, mX.messageStream().exceptions() ==
+                                                      REF_STREAM.exceptions());
+                    LOOP2_ASSERT(i, j, mX.messageStream().tie() ==
+                                                             REF_STREAM.tie());
                     {
                         bsl::ostream ostr(&mX.messageStreamBuf());
                         ostr << testMsgs[j].msg;
@@ -1415,21 +1461,44 @@ int main(int argc, char *argv[])
                 mX.messageStream() << testMsgs[i].msg;
                 LOOP2_ASSERT(i, j, mX.messageRef() == testMsgs[i].msg);
 
-                mX.messageStream().setstate(bsl::ios_base::failbit);
-                LOOP2_ASSERT(i, j, !mX.messageStream());
-
                 mY.setMessage(PALATE_CLEANSER1.c_str());
                 mX = mY;
                 LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER1);
-                LOOP2_ASSERT(i, j, !!mX.messageStream());
 
                 mX.messageStream() << testMsgs[j].msg;
                 LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER1 +
                                                           testMsgs[j].msg);
 
+                mX.messageStream()
+                    << bsl::hex
+                    << bsl::setw(1)
+                    << bsl::setprecision(1)
+                    << bsl::setfill('*');
+                mY.messageStream()
+                    << bsl::hex
+                    << bsl::setw(1)
+                    << bsl::setprecision(1)
+                    << bsl::setfill('*');
+                mX.messageStream().exceptions(std::ios_base::failbit);
+                mX.messageStream().tie(&bsl::cout);
+
                 mY.setMessage(PALATE_CLEANSER2.c_str());
                 mX = mY;
                 LOOP2_ASSERT(i, j, mX.messageRef() == PALATE_CLEANSER2);
+                LOOP2_ASSERT(i, j, mX.messageStream().flags() ==
+                                                       REF_STREAM.flags());
+                LOOP2_ASSERT(i, j, mX.messageStream().width() ==
+                                                       REF_STREAM.width());
+                LOOP2_ASSERT(i, j, mX.messageStream().fill() ==
+                                                       REF_STREAM.fill());
+                LOOP2_ASSERT(i, j, mX.messageStream().precision() ==
+                                                   REF_STREAM.precision());
+                LOOP2_ASSERT(i, j, mX.messageStream().rdstate() ==
+                                                     REF_STREAM.rdstate());
+                LOOP2_ASSERT(i, j, mX.messageStream().exceptions() ==
+                                                  REF_STREAM.exceptions());
+                LOOP2_ASSERT(i, j, mX.messageStream().tie() ==
+                                                         REF_STREAM.tie());
                 {
                     bsl::ostream ostr(&mX.messageStreamBuf());
                     ostr << testMsgs[j].msg;

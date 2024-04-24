@@ -81,7 +81,7 @@ void RecordAttributes::setMessage(const char *message)
         d_messageStreamBuf.sputc(*message);
         ++message;
     }
-    d_messageStream.clear();
+    resetMessageStreamState();
 }
 
 RecordAttributes& RecordAttributes::operator=(const RecordAttributes& rhs)
@@ -97,7 +97,7 @@ RecordAttributes& RecordAttributes::operator=(const RecordAttributes& rhs)
         d_messageStreamBuf.pubseekpos(0);
         d_messageStreamBuf.sputn(rhs.d_messageStreamBuf.data(),
                                  rhs.d_messageStreamBuf.length());
-        d_messageStream.clear();
+        resetMessageStreamState();
     }
     return *this;
 }

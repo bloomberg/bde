@@ -46,7 +46,8 @@ BSLS_IDENT("$Id: $")
 // any I/O stream objects independently.  This is useful because 'ball::Record'
 // objects and their 'RecordAttributes' are cached for performance.  Note that
 // it's possible for two equal instances of 'RecordAttributes' objects to have
-// different stream states if operations to manipulate the stream fail.
+// different stream states.  Resetting the message will clear most stream
+// state, except for the locale, installed callbacks, and any pword/iword data.
 //
 // For each attribute, there is a method to access its value and a method to
 // change its value.  E.g., for the timestamp attribute, there is the
@@ -256,6 +257,13 @@ class RecordAttributes {
     // FRIENDS
     friend bool operator==(const RecordAttributes&, const RecordAttributes&);
 
+    // PRIVATE MANIPULATORS
+    void resetMessageStreamState();
+        // Reset the message stream state to the default stream state, except
+        // for the imbued locale, any installed callbacks, and any pword/iword
+        // data (in practice these are unlikely to deviate from the default in
+        // the first place).
+
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(RecordAttributes,
@@ -435,6 +443,23 @@ bsl::ostream& operator<<(bsl::ostream& stream, const RecordAttributes& object);
                         // class RecordAttributes
                         // ----------------------
 
+// PRIVATE MANIPULATORS
+inline
+void RecordAttributes::resetMessageStreamState()
+{
+    // See basic_ios::init; note that we intentionally avoid 'copyfmt' here as
+    // re-imbuing the stream with a locale is quite expensive, and would defeat
+    // the purpose of caching the stream object in the attributes in the first
+    // place.
+    d_messageStream.exceptions(bsl::ios_base::goodbit);
+    d_messageStream.clear();
+    d_messageStream.tie(0);
+    d_messageStream.flags(bsl::ios_base::dec | bsl::ios_base::skipws);
+    d_messageStream.fill(' ');
+    d_messageStream.precision(6);
+    d_messageStream.width(0);
+}
+
 // MANIPULATORS
 inline
 void RecordAttributes::clearMessage()
@@ -451,7 +476,7 @@ void RecordAttributes::clearMessage()
     else {
         d_messageStreamBuf.pubseekpos(0);
     }
-    d_messageStream.clear();
+    resetMessageStreamState();
 }
 
 inline
