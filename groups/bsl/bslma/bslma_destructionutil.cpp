@@ -10,7 +10,14 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_usesbslmaallocator.h>   // for testing only
 
 namespace BloombergLP {
+namespace bslma {
 
+void DestructionUtil::scribbleOverMemory(void *address, size_t numBytes)
+{
+    memset(address, 0xA5, numBytes);
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -126,6 +126,12 @@ struct DestructionUtil {
         // is bit-wise copyable.  Note that the second argument is for overload
         // resolution only and its value is ignored.
 
+    static void scribbleOverMemory(void *address, size_t numBytes);
+        // Write the specified 'numBytes' bytes of arbitary values at the
+        // specified 'address'.  Note that this function is deliberately out
+        // of line to avoid compiler warnings, most importantly a spurious
+        // gcc-11 warning https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101854.
+
   public:
     // CLASS METHODS
     template <class TYPE>
@@ -152,33 +158,9 @@ inline
 void DestructionUtil::destroy(TYPE *address, bsl::true_type)
 {
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wclass-memaccess"
-# endif
-
-    // GCC 11 has a bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101854
-    // which mistakenly generates a -Wstringop-overflow warning for this code.
-    // For that compiler, we replace the call to 'memset' with a loop.  This
-    // bug is fixed in GCC 12.  At '-O2' and '-O3', (on GCC 11) the loop
-    // generates identical code as the call to 'memset'.
-#if defined(BSLS_PLATFORM_CMP_GNU) &&                                        \
-           (BSLS_PLATFORM_CMP_VERSION >= 110000) &&                          \
-           (BSLS_PLATFORM_CMP_VERSION < 120000)
-    unsigned char *pBegin = reinterpret_cast<unsigned char *>(address);
-    unsigned char *pEnd   = pBegin + sizeof(TYPE);
-    for (unsigned char *p = pBegin; p < pEnd; ++p) {
-        *p = 0xa5;
-    }
-# else
-    memset(address, 0xa5, sizeof(TYPE));
-# endif
-# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
-# pragma GCC diagnostic pop
-# endif
-#else
-    (void) address;
+    scribbleOverMemory(address, sizeof(TYPE));
 #endif
+    (void)address;
 }
 
 template <class TYPE>
