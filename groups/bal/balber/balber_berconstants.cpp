@@ -34,7 +34,7 @@ bsl::ostream& balber::operator<<(bsl::ostream&          stream,
         return stream <<  "PRIVATE";                                  // RETURN
     }
 
-    BSLS_ASSERT(!"encountered out-of-bound enumerated value");
+    BSLS_ASSERT(0 == "encountered out-of-bound enumerated value");
 
     return stream;
 }
@@ -49,7 +49,7 @@ bsl::ostream& balber::operator<<(bsl::ostream&         stream,
         return stream <<  "CONSTRUCTED";                              // RETURN
     }
 
-    BSLS_ASSERT(!"encountered out-of-bound enumerated value");
+    BSLS_ASSERT(0 == "encountered out-of-bound enumerated value");
 
     return stream;
 }

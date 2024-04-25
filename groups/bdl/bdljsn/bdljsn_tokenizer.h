@@ -292,7 +292,7 @@ class Tokenizer {
     bool                d_allowConsecutiveSeparators;
                                             // option for allowing consecutive
                                             // separators (i.e., ':', or ',')
-    
+
     bool                d_allowFormFeedAsWhitespace;
                                             // option for allowing '\f' as
                                             // whitespace in addition to ' ',
@@ -537,7 +537,7 @@ class Tokenizer {
         //                        // can also initialize a JSON string
         //                        // with an actual and newline characters.
         //..
-        // Also note that the two resulting strings do *not* compare equal. 
+        // Also note that the two resulting strings do *not* compare equal.
 
     Tokenizer& setConformanceMode(ConformanceMode mode);
         // Set the 'conformanceMode' of this tokenizer to the specified 'mode'
@@ -801,7 +801,7 @@ Tokenizer& Tokenizer::setConformanceMode(Tokenizer::ConformanceMode mode)
         d_allowUnescapedControlCharacters = false;
       } break;
       default: {
-        BSLS_ASSERT_OPT(!"reached");
+        BSLS_ASSERT_OPT(0 == "reached");
       }
     }
     return *this;

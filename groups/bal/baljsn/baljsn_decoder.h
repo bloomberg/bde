@@ -926,7 +926,7 @@ template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder::decodeImp(TYPE *, ANY_CATEGORY)
 {
-    BSLS_ASSERT_OPT(!"Unreachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 
     return -1;
 }
@@ -1091,7 +1091,7 @@ template <class TYPE>
 inline
 int Decoder_DecodeImpProxy::operator()(TYPE *, bslmf::Nil)
 {
-    BSLS_ASSERT_OPT(!"Unreachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 
     return -1;
 }

@@ -141,7 +141,7 @@ void LogFileCleanerUtil::logPatternToFilePattern(
             }
           } break;
           default: {
-            BSLS_ASSERT(!"Invalid parser state.");
+            BSLS_ASSERT(0 == "Invalid parser state.");
           } break;
         }
         ++idx;
@@ -160,7 +160,7 @@ void LogFileCleanerUtil::logPatternToFilePattern(
       case e_ESCAPE_POST_STATE: {
       } break;
       default: {
-        BSLS_ASSERT(!"Invalid parser state.");
+        BSLS_ASSERT(0 == "Invalid parser state.");
       } break;
     }
 }

@@ -1925,7 +1925,7 @@ template <class TYPE>
 inline
 int Encoder_ValueDispatcher::operator()(const TYPE&, bslmf::Nil)
 {
-    BSLS_ASSERT_OPT(!"Unreachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
     return -1;
 }
 
@@ -2191,7 +2191,7 @@ int Encoder_ElementDispatcher::operator()(const TYPE&                element,
 template <class TYPE>
 int Encoder_ElementDispatcher::operator()(const TYPE&, bslmf::Nil)
 {
-    BSLS_ASSERT_OPT(!"Unreachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
     return -1;
 }
 
@@ -2314,7 +2314,7 @@ template <class TYPE>
 inline
 int Encoder_SelectionDispatcher::operator()(const TYPE&, bslmf::Nil)
 {
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
     return -1;
 }
 
@@ -2496,7 +2496,7 @@ template <class TYPE>
 inline
 int Encoder_AttributeDispatcher::operator()(const TYPE&, bslmf::Nil)
 {
-    BSLS_ASSERT_OPT(!"Unreachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
     return -1;
 }
 

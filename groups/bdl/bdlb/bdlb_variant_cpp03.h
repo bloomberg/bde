@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Oct 13 11:34:37 2023
+// Generated on Tue Apr 23 20:05:34 2024
 // Command line: sim_cpp11_features.pl bdlb_variant.h
 
 #ifdef COMPILING_BDLB_VARIANT_H
@@ -6243,7 +6243,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type)
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(!"'doApply' invoked on an unset variant");
+        BSLS_ASSERT(0 == "'doApply' invoked on an unset variant");
       } break;
       case 1: {
         applyImp<typename Base::Type1, VISITOR_REF>(visitor);
@@ -6306,7 +6306,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type)
         applyImp<typename Base::Type20, VISITOR_REF>(visitor);
       } break;
       default: {
-        BSLS_ASSERT(!"Unreachable by design!");
+        BSLS_ASSERT(0 == "Unreachable by design!");
       } break;
     }
 }
@@ -6336,7 +6336,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type)
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(!"'doApplyR' invoked on an unset variant");
+        BSLS_ASSERT(0 == "'doApplyR' invoked on an unset variant");
       } break;
       case 1: {
         return applyImpR<typename Base::Type1,
@@ -6439,7 +6439,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type)
                          RET_TYPE>(visitor);                          // RETURN
       } break;
       default: {
-        BSLS_ASSERT(!"Unreachable by design!");
+        BSLS_ASSERT(0 == "Unreachable by design!");
       } break;
     }
 
@@ -6514,7 +6514,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type) const
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(!"'doApply' invoked on an unset variant");
+        BSLS_ASSERT(0 == "'doApply' invoked on an unset variant");
       } break;
       case 1: {
         applyImp<typename Base::Type1, VISITOR_REF>(visitor);
@@ -6577,7 +6577,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type) const
         applyImp<typename Base::Type20, VISITOR_REF>(visitor);
       } break;
       default: {
-        BSLS_ASSERT(!"Unreachable by design!");
+        BSLS_ASSERT(0 == "Unreachable by design!");
       } break;
     }
 }
@@ -6588,7 +6588,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type) const
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(!"'doApplyR' invoked on an unset variant");
+        BSLS_ASSERT(0 == "'doApplyR' invoked on an unset variant");
       } break;
       case 1: {
         return applyImpR<typename Base::Type1,
@@ -6691,7 +6691,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type) const
                          RET_TYPE>(visitor);                          // RETURN
       } break;
       default: {
-        BSLS_ASSERT(!"Unreachable by design!");
+        BSLS_ASSERT(0 == "Unreachable by design!");
       } break;
     }
 
@@ -11527,7 +11527,7 @@ operator=(bslmf::MovableRef<Variant19> rhs)
 #endif // ! defined(INCLUDED_BDLB_VARIANT_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

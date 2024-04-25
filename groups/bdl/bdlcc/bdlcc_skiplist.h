@@ -3742,7 +3742,7 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
         }
     }
 
-    BSLS_ASSERT(!"unreachable");
+    BSLS_ASSERT(0 == "unreachable");
 
     return false;
 }
@@ -3787,7 +3787,7 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
         }
     }
 
-    BSLS_ASSERT(!"unreachable");
+    BSLS_ASSERT(0 == "unreachable");
 
     return false;
 }

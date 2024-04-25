@@ -1591,7 +1591,7 @@ class my_ModifyingVisitor {
 
     void operator()(bslmf::Nil) const
     {
-        ASSERT("Should never be here!");
+        ASSERTV("Should never be here!", false);
     }
 };
 
@@ -1646,7 +1646,7 @@ class my_NonReturningVisitor {
 
     int operator()(bslmf::Nil) const
     {
-        ASSERT("Should never be here!");
+        ASSERTV("Should never be here!", false);
         return -1;
     }
 };
@@ -1720,7 +1720,7 @@ class my_ConstVisitor {
 
     void operator()(bslmf::Nil) const
     {
-        ASSERT("Should never be here!");
+        ASSERTV("Should never be here!", false);
     }
 };
 
@@ -1781,7 +1781,7 @@ class my_ConstReturningVisitor {
 
     ResultType operator()(bslmf::Nil) const
     {
-        ASSERT("Should never be here!");
+        ASSERTV("Should never be here!", false);
         return -1;
     }
 };
@@ -4068,7 +4068,7 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
             }
             break;
           default:
-            ASSERT(!"Should never be here!");
+            ASSERTV("Should never be here!", false);
         }
 
         ASSERTV(i, intOpCalled, visitor.intOperatorNumCalled(),
@@ -4236,7 +4236,7 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             }
             break;
           default:
-            ASSERT(!"Should never be here!");
+            ASSERTV("Should never be here!", false);
         }
 
         ASSERTV(i, intOpCalled, visitor.intOperatorNumCalled(),
@@ -29327,7 +29327,7 @@ void TestUtil::testCase13()
 
                   } break;
                   default: {
-                    ASSERT(!"Unreachable by design");
+                    ASSERTV("Unreachable by design", false);
                   }
                 }
 
@@ -29354,7 +29354,7 @@ void TestUtil::testCase13()
                     ASSERTV(LINE1, LINE2, TestVoid() == X.the<TestVoid>());
                   } break;
                   default: {
-                    ASSERT(!"Unreachable by design");
+                    ASSERTV("Unreachable by design", false);
                   }
                 }
             }
@@ -29428,7 +29428,7 @@ void TestUtil::testCase13()
                   ASSERTV(LINE1, LINE2, TestVoid() == X.the<TestVoid>());
                 } break;
                 default: {
-                  ASSERT(!"Unreachable by design");
+                  ASSERTV("Unreachable by design", false);
                 }
               }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -29672,7 +29672,7 @@ void TestUtil::testCase12()
 
           } break;
           default: {
-            ASSERT(!"Not reachable by design");
+            ASSERTV("Not reachable by design", false);
           }
         }
     }

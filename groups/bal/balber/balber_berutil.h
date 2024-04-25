@@ -4835,7 +4835,7 @@ int BerUtil_DateAndTimeHeaderImpUtil::getValue(Header        *value,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -5077,7 +5077,7 @@ int BerUtil_DateImpUtil::getDateOrDateTzValue(DateOrDateTz   *value,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -5521,7 +5521,7 @@ int BerUtil_TimeImpUtil::getTimeValue(bdlt::Time     *value,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -5550,7 +5550,7 @@ int BerUtil_TimeImpUtil::putTimeValue(bsl::streambuf          *streamBuf,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -5594,7 +5594,7 @@ int BerUtil_TimeImpUtil::getTimeTzValue(bdlt::TimeTz   *value,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -5627,7 +5627,7 @@ int BerUtil_TimeImpUtil::putTimeTzValue(bsl::streambuf          *streamBuf,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -5677,7 +5677,7 @@ int BerUtil_TimeImpUtil::getTimeOrTimeTzValue(TimeOrTimeTz   *value,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -5977,7 +5977,7 @@ int BerUtil_DatetimeImpUtil::putDatetimeValue(
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -6022,7 +6022,7 @@ int BerUtil_DatetimeImpUtil::getDatetimeValue(bdlt::Datetime *value,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -6081,7 +6081,7 @@ int BerUtil_DatetimeImpUtil::putDatetimeTzValue(
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -6126,7 +6126,7 @@ int BerUtil_DatetimeImpUtil::getDatetimeTzValue(bdlt::DatetimeTz *value,
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else
@@ -6179,7 +6179,7 @@ int BerUtil_DatetimeImpUtil::getDatetimeOrDatetimeTzValue(
       } break;
     }
 
-    BSLS_ASSERT_OPT(!"Reachable");
+    BSLS_ASSERT_OPT(0 == "Unreachable");
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_UNREACHABLE;
 #else

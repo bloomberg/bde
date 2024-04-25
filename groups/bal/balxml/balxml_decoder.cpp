@@ -729,7 +729,7 @@ Decoder_StdStringContext::Decoder_StdStringContext(bsl::string *object,
         d_context_p = &d_hexContext.object();
       } break;
       default: {
-        BSLS_ASSERT(!"Unsupported formatting mode!");
+        BSLS_ASSERT(0 == "Unsupported formatting mode!");
       } break;
     }
 }
@@ -803,7 +803,7 @@ Decoder_StdVectorCharContext::Decoder_StdVectorCharContext(
         d_context_p = &d_utf8Context.object();
       } break;
       default: {
-        BSLS_ASSERT(!"Unsupported formatting mode!");
+        BSLS_ASSERT(0 == "Unsupported formatting mode!");
       } break;
     }
 }

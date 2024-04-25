@@ -2097,7 +2097,7 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
         oflag = O_WRONLY | O_APPEND;
       } break;
       default: {
-        BSLS_ASSERT_OPT(!"Unknown IO policy");
+        BSLS_ASSERT_OPT(0 == "Unknown IO policy");
       } break;
     }
 
@@ -2128,7 +2128,7 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
       } break;
       default: {
-        BSLS_ASSERT_OPT(!"Unknown open policy");
+        BSLS_ASSERT_OPT(0 == "Unknown open policy");
       } break;
     }
 

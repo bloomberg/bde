@@ -6613,7 +6613,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type)
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(!"'doApply' invoked on an unset variant");
+        BSLS_ASSERT(0 == "'doApply' invoked on an unset variant");
       } break;
       case 1: {
         applyImp<typename Base::Type1, VISITOR_REF>(visitor);
@@ -6676,7 +6676,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type)
         applyImp<typename Base::Type20, VISITOR_REF>(visitor);
       } break;
       default: {
-        BSLS_ASSERT(!"Unreachable by design!");
+        BSLS_ASSERT(0 == "Unreachable by design!");
       } break;
     }
 }
@@ -6706,7 +6706,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type)
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(!"'doApplyR' invoked on an unset variant");
+        BSLS_ASSERT(0 == "'doApplyR' invoked on an unset variant");
       } break;
       case 1: {
         return applyImpR<typename Base::Type1,
@@ -6809,7 +6809,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type)
                          RET_TYPE>(visitor);                          // RETURN
       } break;
       default: {
-        BSLS_ASSERT(!"Unreachable by design!");
+        BSLS_ASSERT(0 == "Unreachable by design!");
       } break;
     }
 
@@ -6884,7 +6884,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type) const
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(!"'doApply' invoked on an unset variant");
+        BSLS_ASSERT(0 == "'doApply' invoked on an unset variant");
       } break;
       case 1: {
         applyImp<typename Base::Type1, VISITOR_REF>(visitor);
@@ -6947,7 +6947,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type) const
         applyImp<typename Base::Type20, VISITOR_REF>(visitor);
       } break;
       default: {
-        BSLS_ASSERT(!"Unreachable by design!");
+        BSLS_ASSERT(0 == "Unreachable by design!");
       } break;
     }
 }
@@ -6958,7 +6958,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type) const
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(!"'doApplyR' invoked on an unset variant");
+        BSLS_ASSERT(0 == "'doApplyR' invoked on an unset variant");
       } break;
       case 1: {
         return applyImpR<typename Base::Type1,
@@ -7061,7 +7061,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type) const
                          RET_TYPE>(visitor);                          // RETURN
       } break;
       default: {
-        BSLS_ASSERT(!"Unreachable by design!");
+        BSLS_ASSERT(0 == "Unreachable by design!");
       } break;
     }
 

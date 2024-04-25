@@ -492,7 +492,7 @@ const char *EncoderTestChoiceWithAllCategoriesEnumeration::toString(EncoderTestC
       }
     }
 
-    BSLS_ASSERT(!"invalid enumerator");
+    BSLS_ASSERT(0 == "invalid enumerator");
     return 0;
 }
 
@@ -995,7 +995,7 @@ const char *EncoderTestSequenceWithAllCategoriesEnumeration::toString(EncoderTes
       }
     }
 
-    BSLS_ASSERT(!"invalid enumerator");
+    BSLS_ASSERT(0 == "invalid enumerator");
     return 0;
 }
 

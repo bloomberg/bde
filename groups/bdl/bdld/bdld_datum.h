@@ -3685,7 +3685,7 @@ bool Datum::isExternalReference() const
       case e_INTERNAL_USERDEFINED:
         return true;                                                  // RETURN
       case e_INTERNAL_UNINITIALIZED:
-        BSLS_ASSERT(!"Uninitialized Datum!!");
+        BSLS_ASSERT(0 == "Uninitialized Datum!!");
         break;
       default:
         break;
@@ -3778,7 +3778,7 @@ DatumBinaryRef Datum::theBinary() const
       case e_INTERNAL_BINARY_ALLOC:
         return DatumBinaryRef(d_as.d_ptr, d_as.d_int32);              // RETURN
       default:
-        BSLS_ASSERT(!"NOT A BINARY");
+        BSLS_ASSERT(0 == "NOT A BINARY");
     }
     return DatumBinaryRef();
 #endif  // end - 64 bit
@@ -4217,14 +4217,14 @@ void Datum::apply(t_VISITOR& visitor) const
             visitor(bslmf::Nil());
             break;
           default:
-            BSLS_ASSERT_SAFE(!"UNKNOWN TYPE");
+            BSLS_ASSERT_SAFE(0 == "UNKNOWN TYPE");
         }
         break;
       case e_INTERNAL_DOUBLE:
         visitor(d_double);
         break;
       default:
-        BSLS_ASSERT_SAFE(!"Unknown type!!");
+        BSLS_ASSERT_SAFE(0 == "Unknown type!!");
     }
 #else   // end - 32 bit / begin - 64 bit
     switch (internalType()) {
@@ -4309,10 +4309,10 @@ void Datum::apply(t_VISITOR& visitor) const
           visitor(theIntMap());
           break;
       case e_INTERNAL_UNINITIALIZED:
-        BSLS_ASSERT(!"Uninitialized Datum!!");
+        BSLS_ASSERT(0 == "Uninitialized Datum!!");
         break;
       default:
-        BSLS_ASSERT_SAFE(!"Unknown type!!");
+        BSLS_ASSERT_SAFE(0 == "Unknown type!!");
     }
 #endif // end - 64 bit
 }
@@ -4878,7 +4878,7 @@ void bdld::hashAppend(t_HASH_ALGORITHM& hashAlg, const bdld::Datum& input)
             }
         } break;
         default: {
-            BSLS_ASSERT(!"unknown 'bdld::Datum' type");
+            BSLS_ASSERT(0 == "unknown 'bdld::Datum' type");
         }
     }
 }

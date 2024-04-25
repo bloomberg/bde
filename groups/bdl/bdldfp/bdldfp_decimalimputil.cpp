@@ -462,7 +462,7 @@ int formatImpl(char                      *buffer,
 
           } break;
           default: {
-            BSLS_ASSERT(!"Unexpected format style value");
+            BSLS_ASSERT(0 == "Unexpected format style value");
           } break;
         }
       } break;
@@ -515,17 +515,17 @@ static int canonicalizeDecimalValueClassification(int classification)
     enum class_types cl = static_cast<class_types>(classification);
     switch (cl) {
     case signalingNaN:
-    case quietNaN:          return FP_NAN;                      // RETURN
+    case quietNaN:          return FP_NAN;                            // RETURN
     case negativeInfinity:
-    case positiveInfinity:  return FP_INFINITE;                 // RETURN
+    case positiveInfinity:  return FP_INFINITE;                       // RETURN
     case negativeZero:
-    case positiveZero:      return FP_ZERO;                     // RETURN
+    case positiveZero:      return FP_ZERO;                           // RETURN
     case negativeNormal:
-    case positiveNormal:    return FP_NORMAL;                   // RETURN
+    case positiveNormal:    return FP_NORMAL;                         // RETURN
     case negativeSubnormal:
-    case positiveSubnormal: return FP_SUBNORMAL;                // RETURN
+    case positiveSubnormal: return FP_SUBNORMAL;                      // RETURN
     }
-    BSLS_ASSERT(!"Unknown decClass");
+    BSLS_ASSERT(0 == "Unknown decClass");
     return -1;
 }
 

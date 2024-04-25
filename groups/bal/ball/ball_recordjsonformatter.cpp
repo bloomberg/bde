@@ -976,7 +976,7 @@ int TimestampFormatter::format(baljsn::SimpleFormatter *formatter,
         }
       } break;
       default: {
-          BSLS_ASSERT(!"Unexpected timestamp format");
+          BSLS_ASSERT(0 == "Unexpected timestamp format");
           return -1;                                                  // RETURN
       }
     }
@@ -1069,7 +1069,7 @@ int ThreadIdFormatter::format(baljsn::SimpleFormatter *formatter,
         rc = formatter->addValue(d_name, &buffer[0]);
       } break;
       default: {
-          BSLS_ASSERT(!"Unexpected thread format");
+          BSLS_ASSERT(0 == "Unexpected thread format");
           return -1;                                                  // RETURN
       }
     }
@@ -1239,7 +1239,7 @@ int FileFormatter::format(baljsn::SimpleFormatter *formatter,
         }
       } break;
       default: {
-          BSLS_ASSERT(!"Unexpected file format");
+          BSLS_ASSERT(0 == "Unexpected file format");
       }
     }
     return 0;
