@@ -11,33 +11,34 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlm' package currently has 5 components having 3 levels of physical
+ The 'bdlm' package currently has 5 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  3. bdlm_metricsregistry
+  4. bdlm_metricsregistry                                !DEPRECATED!
 
-  2. bdlm_metricsadapter
+  3. bdlm_metricsadapter                                 !DEPRECATED!
 
-  1. bdlm_instancecount
-     bdlm_metric
-     bdlm_metricdescriptor
+  2. bdlm_metricdescriptor                               !DEPRECATED!
+
+  1. bdlm_instancecount                                  !DEPRECATED!
+     bdlm_metric                                         !DEPRECATED!
 ..
 
 /Component Synopsis
 /------------------
-: 'bdlm_instancecount':
+: 'bdlm_instancecount':                                  !DEPRECATED!
 :      Provide a type specific instance count.
 :
-: 'bdlm_metric':
+: 'bdlm_metric':                                         !DEPRECATED!
 :      Provide a class to store metric values of different types.
 :
-: 'bdlm_metricdescriptor':
+: 'bdlm_metricdescriptor':                               !DEPRECATED!
 :      Provide an attribute class to describe a metric.
 :
-: 'bdlm_metricsregistry':
-:      Provide a transferable registry of metric registrations.
-:
-: 'bdlm_metricsadapter':
+: 'bdlm_metricsadapter':                                 !DEPRECATED!
 :      Provide an abstract interface for metrics registration mechanisms.
+:
+: 'bdlm_metricsregistry':                                !DEPRECATED!
+:      Provide a transferable registry of metric registrations.
