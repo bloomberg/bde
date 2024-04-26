@@ -37,6 +37,7 @@
 #include <bsl_limits.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
+#include <bsl_type_traits.h>
 #include <bsl_unordered_set.h>
 #include <bsl_vector.h>
 
@@ -160,8 +161,8 @@ using bdldfp::Decimal64;
 //                              // class Datum
 //                              // -----------
 // TYPES
-// [26] enum DataType { ... };
-// [26] enum { k_NUM_TYPES = ... };
+// [27] enum DataType { ... };
+// [27] enum { k_NUM_TYPES = ... };
 //
 // CREATORS
 // [ 3] Datum() = default;
@@ -169,8 +170,8 @@ using bdldfp::Decimal64;
 // [ 5] Datum(const Datum& original) = default;
 //
 // CLASS METHODS
-// [15] Datum createArrayReference(const Datum *, SizeType, Allocator *);
-// [15] Datum createArrayReference(const DatumArrayRef&, Allocator *);
+// [16] Datum createArrayReference(const Datum *, SizeType, Allocator *);
+// [16] Datum createArrayReference(const DatumArrayRef&, Allocator *);
 // [ 3] Datum createBoolean(bool);
 // [ 3] Datum createDate(const bdlt::Date&);
 // [ 3] Datum createDatetime(const bdlt::Datetime&, bslma::Allocator *);
@@ -191,27 +192,27 @@ using bdldfp::Decimal64;
 // [ 3] Datum copyString(const char *, bslma::Allocator *);
 // [ 3] Datum copyString(const char *, SizeType, bslma::Allocator *);
 // [ 3] Datum copyString(const bslstl::StringRef&, bslma::Allocator *);
-// [15] Datum adoptArray(const DatumMutableArrayRef&);
-// [16] Datum adoptIntMap(const DatumMutableIntMapRef& map);
-// [17] Datum adoptMap(const DatumMutableMapRef& map);
-// [17] Datum adoptMap(const DatumMutableMapOwningKeysRef& map);
-// [15] Datum createArrayReference(const Datum *, SizeType, Allocator *);
-// [15] void createUninitializedArray(DatumMutableArrayRef*,SizeType,...);
-// [17] void createUninitializedMap(DatumMutableMapRef*, SizeType, ...);
-// [17] void createUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
-// [18] char *createUninitializedString(Datum&, SizeType, Allocator *);
-// [28] const char *dataTypeToAscii(Datum::DataType);
+// [16] Datum adoptArray(const DatumMutableArrayRef&);
+// [17] Datum adoptIntMap(const DatumMutableIntMapRef& map);
+// [18] Datum adoptMap(const DatumMutableMapRef& map);
+// [18] Datum adoptMap(const DatumMutableMapOwningKeysRef& map);
+// [16] Datum createArrayReference(const Datum *, SizeType, Allocator *);
+// [16] void createUninitializedArray(DatumMutableArrayRef*,SizeType,...);
+// [18] void createUninitializedMap(DatumMutableMapRef*, SizeType, ...);
+// [18] void createUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
+// [19] char *createUninitializedString(Datum&, SizeType, Allocator *);
+// [29] const char *dataTypeToAscii(Datum::DataType);
 // [ 3] void destroy(const Datum&, bslma::Allocator *);
-// [26] void disposeUninitializedArray(Datum *, basicAllocator *);
-// [27] void disposeUninitializedMap(DatumMutableMapRef *, ...);
-// [27] void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
+// [27] void disposeUninitializedArray(Datum *, basicAllocator *);
+// [28] void disposeUninitializedMap(DatumMutableMapRef *, ...);
+// [28] void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
 //
 // MANIPULATORS
 // [ 7] Datum& operator=(const Datum& rhs) = default;
 //
 // ACCESSORS
-// [22] Datum clone(bslma::Allocator *basicAllocator) const;
-// [15] bool isArray() const;
+// [23] Datum clone(bslma::Allocator *basicAllocator) const;
+// [16] bool isArray() const;
 // [ 3] bool isBoolean() const;
 // [ 3] bool isBinary() const;
 // [ 3] bool isDate() const;
@@ -220,16 +221,16 @@ using bdldfp::Decimal64;
 // [ 3] bool isDecimal64() const;
 // [ 3] bool isDouble() const;
 // [ 3] bool isError() const;
-// [20] bool isExternalReference() const;
+// [21] bool isExternalReference() const;
 // [ 3] bool isInteger() const;
 // [ 3] bool isInteger64() const;
-// [16] bool isIntMap() const;
-// [17] bool isMap() const;
+// [17] bool isIntMap() const;
+// [18] bool isMap() const;
 // [ 3] bool isNull() const;
 // [ 3] bool isString() const;
 // [ 3] bool isTime() const;
 // [ 3] bool isUdt() const;
-// [15] DatumArrayRef theArray() const;
+// [16] DatumArrayRef theArray() const;
 // [ 3] DatumBinaryRef theBinary() const;
 // [ 3] bool theBoolean() const;
 // [ 3] bdlt::Date theDate() const;
@@ -243,22 +244,22 @@ using bdldfp::Decimal64;
 // [ 3] bslstl::StringRef theString() const;
 // [ 3] bdlt::Time theTime() const;
 // [ 3] DatumUdt theUdt() const;
-// [16] DatumIntMapRef theIntMap() const;
-// [17] DatumMapRef theMap() const;
-// [21] DataType::Enum type() const;
-// [22] template <class BDLD_VISITOR> void apply(BDLD_VISITOR&) const;
+// [17] DatumIntMapRef theIntMap() const;
+// [18] DatumMapRef theMap() const;
+// [22] DataType::Enum type() const;
+// [23] template <class BDLD_VISITOR> void apply(BDLD_VISITOR&) const;
 // [ 4] bsl::ostream& print(ostream&, int, int) const; // non-aggregate
-// [19] bsl::ostream& print(ostream&, int, int) const; // aggregate
+// [20] bsl::ostream& print(ostream&, int, int) const; // aggregate
 //
 // FREE OPERATORS
 // [ 6] bool operator==(const Datum&, const Datum&);  // non-aggregate
 // [ 6] bool operator!=(const Datum&, const Datum&);  // non-aggregate
-// [25] bool operator==(const Datum&, const Datum&);  // aggregate
-// [25] bool operator!=(const Datum&, const Datum&);  // aggregate
+// [26] bool operator==(const Datum&, const Datum&);  // aggregate
+// [26] bool operator!=(const Datum&, const Datum&);  // aggregate
 // [ 4] bsl::ostream& operator<<(ostream&, const Datum&); // non-aggregate
-// [19] bsl::ostream& operator<<(ostream&, const Datum&); // aggregate
-// [29] bsl::ostream& operator<<(ostream&, const Datum::DataType);
-// [33] void hashAppend(hashAlgorithm, datum);
+// [20] bsl::ostream& operator<<(ostream&, const Datum&); // aggregate
+// [30] bsl::ostream& operator<<(ostream&, const Datum::DataType);
+// [34] void hashAppend(hashAlgorithm, datum);
 //
 //                            // -------------------
 //                            // class DatumMapEntry
@@ -285,104 +286,223 @@ using bdldfp::Decimal64;
 //                          // --------------------------
 //                          // class DatumMutableArrayRef
 //                          // --------------------------
+// PUBLIC TYPES
+// [ 9] element_type
+// [ 9] value_type
+// [ 9] size_type
+// [ 9] difference_type
+// [ 9] pointer
+// [ 9] const_pointer
+// [ 9] reference
+// [ 9] const_reference
+// [ 9] iterator
+// [ 9] const_iterator
+// [ 9] reverse_iterator
+// [ 9] const_reverse_iterator
+// [ 9] SizeType
+//
 // CREATORS
 // [ 9] DatumMutableArrayRef();
 // [ 9] DatumMutableArrayRef(Datum *data, SizeType *length);
 //
-// ACCESSORS
-// [ 9] Datum *data() const;
-// [ 9] SizeType *length() const;
+// MANIPULATORS
+// [ 9] iterator begin();
+// [ 9] reverse_iterator rbegin();
+// [ 9] iterator end();
+// [ 9] reverse_iterator rend();
+// [ 9] reference front();
+// [ 9] reference back();
 //
-//                          // ------------------------
-//                          // class DatumMutableMapRef
-//                          // ------------------------
+// ACCESSORS
+// [ 9] pointer data() const;
+// [ 9] size_type *length() const;
+// [ 9] size_type *size() const;
+// [ 9] const_iterator           begin() const;
+// [ 9] const_iterator          cbegin() const;
+// [ 9] const_reverse_iterator  rbegin() const;
+// [ 9] const_reverse_iterator crbegin() const;
+// [ 9] const_reference front() const;
+// [ 9] const_reference back() const;
+// [ 9] bool empty() const;
+//
+//                        // ------------------------
+//                        // class DatumMutableMapRef
+//                        // ------------------------
+// PUBLIC TYPES
+// [10] element_type
+// [10] value_type
+// [10] size_type
+// [10] difference_type
+// [10] pointer
+// [10] const_pointer
+// [10] reference
+// [10] const_reference
+// [10] iterator
+// [10] const_iterator
+// [10] reverse_iterator
+// [10] const_reverse_iterator
+// [10] SizeType
+//
 // CREATORS
 // [10] DatumMutableMapRef();
 // [10] DatumMutableMapRef(DatumMapEntry *, SizeType *, bool *);
 //
+// MANIPULATORS
+// [10] iterator begin();
+// [10] reverse_iterator rbegin();
+// [10] iterator end();
+// [10] reverse_iterator rend();
+// [10] reference front();
+// [10] reference back();
+//
 // ACCESSORS
-// [10] DatumMapEntry *data() const;
-// [10] SizeType *size() const;
+// [10] pointer data() const;
+// [10] size_type *length() const;
+// [10] size_type *size() const;
+// [10] const_iterator           begin() const;
+// [10] const_iterator          cbegin() const;
+// [10] const_reverse_iterator  rbegin() const;
+// [10] const_reverse_iterator crbegin() const;
+// [10] const_reference front() const;
+// [10] const_reference back() const;
+// [10] bool empty() const;
 // [10] bool *sorted() const;
+//
+//                      // ---------------------------
+//                      // class DatumMutableIntMapRef
+//                      // ---------------------------
+// PUBLIC TYPES
+// [11] element_type
+// [11] value_type
+// [11] size_type
+// [11] difference_type
+// [11] pointer
+// [11] const_pointer
+// [11] reference
+// [11] const_reference
+// [11] iterator
+// [11] const_iterator
+// [11] reverse_iterator
+// [11] const_reverse_iterator
+// [11] SizeType
+//
+// CREATORS
+// [11] DatumMutableMapRef();
+// [11] DatumMutableMapRef(DatumMapEntry *, SizeType *, bool *);
+//
+// MANIPULATORS
+// [11] iterator begin();
+// [11] reverse_iterator rbegin();
+// [11] iterator end();
+// [11] reverse_iterator rend();
+// [11] reference front();
+// [11] reference back();
+//
+// ACCESSORS
+// [11] pointer data() const;
+// [11] size_type *length() const;
+// [11] size_type *size() const;
+// [11] const_iterator           begin() const;
+// [11] const_iterator          cbegin() const;
+// [11] const_reverse_iterator  rbegin() const;
+// [11] const_reverse_iterator crbegin() const;
+// [11] const_reference front() const;
+// [11] const_reference back() const;
+// [11] bool empty() const;
+// [11] bool *sorted() const;
 //
 //                      // ----------------------------------
 //                      // class DatumMutableMapOwningKeysRef
 //                      // ----------------------------------
+// PUBLIC TYPES
+// [12] element_type
+// [12] value_type
+// [12] size_type
+// [12] difference_type
+// [12] pointer
+// [12] const_pointer
+// [12] reference
+// [12] const_reference
+// [12] iterator
+// [12] const_iterator
+// [12] reverse_iterator
+// [12] const_reverse_iterator
+// [12] SizeType
+//
 // CREATORS
-// [11] DatumMutableMapOwningKeysRef();
-// [11] DatumMutableMapOwningKeysRef(DatumMapEntry*,SizeType*,char*, ...);
+// [12] DatumMutableMapOwningKeysRef();
+// [12] DatumMutableMapOwningKeysRef(DatumMapEntry*,SizeType*,char*, ...);
 //
 // ACCESSORS
-// [11] DatumMapEntry *data() const;
-// [11] char *keys() const;
-// [11] SizeType *size() const;
-// [11] bool *sorted() const;
+// [12] DatumMapEntry *data() const;
+// [12] char *keys() const;
+// [12] SizeType *size() const;
+// [12] bool *sorted() const;
 //
 //                           // -------------------
 //                           // class DatumArrayRef
 //                           // -------------------
 // CREATORS
-// [12] DatumArrayRef();
-// [12] DatumArrayRef(const Datum *data, SizeType length);
+// [13] DatumArrayRef();
+// [13] DatumArrayRef(const Datum *data, SizeType length);
 //
 // ACCESSORS
-// [12] const Datum& operator[](SizeType index) const;
-// [12] const Datum *data() const;
-// [12] SizeType length() const;
-// [12] bsl::ostream& print(bsl::ostream& stream, int, int) const;
+// [13] const Datum& operator[](SizeType index) const;
+// [13] const Datum *data() const;
+// [13] SizeType length() const;
+// [13] bsl::ostream& print(bsl::ostream& stream, int, int) const;
 //
 // FREE OPERATORS
-// [12] bool operator==(const DatumArrayRef&, const DatumArrayRef&);
-// [12] bool operator!=(const DatumArrayRef&, const DatumArrayRef&);
-// [12] bsl::ostream& operator<<(bsl::ostream&, const DatumArrayRef&);
+// [13] bool operator==(const DatumArrayRef&, const DatumArrayRef&);
+// [13] bool operator!=(const DatumArrayRef&, const DatumArrayRef&);
+// [13] bsl::ostream& operator<<(bsl::ostream&, const DatumArrayRef&);
 //
 //                         // --------------------
 //                         // class DatumIntMapRef
 //                         // --------------------
 // CREATORS
-// [13] DatumIntMapRef(const DatumIntMapEntry *, SizeType, bool);
+// [14] DatumIntMapRef(const DatumIntMapEntry *, SizeType, bool);
 //
 // ACCESSORS
-// [13] const DatumIntMapEntry& operator[](SizeType index) const;
-// [13] const DatumIntMapEntry *data() const;
-// [13] bool isSorted() const;
-// [13] SizeType size() const;
-// [13] const Datum *find(int key) const;
-// [13] bsl::ostream& print(bsl::ostream&, int,int) const;
+// [14] const DatumIntMapEntry& operator[](SizeType index) const;
+// [14] const DatumIntMapEntry *data() const;
+// [14] bool isSorted() const;
+// [14] SizeType size() const;
+// [14] const Datum *find(int key) const;
+// [14] bsl::ostream& print(bsl::ostream&, int,int) const;
 //
 // FREE OPERATORS
-// [13] bool operator==(const DatumIntMapRef&, const DatumIntMapRef&);
-// [13] bool operator!=(const DatumIntMapRef&, const DatumIntMapRef&);
-// [13] bsl::ostream& operator<<(bsl::ostream&, const DatumIntMapRef&);
+// [14] bool operator==(const DatumIntMapRef&, const DatumIntMapRef&);
+// [14] bool operator!=(const DatumIntMapRef&, const DatumIntMapRef&);
+// [14] bsl::ostream& operator<<(bsl::ostream&, const DatumIntMapRef&);
 //
 //                            // -----------------
 //                            // class DatumMapRef
 //                            // -----------------
 // CREATORS
-// [14] DatumMapRef(const DatumMapEntry *, SizeType, bool, bool);
+// [15] DatumMapRef(const DatumMapEntry *, SizeType, bool, bool);
 //
 // ACCESSORS
-// [14] const DatumMapEntry& operator[](SizeType index) const;
-// [14] const DatumMapEntry *data() const;
-// [14] bool isSorted() const;
-// [14] SizeType size() const;
-// [14] const Datum *find(const bslstl::StringRef& key) const;
-// [14] bsl::ostream& print(bsl::ostream&, int,int) const;
+// [15] const DatumMapEntry& operator[](SizeType index) const;
+// [15] const DatumMapEntry *data() const;
+// [15] bool isSorted() const;
+// [15] SizeType size() const;
+// [15] const Datum *find(const bslstl::StringRef& key) const;
+// [15] bsl::ostream& print(bsl::ostream&, int,int) const;
 //
 // FREE OPERATORS
-// [14] bool operator==(const DatumMapRef& lhs, const DatumMapRef& rhs);
-// [14] bool operator!=(const DatumMapRef& lhs, const DatumMapRef& rhs);
-// [14] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
+// [15] bool operator==(const DatumMapRef& lhs, const DatumMapRef& rhs);
+// [15] bool operator!=(const DatumMapRef& lhs, const DatumMapRef& rhs);
+// [15] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [35] USAGE EXAMPLE
-// [34] VECTOR OF NULLS TEST
-// [24] Datum_ArrayProctor
-// [32] DATETIME ALLOCATION TESTS
-// [31] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
-// [30] COMPRESSIBILITY OF DECIMAL64
+// [36] USAGE EXAMPLE
+// [35] VECTOR OF NULLS TEST
+// [25] Datum_ArrayProctor
+// [33] DATETIME ALLOCATION TESTS
+// [32] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
+// [31] COMPRESSIBILITY OF DECIMAL64
 // [-2] EFFICIENCY TEST
-// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -777,98 +897,98 @@ TestVisitor::TestVisitor()
 
 void TestVisitor::operator()(bslmf::Nil v)
 {
-    (void) v;
+    (void)v;
     d_type        = Datum::e_NIL;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(const bdlt::Date& v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_DATE;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(const bdlt::Datetime& v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_DATETIME;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(const bdlt::DatetimeInterval& v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_DATETIME_INTERVAL;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(const bdlt::Time& v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_TIME;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(bslstl::StringRef v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_STRING;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(bool v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_BOOLEAN;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(bsls::Types::Int64 v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_INTEGER64;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(double v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_DOUBLE;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumError v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_ERROR;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(int v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_INTEGER;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumUdt v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_USERDEFINED;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumArrayRef v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_ARRAY;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumMapRef v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_MAP;
     d_visitedFlag = true;
 }
@@ -882,14 +1002,14 @@ void TestVisitor::operator()(DatumIntMapRef v)
 
 void TestVisitor::operator()(DatumBinaryRef v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_BINARY;
     d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(Decimal64 v)
 {
-    (void) v;
+    (void)v;
     d_type = Datum::e_DECIMAL64;;
     d_visitedFlag = true;
 }
@@ -1121,7 +1241,7 @@ Benchmark_Visitor::Benchmark_Visitor()
 template<class VISITOR>
 void Benchmark_Visitor::operator()(const VISITOR& v)
 {
-    (void) v;
+    (void)v;
 }
 
 void Benchmark_Visitor::operator()(const bdlt::Date& v)
@@ -1304,10 +1424,7 @@ void BenchmarkSuite::run(int   iterations,
     cout << " - " << d_iterations << " iterations\n";
 
     Datum datums[k_DATUMS];
-    bool  bools[k_DATUMS];
-
-    // Avoidance of compiler warning.
-    (void) bools;
+    bool  bools[k_DATUMS];   (void)bools;
 
     cout.setf(ios::fixed);
     cout.precision(1);
@@ -1323,29 +1440,30 @@ void BenchmarkSuite::run(int   iterations,
                 datums[i] = Datum::CREATOR;                                   \
             }                                                                 \
             csw.stop();                                                       \
+                                                                              \
             tsw.start(true);                                                  \
             for (int i = 0; i < k_DATUMS; ++i) {                              \
                 bools[i] = datums[i].TESTER;                                  \
             }                                                                 \
             tsw.stop();                                                       \
+                                                                              \
             gsw.start(true);                                                  \
-            static TYPE results[k_DATUMS];                                    \
+            static TYPE results[k_DATUMS];  (void)results;                    \
             for (int i = 0; i < k_DATUMS; ++i) {                              \
                 results[i] = datums[i].GETTER;                                \
             }                                                                 \
-            (void) results;                                                   \
             gsw.stop();                                                       \
+                                                                              \
             dsw.start(true);                                                  \
             for (int i = 0; i < k_DATUMS; ++i) {                              \
                 Datum::destroy(datums[i], &alloc);                            \
             }                                                                 \
             dsw.stop();                                                       \
         }                                                                     \
-        write(d_current, #CREATOR,                                            \
-              csw.accumulatedUserTime() / d_scale);                           \
-        write(#TESTER, tsw.accumulatedUserTime() / d_scale);                  \
-        write(#GETTER, gsw.accumulatedUserTime() / d_scale);                  \
-        write("destroy()", dsw.accumulatedUserTime() / d_scale);              \
+        write(d_current, #CREATOR,    csw.accumulatedUserTime() / d_scale);   \
+        write(           #TESTER,     tsw.accumulatedUserTime() / d_scale);   \
+        write(           #GETTER,     gsw.accumulatedUserTime() / d_scale);   \
+        write(           "destroy()", dsw.accumulatedUserTime() / d_scale);   \
         cout << "\n";                                                         \
     }                                                                         \
 
@@ -1363,8 +1481,8 @@ void BenchmarkSuite::run(int   iterations,
     BENCHMARK(createDouble(1.23), isDouble(), theDouble(), double);
 
     {
-        unsigned char buffer[16]; // big enough fox max encoding size
-        (void)buffer;
+        const size_t k_MAX_ENCODED_SIZE_IN_BYTES = 16;
+        unsigned char buffer[k_MAX_ENCODED_SIZE_IN_BYTES];  (void)buffer;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         Decimal64      aSmallDecimal64(BDLDFP_DECIMAL_DD(1.));
@@ -1382,12 +1500,10 @@ void BenchmarkSuite::run(int   iterations,
         ++d_current;
 #endif  // end - 64 bit
 
-        Decimal64 aDecimal64(
-            BDLDFP_DECIMAL_DD(1.23456789));
+        Decimal64 aDecimal64(BDLDFP_DECIMAL_DD(1.23456789));
         BSLS_ASSERT(bdldfp::DecimalConvertUtil::
                     decimal64ToVariableWidthEncoding(buffer,
-                                                     aDecimal64)
-                    > buffer + 6);
+                                                     aDecimal64) > buffer + 6);
         BENCHMARK(createDecimal64(aDecimal64, &alloc),
                   isDecimal64(),
                   theDecimal64(),
@@ -1439,15 +1555,12 @@ void BenchmarkSuite::run(int   iterations,
             bdlma::BufferedSequentialAllocator alloc(d_buf.begin(),
                                                      k_ALLOC_SIZE);
             csw.start(true);
-            static char *p[k_DATUMS];
+            static char *p[k_DATUMS];  (void)p;
             for (int i = 0; i < k_DATUMS; ++i) {
                 p[i] = Datum::createUninitializedString(datums + i,
                                                         80,
                                                         &alloc);
             }
-
-            // Avoidance of compiler warning.
-            (void) p;
 
             csw.stop();
         }
@@ -1657,9 +1770,8 @@ bool operator==(bslmf::Nil lhs, bslmf::Nil rhs)
     // Return 'true' regardless of the specified 'lhs' and the specified  'rhs'
     // equality.
 {
-    // Avoidance of compiler warnings.
-    (void) lhs;
-    (void) rhs;
+    (void)lhs;
+    (void)rhs;
 
     return true;
 }
@@ -2238,7 +2350,7 @@ int main(int argc, char *argv[])
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 
     switch (test) { case 0:
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2461,9 +2573,9 @@ int main(int argc, char *argv[])
         *maggieArray.length() = 2;
         Datum maggie = Datum::adoptArray(maggieArray);
 
-        (void) patty;   // suppress compiler warning
-        (void) selma;   // suppress compiler warning
-        (void) maggie;  // suppress compiler warning
+        (void)patty;
+        (void)selma;
+        (void)maggie;
     } // end of scope
 //..
 // Here all the allocated memory is lodged in the 'arena' allocator. At the end
@@ -2529,7 +2641,7 @@ int main(int argc, char *argv[])
 //..
 // Note, that the bytes have been copied.
       } break;
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // VECTOR OF NULLS TEST
         //  This test became necessary as of December 2022, when someone
@@ -2578,7 +2690,7 @@ int main(int argc, char *argv[])
         ASSERT(v3[2].isNull());
 
       } break;
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // BSLH HASHING TESTS
         //
@@ -3857,7 +3969,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
       } break;
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // DATETIME ALLOCATION TESTS
         //
@@ -3944,7 +4056,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nDatetime allocation tests are 32 bit only\n";
 #endif  // end - 64 bit
       } break;
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // MISALIGNED MEMORY ACCESS TEST
         //
@@ -3982,7 +4094,7 @@ int main(int argc, char *argv[])
               cout << "\nMisaligned memory access test are 32 bit only\n";
 #endif  // end - 64 bit
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING COMPRESSIBILITY OF DECIMAL64
         //    Check that 'Decimal64' fit in 6 bytes or not (as expected).
@@ -4018,7 +4130,7 @@ int main(int argc, char *argv[])
                                                 BDLDFP_DECIMAL_DD(12.3456789));
         ASSERT(variable2 > buffer + 6);
       } break;
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT ('<<') OPERATOR
         //
@@ -4132,12 +4244,10 @@ int main(int argc, char *argv[])
 
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Datum::DataType);
 
-            const FuncPtr FP = &operator<<;
-
-            (void)FP;   // silence compiler warning
+            const FuncPtr FP = &operator<<;  (void)FP;
         }
       } break;
-      case 28: {
+      case 29: {
         // -------------------------------------------------------------------
         // TESTING ENUMERATIONS AND 'dataTypeToAscii'
         //
@@ -4251,12 +4361,10 @@ int main(int argc, char *argv[])
         {
             typedef const char *(*FuncPtr)(Datum::DataType);
 
-            const FuncPtr FP = &Datum::dataTypeToAscii;
-
-            (void) FP;   // silence potential compiler warning
+            const FuncPtr FP = &Datum::dataTypeToAscii;  (void)FP;
         }
       } break;
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING 'disposeUninitializedMap'
         //
@@ -4312,6 +4420,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.numBytesInUse());
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bsls::AssertTestHandlerGuard hG;
@@ -4319,8 +4428,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
             bslma::Allocator     *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
-
-            (void) nullAllocPtr;  // suppress compiler warning
+            (void)nullAllocPtr;
 
             if (verbose) cout << "\tTesting 'DatumMutableMapRef'.\n";
             {
@@ -4343,8 +4451,9 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == oa.status());
          }
+#endif  // Exceptions supported
       } break;
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING 'disposeUninitializedArray'
         //
@@ -4391,10 +4500,9 @@ int main(int argc, char *argv[])
             bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
             bslma::Allocator     *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
-            DatumMutableArrayRef  array;
+            (void)nullAllocPtr;
 
-            (void) nullAllocPtr;  // suppress compiler warning
-
+            DatumMutableArrayRef array;
             Datum::createUninitializedArray(&array, 0, &oa);
 
             ASSERT_SAFE_FAIL(Datum::disposeUninitializedArray(array,
@@ -4404,7 +4512,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
          }
       } break;
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
         //   Ensure that '==' and '!=' are the operational definition of value.
@@ -4647,7 +4755,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
       } break;
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING PROCTOR
         //
@@ -4849,7 +4957,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &ta);
         }
       } break;
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING 'clone' METHOD
         //
@@ -6045,8 +6153,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
             bslma::Allocator     *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
-
-            (void) nullAllocPtr;  // suppress compiler warning
+            (void)nullAllocPtr;
 
             const Datum D = Datum::createNull();
 
@@ -6056,7 +6163,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
          }
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING 'apply' METHOD
         //
@@ -6311,7 +6418,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING 'type' METHOD
         //
@@ -6506,7 +6613,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING 'isExternalReference' METHOD
         //
@@ -6690,7 +6797,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
       } break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING PRINT AND OPERATOR<<
         //   Ensure that the value of the 'Datum' holding an aggregate value
@@ -7230,7 +7337,7 @@ int main(int argc, char *argv[])
             Datum::destroy(DM4, &oa);
         }
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING STRING CONSTRUCTION
         //    Verify that user can construct 'Datum' holding uninitialized
@@ -7321,6 +7428,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
@@ -7328,13 +7436,10 @@ int main(int argc, char *argv[])
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
-
-            (void) nullAllocPtr;  // suppress compiler warning
+            (void)nullAllocPtr;
 
             Datum  mD;
-            Datum *nullDatumPtr = static_cast<Datum *>(0);
-
-            (void) nullDatumPtr;  // suppress compiler warning
+            Datum *nullDatumPtr = static_cast<Datum *>(0);  (void)nullDatumPtr;
 
             ASSERT_FAIL(Datum::createUninitializedString(nullDatumPtr,
                                                          0,
@@ -7346,8 +7451,9 @@ int main(int argc, char *argv[])
 
             Datum::destroy(mD, &oa);
         }
+#endif  // Exceptions supported
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING MAP CONSTRUCTION
         //
@@ -7870,6 +7976,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
@@ -7877,8 +7984,7 @@ int main(int argc, char *argv[])
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
-
-            (void) nullAllocPtr;  // suppress compiler warning
+            (void)nullAllocPtr;
 
             if (verbose) cout << "\tTesting 'createUninitializedMap' with a "
                                                     "map with external keys\n";
@@ -7886,8 +7992,7 @@ int main(int argc, char *argv[])
                 DatumMutableMapRef  map;
                 DatumMutableMapRef *nullRefPtr =
                                           static_cast<DatumMutableMapRef *>(0);
-
-                (void) nullRefPtr;  // suppress compiler warning
+                (void)nullRefPtr;
 
                 ASSERT_FAIL(Datum::createUninitializedMap(nullRefPtr,
                                                           0,
@@ -7908,8 +8013,7 @@ int main(int argc, char *argv[])
                 DatumMutableMapOwningKeysRef  map;
                 DatumMutableMapOwningKeysRef *nullRefPtr =
                                 static_cast<DatumMutableMapOwningKeysRef *>(0);
-
-                (void) nullRefPtr;  // suppress compiler warning
+                (void)nullRefPtr;
 
                 ASSERT_FAIL(Datum::createUninitializedMap(nullRefPtr,
                                                           0,
@@ -7941,8 +8045,9 @@ int main(int argc, char *argv[])
                 Datum::destroy(realMap, &oa);
             }
         }
+#endif  // Exceptions supported
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING INTEGER MAP CONSTRUCTION
         //
@@ -8177,6 +8282,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
@@ -8184,8 +8290,7 @@ int main(int argc, char *argv[])
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
-
-            (void) nullAllocPtr;  // suppress compiler warning
+            (void)nullAllocPtr;
 
             if (verbose) cout << "\tTesting 'createUninitializedIntMap' with "
                                                   "a map with external keys\n";
@@ -8193,8 +8298,7 @@ int main(int argc, char *argv[])
                 DatumMutableIntMapRef  map;
                 DatumMutableIntMapRef *nullRefPtr =
                                        static_cast<DatumMutableIntMapRef *>(0);
-
-                (void) nullRefPtr;  // suppress compiler warning
+                (void)nullRefPtr;
 
                 ASSERT_FAIL(Datum::createUninitializedIntMap(nullRefPtr,
                                                              0,
@@ -8223,8 +8327,9 @@ int main(int argc, char *argv[])
                 Datum::destroy(realMap, &oa);
             }
         }
+#endif  // Exceptions supported
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING ARRAY CONSTRUCTION
         //
@@ -8474,6 +8579,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
@@ -8481,12 +8587,11 @@ int main(int argc, char *argv[])
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
+            (void)nullAllocPtr;
 
             const Datum  D            = Datum::createNull();
             const Datum *nullDatumPtr = static_cast<Datum *>(0);
-
-            (void) nullAllocPtr;  // suppress compiler warning
-            (void) nullDatumPtr;  // suppress compiler warning
+            (void)nullDatumPtr;
 
             if (verbose) cout << "\tTesting 'createArrayReference("
                                    "const Datum *, SizeType, Allocator *)'.\n";
@@ -8520,8 +8625,7 @@ int main(int argc, char *argv[])
                 DatumMutableArrayRef  array;
                 DatumMutableArrayRef *nullRefPtr =
                                         static_cast<DatumMutableArrayRef *>(0);
-
-                (void) nullRefPtr;  // suppress compiler warning
+                (void)nullRefPtr;
 
                 ASSERT_FAIL(Datum::createUninitializedArray(nullRefPtr,
                                                             0,
@@ -8550,8 +8654,9 @@ int main(int argc, char *argv[])
                 Datum::destroy(realArray, &oa);
             }
         }
+#endif  // Exceptions supported
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING 'DatumMapRef'
         //
@@ -8569,9 +8674,31 @@ int main(int argc, char *argv[])
         //:   sorted and unsorted maps.
         //
         // Testing:
+        //   element_type
+        //   value_type
+        //   size_type
+        //   difference_type
+        //   pointer
+        //   const_pointer
+        //   reference
+        //   const_reference
+        //   iterator
+        //   const_iterator
+        //   reverse_iterator
+        //   const_reverse_iterator
+        //   SizeType
         //   DatumMapRef(const DatumMapEntry *, SizeType, bool, bool);
-        //   const DatumMapEntry& operator[](SizeType index) const;
-        //   const DatumMapEntry *data() const;
+        //   const_reference operator[](SizeType index) const;
+        //   pointer data()      const;
+        //   size_type *length() const;
+        //   size_type *size()   const;
+        //   const_iterator           begin() const;
+        //   const_iterator          cbegin() const;
+        //   const_reverse_iterator  rbegin() const;
+        //   const_reverse_iterator crbegin() const;
+        //   const_reference front() const;
+        //   const_reference back()  const;
+        //   bool empty() const;
         //   bool isSorted() const;
         //   bool ownsKeys() const;
         //   SizeType size() const;
@@ -8583,6 +8710,112 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'DatumMapRef'"
                              "\n=====================\n";
+
+        if (verbose) cout << "\nTesting public types.\n";
+#define ASSERT_SAME_TYPE(T1, T2) ASSERT((bsl::is_same<T1, T2>::value == true))
+
+        ASSERT_SAME_TYPE(DatumMapRef::element_type, const DatumMapEntry);
+        ASSERT_SAME_TYPE(DatumMapRef::value_type, DatumMapEntry);
+
+        ASSERT_SAME_TYPE(DatumMapRef::size_type, Datum::SizeType);
+        ASSERT_SAME_TYPE(DatumMapRef::difference_type, bsl::ptrdiff_t);
+
+        ASSERT_SAME_TYPE(DatumMapRef::pointer,         const DatumMapEntry *);
+        ASSERT_SAME_TYPE(DatumMapRef::const_pointer,   const DatumMapEntry *);
+
+        ASSERT_SAME_TYPE(DatumMapRef::reference,       const DatumMapEntry&);
+        ASSERT_SAME_TYPE(DatumMapRef::const_reference, const DatumMapEntry&);
+
+        ASSERT_SAME_TYPE(DatumMapRef::iterator,        const DatumMapEntry *);
+        ASSERT_SAME_TYPE(DatumMapRef::const_iterator,  const DatumMapEntry *);
+
+        ASSERT_SAME_TYPE(
+            DatumMapRef::reverse_iterator,
+            bsl::reverse_iterator<DatumMapRef::iterator>);
+        ASSERT_SAME_TYPE(
+            DatumMapRef::const_reverse_iterator,
+            bsl::reverse_iterator<DatumMapRef::const_iterator>);
+        ASSERT_SAME_TYPE(DatumMapRef::SizeType, Datum::SizeType);
+#undef ASSERT_SAME_TYPE
+
+        if (verbose) cout << "\nTesting 'size()'.\n";
+        {
+            DatumMapEntry data[3];
+            {
+                DatumMapRef obj(data, 3, false, false);
+                ASSERT(3 == obj.size());
+            }
+            {
+                DatumMapRef obj(data, 2, false, false);
+                ASSERT(2 == obj.size());
+            }
+            {
+                DatumMapRef obj(data, 1, false, false);
+                ASSERT(1 == obj.size());
+            }
+            {
+                DatumMapRef obj(data, 0, false, false);
+                ASSERT(0 == obj.size());
+            }
+        }
+
+        if (verbose) cout << "\nTesting const '[c]rbegin()', '[c]rend()'.\n";
+        {
+            DatumMapEntry data[3];
+            DatumMapRef   obj(data, 3, false, false);
+
+            ASSERT(&data[obj.size() - 1] == obj.rbegin().operator->());
+            ASSERT(data - 1 == obj.rend().operator->());
+
+            ASSERT(&data[2] == obj.crbegin().operator->());
+            ASSERT(data - 1 == obj.crend().operator->());
+        }
+
+        if (verbose) cout << "\nTesting const 'front()', 'back()'.\n";
+        {
+            DatumMapEntry     data[3];
+            const DatumMapRef obj(data, 3, false, false);
+
+            ASSERT(&data[0] == &obj.front());
+            ASSERT(&data[2] == &obj.back());
+        }
+
+        if (verbose) cout << "\nTesting 'empty()'.\n";
+        {
+            DatumMapEntry data[3];
+            {
+                DatumMapRef obj(data, 0, false, false);
+                ASSERT(true == obj.empty());
+            }
+            {
+                DatumMapRef obj(data, 1, false, false);
+                ASSERT(false == obj.empty());
+            }
+            {
+                DatumMapRef obj(data, 2, false, false);
+                ASSERT(false == obj.empty());
+            }
+            {
+                DatumMapRef obj(data, 3, false, false);
+                ASSERT(false == obj.empty());
+            }
+        }
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        if (verbose) cout << "\nTesting range-based 'for' loop.\n";
+        {
+            DatumMapEntry     data[3];
+            const DatumMapRef obj(data, 3, false, false);
+
+            const DatumMapEntry* p = data;
+            for (const DatumMapEntry& elem : obj) {
+                if (veryVeryVerbose) {
+                    T_ P_(&elem) P(p);
+                }
+                ASSERT(&elem == p++);
+            }
+        }
+#endif  // C++11 or later
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
@@ -8885,11 +9118,8 @@ int main(int argc, char *argv[])
 
                 // Verify that the signatures and return types are standard.
 
-                operatorPtr operatorEq = bdld::operator==;
-                operatorPtr operatorNe = bdld::operator!=;
-
-                (void)operatorEq;  // quash potential compiler warnings
-                (void)operatorNe;
+                operatorPtr operatorEq = bdld::operator==;  (void)operatorEq;
+                operatorPtr operatorNe = bdld::operator!=;  (void)operatorNe;
             }
 
             if (verbose) cout << "\nTesting operators correctness.\n";
@@ -9030,6 +9260,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bsls::AssertTestHandlerGuard hG;
@@ -9061,9 +9292,26 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(obj[SIZE - 1]);
                 ASSERT_SAFE_PASS(obj[0       ]);
             }
+
+            if (verbose) cout << "\tTesting 'front' & 'back'.\n";
+            {
+                DatumMapEntry data[3];
+                {
+                    const DatumMapRef obj(data, 3, false, false);
+                    ASSERT_PASS(obj.front());
+                    ASSERT_PASS(obj.back());
+                }
+
+                {
+                    const DatumMapRef obj(data, 0, false, false);
+                    ASSERT_FAIL(obj.front());
+                    ASSERT_FAIL(obj.back());
+                }
+            }
         }
+#endif  // Exceptions supported
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING 'DatumIntMapRef'
         //
@@ -9081,11 +9329,32 @@ int main(int argc, char *argv[])
         //:   sorted and unsorted maps.
         //
         // Testing:
+        //   element_type
+        //   value_type
+        //   size_type
+        //   difference_type
+        //   pointer
+        //   const_pointer
+        //   reference
+        //   const_reference
+        //   iterator
+        //   const_iterator
+        //   reverse_iterator
+        //   const_reverse_iterator
+        //   SizeType
         //   DatumIntMapRef(const DatumIntMapEntry *, SizeType, bool);
-        //   const DatumIntMapEntry& operator[](SizeType index) const;
-        //   const DatumIntMapEntry *data() const;
         //   bool isSorted() const;
-        //   SizeType size() const;
+        //   const_reference operator[](SizeType index) const;
+        //   pointer data()      const;
+        //   size_type *length() const;
+        //   size_type *size()   const;
+        //   const_iterator           begin() const;
+        //   const_iterator          cbegin() const;
+        //   const_reverse_iterator  rbegin() const;
+        //   const_reverse_iterator crbegin() const;
+        //   const_reference front() const;
+        //   const_reference back()  const;
+        //   bool empty() const;
         //   const Datum *find(int key) const;
         //   bsl::ostream& print(bsl::ostream&, int,int) const;
         //   bool operator==(const DatumIntMapRef&, const DatumIntMapRef&);
@@ -9094,6 +9363,120 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'DatumIntMapRef'"
                              "\n========================\n";
+
+        if (verbose) cout << "\nTesting public types.\n";
+#define ASSERT_SAME_TYPE(T1, T2) ASSERT((bsl::is_same<T1, T2>::value == true))
+
+        ASSERT_SAME_TYPE(DatumIntMapRef::element_type,
+                         const DatumIntMapEntry);
+        ASSERT_SAME_TYPE(DatumIntMapRef::value_type, DatumIntMapEntry);
+
+        ASSERT_SAME_TYPE(DatumIntMapRef::size_type, Datum::SizeType);
+        ASSERT_SAME_TYPE(DatumIntMapRef::difference_type,
+                         bsl::ptrdiff_t);
+
+        ASSERT_SAME_TYPE(DatumIntMapRef::pointer,
+                         const DatumIntMapEntry *);
+        ASSERT_SAME_TYPE(DatumIntMapRef::const_pointer,
+                         const DatumIntMapEntry *);
+
+        ASSERT_SAME_TYPE(DatumIntMapRef::reference,
+                         const DatumIntMapEntry&);
+        ASSERT_SAME_TYPE(DatumIntMapRef::const_reference,
+                         const DatumIntMapEntry&);
+
+        ASSERT_SAME_TYPE(DatumIntMapRef::iterator,
+                         const DatumIntMapEntry *);
+        ASSERT_SAME_TYPE(DatumIntMapRef::const_iterator,
+                         const DatumIntMapEntry *);
+
+        ASSERT_SAME_TYPE(
+            DatumIntMapRef::reverse_iterator,
+            bsl::reverse_iterator<DatumIntMapRef::iterator>);
+        ASSERT_SAME_TYPE(
+            DatumIntMapRef::const_reverse_iterator,
+            bsl::reverse_iterator<DatumIntMapRef::const_iterator>);
+        ASSERT_SAME_TYPE(DatumIntMapRef::SizeType, Datum::SizeType);
+#undef ASSERT_SAME_TYPE
+
+        if (verbose) cout << "\nTesting 'size()'.\n";
+        {
+            DatumIntMapEntry data[3];
+            {
+                DatumIntMapRef obj(data, 3, false);
+                ASSERT(3 == obj.size());
+            }
+            {
+                DatumIntMapRef obj(data, 2, false);
+                ASSERT(2 == obj.size());
+            }
+            {
+                DatumIntMapRef obj(data, 1, false);
+                ASSERT(1 == obj.size());
+            }
+            {
+                DatumIntMapRef obj(data, 0, false);
+                ASSERT(0 == obj.size());
+            }
+        }
+
+        if (verbose) cout << "\nTesting const '[c]rbegin()', '[c]rend()'.\n";
+        {
+            DatumIntMapEntry data[3];
+            DatumIntMapRef   obj(data, 3, false);
+
+            ASSERT(&data[obj.size() - 1] == obj.rbegin().operator->());
+            ASSERT(data - 1 == obj.rend().operator->());
+
+            ASSERT(&data[2] == obj.crbegin().operator->());
+            ASSERT(data - 1 == obj.crend().operator->());
+        }
+
+        if (verbose) cout << "\nTesting const 'front()', 'back()'.\n";
+        {
+            DatumIntMapEntry     data[3];
+            const DatumIntMapRef obj(data, 3, false);
+
+            ASSERT(&data[0] == &obj.front());
+            ASSERT(&data[2] == &obj.back());
+        }
+
+        if (verbose) cout << "\nTesting 'empty()'.\n";
+        {
+            DatumIntMapEntry data[3];
+            {
+                DatumIntMapRef obj(data, 0, false);
+                ASSERT(true == obj.empty());
+            }
+            {
+                DatumIntMapRef obj(data, 1, false);
+                ASSERT(false == obj.empty());
+            }
+            {
+                DatumIntMapRef obj(data, 2, false);
+                ASSERT(false == obj.empty());
+            }
+            {
+                DatumIntMapRef obj(data, 3, false);
+                ASSERT(false == obj.empty());
+            }
+        }
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        if (verbose) cout << "\nTesting range-based 'for' loop.\n";
+        {
+            DatumIntMapEntry     data[3];
+            const DatumIntMapRef obj(data, 3, false);
+
+            const DatumIntMapEntry *p = data;
+            for (const DatumIntMapEntry& elem : obj) {
+                if (veryVeryVerbose) {
+                    T_ P_(&elem) P(p);
+                }
+                ASSERT(&elem == p++);
+            }
+        }
+#endif  // C++11 or later
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
@@ -9372,11 +9755,8 @@ int main(int argc, char *argv[])
 
                 // Verify that the signatures and return types are standard.
 
-                operatorPtr operatorEq = bdld::operator==;
-                operatorPtr operatorNe = bdld::operator!=;
-
-                (void)operatorEq;  // quash potential compiler warnings
-                (void)operatorNe;
+                operatorPtr operatorEq = bdld::operator==;  (void)operatorEq;
+                operatorPtr operatorNe = bdld::operator!=;  (void)operatorNe;
             }
 
             if (verbose) cout << "\nTesting operators correctness.\n";
@@ -9519,6 +9899,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bsls::AssertTestHandlerGuard hG;
@@ -9550,9 +9931,26 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(obj[SIZE - 1]);
                 ASSERT_SAFE_PASS(obj[0      ]);
             }
+
+            if (verbose) cout << "\tTesting 'front' & 'back'.\n";
+            {
+                DatumIntMapEntry data[3];
+                {
+                    const DatumIntMapRef obj(data, 3, false);
+                    ASSERT_PASS(obj.front());
+                    ASSERT_PASS(obj.back());
+                }
+
+                {
+                    const DatumIntMapRef obj(data, 0, false);
+                    ASSERT_FAIL(obj.front());
+                    ASSERT_FAIL(obj.back());
+                }
+            }
         }
+#endif  // Exceptions supported
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'DatumArrayRef'
         //
@@ -9569,11 +9967,32 @@ int main(int argc, char *argv[])
         //:   accessors return the correct value.
         //
         // Testing:
+        //   element_type
+        //   value_type
+        //   size_type
+        //   difference_type
+        //   pointer
+        //   const_pointer
+        //   reference
+        //   const_reference
+        //   iterator
+        //   const_iterator
+        //   reverse_iterator
+        //   const_reverse_iterator
+        //   SizeType
         //   DatumArrayRef();
         //   DatumArrayRef(const Datum *data, SizeType length);
-        //   const Datum& operator[](SizeType index) const;
-        //   const Datum *data() const;
-        //   SizeType length() const;
+        //   const_reference operator[](SizeType index) const;
+        //   pointer data()      const;
+        //   size_type *length() const;
+        //   size_type *size()   const;
+        //   const_iterator           begin() const;
+        //   const_iterator          cbegin() const;
+        //   const_reverse_iterator  rbegin() const;
+        //   const_reverse_iterator crbegin() const;
+        //   const_reference front() const;
+        //   const_reference back()  const;
+        //   bool empty() const;
         //   bsl::ostream& print(bsl::ostream& stream, int, int) const;
         //   bool operator==(const DatumArrayRef&, const DatumArrayRef&);
         //   bool operator!=(const DatumArrayRef&, const DatumArrayRef&);
@@ -9581,6 +10000,34 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'DatumArrayRef'"
                              "\n=======================\n";
+
+        if (verbose) cout << "\nTesting public types.\n";
+#define ASSERT_SAME_TYPE(T1, T2) ASSERT((bsl::is_same<T1, T2>::value == true))
+
+        ASSERT_SAME_TYPE(DatumArrayRef::element_type, const Datum);
+        ASSERT_SAME_TYPE(DatumArrayRef::value_type, Datum);
+
+        ASSERT_SAME_TYPE(DatumArrayRef::size_type, Datum::SizeType);
+        ASSERT_SAME_TYPE(DatumArrayRef::difference_type,
+            bsl::ptrdiff_t);
+
+        ASSERT_SAME_TYPE(DatumArrayRef::pointer,       const Datum *);
+        ASSERT_SAME_TYPE(DatumArrayRef::const_pointer, const Datum *);
+
+        ASSERT_SAME_TYPE(DatumArrayRef::reference, const Datum&);
+        ASSERT_SAME_TYPE(DatumArrayRef::const_reference, const Datum&);
+
+        ASSERT_SAME_TYPE(DatumArrayRef::iterator,       const Datum *);
+        ASSERT_SAME_TYPE(DatumArrayRef::const_iterator, const Datum *);
+
+        ASSERT_SAME_TYPE(
+            DatumArrayRef::reverse_iterator,
+            bsl::reverse_iterator<DatumArrayRef::iterator>);
+        ASSERT_SAME_TYPE(
+            DatumArrayRef::const_reverse_iterator,
+            bsl::reverse_iterator<DatumArrayRef::const_iterator>);
+        ASSERT_SAME_TYPE(DatumArrayRef::SizeType, Datum::SizeType);
+#undef ASSERT_SAME_TYPE
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
@@ -9616,24 +10063,101 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
+        if (verbose) cout << "\nTesting 'size()'.\n";
+        {
+            const DatumArrayRef unfilled;
+            ASSERT(0 == unfilled.size());
+
+            Datum                    data[3];
+            DatumArrayRef            obj(data, 3);
+
+            ASSERT(3 == obj.size());
+        }
+
+        if (verbose) cout << "\nTesting const '[c]begin()', '[c]end()'.\n";
+        {
+            Datum               data[3];
+            const DatumArrayRef obj(data, 3);
+
+            ASSERT(data     == obj.begin());
+            ASSERT(data + 3 == obj.end());
+            ASSERT(data     == obj.cbegin());
+            ASSERT(data + 3 == obj.cend());
+        }
+
+        if (verbose) cout << "\nTesting const '[c]rbegin()', '[c]rend()'.\n";
+        {
+            Datum         data[3];
+            DatumArrayRef obj(data, 3);
+
+            ASSERT(&data[obj.size() - 1] == obj.rbegin().operator->());
+            ASSERT(data - 1 == obj.rend().operator->());
+
+            ASSERT(&data[2] == obj.crbegin().operator->());
+            ASSERT(data - 1 == obj.crend().operator->());
+        }
+
+        if (verbose) cout << "\nTesting const 'front()', 'back()'.\n";
+        {
+            Datum               data[3];
+            const DatumArrayRef obj(data, 3);
+
+            ASSERT(&data[0] == &obj.front());
+            ASSERT(&data[2] == &obj.back());
+        }
+
+        if (verbose) cout << "\nTesting 'empty()'.\n";
+        {
+            Datum data[3];
+            {
+                DatumArrayRef obj(data, 0);
+                ASSERT(true == obj.empty());
+            }
+            {
+                DatumArrayRef obj(data, 1);
+                ASSERT(false == obj.empty());
+            }
+            {
+                DatumArrayRef obj(data, 2);
+                ASSERT(false == obj.empty());
+            }
+            {
+                DatumArrayRef obj(data, 3);
+                ASSERT(false == obj.empty());
+            }
+        }
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        if (verbose) cout << "\nTesting range-based 'for' loop.\n";
+        {
+            Datum               data[3];
+            const DatumArrayRef obj(data, 3);
+
+            const Datum *p = data;
+            for (const Datum& elem : obj) {
+                if (veryVeryVerbose) {
+                    T_ P_(&elem) P(p);
+                }
+                ASSERT(&elem == p++);
+            }
+        }
+#endif  // C++11 or later
+
         if (verbose) cout << "\nTesting equality operators.\n";
 
         if (verbose) cout <<
-                "\nAssign the address of each operator to a variable.\n";
+                      "\tAssign the address of each operator to a variable.\n";
         {
             typedef bool (*operatorPtr)(const DatumArrayRef&,
                                         const DatumArrayRef&);
 
             // Verify that the signatures and return types are standard.
 
-            operatorPtr operatorEq = bdld::operator==;
-            operatorPtr operatorNe = bdld::operator!=;
-
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
+            operatorPtr operatorEq = bdld::operator==;  (void)operatorEq;
+            operatorPtr operatorNe = bdld::operator!=;  (void)operatorNe;
         }
 
-        if (verbose) cout << "\nCompare every value with every value.\n";
+        if (verbose) cout << "\tCompare every value with every value.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -9802,6 +10326,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
+
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bsls::AssertTestHandlerGuard hG;
@@ -9830,10 +10356,28 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(obj[SIZE - 1]);
                 ASSERT_SAFE_PASS(obj[0       ]);
             }
+
+            if (verbose) cout << "\tTesting 'front' & 'back'.\n";
+            {
+                Datum data[3];
+                {
+                    const DatumArrayRef obj(data, 3);
+                    ASSERT_PASS(obj.front());
+                    ASSERT_PASS(obj.back());
+                }
+
+                {
+                    const DatumArrayRef obj(data, 0);
+                    ASSERT_FAIL(obj.front());
+                    ASSERT_FAIL(obj.back());
+                }
+            }
         }
+#endif  // Exceptions supported
+
         ASSERT(0 == da.status())
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING 'DatumMutableMapOwningKeysRef'
         //
@@ -9872,18 +10416,61 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting value constructor.\n";
         {
-            DatumMapEntry                          data;
+            DatumMapEntry                           data;
             DatumMutableMapOwningKeysRef::SizeType size;
-            char                                   keys;
-            bool                                   sorted;
-            const DatumMutableMapOwningKeysRef     obj(&data,
-                                                       &size,
-                                                       &keys,
-                                                       &sorted);
+            char                                    keys;
+            bool                                    sorted;
+            const DatumMutableMapOwningKeysRef      obj(&data,
+                                                        &size,
+                                                        &keys,
+                                                        &sorted);
 
             ASSERT(&data   == obj.data());
             ASSERT(&size   == obj.size());
             ASSERT(&keys   == obj.keys());
+            ASSERT(&sorted == obj.sorted());
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'DatumMutableIntMapRef'
+        //
+        // Concerns:
+        //: 1 Value constructor can create 'DatumMutableIntMapRef' object.
+        //:
+        //: 2 Values supplied at construction is correctly passed down to the
+        //:   data member and correctly reported by accessors.
+        //
+        // Plan:
+        //: 1 Create a 'DatumMutableIntMapRef' object and verify using
+        //:   accessors that values were correctly passed down to the
+        //:   'd_data_p', 'd_size_p', and 'd_sorted_p' data members.  (C-1,2)
+        //
+        // Testing:
+        //   DatumMutableIntMapRef();
+        //   DatumMutableIntMapRef(DatumMapEntry *, SizeType *, bool *);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'DatumMutableIntMapRef'"
+                             "\n===============================\n";
+
+        if (verbose) cout << "\nTesting default constructor.\n";
+        {
+            DatumMutableIntMapRef obj;
+            ASSERT(0 == obj.data());
+            ASSERT(0 == obj.size());
+            ASSERT(0 == obj.sorted());
+        }
+
+        if (verbose) cout << "\nTesting value constructor.\n";
+        {
+            DatumIntMapEntry                data[1];
+            DatumMutableIntMapRef::SizeType size = 1;
+            bool                            sorted = false;
+            const DatumMutableIntMapRef     obj(data, &size, &sorted);
+
+            ASSERT(data    == obj.data());
+            ASSERT(&size   == obj.size());
             ASSERT(&sorted == obj.sorted());
         }
       } break;
@@ -9905,10 +10492,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   DatumMutableMapRef();
         //   DatumMutableMapRef(DatumMapEntry *, SizeType *, bool *);
-        //   DatumMapEntry *data() const;
-        //   SizeType *size() const;
-        //   bool *sorted() const;
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nTESTING 'DatumMutableMapRef'"
                              "\n============================\n";
 
@@ -9922,11 +10507,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting value constructor.\n";
         {
-            DatumMapEntry                data;
-            DatumMutableMapRef::SizeType size;
-            bool                         sorted;
-            const DatumMutableMapRef     obj(&data, &size, &sorted);
-            ASSERT(&data   == obj.data());
+            DatumMapEntry                data[1];
+            DatumMutableMapRef::SizeType size = 1;
+            bool                         sorted = false;
+            const DatumMutableMapRef     obj(data, &size, &sorted);
+
+            ASSERT(data    == obj.data());
             ASSERT(&size   == obj.size());
             ASSERT(&sorted == obj.sorted());
         }
@@ -9949,8 +10535,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   DatumMutableArrayRef();
         //   DatumMutableArrayRef(Datum *data, SizeType *length);
-        //   Datum *data() const;
-        //   SizeType *length() const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'DatumMutableArrayRef'"
                              "\n==============================\n";
@@ -9959,17 +10543,16 @@ int main(int argc, char *argv[])
         {
             DatumMutableArrayRef obj;
             ASSERT(0 == obj.data());
-            ASSERT(0 == obj.length());
         }
 
         if (verbose) cout << "\nTesting value constructor.\n";
         {
-            Datum                      data;
-            Datum::SizeType            length;
-            const DatumMutableArrayRef obj(&data, &length);
+            Datum                          data;
+            DatumMutableArrayRef::SizeType size = 1;
+            const DatumMutableArrayRef     obj(&data, &size);
 
-            ASSERT(&data   == obj.data());
-            ASSERT(&length == obj.length());
+            ASSERT(&data == obj.data());
+            ASSERT(&size == obj.length());
         }
       } break;
       case 8: {
@@ -10145,8 +10728,7 @@ int main(int argc, char *argv[])
             {
                 typedef ostream& (*operatorPtr)(ostream&,const DatumMapEntry&);
 
-                operatorPtr operatorOut = bdld::operator<<;
-                (void) operatorOut;
+                operatorPtr operatorOut = bdld::operator<<;  (void)operatorOut;
             }
         }
 
@@ -10202,13 +10784,8 @@ int main(int argc, char *argv[])
 
                 // Verify that the signatures and return types are standard.
 
-                operatorPtr operatorEq   = bdld::operator==;
-                operatorPtr operatorNe   = bdld::operator!=;
-
-                // Quash potential compiler warnings.
-
-                (void)operatorEq;
-                (void)operatorNe;
+                operatorPtr operatorEq = bdld::operator==;  (void)operatorEq;
+                operatorPtr operatorNe = bdld::operator!=;  (void)operatorNe;
             }
         }
       } break;
@@ -10385,11 +10962,8 @@ int main(int argc, char *argv[])
 
             // Verify that the signatures and return types are standard.
 
-            operatorPtr operatorEq = bdld::operator==;
-            operatorPtr operatorNe = bdld::operator!=;
-
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
+            operatorPtr operatorEq = bdld::operator==;  (void)operatorEq;
+            operatorPtr operatorNe = bdld::operator!=;  (void)operatorNe;
         }
 
         if (verbose)
@@ -11399,15 +11973,12 @@ int main(int argc, char *argv[])
 
             // Verify that the signatures and return types are standard.
 
-            funcPtr     printMember = &Datum::print;
-            operatorPtr operatorOut = bdld::operator<<;
-
-            (void) printMember;  // quash potential compiler warnings
-            (void) operatorOut;
+            funcPtr     printMember = &Datum::print;     (void)printMember;
+            operatorPtr operatorOut = bdld::operator<<;  (void)operatorOut;
         }
 
-        if (verbose) cout <<
-             "\nCreate a table of distinct value/format combinations.\n";
+        if (verbose) cout << "\nCreate a table of distinct value/format "
+                                                             "combinations.\n";
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -12719,6 +13290,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nNegative Testing.\n";
         {
             bslma::TestAllocator         ta("test", veryVeryVerbose);
@@ -12726,8 +13298,7 @@ int main(int argc, char *argv[])
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
-
-            (void) nullAllocPtr;  // suppress compiler warning
+            (void)nullAllocPtr;
 
             if (verbose) cout << "\tTesting 'createDatetime'.\n";
             {
@@ -12795,8 +13366,7 @@ int main(int argc, char *argv[])
             {
                 const char *temp = "temp";
                 const char *nullCharPtr = static_cast<const char *>(0);
-
-                (void) nullCharPtr;  // suppress compiler warning
+                (void)nullCharPtr;
 
                 ASSERT_SAFE_FAIL(Datum::createStringRef(nullCharPtr, &ta));
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp,        &ta));
@@ -13051,7 +13621,7 @@ int main(int argc, char *argv[])
 
             }
         }
-
+#endif  // Exceptions supported
         ASSERT(0 == da.numAllocations());
       } break;
       case 2: {

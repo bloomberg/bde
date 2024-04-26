@@ -2005,8 +2005,8 @@ class DatumMutableArrayRef {
   public:
     // TYPES
     typedef Datum::SizeType SizeType;
-        // 'SizeType' is an alias for an unsigned integral value, representing
-        // the capacity of a datum array.
+      // 'SizeType' is an alias for an unsigned integral value, representing
+      // the capacity of a datum array.
 
   private:
     // DATA
@@ -2280,6 +2280,25 @@ class DatumArrayRef {
     // of datums.  Note that zero-length arrays are valid.
 
   public:
+    // PUBLIC TYPES
+    typedef const bdld::Datum element_type;
+    typedef       bdld::Datum value_type;
+
+    typedef bsl::size_t     size_type;
+    typedef bsl::ptrdiff_t  difference_type;
+
+    typedef       element_type       *pointer;
+    typedef const element_type *const_pointer;
+
+    typedef       element_type&       reference;
+    typedef const element_type& const_reference;
+
+    typedef       pointer       iterator;
+    typedef const_pointer const_iterator;
+
+    typedef bsl::reverse_iterator<iterator>             reverse_iterator;
+    typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
+
     typedef Datum::SizeType SizeType;
         // 'SizeType' is an alias for an unsigned integral value, representing
         // the length of a datum array.
@@ -2319,15 +2338,57 @@ class DatumArrayRef {
         // that this method's definition is compiler generated.
 
     // ACCESSORS
-    const Datum& operator[](SizeType index) const;
-        // Return the element stored at the specified 'index' position in this
-        // array.
+    const_reference operator[](size_type position) const;
+        // Return a reference providing non-modifiable access to the element at
+        // the specified 'position' in the array this reference object
+        // represents.  The behavior is undefined unless 'position < size()'.
 
-    const Datum *data() const;
-        // Return pointer to the first array element.
+    const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
+        // Return an iterator providing non-modifiable access to the first
+        // element of the array this reference object represents; return a
+        // past-the-end iterator if 'size() == 0'.
 
-    SizeType length() const;
-        // Return the length of the array.
+    const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+        // Return an iterator providing non-modifiable access pointing
+        // past-the-end of the array this reference object represents.
+
+    const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a reverse iterator providing non-modifiable access to the
+        // last element of the array this reference object represents, and the
+        // past-the-end reverse iterator if 'size() == 0'.
+
+    const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a reverse iterator providing non-modifiable access pointing
+        // past-the-end of the array this reference object represents.
+
+    bool empty() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'size() == 0'.
+
+    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a const-pointer to the number of elements of the array this
+        // reference object represents.
+
+    const_reference front() const;
+        // Return a reference providing non-modifiable access to the first
+        // element of the array this reference object represents.  The behavior
+        // is undefined unless 'size() > 0'.
+
+    const_reference back() const;
+        // Return a reference providing non-modifiable access to the last
+        // element of the array this reference object represents.  The behavior
+        // is undefined unless 'size() > 0'.
+
+    pointer data() const BSLS_KEYWORD_NOEXCEPT;
+        // Return the address providing non-modifiable access to the first
+        // element of the array this reference object represents.  Return a
+        // valid pointer which cannot be dereferenced if the 'size() == 0'.
+
+    size_type length() const;
+        // Return a const pointer to the length of the array.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
@@ -2467,6 +2528,25 @@ class DatumIntMapRef {
     // that zero-size maps are valid.
 
   public:
+    // PUBLIC TYPES
+    typedef const bdld::DatumIntMapEntry element_type;
+    typedef       bdld::DatumIntMapEntry value_type;
+
+    typedef bsl::size_t     size_type;
+    typedef bsl::ptrdiff_t  difference_type;
+
+    typedef       element_type       *pointer;
+    typedef const element_type *const_pointer;
+
+    typedef       element_type&       reference;
+    typedef const element_type& const_reference;
+
+    typedef       pointer       iterator;
+    typedef const_pointer const_iterator;
+
+    typedef bsl::reverse_iterator<iterator>             reverse_iterator;
+    typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
+
     typedef Datum::SizeType SizeType;
         // 'SizeType' is an alias for an unsigned integral value, representing
         // the capacity of a datum array, the capacity of a datum map, the
@@ -2475,24 +2555,19 @@ class DatumIntMapRef {
 
   private:
     // DATA
-    const DatumIntMapEntry *d_data_p;  // pointer to the array of
-                                       // 'DatumIntMapEntry' objects (not
-                                       // owned)
-
-    SizeType                d_size;    // length of the array
-
+    const DatumIntMapEntry *d_data_p;  // entry-array pointer (not owned)
+    SizeType                d_size;    // length of the map
     bool                    d_sorted;  // flag indicating whether the array is
                                        // sorted or not
-
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapRef, bsl::is_trivially_copyable);
     BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapRef, bdlb::HasPrintMethod);
 
     // CREATORS
-      DatumIntMapRef(const DatumIntMapEntry *data,
-                    SizeType                 size,
-                    bool                     sorted);
+    DatumIntMapRef(const DatumIntMapEntry *data,
+                  SizeType                 size,
+                  bool                     sorted);
         // Create a 'DatumIntMapRef' object having the specified 'data' of the
         // specified 'size' and the specified 'sorted' flag.  The behavior is
         // undefined unless '0 != data' or '0 == size'.  Note that the pointer
@@ -2501,18 +2576,61 @@ class DatumIntMapRef {
     //!~DatumIntMapRef() = default;
 
     // ACCESSORS
-    const DatumIntMapEntry& operator[](SizeType index) const;
-        // Return the element stored at the specified 'index' position in this
-        // map.  The behavior is undefined unless 'index < size()'.
+    const_reference operator[](size_type position) const;
+        // Return a reference providing non-modifiable access to the element at
+        // the specified 'position' in the array of map entries this reference
+        // object represents.  The behavior is undefined unless
+        // 'position < size()'.
 
-    const DatumIntMapEntry *data() const;
-        // Return pointer to the first element in the map.
+    const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
+        // Return an iterator providing non-modifiable access to the first
+        // element of the array of map entries this reference object
+        // represents; return a past-the-end iterator if 'size() == 0'.
+
+    const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+        // Return an iterator providing non-modifiable access pointing
+        // past-the-end of the array this reference object represents.
+
+    const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a reverse iterator providing non-modifiable access to the
+        // last element of the array this reference object represents, and the
+        // past-the-end reverse iterator if 'size() == 0'.
+
+    const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a reverse iterator providing non-modifiable access pointing
+        // past-the-end of the array this reference object represents.
+
+    bool empty() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'size() == 0'.
+
+    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a const-pointer to the number of elements of the array this
+        // reference object represents.
+
+    const_reference front() const;
+        // Return a reference providing non-modifiable access to the first
+        // element of the array this reference object represents.  The behavior
+        // is undefined unless 'size() > 0'.
+
+    const_reference back() const;
+        // Return a reference providing non-modifiable access to the last
+        // element of the array this reference object represents.  The behavior
+        // is undefined unless 'size() > 0'.
+
+    pointer data() const BSLS_KEYWORD_NOEXCEPT;
+        // Return the address providing non-modifiable access to the first
+        // element of the array this reference object represents.  Return a
+        // valid pointer which cannot be dereferenced if the 'size() == 0'.
+
+    size_type length() const;
+        // Return a const pointer to the length of the array.
 
     bool isSorted() const;
         // Return 'true' if underlying map is sorted and 'false' otherwise.
-
-    SizeType size() const;
-        // Return the size of the map.
 
     const Datum *find(int key) const;
         // Return a const pointer to the datum having the specified 'key', if
@@ -2656,6 +2774,25 @@ class DatumMapRef {
     // zero-size maps are valid.
 
   public:
+    // PUBLIC TYPES
+    typedef const bdld::DatumMapEntry element_type;
+    typedef       bdld::DatumMapEntry value_type;
+
+    typedef bsl::size_t     size_type;
+    typedef bsl::ptrdiff_t  difference_type;
+
+    typedef       element_type       *pointer;
+    typedef const element_type *const_pointer;
+
+    typedef       element_type&       reference;
+    typedef const element_type& const_reference;
+
+    typedef       pointer       iterator;
+    typedef const_pointer const_iterator;
+
+    typedef bsl::reverse_iterator<iterator>             reverse_iterator;
+    typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
+
     typedef Datum::SizeType SizeType;
         // 'SizeType' is an alias for an unsigned integral value, representing
         // the capacity of a datum array, the capacity of a datum map, the
@@ -2664,17 +2801,12 @@ class DatumMapRef {
 
   private:
     // DATA
-    const DatumMapEntry *d_data_p;   // pointer to the array of 'DatumMapEntry'
-                                     // objects (not owned)
-
-    SizeType             d_size;     // length of the array
-
+    const DatumMapEntry *d_data_p;   // pointer to the entry-array (not owned)
+    SizeType             d_size;     // length of the map
     bool                 d_sorted;   // flag indicating whether the array is
                                      // sorted or not
-
     bool                 d_ownsKeys; // flag indicating whether the map owns
                                      // the keys or not
-
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bsl::is_trivially_copyable);
@@ -2693,12 +2825,58 @@ class DatumMapRef {
     //!~DatumMapRef() = default;
 
     // ACCESSORS
-    const DatumMapEntry& operator[](SizeType index) const;
-        // Return the element stored at the specified 'index' position in this
-        // map.  The behavior is undefined unless 'index < size()'.
+    const_reference operator[](size_type position) const;
+        // Return a reference providing non-modifiable access to the element at
+        // the specified 'position' in the array of map entries this reference
+        // object represents.  The behavior is undefined unless
+        // 'position < size()'.
 
-    const DatumMapEntry *data() const;
-        // Return pointer to the first element in the map.
+    const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
+        // Return an iterator providing non-modifiable access to the first
+        // element of the array of map entries this reference object
+        // represents; return a past-the-end iterator if 'size() == 0'.
+
+    const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+        // Return an iterator providing non-modifiable access pointing
+        // past-the-end of the array this reference object represents.
+
+    const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a reverse iterator providing non-modifiable access to the
+        // last element of the array this reference object represents, and the
+        // past-the-end reverse iterator if 'size() == 0'.
+
+    const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a reverse iterator providing non-modifiable access pointing
+        // past-the-end of the array this reference object represents.
+
+    bool empty() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'size() == 0'.
+
+    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a const-pointer to the number of elements of the array this
+        // reference object represents.
+
+    const_reference front() const;
+        // Return a reference providing non-modifiable access to the first
+        // element of the array this reference object represents.  The behavior
+        // is undefined unless 'size() > 0'.
+
+    const_reference back() const;
+        // Return a reference providing non-modifiable access to the last
+        // element of the array this reference object represents.  The behavior
+        // is undefined unless 'size() > 0'.
+
+    pointer data() const BSLS_KEYWORD_NOEXCEPT;
+        // Return the address providing non-modifiable access to the first
+        // element of the array this reference object represents.  Return a
+        // valid pointer which cannot be dereferenced if the 'size() == 0'.
+
+    size_type length() const;
+        // Return a const pointer to the length of the array.
 
     bool isSorted() const;
         // Return 'true' if underlying map is sorted and 'false' otherwise.
@@ -2706,9 +2884,6 @@ class DatumMapRef {
     bool ownsKeys() const;
         // Return 'true' if underlying map owns the keys and 'false' otherwise.
         // Note that 'false' is always returned for zero-sized 'DatumMapRef'.
-
-    SizeType size() const;
-        // Return the size of the map.
 
     const Datum *find(const bslstl::StringRef& key) const;
         // Return a const pointer to the datum having the specified 'key', if
@@ -3685,7 +3860,7 @@ bool Datum::isExternalReference() const
       case e_INTERNAL_USERDEFINED:
         return true;                                                  // RETURN
       case e_INTERNAL_UNINITIALIZED:
-        BSLS_ASSERT(0 == "Uninitialized Datum!!");
+        BSLS_ASSERT(0 == "Uninitialized Datum");
         break;
       default:
         break;
@@ -3778,7 +3953,7 @@ DatumBinaryRef Datum::theBinary() const
       case e_INTERNAL_BINARY_ALLOC:
         return DatumBinaryRef(d_as.d_ptr, d_as.d_int32);              // RETURN
       default:
-        BSLS_ASSERT(0 == "NOT A BINARY");
+        BSLS_ASSERT(0 == "Bad binary internal-type (memory corruption?)");
     }
     return DatumBinaryRef();
 #endif  // end - 64 bit
@@ -4012,7 +4187,7 @@ bslstl::StringRef Datum::theString() const
         return theLongStringReference();                              // RETURN
 #else   // end - 32 bit / begin - 64 bit
       default: {
-        BSLS_ASSERT(false);
+        BSLS_ASSERT(0 == "Bad string internal-type (memory corruption?)");
         return bslstl::StringRef();                                   // RETURN
       }
 #endif  // end - 64 bit
@@ -4217,14 +4392,15 @@ void Datum::apply(t_VISITOR& visitor) const
             visitor(bslmf::Nil());
             break;
           default:
-            BSLS_ASSERT_SAFE(0 == "UNKNOWN TYPE");
+            BSLS_ASSERT_SAFE(
+                            0 == "Unknown extended-type (memory corruption?)");
         }
         break;
       case e_INTERNAL_DOUBLE:
         visitor(d_double);
         break;
       default:
-        BSLS_ASSERT_SAFE(0 == "Unknown type!!");
+        BSLS_ASSERT_SAFE(0 == "Unknown type (memory corruption?)");
     }
 #else   // end - 32 bit / begin - 64 bit
     switch (internalType()) {
@@ -4309,10 +4485,10 @@ void Datum::apply(t_VISITOR& visitor) const
           visitor(theIntMap());
           break;
       case e_INTERNAL_UNINITIALIZED:
-        BSLS_ASSERT(0 == "Uninitialized Datum!!");
+        BSLS_ASSERT(0 == "Uninitialized Datum");
         break;
       default:
-        BSLS_ASSERT_SAFE(0 == "Unknown type!!");
+        BSLS_ASSERT_SAFE(0 == "Unknown type (memory corruption?)");
     }
 #endif // end - 64 bit
 }
@@ -4366,22 +4542,110 @@ DatumArrayRef::DatumArrayRef(const Datum *data,
 
 // ACCESSORS
 inline
-const Datum& DatumArrayRef::operator[](SizeType index) const
+DatumArrayRef::const_reference DatumArrayRef::operator[](SizeType index) const
 {
     BSLS_ASSERT_SAFE(index < d_length);
     return d_data_p[index];
 }
 
 inline
-const Datum *DatumArrayRef::data() const
+DatumArrayRef::pointer
+DatumArrayRef::data() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_data_p;
 }
 
 inline
-DatumArrayRef::SizeType DatumArrayRef::length() const
+DatumArrayRef::size_type
+DatumArrayRef::length() const
 {
     return d_length;
+}
+
+inline
+DatumArrayRef::size_type
+DatumArrayRef::size() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_length;
+}
+
+inline
+DatumArrayRef::const_iterator
+DatumArrayRef::begin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p;
+}
+
+inline
+DatumArrayRef::const_iterator
+DatumArrayRef::cbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p;
+}
+
+inline
+DatumArrayRef::const_reverse_iterator
+DatumArrayRef::rbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(end());
+}
+
+inline
+DatumArrayRef::const_reverse_iterator
+DatumArrayRef::crbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(cend());
+}
+
+inline
+DatumArrayRef::const_iterator
+DatumArrayRef::end() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p + d_length;
+}
+
+inline
+DatumArrayRef::const_iterator
+DatumArrayRef::cend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return end();
+}
+
+inline
+DatumArrayRef::const_reverse_iterator
+DatumArrayRef::rend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(begin());
+}
+
+inline
+DatumArrayRef::const_reverse_iterator
+DatumArrayRef::crend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(cbegin());
+}
+
+
+inline
+DatumArrayRef::const_reference
+DatumArrayRef::front() const
+{
+    BSLS_ASSERT(!empty());
+    return *begin();
+}
+
+inline
+DatumArrayRef::const_reference
+DatumArrayRef::back()  const
+{
+    BSLS_ASSERT(!empty());
+    return *(end() - 1);
+}
+
+inline
+bool DatumArrayRef::empty() const BSLS_KEYWORD_NOEXCEPT
+{
+    return 0 == d_length;
 }
 
                           // ----------------------
@@ -4451,21 +4715,102 @@ const DatumIntMapEntry& DatumIntMapRef::operator[](SizeType index) const
 }
 
 inline
-const DatumIntMapEntry *DatumIntMapRef::data() const
+DatumIntMapRef::pointer
+DatumIntMapRef::data() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_data_p;
+}
+
+inline
+DatumIntMapRef::size_type DatumIntMapRef::size() const
+BSLS_KEYWORD_NOEXCEPT
+{
+    return d_size;
+}
+
+inline
+DatumIntMapRef::const_iterator
+DatumIntMapRef::begin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p;
+}
+
+inline
+DatumIntMapRef::const_iterator
+DatumIntMapRef::cbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p;
+}
+
+inline
+DatumIntMapRef::const_reverse_iterator
+DatumIntMapRef::rbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(end());
+}
+
+inline
+DatumIntMapRef::const_reverse_iterator
+DatumIntMapRef::crbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(cend());
+}
+
+inline
+DatumIntMapRef::const_iterator
+DatumIntMapRef::end() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p + d_size;
+}
+
+inline
+DatumIntMapRef::const_iterator
+DatumIntMapRef::cend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return end();
+}
+
+inline
+DatumIntMapRef::const_reverse_iterator
+DatumIntMapRef::rend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(begin());
+}
+
+inline
+DatumIntMapRef::const_reverse_iterator
+DatumIntMapRef::crend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(cbegin());
+}
+
+
+inline
+DatumIntMapRef::const_reference
+DatumIntMapRef::front() const
+{
+    BSLS_ASSERT(!empty());
+    return *begin();
+}
+
+inline
+DatumIntMapRef::const_reference
+DatumIntMapRef::back()  const
+{
+    BSLS_ASSERT(!empty());
+    return *(end() - 1);
+}
+
+inline
+bool DatumIntMapRef::empty() const BSLS_KEYWORD_NOEXCEPT
+{
+    return 0 == d_size;
 }
 
 inline
 bool DatumIntMapRef::isSorted() const
 {
     return d_sorted;
-}
-
-inline
-DatumIntMapRef::SizeType DatumIntMapRef::size() const
-{
-    return d_size;
 }
 
                             // -------------------
@@ -4533,16 +4878,103 @@ DatumMapRef::DatumMapRef(const DatumMapEntry *data,
 
 // ACCESSORS
 inline
-const DatumMapEntry& DatumMapRef::operator[](SizeType index) const
+DatumMapRef::const_reference DatumMapRef::operator[](SizeType index) const
 {
     BSLS_ASSERT_SAFE(index < d_size);
     return d_data_p[index];
 }
 
 inline
-const DatumMapEntry *DatumMapRef::data() const
+DatumMapRef::pointer
+DatumMapRef::data() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_data_p;
+}
+
+inline
+DatumMapRef::size_type DatumMapRef::size() const
+BSLS_KEYWORD_NOEXCEPT
+{
+    return d_size;
+}
+
+inline
+DatumMapRef::const_iterator
+DatumMapRef::begin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p;
+}
+
+inline
+DatumMapRef::const_iterator
+DatumMapRef::cbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p;
+}
+
+inline
+DatumMapRef::const_reverse_iterator
+DatumMapRef::rbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(end());
+}
+
+inline
+DatumMapRef::const_reverse_iterator
+DatumMapRef::crbegin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(cend());
+}
+
+inline
+DatumMapRef::const_iterator
+DatumMapRef::end() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_data_p + d_size;
+}
+
+inline
+DatumMapRef::const_iterator
+DatumMapRef::cend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return end();
+}
+
+inline
+DatumMapRef::const_reverse_iterator
+DatumMapRef::rend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(begin());
+}
+
+inline
+DatumMapRef::const_reverse_iterator
+DatumMapRef::crend() const BSLS_KEYWORD_NOEXCEPT
+{
+    return const_reverse_iterator(cbegin());
+}
+
+
+inline
+DatumMapRef::const_reference
+DatumMapRef::front() const
+{
+    BSLS_ASSERT(!empty());
+    return *begin();
+}
+
+inline
+DatumMapRef::const_reference
+DatumMapRef::back()  const
+{
+    BSLS_ASSERT(!empty());
+    return *(end() - 1);
+}
+
+inline
+bool DatumMapRef::empty() const BSLS_KEYWORD_NOEXCEPT
+{
+    return 0 == d_size;
 }
 
 inline
@@ -4555,12 +4987,6 @@ inline
 bool DatumMapRef::ownsKeys() const
 {
     return d_ownsKeys;
-}
-
-inline
-DatumMapRef::SizeType DatumMapRef::size() const
-{
-    return d_size;
 }
 
                          // --------------------------
@@ -4732,7 +5158,6 @@ bool *DatumMutableMapOwningKeysRef::sorted() const
     return d_sorted_p;
 }
 
-
 }  // close package namespace
 
 // FREE OPERATORS
@@ -4878,7 +5303,7 @@ void bdld::hashAppend(t_HASH_ALGORITHM& hashAlg, const bdld::Datum& input)
             }
         } break;
         default: {
-            BSLS_ASSERT(0 == "unknown 'bdld::Datum' type");
+            BSLS_ASSERT(0 == "Unknown type (memory corruption?)");
         }
     }
 }
