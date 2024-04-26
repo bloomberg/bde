@@ -15,12 +15,12 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a registry for category information and
 // functions to manage the registry and its members.  By "category" we mean a
 // named entity that identifies a region or functional area of a program.  A
-// category name can be an arbitrary string, including the empty string.
-// Note that category names are case-sensitive.
+// category name can be an arbitrary string, including the empty string.  Note
+// that category names are case-sensitive.
 //
 // Associated with each category, besides its name, are four threshold levels
-// known as "record", "pass", "trigger", and "trigger-all".  Threshold
-// levels are values in the range '[0 .. 255]'.  (See the 'ball_loggermanager'
+// known as "record", "pass", "trigger", and "trigger-all".  Threshold levels
+// are values in the range '[0 .. 255]'.  (See the 'ball_loggermanager'
 // component-level documentation for a typical interpretation of these four
 // thresholds.)
 //
@@ -96,8 +96,8 @@ BSLS_IDENT("$Id: $")
 //    [ EQUITY.GRAPHICS.MATH.ACKERMANN, 195, 99, 67, 35 ]
 //..
 // We next use the 'setLevels' method of 'ball::Category' to adjust the
-// threshold levels of our categories.  The following also demonstrates use
-// of the 'recordLevel', etc., accessors of 'ball::Category':
+// threshold levels of our categories.  The following also demonstrates use of
+// the 'recordLevel', etc., accessors of 'ball::Category':
 //..
 //    for (int i = 0; i < NUM_CATEGORIES; ++i) {
 //        ball::Category *category = manager.lookupCategory(myCategories[i]);
@@ -187,7 +187,7 @@ class CategoryManager {
     // threshold levels of existing categories may be accessed and modified
     // directly.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef bsl::unordered_map<const char *,
                                int,
                                bdlb::CStringHash,
@@ -241,7 +241,24 @@ class CategoryManager {
         // that the category registry should be properly synchronized before
         // calling this method.
 
+    void privateApplyRulesToCategory(Category* category);
+        // Apply all rules in the rule set to the specified 'category'.  The
+        // behavior is undefined unless the caller holds a lock on the
+        // 'd_ruleSetMutex' mutex.
+
+    void privateApplyRulesToAllCategories(
+                                    bslmt::LockGuard<bslmt::Mutex>& ruleGuard);
+        // Apply all rules in the rule set to all categories.  Use the
+        // specified 'ruleGuard' to provide synchronization.  The behavior is
+        // undefined unless 'ruleGuard' holds a lock on 'd_ruleSetMutex'.  Note
+        // that all methods that modify the rule set must lock 'd_ruleSetMutex'
+        // to perform that modification, so passing the guard avoids needlessly
+        // unlocking and re-locking the mutex.
+
   public:
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -FABC01 // Functions not in alphanumeric order
+
     // CREATORS
     explicit CategoryManager(bslma::Allocator *basicAllocator = 0);
         // Create a category manager.  Optionally specify a 'basicAllocator'
@@ -324,21 +341,21 @@ class CategoryManager {
         // 'triggerAllLevel' values, respectively, if a category having
         // 'categoryName' exists and each of the specified threshold values is
         // in the range '[0 .. 255]'.  Otherwise, add to the registry a
-        // category having the specified 'categoryName' and the specified
-        // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
-        // threshold values, respectively, if there is no category having
-        // 'categoryName' and each of the specified threshold values is in the
-        // range '[0 .. 255]'.  Return the address of the (possibly
-        // newly-created) modifiable category on success, and 0 otherwise (with
-        // no effect on any category).  The behavior is undefined unless a lock
-        // is not held by this thread on the mutex returned by 'rulesetMutex'.
+        // category having 'categoryName' and 'recordLevel', 'passLevel',
+        // 'triggerLevel', and 'triggerAllLevel' threshold values,
+        // respectively, if there is no category having 'categoryName' and each
+        // of the specified threshold values is in the range '[0 .. 255]'.
+        // Return the address of the (possibly newly-created) modifiable
+        // category on success, and 0 otherwise (with no effect on any
+        // category).  The behavior is undefined unless a lock is not held by
+        // this thread on the mutex returned by 'rulesetMutex'.
 
-    int addRule(const Rule& rule);
-        // Add the specified 'rule' to the set of (unique) rules maintained by
-        // this object.  Return the number of rules added (i.e., 1 on success
-        // and 0 if a rule with the same value is already present).  The
-        // behavior is undefined unless a lock is not held by this thread on
-        // the mutex returned by 'rulesetMutex'.
+    int addRule(const Rule& ruleToAdd);
+        // Add the specified 'ruleToAdd' to the set of (unique) rules
+        // maintained by // this object.  Return the number of rules added
+        // (i.e., 1 on success and 0 if a rule with the same value is already
+        // present).  The behavior is undefined unless a lock is not held by
+        // this thread on the mutex returned by 'rulesetMutex'.
 
     int addRules(const RuleSet& ruleSet);
         // Add each rule in the specified 'ruleSet' to the set of (unique)
@@ -347,8 +364,8 @@ class CategoryManager {
         // on the mutex returned by 'rulesetMutex'.  Note that each rule having
         // the same value as an existing rule will be ignored.
 
-    int removeRule(const Rule& rule);
-        // Remove the specified 'rule' from the set of (unique) rules
+    int removeRule(const Rule& ruleToRemove);
+        // Remove the specified 'ruleToRemove' from the set of (unique) rules
         // maintained by this object.  Return the number of rules removed
         // (i.e., 1 on success and 0 if no rule having the same value is
         // found).  The behavior is undefined unless a lock is not held by this
@@ -418,6 +435,8 @@ class CategoryManager {
         //..
         //  void operator()(const Category *);
         //..
+
+    // BDE_VERIFY pragma: pop
 };
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

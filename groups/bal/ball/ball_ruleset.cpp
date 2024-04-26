@@ -54,6 +54,8 @@ RuleSet::RuleSet(bslma::Allocator *basicAllocator)
 , d_freeRuleIds(basicAllocator)
 , d_numPredicates(0)
 {
+    d_ruleAddresses.reserve(maxNumRules());
+    d_freeRuleIds.reserve(maxNumRules());
     for (int i = 0; i < maxNumRules(); ++i) {
         d_ruleAddresses.push_back(0);
         d_freeRuleIds.push_back(i);
@@ -68,6 +70,8 @@ RuleSet::RuleSet(const RuleSet& original, bslma::Allocator *basicAllocator)
 , d_ruleAddresses(basicAllocator)
 , d_freeRuleIds(basicAllocator)
 {
+    d_ruleAddresses.reserve(maxNumRules());
+    d_freeRuleIds.reserve(maxNumRules());
     for (int i = 0; i < maxNumRules(); ++i) {
         d_ruleAddresses.push_back(0);
         d_freeRuleIds.push_back(i);
@@ -81,15 +85,16 @@ int RuleSet::addRule(const Rule& value)
     if (d_ruleHashtable.find(value) != d_ruleHashtable.end()) {
         return -1;                                                    // RETURN
     }
-    if ((int)d_ruleHashtable.size() >= maxNumRules()) {
+    if (static_cast<int>(d_ruleHashtable.size()) >= maxNumRules()) {
         return -2;                                                    // RETURN
     }
 
     HashtableType::const_iterator iter = d_ruleHashtable.insert(value).first;
+
     int ruleId = d_freeRuleIds.back();
     d_freeRuleIds.pop_back();
     d_ruleAddresses[ruleId] = &*iter;
-    d_numPredicates += value.numPredicates();
+    d_numPredicates += value.numAttributes();
     return ruleId;
 }
 
@@ -125,7 +130,7 @@ int RuleSet::removeRuleById(int id)
         return 0;                                                     // RETURN
     }
 
-    d_numPredicates -= rule->numPredicates();
+    d_numPredicates -= rule->numAttributes();
 
     // Note that removing 'iter' from 'd_ruleHashTable' invalidates 'rule'.
     HashtableType::iterator iter = d_ruleHashtable.find(*rule);

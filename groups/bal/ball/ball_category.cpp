@@ -11,6 +11,8 @@ BSLS_IDENT_RCSID(ball_category_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
+#include <bslmt_mutexassert.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
@@ -44,9 +46,10 @@ Category::Category(const char       *categoryName,
                                            triggerLevel,
                                            triggerAllLevel))
 , d_categoryName(categoryName, basicAllocator)
-, d_categoryHolder(0)
+, d_categoryHolder_p(0)
 , d_relevantRuleMask()
 , d_ruleThreshold(0)
+, d_mutex()
 {
     BSLS_ASSERT(categoryName);
     bsls::AtomicOperations::initUint(&d_relevantRuleMask, 0);
@@ -58,31 +61,39 @@ Category::linkCategoryHolder(CategoryHolder *categoryHolder)
 {
     BSLS_ASSERT(categoryHolder);
 
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     if (!categoryHolder->category()) {
-        categoryHolder->setThreshold(bsl::max(d_threshold, d_ruleThreshold));
+        categoryHolder->setThreshold(bsl::max(d_threshold.loadRelaxed(),
+                                              d_ruleThreshold));
         categoryHolder->setCategory(this);
-        categoryHolder->setNext(d_categoryHolder);
-        d_categoryHolder = categoryHolder;
+        categoryHolder->setNext(d_categoryHolder_p);
+        d_categoryHolder_p = categoryHolder;
     }
 }
 
 void Category::resetCategoryHolders()
 {
-    CategoryHolder *holder = d_categoryHolder;
+    bslmt::LockGuard<bslmt::Mutex>  guard(&d_mutex);
+
+    CategoryHolder *holder = d_categoryHolder_p;
+
     while (holder) {
         CategoryHolder *nextHolder = holder->next();
         holder->reset();
         holder = nextHolder;
     }
-    d_categoryHolder = 0;
+    d_categoryHolder_p = 0;
 }
 
 // CLASS METHODS
 void Category::updateThresholdForHolders()
 {
-    if (d_categoryHolder) {
-        CategoryHolder *holder = d_categoryHolder;
-        const int threshold = bsl::max(d_threshold, d_ruleThreshold);
+    BSLMT_MUTEXASSERT_IS_LOCKED(&d_mutex);
+
+    if (d_categoryHolder_p) {
+        CategoryHolder *holder = d_categoryHolder_p;
+        const int       threshold = bsl::max(d_threshold.loadRelaxed(),
+                                             d_ruleThreshold);
         if (threshold != holder->threshold()) {
             do {
                 holder->setThreshold(threshold);
@@ -102,6 +113,7 @@ int Category::setLevels(int recordLevel,
                                           passLevel,
                                           triggerLevel,
                                           triggerAllLevel)) {
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
         d_thresholdLevels.setLevels(recordLevel,
                                     passLevel,

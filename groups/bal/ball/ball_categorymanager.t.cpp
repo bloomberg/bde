@@ -102,18 +102,18 @@ using namespace bsl;
 //
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // 'ball::CategoryManagerIter' public interface:
-// [16] CategoryManagerIter(const CategoryManager& cm);
-// [16] ~CategoryManagerIter();
-// [16] void operator++();
-// [16] operator const void *() const;
-// [16] const Category& operator()() const;
+// [17] CategoryManagerIter(const CategoryManager& cm);
+// [17] ~CategoryManagerIter();
+// [17] void operator++();
+// [17] operator const void *() const;
+// [17] const Category& operator()() const;
 //
 // 'ball::CategoryManagerManip' public interface:
-// [17] CategoryManagerManip(CategoryManager *cm);
-// [17] ~CategoryManagerManip();
-// [17] void advance();
-// [17] Category& operator()();
-// [17] operator const void *() const;
+// [18] CategoryManagerManip(CategoryManager *cm);
+// [18] ~CategoryManagerManip();
+// [18] void advance();
+// [18] Category& operator()();
+// [18] operator const void *() const;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -124,6 +124,7 @@ using namespace bsl;
 // [13] CONCURRENCY TEST: RULES
 // [14] UNIQUENESS OF INITIAL RULE SET SEQUENCE NUMBER
 // [15] USAGE EXAMPLE
+// [16] DRQS 171004031 - TSAN test
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -480,6 +481,7 @@ extern "C" void *ruleThreadTest(void *args)
         ASSERT(0 == mX.addRule(rule3));
         ASSERT(1 == mX.addRule(rule4));
         ASSERT(0 == mX.addRule(rule4));
+        barrier.wait();
 
         mX.rulesetMutex().lock();
         int ruleId1 = X.ruleSet().ruleId(rule1);
@@ -514,6 +516,7 @@ extern "C" void *ruleThreadTest(void *args)
         mX.rulesetMutex().lock();
         ruleId4 = X.ruleSet().ruleId(rule4);
         mX.rulesetMutex().unlock();
+        barrier.wait();
 
         const Entry *entry = mX.lookupCategory(US);
         ASSERT(bdlb::BitUtil::isBitSet(entry->relevantRuleMask(), ruleId4));
@@ -588,6 +591,95 @@ extern "C" void *seqNumUniquenessThread(void *args)
 
 }  // close namespace BALL_CATEGORYMANAGER_UNIQUENESS_OF_SEQUENCE_NUMBERS
 
+struct TestDrqs171004031Data {
+    bslmt::Barrier     d_barrier;       // encourage collisions by sync start
+    Obj                d_mx;            // Object under test
+    const char * const d_categoryName;  // category name
+
+    TestDrqs171004031Data(unsigned int  threads,
+                          const char   *categoryName);
+        // Create a TestDrqs171004031Data object with a barrier to synchronize
+        // the start of the specified 'threads', and the specified
+        // 'categoryName'.
+};
+
+TestDrqs171004031Data::TestDrqs171004031Data(unsigned int  threads,
+                                             const char   *categoryName)
+: d_barrier(threads)
+, d_mx()
+, d_categoryName(categoryName)
+{
+}
+
+void *lookupCategoryFunction(void* void_p)
+    // After waiting for a barrier to encourage collisions, invoke
+    // 'lookupCategory' on the 'CategoryManager' referenced by the
+    // 'TestDrqs171004031Data' object pointed to by the specified 'void_p'.
+{
+    TestDrqs171004031Data &testData =
+                                *(static_cast<TestDrqs171004031Data*>(void_p));
+    Obj& mX = testData.d_mx;
+    static ball::CategoryHolder holder;
+    testData.d_barrier.wait();
+    mX.lookupCategory(&holder, testData.d_categoryName);
+    return 0;
+}
+
+void *addCategoryFunction(void* void_p)
+    // After waiting for a barrier to encourage collisions, invoke
+    // 'addCategory' on the 'CategoryManager' referenced by the
+    // 'TestDrqs171004031Data' object pointed to by the specified 'void_p'.
+{
+    TestDrqs171004031Data &testData =
+                                *(static_cast<TestDrqs171004031Data*>(void_p));
+    Obj& mX = testData.d_mx;
+    static ball::CategoryHolder holder;
+    testData.d_barrier.wait();
+    mX.addCategory(&holder, testData.d_categoryName, 0, 0, 0, 0);
+    return 0;
+}
+
+void testDrqs171004031(unsigned int addCategoryThreads,
+                       unsigned int lookupCategoryThreads)
+    // Create test data and run the specified 'addCategoryThreads' number of
+    // threads adding categories and the specified 'lookupCategoryThreads'
+    // number of threads looking up categories.
+{
+    TestDrqs171004031Data testData(addCategoryThreads + lookupCategoryThreads,
+                                   "TSAN category");
+
+    bsl::vector<bslmt::ThreadUtil::Handle> handles;
+    handles.reserve(addCategoryThreads + lookupCategoryThreads);
+
+    // There must be rules in the system to trigger the collision.
+    for (int rule = 0; rule < ball::RuleSet::maxNumRules(); ++rule) {
+        testData.d_mx.addRule(ball::Rule("TSAN*",
+                                         rule+2,
+                                         rule+2,
+                                         rule+2,
+                                         rule+2));
+    }
+
+    for (unsigned int add = 0; add < addCategoryThreads; ++add) {
+        handles.push_back(bslmt::ThreadUtil::Handle());
+        bslmt::ThreadUtil::create(&(handles.back()),
+                addCategoryFunction,
+                static_cast<void *>(&testData));
+    }
+    for (unsigned int lookup = 0; lookup < lookupCategoryThreads; ++lookup) {
+        handles.push_back(bslmt::ThreadUtil::Handle());
+        bslmt::ThreadUtil::create(&(handles.back()),
+                lookupCategoryFunction,
+                static_cast<void *>(&testData));
+    }
+    for (bsl::vector<bslmt::ThreadUtil::Handle>::iterator it = handles.begin();
+            it != handles.end();
+            ++it)
+    {
+        bslmt::ThreadUtil::join(*it, 0);
+    }
+}
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -606,7 +698,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING 'ball::CategoryManagerManip'
         //
@@ -680,7 +772,7 @@ int main(int argc, char *argv[])
             ASSERT(triggerAll == p->triggerAllLevel());
         }
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING 'ball::CategoryManagerIter'
         //
@@ -744,6 +836,28 @@ int main(int argc, char *argv[])
 
       } break;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+      case 16: {
+        // --------------------------------------------------------------------
+        // DRQS 171004031 - TSAN test
+        //
+        // Concerns:
+        //: 1 DRQS 171004031 showed the presence of data races, those were
+        //    confirmed by this test prior to fixing them, and can now be shown
+        //    to be fixed by running this test under TSAN.
+        //
+        // Plan:
+        //: 1 Populate the rule set, then simultaneously add categories and
+        //    look up categories.
+        //
+        // Testing:
+        //   DRQS 171004031 - TSAN test
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "DRQS 171004031 - TSAN TEST" << endl
+                                  << "==========================" << endl;
+
+        testDrqs171004031(4, 4);
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE

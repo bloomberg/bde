@@ -106,7 +106,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_keyword.h>
 #include <bsls_review.h>
@@ -134,23 +138,29 @@ class Category {
     // logging system.
 
     // DATA
-    ThresholdAggregate  d_thresholdLevels;  // record, pass, trigger, and
-                                            // trigger-all levels
+    ThresholdAggregate    d_thresholdLevels; // record, pass, trigger, and
+                                             // trigger-all levels
 
-    int                 d_threshold;        // numerical maximum of the four
-                                            // levels
+    bsls::AtomicInt       d_threshold;       // numerical maximum of the four
+                                             // levels
 
-    bsl::string         d_categoryName;     // category name
+    const bsl::string     d_categoryName;    // category name
 
-    CategoryHolder     *d_categoryHolder;   // linked list of holders of this
-                                            // category
+    CategoryHolder       *d_categoryHolder_p; // linked list of holders of this
+                                              // category
+
     mutable bsls::AtomicOperations::AtomicTypes::Uint
-                        d_relevantRuleMask; // the mask indicating which rules
-                                            // are relevant (i.e., have been
-                                            // attached to this category)
+                          d_relevantRuleMask; // the mask indicating which
+                                              // rules are relevant (i.e., have
+                                              // been attached to this
+                                              // category)
 
-    mutable int         d_ruleThreshold;    // numerical maximum of all four
-                                            // levels for all relevant rules
+    mutable int           d_ruleThreshold;    // numerical maximum of all four
+                                              // levels for all relevant rules
+
+    mutable bslmt::Mutex  d_mutex;            // mutex providing mutually
+                                              // exclusive access to all
+                                              // non-atomic members
 
     // FRIENDS
     friend class CategoryManagerImpUtil;
@@ -175,7 +185,8 @@ class Category {
     void updateThresholdForHolders();
         // Update the threshold of all category holders that hold the address
         // of this object to the maximum of 'd_threshold' and
-        // 'd_ruleThreshold'.
+        // 'd_ruleThreshold'.  The behavior is undefined unless 'd_mutex' is
+        // locked.
 
   public:
     // CLASS METHODS
@@ -221,6 +232,8 @@ class Category {
         // otherwise (with no effect on the threshold levels of this category).
 
     // ACCESSORS
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
     const char *categoryName() const;
         // Return the name of this category.
 
@@ -245,7 +258,7 @@ class Category {
     int triggerAllLevel() const;
         // Return the trigger-all level of this category.
 
-    const ThresholdAggregate& thresholdLevels() const;
+    ThresholdAggregate thresholdLevels() const;
         // Return the aggregate threshold levels of this category.
 
     int threshold() const;
@@ -271,6 +284,7 @@ class Category {
         // owns this category) applies at this category.  Note that a rule
         // applies to this category if the rule's pattern matches the name
         // returned by 'categoryName'.
+    // BDE_VERIFY pragma: pop
 };
 
                         // ====================
@@ -296,6 +310,7 @@ class CategoryHolder {
     // NOT IMPLEMENTED
     CategoryHolder& operator=(const CategoryHolder&) BSLS_KEYWORD_DELETED;
 
+    // PRIVATE TYPES
     typedef bsls::AtomicOperations                       AtomicOps;
     typedef bsls::AtomicOperations::AtomicTypes::Int     AtomicInt;
     typedef bsls::AtomicOperations::AtomicTypes::Pointer AtomicPointer;
@@ -317,9 +332,12 @@ class CategoryHolder {
         // the range '[0 .. 255]'.
 
     // PUBLIC DATA
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -MN01 // Class data members must be private
     AtomicInt     d_threshold;   // threshold level
     AtomicPointer d_category_p;  // held category (not owned)
     AtomicPointer d_next_p;      // next category holder in linked list
+    // BDE_VERIFY pragma: pop
 
     // CREATORS
 
@@ -327,6 +345,8 @@ class CategoryHolder {
     // initialization of instances of this class.
 
     // MANIPULATORS
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
     void reset();
         // Reset this object to its default value.  The default value is:
         //..
@@ -354,6 +374,7 @@ class CategoryHolder {
 
     CategoryHolder *next() const;
         // Return the address of the modifiable holder held by this holder.
+    // BDE_VERIFY pragma: pop
 };
 
                     // ============================
@@ -368,7 +389,9 @@ class CategoryManagerImpUtil {
     // implementation detail of the 'ball' logging system.
 
   public:
-    // PRIVATE MANIPULATORS
+    // CLASS METHODS
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
     static void linkCategoryHolder(Category       *category,
                                    CategoryHolder *categoryHolder);
         // Load the specified 'category' and its corresponding 'maxLevel()'
@@ -402,6 +425,7 @@ class CategoryManagerImpUtil {
                                     RuleSet::MaskType  mask);
         // Set the rule-mask for the specified 'category' to the specified
         // 'mask'.
+    // BDE_VERIFY pragma: pop
 };
 
 // ============================================================================
@@ -411,6 +435,9 @@ class CategoryManagerImpUtil {
                         // --------------
                         // class Category
                         // --------------
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
 
 // CLASS METHODS
 inline
@@ -447,30 +474,35 @@ int Category::maxLevel() const
 inline
 int Category::recordLevel() const
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_thresholdLevels.recordLevel();
 }
 
 inline
 int Category::passLevel() const
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_thresholdLevels.passLevel();
 }
 
 inline
 int Category::triggerLevel() const
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_thresholdLevels.triggerLevel();
 }
 
 inline
 int Category::triggerAllLevel() const
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_thresholdLevels.triggerAllLevel();
 }
 
 inline
-const ThresholdAggregate& Category::thresholdLevels() const
+ThresholdAggregate Category::thresholdLevels() const
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_thresholdLevels;
 }
 
@@ -483,6 +515,7 @@ int Category::threshold() const
 inline
 int Category::ruleThreshold() const
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_ruleThreshold;
 }
 
@@ -564,6 +597,7 @@ void CategoryManagerImpUtil::updateThresholdForHolders(Category *category)
 {
     BSLS_ASSERT(category);
 
+    bslmt::LockGuard<bslmt::Mutex> guard(&category->d_mutex);
     category->updateThresholdForHolders();
 }
 
@@ -571,6 +605,7 @@ inline
 void CategoryManagerImpUtil::setRuleThreshold(Category *category,
                                               int       ruleThreshold)
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&category->d_mutex);
     category->d_ruleThreshold = ruleThreshold;
 }
 
@@ -615,6 +650,8 @@ void CategoryManagerImpUtil::setRelevantRuleMask(Category          *category,
     bsls::AtomicOperations::setUintRelease(&category->d_relevantRuleMask,
                                            mask);
 }
+
+// BDE_VERIFY pragma: pop
 
 }  // close package namespace
 }  // close enterprise namespace

@@ -7,6 +7,8 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 #include <ball_severity.h>
 #include <ball_thresholdaggregate.h>
 
+#include <bslmt_mutexassert.h>
+
 #include <bdlb_bitutil.h>
 
 #include <bslmt_lockguard.h>
@@ -75,13 +77,19 @@ class CategoryProctor {
         // Rollback the owned objects to their initial state on failure.
 
     // MANIPULATORS
+
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
+
     void setCategories(CategoryVector *categories);
-        // Take ownership of the 'categories' object to roll it back on
-        // failure.
+        // Take ownership of the specified 'categories' object to roll it back
+        // on failure.
 
     void release();
         // Release the ownership of all objects currently managed by this
         // proctor.
+
+    // BDE_VERIFY pragma: pop
 };
 
                         // ---------------------
@@ -112,6 +120,10 @@ CategoryProctor::~CategoryProctor()
 }
 
 // MANIPULATORS
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
+
 inline
 void CategoryProctor::setCategories(CategoryVector *categories)
 {
@@ -124,6 +136,8 @@ void CategoryProctor::release()
     d_category_p   = 0;
     d_categories_p = 0;
 }
+
+// BDE_VERIFY pragma: pop
 
 }  // close unnamed namespace
 
@@ -146,6 +160,7 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
                                                        triggerLevel,
                                                        triggerAllLevel,
                                                        d_allocator_p);
+
     CategoryProctor proctor(category, d_allocator_p);  // rollback on exception
 
     d_categories.push_back(category);
@@ -156,6 +171,71 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
     proctor.release();
 
     return category;
+}
+
+void CategoryManager::privateApplyRulesToCategory(Category* category)
+{
+    RuleSet::MaskType mask      = 0;
+    int               threshold = 0;
+    for (int i = 0; i < RuleSet::maxNumRules(); ++i) {
+        const Rule *rule = d_ruleSet.getRuleById(i);
+        if (rule && rule->isMatch(category->categoryName())) {
+            mask = bdlb::BitUtil::withBitSet(mask, i);
+            threshold = bsl::max(threshold,
+                                 ThresholdAggregate::maxLevel(
+                                         rule->recordLevel(),
+                                         rule->passLevel(),
+                                         rule->triggerLevel(),
+                                         rule->triggerAllLevel()));
+        }
+    }
+    CategoryManagerImpUtil::setRelevantRuleMask(category, mask);
+    if (threshold != category->ruleThreshold()) {
+        CategoryManagerImpUtil::setRuleThreshold(category, threshold);
+        CategoryManagerImpUtil::updateThresholdForHolders(category);
+    }
+}
+
+void CategoryManager::privateApplyRulesToAllCategories(
+                                     bslmt::LockGuard<bslmt::Mutex>& ruleGuard)
+{
+    typedef bsls::Types::Int64 Int64;
+    BSLMT_MUTEXASSERT_IS_LOCKED(&d_ruleSetMutex);
+    BSLS_ASSERT(ruleGuard.ptr() == &d_ruleSetMutex);
+    bsls::Types::Int64 localRulesetSequenceNumber = ++d_ruleSetSequenceNumber;
+    ruleGuard.release()->unlock();
+
+    const Int64 k_BATCH_SIZE = 4096;
+    Int64       offset       = 0;
+    Int64       batch;
+    bool        done         = false;
+
+    bsl::vector<Category *> cachedCategories;
+    while (!done) {
+        cachedCategories.clear();
+        {
+            bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(
+                                                              &d_registryLock);
+            Int64 remaining = d_categories.size() - offset;
+            batch = std::min(k_BATCH_SIZE, remaining);
+            done = (remaining == batch);
+            cachedCategories.assign(d_categories.begin() + offset,
+                                    d_categories.begin() + offset + batch);
+        }
+        {
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
+            if (localRulesetSequenceNumber != d_ruleSetSequenceNumber) {
+                // Another thread is applying newer rules.
+                return;                                               // RETURN
+            }
+            for (bsl::vector<Category *>::iterator iter =
+                                               cachedCategories.begin();
+                                               iter != cachedCategories.end();
+                                               ++iter) {
+                privateApplyRulesToCategory(*iter);
+            }
+        }
+    }
 }
 
 // CREATORS
@@ -180,6 +260,10 @@ CategoryManager::~CategoryManager()
 }
 
 // MANIPULATORS
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
+
 Category *CategoryManager::addCategory(const char *categoryName,
                                        int         recordLevel,
                                        int         passLevel,
@@ -233,26 +317,12 @@ Category *CategoryManager::addCategory(CategoryHolder *categoryHolder,
 
         bslmt::LockGuard<bslmt::Mutex> ruleSetGuard(&d_ruleSetMutex);
 
-        for (int i = 0; i < RuleSet::maxNumRules(); ++i) {
-            const Rule *rule = d_ruleSet.getRuleById(i);
-            if (rule && rule->isMatch(category->categoryName())) {
-                CategoryManagerImpUtil::enableRule(category, i);
-                int threshold = ThresholdAggregate::maxLevel(
-                                                      rule->recordLevel(),
-                                                      rule->passLevel(),
-                                                      rule->triggerLevel(),
-                                                      rule->triggerAllLevel());
-
-                if (threshold > category->ruleThreshold()) {
-                    CategoryManagerImpUtil::setRuleThreshold(category,
-                                                             threshold);
-                }
-            }
-        }
+        privateApplyRulesToCategory(category);
 
         // We have a write lock on 'd_registryLock', so the supplied category
         // holder is the only holder for the created category.
 
+        // Despite the above comment, no such lock is held.
         if (categoryHolder) {
             categoryHolder->setThreshold(bsl::max(category->threshold(),
                                                   category->ruleThreshold()));
@@ -279,8 +349,8 @@ Category *CategoryManager::lookupCategory(CategoryHolder *categoryHolder,
     bslmt::WriteLockGuard<bslmt::ReaderWriterLock> registryGuard(
                                                            &d_registryLock, 1);
 
-    Category *category = 0;
-    CategoryMap::const_iterator iter = d_registry.find(categoryName);
+    Category                    *category = 0;
+    CategoryMap::const_iterator  iter = d_registry.find(categoryName);
     if (iter != d_registry.end()) {
         category = d_categories[iter->second];
         if (categoryHolder && !categoryHolder->category()) {
@@ -322,6 +392,7 @@ Category *CategoryManager::setThresholdLevels(const char *categoryName,
     d_registryLock.lockReadReserveWrite();
     bslmt::WriteLockGuard<bslmt::ReaderWriterLock> registryGuard(
                                                            &d_registryLock, 1);
+
     CategoryMap::iterator iter = d_registry.find(categoryName);
     if (iter != d_registry.end()) {
         Category *category = d_categories[iter->second];
@@ -344,128 +415,62 @@ Category *CategoryManager::setThresholdLevels(const char *categoryName,
         d_registryLock.unlock();
         bslmt::LockGuard<bslmt::Mutex> ruleSetGuard(&d_ruleSetMutex);
 
-        for (int i = 0; i < RuleSet::maxNumRules(); ++i) {
-            const Rule *rule = d_ruleSet.getRuleById(i);
-            if (rule && rule->isMatch(category->categoryName())) {
-                CategoryManagerImpUtil::enableRule(category, i);
-                int threshold = ThresholdAggregate::maxLevel(
-                                                      rule->recordLevel(),
-                                                      rule->passLevel(),
-                                                      rule->triggerLevel(),
-                                                      rule->triggerAllLevel());
-                if (threshold > category->ruleThreshold()) {
-                    CategoryManagerImpUtil::setRuleThreshold(category,
-                                                             threshold);
-                }
-            }
-        }
-
-        // No need to update holders since the category was just newly created
-        // and thus does not have any linked holders.
+        privateApplyRulesToCategory(category);
 
         return category;                                              // RETURN
     }
 }
 
-int CategoryManager::addRule(const Rule& value)
+int CategoryManager::addRule(const Rule& ruleToAdd)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
 
-    const int ruleId = d_ruleSet.addRule(value);
+    const int ruleId = d_ruleSet.addRule(ruleToAdd);
     if (ruleId < 0) {
         return 0;                                                     // RETURN
     }
 
-    ++d_ruleSetSequenceNumber;
+    privateApplyRulesToAllCategories(guard);
 
-    const Rule *rule = d_ruleSet.getRuleById(ruleId);
-
-    for (int i = 0; i < length(); ++i) {
-        Category *category = d_categories[i];
-        if (rule->isMatch(category->categoryName())) {
-            CategoryManagerImpUtil::enableRule(category, ruleId);
-            int threshold = ThresholdAggregate::maxLevel(
-                                                      rule->recordLevel(),
-                                                      rule->passLevel(),
-                                                      rule->triggerLevel(),
-                                                      rule->triggerAllLevel());
-            if (threshold > category->ruleThreshold()) {
-                CategoryManagerImpUtil::setRuleThreshold(category, threshold);
-                CategoryManagerImpUtil::updateThresholdForHolders(category);
-            }
-        }
-    }
     return 1;
 }
 
 int CategoryManager::addRules(const RuleSet& ruleSet)
 {
-    int count = 0;
-    for (int i = 0; i < ruleSet.maxNumRules(); ++i) {
-        const Rule *rule = ruleSet.getRuleById(i);
-        if (rule) {
-            count += addRule(*rule);
-        }
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
+
+    int count = d_ruleSet.addRules(ruleSet);
+
+    if (count) {
+        privateApplyRulesToAllCategories(guard);
     }
+
     return count;
 }
 
-int CategoryManager::removeRule(const Rule& value)
+int CategoryManager::removeRule(const Rule& ruleToRemove)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
 
-    const int ruleId = d_ruleSet.ruleId(value);
-    if (ruleId < 0) {
-        return 0;                                                     // RETURN
+    int count = d_ruleSet.removeRule(ruleToRemove);
+
+    if (count) {
+        privateApplyRulesToAllCategories(guard);
     }
 
-    ++d_ruleSetSequenceNumber;
-
-    const Rule *rule = d_ruleSet.getRuleById(ruleId);
-
-    for (int i = 0; i < length(); ++i) {
-        Category *category = d_categories[i];
-        if (rule->isMatch(category->categoryName())) {
-            CategoryManagerImpUtil::disableRule(category, ruleId);
-            CategoryManagerImpUtil::setRuleThreshold(category, 0);
-
-            RuleSet::MaskType relevantRuleMask = category->relevantRuleMask();
-
-            int j;
-
-            while ((j = bdlb::BitUtil::numTrailingUnsetBits(relevantRuleMask))
-                                                 != RuleSet::e_MAX_NUM_RULES) {
-                relevantRuleMask =
-                    bdlb::BitUtil::withBitCleared(relevantRuleMask, j);
-
-                const Rule *r = d_ruleSet.getRuleById(j);
-                int threshold = ThresholdAggregate::maxLevel(
-                                                         r->recordLevel(),
-                                                         r->passLevel(),
-                                                         r->triggerLevel(),
-                                                         r->triggerAllLevel());
-                if (threshold > category->ruleThreshold()) {
-                    CategoryManagerImpUtil::setRuleThreshold(category,
-                                                             threshold);
-                }
-            }
-            CategoryManagerImpUtil::updateThresholdForHolders(category);
-        }
-    }
-
-    d_ruleSet.removeRuleById(ruleId);
-    return 1;
+    return count;
 }
 
 int CategoryManager::removeRules(const RuleSet& ruleSet)
 {
-    int count = 0;
-    for (int i = 0; i < ruleSet.maxNumRules(); ++i) {
-        const Rule *rule = ruleSet.getRuleById(i);
-        if (rule) {
-            count += removeRule(*rule);
-        }
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
+
+    int count = d_ruleSet.removeRules(ruleSet);
+
+    if (count) {
+        privateApplyRulesToAllCategories(guard);
     }
+
     return count;
 }
 
@@ -473,17 +478,15 @@ void CategoryManager::removeAllRules()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
 
-    ++d_ruleSetSequenceNumber;
+    int count = d_ruleSet.numRules();
 
-    for (int i = 0; i < length(); ++i) {
-        if (d_categories[i]->relevantRuleMask()) {
-            CategoryManagerImpUtil::setRelevantRuleMask(d_categories[i], 0);
-            CategoryManagerImpUtil::setRuleThreshold(d_categories[i], 0);
-            CategoryManagerImpUtil::updateThresholdForHolders(d_categories[i]);
-        }
+    if (count) {
+        d_ruleSet.removeAllRules();
+        privateApplyRulesToAllCategories(guard);
     }
-    d_ruleSet.removeAllRules();
 }
+
+// BDE_VERIFY pragma: pop
 
 // ACCESSORS
 const Category *CategoryManager::lookupCategory(const char *categoryName) const
