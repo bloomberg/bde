@@ -1,5 +1,19 @@
-bsl-internal (4.7.0.0) unstable; urgency=low
+bsl-internal (4.8.0.0) unstable; urgency=low
 
+  * 80bd347c3 Bumped version to 4.8.0.0
+  * 783787063 Ball log set category tsan race drqs 171004031 (#4560)
+  * 5c1405608 Replace unconditional asserts using !"literal" with 0 != "literal" (#4645)
+  * b3dd63954 move memset out of line to avoid spurious warning (#4670)
+  * 29ce0d860 Clear nearly all stream state on cached BALL log record streams - {DRQS 174945338} (#4705)
+  * 8d035df9e Fix UB in bdlb::BitmaskUtil (DRQS 174648615) (#4685)
+  * 2b7904d01 Fix link coercion symbols section. (#4709)
+  * 34f7fd686 `bslma::TestAllocator` cleanup - drqs174842946 (#4696)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 26 Apr 2024 13:57:28 -0400
+
+bsl-internal (4.7.0.0) git; urgency=low
+
+  * 409d2da33 Changelog for version 4.7.0.0
   * a5060739d Bumped version to 4.7.0.0
   * 21151abb3 Add more usage to ball_throttle (#4712)
   * b5f293891 Copy over documentation from bdlmt_throttle (#4704)
@@ -15,7 +29,7 @@ bsl-internal (4.7.0.0) unstable; urgency=low
   * 5e34fc80e Add missing ull suffixes to check values (#4688)
   * 18c61e0fd Thread safety note has been added to 'bdlbb::PooledBlobBufferFactory' documentation. DRQS 174859592 (#4694)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Apr 2024 17:49:36 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Apr 2024 17:54:13 -0400
 
 bsl-internal (4.6.0.0) git; urgency=low
 
