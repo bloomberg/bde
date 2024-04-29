@@ -2626,9 +2626,6 @@ class DatumIntMapRef {
         // element of the array this reference object represents.  Return a
         // valid pointer which cannot be dereferenced if the 'size() == 0'.
 
-    size_type length() const;
-        // Return a const pointer to the length of the array.
-
     bool isSorted() const;
         // Return 'true' if underlying map is sorted and 'false' otherwise.
 
@@ -2874,9 +2871,6 @@ class DatumMapRef {
         // Return the address providing non-modifiable access to the first
         // element of the array this reference object represents.  Return a
         // valid pointer which cannot be dereferenced if the 'size() == 0'.
-
-    size_type length() const;
-        // Return a const pointer to the length of the array.
 
     bool isSorted() const;
         // Return 'true' if underlying map is sorted and 'false' otherwise.
