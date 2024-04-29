@@ -106,8 +106,11 @@ class ControlManager {
         // 'bsl::istream' containing the remainder of the message.
 
   private:
-    // PRIVATE TYPES ========================== class ControlManager_Entry
-    // ==========================
+    // PRIVATE TYPES 
+
+                        // ========================== 
+                        // class ControlManager_Entry
+                        // ==========================
 
     // IMPLEMENTATION NOTE: The Sun Studio 12.3 compiler does not support
     // 'map's holding types that are incomplete at the point of declaration of
