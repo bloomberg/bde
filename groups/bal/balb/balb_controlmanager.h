@@ -83,7 +83,7 @@
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace balb {
@@ -98,92 +98,93 @@ class ControlManager {
   public:
     // TYPES
     typedef bsl::function<void(const bsl::string& prefix,
-                               bsl::istream&      stream)> ControlHandler;
+                               bsl::istream&      stream)>
+        ControlHandler;
         // Defines a type alias for the function called to handle control
         // messages.  The 'prefix' argument is the first space-delimited word
         // read from the message, and the 'stream' argument is the
         // 'bsl::istream' containing the remainder of the message.
 
-    // PRIVATE TYPES
-                         // ==========================
-                         // class ControlManager_Entry
-                         // ==========================
+  private:
+    // PRIVATE TYPES ========================== class ControlManager_Entry
+    // ==========================
 
-// IMPLEMENTATION NOTE: The Sun Studio 12.3 compiler does not support 'map's
-// holding types that are incomplete at the point of declaration of a data
-// member.  Other compilers allow us to complete 'CalendarChache_Entry' at a
-// later point in the code, but before any operation (such as 'insert') that
-// would require the type to be complete.  If we did not have to support this
-// compiler, this whole class could be defined in the .cpp file; as it stands,
-// it *must* be defined before class 'CalendarCache'.
+    // IMPLEMENTATION NOTE: The Sun Studio 12.3 compiler does not support
+    // 'map's holding types that are incomplete at the point of declaration of
+    // a data member.  Other compilers allow us to complete
+    // 'CalendarChache_Entry' at a later point in the code, but before any
+    // operation (such as 'insert') that would require the type to be complete.
+    // If we did not have to support this compiler, this whole class could be
+    // defined in the .cpp file; as it stands, it *must* be defined before
+    // class 'CalendarCache'.
 
-class ControlManager_Entry {
-    // This component-private class represents a function with documentation.
+    class ControlManager_Entry {
+        // This component-private class represents a function with
+        // documentation.
 
-    // INSTANCE DATA
-    ControlManager::ControlHandler d_callback;    // processing callback
-    bsl::string                    d_arguments;   // argument description
-    bsl::string                    d_description; // function description
+        // INSTANCE DATA
+        ControlManager::ControlHandler d_callback;     // processing callback
+        bsl::string                    d_arguments;    // argument description
+        bsl::string                    d_description;  // function description
 
-  public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(ControlManager_Entry,
-                                   bslma::UsesBslmaAllocator);
+      public:
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(ControlManager_Entry,
+                                       bslma::UsesBslmaAllocator);
 
-    // CREATORS
-    explicit
-    ControlManager_Entry(bslma::Allocator *basicAllocator = 0);
-        // Create a 'ControlManager_Entry' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // CREATORS
+        explicit ControlManager_Entry(bslma::Allocator *basicAllocator = 0);
+            // Create a 'ControlManager_Entry' object.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
 
-    ControlManager_Entry(
+        ControlManager_Entry(
                     const ControlManager::ControlHandler&  callback,
                     const bsl::string_view&                arguments,
                     const bsl::string_view&                description,
                     bslma::Allocator                      *basicAllocator = 0);
-        // Create an ControlManager_Entry object with the specified initial
-        // values.
+            // Create an ControlManager_Entry object with the specified initial
+            // values.
 
-    ControlManager_Entry(const ControlManager_Entry&  original,
-                         bslma::Allocator            *basicAllocator = 0);
-        // Create an ControlManager_Entry object having the value of the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        ControlManager_Entry(const ControlManager_Entry&  original,
+                             bslma::Allocator            *basicAllocator = 0);
+            // Create an ControlManager_Entry object having the value of the
+            // specified 'original' object.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
 
-    ~ControlManager_Entry();
-        // Destroy this object.
+        ~ControlManager_Entry();
+            // Destroy this object.
 
-    // MANIPULATORS
-    ControlManager_Entry& operator=(const ControlManager_Entry& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
+        // MANIPULATORS
+        ControlManager_Entry& operator=(const ControlManager_Entry& rhs);
+            // Assign to this object the value of the specified 'rhs' object.
 
-    void setCallback(const ControlManager::ControlHandler& callback);
-        // Set the specified 'callback' as the value of the 'callback' member
-        // of this object.
+        void setCallback(const ControlManager::ControlHandler& callback);
+            // Set the specified 'callback' as the value of the 'callback'
+            // member of this object.
 
-    bsl::string& arguments();
-        // Return a modifiable reference to the 'arguments' member of this
-        // object.
+        bsl::string& arguments();
+            // Return a modifiable reference to the 'arguments' member of this
+            // object.
 
-    bsl::string& description();
-        // Return a modifiable reference to the 'description' member of this
-        // object.
+        bsl::string& description();
+            // Return a modifiable reference to the 'description' member of
+            // this object.
 
-    // ACCESSORS
-    const ControlManager::ControlHandler& callback() const;
-        // Return a non-modifiable reference to the 'callback' member of this
-        // object.
+        // ACCESSORS
+        const ControlManager::ControlHandler& callback() const;
+            // Return a non-modifiable reference to the 'callback' member of
+            // this object.
 
-    const bsl::string& arguments() const;
-        // Return a non-modifiable reference to the 'arguments' member of this
-        // object.
+        const bsl::string& arguments() const;
+            // Return a non-modifiable reference to the 'arguments' member of
+            // this object.
 
-    const bsl::string& description() const;
-        // Return a non-modifiable reference to the 'arguments' member of this
-        // object.
-};
+        const bsl::string& description() const;
+            // Return a non-modifiable reference to the 'arguments' member of
+            // this object.
+    };
 
     struct CaselessLessThan {
         // TYPES
@@ -196,11 +197,10 @@ class ControlManager_Entry {
             // 'rhs' in a case-insensitive comparison, and 'false' otherwise.
     };
 
-    typedef bsl::map<bsl::string,
-                     ControlManager_Entry,
-                     CaselessLessThan> Registry;
-        // Defines a type alias for the ordered associative data structure
-        // that maps a message prefix to a 'StringComparator' functor.
+    typedef bsl::map<bsl::string, ControlManager_Entry, CaselessLessThan>
+        Registry;
+        // Defines a type alias for the ordered associative data structure that
+        // maps a message prefix to a 'StringComparator' functor.
 
     // INSTANCE DATA
     bslma::Allocator       *d_allocator_p;    // memory allocator (held)
@@ -216,8 +216,7 @@ class ControlManager_Entry {
     BSLMF_NESTED_TRAIT_DECLARATION(ControlManager, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit
-    ControlManager(bslma::Allocator *basicAllocator = 0);
+    explicit ControlManager(bslma::Allocator *basicAllocator = 0);
         // Create a control manager object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -234,10 +233,10 @@ class ControlManager_Entry {
         // message having the specified case-insensitive 'prefix' is received
         // for this control manager.  Also register the specified 'arguments'
         // string to describe the arguments accepted by the message, and the
-        // specified 'description' to describe its operation; these are
-        // printed by 'printUsage'.  Return a positive value if an existing
-        // callback was replaced, return 0 if no replacement occurred, and
-        // return a negative value otherwise.
+        // specified 'description' to describe its operation; these are printed
+        // by 'printUsage'.  Return a positive value if an existing callback
+        // was replaced, return 0 if no replacement occurred, and return a
+        // negative value otherwise.
 
     int registerUsageHandler(bsl::ostream& stream);
         // Register a handler that, on receipt of a (case-insensitive) "HELP"
@@ -289,9 +288,9 @@ class ControlManager_Entry {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------------------------------
-                        // class ControlManager::ControlManager_Entry
-                        // ------------------------------------------
+                 // ------------------------------------------
+                 // class ControlManager::ControlManager_Entry
+                 // ------------------------------------------
 
 // MANIPULATORS
 inline
