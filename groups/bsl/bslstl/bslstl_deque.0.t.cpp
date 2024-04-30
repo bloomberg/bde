@@ -261,14 +261,16 @@ namespace {
 
 int testStatus = 0;
 
-#ifndef BSLSTL_LIST_0T_AS_INCLUDE
-void aSsErT(bool condition, const char *message, int line) BSLA_UNUSED;
-#endif
+// Special 'aSsErT' expands file name before calling aSsErTF function (below).
+// This macro ensures that the correct file name is reported on an 'ASSERT'
+// failure within a subordinate test file (e.g., 'bslstl_vector.1.t.cpp').
+#define aSsErT(COND, MSG, LINE) aSsErTF(COND, MSG, __FILE__, __LINE__)
 
-void aSsErT(bool condition, const char *message, int line)
+// Special version of 'aSsErT' taking a filename argument.
+void aSsErTF(bool condition, const char *message, const char *file, int line)
 {
     if (condition) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+        printf("Error %s(%d): %s    (failed)\n", file, line, message);
 
         if (0 <= testStatus && testStatus <= 100) {
             ++testStatus;

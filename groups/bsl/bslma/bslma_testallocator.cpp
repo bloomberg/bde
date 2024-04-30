@@ -382,33 +382,29 @@ TestAllocator::~TestAllocator()
 // MANIPULATORS
 void *TestAllocator::allocate(size_type size)
 {
-    BlockHeader *header_p = 0;
-    if (size > 0) {
-        // Perform this allocation before acquiring a mutex, so as to not hold
-        // onto the mutex over a potentially expensive operation.
-        const std::size_t totalBytes =
-            bsls::AlignmentUtil::roundUpToMaximalAlignment(
-                                 sizeof(BlockHeader) + size + k_SENTINEL_SIZE);
-        header_p =
-               static_cast<BlockHeader *>(d_allocator_p->allocate(totalBytes));
-        if (!header_p) {
-            // We could not satisfy this request.  Throw 'std::bad_alloc'.
-            bsls::BslExceptionUtil::throwBadAlloc();
-        }
-    }
-
+    // All updates are protected by a mutex lock, so as to not interleave the
+    // action of multiple threads.  Note that the lock is needed even for
+    // atomic variables, as concurrent writes to different statistics could put
+    // the variables in an inconsistent state.
     bsls::BslLockGuard guard(&d_lock);
 
-    // Increment the total number of allocations from this allocator.  Use the
-    // result to generate the unique ID for this allocation, which is the
-    // number of allocations prior to this one.
-    bsls::Types::Int64 allocationId = d_numAllocations.addRelaxed(1) - 1;
-
+    // The 'd_numAllocations', 'd_lastAllocatedNumBytes', and
+    // 'd_lastAllocatedAddress_p' stats are updated before attempting any
+    // allocations.  These updates have caused confusion in cases where the
+    // allocation subsequently fails by means of an exception, but many
+    // existing tests work around the strange behavior; such work-arounds would
+    // be cause test failures if the behavior were to change (i.e., if the
+    // "bug" were fixed).  Confusing or not, therefore, this behavior is here
+    // to stay and is now documented in the interface for this component.
+    d_numAllocations.addRelaxed(1);
     d_lastAllocatedNumBytes.storeRelaxed(
                                         static_cast<bsls::Types::Int64>(size));
+    d_lastAllocatedAddress_p.storeRelaxed(0);
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (0 <= allocationLimit()) {
+        // An exception-test allocation limit has been set.  Decrement the
+        // limit and throw a special exception if it goes negative.
         if (0 > d_allocationLimit.addRelaxed(-1)) {
             throw TestAllocatorException(static_cast<int>(size));
         }
@@ -416,16 +412,36 @@ void *TestAllocator::allocate(size_type size)
 #endif
 
     if (0 == size) {
-        d_lastAllocatedAddress_p.storeRelaxed(0);
         return 0;                                                     // RETURN
+    }
+
+    const std::size_t totalBytes =
+        bsls::AlignmentUtil::roundUpToMaximalAlignment(
+            sizeof(BlockHeader) + size + k_SENTINEL_SIZE);
+
+    // Allocate a block from the upstream allocator.  While it is not ideal to
+    // hold a mutex over a potentially expensive operation, there is no
+    // guarantee that the upstream allocator is thread safe, so certain uses of
+    // 'TestAllocator' might depend on this allocation taking place with the
+    // mutex lock held.
+    BlockHeader *header_p =
+               static_cast<BlockHeader *>(d_allocator_p->allocate(totalBytes));
+    if (!header_p) {
+        // We could not satisfy this request.  Throw 'std::bad_alloc'.
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     // Ensure 'allocate' returned maximally aligned memory.
     BSLS_ASSERT(isAligned(header_p, k_MAX_ALIGNMENT));
 
+    // Use the number of allocations prior to this one as a unique ID for this
+    // allocation.
+    bsls::Types::Int64 allocationId = d_numAllocations.loadRelaxed() - 1;
+
+    // Set the fields in the header block
     header_p->d_magicNumber = k_ALLOCATED_MEMORY_MAGIC_NUMBER;
 
-    // Insert into linked list of allocated blocks
+    // Insert into linked list of allocated blocks.
     header_p->d_next_p = 0;
     if (d_blockListHead_p) {
         header_p->d_prev_p          = d_blockListTail_p;
@@ -443,14 +459,6 @@ void *TestAllocator::allocate(size_type size)
 
     void *address = header_p + 1;
 
-    // Fill sentinel bytes before and after user segment with known values.
-    // Note that we don't initialize the user portion of the segment because
-    // that would undermine Purify's 'UMR: uninitialized memory read' checking.
-    std::memset(static_cast<char*>(address) - k_SENTINEL_SIZE,
-                k_SENTINEL_BYTE, k_SENTINEL_SIZE);
-    std::memset(static_cast<char*>(address) + size,
-                k_SENTINEL_BYTE, k_SENTINEL_SIZE);
-
     // Update stats. The stats are updated as a group under a mutex lock, but
     // are atomic so that accessors can retrieve individual stats without
     // acquiring the mutex.
@@ -467,6 +475,14 @@ void *TestAllocator::allocate(size_type size)
     d_numBytesTotal.addRelaxed(static_cast<bsls::Types::Int64>(size));
 
     d_lastAllocatedAddress_p.storeRelaxed(reinterpret_cast<int *>(address));
+
+    // Fill sentinel bytes before and after user segment with known values.
+    // Note that we don't initialize the user portion of the segment because
+    // that would undermine Purify's 'UMR: uninitialized memory read' checking.
+    std::memset(static_cast<char*>(address) - k_SENTINEL_SIZE,
+                k_SENTINEL_BYTE, k_SENTINEL_SIZE);
+    std::memset(static_cast<char*>(address) + size,
+                k_SENTINEL_BYTE, k_SENTINEL_SIZE);
 
     if (isVerbose()) {
 

@@ -484,7 +484,10 @@ class TestAllocator : public Allocator {
         // invoke the 'allocate' method of the allocator supplied at
         // construction, increment the number of currently (and cumulatively)
         // allocated blocks, and increase the number of currently allocated
-        // bytes by 'size'.  Update all other fields accordingly.
+        // bytes by 'size'.  Update all other fields accordingly; if the
+        // allocation fails via an exception, 'numAllocations()' is
+        // incremented, 'lastAllocatedNumBytes()' is set to 'size', and
+        // 'lastDeallocatedAddress()' is set to 0.
 
     void deallocate(void *address);
         // Return the memory block at the specified 'address' back to this

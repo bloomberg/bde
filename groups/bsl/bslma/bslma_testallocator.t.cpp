@@ -1066,6 +1066,8 @@ int main(int argc, char *argv[])
         ASSERTV(upstream.numBlocksTotal(), 0 < upstream.numBlocksTotal());
         ASSERTV(iterations, 1 < iterations);
 
+#else
+        if (verbose) printf("\nNo testing.  Exceptions are not enabled.\n");
 #endif // BDE_BUILD_TARGET_EXC
 
       } break;
@@ -2136,6 +2138,8 @@ int main(int argc, char *argv[])
         //   for every allocation request that occurs after the number of
         //   requests exceeds the current allocation limit.  Also verify that
         //   exception is never thrown for negative allocation limits.
+        //   Finally, verify that nothing is allocated when an exception is
+        //   thrown.
         //
         // Testing:
         //   CONCERN: exception is thrown after allocation limit is exceeded
@@ -2152,7 +2156,11 @@ int main(int argc, char *argv[])
         const int LIMIT[] = { 0, 1, 4, 5, -1, -100 };
         const int NUM_TEST = sizeof LIMIT / sizeof *LIMIT;
 
-        Obj mX(veryVeryVerbose);
+        Obj upstream("Upstream");
+        Obj mX(veryVeryVerbose, &upstream);
+
+        const bsls::Types::Int64 k_INITIAL_UPSTREAM_BLOCKS =
+                                                     upstream.numBlocksInUse();
 
         for (int ti = 0; ti < NUM_TEST; ++ti) {
             mX.setAllocationLimit(LIMIT[ti]);
@@ -2161,18 +2169,37 @@ int main(int argc, char *argv[])
                 const bslma::Allocator::size_type SIZE = ai + 1;
                                              // alloc size varies for each test
                 if (veryVerbose) { P_(ti); P_(ai); P_(SIZE); P(LIMIT[ti]); }
+
+                const bsls::Types::Int64 NUM_ALLOCS = mX.numAllocations();
+
                 try {
                     void *p = mX.allocate(SIZE);
+                    ASSERTV(ti, ai, NUM_ALLOCS + 1 == mX.numAllocations());
+                    ASSERTV(ti, ai, SIZE == mX.lastAllocatedNumBytes());
+                    ASSERTV(ti, ai, p == mX.lastAllocatedAddress());
                     mX.deallocate(p);
+                    ASSERTV(ti, ai, LIMIT[ti] != ai);
                 }
                 catch (bslma::TestAllocatorException& e) {
                     bslma::Allocator::size_type numBytes = e.numBytes();
                     if (veryVerbose) { printf("Caught: "); P(numBytes); }
-                    LOOP2_ASSERT(ti, ai, LIMIT[ti] == ai);
-                    LOOP2_ASSERT(ti, ai, SIZE == numBytes);
-                    continue;
+
+                    ASSERTV(ti, ai, SIZE == numBytes);
+                    ASSERTV(ti, ai, k_INITIAL_UPSTREAM_BLOCKS ==
+                                                    upstream.numBlocksInUse());
+                    ASSERTV(ti, ai, LIMIT[ti] == ai);
+
+                    // An allocation will increment 'numAllocations()' and set
+                    // 'lastAllocatedNumBytes()' and
+                    // 'lastDeallocatedAddress()', even if the allocation fails
+                    // by means of an exception.  This behaviour could be
+                    // considered a bug, but there exist long-standing
+                    // workarounds in test drivers, so the behavior is now
+                    // enshrined.
+                    ASSERTV(ti, ai, NUM_ALLOCS + 1 == mX.numAllocations());
+                    ASSERTV(ti, ai, SIZE == mX.lastAllocatedNumBytes());
+                    ASSERTV(ti, ai, 0 == mX.lastAllocatedAddress());
                 }
-                LOOP2_ASSERT(ti, ai, LIMIT[ti] != ai);
             }
         }
 #else
