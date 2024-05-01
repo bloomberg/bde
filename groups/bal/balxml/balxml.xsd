@@ -275,6 +275,17 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='ValidateRootTag' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='false'
+            bdem:allocatesMemory='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            Option to validate the root tag when decoding a structure.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
