@@ -240,7 +240,7 @@ int BerUtil_IdentifierImpUtil::putIdentifierOctets(
     // Put all octets except the last one.
 
     int shift = (numOctetsRequired - 1) * k_NUM_VALUE_BITS_IN_TAG_OCTET;
-    unsigned int mask = k_SEVEN_BITS_MASK << shift;
+    unsigned int mask = static_cast<unsigned>(k_SEVEN_BITS_MASK) << shift;
 
     for (int i = 0; i < numOctetsRequired - 1; ++i) {
         unsigned char nextOctet = static_cast<unsigned char>(

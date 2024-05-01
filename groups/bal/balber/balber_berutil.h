@@ -4105,7 +4105,8 @@ int BerUtil_IntegerImpUtil::getNumOctetsToStream(TYPE value)
     }
     else {  // 0 > value
         while ((value | NEG_MASK) == value) {
-            value = static_cast<TYPE>(value << 8);
+            value = static_cast<TYPE>(
+                                  static_cast<unsigned long long>(value) << 8);
 
             // shift out redundant high-order 0xFF
 
@@ -4823,8 +4824,8 @@ int BerUtil_DateAndTimeHeaderImpUtil::getValue(Header        *value,
         const unsigned char timezoneOffsetLo = headerByte1;
 
         const int timezoneOffset =
-            (static_cast<int>(signedTimezoneOffsetHi) << 8) |
-            (static_cast<int>(timezoneOffsetLo) << 0);
+            (static_cast<unsigned>(signedTimezoneOffsetHi) << 8) |
+            (static_cast<unsigned>(timezoneOffsetLo) << 0);
 
         if (!TimezoneUtil::isValidTimezoneOffsetInMinutes(timezoneOffset)) {
             return -1;                                                // RETURN
