@@ -665,11 +665,9 @@ void TestAllocator::deallocate(void *address)
     // might be optimized away.
     std::memset(address, static_cast<int>(k_DEALLOCATED_BYTE), size);
 
-    // Deallocate block from upstream allocator.  It is safer and more
-    // efficient to perform the deallocation outside of the critical section,
-    // i.e., we release the lock before delegating to the upstream allocator.
-    guard.release();
-    d_lock.unlock();
+    // Deallocate block from upstream allocator.  Although it is not ideal to
+    // continue to hold the mutex lock over a potentially expensive
+    // deallocation, we do it to support non-thread-safe upstream allocators.
     d_allocator_p->deallocate(header_p);
 }
 
