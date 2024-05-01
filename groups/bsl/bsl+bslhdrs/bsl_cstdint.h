@@ -15,6 +15,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// See DRQS 174646574
+#include <cstdint>
+#endif
+
 #include <stdint.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
