@@ -1897,16 +1897,38 @@ int main(int argc, char *argv[])
         {
             // Test a number of equal 'long double's to find out if they
             // contain any garbage bytes.
-            long double d0 = 32948578964783.23894756l;
-            long double d1 = 32948578964783.23894756l;
-            long double d2 = 32948578964783.23894756l;
-            long double d3 = 32948578964783.23894756l;
-            long double d4 = 32948578964783.23894756l;
-            long double d5 = 32948578964783.23894756l;
-            long double d6 = 32948578964783.23894756l;
-            long double d7 = 32948578964783.23894756l;
-            long double d8 = 32948578964783.23894756l;
-            long double d9 = 32948578964783.23894756l;
+            long double d0;
+            long double d1;
+            long double d2;
+            long double d3;
+            long double d4;
+            long double d5;
+            long double d6;
+            long double d7;
+            long double d8;
+            long double d9;
+
+            memset(&d0, 0, sizeof(d0));
+            memset(&d1, 1, sizeof(d1));
+            memset(&d2, 2, sizeof(d2));
+            memset(&d3, 3, sizeof(d3));
+            memset(&d4, 4, sizeof(d4));
+            memset(&d5, 5, sizeof(d5));
+            memset(&d6, 6, sizeof(d6));
+            memset(&d7, 7, sizeof(d7));
+            memset(&d8, 8, sizeof(d8));
+            memset(&d9, 9, sizeof(d9));
+
+            d0 = 32948578964783.23894756l;
+            d1 = 32948578964783.23894756l;
+            d2 = 32948578964783.23894756l;
+            d3 = 32948578964783.23894756l;
+            d4 = 32948578964783.23894756l;
+            d5 = 32948578964783.23894756l;
+            d6 = 32948578964783.23894756l;
+            d7 = 32948578964783.23894756l;
+            d8 = 32948578964783.23894756l;
+            d9 = 32948578964783.23894756l;
 
             if (veryVeryVerbose) {
                 printAsHex(reinterpret_cast<const char *>(&d0), sizeof(d0));
