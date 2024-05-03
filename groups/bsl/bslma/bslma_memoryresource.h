@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // fact, the former type is an alias for the latter type when using a C++17 or
 // later library supplied by the platform.
 //
-// A concrete class derived from 'bsl::memory_resourcd' might use pooling or
+// A concrete class derived from 'bsl::memory_resource' might use pooling or
 // other mechanisms that improve on 'new' and 'delete' in some way, such as
 // speeding up the program or providing instrumentation for debugging or
 // security.  A 'memory_resource' thus provides a customizable alterantive to
@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // The 'bsl::memory_resource' protocol provided in this component defines a
 // bilateral contract between suppliers and consumers of raw memory.  The
 // following subsections illustrate (1) implementation of a concrete resource
-// drived from the abstract 'bsl::memory_resource' base class and (2) use of a
+// derived from the abstract 'bsl::memory_resource' base class and (2) use of a
 // 'bsl::memory_resource'.
 //
 ///Example 1: a counting memory resource
