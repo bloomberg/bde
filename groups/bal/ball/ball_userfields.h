@@ -273,6 +273,13 @@ void UserFields::removeAll()
 }
 
 inline
+void UserFields::append(const UserFieldValue& value)
+{
+    d_values.emplace_back(value);
+}
+
+
+inline
 void UserFields::appendNull()
 {
     d_values.emplace_back();

@@ -1,6 +1,9 @@
 // ball_userfields.t.cpp                                              -*-C++-*-
 #include <ball_userfields.h>
 
+#include <bdlt_datetime.h>
+#include <bdlt_datetimetz.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -50,14 +53,14 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [  ] UserFields& operator=(const UserFields& rhs);
-// [  ] void removeAll();
-// [  ] void append(const UserFieldValue& value);
-// [  ] void appendNull();
-// [  ] void appendInt64(bsls::Types::Int64 value);
-// [  ] void appendDouble(double value);
-// [  ] void appendString(const bsl::string_view& value);
-// [  ] void appendDatetimeTz(const bdlt::DatetimeTz& value);
-// [  ] void appendCharArray(const bsl::vector<char>& value);
+// [ 2] void removeAll();
+// [ 2] void append(const UserFieldValue& value);
+// [ 2] void appendNull();
+// [ 2] void appendInt64(bsls::Types::Int64 value);
+// [ 2] void appendDouble(double value);
+// [ 2] void appendString(const bsl::string_view& value);
+// [ 2] void appendDatetimeTz(const bdlt::DatetimeTz& value);
+// [ 2] void appendCharArray(const bsl::vector<char>& value);
 // [  ] UserFieldValue& operator[](int index);
 // [  ] UserFieldValue& value(int index);
 // [  ] void swap(UserFields& other);
@@ -586,21 +589,203 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS & DTOR
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 The 'append*' functions append a new element with the given
+        //:   values.
+        //:
+        //: 2 'removeAll' clears all elements.
         //:
         // Plan:
-        //: 1 TBD
+        //: 1 Create two modifiable objects.
+        //: 2 Append to one the 'A' set of values using the typed appenders.
+        //: 3 Verify size and values.
+        //: 4 Append to object2 using the 'const UserField&' appender.
+        //: 5 Verify size and values.
+        //: 6 Verify that they are equal.
+        //: 7 Repeat using the B values, but use the opposite object.
+        //: 8 Use 'removeAll' on both objects and verify.
         //
         // Testing:
-        //   TBD
+        //   void append(const UserFieldValue& value);
+        //   void appendNull();
+        //   void appendInt64(bsls::Types::Int64 value);
+        //   void appendDouble(double value);
+        //   void appendString(const bsl::string_view& value);
+        //   void appendDatetimeTz(const bdlt::DatetimeTz& value);
+        //   void appendCharArray(const bsl::vector<char>& value);
+        //   void removeAll();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS & DTOR" << endl
                           << "===========================" << endl;
 
-        // TBD
+        // This test intentionally uses the default allocator.
 
+        bslma::TestAllocator testAllocator("breathing", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&testAllocator);
+
+        bsl::vector<char> mA_CA;
+        mA_CA.push_back('a');  mA_CA.push_back('b');  mA_CA.push_back('c');
+
+        const char               *A_STRING = "A";
+        double                    A_DOUBLE = 2.0;
+        const bsls::Types::Int64  A_INT    = 5;
+        const bdlt::DatetimeTz    A_DATE(bdlt::Datetime(1999,1,1), 0);
+        const bsl::vector<char>&  A_CHAR_ARRAY = mA_CA;
+
+        bsl::vector<char> mB_CA;
+        mB_CA.push_back('x');  mB_CA.push_back('y');  mB_CA.push_back('z');
+
+        const char               *B_STRING = "B";
+        double                    B_DOUBLE = -42.25;
+        const bsls::Types::Int64  B_INT    = -128;
+        const bdlt::DatetimeTz    B_DATE(bdlt::Datetime(2024,5,3), 0);
+        const bsl::vector<char>&  B_CHAR_ARRAY = mB_CA;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        Obj mObj1;  const Obj& OBJ1 = mObj1;
+        Obj mObj2;  const Obj& OBJ2 = mObj2;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        mObj1.appendNull();
+        mObj1.appendString(A_STRING);
+        mObj1.appendDouble(A_DOUBLE);
+        mObj1.appendInt64(A_INT);
+        mObj1.appendDatetimeTz(A_DATE);
+        mObj1.appendCharArray(A_CHAR_ARRAY);
+
+        ASSERT(6 == OBJ1.length());
+
+        ASSERT(ball::UserFieldType::e_VOID       == OBJ1[0].type());
+        ASSERT(ball::UserFieldType::e_STRING     == OBJ1[1].type());
+        ASSERT(ball::UserFieldType::e_DOUBLE     == OBJ1[2].type());
+        ASSERT(ball::UserFieldType::e_INT64      == OBJ1[3].type());
+        ASSERT(ball::UserFieldType::e_DATETIMETZ == OBJ1[4].type());
+        ASSERT(ball::UserFieldType::e_CHAR_ARRAY == OBJ1[5].type());
+
+        ASSERT(A_STRING     == OBJ1[1].theString());
+        ASSERT(A_DOUBLE     == OBJ1[2].theDouble());
+        ASSERT(A_INT        == OBJ1[3].theInt64());
+        ASSERT(A_DATE       == OBJ1[4].theDatetimeTz());
+        ASSERT(A_CHAR_ARRAY == OBJ1[5].theCharArray());
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        mObj2.append(ball::UserFieldValue());
+        mObj2.append(ball::UserFieldValue(A_STRING));
+        mObj2.append(ball::UserFieldValue(A_DOUBLE));
+        mObj2.append(ball::UserFieldValue(A_INT));
+        mObj2.append(ball::UserFieldValue(A_DATE));
+        mObj2.append(ball::UserFieldValue(A_CHAR_ARRAY));
+
+        ASSERT(6 == OBJ2.length());
+
+        ASSERT(ball::UserFieldType::e_VOID       == OBJ2[0].type());
+        ASSERT(ball::UserFieldType::e_STRING     == OBJ2[1].type());
+        ASSERT(ball::UserFieldType::e_DOUBLE     == OBJ2[2].type());
+        ASSERT(ball::UserFieldType::e_INT64      == OBJ2[3].type());
+        ASSERT(ball::UserFieldType::e_DATETIMETZ == OBJ2[4].type());
+        ASSERT(ball::UserFieldType::e_CHAR_ARRAY == OBJ2[5].type());
+
+        ASSERT(A_STRING     == OBJ2[1].theString());
+        ASSERT(A_DOUBLE     == OBJ2[2].theDouble());
+        ASSERT(A_INT        == OBJ2[3].theInt64());
+        ASSERT(A_DATE       == OBJ2[4].theDatetimeTz());
+        ASSERT(A_CHAR_ARRAY == OBJ2[5].theCharArray());
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        ASSERTV(OBJ1, OBJ2, OBJ1 == OBJ2);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        mObj1.append(ball::UserFieldValue());
+        mObj1.append(ball::UserFieldValue(B_STRING));
+        mObj1.append(ball::UserFieldValue(B_DOUBLE));
+        mObj1.append(ball::UserFieldValue(B_INT));
+        mObj1.append(ball::UserFieldValue(B_DATE));
+        mObj1.append(ball::UserFieldValue(B_CHAR_ARRAY));
+
+        ASSERT(12 == OBJ1.length());
+
+        ASSERT(ball::UserFieldType::e_VOID       == OBJ1[ 0].type());
+        ASSERT(ball::UserFieldType::e_STRING     == OBJ1[ 1].type());
+        ASSERT(ball::UserFieldType::e_DOUBLE     == OBJ1[ 2].type());
+        ASSERT(ball::UserFieldType::e_INT64      == OBJ1[ 3].type());
+        ASSERT(ball::UserFieldType::e_DATETIMETZ == OBJ1[ 4].type());
+        ASSERT(ball::UserFieldType::e_CHAR_ARRAY == OBJ1[ 5].type());
+
+        ASSERT(ball::UserFieldType::e_VOID       == OBJ1[ 6].type());
+        ASSERT(ball::UserFieldType::e_STRING     == OBJ1[ 7].type());
+        ASSERT(ball::UserFieldType::e_DOUBLE     == OBJ1[ 8].type());
+        ASSERT(ball::UserFieldType::e_INT64      == OBJ1[ 9].type());
+        ASSERT(ball::UserFieldType::e_DATETIMETZ == OBJ1[10].type());
+        ASSERT(ball::UserFieldType::e_CHAR_ARRAY == OBJ1[11].type());
+
+        ASSERT(A_STRING     == OBJ1[ 1].theString());
+        ASSERT(A_DOUBLE     == OBJ1[ 2].theDouble());
+        ASSERT(A_INT        == OBJ1[ 3].theInt64());
+        ASSERT(A_DATE       == OBJ1[ 4].theDatetimeTz());
+        ASSERT(A_CHAR_ARRAY == OBJ1[ 5].theCharArray());
+
+        ASSERT(B_STRING     == OBJ1[ 7].theString());
+        ASSERT(B_DOUBLE     == OBJ1[ 8].theDouble());
+        ASSERT(B_INT        == OBJ1[ 9].theInt64());
+        ASSERT(B_DATE       == OBJ1[10].theDatetimeTz());
+        ASSERT(B_CHAR_ARRAY == OBJ1[11].theCharArray());
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        mObj2.appendNull();
+        mObj2.appendString(B_STRING);
+        mObj2.appendDouble(B_DOUBLE);
+        mObj2.appendInt64(B_INT);
+        mObj2.appendDatetimeTz(B_DATE);
+        mObj2.appendCharArray(B_CHAR_ARRAY);
+
+        ASSERT(12 == OBJ2.length());
+
+        ASSERT(ball::UserFieldType::e_VOID       == OBJ2[ 0].type());
+        ASSERT(ball::UserFieldType::e_STRING     == OBJ2[ 1].type());
+        ASSERT(ball::UserFieldType::e_DOUBLE     == OBJ2[ 2].type());
+        ASSERT(ball::UserFieldType::e_INT64      == OBJ2[ 3].type());
+        ASSERT(ball::UserFieldType::e_DATETIMETZ == OBJ2[ 4].type());
+        ASSERT(ball::UserFieldType::e_CHAR_ARRAY == OBJ2[ 5].type());
+
+        ASSERT(ball::UserFieldType::e_VOID       == OBJ2[ 6].type());
+        ASSERT(ball::UserFieldType::e_STRING     == OBJ2[ 7].type());
+        ASSERT(ball::UserFieldType::e_DOUBLE     == OBJ2[ 8].type());
+        ASSERT(ball::UserFieldType::e_INT64      == OBJ2[ 9].type());
+        ASSERT(ball::UserFieldType::e_DATETIMETZ == OBJ2[10].type());
+        ASSERT(ball::UserFieldType::e_CHAR_ARRAY == OBJ2[11].type());
+
+        ASSERT(A_STRING     == OBJ2[ 1].theString());
+        ASSERT(A_DOUBLE     == OBJ2[ 2].theDouble());
+        ASSERT(A_INT        == OBJ2[ 3].theInt64());
+        ASSERT(A_DATE       == OBJ2[ 4].theDatetimeTz());
+        ASSERT(A_CHAR_ARRAY == OBJ2[ 5].theCharArray());
+
+        ASSERT(B_STRING     == OBJ2[ 7].theString());
+        ASSERT(B_DOUBLE     == OBJ2[ 8].theDouble());
+        ASSERT(B_INT        == OBJ2[ 9].theInt64());
+        ASSERT(B_DATE       == OBJ2[10].theDatetimeTz());
+        ASSERT(B_CHAR_ARRAY == OBJ2[11].theCharArray());
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        ASSERTV(OBJ1, OBJ2, OBJ1 == OBJ2);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        mObj1.removeAll();
+        ASSERT(0 == OBJ1.length());
+
+        mObj2.removeAll();
+        ASSERT(0 == OBJ2.length());
+
+        ASSERTV(OBJ1, OBJ2, OBJ1 == OBJ2);
       } break;
       case 1: {
         // --------------------------------------------------------------------
