@@ -403,6 +403,7 @@ class memory_resource {
 
   public:
     // CREATORS
+
     //! memory_resource() BSLS_KEYWORD_DEFAULT;
     //! memory_resource(const memory_resource&) BSLS_KEYWORD_DEFAULT;
         // Create this object.  Has no effect other than to begin its lifetime.
@@ -411,8 +412,9 @@ class memory_resource {
         // Destroy this object.  Has no effect other than to end its lifetime.
 
     // MANIPULATORS
+
     //! memory_resource& operator=(const memory_resource&)
-    //                                                    BSLS_KEYWORD_DEFAULT;
+    //!                                                   BSLS_KEYWORD_DEFAULT;
         // Return a modifiable reference to this object.
 
     BSLS_ANNOTATION_NODISCARD
