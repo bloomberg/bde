@@ -412,7 +412,7 @@ class memory_resource {
 
     // MANIPULATORS
     //! memory_resource& operator=(const memory_resource&)
-    //                                                    BSLS_KEYWORD_DEFAULT;
+    //!                                                   BSLS_KEYWORD_DEFAULT;
         // Return a modifiable reference to this object.
 
     BSLS_ANNOTATION_NODISCARD
