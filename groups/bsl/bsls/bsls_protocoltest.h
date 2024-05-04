@@ -145,28 +145,28 @@ BSLS_IDENT("$Id: $")
 //..
 // Next we print the banner for this test case:
 //..
-//  if (verbose) printf("\nPROTOCOL TEST"
-//                      "\n=============\n");
+//  if (verbose) puts("\nPROTOCOL TEST"
+//                    "\n=============");
 //..
 // Then, we create an object of type
 // 'bsls::ProtocolTest<ProtocolClassTestImp>', 'testObj':
 //..
-//  if (verbose) printf("\nCreate a test object.\n");
+//  if (verbose) puts("\n\tCreate a test object.");
 //
 //  bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 //..
 // Now we use the 'testObj' to test some general concerns about the protocol
 // class.
 //..
-//  if (verbose) printf("\nVerify that the protocol is abstract.\n");
+//  if (verbose) puts("\tVerify that the protocol is abstract.");
 //
 //  ASSERT(testObj.testAbstract());
 //
-//  if (verbose) printf("\nVerify that there are no data members.\n");
+//  if (verbose) puts("\tVerify that there are no data members.");
 //
 //  ASSERT(testObj.testNoDataMembers());
 //
-//  if (verbose) printf("\nVerify that the destructor is virtual.\n");
+//  if (verbose) puts("\tVerify that the destructor is virtual.");
 //
 //  ASSERT(testObj.testVirtualDestructor());
 //..
@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 // the protocol class.  To test a protocol method we need to call it from
 // inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass the 'testObj':
 //..
-//  if (verbose) printf("\nVerify that methods are public and virtual.\n");
+//  if (verbose) puts("\tVerify that methods are public and virtual.");
 //
 //  BSLS_PROTOCOLTEST_ASSERT(testObj, foo(77));
 //  BSLS_PROTOCOLTEST_ASSERT(testObj, bar("", ""));
@@ -182,6 +182,68 @@ BSLS_IDENT("$Id: $")
 // These steps conclude the protocol testing.  If there are any failures, they
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
+//
+///Example 2: Testing a Method Overloaded on 'const'ness
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we have a protocol that represent a sequence of integers.  Such a
+// protocol will have an overloaded 'at()' method of both the 'const' and the
+// "mutable" variation.  In verification of such methods we need to ensure that
+// we verify *both* overloads of the 'virtual' function.
+//
+// First let's define the interesting parts of our imaginary sequence, the
+// overloaded 'at()' methods, and a virtual destructor to avoid warnings:
+//..
+//  struct IntSeqExample {
+//      // CREATORS
+//      virtual ~IntSeqExample();
+//
+//      // MANIPULATORS
+//      virtual int& at(bsl::size_t index) = 0;
+//
+//      // ACCESSORS
+//      virtual int at(bsl::size_t index) const = 0;
+//  };
+//
+//  IntSeqExample::~IntSeqExample()
+//  {
+//  }
+//..
+// Next, we define the test implementation as usual:
+//..
+//  struct IntSeqExampleTestImp : bsls::ProtocolTestImp<IntSeqExample> {
+//      static int s_int;
+//
+//      int& at(size_t)       { s_int = 4; markDone(); return s_int; }
+//      int  at(size_t) const { s_int = 2; return markDone();        }
+//  };
+//
+//  int IntSeqExampleTestImp::s_int = 0;
+//..
+// Note the use of a dummy variable to return a reference.  We also use that
+// variable, by giving it different values in the two overloads, to demonstrate
+// that we have called the overload we have intended.
+//
+// Then, we test the non-'const' overload as usual:
+//..
+//  bsls::ProtocolTest<IntSeqExampleTestImp> testObj(veryVerbose);
+//  BSLS_PROTOCOLTEST_ASSERT(testObj, at(0));
+//..
+// Now, we can verify that we have indeed tested the non-'const' overload:
+//..
+//  assert(4 == IntSeqExampleTestImp::s_int);
+//..
+// Finally, we test 'at(size_t) const' and also verify that we indeed called
+// the intended overload.  Notice that we "force" the 'const' variant of the
+// method to be picked by specifying a 'const Implementation' type argument to
+// 'bsls::ProtocolTest':
+//..
+//  bsls::ProtocolTest<const IntSeqExampleTestImp> test_OBJ(veryVerbose);
+//  BSLS_PROTOCOLTEST_ASSERT(test_OBJ, at(0));
+//
+//  assert(2 == IntSeqExampleTestImp::s_int);
+//..
+// Note that the assertion that verifies that the intended overload was called
+// is not strictly necessary, it is included for demonstration purposes.
 //
 ///Implementation Note
 ///- - - - - - - - - -
@@ -569,16 +631,24 @@ class ProtocolTestImp : public BSLS_PROTOCOL {
 
   private:
     // DATA
-    ProtocolTest_Status      *d_status;   // test status object for test
-                                          // failure reporting
+    mutable ProtocolTest_Status *d_status;   // test status object for test
+                                             // failure reporting; mutable, so
+                                             // it can be set from 'const'
+                                             // methods in order to be able to
+                                             // verify 'const' methods.
 
-    bool                      d_entered;  // 'true' if this object entered a
-                                          // protocol method call
+    mutable bool                 d_entered;  // 'true' if this object entered a
+                                             // protocol method call; mutable,
+                                             // so it can be set from 'const'
+                                             // methods in order to be able to
+                                             // verify 'const' methods.
 
-    bool mutable              d_exited;   // 'true' if this object exited a
-                                          // protocol method in the derived
-                                          // class; mutable, so it can be set
-                                          // from 'const' methods
+    mutable bool                 d_exited;   // 'true' if this object exited a
+                                             // protocol method in the derived
+                                             // class; mutable, so it can be
+                                             // set from 'const' methods in
+                                             // order to be able to verify
+                                             // 'const' methods.
   public:
     // TYPES
     typedef BSLS_PROTOCOL ProtocolType;
@@ -598,19 +668,12 @@ class ProtocolTestImp : public BSLS_PROTOCOL {
         // in order to call a method on 'BSLS_PROTOCOL'.  Also mark this
         // object as 'entered' for the purpose of calling a protocol method.
 
-    void markEnter();
-        // Mark this object as entered for the purpose of calling a protocol
-        // method.  The 'entered' property is tested in the destructor to
-        // check for test failures (i.e., if 'entered == false' then the test
-        // cannot fail since it never ran).  Note that 'markEnter' and
-        // 'markDone' calls have to be paired for a protocol-method-call test
-        // to succeed.
-
-    void setTestStatus(ProtocolTest_Status *testStatus);
-        // Connect this protocol test object with the specified 'testStatus'
-        // object, which will be used for test failure reporting.
-
     // ACCESSORS
+    const BSLS_PROTOCOL *operator->() const;
+        // Dereference this object as if it were a 'const BSLS_PROTOCOL *s' in
+        // order to call a 'const' method on 'BSLS_PROTOCOL'.  Also mark this
+        // object as 'entered' for the purpose of calling a protocol method.
+
     ProtocolTest_MethodReturnType markDone() const;
         // Return a proxy object convertible to any value or pointer type.
         // Derived classed should call this method from their implementations
@@ -628,6 +691,18 @@ class ProtocolTestImp : public BSLS_PROTOCOL {
         // Return the specified 'value'.  Derived classes should call this
         // method from their implementations of protocol virtual methods to
         // indicate that virtual methods were overridden correctly.
+
+    void markEnter() const;
+        // Mark this object as entered for the purpose of calling a protocol
+        // method.  The 'entered' property is tested in the destructor to
+        // check for test failures (i.e., if 'entered == false' then the test
+        // cannot fail since it never ran).  Note that 'markEnter' and
+        // 'markDone' calls have to be paired for a protocol-method-call test
+        // to succeed.
+
+    void setTestStatus(ProtocolTest_Status *testStatus) const;
+        // Connect this protocol test object with the specified 'testStatus'
+        // object, which will be used for test failure reporting.
 };
 
                              // ==================
@@ -836,22 +911,16 @@ ProtocolTestImp<BSLS_PROTOCOL>::operator->()
     return static_cast<BSLS_PROTOCOL *>(this);
 }
 
-template <class BSLS_PROTOCOL>
-inline
-void
-ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(ProtocolTest_Status *testStatus)
-{
-    d_status = testStatus;
-}
-
-template <class BSLS_PROTOCOL>
-inline
-void ProtocolTestImp<BSLS_PROTOCOL>::markEnter()
-{
-    d_entered = true;
-}
-
 // ACCESSORS
+template <class BSLS_PROTOCOL>
+inline
+const typename ProtocolTestImp<BSLS_PROTOCOL>::ProtocolType *
+ProtocolTestImp<BSLS_PROTOCOL>::operator->() const
+{
+    markEnter();
+    return static_cast<const BSLS_PROTOCOL *>(this);
+}
+
 template <class BSLS_PROTOCOL>
 inline
 ProtocolTest_MethodReturnType
@@ -877,6 +946,21 @@ T ProtocolTestImp<BSLS_PROTOCOL>::markDoneVal(const T& value) const
 {
     d_exited = true;
     return value;
+}
+
+template <class BSLS_PROTOCOL>
+inline
+void ProtocolTestImp<BSLS_PROTOCOL>::markEnter() const
+{
+    d_entered = true;
+}
+
+template <class BSLS_PROTOCOL>
+inline
+void ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(
+                                         ProtocolTest_Status *testStatus) const
+{
+    d_status = testStatus;
 }
 
                        // ------------------
