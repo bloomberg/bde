@@ -1124,14 +1124,9 @@ int main(int argc, char *argv[])
                          "\n=============" << bsl::endl;
         }
 
-        if (!verbose) {
-            // Usage examples are supposed to use ASSERT to make their point,
-            // not direct printouts as a test driver is not supposed to print
-            // anything but the test case number executed when no verbosity was
-            // requested on the command line.  Therefore we do not execute this
-            // usage example unless output was requested.
-            break;                                                     // BREAK
-        }
+        bsl::ostringstream oss;
+        bsl::streambuf *savedStreambuf_p = bsl::cout.rdbuf();
+        bsl::cout.rdbuf(oss.rdbuf());
 
 ///Usage
 ///-----
@@ -1219,6 +1214,10 @@ int main(int argc, char *argv[])
 //    * value: 9223372036854775807  (overflow)
 //..
 
+        bsl::cout.rdbuf(savedStreambuf_p);
+        if (verbose) {
+            bsl::cout << oss.str();
+        }
       } break;
 
       case 12: {
