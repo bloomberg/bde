@@ -4,10 +4,22 @@
 
 @MNEMONIC: Basic Development Library Metrics (bdlm)
 
-@DESCRIPTION: The 'bdlm' package provides a metrics registrar protocol (i.e., a
- pure abstract interface).  In addition, 'bdlm' also provides a singleton
- "default metrics registry"  that will then be visible to all BDE and
- BDE-compliant code throughout that process.
+@DESCRIPTION: The 'bdlm' package provides a means for low-level library
+ software to collect and publish metrics through a metric publishing framework,
+ without a library depending on the metrics publishing framework.  The 'bdlm'
+ package provides a protocol (i.e., a pure abstract interface),
+ 'bdlm::MetricsAdapter', that can be implemented for (higher level) metrics
+ facilities.  In addition, it also provides a registry of metrics,
+ 'bdlm::MetricRegistry', that allows low-level users of 'bdlm' to register
+ metrics at any time, serving as an intermediary with concrete
+ 'bdlm::MetricsAdapter' implementations (which may be configured before or
+ after the creation of any particular metric).
+
+ As a low-level metrics facility, this package does not directly manage
+ schedulers to collect metrics values or publishers to publish collected
+ values.  Instead it is designed to allow applications to plug in different
+ high-level feature-rich metrics collection and publication frameworks (without
+ requiring a library dependency on those frameworks).
 
 /Hierarchical Synopsis
 /---------------------

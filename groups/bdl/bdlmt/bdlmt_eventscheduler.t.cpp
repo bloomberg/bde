@@ -997,8 +997,6 @@ MakeChronoTest(bsl::chrono::duration<REP1, PER1> start_time,
 }
 #endif
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
-
                          // ========================
                          // class TestMetricsAdapter
                          // ========================
@@ -1109,8 +1107,6 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
         && d_descriptors[0].instanceNumber()         == count
         && d_descriptors[0].objectIdentifier()       == name;
 }
-
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS FOR TESTING
@@ -2880,10 +2876,9 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     int nExec;
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
-    // access the metrics registry singleton before assign the global allocator
-    bdlm::MetricsRegistry::singleton();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
+    // access the metrics registry default instance before assign the global
+    // allocator
+    bdlm::MetricsRegistry::defaultInstance();
 
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
@@ -3903,17 +3898,15 @@ int main(int argc, char *argv[])
                           << "============================"
                           << "=============================" << endl;
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
         bdlm::MetricsRegistry& defaultRegistry =
-                                            bdlm::MetricsRegistry::singleton();
+                                      bdlm::MetricsRegistry::defaultInstance();
         bdlm::MetricsRegistry  otherRegistry;
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace EVENTSCHEDULER_TEST_CASE_20;
         using namespace bdlf::PlaceHolders;
@@ -3942,7 +3935,6 @@ int main(int argc, char *argv[])
             x.stop();
         }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -4040,7 +4032,6 @@ int main(int argc, char *argv[])
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -4068,17 +4059,15 @@ int main(int argc, char *argv[])
                           << "============================"
                           << "=======================" << endl;
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
         bdlm::MetricsRegistry& defaultRegistry =
-                                            bdlm::MetricsRegistry::singleton();
+                                      bdlm::MetricsRegistry::defaultInstance();
         bdlm::MetricsRegistry  otherRegistry;
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace EVENTSCHEDULER_TEST_CASE_19;
         using namespace bdlf::PlaceHolders;
@@ -4102,7 +4091,6 @@ int main(int argc, char *argv[])
             ASSERT( 1 == testObj.numExecuted() );
             x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -4197,7 +4185,6 @@ int main(int argc, char *argv[])
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -5614,17 +5601,15 @@ int main(int argc, char *argv[])
                           << "============================"
                           << "============================" << endl;
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
         bdlm::MetricsRegistry& defaultRegistry =
-                                            bdlm::MetricsRegistry::singleton();
+                                      bdlm::MetricsRegistry::defaultInstance();
         bdlm::MetricsRegistry  otherRegistry;
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace EVENTSCHEDULER_TEST_CASE_8;
         using namespace bdlf::PlaceHolders;
@@ -5651,7 +5636,6 @@ int main(int argc, char *argv[])
             ASSERT( 1 == testObj.numExecuted() );
             x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
 
@@ -5680,8 +5664,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
-
       } break;
       case 7: {
           // placeholder
@@ -7107,17 +7089,15 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
         bdlm::MetricsRegistry& defaultRegistry =
-                                            bdlm::MetricsRegistry::singleton();
+                                      bdlm::MetricsRegistry::defaultInstance();
         bdlm::MetricsRegistry  otherRegistry;
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         using namespace EVENTSCHEDULER_TEST_CASE_1;
         {
@@ -7165,10 +7145,8 @@ int main(int argc, char *argv[])
           ASSERT(0 == x.numRecurringEvents());
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         {
           // Create and start a scheduler object, schedule an event at T2.
@@ -7209,10 +7187,8 @@ int main(int argc, char *argv[])
           LOOP_ASSERT(nExec, 0 == nExec); // ok, even if overslept
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         {
           // Create and start a scheduler object, schedule 2 events at
@@ -7289,10 +7265,8 @@ int main(int argc, char *argv[])
           ASSERT(0 == x.numRecurringEvents());
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         {
           // Create and start a scheduler object, schedule a clock of T3
@@ -7352,10 +7326,8 @@ int main(int argc, char *argv[])
           // ASSERT(1 == x.numRecurringEvents());
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         {
           // Create and start a scheduler object, schedule a clock of T3
@@ -7435,10 +7407,8 @@ int main(int argc, char *argv[])
           LOOP_ASSERT(nExec, 1 == nExec);
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         {
           // Create and start a scheduler object, schedule an event at T2,
@@ -7477,10 +7447,8 @@ int main(int argc, char *argv[])
           // case, this is not a failure, do not stop.
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         {
           // Create and start a scheduler object, schedule an event at T2,
@@ -7511,10 +7479,8 @@ int main(int argc, char *argv[])
           ASSERT( 0 != x.cancelEvent(h) );
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         {
           // Create and start a scheduler object, schedule 3 events at T, T2,
@@ -7582,10 +7548,8 @@ int main(int argc, char *argv[])
           // case, this is not a failure, do not stop.
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
         {
           // Create and start a scheduler object, schedule a clock of T3, let
@@ -7629,10 +7593,8 @@ int main(int argc, char *argv[])
           // Else complain but do not stop the test suite.
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {
@@ -7679,10 +7641,8 @@ int main(int argc, char *argv[])
           // Else complain but do not stop the test suite.
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
         {
@@ -7724,10 +7684,8 @@ int main(int argc, char *argv[])
           LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {
@@ -7772,10 +7730,8 @@ int main(int argc, char *argv[])
           LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
           x.stop();
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
         {
@@ -7844,10 +7800,8 @@ int main(int argc, char *argv[])
               LOOP2_ASSERT(NEXEC2, elapsed, T6 < elapsed);
           }
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {
@@ -7919,13 +7873,10 @@ int main(int argc, char *argv[])
               LOOP2_ASSERT(NEXEC2, elapsed, T6 < elapsed);
           }
         }
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         ASSERT(defaultAdapter.verify(""));
         defaultAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
         // verify metric registration
 
         {
@@ -7951,7 +7902,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(otherAdapter.verify("b"));
         otherAdapter.reset();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
       } break;
       case -1: {
         // --------------------------------------------------------------------

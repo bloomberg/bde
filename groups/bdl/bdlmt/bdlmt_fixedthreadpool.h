@@ -343,10 +343,6 @@ BSLS_IDENT("$Id: $")
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
-#error "This component does not support metric collection at this time."
-#endif
-
 namespace BloombergLP {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -436,7 +432,6 @@ class FixedThreadPool {
                                                   // blocked in managed threads
 #endif
 
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
     bdlm::MetricsRegistryRegistrationHandle
                             d_backlogHandle;      // backlog metric handle
 
@@ -444,22 +439,14 @@ class FixedThreadPool {
     bdlm::MetricsRegistryRegistrationHandle
                             d_usedCapacityHandle; // used capacity metric
                                                   // handle
-#endif // defined(BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS)
 
     // PRIVATE MANIPULATORS
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
     void initialize(bdlm::MetricsRegistry   *metricsRegistry,
                     const bsl::string_view&  metricsIdentifier);
         // Initialize this thread pool using the stored attributes and the
         // specified 'metricsRegistry' and 'metricsIdentifier'.  If
         // 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()'  is
         // used.
-#else
-    void initialize();
-        // Perform one-time object initialization.  Note that it is necessary
-        // for this function to be invoked exactly once in each constructor
-        // overload.
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
     void workerThread();
         // The main function executed by each worker thread.
@@ -485,7 +472,6 @@ class FixedThreadPool {
         // the currently installed default allocator is used.  The behavior is
         // undefined unless '1 <= numThreads'.
 
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
     FixedThreadPool(int                      numThreads,
                     int                      maxNumPendingJobs,
                     const bsl::string_view&  metricsIdentifier,
@@ -500,7 +486,6 @@ class FixedThreadPool {
         // used.  Optionally specify a'basicAllocator' used to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.  The behavior is undefined unless '1 <= numThreads'.
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
@@ -514,7 +499,6 @@ class FixedThreadPool {
         // allocator is used.  The behavior is undefined unless
         // '1 <= numThreads'.
 
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
                     int                             maxNumPendingJobs,
@@ -531,7 +515,6 @@ class FixedThreadPool {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  The behavior is
         // undefined unless '1 <= numThreads'.
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
     ~FixedThreadPool();
         // Remove all pending jobs from the queue without executing them, block

@@ -44,11 +44,10 @@ BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 // Implementation note: When casting, we often cast through 'void *' or
 // 'const void *' to avoid getting alignment warnings.
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 namespace {
 
-void startLagMetric(BloombergLP::bdlm::Metric          *value,
-                    BloombergLP::bdlmt::EventScheduler *object)
+void startLagMetric(BloombergLP::bdlm::Metric                *value,
+                    const BloombergLP::bdlmt::EventScheduler *object)
 {
     BloombergLP::bsls::TimeInterval now  = object->now();
     BloombergLP::bsls::TimeInterval next = object->nextPendingEventTime();
@@ -62,7 +61,6 @@ void startLagMetric(BloombergLP::bdlm::Metric          *value,
 }
 
 }  // close unnamed namespace
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 namespace BloombergLP {
 
@@ -320,13 +318,12 @@ void EventScheduler::dispatchEvents()
     }
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 void EventScheduler::initialize(bdlm::MetricsRegistry   *metricsRegistry,
                                 const bsl::string_view& metricsIdentifier)
 {
     bdlm::MetricsRegistry *registry = metricsRegistry
-                                    ? metricsRegistry
-                                    : &bdlm::MetricsRegistry::singleton();
+                                   ? metricsRegistry
+                                   : &bdlm::MetricsRegistry::defaultInstance();
 
     bdlm::InstanceCount::Value instanceNumber =
                      bdlm::InstanceCount::nextInstanceNumber<EventScheduler>();
@@ -339,13 +336,13 @@ void EventScheduler::initialize(bdlm::MetricsRegistry   *metricsRegistry,
              "es",
              metricsIdentifier);
 
-    d_startLagHandle = registry->registerCollectionCallback(
+    registry->registerCollectionCallback(
+                                   &d_startLagHandle,
                                    md,
                                    bdlf::BindUtil::bind(&startLagMetric,
                                                         bdlf::PlaceHolders::_1,
                                                         this));
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 void EventScheduler::releaseCurrentEvents()
 {
@@ -459,14 +456,11 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 {
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 EventScheduler::EventScheduler(const bsl::string_view&  metricsIdentifier,
                                bdlm::MetricsRegistry  *metricsRegistry,
                                bslma::Allocator        *basicAllocator)
@@ -488,7 +482,6 @@ EventScheduler::EventScheduler(const bsl::string_view&  metricsIdentifier,
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
                                bslma::Allocator            *basicAllocator)
@@ -508,14 +501,11 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_waitCount(0)
 , d_clockType(clockType)
 {
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
                                const bsl::string_view&      metricsIdentifier,
                                bdlm::MetricsRegistry      *metricsRegistry,
@@ -538,7 +528,6 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 EventScheduler::EventScheduler(
@@ -560,14 +549,11 @@ EventScheduler::EventScheduler(
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 {
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 EventScheduler::EventScheduler(
                            const bsl::chrono::system_clock&,
                            const bsl::string_view&           metricsIdentifier,
@@ -591,7 +577,6 @@ EventScheduler::EventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 EventScheduler::EventScheduler(
                              const bsl::chrono::steady_clock&,
@@ -612,14 +597,11 @@ EventScheduler::EventScheduler(
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_MONOTONIC)
 {
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 EventScheduler::EventScheduler(
                           const bsl::chrono::steady_clock&,
                           const bsl::string_view&            metricsIdentifier,
@@ -643,7 +625,6 @@ EventScheduler::EventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
 EventScheduler::EventScheduler(
@@ -665,14 +646,11 @@ EventScheduler::EventScheduler(
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 {
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           const bsl::string_view&            metricsIdentifier,
@@ -696,7 +674,6 @@ EventScheduler::EventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
@@ -718,14 +695,11 @@ EventScheduler::EventScheduler(
 , d_waitCount(0)
 , d_clockType(clockType)
 {
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           bsls::SystemClockType::Enum        clockType,
@@ -750,7 +724,6 @@ EventScheduler::EventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 EventScheduler::EventScheduler(
@@ -773,14 +746,11 @@ EventScheduler::EventScheduler(
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 {
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           const bsl::chrono::system_clock&,
@@ -805,7 +775,6 @@ EventScheduler::EventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
@@ -827,14 +796,11 @@ EventScheduler::EventScheduler(
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_MONOTONIC)
 {
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           const bsl::chrono::steady_clock&,
@@ -859,16 +825,11 @@ EventScheduler::EventScheduler(
 {
     initialize(metricsRegistry, metricsIdentifier);
 }
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
 EventScheduler::~EventScheduler()
 {
     BSLS_ASSERT(bslmt::ThreadUtil::invalidHandle() == d_dispatcherThread);
-
-#ifdef BDLMT_EVENTSCHEDULER_ENABLE_METRICS
-    d_startLagHandle.unregister();
-#endif // defined(BDLMT_EVENTSCHEDULER_ENABLE_METRICS)
 }
 
 // MANIPULATORS

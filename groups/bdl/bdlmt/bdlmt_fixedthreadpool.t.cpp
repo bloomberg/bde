@@ -107,6 +107,7 @@ using bsl::flush;
 // [16] CONCERN: 'start()' failure behavior
 // [17] CONCERN: 'drain', 'shutdown', 'stop' behavior when '!isStarted()'
 // [18] DRQS 167232024: 'drain' FAILS TO WAIT FOR ALL JOBS TO FINISH
+// [19] CONCERN: POOL OBJECT CAN OUTLIVE USED 'MetricsRegistry'
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -202,8 +203,6 @@ bslma::TestAllocator taDefault;
 // ============================================================================
 //                       GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
-
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
 
                          // ========================
                          // class TestMetricsAdapter
@@ -330,8 +329,6 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
         && d_descriptors[1].instanceNumber()         == count
         && d_descriptors[1].objectIdentifier()       == name;
 }
-
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -1093,10 +1090,9 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
-    // access the metrics registry singleton before assign the global allocator
-    bdlm::MetricsRegistry::singleton();
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
+    // access the metrics registry default instance before assign the global
+    // allocator
+    bdlm::MetricsRegistry::defaultInstance();
 
     bslma::DefaultAllocatorGuard guard(&taDefault);
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -1107,6 +1103,38 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // case 0 is always the first case
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: POOL OBJECT CAN OUTLIVE USED 'MetricsRegistry'
+        //
+        // Concerns:
+        //: 1 'MetricsRegistry' object passed during construction can end its
+        //:   lifetime before the pool's destructor is called without causing
+        //:   segfault or any other use-after-free issue.  See DRQS 173705664
+        //:   and DRQS 174980848 for more details.
+        //
+        // Plan:
+        //: 1 Create a 'MetricsRegistry' object on a free store and pass it to
+        //:   the constructed pool.  Delete the 'MetricsRegistry' object.  The
+        //:   pool destruction mustn't cause core dumps or other similar
+        //:   issues.
+        //
+        // Testing:
+        //   CONCERN: POOL OBJECT CAN OUTLIVE USED 'MetricsRegistry'
+        // --------------------------------------------------------------------
+        if (verbose) cout <<
+            "\nTESTING CONCERN: POOL OBJECT CAN OUTLIVE USED 'MetricsRegistry'"
+            "\n==============================================================="
+            << endl;
+
+        bdlm::MetricsRegistry *metricsRegistry =
+                                     new bdlm::MetricsRegistry(&testAllocator);
+        Obj pool(2, 4, "metricsIdentifier", metricsRegistry, &testAllocator);
+
+        // Prematurely kill the registry
+        delete metricsRegistry;
+        // 'pool' outlives the 'MetricsRegistry' object w/o segfault
+      } break;
       case 18: {
         // --------------------------------------------------------------------
         // DRQS 167232024: 'drain' FAILS TO WAIT FOR ALL JOBS TO FINISH
@@ -2266,17 +2294,15 @@ int main(int argc, char *argv[])
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
             TestMetricsAdapter defaultAdapter;
             TestMetricsAdapter otherAdapter;
 
             bdlm::MetricsRegistry& defaultRegistry =
-                                            bdlm::MetricsRegistry::singleton();
+                                      bdlm::MetricsRegistry::defaultInstance();
             bdlm::MetricsRegistry  otherRegistry;
 
             defaultRegistry.setMetricsAdapter(&defaultAdapter);
             otherRegistry.setMetricsAdapter(&otherAdapter);
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int THREADS  = VALUES[i].d_numThreads;
@@ -2295,7 +2321,6 @@ int main(int argc, char *argv[])
                     ASSERTV(i, 0              == X.numThreadsStarted());
                     ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
                 }
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
                 ASSERT(defaultAdapter.verify(""));
                 defaultAdapter.reset();
 
@@ -2338,7 +2363,6 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(otherAdapter.verify("b"));
                 otherAdapter.reset();
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
                 {
                     bslmt::ThreadAttributes attr;
@@ -2350,7 +2374,6 @@ int main(int argc, char *argv[])
                     ASSERTV(i, 0              == X.numThreadsStarted());
                     ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
                 }
-#ifdef BDLMT_FIXEDTHREADPOOL_ENABLE_METRICS
                 ASSERT(defaultAdapter.verify(""));
                 defaultAdapter.reset();
 
@@ -2407,7 +2430,6 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(otherAdapter.verify("b"));
                 otherAdapter.reset();
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
             }
         }
       } break;

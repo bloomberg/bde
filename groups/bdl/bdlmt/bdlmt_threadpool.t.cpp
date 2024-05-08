@@ -184,7 +184,6 @@ int veryVeryVerbose;
 //                       GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
 
                          // ========================
                          // class TestMetricsAdapter
@@ -295,8 +294,6 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
         && d_descriptors[0].instanceNumber()         == count
         && d_descriptors[0].objectIdentifier()       == name;
 }
-
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -1026,10 +1023,9 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
-    // access the metrics registry singleton before assign the global allocator
-    bdlm::MetricsRegistry::singleton();
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
+    // access the metrics registry default instance before assign the global
+    // allocator
+    bdlm::MetricsRegistry::defaultInstance();
 
     bslmt::Configuration::setDefaultThreadStackSize(
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
@@ -1728,17 +1724,15 @@ int main(int argc, char *argv[])
 
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
         TestMetricsAdapter defaultAdapter;
         TestMetricsAdapter otherAdapter;
 
         bdlm::MetricsRegistry& defaultRegistry =
-                                            bdlm::MetricsRegistry::singleton();
+                                      bdlm::MetricsRegistry::defaultInstance();
         bdlm::MetricsRegistry  otherRegistry;
 
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int          MIN  = VALUES[i].d_minThreads;
@@ -1762,7 +1756,6 @@ int main(int argc, char *argv[])
                 ASSERTV(i, IDLE     == X.maxIdleTime());
                 ASSERTV(i, 0        == X.threadFailures());
             }
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
             ASSERT(defaultAdapter.verify(""));
             defaultAdapter.reset();
 
@@ -1816,7 +1809,6 @@ int main(int argc, char *argv[])
             }
             ASSERT(otherAdapter.verify("b"));
             otherAdapter.reset();
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1828,10 +1820,8 @@ int main(int argc, char *argv[])
             ASSERT_PASS(Obj(attr,  10,  10, 1000));
             ASSERT_FAIL(Obj(attr,  10,  10,   -1));
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
             ASSERT_PASS(Obj(attr,  10,  10, 1000, "", 0));
             ASSERT_FAIL(Obj(attr,  10,  10,   -1, "", 0));
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
         }
       } break;
       case 5: {
@@ -2324,17 +2314,15 @@ int main(int argc, char *argv[])
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
             TestMetricsAdapter defaultAdapter;
             TestMetricsAdapter otherAdapter;
 
             bdlm::MetricsRegistry& defaultRegistry =
-                                            bdlm::MetricsRegistry::singleton();
+                                      bdlm::MetricsRegistry::defaultInstance();
             bdlm::MetricsRegistry  otherRegistry;
 
             defaultRegistry.setMetricsAdapter(&defaultAdapter);
             otherRegistry.setMetricsAdapter(&otherAdapter);
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 // SEC and NANOSEC conflict with Solaris macros
@@ -2361,7 +2349,6 @@ int main(int argc, char *argv[])
                     ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
                     ASSERTV(i, 0         == X.threadFailures());
                 }
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
                 ASSERT(defaultAdapter.verify(""));
                 defaultAdapter.reset();
 
@@ -2417,7 +2404,6 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(otherAdapter.verify("b"));
                 otherAdapter.reset();
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
             }
 
 #ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
@@ -2511,7 +2497,6 @@ int main(int argc, char *argv[])
                     ASSERT_PASS(Obj(attr,   9,  10, TimeInterval( 1,  0)));
                     ASSERT_FAIL(Obj(attr,  10,  10, TimeInterval(-1, -1)));
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
                     ASSERT_PASS(Obj(attr,   0, 100, TimeInterval( 1,  0),
                                     "", 0));
                     ASSERT_FAIL(Obj(attr,  -1, 100, TimeInterval( 1,  0),
@@ -2524,7 +2509,6 @@ int main(int argc, char *argv[])
                                     "", 0));
                     ASSERT_FAIL(Obj(attr,  10,  10, TimeInterval(-1, -1),
                                     "", 0));
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
                     TimeInterval VALID;
                     VALID.setTotalMilliseconds(INT_MAX);
@@ -2534,10 +2518,8 @@ int main(int argc, char *argv[])
                     ASSERT_PASS(Obj(attr,  9,  10, VALID  ));
                     ASSERT_FAIL(Obj(attr,  9,  10, INVALID));
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
                     ASSERT_PASS(Obj(attr,  9,  10, VALID  , "", 0));
                     ASSERT_FAIL(Obj(attr,  9,  10, INVALID, "", 0));
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
                 }
             }
         }

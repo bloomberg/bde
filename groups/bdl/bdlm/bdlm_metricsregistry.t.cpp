@@ -3,6 +3,8 @@
 
 #include <bdlm_metricdescriptor.h>
 
+#include <bdlf_bind.h>
+
 #include <bsla_maybeunused.h>
 
 #include <bslim_testutil.h>
@@ -244,20 +246,61 @@ bool TestMetricsAdapter::verify(const bdlm::MetricDescriptor& descriptor) const
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using 'bdlm::MetricsRegistry'
-///- - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the initialization and usage of the
 // 'bdlm::MetricsRegistry' object, allowing for registering metric callback
 // functions with the 'bdlm' monitoring system.
 //
-// First, we provide a metric function to be used during callback registration
-// with the 'bdlm' monitoring system:
+// First, we declare a class that provides some metric for the 'bdlm'
+// monitoring system:
 //..
-    void elidedMetric(BloombergLP::bdlm::Metric *value)
+    class LowLevelFacility {
+        // PRIVATE DATA
+        bdlm::MetricsRegistryRegistrationHandle d_metricHandle;
+      public:
+        // CREATORS
+        explicit LowLevelFacility(bdlm::MetricsRegistry& metricsRegistry =
+                                     bdlm::MetricsRegistry::defaultInstance());
+
+        // ACCESSORS
+        int someMetric() const
+        {
+            return 0; // just a stub
+        }
+    };
+//..
+// Next, we provide a metric function to be used during callback registration:
+//..
+    void metricCallback(bdlm::Metric *value, const LowLevelFacility *object)
     {
-        (void)value;
-        // ...
+        *value = bdlm::Metric::Gauge(object->someMetric());
     }
 //..
+// Here is the constructor definition that registers the collection callback:
+//..
+    LowLevelFacility::LowLevelFacility(bdlm::MetricsRegistry& metricsRegistry)
+    {
+        // Construct a 'bdlm::MetricsDescriptor' object to be used when
+        // registering the callback function:
+        bdlm::MetricDescriptor descriptor("bdlm",
+                                          "example",
+                                          1,
+                                          "bdlmmetricsregistry",
+                                          "bmr",
+                                          "identifier");
+
+        // Register the collection callback:
+        metricsRegistry.registerCollectionCallback(
+                                   &d_metricHandle,
+                                   descriptor,
+                                   bdlf::BindUtil::bind(&metricCallback,
+                                                        bdlf::PlaceHolders::_1,
+                                                        this));
+        ASSERT(d_metricHandle.isRegistered());
+    }
+//..
+// Notice that the compiler-supplied destructor is sufficient because the
+// 'd_metricHandle' will deregister the metric on destruction.
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -327,8 +370,8 @@ int main(int argc, char *argv[])
 
         typedef bsl::function<void(BloombergLP::bdlm::Metric*)> Callback;
         Callback fn(bsl::allocator_arg, &oa, LargeCallback());
-        BloombergLP::bdlm::MetricsRegistryRegistrationHandle handle =
-                                     mX.registerCollectionCallback(md, fn);
+        BloombergLP::bdlm::MetricsRegistryRegistrationHandle handle;
+        mX.registerCollectionCallback(&handle, md, fn);
 
         ASSERTV(da.numBytesInUse(),
                 da.numBlocksInUse(),
@@ -357,31 +400,27 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Then, we construct a 'bdlm::MetricsDescriptor' object to be used when
-// registering the callback function:
+// Now, we construct a 'bdlm::MetricsRegistry' object with a test allocator:
 //..
-    bdlm::MetricDescriptor descriptor("bdlm",
-                                      "example",
-                                      1,
-                                      "bdlmmetricsregistry",
-                                      "bmr",
-                                      "identifier");
+    bslma::TestAllocator  ta;
+    bdlm::MetricsRegistry registry(&ta);
+    ASSERT(registry.numRegisteredCollectionCallbacks() == 0);
 //..
-// Next, we construct a 'bdlm::MetricsRegistry' object with a test allocator:
+// Then, we create the object and pass the constructed 'bdlm::MetricsRegistry'
+// object there:
 //..
-        bslma::TestAllocator  ta;
-        bdlm::MetricsRegistry registry(&ta);
+    {
+        LowLevelFacility facility(registry);
+        ASSERT(registry.numRegisteredCollectionCallbacks() == 1);
 //..
-// Now, we register the collection callback:
+// If we don't provide a 'bdlm::MetricsRegistry' object explicitly, the default
+// global instance will be used.
+//
+// Finally, the callback is removed the monitoring system by the destructor of
+// 'facility' object:
 //..
-    bdlm::MetricsRegistryRegistrationHandle handle =
-                            registry.registerCollectionCallback(descriptor,
-                                                                &elidedMetric);
-//..
-// Finally, we remove the callback from the monitoring system, and verify the
-// callback was successfully removed:
-//..
-    ASSERT(0 == handle.unregister());
+    } // 'facility.d_metricHandle.unregister()' is called here
+    ASSERT(registry.numRegisteredCollectionCallbacks() == 0);
 //..
       } break;
       case 1: {
@@ -413,8 +452,8 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == adapter.size());
 
-        ObjHandle handle = mX.registerCollectionCallback(descriptor,
-                                                         &testMetric);
+        ObjHandle handle;
+        mX.registerCollectionCallback(&handle, descriptor, &testMetric);
 
         ASSERT(0 == adapter.size());
 

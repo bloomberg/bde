@@ -376,10 +376,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
-#error "This component does not support metric collection at this time."
-#endif
-
 namespace BloombergLP {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -477,10 +473,8 @@ class ThreadPool {
                                            // managed threads
 #endif
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
     bdlm::MetricsRegistryRegistrationHandle
                          d_backlogHandle;  // backlog metric handle
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
     // CLASS DATA
     static const char    s_defaultThreadName[16];   // default name of threads
@@ -498,19 +492,12 @@ class ThreadPool {
         // signal the next waiting thread if any.  Note that this method must
         // be called with 'd_mutex' locked.
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
     void initialize(bdlm::MetricsRegistry   *metricsRegistry,
                     const bsl::string_view&  metricsIdentifier);
         // Initialize this thread pool using the stored attributes and the
         // specified 'metricsRegistry' and 'metricsIdentifier'.  If
         // 'metricsRegistry' is 0, 'bdlm::MetricsRegistry::singleton()'  is
         // used.
-#else
-    void initialize();
-        // Perform one-time object initialization.  Note that it is necessary
-        // for this function to be invoked exactly once in each constructor
-        // overload.
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
     void wakeThreadIfNeeded();
         // Signal this thread and pop the current thread from the wait list.
@@ -558,7 +545,6 @@ class ThreadPool {
         // undefined unless '0 <= minThreads', 'minThreads <= maxThreads', and
         // '0 <= maxIdleTime'.
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
                int                             maxThreads,
@@ -578,7 +564,6 @@ class ThreadPool {
         // the currently installed default allocator is used.  The behavior is
         // undefined unless '0 <= minThreads', 'minThreads <= maxThreads', and
         // '0 <= maxIdleTime'.
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
@@ -596,7 +581,6 @@ class ThreadPool {
         // and the 'maxIdleTime' has a value less than or equal to 'INT_MAX'
         // milliseconds.
 
-#ifdef BDLMT_THREADPOOL_ENABLE_METRICS
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
                int                             maxThreads,
@@ -617,7 +601,6 @@ class ThreadPool {
         // undefined unless '0 <= minThreads', 'minThreads <= maxThreads',
         // '0 <= maxIdleTime', and the 'maxIdleTime' has a value less than or
         // equal to 'INT_MAX' milliseconds.
-#endif // defined(BDLMT_THREADPOOL_ENABLE_METRICS)
 
     ~ThreadPool();
         // Call 'shutdown()' and destroy this thread pool.
