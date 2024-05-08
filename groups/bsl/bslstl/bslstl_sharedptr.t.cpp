@@ -1735,6 +1735,28 @@ struct TypedDeleter{
 
 }  // close namespace support
 
+                     // ======================
+                     // class SimpleTestObject
+                     // ======================
+
+struct SimpleTestObject {
+    char d_text[10];
+    int  d_count;
+
+    SimpleTestObject()
+    {
+        strcpy(d_text, "text");
+        d_count = 1;
+    }
+
+    ~SimpleTestObject()
+    {
+        strcpy(d_text, "destroyed");
+        --d_count;
+    }
+};
+
+
           // *** 'NonPolymorphicTestBaseObject' CLASS HIERARCHY ***
 
                      // ==================================
@@ -5518,7 +5540,7 @@ void Harness::testCase32_DefaultAllocator()
                                                         testArg(B01, MOVE_01),
                                                         testArg(B02, MOVE_02),
                                                         testArg(B03, MOVE_03));
-          } break;
+           } break;
           case 4: {
             x = bsl::make_shared<const MyInplaceAllocatableObject>(
                                                         testArg(B01, MOVE_01),
@@ -18047,6 +18069,8 @@ int main(int argc, char *argv[])
         //:   the 'shared_ptr' held an custom (user-supplied) representation.
         //: 8 Do the right thing for empty null pointers, which means tracking
         //:   our expected behavior for reference-counting deleters.
+        //: 9 That 'release' compiles and releases a 'shared_ptr' if the
+        //:   'ELEMENT_TYPE' is an array.
         //
         // Plan:
         //   Create shared pointers with various representations, release them
@@ -18136,6 +18160,61 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == ta.numBytesInUse());
         }
+
+        if (verbose) printf("\nConcern: array types"
+                            "\n====================\n");
+        {
+#ifndef BSLS_PLATFORM_CMP_IBM
+            {
+                // XLC requires array extents to compile
+
+                const int numObjects = 5;
+
+                gNumConstructors = 0;
+                gNumDestructors  = 0;
+
+                {
+                    bsl::shared_ptr<CountConstructorsAndDestructors []> x =
+                        bsl::make_shared<CountConstructorsAndDestructors[]>(numObjects);
+
+
+                    ASSERTV(gNumConstructors, gNumConstructors == numObjects);
+                    ASSERTV(gNumDestructors,  gNumDestructors == 0);
+
+                    ASSERT(0 != x.get());
+                }
+
+                ASSERTV(gNumConstructors, gNumConstructors == numObjects);
+                ASSERTV(gNumDestructors,  gNumDestructors == numObjects);
+
+            }
+#endif
+            {
+                // XLC requires array extents to compile
+
+                const int numObjects = 5;
+
+                gNumConstructors = 0;
+                gNumDestructors  = 0;
+
+                {
+                    bsl::shared_ptr<CountConstructorsAndDestructors[numObjects]> x =
+                        bsl::make_shared<CountConstructorsAndDestructors[numObjects]>();
+
+
+                    ASSERTV(gNumConstructors, gNumConstructors == numObjects);
+                    ASSERTV(gNumDestructors,  gNumDestructors == 0);
+
+                    ASSERT(0 != x.get());
+                }
+
+                ASSERTV(gNumConstructors, gNumConstructors == numObjects);
+                ASSERTV(gNumDestructors,  gNumDestructors == numObjects);
+
+            }
+
+        }
+
 
       } break;
       case 16: {
@@ -20921,6 +21000,85 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(1 == numDeletes1);
 
+
+        if (verbose) printf("\tSwap of array types.\n");
+
+        {
+#ifndef BSLS_PLATFORM_CMP_IBM
+            // XLC requires array extents to compile
+
+            {
+                bsl::shared_ptr<int[]> a;
+                bsl::shared_ptr<int[]> b;
+
+                a.swap(b);
+                ASSERT(!a);
+                ASSERT(!b);
+            }
+            {
+                // XLC requires array extents to compile
+
+                const int numObjects = 5;
+
+                gNumConstructors = 0;
+                gNumDestructors  = 0;
+
+                {
+                    bsl::shared_ptr<CountConstructorsAndDestructors []> a =
+                        bsl::make_shared<CountConstructorsAndDestructors[]>(numObjects);
+                    bsl::shared_ptr<CountConstructorsAndDestructors []> b;
+
+                    a.swap(b);
+
+                    ASSERT(!a);
+                    ASSERT(b);
+
+                    ASSERTV(gNumConstructors, gNumConstructors == numObjects);
+                    ASSERTV(gNumDestructors,  gNumDestructors == 0);
+
+                }
+
+                ASSERTV(gNumConstructors, gNumConstructors == numObjects);
+                ASSERTV(gNumDestructors,  gNumDestructors == numObjects);
+
+            }
+#endif
+            {
+                bsl::shared_ptr<int[5]> a;
+                bsl::shared_ptr<int[5]> b;
+
+                a.swap(b);
+                ASSERT(!a);
+                ASSERT(!b);
+            }
+            {
+                // XLC requires array extents to compile
+
+                const int numObjects = 5;
+
+                gNumConstructors = 0;
+                gNumDestructors  = 0;
+
+                {
+                    bsl::shared_ptr<CountConstructorsAndDestructors[5]> a =
+                        bsl::make_shared<CountConstructorsAndDestructors[5]>();
+                    bsl::shared_ptr<CountConstructorsAndDestructors [5]> b;
+
+                    a.swap(b);
+
+                    ASSERT(!a);
+                    ASSERT(b);
+
+                    ASSERTV(gNumConstructors, gNumConstructors == numObjects);
+                    ASSERTV(gNumDestructors,  gNumDestructors == 0);
+
+                }
+
+                ASSERTV(gNumConstructors, gNumConstructors == numObjects);
+                ASSERTV(gNumDestructors,  gNumDestructors == numObjects);
+            }
+        }
+
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -21690,6 +21848,42 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numReferences());
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
+
+
+        if (verbose) printf("\nTesting array type"
+                            "\n-------------------\n");
+        {
+            const int numObjects = 5;
+
+#ifndef BSLS_PLATFORM_CMP_IBM
+            // XLC requires array extents to compile
+            {
+
+                bsl::shared_ptr<SimpleTestObject[]> x(
+                    new SimpleTestObject[numObjects]);
+
+                for (int i = 0; i < numObjects; ++i) {
+                    ASSERT(0 == strcmp(x[i].d_text, "text"));
+                    ASSERT(0 == strcmp(x.get()[i].d_text, "text"));
+                    ASSERT(0 == strcmp(x.ptr()[i].d_text, "text"));
+                }
+            }
+#endif
+            // XLC requires array extents to compile
+            {
+
+                bsl::shared_ptr<SimpleTestObject[numObjects]> x(
+                    new SimpleTestObject[numObjects]);
+
+                for (int i = 0; i < numObjects; ++i) {
+                    ASSERT(0 == strcmp(x[i].d_text, "text"));
+                    ASSERT(0 == strcmp(x.get()[i].d_text, "text"));
+                    ASSERT(0 == strcmp(x.ptr()[i].d_text, "text"));
+                }
+            }
+
+        }
+
 
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations == ta.numDeallocations());

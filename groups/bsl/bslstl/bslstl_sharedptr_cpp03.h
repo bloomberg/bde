@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Feb 27 11:06:10 2024
+// Generated on Wed May  1 12:41:03 2024
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -1459,7 +1459,7 @@ class shared_ptr {
         // Further note that the behavior of this method is the same as
         // 'reset(source, object)'.
 
-    pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *> release()
+    pair<element_type *, BloombergLP::bslma::SharedPtrRep *> release()
                                                          BSLS_KEYWORD_NOEXCEPT;
         // Return the pair consisting of the addresses of the modifiable
         // 'ELEMENT_TYPE' object referred to, and the representation shared by,
@@ -1720,7 +1720,7 @@ class shared_ptr {
         // 'use_count', and the result may be unreliable in multi-threaded code
         // for the same reasons.
 
-    ELEMENT_TYPE *ptr() const BSLS_KEYWORD_NOEXCEPT;
+    element_type *ptr() const BSLS_KEYWORD_NOEXCEPT;
         // [!DEPRECATED!] Use 'get' instead.
         //
         // Return the address providing modifiable access to the object
@@ -4976,7 +4976,7 @@ void shared_ptr<ELEMENT_TYPE>::swap(shared_ptr& other) BSLS_KEYWORD_NOEXCEPT
     // Also, as 'shared_ptr' is bitwise-moveable, we could simplify this to
     // 'memcpy'-ing through an (aligned?) array of sufficient 'char'.
 
-    ELEMENT_TYPE *tempPtr_p = d_ptr_p;
+    element_type *tempPtr_p = d_ptr_p;
     d_ptr_p       = other.d_ptr_p;
     other.d_ptr_p = tempPtr_p;
 
@@ -5568,10 +5568,10 @@ shared_ptr<ELEMENT_TYPE>::loadAlias(const shared_ptr<ANY_TYPE>&  source,
 }
 
 template <class ELEMENT_TYPE>
-pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *>
+pair<typename shared_ptr<ELEMENT_TYPE>::element_type *, BloombergLP::bslma::SharedPtrRep *>
 shared_ptr<ELEMENT_TYPE>::release() BSLS_KEYWORD_NOEXCEPT
 {
-    pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *> ret(d_ptr_p,
+    pair<element_type *, BloombergLP::bslma::SharedPtrRep *> ret(d_ptr_p,
                                                                  d_rep_p);
     d_ptr_p = 0;
     d_rep_p = 0;
@@ -5764,7 +5764,8 @@ int shared_ptr<ELEMENT_TYPE>::numReferences() const BSLS_KEYWORD_NOEXCEPT
 
 template <class ELEMENT_TYPE>
 inline
-ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::ptr() const BSLS_KEYWORD_NOEXCEPT
+typename shared_ptr<ELEMENT_TYPE>::element_type *
+shared_ptr<ELEMENT_TYPE>::ptr() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_ptr_p;
 }
