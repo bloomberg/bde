@@ -9,17 +9,16 @@
 // the usual requirements of the BDE coding standards.
 
 #include <bsls_platform.h>
-
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
 #endif
-
 #include <bsls_protocoltest.h>
-
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
+    #pragma GCC diagnostic pop
 #endif
+
+#include <bsls_bsltestutil.h>
 
 #include <new>
 #include <stdio.h>
@@ -42,9 +41,6 @@ using namespace BloombergLP;
 // goal of most tests is to verify that correct protocol definitions are
 // accepted and incorrect protocol definitions are rejected.
 // ----------------------------------------------------------------------------
-//
-// [ 1] BREATHING TEST
-//
 // class bsls::ProtocolTest:
 // [ 2] bsls::ProtocolTest();
 // [ 2] ~bsls::ProtocolTest();
@@ -74,12 +70,12 @@ using namespace BloombergLP;
 // [ 5] failures();
 //
 // [ 8] BSLS_PROTOCOLTEST_ASSERT
-//
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
-// ----------------------------------------------------------------------------
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                EXTENDED STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -99,19 +95,36 @@ void aSsErT(int c, const char *s, int i) {
 
 }  // close unnamed namespace
 
-#define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (0)
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-namespace {
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                              USAGE EXAMPLE
 // ----------------------------------------------------------------------------
-///Usage
-///-----
-// In this section we show intended usage of this component.
-//
-///Example 1: Testing a Protocol Class.
-///- - - - - - - - - - - - - - - - - - - - - -
+
+namespace {
+
+///Example 1: Testing a Protocol Class
+///- - - - - - - - - - - - - - - - - -
 // This example demonstrates how to test a protocol class, 'ProtocolClass',
 // using this protocol test component.  Our 'ProtocolClass' provides two of
 // pure virtual methods ('foo' and 'bar'), along with a virtual destructor:
@@ -147,6 +160,50 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // method calls the (protected) 'markDone' which is provided by the base class
 // for the purpose of verifying that the method from which it's called is
 // declared as virtual in the protocol class.
+//
+// See continuation in 'main()'.
+
+///Example 2: Testing a Method Overloaded on 'const'ness
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we have a protocol that represent a sequence of integers.  Such a
+// protocol will have an overloaded 'at()' method of both the 'const' and the
+// "mutable" variation.  In verification of such methods we need to ensure that
+// we verify *both* overloads of the 'virtual' function.
+//
+// First let's define the interesting parts of our imaginary sequence, the
+// overloaded 'at()' methods, and a virtual destructor to avoid warnings:
+//..
+struct IntSeqExample {
+    // CREATORS
+    virtual ~IntSeqExample();
+
+    // MANIPULATORS
+    virtual int& at(size_t index) = 0;
+
+    // ACCESSORS
+    virtual int at(size_t index) const = 0;
+};
+
+IntSeqExample::~IntSeqExample()
+{
+}
+//..
+// Next, we define the test implementation as usual:
+//..
+struct IntSeqExampleTestImp : bsls::ProtocolTestImp<IntSeqExample> {
+    static int s_int;
+
+    int& at(size_t)       { s_int = 4; markDone(); return s_int; }
+    int  at(size_t) const { s_int = 2; return markDone();        }
+};
+
+int IntSeqExampleTestImp::s_int = 0;
+//..
+// Note the use of a dummy variable to return a reference.  We also use that
+// variable, by giving it different values in the two overloads, to demonstrate
+// that we have called the overload we have intended.
+//
+// The example is continued in 'main()'.
 
 // ============================================================================
 //                    TYPES AND FUNCTIONS REQUIRED FOR TESTING
@@ -264,7 +321,7 @@ int main(int argc, char *argv[])
     bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
-    (void) veryVeryVerbose;
+    (void)veryVeryVerbose;
 
     printf("TEST %s CASE %d\n", __FILE__, test);
 
@@ -285,94 +342,162 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("USAGE EXAMPLE\n"
-                            "=============\n");
-
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
+        {
+///Example 1: Testing a Protocol Class
+///- - - - - - - - - - - - - - - - - -
+// See type definitions in the global scope.
+//
 // Then, in our protocol test case we describe the concerns we have for the
 // protocol class and the plan to test those concerns:
 //..
-    // ------------------------------------------------------------------------
-    // PROTOCOL TEST:
-    //   Ensure this class is a properly defined protocol.
-    //
-    // Concerns:
-    //: 1 The protocol is abstract: no objects of it can be created.
-    //:
-    //: 2 The protocol has no data members.
-    //:
-    //: 3 The protocol has a virtual destructor.
-    //:
-    //: 4 All methods of the protocol are pure virtual.
-    //:
-    //: 5 All methods of the protocol are publicly accessible.
-    //
-    // Plan:
-    //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
-    //:   of the protocol.
-    //:
-    //: 2 Create an object of the 'bsls::ProtocolTest' class template
-    //:   parameterized by 'ProtocolClassTestImp', and use it to verify
-    //:   that:
-    //:
-    //:   1 The protocol is abstract. (C-1)
-    //:
-    //:   2 The protocol has no data members. (C-2)
-    //:
-    //:   3 The protocol has a virtual destructor. (C-3)
-    //:
-    //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
-    //:   non-creator methods of the protocol are:
-    //:
-    //:   1 virtual, (C-4)
-    //:
-    //:   2 publicly accessible. (C-5)
-    //
-    // Testing:
-    //   virtual ~ProtocolClass();
-    //   virtual const char *bar(char const *, char const *) = 0;
-    //   virtual int foo(int) const = 0;
-    // ------------------------------------------------------------------------
+      // ----------------------------------------------------------------------
+      // PROTOCOL TEST:
+      //   Ensure this class is a properly defined protocol.
+      //
+      // Concerns:
+      //: 1 The protocol is abstract: no objects of it can be created.
+      //:
+      //: 2 The protocol has no data members.
+      //:
+      //: 3 The protocol has a virtual destructor.
+      //:
+      //: 4 All methods of the protocol are pure virtual.
+      //:
+      //: 5 All methods of the protocol are publicly accessible.
+      //
+      // Plan:
+      //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
+      //:   of the protocol.
+      //:
+      //: 2 Create an object of the 'bsls::ProtocolTest' class template
+      //:   parameterized by 'ProtocolClassTestImp', and use it to verify
+      //:   that:
+      //:
+      //:   1 The protocol is abstract. (C-1)
+      //:
+      //:   2 The protocol has no data members. (C-2)
+      //:
+      //:   3 The protocol has a virtual destructor. (C-3)
+      //:
+      //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+      //:   non-creator methods of the protocol are:
+      //:
+      //:   1 virtual, (C-4)
+      //:
+      //:   2 publicly accessible. (C-5)
+      //
+      // Testing:
+      //   virtual ~ProtocolClass();
+      //   virtual const char *bar(char const *, char const *) = 0;
+      //   virtual int foo(int) const = 0;
+      // ----------------------------------------------------------------------
 //..
 // Next we print the banner for this test case:
 //..
-    if (verbose) printf("\nPROTOCOL TEST"
-                        "\n=============\n");
+      if (verbose) puts("\nPROTOCOL TEST"
+                        "\n=============");
 //..
 // Then, we create an object of type
 // 'bsls::ProtocolTest<ProtocolClassTestImp>', 'testObj':
 //..
-    if (verbose) printf("\nCreate a test object.\n");
+      if (verbose) puts("\n\tCreate a test object.");
 
-    bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
+      bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 //..
 // Now we use the 'testObj' to test some general concerns about the protocol
 // class.
 //..
-    if (verbose) printf("\nVerify that the protocol is abstract.\n");
+      if (verbose) puts("\tVerify that the protocol is abstract.");
 
-    ASSERT(testObj.testAbstract());
+      ASSERT(testObj.testAbstract());
 
-    if (verbose) printf("\nVerify that there are no data members.\n");
+      if (verbose) puts("\tVerify that there are no data members.");
 
-    ASSERT(testObj.testNoDataMembers());
+      ASSERT(testObj.testNoDataMembers());
 
-    if (verbose) printf("\nVerify that the destructor is virtual.\n");
+      if (verbose) puts("\tVerify that the destructor is virtual.");
 
-    ASSERT(testObj.testVirtualDestructor());
+      ASSERT(testObj.testVirtualDestructor());
 //..
 // Finally we use the 'testObj' to test concerns for each individual method of
 // the protocol class.  To test a protocol method we need to call it from
 // inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass the 'testObj':
 //..
-    if (verbose) printf("\nVerify that methods are public and virtual.\n");
+      if (verbose) puts("\tVerify that methods are public and virtual.");
 
-    BSLS_PROTOCOLTEST_ASSERT(testObj, foo(77));
-    BSLS_PROTOCOLTEST_ASSERT(testObj, bar("", ""));
+      BSLS_PROTOCOLTEST_ASSERT(testObj, foo(77));
+      BSLS_PROTOCOLTEST_ASSERT(testObj, bar("", ""));
 //..
 // These steps conclude the protocol testing.  If there are any failures, they
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
+      }
 
+      {
+///Example 2: Testing a Method Overloaded on 'const'ness
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we have a protocol that represent a sequence of integers.  Such a
+// protocol will have an overloaded 'operators'at()' method of both the 'const'
+// and the "mutable" variation.  In verification of such methods we need to
+// ensure that we verify *both* overloads of the 'virtual' function.
+//
+// First let's define the interesting parts of our imaginary sequence, the
+// overloaded 'at()' methods, and a virtual destructor to avoid warnings:
+//..
+//  struct IntSeqExample {
+//      // CREATORS
+//      virtual ~IntSeqExample() = 0;
+//
+//      // MANIPULATORS
+//      virtual int& at(bsl::size_t index) = 0;
+//
+//      // ACCESSORS
+//      virtual int at(bsl::size_t index) const = 0;
+//  };
+//
+//  IntSeqExample::~IntSeqExample()
+//  {
+//  }
+//..
+// Next, we define the test implementation as usual:
+//..
+//  struct IntSeqExampleTestImp : bsls::ProtocolTestImp<IntSeqExample> {
+//      static int s_int;
+//
+//      int& at(size_t)       { s_int = 4; markDone(); return s_int; }
+//      int  at(size_t) const { s_int = 2; return markDone();        }
+//  };
+//
+//  int IntSeqExampleTestImp::s_int = 0;
+//..
+// Note the use of a dummy variable to return a reference.  We also use that
+// variable, by giving it different values in the two overloads, to demonstrate
+// we that indeed will call both, and the expected one.
+//
+// Then, we test the non-'const' overload as usual:
+//..
+      bsls::ProtocolTest<IntSeqExampleTestImp> testObj(veryVerbose);
+      BSLS_PROTOCOLTEST_ASSERT(testObj, at(0));
+//..
+// Now, we can verify that we have indeed tested the non-'const' overload:
+//..
+      ASSERT(4 == IntSeqExampleTestImp::s_int);
+//..
+// Finally, we test 'at(size_t) const' and also verify that we indeed called
+// the intended overload.  Notice that we "force" the 'const' variant of the
+// method to be picked by specifying a 'const Implementation' type argument to
+// 'bsls::ProtocolTest':
+//..
+      bsls::ProtocolTest<const IntSeqExampleTestImp> test_OBJ(veryVerbose);
+      BSLS_PROTOCOLTEST_ASSERT(test_OBJ, at(0));
+
+      ASSERT(2 == IntSeqExampleTestImp::s_int);
+//..
+// Note that the assertion that verifies that the intended overload was called
+// is not strictly necessary, it is included for demonstration purposes.
+      }
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -381,6 +506,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //:  1 'BSLS_PROTOCOLTEST_ASSERT' reports no failures for protocol
         //:    methods satisfying method concerns.
+        //:
         //:  2 'BSLS_PROTOCOLTEST_ASSERT' report failures for protocol methods
         //:    that don't satisfy concerns.
         //
@@ -389,6 +515,7 @@ int main(int argc, char *argv[])
         //:    with methods that satisfy protocol method concerns and verify
         //:    that 'BSLS_PROTOCOLTEST_ASSERT' reports no failures for those
         //:    methods.
+        //:
         //:  2 Instantiate 'bsls::ProtocolTest' with a protocol class
         //:    with methods that don't satisfy protocol method concerns and
         //:    verify 'BSLS_PROTOCOLTEST_ASSERT' reports failures for those
@@ -399,29 +526,24 @@ int main(int argc, char *argv[])
         //   BSLS_PROTOCOLTEST_ASSERT
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING BSLS_PROTOCOLTEST_ASSERT MACRO\n"
-                            "======================================\n");
+        if (verbose) puts("BSLS_PROTOCOLTEST_ASSERT MACRO"
+                          "==============================");
 
-        if (veryVerbose) printf("\ttesting that the macro succeeds with a "
-                                "'good' protocol\n");
-
+        if (veryVerbose) puts("\tsucceeds with a 'good' protocol");
         {
             bsls::ProtocolTest<MyInterfaceTest> t;
             BSLS_PROTOCOLTEST_ASSERT(t, foo(int()));
             BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
         }
 
-        if (veryVerbose) printf("\ttesting the macro in verbose mode\n");
-
+        if (veryVerbose) puts("\tverbose mode\n");
         {
             bsls::ProtocolTest<MyInterfaceTest> t(veryVerbose);
             BSLS_PROTOCOLTEST_ASSERT(t, foo(int()));
             BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
         }
 
-        if (veryVerbose) printf("\ttesting that the macro fails with a "
-                                "'bad' protocol\n");
-
+        if (veryVerbose) puts("\tfails with a 'bad' protocol\n");
         {
             // suspend reporting of assert failures
             int oldTestStatus = testStatus;
@@ -447,7 +569,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING PROTOCOL METHOD TESTING APPARATUS
+        // PROTOCOL METHOD TESTING APPARATUS
         //
         // Concerns:
         //:  1 Protocol method calls from the test driver object indirectly
@@ -480,11 +602,10 @@ int main(int argc, char *argv[])
         //   Protocol method testing apparatus.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING PROTOCOL METHOD TESTING APPARATUS\n"
-                            "========================================\n");
+        if (verbose) puts("\nPROTOCOL METHOD TESTING APPARATUS"
+                          "\n=================================");
 
-        if (veryVerbose) printf("\ttesting 'good' protocol methods\n");
-
+        if (veryVerbose) puts("\t'good' protocol methods");
         {
             bsls::ProtocolTest<MyInterfaceTest> t;
 
@@ -497,9 +618,7 @@ int main(int argc, char *argv[])
             ASSERT(t.lastStatus());
         }
 
-        if (veryVerbose) printf("\ttesting that non-virtual protocol methods "
-                                "fail\n");
-
+        if (veryVerbose) puts("\tnon-virtual protocol methods fail");
         {
             bsls::ProtocolTest<MyInterfaceNonVirtualTest> t;
 
@@ -520,9 +639,7 @@ int main(int argc, char *argv[])
             ASSERT(t.lastStatus());
         }
 
-        if (veryVerbose) printf("\ttesting that non-public protocol methods "
-                                "fail\n");
-
+        if (veryVerbose) puts("\tnon-public protocol methods fail");
         {
             bsls::ProtocolTest<MyInterfaceNonPublicTest> t;
 
@@ -530,10 +647,8 @@ int main(int argc, char *argv[])
             // t->foo(int());
         }
 
-        if (veryVerbose) printf("\ttesting a special case of a method "
-                                "returning a reference to non-copyable "
-                                "object\n");
-
+        if (veryVerbose) puts("\tspecial case of a method returning a "
+                                           "reference to non-copyable object");
         {
             bsls::ProtocolTest<MyInterfaceNonCopyableReturnTest> t;
 
@@ -544,7 +659,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING PROTOCOL TEST BASE CLASS
+        // PROTOCOL TEST BASE CLASS
         //
         // Concerns:
         //:  1 An object derived from type 'bsls::ProtocolTestImp' can be
@@ -581,11 +696,10 @@ int main(int argc, char *argv[])
         //   markDoneVal();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING PROTOCOL TEST BASE CLASS\n"
-                            "================================\n");
+        if (verbose) puts("\nPROTOCOL TEST BASE CLASS"
+                          "\n========================");
 
-        if (veryVerbose) printf("\tnot calling 'markDone' fails the test\n");
-
+        if (veryVerbose) puts("\tnot calling 'markDone' fails the test");
         {
             bsls::ProtocolTest_Status testStatus;
             ASSERT(testStatus.failures() == 0);
@@ -599,8 +713,7 @@ int main(int argc, char *argv[])
             ASSERT(testStatus.failures() != 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'markDone' passes the test\n");
-
+        if (veryVerbose) puts("\tcalling 'markDone' passes the test");
         {
             bsls::ProtocolTest_Status testStatus;
             ASSERT(testStatus.failures() == 0);
@@ -615,8 +728,7 @@ int main(int argc, char *argv[])
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'markDoneRef' passes the test\n");
-
+        if (veryVerbose) puts("\tcalling 'markDoneRef' passes the test");
         {
             bsls::ProtocolTest_Status testStatus;
             ASSERT(testStatus.failures() == 0);
@@ -631,8 +743,7 @@ int main(int argc, char *argv[])
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'markDoneVal' passes the test\n");
-
+        if (veryVerbose) puts("\tcalling 'markDoneVal' passes the test");
         {
             bsls::ProtocolTest_Status testStatus;
             ASSERT(testStatus.failures() == 0);
@@ -647,27 +758,24 @@ int main(int argc, char *argv[])
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\t'markDone' has a proper return type "
-                                "(compile-time)\n");
-
+        if (veryVerbose) puts("\t'markDone' has a proper return type "
+                                                             "(compile-time)");
         {
             MyInterfaceTest testObj;
             bsls::ProtocolTest_MethodReturnType proxy = testObj.markDone();
-            (void) proxy;
+            (void)proxy;
         }
 
-        if (veryVerbose) printf("\t'markDoneRef' has a proper return type "
-                                "(compile-time)\n");
-
+        if (veryVerbose) puts("\t'markDoneRef' has a proper return type "
+                                                             "(compile-time)");
         {
             MyInterfaceTest testObj;
-            bsls::ProtocolTest_MethodReturnRefType proxy
-                                                       = testObj.markDoneRef();
-            (void) proxy;
+            bsls::ProtocolTest_MethodReturnRefType proxy =
+                                                         testObj.markDoneRef();
+            (void)proxy;
         }
 
-        if (veryVerbose) printf("\t'markDoneVal' has a proper return type\n");
-
+        if (veryVerbose) puts("\t'markDoneVal' has a proper return type");
         {
             MyInterfaceTest testObj;
             int r = testObj.markDoneVal(10);
@@ -677,7 +785,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING PRIVATE COMPONENT CLASSES
+        // PRIVATE COMPONENT CLASSES
         //
         // Concerns:
         //:  1 Private component classes behave according to their contract.
@@ -702,146 +810,136 @@ int main(int argc, char *argv[])
         //   class bsls::ProtocolTest_Dtor;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING PRIVATE COMPONENT CLASSES\n"
-                            "=================================\n");
+        if (verbose) puts("\nPRIVATE COMPONENT CLASSES"
+                          "\n=========================");
 
+        if (veryVerbose) puts("\tbsls_ProtocolTest_IsAbstract");
+
+        ASSERT(bsls::ProtocolTest_IsAbstract<MyInterface>::value);
+        ASSERT(!bsls::ProtocolTest_IsAbstract<NotAbstractInterface>::value);
+
+        if (veryVerbose) puts("\tbsls_ProtocolTest::operator->()");
         {
-            if (veryVerbose) printf("\tbsls_ProtocolTest_IsAbstract\n");
+            bsls::ProtocolTest_Status testStatus;
+            MyInterfaceTest testObj;
+            testObj.setTestStatus(&testStatus);
 
-            ASSERT(bsls::ProtocolTest_IsAbstract<MyInterface>::value);
-            ASSERT(
-                !bsls::ProtocolTest_IsAbstract<NotAbstractInterface>::value);
+            // verify that op->() returns a pointer to the protocol
+            ASSERT(static_cast<MyInterface *>(&testObj) ==
+                                                        testObj.operator->());
+        }
 
-            if (veryVerbose) printf("\tbsls_ProtocolTest::operator->()\n");
+        if (veryVerbose) puts("\tbsls_ProtocolTest_MethodReturnType "
+                                                             "(compile-time)");
+        {
+            // test the possibility of conversions to value/pointer types
+            int val                 = bsls::ProtocolTest_MethodReturnType();
+            int const & const_ref   = bsls::ProtocolTest_MethodReturnType();
+            int * ptr               = bsls::ProtocolTest_MethodReturnType();
+            int const * const_ptr   = bsls::ProtocolTest_MethodReturnType();
 
-            {
-                bsls::ProtocolTest_Status testStatus;
-                MyInterfaceTest testObj;
-                testObj.setTestStatus(&testStatus);
+            void * vptr             = bsls::ProtocolTest_MethodReturnType();
+            void const * const_vptr = bsls::ProtocolTest_MethodReturnType();
 
-                // verify that op->() returns a pointer to the protocol
-                ASSERT(static_cast<MyInterface *>(&testObj) ==
-                                                         testObj.operator->());
-            }
+            (void)val;
+            (void)const_ref;
+            (void)const_ptr;
+            (void)ptr;
+            (void)vptr;
+            (void)const_vptr;
+        }
 
-            if (veryVerbose) printf("\tbsls_ProtocolTest_MethodReturnType "
-                                    "(compile-time)\n");
-
-            {
-                // test the possibility of conversions to value/pointer types
-                int val                = bsls::ProtocolTest_MethodReturnType();
-                int const & const_ref  = bsls::ProtocolTest_MethodReturnType();
-                int * ptr              = bsls::ProtocolTest_MethodReturnType();
-                int const * const_ptr  = bsls::ProtocolTest_MethodReturnType();
-
-                void * vptr            = bsls::ProtocolTest_MethodReturnType();
-                void const * const_vptr
-                                       = bsls::ProtocolTest_MethodReturnType();
-
-                (void) val;
-                (void) const_ref;
-                (void) const_ptr;
-                (void) ptr;
-                (void) vptr;
-                (void) const_vptr;
-            }
-
-            if (veryVerbose) printf("\tbsls_ProtocolTest_MethodReturnRefType "
-                                    "(compile-time)\n");
-
-            {
-                // test the possibility of conversions to reference types
-                NonCopyable & ref = bsls::ProtocolTest_MethodReturnRefType();
-                NonCopyable const & const_ref =
+        if (veryVerbose) puts("\tbsls_ProtocolTest_MethodReturnRefType "
+                                                             "(compile-time)");
+        {
+            // test the possibility of conversions to reference types
+            NonCopyable& ref = bsls::ProtocolTest_MethodReturnRefType();
+            const NonCopyable& const_ref =
                                       bsls::ProtocolTest_MethodReturnRefType();
-                (void) ref;
-                (void) const_ref;
+            (void)ref;
+            (void)const_ref;
 
-                // test the possibility of conversions to abstract classes
+            // test the possibility of conversions to abstract classes
 
-                ProtocolClass& protocolRef =
+            ProtocolClass& protocolRef =
                                       bsls::ProtocolTest_MethodReturnRefType();
-                (void) protocolRef;
-            }
+            (void)protocolRef;
+        }
 
-            if (veryVerbose) printf("\tbsls_ProtocolTest_Status\n");
+        if (veryVerbose) puts("\tbsls_ProtocolTest_Status");
+        {
+            bsls::ProtocolTest_Status status;
+
+            // initially "it's all good" (tm)
+            ASSERT(status.failures() == 0);
+            ASSERT(status.last());
+
+            // simulate test failure
+            status.fail();
+            ASSERT(status.failures() == 1);
+            ASSERT(!status.last());
+
+            // prepare for the next test
+            status.resetLast();
+            ASSERT(status.failures() == 1);
+            ASSERT(status.last());
+
+            // fail the next test
+            status.fail();
+            ASSERT(status.failures() == 2);
+            ASSERT(!status.last());
+        }
+
+        if (veryVerbose) puts("\tbsls_ProtocolTest_Dtor");
+        {
+            if (veryVerbose) puts("\t\tpassing case");
+
+            bsls::ProtocolTest_Status status;
 
             {
-                bsls::ProtocolTest_Status status;
-
-                // initially "it's all good" (tm)
-                ASSERT(status.failures() == 0);
-                ASSERT(status.last());
-
-                // simulate test failure
-                status.fail();
-                ASSERT(status.failures() == 1);
-                ASSERT(!status.last());
-
-                // prepare for the next test
-                status.resetLast();
-                ASSERT(status.failures() == 1);
-                ASSERT(status.last());
-
-                // fail the next test
-                status.fail();
-                ASSERT(status.failures() == 2);
-                ASSERT(!status.last());
+                bsls::ProtocolTest_Dtor<MyInterfaceTest> dtorTest;
+                dtorTest.setTestStatus(&status);
+                dtorTest.markEnter();
             }
 
-            if (veryVerbose) printf("\tbsls_ProtocolTest_Dtor\n");
+            // if dtorTest destructor called 'markDone' then the test
+            // succeeded
 
-            {
-                if (veryVerbose) printf("\t\tpassing case\n");
-
-                bsls::ProtocolTest_Status status;
-
-                {
-                    bsls::ProtocolTest_Dtor<MyInterfaceTest> dtorTest;
-                    dtorTest.setTestStatus(&status);
-                    dtorTest.markEnter();
-                }
-
-                // if dtorTest destructor called 'markDone' then the test
-                // succeeded
-
-                ASSERT(status.failures() == 0);
-                ASSERT(status.last());
+            ASSERT(status.failures() == 0);
+            ASSERT(status.last());
 
 #ifndef BSLS_PLATFORM_CMP_CLANG
-                // this test is broken on Clang
+            // this test is broken on Clang TBD (afeher) how?  Why?
 
-                if (veryVerbose) printf("\t\tfailure case\n");
-
+            if (veryVerbose) puts("\t\tfailure case");
+            {
+                union InPlaceObject
                 {
-                    union InPlaceObject
-                    {
-                        char  buffer[
-                             sizeof(bsls::ProtocolTest_Dtor<MyInterfaceTest>)];
-                        void *alignment;
-                    };
+                    char  buffer[sizeof(
+                                    bsls::ProtocolTest_Dtor<MyInterfaceTest>)];
+                    void *alignment;
+                };
 
-                    InPlaceObject o;
+                InPlaceObject o;
 
-                    bsls::ProtocolTest_Dtor<MyInterfaceTest> * dtorTest =
-                        new (&o) bsls::ProtocolTest_Dtor<MyInterfaceTest>();
+                bsls::ProtocolTest_Dtor<MyInterfaceTest> * dtorTest =
+                           new (&o) bsls::ProtocolTest_Dtor<MyInterfaceTest>();
 
-                    dtorTest->markEnter();
-                    dtorTest->setTestStatus(&status);
-                    dtorTest->MyInterfaceTest::~MyInterfaceTest();
-                }
-
-                // dtorTest destructor is not called, the test 'failed'
-
-                ASSERT(status.failures() == 1);
-                ASSERT(!status.last());
-#endif
+                dtorTest->markEnter();
+                dtorTest->setTestStatus(&status);
+                dtorTest->MyInterfaceTest::~MyInterfaceTest();
             }
+
+            // dtorTest destructor is not called, the test 'failed'
+
+            ASSERT(status.failures() == 1);
+            ASSERT(!status.last());
+#endif
         }
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING MANIPULATORS
+        // MANIPULATORS
         //
         // Concerns:
         //:  1 'testAbstract' returns 'true' for an abstract class and 'false'
@@ -875,14 +973,12 @@ int main(int argc, char *argv[])
         //   bool testVirtualDestructor();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING MANIPULATORS\n"
-                            "====================\n");
+        if (verbose) puts("\nMANIPULATORS"
+                          "\n============");
 
-        if (veryVerbose) printf("\ttestAbstract()\n");
-
+        if (veryVerbose) puts("\ttestAbstract() with");
         {
-            if (veryVerbose) printf("\t\twith abstract class\n");
-
+            if (veryVerbose) puts("\t\tan abstract class");
             {
                 bsls::ProtocolTest<MyInterfaceTest> t;
                 ASSERT(t.testAbstract());
@@ -890,8 +986,7 @@ int main(int argc, char *argv[])
                 ASSERT(t.lastStatus());
             }
 
-            if (veryVerbose) printf("\t\twith non-abstract class\n");
-
+            if (veryVerbose) puts("\t\ta non-abstract class");
             {
                 bsls::ProtocolTest<NotAbstractInterfaceTest> t;
                 ASSERT(!t.testAbstract());
@@ -900,11 +995,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) printf("\ttestNoDataMembers()\n");
-
+        if (veryVerbose) puts("\ttestNoDataMembers() with");
         {
-            if (veryVerbose) printf("\t\twith protocol with no data fields\n");
-
+            if (veryVerbose) puts("\t\ta protocol with no data fields");
             {
                 bsls::ProtocolTest<MyInterfaceTest> t;
                 ASSERT(t.testNoDataMembers());
@@ -912,8 +1005,7 @@ int main(int argc, char *argv[])
                 ASSERT(t.lastStatus());
             }
 
-            if (veryVerbose) printf("\t\twith protocol with data fields\n");
-
+            if (veryVerbose) puts("\t\ta protocol with data fields");
             {
                 bsls::ProtocolTest<WithDataFieldsTest> t;
                 ASSERT(!t.testNoDataMembers());
@@ -922,12 +1014,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) printf("\ttestVirtualDestructor()\n");
-
+        if (veryVerbose) puts("\ttestVirtualDestructor() with");
         {
-            if (veryVerbose) printf("\t\twith protocol having a virtual "
-                                    "destructor\n");
-
+            if (veryVerbose) puts("\t\ta protocol having virtual destructor");
             {
                 bsls::ProtocolTest<MyInterfaceTest> t;
                 ASSERT(t.testVirtualDestructor());
@@ -935,15 +1024,13 @@ int main(int argc, char *argv[])
                 ASSERT(t.lastStatus());
             }
 
-            if (veryVerbose) printf("\t\twith protocol without a virtual "
-                                    "destructor\n");
-
+            if (veryVerbose) puts("\t\ta protocol without virtual destructor");
             {
                 bsls::ProtocolTest<NoVirtualDestructorTest> t;
 
                 // Note that the following call to 'testVirtualDestructor'
                 // generates an expected "-Wdelete-non-virtual-dtor" warning on
-                // gcc.  The warning is supressed using a diagnostic pragma
+                // gcc.  The warning is suppressed using a diagnostic pragma
                 // around the '#include' directive for 'bsls_protocoltest.h'
 
                 ASSERT(!t.testVirtualDestructor());
@@ -951,9 +1038,7 @@ int main(int argc, char *argv[])
                 ASSERT(!t.lastStatus());
             }
 
-            if (veryVerbose) printf("\t\twith protocol which has an operator "
-                                    "new\n");
-
+            if (veryVerbose) puts("\t\ta protocol having operator new");
             {
                 bsls::ProtocolTest<DummyAllocatorTest> t;
                 ASSERT(t.testVirtualDestructor());
@@ -962,8 +1047,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) printf("\tmanipulators in verbose mode\n");
-
+        if (veryVerbose) puts("\tmanipulators in verbose mode");
         {
             bsls::ProtocolTest<MyInterfaceTest> t(veryVerbose);
             ASSERT(t.testAbstract());
@@ -973,7 +1057,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING BASIC ACCESSORS
+        // BASIC ACCESSORS
         //
         // Concerns:
         //: 1 Each accessor return a value correctly describing the state of
@@ -990,8 +1074,8 @@ int main(int argc, char *argv[])
         //   bool lastStatus();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING BASIC ACCESSORS\n"
-                            "=======================\n");
+        if (verbose) puts("\nBASIC ACCESSORS"
+                          "\n===============");
 
         bsls::ProtocolTest<MyInterfaceTest> t;
 
@@ -1000,7 +1084,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CONSTRUCTORS AND DESTRUCTORS
+        // CONSTRUCTORS AND DESTRUCTORS
         //   Ensure that the classes in this component can be constructed and
         //   destructed.
         //
@@ -1017,8 +1101,8 @@ int main(int argc, char *argv[])
         //   ~bsls::ProtocolTest();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING CONSTRUCTORS AND DESTRUCTORS\n"
-                            "====================================\n");
+        if (verbose) puts("\nCONSTRUCTORS AND DESTRUCTORS"
+                          "\n============================");
 
         bsls::ProtocolTest<MyInterfaceTest> t;
         testStatus = t.failures();
@@ -1040,8 +1124,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) printf("BREATHING TEST\n"
-                            "==============\n");
+        if (verbose) puts("\nBREATHING TEST"
+                          "\n==============");
 
         bsls::ProtocolTest<MyInterfaceTest> t;
 
@@ -1054,7 +1138,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    (void) &WithDataFields::aPtr;    // silence unused warning
+    (void)&WithDataFields::aPtr;
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
