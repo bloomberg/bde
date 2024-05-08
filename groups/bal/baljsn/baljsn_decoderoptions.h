@@ -24,9 +24,9 @@ BSLS_IDENT("$Id: $")
 //  maxDepth                         int   32       >= 0
 //  skipUnknownElements              bool  true     none
 //  validateInputIsUtf8              bool  false    none
-//  allowConsecutiveSeparators       bool  false    none
-//  allowFormFeedAsWhitespace        bool  false    none
-//  allowUnescapedControlCharacters  bool  false    none
+//  allowConsecutiveSeparators       bool  true     none
+//  allowFormFeedAsWhitespace        bool  true     none
+//  allowUnescapedControlCharacters  bool  true     none
 //..
 //: o 'maxDepth': maximum depth of the decoded data
 //:
