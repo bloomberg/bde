@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jan 11 05:07:56 2024
+// Generated on Wed May  8 14:37:33 2024
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -905,6 +905,12 @@ namespace bsl {
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 template <class t_TYPE>
+void optional_acceptsBslOptional(const bsl::optional<t_TYPE>&);
+
+template <class t_TYPE>
+void optional_acceptsStdOptional(const std::optional<t_TYPE>&);
+
+template <class t_TYPE>
 concept Optional_ConvertibleToBool =
     // This component-private concept models the Standard's exposition-only
     // 'boolean-testable' concept.
@@ -914,16 +920,14 @@ template <class t_TYPE>
 concept Optional_DerivedFromBslOptional =
     // This component-private concept is used in the subsequent implementation
     // of the component-private concept 'Optional_DerivedFromOptional'.
-    requires(const t_TYPE &t) {
-        []<class U>(const bsl::optional<U>&){}(t);
-    };
+    requires (const t_TYPE& t) { optional_acceptsBslOptional(t); };
+
 template <class t_TYPE>
 concept Optional_DerivedFromStdOptional =
     // This component-private concept is used in the subsequent implementation
     // of the component-private concept 'Optional_DerivedFromOptional'.
-    requires(const t_TYPE &t) {
-        []<class U>(const std::optional<U>&){}(t);
-    };
+    requires (const t_TYPE& t) { optional_acceptsStdOptional(t); };
+
 template <class t_TYPE>
 concept Optional_DerivedFromOptional =
     // This component-private concept models whether a type is derived from one
