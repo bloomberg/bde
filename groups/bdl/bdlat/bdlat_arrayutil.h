@@ -287,11 +287,7 @@ int ArrayUtil::accessElementByCategory(const TYPE& array,
                                        int         index)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-#  ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
-      BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::VALUE));
-#  else
-      BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::value));
-#  endif
+    BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::value));
 #endif
     BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(array) ==
                 bdlat_TypeCategory::e_ARRAY_CATEGORY);
@@ -310,11 +306,7 @@ int ArrayUtil::manipulateElementByCategory(TYPE         *array,
                                            int           index)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-#  ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
-      BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::VALUE));
-#  else
-      BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::value));
-#  endif
+    BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::value));
 #endif
     BSLS_ASSERT(array);
     BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(*array) ==

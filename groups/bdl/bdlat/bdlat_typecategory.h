@@ -941,12 +941,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
-#ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
-#define BDLAT_IC_VALUE VALUE
-#else
-#define BDLAT_IC_VALUE value
-#endif
-
 namespace BloombergLP {
 
                          // =======================================
@@ -1039,17 +1033,17 @@ struct bdlat_TypeCategory {
 
       private:
         static const int k_IS_ARRAY =
-                           bdlat_ArrayFunctions::IsArray<TYPE>::BDLAT_IC_VALUE;
+                           bdlat_ArrayFunctions::IsArray<TYPE>::value;
         static const int k_IS_CHOICE =
-                         bdlat_ChoiceFunctions::IsChoice<TYPE>::BDLAT_IC_VALUE;
+                         bdlat_ChoiceFunctions::IsChoice<TYPE>::value;
         static const int k_IS_CUSTOMIZED_TYPE =
-         bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::BDLAT_IC_VALUE;
+         bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::value;
         static const int k_IS_ENUMERATION =
-                      bdlat_EnumFunctions::IsEnumeration<TYPE>::BDLAT_IC_VALUE;
+                      bdlat_EnumFunctions::IsEnumeration<TYPE>::value;
         static const int k_IS_NULLABLE_VALUE =
-           bdlat_NullableValueFunctions::IsNullableValue<TYPE>::BDLAT_IC_VALUE;
+           bdlat_NullableValueFunctions::IsNullableValue<TYPE>::value;
         static const int k_IS_SEQUENCE =
-                     bdlat_SequenceFunctions::IsSequence<TYPE>::BDLAT_IC_VALUE;
+                     bdlat_SequenceFunctions::IsSequence<TYPE>::value;
         static const int k_NUM_CATEGORIES = k_IS_ARRAY
                                           + k_IS_CHOICE
                                           + k_IS_CUSTOMIZED_TYPE
@@ -1058,7 +1052,7 @@ struct bdlat_TypeCategory {
                                           + k_IS_SEQUENCE;
         static const int k_IS_DYNAMIC =
                         k_NUM_CATEGORIES > 1
-                     || bdlat_TypeCategoryDeclareDynamic<TYPE>::BDLAT_IC_VALUE;
+                     || bdlat_TypeCategoryDeclareDynamic<TYPE>::value;
 
       public:
         enum {
@@ -1577,7 +1571,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateArray(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename bsl::conditional<
-        bdlat_ArrayFunctions::IsArray<TYPE>::BDLAT_IC_VALUE,
+        bdlat_ArrayFunctions::IsArray<TYPE>::value,
         bdlat_TypeCategory::Array,
         bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
@@ -1590,7 +1584,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateChoice(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename bsl::conditional<
-        bdlat_ChoiceFunctions::IsChoice<TYPE>::BDLAT_IC_VALUE,
+        bdlat_ChoiceFunctions::IsChoice<TYPE>::value,
         bdlat_TypeCategory::Choice,
         bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
@@ -1603,7 +1597,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateCustomizedType(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename bsl::conditional<
-        bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::BDLAT_IC_VALUE,
+        bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::value,
         bdlat_TypeCategory::CustomizedType,
         bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
@@ -1616,7 +1610,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateEnumeration(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename bsl::conditional<
-        bdlat_EnumFunctions::IsEnumeration<TYPE>::BDLAT_IC_VALUE,
+        bdlat_EnumFunctions::IsEnumeration<TYPE>::value,
         bdlat_TypeCategory::Enumeration,
         bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
@@ -1629,7 +1623,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateNullableValue(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename bsl::conditional<
-        bdlat_NullableValueFunctions::IsNullableValue<TYPE>::BDLAT_IC_VALUE,
+        bdlat_NullableValueFunctions::IsNullableValue<TYPE>::value,
         bdlat_TypeCategory::NullableValue,
         bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
@@ -1642,7 +1636,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateSequence(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename bsl::conditional<
-        bdlat_SequenceFunctions::IsSequence<TYPE>::BDLAT_IC_VALUE,
+        bdlat_SequenceFunctions::IsSequence<TYPE>::value,
         bdlat_TypeCategory::Sequence,
         bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
@@ -1671,7 +1665,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessArray(
                                                           ACCESSOR&   accessor)
 {
     typedef typename bsl::conditional<
-        bdlat_ArrayFunctions::IsArray<TYPE>::BDLAT_IC_VALUE,
+        bdlat_ArrayFunctions::IsArray<TYPE>::value,
         bdlat_TypeCategory::Array,
         bslmf::Nil>::type Tag;
     return accessor(object, Tag());
@@ -1684,7 +1678,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessChoice(
                                                           ACCESSOR&   accessor)
 {
     typedef typename bsl::conditional<
-        bdlat_ChoiceFunctions::IsChoice<TYPE>::BDLAT_IC_VALUE,
+        bdlat_ChoiceFunctions::IsChoice<TYPE>::value,
         bdlat_TypeCategory::Choice,
         bslmf::Nil>::type Tag;
     return accessor(object, Tag());
@@ -1697,7 +1691,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessCustomizedType(
                                                           ACCESSOR&   accessor)
 {
     typedef typename bsl::conditional<
-        bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::BDLAT_IC_VALUE,
+        bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::value,
         bdlat_TypeCategory::CustomizedType,
         bslmf::Nil>::type Tag;
     return accessor(object, Tag());
@@ -1710,7 +1704,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessEnumeration(
                                                           ACCESSOR&   accessor)
 {
     typedef typename bsl::conditional<
-        bdlat_EnumFunctions::IsEnumeration<TYPE>::BDLAT_IC_VALUE,
+        bdlat_EnumFunctions::IsEnumeration<TYPE>::value,
         bdlat_TypeCategory::Enumeration,
         bslmf::Nil>::type Tag;
     return accessor(object, Tag());
@@ -1723,7 +1717,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessNullableValue(
                                                           ACCESSOR&   accessor)
 {
     typedef typename bsl::conditional<
-        bdlat_NullableValueFunctions::IsNullableValue<TYPE>::BDLAT_IC_VALUE,
+        bdlat_NullableValueFunctions::IsNullableValue<TYPE>::value,
         bdlat_TypeCategory::NullableValue,
         bslmf::Nil>::type Tag;
     return accessor(object, Tag());
@@ -1736,7 +1730,7 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessSequence(
                                                           ACCESSOR&   accessor)
 {
     typedef typename bsl::conditional<
-        bdlat_SequenceFunctions::IsSequence<TYPE>::BDLAT_IC_VALUE,
+        bdlat_SequenceFunctions::IsSequence<TYPE>::value,
         bdlat_TypeCategory::Sequence,
         bslmf::Nil>::type Tag;
     return accessor(object, Tag());
@@ -1777,8 +1771,6 @@ bdlat_TypeCategoryFunctions::bdlat_typeCategorySelect(const TYPE&)
 }
 
 }  // close enterprise namespace
-
-#undef BDLAT_IC_VALUE
 
 #endif
 

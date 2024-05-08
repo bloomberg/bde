@@ -290,11 +290,7 @@ template <class TYPE>
 int EnumUtil::fromIntOrFallbackIfEnabled(TYPE *result, int number)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-#  ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
-      BSLMF_ASSERT((bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE));
-#  else
-      BSLMF_ASSERT((bdlat_EnumFunctions::IsEnumeration<TYPE>::value));
-#  endif
+    BSLMF_ASSERT((bdlat_EnumFunctions::IsEnumeration<TYPE>::value));
 #endif
 
     if (0 == bdlat_EnumFunctions::fromInt(result, number)) {
@@ -310,11 +306,7 @@ int EnumUtil::fromStringOrFallbackIfEnabled(TYPE       *result,
                                             int         stringLength)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-#  ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
-      BSLMF_ASSERT((bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE));
-#  else
-      BSLMF_ASSERT((bdlat_EnumFunctions::IsEnumeration<TYPE>::value));
-#  endif
+    BSLMF_ASSERT((bdlat_EnumFunctions::IsEnumeration<TYPE>::value));
 #endif
 
     if (0 == bdlat_EnumFunctions::fromString(result, string, stringLength)) {
