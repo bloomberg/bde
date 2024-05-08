@@ -4860,8 +4860,8 @@ DEFINE_TEST_CASE(2) {
                                  bslalg::TypeTraitUsesBslmaAllocator>::value));
         }
 
-        typedef NoAllocTestType        *FUNC;
-        typedef bdlf::Bind_Tuple1<PH1>  ListType;
+        typedef NoAllocTestType           *FUNC;
+        typedef bdlf::Bind_ArgTuple1<PH1>  ListType;
 
         if (verbose) printf("\tAsserting traits of 'bdlf::Bind'.\n");
         {
