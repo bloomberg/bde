@@ -2001,6 +2001,11 @@ int BerUtil_DatetimeImpUtil::getExtendedBinaryDatetimeValue(
     bdlt::ProlepticDateImpUtil::serialToYmd(
         &year, &month, &day, daysSince0001Jan01);
 
+    // Make sure that the date actually exists before trying to create it
+    if (!bdlt::SerialDateImpUtil::isValidYearMonthDay(year, month, day)) {
+        return -1;                                                    // RETURN
+    }
+
     const bdlt::Date date(year, month, day);
 
     bsls::Types::Int64 microsecondsSinceMidnight;
@@ -2201,6 +2206,11 @@ int BerUtil_DatetimeImpUtil::getExtendedBinaryDatetimeTzValue(
     int day;
     bdlt::ProlepticDateImpUtil::serialToYmd(
         &year, &month, &day, daysSince0001Jan01);
+
+    // Make sure that Date think it's actually valid before trying to create it
+    if (!bdlt::SerialDateImpUtil::isValidYearMonthDay(year, month, day)) {
+        return -1;                                                    // RETURN
+    }
 
     const bdlt::Date date(year, month, day);
 

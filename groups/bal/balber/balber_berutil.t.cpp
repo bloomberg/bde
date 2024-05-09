@@ -2105,8 +2105,8 @@ int ByteBufferUtil::loadBuffer(int        *numBytesWritten,
 
         switch (state) {
           case e_NEEDS_HIGH_NIBBLE: {
-              stateHighNibble = static_cast<unsigned char>(currentNibble << 4);
-              state           = e_NEEDS_LOW_NIBBLE;
+            stateHighNibble = static_cast<unsigned char>(currentNibble << 4);
+            state           = e_NEEDS_LOW_NIBBLE;
           } break;
           case e_NEEDS_LOW_NIBBLE: {
             const char byte =
@@ -2369,72 +2369,72 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(float *value)
 
     switch (*d_iterator++ % k_NUM_VALUE_CATEGORIES) {
       case e_NEGATIVE_INFINITY: {
-          *value = -bsl::numeric_limits<float>::infinity();
-          BSLS_ASSERT(bdlb::Float::isInfinite(*value));
-          BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
+        *value = -bsl::numeric_limits<float>::infinity();
+        BSLS_ASSERT(bdlb::Float::isInfinite(*value));
+        BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_NEGATIVE_ZERO: {
-          *value = 0.f * -1.f;
-          BSLS_ASSERT(bdlb::Float::isZero(*value));
-          BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
+        *value = 0.f * -1.f;
+        BSLS_ASSERT(bdlb::Float::isZero(*value));
+        BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_POSITIVE_ZERO: {
-          *value = 0.f;
-          BSLS_ASSERT(bdlb::Float::isZero(*value));
-          BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
+        *value = 0.f;
+        BSLS_ASSERT(bdlb::Float::isZero(*value));
+        BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
       } break;
       case e_POSITIVE_INFINITY: {
-          *value = bsl::numeric_limits<float>::infinity();
-          BSLS_ASSERT(bdlb::Float::isInfinite(*value));
-          BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
+        *value = bsl::numeric_limits<float>::infinity();
+        BSLS_ASSERT(bdlb::Float::isInfinite(*value));
+        BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
       } break;
       case e_SNAN: {
-          BSLMF_ASSERT(bsl::numeric_limits<float>::has_signaling_NaN);
-          *value = bsl::numeric_limits<float>::signaling_NaN();
-          // Some platforms do not support signaling NaN values and may
-          // implicitly convert such values to non-signaling NaN values.
-          //BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
+        BSLMF_ASSERT(bsl::numeric_limits<float>::has_signaling_NaN);
+        *value = bsl::numeric_limits<float>::signaling_NaN();
+        // Some platforms do not support signaling NaN values and may
+        // implicitly convert such values to non-signaling NaN values.
+        //BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
       } break;
       case e_QNAN: {
-          BSLMF_ASSERT(bsl::numeric_limits<float>::has_quiet_NaN);
-          *value = bsl::numeric_limits<float>::quiet_NaN();
-          BSLS_ASSERT(bdlb::Float::isQuietNan(*value));
+        BSLMF_ASSERT(bsl::numeric_limits<float>::has_quiet_NaN);
+        *value = bsl::numeric_limits<float>::quiet_NaN();
+        BSLS_ASSERT(bdlb::Float::isQuietNan(*value));
       } break;
       case e_SUBNORMAL: {
-          static const float minSubnormal = 1.4012984E-45f;
+        static const float minSubnormal = 1.4012984E-45f;
 
-          int mantissa;
-          this->operator()(&mantissa);
-          mantissa %= 1 << 22;
+        int mantissa;
+        this->operator()(&mantissa);
+        mantissa %= 1 << 22;
 
-          *value = static_cast<float>(mantissa) * minSubnormal;
-          BSLS_ASSERT(bdlb::Float::isSubnormal(*value));
+        *value = static_cast<float>(mantissa) * minSubnormal;
+        BSLS_ASSERT(bdlb::Float::isSubnormal(*value));
       } break;
       case e_NORMAL: {
-          int mantissa;
-          this->operator()(&mantissa);
-          mantissa %= 1 << 23;
+        int mantissa;
+        this->operator()(&mantissa);
+        mantissa %= 1 << 23;
 
-          int mantissaExponent;
-          float floatMantissa = bsl::frexp(static_cast<float>(mantissa),
-                                           &mantissaExponent);
-          BSLS_ASSERT(floatMantissa >= 0
-                      ?  0.5f <= floatMantissa
-                      : -0.5f >= floatMantissa);
-          BSLS_ASSERT(floatMantissa >= 0
-                      ?  1.0f >= floatMantissa
-                      : -1.0f <= floatMantissa);
+        int mantissaExponent;
+        float floatMantissa = bsl::frexp(static_cast<float>(mantissa),
+                                         &mantissaExponent);
+        BSLS_ASSERT(floatMantissa >= 0
+                    ?  0.5f <= floatMantissa
+                    : -0.5f >= floatMantissa);
+        BSLS_ASSERT(floatMantissa >= 0
+                    ?  1.0f >= floatMantissa
+                    : -1.0f <= floatMantissa);
 
-          unsigned char exponent;
-          this->operator()(&exponent);
+        unsigned char exponent;
+        this->operator()(&exponent);
 
-          const int integerExponent = static_cast<int>(exponent % 253) - 125;
-          BSLS_ASSERT(-125 <= integerExponent);
-          BSLS_ASSERT( 127 >= integerExponent);
+        const int integerExponent = static_cast<int>(exponent % 253) - 125;
+        BSLS_ASSERT(-125 <= integerExponent);
+        BSLS_ASSERT( 127 >= integerExponent);
 
-          *value = bsl::ldexp(floatMantissa, integerExponent);
+        *value = bsl::ldexp(floatMantissa, integerExponent);
 
-          BSLS_ASSERT(bdlb::Float::isNormal(*value));
+        BSLS_ASSERT(bdlb::Float::isNormal(*value));
       } break;
     }
 }
@@ -2457,72 +2457,72 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(double *value)
 
     switch (*d_iterator++ % k_NUM_VALUE_CATEGORIES) {
       case e_NEGATIVE_INFINITY: {
-          *value = -bsl::numeric_limits<double>::infinity();
-          BSLS_ASSERT(bdlb::Float::isInfinite(*value));
-          BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
+        *value = -bsl::numeric_limits<double>::infinity();
+        BSLS_ASSERT(bdlb::Float::isInfinite(*value));
+        BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_NEGATIVE_ZERO: {
-          *value = 0.0 * -1.0;
-          BSLS_ASSERT(bdlb::Float::isZero(*value));
-          BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
+        *value = 0.0 * -1.0;
+        BSLS_ASSERT(bdlb::Float::isZero(*value));
+        BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_POSITIVE_ZERO: {
-          *value = 0.0;
-          BSLS_ASSERT(bdlb::Float::isZero(*value));
-          BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
+        *value = 0.0;
+        BSLS_ASSERT(bdlb::Float::isZero(*value));
+        BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
       } break;
       case e_POSITIVE_INFINITY: {
-          *value = bsl::numeric_limits<double>::infinity();
-          BSLS_ASSERT(bdlb::Float::isInfinite(*value));
-          BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
+        *value = bsl::numeric_limits<double>::infinity();
+        BSLS_ASSERT(bdlb::Float::isInfinite(*value));
+        BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
       } break;
       case e_SNAN: {
-          BSLMF_ASSERT(bsl::numeric_limits<double>::has_signaling_NaN);
-          *value = bsl::numeric_limits<double>::signaling_NaN();
-          // Some platforms do not support signaling NaN values and may
-          // implicitly convert such values to non-signaling NaN values.
-          //BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
+        BSLMF_ASSERT(bsl::numeric_limits<double>::has_signaling_NaN);
+        *value = bsl::numeric_limits<double>::signaling_NaN();
+        // Some platforms do not support signaling NaN values and may
+        // implicitly convert such values to non-signaling NaN values.
+        //BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
       } break;
       case e_QNAN: {
-          BSLMF_ASSERT(bsl::numeric_limits<double>::has_quiet_NaN);
-          *value = bsl::numeric_limits<double>::quiet_NaN();
-          BSLS_ASSERT(bdlb::Float::isQuietNan(*value));
+        BSLMF_ASSERT(bsl::numeric_limits<double>::has_quiet_NaN);
+        *value = bsl::numeric_limits<double>::quiet_NaN();
+        BSLS_ASSERT(bdlb::Float::isQuietNan(*value));
       } break;
       case e_SUBNORMAL: {
-          static const double minSubnormal = 4.950656458412E-324;
+        static const double minSubnormal = 4.950656458412E-324;
 
-          bsls::Types::Int64 mantissa;
-          this->operator()(&mantissa);
-          mantissa %= 1ll << 52;
+        bsls::Types::Int64 mantissa;
+        this->operator()(&mantissa);
+        mantissa %= 1ll << 52;
 
-          *value = static_cast<double>(mantissa) * minSubnormal;
-          BSLS_ASSERT(bdlb::Float::isSubnormal(*value));
+        *value = static_cast<double>(mantissa) * minSubnormal;
+        BSLS_ASSERT(bdlb::Float::isSubnormal(*value));
       } break;
       case e_NORMAL: {
-          bsls::Types::Int64 mantissa;
-          this->operator()(&mantissa);
-          mantissa %= 1ll << 53;
+        bsls::Types::Int64 mantissa;
+        this->operator()(&mantissa);
+        mantissa %= 1ll << 53;
 
-          int mantissaExponent;
-          double doubleMantissa = bsl::frexp(static_cast<double>(mantissa),
-                                             &mantissaExponent);
-          BSLS_ASSERT(doubleMantissa >= 0
-                      ?  0.5 <= doubleMantissa
-                      : -0.5 >= doubleMantissa);
-          BSLS_ASSERT(doubleMantissa >= 0
-                      ?  1.0 >= doubleMantissa
-                      : -1.0 <= doubleMantissa);
+        int mantissaExponent;
+        double doubleMantissa = bsl::frexp(static_cast<double>(mantissa),
+                                           &mantissaExponent);
+        BSLS_ASSERT(doubleMantissa >= 0
+                    ?  0.5 <= doubleMantissa
+                    : -0.5 >= doubleMantissa);
+        BSLS_ASSERT(doubleMantissa >= 0
+                    ?  1.0 >= doubleMantissa
+                    : -1.0 <= doubleMantissa);
 
-          unsigned int exponent;
-          this->operator()(&exponent);
+        unsigned int exponent;
+        this->operator()(&exponent);
 
-          const int integerExponent = static_cast<int>(exponent % 2045) - 1021;
-          BSLS_ASSERT(-1022 <= integerExponent);
-          BSLS_ASSERT( 1023 >= integerExponent);
+        const int integerExponent = static_cast<int>(exponent % 2045) - 1021;
+        BSLS_ASSERT(-1022 <= integerExponent);
+        BSLS_ASSERT( 1023 >= integerExponent);
 
-          *value = bsl::ldexp(doubleMantissa, integerExponent);
+        *value = bsl::ldexp(doubleMantissa, integerExponent);
 
-          BSLS_ASSERT(bdlb::Float::isNormal(*value));
+        BSLS_ASSERT(bdlb::Float::isNormal(*value));
       } break;
     }
 }
@@ -2797,14 +2797,12 @@ void loadRandomValue(bdlb::Variant2<TYPE, TYPETZ> *value, LOADER& loader)
 
     switch (RandomValueUtil::generate<bool>(loader)) {
       case e_TYPE: {
-          value->template createInPlace<TYPE>();
-          RandomValueUtil::load(&value->template the<TYPE>(),
-                                loader);
+        value->template createInPlace<TYPE>();
+        RandomValueUtil::load(&value->template the<TYPE>(), loader);
       } break;
       case e_TYPETZ: {
-          value->template createInPlace<TYPETZ>();
-          RandomValueUtil::load(&value->template the<TYPETZ>(),
-                                loader);
+        value->template createInPlace<TYPETZ>();
+        RandomValueUtil::load(&value->template the<TYPETZ>(), loader);
       } break;
     }
 }
@@ -4390,7 +4388,7 @@ void checksumAppend(CHECKSUM_ALGORITHM&        checksumAlg,
                 &streamBuf, randomValueLoader, encoderOptions);
           } break;
           default: {
-            BSLS_ASSERT_OPT(!"Unreachable");
+            BSLS_ASSERT_OPT(0 == "Unreachable");
             return;                                                   // RETURN
           } break;
         }
@@ -4869,7 +4867,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           default: {
-            BSLS_ASSERT_OPT(!"Unreachable");
+            BSLS_ASSERT_OPT(0 == "Unreachable");
             return;                                                   // RETURN
           } break;
         }
@@ -5136,23 +5134,23 @@ void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
     switch (bdldfp::DecimalUtil::decompose(
         &sign, &significand, &exponent, value)) {
       case FP_NAN: {
-          classification = 0;
+        classification = 0;
       } break;
       case FP_INFINITE: {
-          classification = 1;
+        classification = 1;
       } break;
       case FP_SUBNORMAL: {
-          classification = 2;
+        classification = 2;
       } break;
       case FP_ZERO: {
-          classification = 3;
+        classification = 3;
       } break;
       case FP_NORMAL: {
-          classification = 4;
+        classification = 4;
       } break;
       default: {
-          BSLS_ASSERT(!"Unreachable");
-          return;                                                     // RETURN
+        BSLS_ASSERT(0 == "Unreachable");
+        return;                                                       // RETURN
       } break;
     }
 
@@ -5238,13 +5236,13 @@ void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
 
     switch (typeIndex) {
       case 1: {
-          checksumAppend(checksum, value.template the<VALUE_1>());
+        checksumAppend(checksum, value.template the<VALUE_1>());
       } break;
       case 2: {
-          checksumAppend(checksum, value.template the<VALUE_2>());
+        checksumAppend(checksum, value.template the<VALUE_2>());
       } break;
       default: {
-          BSLS_ASSERT(0 == typeIndex);
+        BSLS_ASSERT(0 == typeIndex);
       } break;
     }
 }
@@ -8672,31 +8670,30 @@ int main(int argc, char *argv[])
 
                 switch (SELECTION) {
                   case TIME: {
-                      LOOP1_ASSERT(LINE, timeOrTimeTz.is<bdlt::Time>());
-                      if (!timeOrTimeTz.is<bdlt::Time>()) continue; // CONTINUE
+                    LOOP1_ASSERT(LINE, timeOrTimeTz.is<bdlt::Time>());
+                    if (!timeOrTimeTz.is<bdlt::Time>()) continue;   // CONTINUE
 
-                      const bdlt::Time& TIME = timeOrTimeTz.the<bdlt::Time>();
-                      LOOP1_ASSERT_EQ(LINE, HOUR, TIME.hour());
-                      LOOP1_ASSERT_EQ(LINE, MINUTE, TIME.minute());
-                      LOOP1_ASSERT_EQ(LINE, SECOND, TIME.second());
-                      LOOP1_ASSERT_EQ(LINE, MILLISECOND, TIME.millisecond());
-                      LOOP1_ASSERT_EQ(LINE, MICROSECOND, TIME.microsecond());
+                    const bdlt::Time& TIME = timeOrTimeTz.the<bdlt::Time>();
+                    LOOP1_ASSERT_EQ(LINE, HOUR, TIME.hour());
+                    LOOP1_ASSERT_EQ(LINE, MINUTE, TIME.minute());
+                    LOOP1_ASSERT_EQ(LINE, SECOND, TIME.second());
+                    LOOP1_ASSERT_EQ(LINE, MILLISECOND, TIME.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, MICROSECOND, TIME.microsecond());
                   } break;
                   case TIMETZ: {
-                      LOOP1_ASSERT(LINE, timeOrTimeTz.is<bdlt::TimeTz>());
-                      if (!timeOrTimeTz.is<bdlt::TimeTz>()) continue;
-                                                                    // CONTINUE
+                    LOOP1_ASSERT(LINE, timeOrTimeTz.is<bdlt::TimeTz>());
+                    if (!timeOrTimeTz.is<bdlt::TimeTz>()) continue; // CONTINUE
 
-                      const bdlt::TimeTz& TIMETZ =
-                          timeOrTimeTz.the<bdlt::TimeTz>();
-                      const bdlt::Time& TIME = TIMETZ.localTime();
+                    const bdlt::TimeTz& TIMETZ =
+                        timeOrTimeTz.the<bdlt::TimeTz>();
+                    const bdlt::Time& TIME = TIMETZ.localTime();
 
-                      LOOP1_ASSERT_EQ(LINE, HOUR, TIME.hour());
-                      LOOP1_ASSERT_EQ(LINE, MINUTE, TIME.minute());
-                      LOOP1_ASSERT_EQ(LINE, SECOND, TIME.second());
-                      LOOP1_ASSERT_EQ(LINE, MILLISECOND, TIME.millisecond());
-                      LOOP1_ASSERT_EQ(LINE, MICROSECOND, TIME.microsecond());
-                      LOOP1_ASSERT_EQ(LINE, OFFSET, TIMETZ.offset());
+                    LOOP1_ASSERT_EQ(LINE, HOUR, TIME.hour());
+                    LOOP1_ASSERT_EQ(LINE, MINUTE, TIME.minute());
+                    LOOP1_ASSERT_EQ(LINE, SECOND, TIME.second());
+                    LOOP1_ASSERT_EQ(LINE, MILLISECOND, TIME.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, MICROSECOND, TIME.microsecond());
+                    LOOP1_ASSERT_EQ(LINE, OFFSET, TIMETZ.offset());
                   } break;
                 }
             }
@@ -8998,7 +8995,10 @@ int main(int argc, char *argv[])
 
               { L_, "0A  80 00  37 B9 DA  00 00 00 00 00"    , true  , true  },
               { L_, "0A  80 00  37 B9 DB  00 00 00 00 00"    , false , false },
-              { L_, "0A  80 00  FF FF FF  00 00 00 00 00"    , false , false }
+              { L_, "0A  80 00  FF FF FF  00 00 00 00 00"    , false , false },
+
+              // DRQS 175207012 ASSERT_SAFE during 'DatetimeTZ' decoding
+              { L_, "0A  90 01  09 C3 2D"                    , false , false },
             };
 
             static const char NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
@@ -9572,6 +9572,9 @@ int main(int argc, char *argv[])
                 { L_, "0A  80 00  37 B9 DA  00 00 00 00 00"    , true  },
                 { L_, "0A  80 00  37 B9 DB  00 00 00 00 00"    , false },
                 { L_, "0A  80 00  FF FF FF  00 00 00 00 00"    , false },
+
+                // DRQS 175207012 ASSERT_SAFE during 'DatetimeTZ' decoding
+                { L_, "0A  90 01  09 C3 2D"                    , false },
             };
 
             static const char NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
@@ -10504,7 +10507,6 @@ int main(int argc, char *argv[])
 
             LOOP1_ASSERT_EQ(LINE, md5FingerprintString, MD5);
         }
-
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -10972,58 +10974,57 @@ int main(int argc, char *argv[])
 
             switch (TYPE) {
               case TIME: {
-                  LOOP1_ASSERT(LINE,  value.is<bdlt::Time>());
-                  LOOP1_ASSERT(LINE, !value.is<bdlt::TimeTz>());
+                LOOP1_ASSERT(LINE,  value.is<bdlt::Time>());
+                LOOP1_ASSERT(LINE, !value.is<bdlt::TimeTz>());
 
-                  if (value.is<bdlt::TimeTz>()) {
-                      const bdlt::TimeTz& error = value.the<bdlt::TimeTz>();
-                      const bdlt::Time&   errorLocalTime = error.localTime();
-                      const int           errorOffset    = error.offset();
+                if (value.is<bdlt::TimeTz>()) {
+                    const bdlt::TimeTz& error = value.the<bdlt::TimeTz>();
+                    const bdlt::Time&   errorLocalTime = error.localTime();
+                    const int           errorOffset    = error.offset();
 
-                      LOOP1_ASSERT_NE(LINE, HOUR, errorLocalTime.hour());
-                      LOOP1_ASSERT_NE(LINE, MINUTE, errorLocalTime.minute());
-                      LOOP1_ASSERT_NE(LINE, SECOND, errorLocalTime.second());
-                      LOOP1_ASSERT_NE(
-                          LINE, MILLISECOND, errorLocalTime.millisecond());
-                      LOOP1_ASSERT_NE(LINE, OFFSET, errorOffset);
-                  }
+                    LOOP1_ASSERT_NE(LINE, HOUR, errorLocalTime.hour());
+                    LOOP1_ASSERT_NE(LINE, MINUTE, errorLocalTime.minute());
+                    LOOP1_ASSERT_NE(LINE, SECOND, errorLocalTime.second());
+                    LOOP1_ASSERT_NE(
+                              LINE, MILLISECOND, errorLocalTime.millisecond());
+                    LOOP1_ASSERT_NE(LINE, OFFSET, errorOffset);
+                }
 
-                  if (!value.is<bdlt::Time>()) continue;            // CONTINUE
+                if (!value.is<bdlt::Time>()) continue;              // CONTINUE
 
-                  const bdlt::Time& time = value.the<bdlt::Time>();
+                const bdlt::Time& time = value.the<bdlt::Time>();
 
-                  LOOP1_ASSERT_EQ(LINE, HOUR, time.hour());
-                  LOOP1_ASSERT_EQ(LINE, MINUTE, time.minute());
-                  LOOP1_ASSERT_EQ(LINE, SECOND, time.second());
-                  LOOP1_ASSERT_EQ(LINE, MILLISECOND, time.millisecond());
+                LOOP1_ASSERT_EQ(LINE, HOUR, time.hour());
+                LOOP1_ASSERT_EQ(LINE, MINUTE, time.minute());
+                LOOP1_ASSERT_EQ(LINE, SECOND, time.second());
+                LOOP1_ASSERT_EQ(LINE, MILLISECOND, time.millisecond());
               } break;
               case TIMETZ: {
-                  LOOP1_ASSERT(LINE, !value.is<bdlt::Time>());
-                  LOOP1_ASSERT(LINE,  value.is<bdlt::TimeTz>());
+                LOOP1_ASSERT(LINE, !value.is<bdlt::Time>());
+                LOOP1_ASSERT(LINE,  value.is<bdlt::TimeTz>());
 
-                  if (value.is<bdlt::Time>()) {
-                      const bdlt::Time& error = value.the<bdlt::Time>();
+                if (value.is<bdlt::Time>()) {
+                    const bdlt::Time& error = value.the<bdlt::Time>();
 
-                      LOOP1_ASSERT_EQ(LINE, HOUR, error.hour());
-                      LOOP1_ASSERT_EQ(LINE, MINUTE, error.minute());
-                      LOOP1_ASSERT_NE(LINE, SECOND, error.second());
-                      LOOP1_ASSERT_NE(LINE, MILLISECOND, error.millisecond());
-                  }
+                    LOOP1_ASSERT_EQ(LINE, HOUR, error.hour());
+                    LOOP1_ASSERT_EQ(LINE, MINUTE, error.minute());
+                    LOOP1_ASSERT_NE(LINE, SECOND, error.second());
+                    LOOP1_ASSERT_NE(LINE, MILLISECOND, error.millisecond());
+                }
 
-                  if (!value.is<bdlt::TimeTz>()) continue;          // CONTINUE
+                if (!value.is<bdlt::TimeTz>()) continue;            // CONTINUE
 
-                  const bdlt::TimeTz& timeTz = value.the<bdlt::TimeTz>();
+                const bdlt::TimeTz& timeTz = value.the<bdlt::TimeTz>();
 
-                  LOOP1_ASSERT_EQ(LINE, HOUR, timeTz.localTime().hour());
-                  LOOP1_ASSERT_EQ(LINE, MINUTE, timeTz.localTime().minute());
-                  LOOP1_ASSERT_EQ(LINE, SECOND, timeTz.localTime().second());
-                  LOOP1_ASSERT_EQ(
-                      LINE, MILLISECOND, timeTz.localTime().millisecond());
-                  LOOP1_ASSERT_EQ(LINE, OFFSET, timeTz.offset());
+                LOOP1_ASSERT_EQ(LINE, HOUR, timeTz.localTime().hour());
+                LOOP1_ASSERT_EQ(LINE, MINUTE, timeTz.localTime().minute());
+                LOOP1_ASSERT_EQ(LINE, SECOND, timeTz.localTime().second());
+                LOOP1_ASSERT_EQ(
+                          LINE, MILLISECOND, timeTz.localTime().millisecond());
+                LOOP1_ASSERT_EQ(LINE, OFFSET, timeTz.offset());
               } break;
             }
         }
-
       } break;
       case 22: {
         // --------------------------------------------------------------------
