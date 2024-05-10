@@ -189,7 +189,9 @@ void TestBasicConstructors()
         bsl::span<int, 5> psS(&arr[5], 5);
         bsl::span<int>    psD(&arr[3], 3);
 
-#ifdef TEST_SPAN_NOEXCEPT
+// MSVC erroneously reports these constructors as noexcept.  The trigger
+// appears to be declaring them as 'constexpr'.
+#if defined(TEST_SPAN_NOEXCEPT) && !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT(!noexcept(bsl::span<int, 5>(&arr[5], 5)));
         ASSERT(!noexcept(bsl::span<int   >(&arr[5], 5)));
 #endif
@@ -205,10 +207,13 @@ void TestBasicConstructors()
         bsl::span<int, 5> ppS(&arr[5], &arr[10]);
         bsl::span<int>    ppD(&arr[3], &arr[6]);
 
-#ifdef TEST_SPAN_NOEXCEPT
+// MSVC erroneously reports these constructors as noexcept.  The trigger
+// appears to be declaring them as 'constexpr'.
+#if defined(TEST_SPAN_NOEXCEPT) && !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT(!noexcept(bsl::span<int, 5>(&arr[5], &arr[10])));
         ASSERT(!noexcept(bsl::span<int   >(&arr[3], &arr[6])));
 #endif
+
         ASSERT(&arr[5] == ppS.data());
         ASSERT(5       == ppS.size());
         ASSERT(&arr[3] == ppD.data());
