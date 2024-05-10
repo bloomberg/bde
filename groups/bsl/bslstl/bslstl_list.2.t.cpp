@@ -2314,7 +2314,7 @@ void TestDriver2<TYPE,ALLOC>::test28_sortComp()
             s_spec[j] = SPECS[i][LENGTH - j - 1];
         }
         s_spec[LENGTH] = '\0';
-        const char* const S_SPEC = s_spec;    // (reverse) sorted spec.
+        const char * const S_SPEC = s_spec;    // (reverse) sorted spec.
 
         char spec[MAX_SPEC_LEN + 1];
         std::strcpy(spec, S_SPEC);
@@ -2378,7 +2378,7 @@ void TestDriver2<TYPE,ALLOC>::test28_sortComp()
             xi = X.begin();
             for (int j = 0; j < LENGTH; ++j) {
                 // Find index of iterator in saved iterator array
-                const_iterator* p = std::find(save_iters,
+                const_iterator *p = std::find(save_iters,
                                               save_iters + LENGTH,
                                               xi);
                 ptrdiff_t       save_idx = p - save_iters;
@@ -2493,7 +2493,7 @@ void TestDriver2<TYPE,ALLOC>::test28_sortComp()
         // unspecified in the case of an exception, and is thus not tested.
         for (xi = X.begin(); xi != X.end(); ++xi) {
             // Find index of iterator in saved iterator array
-            const_iterator* p = std::find(save_iters,
+            const_iterator *p = std::find(save_iters,
                                           save_iters + EH_SPEC_LEN,
                                           xi);
             ptrdiff_t       save_idx = p - save_iters;
@@ -2618,8 +2618,8 @@ void TestDriver2<TYPE,ALLOC>::test28_sortNoComp()
     if (verbose) printf("Testing sort()\n");
 
     for (int i = 0; i < NUM_SPECS; ++i) {
-        const char* const S_SPEC = SPECS[i];  // Sorted spec.
-        const int         LENGTH = static_cast<int>(std::strlen(S_SPEC));
+        const char * const S_SPEC = SPECS[i];  // Sorted spec.
+        const int          LENGTH = static_cast<int>(std::strlen(S_SPEC));
         ASSERT(MAX_SPEC_LEN >= LENGTH);
 
         char spec[MAX_SPEC_LEN + 1];
@@ -2671,7 +2671,7 @@ void TestDriver2<TYPE,ALLOC>::test28_sortNoComp()
             xi = X.begin();
             for (int j = 0; j < LENGTH; ++j) {
                 // Find index of iterator in saved iterator array
-                const_iterator* p = std::find(save_iters,
+                const_iterator *p = std::find(save_iters,
                                               save_iters + LENGTH,
                                               xi);
                 long            save_idx = p - save_iters;
@@ -2788,10 +2788,10 @@ void TestDriver2<TYPE,ALLOC>::test27_mergeComp()
         }
         for (SortedSpecGen xgen; xgen; ++xgen) {
             for (SortedSpecGen ygen; ygen; ++ygen) {
-                const char* const X_SPEC     = xgen.reverse_spec();
-                const int         X_SPEC_LEN = xgen.len();
-                const char* const Y_SPEC     = ygen.reverse_spec();
-                const int         Y_SPEC_LEN = ygen.len();
+                const char * const X_SPEC     = xgen.reverse_spec();
+                const int          X_SPEC_LEN = xgen.len();
+                const char * const Y_SPEC     = ygen.reverse_spec();
+                const int          Y_SPEC_LEN = ygen.len();
 
                 Obj mX(xoa);  const Obj& X = gg(&mX, X_SPEC);
                 Obj mY(xoa);  const Obj& Y = gg(&mY, Y_SPEC);
@@ -3027,7 +3027,7 @@ void TestDriver2<TYPE,ALLOC>::test27_mergeComp()
             char prev_val = 'Z';
             for (const_iterator xi = X.begin(); xi != X.end(); ++xi) {
                 // Find index of iterator in saved iterator array
-                const_iterator* p = std::find(save_iters,
+                const_iterator *p = std::find(save_iters,
                                               save_iters + MERGED_SPEC_LEN,
                                               xi);
                 ptrdiff_t       save_idx = p - save_iters;
@@ -3047,7 +3047,7 @@ void TestDriver2<TYPE,ALLOC>::test27_mergeComp()
             prev_val = 'Z';
             for (const_iterator yi = Y.begin(); yi != Y.end(); ++yi) {
                 // Find index of iterator in saved iterator array
-                const_iterator* p = std::find(save_iters,
+                const_iterator *p = std::find(save_iters,
                                               save_iters + MERGED_SPEC_LEN,
                                               yi);
                 ptrdiff_t       save_idx = p - save_iters;
@@ -3144,8 +3144,8 @@ void TestDriver2<TYPE,ALLOC>::test27_mergeNoComp()
         bool first5X = true;
 
         for (SortedSpecGen xgen; xgen; ++xgen) {
-            const char* const X_SPEC     = xgen.spec();
-            const int         X_SPEC_LEN = xgen.len();
+            const char * const X_SPEC     = xgen.spec();
+            const int          X_SPEC_LEN = xgen.len();
 
             if (5 == X_SPEC_LEN && first5X) {
                 first5X = false;
@@ -3157,8 +3157,8 @@ void TestDriver2<TYPE,ALLOC>::test27_mergeNoComp()
             bool first5Y = true;
 
             for (SortedSpecGen ygen; ygen; ++ygen) {
-                const char* const Y_SPEC     = ygen.spec();
-                const int         Y_SPEC_LEN = ygen.len();
+                const char * const Y_SPEC     = ygen.spec();
+                const int          Y_SPEC_LEN = ygen.len();
 
                 if (5 == Y_SPEC_LEN && first5Y) {
                     first5Y = false;
@@ -3541,6 +3541,8 @@ void TestDriver2<TYPE,ALLOC>::test25_remove()
     //:   remain valid after removal.
     //:
     //: 8 The non-'E' elements retain their relative order.
+    //:
+    //: 9 The methods return the number of removed elements.
     //
     // Plan:
     //: 1 For concern 1, perform the same tests for both 'remove' and
@@ -3565,6 +3567,7 @@ void TestDriver2<TYPE,ALLOC>::test25_remove()
     //:   o The iterating over the remaining elements produces a sequence of
     //:     values and iterators matching those saved before the remove
     //:     operation.
+    //:   o The return value was indeed the number of removed elements.
     //
     // Testing:
     //   void remove(const T& val);
@@ -3579,7 +3582,7 @@ void TestDriver2<TYPE,ALLOC>::test25_remove()
 
     // Specifications from 0 to 10 elements long, none of which have the value
     // 'E'.
-    const char* const SPECS[] = {
+    const char * const SPECS[] = {
         "", "A", "AB", "ABA", "ABCD", "AAAA", "ABCDF", "ABCDFGHDAB"
     };
 
@@ -3607,8 +3610,8 @@ void TestDriver2<TYPE,ALLOC>::test25_remove()
         }
 
         for (int i = 0; i < NUM_SPECS; ++i) {
-            const char* const SPEC = SPECS[i];
-            const int         LEN  = static_cast<int>(std::strlen(SPEC));
+            const char * const SPEC = SPECS[i];
+            const int          LEN  = static_cast<int>(std::strlen(SPEC));
 
             ASSERT(MAX_SPEC_LEN >= LEN);
 
@@ -3657,9 +3660,14 @@ void TestDriver2<TYPE,ALLOC>::test25_remove()
 
                 if (veryVeryVerbose) { T_; printf("Before: "); P_(X); }
 
+                size_t removedCount = static_cast<size_t>(-1);
                 switch (op) {
-                  case OP_REMOVE:    mX.remove(E);           break;
-                  case OP_REMOVE_IF: mX.remove_if(VPred(E)); break;
+                  case OP_REMOVE: {
+                    removedCount = mX.remove(E);
+                  }  break;
+                  case OP_REMOVE_IF: {
+                    removedCount = mX.remove_if(VPred(E));
+                  } break;
                 }
 
                 if (veryVeryVerbose) { printf("After: "); P(X); }
@@ -3672,6 +3680,11 @@ void TestDriver2<TYPE,ALLOC>::test25_remove()
                                          numCopyCtorCalls);
                 const int ASSIGN_AFTER = numAssignmentCalls;
                 const int DTORS_AFTER  = numDestructorCalls;
+
+                // Verify the return value (number of removed elements)
+                ASSERTV(SPEC, res_spec,
+                        removedCount, LEN, X.size(),
+                        LEN - X.size() == removedCount);
 
                 // Test result value
                 ASSERTV(SPEC, res_spec, X, checkIntegrity(X, res_len));
@@ -3699,7 +3712,6 @@ void TestDriver2<TYPE,ALLOC>::test25_remove()
                     ASSERTV(SPEC, res_spec,
                             DTORS_AFTER == DTORS_BEFORE + (LEN-res_len));
                 }
-
             } // end for (mask)
         } // end for (i)
     } // end for (op)
@@ -3747,7 +3759,7 @@ void TestDriver2<TYPE,ALLOC>::test24_splice()
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
     ALLOC                xoa(&oa);
 
-    const char* const SPECS[] = {
+    const char * const SPECS[] = {
         "", "A", "AB", "ABC", "ABCD", "ABCDE"
     };
 
@@ -3793,10 +3805,10 @@ void TestDriver2<TYPE,ALLOC>::test24_splice()
         }
 
         for (int i = 0; i < NUM_SPECS * NUM_SPECS; ++i) {
-            const char* const X_SPEC = SPECS[i / NUM_SPECS ];
-            const int         X_LEN  = static_cast<int>(std::strlen(X_SPEC));
-            const char* const Y_SPEC = SPECS[i % NUM_SPECS ];
-            const int         Y_LEN  = static_cast<int>(std::strlen(Y_SPEC));
+            const char * const X_SPEC = SPECS[i / NUM_SPECS ];
+            const int          X_LEN  = static_cast<int>(std::strlen(X_SPEC));
+            const char * const Y_SPEC = SPECS[i % NUM_SPECS ];
+            const int          Y_LEN  = static_cast<int>(std::strlen(Y_SPEC));
 
             if (veryVerbose) { P_(X_SPEC); P(Y_SPEC); }
 
@@ -3839,15 +3851,15 @@ void TestDriver2<TYPE,ALLOC>::test24_splice()
 
                         // iterators and pointers to elements -- BEFORE
                         iterator    BX_iters[MAX_SPEC_LEN + 1];
-                        const TYPE* BX_ptrs[MAX_SPEC_LEN];
+                        const TYPE *BX_ptrs[MAX_SPEC_LEN];
                         iterator    BY_iters[MAX_SPEC_LEN + 1];
-                        const TYPE* BY_ptrs[MAX_SPEC_LEN];
+                        const TYPE *BY_ptrs[MAX_SPEC_LEN];
 
                         // iterators and pointers to elements -- AFTER
                         iterator    AX_iters[2*MAX_SPEC_LEN + 1];
-                        const TYPE* AX_ptrs[2*MAX_SPEC_LEN];
+                        const TYPE *AX_ptrs[2*MAX_SPEC_LEN];
                         iterator    AY_iters[MAX_SPEC_LEN + 1];
-                        const TYPE* AY_ptrs[MAX_SPEC_LEN];
+                        const TYPE *AY_ptrs[MAX_SPEC_LEN];
 
                         // Save iterators and pointers into BEFORE arrays
                         iterator xi = mX.begin();
@@ -4028,8 +4040,8 @@ void TestDriver2<TYPE,ALLOC>::test23_reverse()
 
     struct {
         int         d_line;
-        const char* d_specBefore_p;
-        const char* d_specAfter_p;
+        const char *d_specBefore_p;
+        const char *d_specAfter_p;
     } const DATA[] = {
         { L_, "",           ""              },
         { L_, "A",          "A"             },
@@ -5052,7 +5064,7 @@ void TestDriver2<TYPE,ALLOC>::test18_erase()
     // Iterate through the operations
     for (int op = TEST_FIRST; op < TEST_LAST; ++op) {
 
-        const char* opname = "<unknown>";
+        const char *opname = "<unknown>";
 
         switch (op) {
             case TEST_ERASE1:      opname = "erase(iterator)";           break;

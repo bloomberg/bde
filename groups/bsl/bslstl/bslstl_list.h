@@ -1642,13 +1642,14 @@ class list {
         // provided by 'comparator', and unless both 'other' and this list use
         // the same allocator.
 
-    void remove(const value_type& value);
-        // Erase all the elements having the specified 'value' from this list.
+    size_type remove(const value_type& value);
+        // Erase all the elements having the specified 'value' from this list
+        // and return the number of erased elements.
 
     template <class PREDICATE>
-    void remove_if(PREDICATE predicate);
-        // Remove and destroy all elements in this list for which the specified
-        // unary 'predicate' returns 'true'.
+    size_type remove_if(PREDICATE predicate);
+        // Erase all the elements in this list for which the specified unary
+        // 'predicate' returns 'true' and return the number of erased elements.
 
     void reverse() BSLS_KEYWORD_NOEXCEPT;
         // Reverse the order of the elements in this list.
@@ -3093,8 +3094,10 @@ void list<VALUE, ALLOCATOR>::merge(
 }
 
 template <class VALUE, class ALLOCATOR>
-void list<VALUE, ALLOCATOR>::remove(const VALUE& value)
+typename list<VALUE, ALLOCATOR>::size_type
+list<VALUE, ALLOCATOR>::remove(const VALUE& value)
 {
+    const size_type origSize = this->size();
     const const_iterator e = cend();
     for (const_iterator i = cbegin(); e != i; ) {
         // Standard says to use 'operator==', not 'std::equal_to'.
@@ -3106,12 +3109,16 @@ void list<VALUE, ALLOCATOR>::remove(const VALUE& value)
             ++i;
         }
     }
+
+    return origSize - this->size();
 }
 
 template <class VALUE, class ALLOCATOR>
 template <class PREDICATE>
-void list<VALUE, ALLOCATOR>::remove_if(PREDICATE predicate)
+typename list<VALUE, ALLOCATOR>::size_type
+list<VALUE, ALLOCATOR>::remove_if(PREDICATE predicate)
 {
+    const size_type origSize = this->size();
     const iterator e = end();
     for (iterator i = begin(); e != i; ) {
         if (predicate(*i)) {
@@ -3121,6 +3128,8 @@ void list<VALUE, ALLOCATOR>::remove_if(PREDICATE predicate)
             ++i;
         }
     }
+
+    return origSize - this->size();
 }
 
 template <class VALUE, class ALLOCATOR>
