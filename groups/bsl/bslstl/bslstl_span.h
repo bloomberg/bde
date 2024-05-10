@@ -409,7 +409,7 @@ class span {
         // Destroy this object.
 
     // ACCESSORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 reference back() const BSLS_KEYWORD_NOEXCEPT
+    BSLS_KEYWORD_CONSTEXPR_CPP14 reference back() const
         // Return a reference to the last element of this span.  The behavior
         // is undefined if this span is empty.
     {
@@ -427,19 +427,19 @@ class span {
 
     template <size_t COUNT>
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    span<element_type, COUNT> first() const BSLS_KEYWORD_NOEXCEPT;
+    span<element_type, COUNT> first() const;
         // Return a statically-sized span consisting of the first 'COUNT'
         // elements of this span.  The behavior is undefined unless
         // 'COUNT <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
-    first(size_type count) const BSLS_KEYWORD_NOEXCEPT;
+    first(size_type count) const;
         // Return a dynamically-sized span consisting of the first (specified)
         // 'count' elements of this span.  The behavior is undefined unless
         // 'count <= size()'.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 reference front() const BSLS_KEYWORD_NOEXCEPT
+    BSLS_KEYWORD_CONSTEXPR_CPP14 reference front() const
         // Return a reference to the first element of this span.  The behavior
         // is undefined if this span is empty.
     {
@@ -450,14 +450,14 @@ class span {
 
     template <size_t COUNT>
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    span<element_type, COUNT> last() const BSLS_KEYWORD_NOEXCEPT;
+    span<element_type, COUNT> last() const;
         // Return a statically-sized span consisting of the last 'COUNT'
         // elements of this span.  The behavior is undefined unless
         // 'COUNT <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
-    last(size_type count) const BSLS_KEYWORD_NOEXCEPT;
+    last(size_type count) const;
         // Return a dynamically-sized span consisting of the last (specified)
         // 'count' elements of this span.  The behavior is undefined unless
         // 'count <= size()'.
@@ -480,7 +480,7 @@ class span {
 #endif
     BSLS_KEYWORD_CONSTEXPR_CPP14
     typename Span_Utility::SubspanReturnType<TYPE, EXTENT, COUNT, OFFSET>::type
-    subspan() const BSLS_KEYWORD_NOEXCEPT
+    subspan() const
         // If the template parameter 'COUNT' is 'dynamic_extent', return a
         // dynamically-sized span consisting consisting of the elements of this
         // span in the half-open range '[OFFSET, EXTENT)'.  Otherwise, return a
@@ -501,8 +501,7 @@ class span {
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
-    subspan(size_type offset, size_type count = dynamic_extent)
-                                                   const BSLS_KEYWORD_NOEXCEPT;
+    subspan(size_type offset, size_type count = dynamic_extent) const;
         // Return a dynamically-sized span starting at the specified 'offset'.
         // If the optionally specified 'count' is 'dynamic_extent', the span
         // will consist of the half-open range '[offset, size () - offset)' and
@@ -511,7 +510,7 @@ class span {
         // behavior is undefined if 'offset + count > size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    reference operator[](size_type index) const BSLS_KEYWORD_NOEXCEPT
+    reference operator[](size_type index) const
         // Return a reference to the element at the specified 'index'.  The
         // behavior is undefined unless 'index < size()'.
     {
@@ -736,7 +735,7 @@ class span<TYPE, dynamic_extent> {
         // Destroy this object.
 
     // ACCESSORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 reference back() const BSLS_KEYWORD_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR_CPP14 reference back() const;
         // Return a reference to the last element of this span.  The behavior
         // is undefined if this span is empty.
 
@@ -748,32 +747,32 @@ class span<TYPE, dynamic_extent> {
 
     template <size_t COUNT>
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    span<element_type, COUNT> first() const BSLS_KEYWORD_NOEXCEPT;
+    span<element_type, COUNT> first() const;
         // Return a statically-sized span consisting of the first 'COUNT'
         // elements of this span.  The behavior is undefined unless
         // 'COUNT <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
-    first(size_type count) const BSLS_KEYWORD_NOEXCEPT;
+    first(size_type count) const;
         // Return a dynamically-sized span consisting of the first (specified)
         // 'count' elements of this span.  The behavior is undefined unless
         // 'count <= size()'.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 reference front() const BSLS_KEYWORD_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR_CPP14 reference front() const;
         // Return a reference to the first element of this span.  The behavior
         // is undefined if this span is empty.
 
     template <size_t COUNT>
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    span<element_type, COUNT> last() const BSLS_KEYWORD_NOEXCEPT;
+    span<element_type, COUNT> last() const;
         // Return a statically-sized span consisting of the last 'COUNT'
         // elements of this span.  The behavior is undefined unless
         // 'COUNT <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
-    last(size_type count) const BSLS_KEYWORD_NOEXCEPT;
+    last(size_type count) const;
         // Return a dynamically-sized span consisting of the last (specified)
         // 'count' elements of this span.  The behavior is undefined unless
         // 'count <= size()'.
@@ -791,14 +790,13 @@ class span<TYPE, dynamic_extent> {
               size_t COUNT>
 #endif
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    span<element_type, COUNT> subspan() const BSLS_KEYWORD_NOEXCEPT;
+    span<element_type, COUNT> subspan() const;
         // Return a dynamically-sized span consisting of the 'COUNT' elements
         // of this span starting at 'OFFSET'.  The behavior is undefined unless
         // 'COUNT + OFFSET <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14 span<element_type, dynamic_extent>
-    subspan(size_type offset, size_type count = dynamic_extent)
-                                                   const BSLS_KEYWORD_NOEXCEPT;
+    subspan(size_type offset, size_type count = dynamic_extent) const;
         // Return a dynamically-sized span starting at the specified 'offset'.
         // If the optionally specified 'count' is 'dynamic_extent', the span
         // will consist of the half-open range '[offset, size () - offset)' and
@@ -807,7 +805,7 @@ class span<TYPE, dynamic_extent> {
         // behavior is undefined unless 'offset + count <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    reference operator[](size_type index) const BSLS_KEYWORD_NOEXCEPT;
+    reference operator[](size_type index) const;
         // Return a reference to the element at the specified 'index'.  The
         // behavior is undefined unless 'index < size()'.
 
@@ -1084,7 +1082,7 @@ template <class TYPE, size_t EXTENT>
 template <size_t COUNT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, COUNT>
-bsl::span<TYPE, EXTENT>::first() const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, EXTENT>::first() const
 {
     typedef bsl::span<TYPE, COUNT> ReturnType;
     BSLMF_ASSERT(COUNT <= EXTENT);
@@ -1094,7 +1092,7 @@ bsl::span<TYPE, EXTENT>::first() const BSLS_KEYWORD_NOEXCEPT
 template <class TYPE, size_t EXTENT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>
-bsl::span<TYPE, EXTENT>::first(size_type count) const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, EXTENT>::first(size_type count) const
 {
     typedef bsl::span<TYPE, bsl::dynamic_extent> ReturnType;
     BSLS_ASSERT(count <= size());
@@ -1105,7 +1103,7 @@ template <class TYPE, size_t EXTENT>
 template <size_t COUNT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, COUNT>
-bsl::span<TYPE, EXTENT>::last() const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, EXTENT>::last() const
 {
     typedef bsl::span<TYPE, COUNT> ReturnType;
     BSLMF_ASSERT(COUNT <= EXTENT);
@@ -1115,7 +1113,7 @@ bsl::span<TYPE, EXTENT>::last() const BSLS_KEYWORD_NOEXCEPT
 template <class TYPE, size_t EXTENT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>
-bsl::span<TYPE, EXTENT>::last(size_type count) const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, EXTENT>::last(size_type count) const
 {
     typedef bsl::span<TYPE, bsl::dynamic_extent> ReturnType;
     BSLS_ASSERT(count <= size());
@@ -1134,7 +1132,6 @@ template <class TYPE, size_t EXTENT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>
 bsl::span<TYPE, EXTENT>::subspan(size_type offset, size_type count) const
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
     typedef bsl::span<TYPE, bsl::dynamic_extent> ReturnType;
     BSLS_ASSERT(offset <= size());
@@ -1384,7 +1381,7 @@ bsl::span<TYPE, bsl::dynamic_extent>::span(
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 typename bsl::span<TYPE, bsl::dynamic_extent>::reference
-bsl::span<TYPE, bsl::dynamic_extent>::back() const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, bsl::dynamic_extent>::back() const
 {
     BSLS_ASSERT(size() > 0);
     return d_data_p[size() - 1];
@@ -1410,7 +1407,7 @@ template <class TYPE>
 template <size_t COUNT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, COUNT>
-bsl::span<TYPE, bsl::dynamic_extent>::first() const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, bsl::dynamic_extent>::first() const
 {
     typedef bsl::span<TYPE, COUNT> ReturnType;
     BSLS_ASSERT(COUNT <= size());
@@ -1421,7 +1418,6 @@ template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>
 bsl::span<TYPE, bsl::dynamic_extent>::first(size_type count) const
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
     typedef bsl::span<TYPE, bsl::dynamic_extent> ReturnType;
     BSLS_ASSERT(count <= size());
@@ -1431,7 +1427,7 @@ bsl::span<TYPE, bsl::dynamic_extent>::first(size_type count) const
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 typename bsl::span<TYPE, bsl::dynamic_extent>::reference
-bsl::span<TYPE, bsl::dynamic_extent>::front() const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, bsl::dynamic_extent>::front() const
 {
     BSLS_ASSERT(size() > 0);
     return d_data_p[0];
@@ -1441,7 +1437,7 @@ template <class TYPE>
 template <size_t COUNT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, COUNT>
-bsl::span<TYPE, bsl::dynamic_extent>::last() const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, bsl::dynamic_extent>::last() const
 {
     typedef bsl::span<TYPE, COUNT> ReturnType;
     BSLS_ASSERT(COUNT <= size());
@@ -1452,7 +1448,6 @@ template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>
 bsl::span<TYPE, bsl::dynamic_extent>::last(size_type count) const
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
     typedef bsl::span<TYPE, bsl::dynamic_extent> ReturnType;
     BSLS_ASSERT(count <= size());
@@ -1480,7 +1475,7 @@ template <class TYPE>
 template <size_t OFFSET, size_t COUNT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, COUNT>
-bsl::span<TYPE, bsl::dynamic_extent>::subspan() const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, bsl::dynamic_extent>::subspan() const
 {
     typedef bsl::span<TYPE, COUNT> ReturnType;
     BSLS_ASSERT(OFFSET <= size());
@@ -1492,9 +1487,8 @@ bsl::span<TYPE, bsl::dynamic_extent>::subspan() const BSLS_KEYWORD_NOEXCEPT
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>
-bsl::span<TYPE, bsl::dynamic_extent>::subspan(
-                                   size_type offset,
-                                   size_type count) const BSLS_KEYWORD_NOEXCEPT
+bsl::span<TYPE, bsl::dynamic_extent>::subspan(size_type offset,
+                                              size_type count) const
 {
     typedef bsl::span<TYPE, bsl::dynamic_extent> ReturnType;
     BSLS_ASSERT(offset <= size());
@@ -1510,7 +1504,6 @@ template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 typename bsl::span<TYPE, bsl::dynamic_extent>::reference
 bsl::span<TYPE, bsl::dynamic_extent>::operator[](size_type index) const
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
     BSLS_ASSERT(index < size());
     return d_data_p[index];
