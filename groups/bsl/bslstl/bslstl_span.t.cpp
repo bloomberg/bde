@@ -117,6 +117,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// We want to test the 'noexcept'-ness of the functions in span, but only if
+// (a) we can test them, and (b) we're not using 'std::span'.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+# ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#  define TEST_SPAN_NOEXCEPT
+# endif
+#endif
+
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -165,7 +173,7 @@ void TestBasicConstructors()
         bsl::span<int, 0> defS;
         bsl::span<int>    defD;
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(bsl::span<int, 0>()));
         ASSERT( noexcept(bsl::span<int   >()));
 #endif
@@ -181,7 +189,7 @@ void TestBasicConstructors()
         bsl::span<int, 5> psS(&arr[5], 5);
         bsl::span<int>    psD(&arr[3], 3);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT(!noexcept(bsl::span<int, 5>(&arr[5], 5)));
         ASSERT(!noexcept(bsl::span<int   >(&arr[5], 5)));
 #endif
@@ -197,7 +205,7 @@ void TestBasicConstructors()
         bsl::span<int, 5> ppS(&arr[5], &arr[10]);
         bsl::span<int>    ppD(&arr[3], &arr[6]);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT(!noexcept(bsl::span<int, 5>(&arr[5], &arr[10])));
         ASSERT(!noexcept(bsl::span<int   >(&arr[3], &arr[6])));
 #endif
@@ -212,7 +220,7 @@ void TestBasicConstructors()
         bsl::span<int, 10> arrS(arr);
         bsl::span<int>     arrD(arr);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(bsl::span<int, 10>(arr)));
         ASSERT( noexcept(bsl::span<int    >(arr)));
 #endif
@@ -232,7 +240,7 @@ void TestBasicConstructors()
         bsl::span<const int>    sD1b(sS);
         bsl::span<const int, 3> sS2a(sD);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(bsl::span<const int, 5>(sS)));
         ASSERT( noexcept(bsl::span<const int   >(sS)));
         ASSERT( noexcept(bsl::span<const int, 3>(sD)));
@@ -257,7 +265,7 @@ void TestBasicConstructors()
         bsl::span<int>    psD1a(psD);
         bsl::span<int>    psD1b(psS);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(bsl::span<int, 5>(psS)));
         ASSERT( noexcept(bsl::span<int   >(psS)));
         ASSERT( noexcept(bsl::span<int   >(psD)));
@@ -278,7 +286,7 @@ void TestBasicConstructors()
         psD2a = psD;
         psD2b = psS;
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(psS2  = psS));
         ASSERT( noexcept(psD2a = psD));
         ASSERT( noexcept(psD2b = psS));
@@ -315,7 +323,7 @@ void TestContainerConstructors()
         bsl::span<int, 10> arrS(arr);
         bsl::span<int>     arrD(arr);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(bsl::span<int, 10>(arr)));
         ASSERT( noexcept(bsl::span<int>    (arr)));
 #endif
@@ -331,7 +339,7 @@ void TestContainerConstructors()
         bsl::span<const int, 10> carrS(cArr);
         bsl::span<const int>     carrD(cArr);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(bsl::span<const int, 10>(cArr)));
         ASSERT( noexcept(bsl::span<const int>    (cArr)));
 #endif
@@ -356,7 +364,7 @@ void TestContainerConstructors()
         bsl::span<int, 10> arrS(sArr);
         bsl::span<int>     arrD(sArr);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(bsl::span<int, 10>(sArr)));
         ASSERT( noexcept(bsl::span<int>    (sArr)));
 #endif
@@ -372,7 +380,7 @@ void TestContainerConstructors()
         bsl::span<const int, 10> carrS(cSArr);
         bsl::span<const int>     carrD(cSArr);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT( noexcept(bsl::span<const int, 10>(cSArr)));
         ASSERT( noexcept(bsl::span<const int>    (cSArr)));
 #endif
@@ -392,7 +400,7 @@ void TestContainerConstructors()
     {
         bsl::span<int> arrD(vec);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT(!noexcept(bsl::span<int>(vec)));
 #endif
 
@@ -404,7 +412,7 @@ void TestContainerConstructors()
     {
         bsl::span<const int> carrD(cVec);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT(!noexcept(bsl::span<const int>(cVec)));
 #endif
 
@@ -418,7 +426,7 @@ void TestContainerConstructors()
     {
         bsl::span<char> strD(str);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT(!noexcept(bsl::span<char>(str)));
 #endif
 
@@ -434,7 +442,7 @@ void TestContainerConstructors()
     {
         bsl::span<const char> cstrD(cStr);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT(!noexcept(bsl::span<const char>(cStr)));
 #endif
         ASSERT(str.data() == cstrD.data());
@@ -446,7 +454,7 @@ void TestContainerConstructors()
     {
         bsl::span<const char> cstrD(sv);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
         ASSERT(!noexcept(bsl::span<const char>(sv)));
 #endif
 
@@ -480,7 +488,7 @@ void TestAccessors()
     ASSERT(bsl::dynamic_extent == zdSpan.extent);
 
     // size
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT( noexcept( sSpan.size()));
     ASSERT( noexcept(csSpan.size()));
     ASSERT( noexcept( dSpan.size()));
@@ -497,7 +505,7 @@ void TestAccessors()
     ASSERT(0  == zdSpan.size());
 
     // size_bytes
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT( noexcept( sSpan.size_bytes()));
     ASSERT( noexcept(csSpan.size_bytes()));
     ASSERT( noexcept( dSpan.size_bytes()));
@@ -514,7 +522,7 @@ void TestAccessors()
     ASSERT(0  * sizeof(int) == zdSpan.size_bytes());
 
     // empty
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT( noexcept( sSpan.empty()));
     ASSERT( noexcept(csSpan.empty()));
     ASSERT( noexcept( dSpan.empty()));
@@ -531,7 +539,7 @@ void TestAccessors()
     ASSERT( zdSpan.empty());
 
     // data
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT( noexcept( sSpan.data()));
     ASSERT( noexcept(csSpan.data()));
     ASSERT( noexcept( dSpan.data()));
@@ -546,7 +554,7 @@ void TestAccessors()
     ASSERT(&arr[5] == cdSpan.data());
 
     // front
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.front()));
     ASSERT(!noexcept(csSpan.front()));
     ASSERT(!noexcept( dSpan.front()));
@@ -559,7 +567,7 @@ void TestAccessors()
     ASSERT(5 == cdSpan.front());
 
     // back
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.back()));
     ASSERT(!noexcept(csSpan.back()));
     ASSERT(!noexcept( dSpan.back()));
@@ -572,7 +580,7 @@ void TestAccessors()
     ASSERT(8 == cdSpan.back());
 
     // operator[]
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan[0]));
     ASSERT(!noexcept(csSpan[0]));
     ASSERT(!noexcept( dSpan[0]));
@@ -607,7 +615,7 @@ void TestSubspan()
     bsl::span<int, 4>        dFirstA  = dSpan.first<4>();
     bsl::span<const int, 2>  cdFirstA = cdSpan.first<2>();
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.first<4>()));
     ASSERT(!noexcept(csSpan.first<2>()));
     ASSERT(!noexcept( dSpan.first<4>()));
@@ -629,7 +637,7 @@ void TestSubspan()
     bsl::span<int>        dFirstB  = dSpan.first(4);
     bsl::span<const int>  cdFirstB = cdSpan.first(2);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.first(4)));
     ASSERT(!noexcept(csSpan.first(2)));
     ASSERT(!noexcept( dSpan.first(4)));
@@ -652,7 +660,7 @@ void TestSubspan()
     bsl::span<int, 4>        dLastA  = dSpan.last<4>();
     bsl::span<const int, 2>  cdLastA = cdSpan.last<2>();
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.last<4>()));
     ASSERT(!noexcept(csSpan.last<2>()));
     ASSERT(!noexcept( dSpan.last<4>()));
@@ -674,7 +682,7 @@ void TestSubspan()
     bsl::span<int>        dLastB  = dSpan.last(4);
     bsl::span<const int>  cdLastB = cdSpan.last(2);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.last(4)));
     ASSERT(!noexcept(csSpan.last(2)));
     ASSERT(!noexcept( dSpan.last(4)));
@@ -702,7 +710,7 @@ void TestSubspan()
     bsl::span<int>            dSubA2  = sSpan.subspan<4, DYN>();
     bsl::span<const int>      cdSubA2 = cdSpan.subspan<2, DYN>();
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.subspan<2, 4>()));
     ASSERT(!noexcept(csSpan.subspan<1, 2>()));
     ASSERT(!noexcept( dSpan.subspan<2, 4>()));
@@ -739,7 +747,7 @@ void TestSubspan()
     bsl::span<int>       dSubB1  = dSpan.subspan(2, 4);
     bsl::span<const int> cdSubB1 = cdSpan.subspan(1, 2);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.subspan(2, 4)));
     ASSERT(!noexcept(csSpan.subspan(1, 2)));
     ASSERT(!noexcept( dSpan.subspan(2, 4)));
@@ -761,7 +769,7 @@ void TestSubspan()
     bsl::span<int>       dSubB2  = dSpan.subspan(4, DYN);
     bsl::span<const int> cdSubB2 = cdSpan.subspan(3, DYN);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT(!noexcept( sSpan.subspan(4, DYN)));
     ASSERT(!noexcept(csSpan.subspan(3, DYN)));
     ASSERT(!noexcept( dSpan.subspan(4, DYN)));
@@ -809,7 +817,7 @@ void TestIterators()
     bsl::span<      int>     dSpan (&arr[0], 10);
     bsl::span<const int>     cdSpan(&arr[5], 4);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT( noexcept( sSpan.begin()));
     ASSERT( noexcept(csSpan.begin()));
     ASSERT( noexcept( dSpan.begin()));
@@ -962,7 +970,7 @@ void TestFreeFunctions ()
     auto dBytes1 = bsl::as_bytes(dSpan1);
     auto dBytes2 = bsl::as_writable_bytes(dSpan2);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT( noexcept(bsl::as_bytes(sSpan1)));
     ASSERT( noexcept(bsl::as_writable_bytes(sSpan2)));
     ASSERT( noexcept(bsl::as_bytes(dSpan1)));
@@ -999,7 +1007,7 @@ void TestFreeFunctions ()
     bsl::swap(sSpan1, sSpan2);
     bsl::swap(dSpan1, dSpan2);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef TEST_SPAN_NOEXCEPT
     ASSERT( noexcept(swap(sSpan1, sSpan2)));
     ASSERT( noexcept(swap(dSpan1, dSpan2)));
 #endif
