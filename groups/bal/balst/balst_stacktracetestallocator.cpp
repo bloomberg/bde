@@ -266,6 +266,7 @@ StackTraceTestAllocator::StackTraceTestAllocator(
                                               bslma::Allocator *basicAllocator)
 : d_magic(k_STACK_TRACE_TEST_ALLOCATOR_MAGIC)
 , d_numBlocksInUse(0)
+, d_numAllocations(0)
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
@@ -295,6 +296,7 @@ StackTraceTestAllocator::StackTraceTestAllocator(
                                            bslma::Allocator *basicAllocator)
 : d_magic(k_STACK_TRACE_TEST_ALLOCATOR_MAGIC)
 , d_numBlocksInUse(0)
+, d_numAllocations(0)
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
@@ -391,6 +393,7 @@ void *StackTraceTestAllocator::allocate(size_type size)
     BSLS_ASSERT(0 == ((UintPtr) ret & ((sizeof(void *) - 1) | lowBits)));
 
     ++d_numBlocksInUse;
+    ++d_numAllocations;
 
     return ret;
 }

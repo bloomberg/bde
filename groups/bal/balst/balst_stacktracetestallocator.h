@@ -31,6 +31,7 @@ BSLS_IDENT("$Id: $")
 //                   ( balst::StackTraceTestAllocator  )
 //                    `------------------------------'
 //                                    |    ctor/dtor
+//                                    |    numAllocations
 //                                    |    numBlocksInUse
 //                                    |    reportBlocksInUse
 //                                    |    setFailureHandler
@@ -527,6 +528,10 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     bsls::AtomicInt           d_numBlocksInUse;    // number of allocated
                                                    // blocks currently unfreed
 
+    bsls::AtomicInt64         d_numAllocations;    // number of alloctions that
+                                                   // have occurred since
+                                                   // creation
+
     BlockHeader              *d_blocks;            // list of allocated,
                                                    // unfreed blocks
 
@@ -677,6 +682,11 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
         // Return a reference to the function that will be called when a
         // failure is observered.
 
+    bsls::Types::Int64 numAllocations() const;
+        // Return the number of allocations from this object that have occurred
+        // since creation.  Note that this does not count allocations of 0
+        // length, which return null pointers.
+
     bsl::size_t numBlocksInUse() const;
         // Return the number of blocks currently allocated from this object.
 
@@ -703,6 +713,12 @@ inline
 bsl::size_t StackTraceTestAllocator::numBlocksInUse() const
 {
     return d_numBlocksInUse;
+}
+
+inline
+bsls::Types::Int64 StackTraceTestAllocator::numAllocations() const
+{
+    return d_numAllocations;
 }
 
 }  // close package namespace

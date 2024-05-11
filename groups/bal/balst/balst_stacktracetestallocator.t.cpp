@@ -1513,6 +1513,8 @@ int main(int argc, char *argv[])
         //:     was filled with when allocated.
         //:   o Check the 'numBlocksInUse' accessor to verify that it properly
         //:     tracks its expected value.
+        //:   o Check the 'numAllocations' accessor to verify that it properly
+        //:     tracks its expected value.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "ALIGNMENT & RANDOM ALLOCATE / FREE TEST\n"
@@ -1538,119 +1540,133 @@ int main(int argc, char *argv[])
         const int ptrAlign = bsls::AlignmentUtil::calculateAlignmentFromSize(
                                                                sizeof(void *));
 
-        memset(blocks, 0, sizeof(blocks));
-        for (int i = 0; i < MAX_NUM_BLOCKS; ++i) {
-            Block& s = blocks[i];
-            s.d_len = i / 2;
+        // The 'ia' loop is to create 'Obj ta' with both c'tors.
 
-            // 'AlignmentUtil' fails if passed an argument of 0
+        for (int ia = 0; ia < 2; ++ia) {
+            memset(blocks, 0, sizeof(blocks));
+            for (int i = 0; i < MAX_NUM_BLOCKS; ++i) {
+                Block& s = blocks[i];
+                s.d_len = i / 2;
 
-            s.d_align = !s.d_len
-                      ? 8
-                      : bsls::AlignmentUtil::calculateAlignmentFromSize(
+                // 'AlignmentUtil' fails if passed an argument of 0
+
+                s.d_align = !s.d_len
+                          ? 8
+                          : bsls::AlignmentUtil::calculateAlignmentFromSize(
                                                                       s.d_len);
-            s.d_align = bsl::max<int>(s.d_align, ptrAlign);
+                s.d_align = bsl::max<int>(s.d_align, ptrAlign);
 
-            // verify one bit of alignment set
+                // verify one bit of alignment set
 
-            ASSERT(0 == (s.d_align & (s.d_align - 1)));
-        }
-
-        Obj ta;
-        int randNum;
-        bdlb::Random::generate15(&randNum, 987654321);
-
-        // allocate 100% of the blocks, in random order
-
-        for (int i = 0; i < MAX_NUM_BLOCKS; ++i) {
-            int index = bdlb::Random::generate15(&randNum) % MAX_NUM_BLOCKS;
-            while (blocks[index].d_alloced) {
-                index = (index + 1) % MAX_NUM_BLOCKS;
+                ASSERT(0 == (s.d_align & (s.d_align - 1)));
             }
 
-            Block& s = blocks[index];
+            Obj ta0;
+            Obj ta1(20);
+            Obj& ta = 0 == ia ? ta0 : ta1;
+            int randNum;
+            bdlb::Random::generate15(&randNum, 987654321);
 
-            s.d_ptr     = (char *) ta.allocate(s.d_len);
-            s.d_alloced = true;
-            s.d_fill    = (char) bdlb::Random::generate15(&randNum);
-            memset(s.d_ptr, s.d_fill, s.d_len);
+            // allocate 100% of the blocks, in random order
 
-            ASSERT(!s.d_ptr == !s.d_len);
+            int numAllocations = 0;
+            for (int i = 0; i < MAX_NUM_BLOCKS; ++i) {
+                int index =
+                           bdlb::Random::generate15(&randNum) % MAX_NUM_BLOCKS;
+                while (blocks[index].d_alloced) {
+                    index = (index + 1) % MAX_NUM_BLOCKS;
+                }
 
-            // verify block aligned
-
-            LOOP3_ASSERT((void *) s.d_ptr, s.d_len, s.d_align,
-                                   0 == ((UintPtr) s.d_ptr & (s.d_align - 1)));
-        }
-        int numBlocks = MAX_NUM_BLOCKS;
-        int numBlocksInUse = numBlocks - 2;
-        ASSERT((int) ta.numBlocksInUse() == numBlocksInUse);
-
-        // Now go around chosing blocks at random to be allocated or freed in
-        // random order.
-
-        for (int i = 0; i < ITERATIONS; ++i) {
-            const bool alloc = numBlocks > 3 * QUARTER_BLOCKS
-                             ? false
-                             : numBlocks <     QUARTER_BLOCKS
-                             ? true
-                             : (bdlb::Random::generate15(&randNum) & 1);
-
-            // Steer the # of blocks allocated to be at around half the
-            // slots, give or take a quarter.
-
-            int index = bdlb::Random::generate15(&randNum) % MAX_NUM_BLOCKS;
-            while (alloc == blocks[index].d_alloced) {
-                index = (index + 1) % MAX_NUM_BLOCKS;
-            }
-            Block& s = blocks[index];
-
-            if (alloc) {
-                // allocate
-
-                ASSERT(!s.d_alloced);
-                ASSERT(!s.d_ptr);
+                Block& s = blocks[index];
 
                 s.d_ptr     = (char *) ta.allocate(s.d_len);
                 s.d_alloced = true;
-                ++numBlocks;
+                s.d_fill    = (char) bdlb::Random::generate15(&randNum);
                 if (s.d_ptr) {
-                    ++numBlocksInUse;
+                    memset(s.d_ptr, s.d_fill, s.d_len);
+                    ++numAllocations;
                 }
-
                 ASSERT(!s.d_ptr == !s.d_len);
-                s.d_fill = (char) bdlb::Random::generate15(&randNum);
-                memset(s.d_ptr, s.d_fill, s.d_len);
 
                 // verify block aligned
 
                 LOOP3_ASSERT((void *) s.d_ptr, s.d_len, s.d_align,
                                    0 == ((UintPtr) s.d_ptr & (s.d_align - 1)));
             }
-            else {
-                // free
+            int numBlocksInUse = MAX_NUM_BLOCKS - 2;
+            ASSERT(numAllocations == numBlocksInUse);
+            ASSERT((int) ta.numBlocksInUse() == numBlocksInUse);
+            ASSERT(ta.numAllocations() == numAllocations);
 
-                ASSERT(s.d_alloced);
-                ASSERT(!s.d_ptr == !s.d_len);
+            // Now go around chosing blocks at random to be allocated or freed
+            // in random order.
 
-                char *end = s.d_ptr + s.d_len;
-                char *f = bsl::find_if(s.d_ptr, end, TC::NotEqual(s.d_fill));
-                ASSERT(f == end);
-                memset(s.d_ptr, ~s.d_fill, s.d_len);
+            for (int i = 0; i < ITERATIONS; ++i) {
+                const bool alloc = numBlocksInUse > 3 * QUARTER_BLOCKS
+                                 ? false
+                                 : numBlocksInUse <     QUARTER_BLOCKS
+                                 ? true
+                                 : (bdlb::Random::generate15(&randNum) & 1);
 
-                ta.deallocate(s.d_ptr);
-                s.d_ptr = 0;
-                s.d_alloced = false;
-                --numBlocks;
-                if (s.d_len) {
-                    --numBlocksInUse;
+                // Steer the # of blocks allocated to be at around half the
+                // slots, give or take a quarter.
+
+                int index =
+                           bdlb::Random::generate15(&randNum) % MAX_NUM_BLOCKS;
+                while (alloc == blocks[index].d_alloced) {
+                    index = (index + 1) % MAX_NUM_BLOCKS;
                 }
+                Block& s = blocks[index];
+
+                if (alloc) {
+                    // allocate
+
+                    ASSERT(!s.d_alloced);
+                    ASSERT(!s.d_ptr);
+
+                    s.d_ptr     = (char *) ta.allocate(s.d_len);
+                    s.d_alloced = true;
+
+                    ASSERT(!s.d_ptr == !s.d_len);
+                    s.d_fill = (char) bdlb::Random::generate15(&randNum);
+                    if (s.d_ptr) {
+                        ++numBlocksInUse;
+                        ++numAllocations;
+                        memset(s.d_ptr, s.d_fill, s.d_len);
+                    }
+
+                    // verify block aligned
+
+                    LOOP3_ASSERT((void *) s.d_ptr, s.d_len, s.d_align,
+                                   0 == ((UintPtr) s.d_ptr & (s.d_align - 1)));
+                }
+                else {
+                    // free
+
+                    ASSERT(s.d_alloced);
+                    ASSERT(!s.d_ptr == !s.d_len);
+
+                    char *end = s.d_ptr + s.d_len;
+                    char *f =
+                            bsl::find_if(s.d_ptr, end, TC::NotEqual(s.d_fill));
+                    ASSERT(f == end);
+                    memset(s.d_ptr, ~s.d_fill, s.d_len);
+
+                    ta.deallocate(s.d_ptr);
+                    s.d_ptr = 0;
+                    s.d_alloced = false;
+                    if (s.d_len) {
+                        --numBlocksInUse;
+                    }
+                }
+
+                ASSERT(numBlocksInUse <= numAllocations);
+                ASSERT((int) ta.numBlocksInUse() == numBlocksInUse);
+                ASSERT(ta.numAllocations() == numAllocations);
             }
 
-            ASSERT((int) ta.numBlocksInUse() == numBlocksInUse);
+            ta.release();
         }
-
-        ta.release();
       }  break;
       case 16: {
         //---------------------------------------------------------------------
