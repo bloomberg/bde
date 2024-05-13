@@ -1309,7 +1309,7 @@ inline bsl::span<TYPE, bsl::dynamic_extent>::span(
                       bsl::vector<t_OTHER_TYPE, ALLOCATOR>& v,
                       typename bsl::enable_if<Span_Utility::IsArrayConvertible<
                                             t_OTHER_TYPE, element_type>::value,
-                      void *>::type)
+                      void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(v.data())
 , d_size(v.size())
 {
@@ -1321,7 +1321,7 @@ inline bsl::span<TYPE, bsl::dynamic_extent>::span(
                       const bsl::vector<t_OTHER_TYPE, ALLOCATOR>& v,
                       typename bsl::enable_if<Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
-                      void *>::type)
+                      void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(v.data())
 , d_size(v.size())
 {
@@ -1333,7 +1333,7 @@ inline bsl::span<TYPE, bsl::dynamic_extent>::span(
                       bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& s,
                       typename bsl::enable_if<Span_Utility::IsArrayConvertible<
                                                CHAR_TYPE, element_type>::value,
-                      void *>::type)
+                      void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(s.data())
 , d_size(s.size())
 {
@@ -1345,7 +1345,7 @@ inline bsl::span<TYPE, bsl::dynamic_extent>::span(
                  const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& s,
                  typename bsl::enable_if<Span_Utility::IsArrayConvertible<
                                          const CHAR_TYPE, element_type>::value,
-                 void *>::type)
+                 void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(s.data())
 , d_size(s.size())
 {
@@ -1357,7 +1357,7 @@ inline bsl::span<TYPE, bsl::dynamic_extent>::span(
                  const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& sv,
                  typename bsl::enable_if<Span_Utility::IsArrayConvertible<
                                          const CHAR_TYPE, element_type>::value,
-                 void *>::type)
+                 void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(sv.data())
 , d_size(sv.size())
 {

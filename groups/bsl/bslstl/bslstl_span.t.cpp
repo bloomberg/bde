@@ -118,18 +118,21 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-// We want to test the 'noexcept'-ness of the functions in span, but only if
-// (a) we can test them, and (b) we're not using 'std::span', because all three
-// implementations of std::span add 'noexcept' to 'front', 'back', 'first',
-// 'last', and 'subspan'.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-# ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-#  define TEST_SPAN_NOEXCEPT
-# endif
+// We want to test the negative 'noexcept'-ness of some functions in span, but
+// only if we're not using 'std::span', because all three implementations of
+// std::span add 'noexcept' to 'front', 'back', 'first', 'last', and 'subspan'.
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    #define TEST_SPAN_NOEXCEPT                                                1
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #define ASSERT_NOEXCEPT(...)       BSLS_ASSERT( noexcept(__VA_ARGS__))
 #define ASSERT_NOT_NOEXCEPT(...)   BSLS_ASSERT(!noexcept(__VA_ARGS__))
+#else
+#define ASSERT_NOEXCEPT(...)       BSLS_ASSERT(true)
+#define ASSERT_NOT_NOEXCEPT(...)   BSLS_ASSERT(true)
+#endif
+
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -397,9 +400,7 @@ void TestContainerConstructors()
     {
         bsl::span<int> arrD(vec);
 
-#ifdef TEST_SPAN_NOEXCEPT
         ASSERT_NOT_NOEXCEPT(bsl::span<int>(vec));
-#endif
 
         ASSERT(vec.data() == arrD.data());
         ASSERT(30         == arrD.size());
@@ -409,9 +410,7 @@ void TestContainerConstructors()
     {
         bsl::span<const int> carrD(cVec);
 
-#ifdef TEST_SPAN_NOEXCEPT
         ASSERT_NOT_NOEXCEPT(bsl::span<const int>(cVec));
-#endif
 
         ASSERT(cVec.data() == carrD.data());
         ASSERT(30          == carrD.size());
@@ -423,9 +422,7 @@ void TestContainerConstructors()
     {
         bsl::span<char> strD(str);
 
-#ifdef TEST_SPAN_NOEXCEPT
         ASSERT_NOT_NOEXCEPT(bsl::span<char>(str));
-#endif
 
         ASSERT(str.data() == strD.data());
         ASSERT(5          == strD.size());
@@ -439,9 +436,8 @@ void TestContainerConstructors()
     {
         bsl::span<const char> cstrD(cStr);
 
-#ifdef TEST_SPAN_NOEXCEPT
         ASSERT_NOT_NOEXCEPT(bsl::span<const char>(cStr));
-#endif
+        
         ASSERT(str.data() == cstrD.data());
         ASSERT(5          == cstrD.size());
     }
@@ -451,9 +447,7 @@ void TestContainerConstructors()
     {
         bsl::span<const char> cstrD(sv);
 
-#ifdef TEST_SPAN_NOEXCEPT
         ASSERT_NOT_NOEXCEPT(bsl::span<const char>(sv));
-#endif
 
         ASSERT(sv.data() == cstrD.data());
         ASSERT(5         == cstrD.size());
@@ -958,10 +952,10 @@ void TestFreeFunctions ()
     auto dBytes2 = bsl::as_writable_bytes(dSpan2);
 
 #ifdef TEST_SPAN_NOEXCEPT
-    ASSERT( noexcept(bsl::as_bytes(sSpan1)));
-    ASSERT( noexcept(bsl::as_writable_bytes(sSpan2)));
-    ASSERT( noexcept(bsl::as_bytes(dSpan1)));
-    ASSERT( noexcept(bsl::as_writable_bytes(dSpan2)));
+    ASSERT_NOEXCEPT(bsl::as_bytes(sSpan1));
+    ASSERT_NOEXCEPT(bsl::as_writable_bytes(sSpan2));
+    ASSERT_NOEXCEPT(bsl::as_bytes(dSpan1));
+    ASSERT_NOEXCEPT(bsl::as_writable_bytes(dSpan2));
 #endif
 
     BSLMF_ASSERT((bsl::is_same_v<decltype(sBytes1),
@@ -995,8 +989,8 @@ void TestFreeFunctions ()
     bsl::swap(dSpan1, dSpan2);
 
 #ifdef TEST_SPAN_NOEXCEPT
-    ASSERT( noexcept(swap(sSpan1, sSpan2)));
-    ASSERT( noexcept(swap(dSpan1, dSpan2)));
+    ASSERT_NOEXCEPT(swap(sSpan1, sSpan2));
+    ASSERT_NOEXCEPT(swap(dSpan1, dSpan2));
 #endif
 
     ASSERT(&arr[1] == sSpan1.data());
