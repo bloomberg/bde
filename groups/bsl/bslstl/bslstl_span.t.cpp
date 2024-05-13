@@ -120,7 +120,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 // We want to test the negative 'noexcept'-ness of some functions in span, but
 // only if we're not using 'std::span', because all three implementations of
-// std::span add 'noexcept' to 'front', 'back', 'first', 'last', and 'subspan'.
+// std::span add 'noexcept' to 'front', 'back', 'first', 'last', and 'subspan',
+// as well as the '(pointer, pointer)' and '(pointer, size)' constructors.
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     #define TEST_SPAN_NOEXCEPT                                                1
 #endif
@@ -206,7 +207,8 @@ void TestBasicConstructors()
 // compiler to adhere to a language rule prior to DR
 // https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1351 and we
 // can't change it due to back-compat.
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1999))
+#if defined(TEST_SPAN_NOEXCEPT) &&                                            \
+      !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1999))
         ASSERT_NOT_NOEXCEPT(bsl::span<int, 5>(&arr[5], 5));
         ASSERT_NOT_NOEXCEPT(bsl::span<int   >(&arr[5], 5));
 #endif
@@ -232,7 +234,8 @@ void TestBasicConstructors()
 // compiler to adhere to a language rule prior to DR
 // https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1351 and we
 // can't change it due to back-compat.
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1999))
+#if defined(TEST_SPAN_NOEXCEPT) &&                                            \
+      !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1999))
         ASSERT_NOT_NOEXCEPT(bsl::span<int, 5>(&arr[5], &arr[10]));
         ASSERT_NOT_NOEXCEPT(bsl::span<int   >(&arr[3], &arr[ 6]));
 #endif
