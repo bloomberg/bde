@@ -556,10 +556,13 @@ bsl::streamsize OutBlobStreamBuf::xsputn(const char_type *source,
         bsl::streamsize remainingChars = epptr() - pptr();
         bsl::streamsize canCopy        = bsl::min(remainingChars, numLeft);
 
-        bsl::memcpy(pptr(), source + numCopied, canCopy);
-        pbump(static_cast<int>(canCopy));
-        numCopied += canCopy;
-        numLeft -= canCopy;
+        if (canCopy > 0) {
+            BSLS_ASSERT(pptr());
+            bsl::memcpy(pptr(), source + numCopied, canCopy);
+            pbump(static_cast<int>(canCopy));
+            numCopied += canCopy;
+            numLeft -= canCopy;
+        }
 
         if (0 < numLeft) {
             if (traits_type::eof() ==
