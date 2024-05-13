@@ -197,10 +197,16 @@ void TestBasicConstructors()
         bsl::span<int>    psD(&arr[3], 3);
 
 // MSVC erroneously reports these constructors as noexcept.  The trigger
-// appears to be declaring them as 'constexpr'.  Hopefully this will be fixed
-// someday.   Reported to MS 10-May-2024.
-#if defined(TEST_SPAN_NOEXCEPT) &&                                            \
-      !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1939))
+// appears to be declaring them as 'constexpr'.  I reported to MS 10-May-2024.
+// They replied (on 13-May):
+//
+// The short answer is: compile with /permissive-.
+//
+// The longer answer: MSVC in permissive mode has an extension that allows the
+// compiler to adhere to a language rule prior to DR
+// https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1351 and we
+// can't change it due to back-compat.
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1999))
         ASSERT_NOT_NOEXCEPT(bsl::span<int, 5>(&arr[5], 5));
         ASSERT_NOT_NOEXCEPT(bsl::span<int   >(&arr[5], 5));
 #endif
@@ -217,10 +223,16 @@ void TestBasicConstructors()
         bsl::span<int>    ppD(&arr[3], &arr[6]);
 
 // MSVC erroneously reports these constructors as noexcept.  The trigger
-// appears to be declaring them as 'constexpr'.  Hopefully this will be fixed
-// someday.   Reported to MS 10-May-2024.
-#if defined(TEST_SPAN_NOEXCEPT) &&                                            \
-      !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1939))
+// appears to be declaring them as 'constexpr'.  I reported to MS 10-May-2024.
+// They replied (on 13-May):
+//
+// The short answer is: compile with /permissive-.
+//
+// The longer answer: MSVC in permissive mode has an extension that allows the
+// compiler to adhere to a language rule prior to DR
+// https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1351 and we
+// can't change it due to back-compat.
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1999))
         ASSERT_NOT_NOEXCEPT(bsl::span<int, 5>(&arr[5], &arr[10]));
         ASSERT_NOT_NOEXCEPT(bsl::span<int   >(&arr[3], &arr[ 6]));
 #endif
@@ -400,7 +412,9 @@ void TestContainerConstructors()
     {
         bsl::span<int> arrD(vec);
 
+#if defined(TEST_SPAN_NOEXCEPT)
         ASSERT_NOT_NOEXCEPT(bsl::span<int>(vec));
+#endif
 
         ASSERT(vec.data() == arrD.data());
         ASSERT(30         == arrD.size());
@@ -410,7 +424,9 @@ void TestContainerConstructors()
     {
         bsl::span<const int> carrD(cVec);
 
+#if defined(TEST_SPAN_NOEXCEPT)
         ASSERT_NOT_NOEXCEPT(bsl::span<const int>(cVec));
+#endif
 
         ASSERT(cVec.data() == carrD.data());
         ASSERT(30          == carrD.size());
@@ -422,7 +438,10 @@ void TestContainerConstructors()
     {
         bsl::span<char> strD(str);
 
-        ASSERT_NOT_NOEXCEPT(bsl::span<char>(str));
+#if defined(TEST_SPAN_NOEXCEPT)
+        ASSERT_NOT_NOEXCEPT(bsl::span<char      >(str));
+        ASSERT_NOT_NOEXCEPT(bsl::span<const char>(str));
+#endif
 
         ASSERT(str.data() == strD.data());
         ASSERT(5          == strD.size());
@@ -436,8 +455,10 @@ void TestContainerConstructors()
     {
         bsl::span<const char> cstrD(cStr);
 
+#if defined(TEST_SPAN_NOEXCEPT)
         ASSERT_NOT_NOEXCEPT(bsl::span<const char>(cStr));
-        
+#endif
+
         ASSERT(str.data() == cstrD.data());
         ASSERT(5          == cstrD.size());
     }
@@ -447,7 +468,9 @@ void TestContainerConstructors()
     {
         bsl::span<const char> cstrD(sv);
 
+#if defined(TEST_SPAN_NOEXCEPT)
         ASSERT_NOT_NOEXCEPT(bsl::span<const char>(sv));
+#endif
 
         ASSERT(sv.data() == cstrD.data());
         ASSERT(5         == cstrD.size());
