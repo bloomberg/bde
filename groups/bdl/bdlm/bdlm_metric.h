@@ -12,8 +12,14 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdlm::Metric: variant of metric values
 //
-//@DESCRIPTION: This component provides a single class, 'bdlm::Metric', that is
-// a variant of metric values.
+//@DESCRIPTION: This component defines a value semantic class, 'bdlmt::Metric',
+// that represents a measurement (or measurements) for a metric.
+// A 'bdlm::Metric' value is collected from an object that reports metrics
+// using a callback that is registered with the 'bdlm::MetricsRegistry'.  A
+// 'bdlm::Metric' value is a variant type, which can hold one of several types
+// of measurements (in theory).  Currently the only supported metric type is a
+// 'Guage', which represents a single instantaneous value for the most recent
+// measurement.
 //
 ///Usage
 ///-----
@@ -142,7 +148,7 @@ bool operator!=(const Metric& lhs, const Metric& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
