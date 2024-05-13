@@ -10,6 +10,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bslstl_array.h>
 #include <bslstl_string.h>
@@ -190,8 +191,10 @@ void TestBasicConstructors()
         bsl::span<int>    psD(&arr[3], 3);
 
 // MSVC erroneously reports these constructors as noexcept.  The trigger
-// appears to be declaring them as 'constexpr'.
-#if defined(TEST_SPAN_NOEXCEPT) && !defined(BSLS_PLATFORM_CMP_MSVC)
+// appears to be declaring them as 'constexpr'.  Hopefully this will be fixed
+// someday.   Reported to MS 10-May-2024.
+#if defined(TEST_SPAN_NOEXCEPT) &&                                            \
+      !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1939))
         ASSERT(!noexcept(bsl::span<int, 5>(&arr[5], 5)));
         ASSERT(!noexcept(bsl::span<int   >(&arr[5], 5)));
 #endif
@@ -208,8 +211,10 @@ void TestBasicConstructors()
         bsl::span<int>    ppD(&arr[3], &arr[6]);
 
 // MSVC erroneously reports these constructors as noexcept.  The trigger
-// appears to be declaring them as 'constexpr'.
-#if defined(TEST_SPAN_NOEXCEPT) && !defined(BSLS_PLATFORM_CMP_MSVC)
+// appears to be declaring them as 'constexpr'.  Hopefully this will be fixed
+// someday.   Reported to MS 10-May-2024.
+#if defined(TEST_SPAN_NOEXCEPT) &&                                            \
+      !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1939))
         ASSERT(!noexcept(bsl::span<int, 5>(&arr[5], &arr[10])));
         ASSERT(!noexcept(bsl::span<int   >(&arr[3], &arr[6])));
 #endif
