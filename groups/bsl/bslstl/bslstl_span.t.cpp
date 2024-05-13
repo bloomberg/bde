@@ -10,6 +10,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bslstl_array.h>
 #include <bslstl_string.h>
@@ -23,40 +24,40 @@
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-// [ 2] span();
+// [ 2] span() noexcept;
 // [ 2] span(pointer, size_type);
 // [ 2] span(pointer, pointer);
-// [ 2] span(element_type (&arr)[SIZE]);
-// [ 2] span(const span &);
-// [ 2] span(span<T_OTHER_TYPE>);
-// [ 2] operator=(const span &);
-// [ 3] span(array<value_type, SIZE>&);
-// [ 3] span(const array<value_type, SIZE>&);
-// [ 3] span(std::array<value_type, SIZE>&);
-// [ 3] span(const std::array<value_type, SIZE>&);
+// [ 2] span(element_type (&arr)[SIZE]) noexcept;
+// [ 2] span(const span &) noexcept;
+// [ 2] span(span<T_OTHER_TYPE>) noexcept;
+// [ 2] operator=(const span &) noexcept;
+// [ 3] span(array<value_type, SIZE>&) noexcept;
+// [ 3] span(const array<value_type, SIZE>&) noexcept;
+// [ 3] span(std::array<value_type, SIZE>&) noexcept;
+// [ 3] span(const std::array<value_type, SIZE>&) noexcept;
 // [ 3] span(CONTAINER& c);
 // [ 3] span(const CONTAINER& c);
 // [ 4] reference front();
 // [ 4] reference back();
 // [ 4] reference operator[](size_type);
-// [ 4] bool empty();
+// [ 4] bool empty() noexcept;
 // [ 4] size_type extent;
-// [ 4] size_type size();
-// [ 4] size_type size_bytes();
-// [ 4] pointer data();
+// [ 4] size_type size() noexcept;
+// [ 4] size_type size_bytes() noexcept;
+// [ 4] pointer data() noexcept;
 // [ 5] template <size_t COUNT> first();
 // [ 5] template <size_t COUNT> last();
 // [ 5] first(size_t count);
 // [ 5] last(size_t count);
 // [ 5] template <size_t COUNT, size_t OFFSET> subspan();
 // [ 5] subspan(size_t count, size_t offset);
-// [ 6] iterator begin();
-// [ 6] iterator end();
-// [ 6] reverse_iterator rbegin();
-// [ 6] reverse_iterator rend();
-// [ 7] void swap(span a, span b);
-// [ 7] span<const byte> as_bytes(span);
-// [ 7] span<byte> as_writable_bytes(span);
+// [ 6] iterator begin() noexcept;
+// [ 6] iterator end() noexcept;
+// [ 6] reverse_iterator rbegin() noexcept;
+// [ 6] reverse_iterator rend() noexcept;
+// [ 7] void swap(span a, span b) noexcept;
+// [ 7] span<const byte> as_bytes(span) noexcept;
+// [ 7] span<byte> as_writable_bytes(span) noexcept;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CLASS TEMPLATE DEDUCTION GUIDES
@@ -117,6 +118,22 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// We want to test the negative 'noexcept'-ness of some functions in span, but
+// only if we're not using 'std::span', because all three implementations of
+// std::span add 'noexcept' to 'front', 'back', 'first', 'last', and 'subspan',
+// as well as the '(pointer, pointer)' and '(pointer, size)' constructors.
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    #define NOEXCEPT_TEST_ONLY_BSL_SPAN                                       1
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#define ASSERT_NOEXCEPT(...)       BSLS_ASSERT( noexcept(__VA_ARGS__))
+#define ASSERT_NOT_NOEXCEPT(...)   BSLS_ASSERT(!noexcept(__VA_ARGS__))
+#else
+#define ASSERT_NOEXCEPT(...)       BSLS_ASSERT(true)
+#define ASSERT_NOT_NOEXCEPT(...)   BSLS_ASSERT(true)
+#endif
+
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -164,16 +181,38 @@ void TestBasicConstructors()
     {
         bsl::span<int, 0> defS;
         bsl::span<int>    defD;
+
+        ASSERT_NOEXCEPT(bsl::span<int, 0>());
+        ASSERT_NOEXCEPT(bsl::span<int   >());
+
         ASSERT(NULL == defS.data());
         ASSERT(0    == defS.size());
         ASSERT(NULL == defD.data());
         ASSERT(0    == defD.size());
     }
 
+// MSVC erroneously reports the two constructors (pointer, size) and (pointer,
+// pointer) as noexcept.  The trigger appears to be declaring them as
+// 'constexpr'.  I reported to MS on 10-May-2024. They replied (on 13-May):
+//
+// The short answer is: compile with /permissive-.
+//
+// The longer answer: MSVC in permissive mode has an extension that allows the
+// compiler to adhere to a language rule prior to DR
+// https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1351 and we
+// can't change it due to back-compat.
+
     // pointer, size
     {
         bsl::span<int, 5> psS(&arr[5], 5);
         bsl::span<int>    psD(&arr[3], 3);
+
+#if defined(NOEXCEPT_TEST_ONLY_BSL_SPAN) &&                                   \
+      !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1999))
+        ASSERT_NOT_NOEXCEPT(bsl::span<int, 5>(&arr[5], 5));
+        ASSERT_NOT_NOEXCEPT(bsl::span<int   >(&arr[5], 5));
+#endif
+
         ASSERT(&arr[5] == psS.data());
         ASSERT(5       == psS.size());
         ASSERT(&arr[3] == psD.data());
@@ -184,6 +223,13 @@ void TestBasicConstructors()
     {
         bsl::span<int, 5> ppS(&arr[5], &arr[10]);
         bsl::span<int>    ppD(&arr[3], &arr[6]);
+
+#if defined(NOEXCEPT_TEST_ONLY_BSL_SPAN) &&                                   \
+      !(defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION <= 1999))
+        ASSERT_NOT_NOEXCEPT(bsl::span<int, 5>(&arr[5], &arr[10]));
+        ASSERT_NOT_NOEXCEPT(bsl::span<int   >(&arr[3], &arr[ 6]));
+#endif
+
         ASSERT(&arr[5] == ppS.data());
         ASSERT(5       == ppS.size());
         ASSERT(&arr[3] == ppD.data());
@@ -194,6 +240,10 @@ void TestBasicConstructors()
     {
         bsl::span<int, 10> arrS(arr);
         bsl::span<int>     arrD(arr);
+
+        ASSERT_NOEXCEPT(bsl::span<int, 10>(arr));
+        ASSERT_NOEXCEPT(bsl::span<int    >(arr));
+
         ASSERT(&arr[0] == arrS.data());
         ASSERT(10      == arrS.size());
         ASSERT(&arr[0] == arrD.data());
@@ -208,6 +258,11 @@ void TestBasicConstructors()
         bsl::span<const int>    sD1a(sD);
         bsl::span<const int>    sD1b(sS);
         bsl::span<const int, 3> sS2a(sD);
+
+        ASSERT_NOEXCEPT(bsl::span<const int, 5>(sS));
+        ASSERT_NOEXCEPT(bsl::span<const int   >(sS));
+        ASSERT_NOEXCEPT(bsl::span<const int, 3>(sD));
+        ASSERT_NOEXCEPT(bsl::span<const int   >(sD));
 
         ASSERT(&arr[5] == sS1.data());
         ASSERT(5       == sS1.size());
@@ -227,6 +282,10 @@ void TestBasicConstructors()
         bsl::span<int>    psD1a(psD);
         bsl::span<int>    psD1b(psS);
 
+        ASSERT_NOEXCEPT(bsl::span<int, 5>(psS));
+        ASSERT_NOEXCEPT(bsl::span<int   >(psS));
+        ASSERT_NOEXCEPT(bsl::span<int   >(psD));
+
         ASSERT(&arr[5] == psS1.data());
         ASSERT(5       == psS1.size());
         ASSERT(&arr[3] == psD1a.data());
@@ -241,6 +300,15 @@ void TestBasicConstructors()
         psS2  = psS;
         psD2a = psD;
         psD2b = psS;
+
+        ASSERT_NOEXCEPT(psS2  = psS);
+        ASSERT_NOEXCEPT(psD2a = psD);
+        ASSERT_NOEXCEPT(psD2b = psS);
+
+        ASSERT_NOEXCEPT(bsl::span<int, 5>(psS));
+        ASSERT_NOEXCEPT(bsl::span<int   >(psD));
+        ASSERT_NOEXCEPT(bsl::span<int, 5>(psS));
+        ASSERT_NOEXCEPT(bsl::span<int   >(psD));
 
         ASSERT(&arr[5] == psS2.data());
         ASSERT(5       == psS2.size());
@@ -267,6 +335,10 @@ void TestContainerConstructors()
     {
         bsl::span<int, 10> arrS(arr);
         bsl::span<int>     arrD(arr);
+
+        ASSERT_NOEXCEPT(bsl::span<int, 10>(arr));
+        ASSERT_NOEXCEPT(bsl::span<int>    (arr));
+
         ASSERT(arr.data() == arrS.data());
         ASSERT(10         == arrS.size());
         ASSERT(arr.data() == arrD.data());
@@ -277,6 +349,10 @@ void TestContainerConstructors()
     {
         bsl::span<const int, 10> carrS(cArr);
         bsl::span<const int>     carrD(cArr);
+
+        ASSERT_NOEXCEPT(bsl::span<const int, 10>(cArr));
+        ASSERT_NOEXCEPT(bsl::span<const int>    (cArr));
+
         ASSERT(cArr.data() == carrS.data());
         ASSERT(10          == carrS.size());
         ASSERT(cArr.data() == carrD.data());
@@ -296,6 +372,10 @@ void TestContainerConstructors()
     {
         bsl::span<int, 10> arrS(sArr);
         bsl::span<int>     arrD(sArr);
+
+        ASSERT_NOEXCEPT(bsl::span<int, 10>(sArr));
+        ASSERT_NOEXCEPT(bsl::span<int>    (sArr));
+
         ASSERT(sArr.data() == arrS.data());
         ASSERT(10          == arrS.size());
         ASSERT(sArr.data() == arrD.data());
@@ -306,6 +386,10 @@ void TestContainerConstructors()
     {
         bsl::span<const int, 10> carrS(cSArr);
         bsl::span<const int>     carrD(cSArr);
+
+        ASSERT_NOEXCEPT(bsl::span<const int, 10>(cSArr));
+        ASSERT_NOEXCEPT(bsl::span<const int>    (cSArr));
+
         ASSERT(cSArr.data() == carrS.data());
         ASSERT(10           == carrS.size());
         ASSERT(cSArr.data() == carrD.data());
@@ -320,6 +404,11 @@ void TestContainerConstructors()
     // from a bsl::vector (dynamic span only)
     {
         bsl::span<int> arrD(vec);
+
+#if defined(NOEXCEPT_TEST_ONLY_BSL_SPAN)
+        ASSERT_NOT_NOEXCEPT(bsl::span<int>(vec));
+#endif
+
         ASSERT(vec.data() == arrD.data());
         ASSERT(30         == arrD.size());
     }
@@ -327,6 +416,11 @@ void TestContainerConstructors()
     // from a const bsl::vector (dynamic span only)
     {
         bsl::span<const int> carrD(cVec);
+
+#if defined(NOEXCEPT_TEST_ONLY_BSL_SPAN)
+        ASSERT_NOT_NOEXCEPT(bsl::span<const int>(cVec));
+#endif
+
         ASSERT(cVec.data() == carrD.data());
         ASSERT(30          == carrD.size());
     }
@@ -336,6 +430,12 @@ void TestContainerConstructors()
     // from a bsl::string (dynamic span only)
     {
         bsl::span<char> strD(str);
+
+#if defined(NOEXCEPT_TEST_ONLY_BSL_SPAN)
+        ASSERT_NOT_NOEXCEPT(bsl::span<char      >(str));
+        ASSERT_NOT_NOEXCEPT(bsl::span<const char>(str));
+#endif
+
         ASSERT(str.data() == strD.data());
         ASSERT(5          == strD.size());
 
@@ -347,6 +447,11 @@ void TestContainerConstructors()
     // from a const bsl::string (dynamic span only)
     {
         bsl::span<const char> cstrD(cStr);
+
+#if defined(NOEXCEPT_TEST_ONLY_BSL_SPAN)
+        ASSERT_NOT_NOEXCEPT(bsl::span<const char>(cStr));
+#endif
+
         ASSERT(str.data() == cstrD.data());
         ASSERT(5          == cstrD.size());
     }
@@ -355,6 +460,11 @@ void TestContainerConstructors()
     // from a string_view (dynamic span only)
     {
         bsl::span<const char> cstrD(sv);
+
+#if defined(NOEXCEPT_TEST_ONLY_BSL_SPAN)
+        ASSERT_NOT_NOEXCEPT(bsl::span<const char>(sv));
+#endif
+
         ASSERT(sv.data() == cstrD.data());
         ASSERT(5         == cstrD.size());
     }
@@ -385,6 +495,13 @@ void TestAccessors()
     ASSERT(bsl::dynamic_extent == zdSpan.extent);
 
     // size
+    ASSERT_NOEXCEPT( sSpan.size());
+    ASSERT_NOEXCEPT(csSpan.size());
+    ASSERT_NOEXCEPT( dSpan.size());
+    ASSERT_NOEXCEPT(cdSpan.size());
+    ASSERT_NOEXCEPT(zsSpan.size());
+    ASSERT_NOEXCEPT(zdSpan.size());
+
     ASSERT(10 ==  sSpan.size());
     ASSERT(4  == csSpan.size());
     ASSERT(10 ==  dSpan.size());
@@ -393,6 +510,13 @@ void TestAccessors()
     ASSERT(0  == zdSpan.size());
 
     // size_bytes
+    ASSERT_NOEXCEPT( sSpan.size_bytes());
+    ASSERT_NOEXCEPT(csSpan.size_bytes());
+    ASSERT_NOEXCEPT( dSpan.size_bytes());
+    ASSERT_NOEXCEPT(cdSpan.size_bytes());
+    ASSERT_NOEXCEPT(zsSpan.size_bytes());
+    ASSERT_NOEXCEPT(zdSpan.size_bytes());
+
     ASSERT(10 * sizeof(int) ==  sSpan.size_bytes());
     ASSERT(4  * sizeof(int) == csSpan.size_bytes());
     ASSERT(10 * sizeof(int) ==  dSpan.size_bytes());
@@ -401,6 +525,13 @@ void TestAccessors()
     ASSERT(0  * sizeof(int) == zdSpan.size_bytes());
 
     // empty
+    ASSERT_NOEXCEPT( sSpan.empty());
+    ASSERT_NOEXCEPT(csSpan.empty());
+    ASSERT_NOEXCEPT( dSpan.empty());
+    ASSERT_NOEXCEPT(cdSpan.empty());
+    ASSERT_NOEXCEPT(zsSpan.empty());
+    ASSERT_NOEXCEPT(zdSpan.empty());
+
     ASSERT(! sSpan.empty());
     ASSERT(!csSpan.empty());
     ASSERT(! dSpan.empty());
@@ -409,24 +540,52 @@ void TestAccessors()
     ASSERT( zdSpan.empty());
 
     // data
+    ASSERT_NOEXCEPT( sSpan.data());
+    ASSERT_NOEXCEPT(csSpan.data());
+    ASSERT_NOEXCEPT( dSpan.data());
+    ASSERT_NOEXCEPT(cdSpan.data());
+    ASSERT_NOEXCEPT(zsSpan.data());
+    ASSERT_NOEXCEPT(zdSpan.data());
+
     ASSERT(&arr[0] == sSpan.data());
     ASSERT(&arr[5] == csSpan.data());
     ASSERT(&arr[0] == dSpan.data());
     ASSERT(&arr[5] == cdSpan.data());
 
     // front
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.front());
+    ASSERT_NOT_NOEXCEPT(csSpan.front());
+    ASSERT_NOT_NOEXCEPT( dSpan.front());
+    ASSERT_NOT_NOEXCEPT(cdSpan.front());
+#endif
+
     ASSERT(0 == sSpan.front());
     ASSERT(5 == csSpan.front());
     ASSERT(0 == dSpan.front());
     ASSERT(5 == cdSpan.front());
 
     // back
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.back());
+    ASSERT_NOT_NOEXCEPT(csSpan.back());
+    ASSERT_NOT_NOEXCEPT( dSpan.back());
+    ASSERT_NOT_NOEXCEPT(cdSpan.back());
+#endif
+
     ASSERT(9 == sSpan.back());
     ASSERT(8 == csSpan.back());
     ASSERT(9 == dSpan.back());
     ASSERT(8 == cdSpan.back());
 
     // operator[]
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan[0]);
+    ASSERT_NOT_NOEXCEPT(csSpan[0]);
+    ASSERT_NOT_NOEXCEPT( dSpan[0]);
+    ASSERT_NOT_NOEXCEPT(cdSpan[0]);
+#endif
+
     ASSERT(7 == sSpan[7]);
     ASSERT(6 == csSpan[1]);
     ASSERT(7 == dSpan[7]);
@@ -455,6 +614,13 @@ void TestSubspan()
     bsl::span<int, 4>        dFirstA  = dSpan.first<4>();
     bsl::span<const int, 2>  cdFirstA = cdSpan.first<2>();
 
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.first<4>());
+    ASSERT_NOT_NOEXCEPT(csSpan.first<2>());
+    ASSERT_NOT_NOEXCEPT( dSpan.first<4>());
+    ASSERT_NOT_NOEXCEPT(cdSpan.first<2>());
+#endif
+
     ASSERT(4 == sFirstA.size());
     ASSERT(2 == csFirstA.size());
     ASSERT(4 == dFirstA.size());
@@ -469,6 +635,13 @@ void TestSubspan()
     bsl::span<const int>  csFirstB = csSpan.first(2);
     bsl::span<int>        dFirstB  = dSpan.first(4);
     bsl::span<const int>  cdFirstB = cdSpan.first(2);
+
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.first(4));
+    ASSERT_NOT_NOEXCEPT(csSpan.first(2));
+    ASSERT_NOT_NOEXCEPT( dSpan.first(4));
+    ASSERT_NOT_NOEXCEPT(cdSpan.first(2));
+#endif
 
     ASSERT(4 == sFirstB.size());
     ASSERT(2 == csFirstB.size());
@@ -486,6 +659,13 @@ void TestSubspan()
     bsl::span<int, 4>        dLastA  = dSpan.last<4>();
     bsl::span<const int, 2>  cdLastA = cdSpan.last<2>();
 
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.last<4>());
+    ASSERT_NOT_NOEXCEPT(csSpan.last<2>());
+    ASSERT_NOT_NOEXCEPT( dSpan.last<4>());
+    ASSERT_NOT_NOEXCEPT(cdSpan.last<2>());
+#endif
+
     ASSERT(4 == sLastA.size());
     ASSERT(2 == csLastA.size());
     ASSERT(4 == dLastA.size());
@@ -500,6 +680,13 @@ void TestSubspan()
     bsl::span<const int>  csLastB = csSpan.last(2);
     bsl::span<int>        dLastB  = dSpan.last(4);
     bsl::span<const int>  cdLastB = cdSpan.last(2);
+
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.last(4));
+    ASSERT_NOT_NOEXCEPT(csSpan.last(2));
+    ASSERT_NOT_NOEXCEPT( dSpan.last(4));
+    ASSERT_NOT_NOEXCEPT(cdSpan.last(2));
+#endif
 
     ASSERT(4 == sLastB.size());
     ASSERT(2 == csLastB.size());
@@ -521,6 +708,18 @@ void TestSubspan()
     bsl::span<const int>      csSubA2 = cdSpan.subspan<2, DYN>();
     bsl::span<int>            dSubA2  = sSpan.subspan<4, DYN>();
     bsl::span<const int>      cdSubA2 = cdSpan.subspan<2, DYN>();
+
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.subspan<2, 4>());
+    ASSERT_NOT_NOEXCEPT(csSpan.subspan<1, 2>());
+    ASSERT_NOT_NOEXCEPT( dSpan.subspan<2, 4>());
+    ASSERT_NOT_NOEXCEPT(cdSpan.subspan<1, 2>());
+
+    ASSERT_NOT_NOEXCEPT( sSpan.subspan<2, DYN>());
+    ASSERT_NOT_NOEXCEPT(csSpan.subspan<1, DYN>());
+    ASSERT_NOT_NOEXCEPT( dSpan.subspan<2, DYN>());
+    ASSERT_NOT_NOEXCEPT(cdSpan.subspan<1, DYN>());
+#endif
 
     ASSERT(4 == sSubA1.size());
     ASSERT(2 == csSubA1.size());
@@ -547,6 +746,13 @@ void TestSubspan()
     bsl::span<int>       dSubB1  = dSpan.subspan(2, 4);
     bsl::span<const int> cdSubB1 = cdSpan.subspan(1, 2);
 
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.subspan(2, 4));
+    ASSERT_NOT_NOEXCEPT(csSpan.subspan(1, 2));
+    ASSERT_NOT_NOEXCEPT( dSpan.subspan(2, 4));
+    ASSERT_NOT_NOEXCEPT(cdSpan.subspan(1, 2));
+#endif
+
     ASSERT(4 == sSubB1.size());
     ASSERT(2 == csSubB1.size());
     ASSERT(4 == dSubB1.size());
@@ -561,6 +767,13 @@ void TestSubspan()
     bsl::span<const int> csSubB2 = csSpan.subspan(3, DYN);
     bsl::span<int>       dSubB2  = dSpan.subspan(4, DYN);
     bsl::span<const int> cdSubB2 = cdSpan.subspan(3, DYN);
+
+#ifdef NOEXCEPT_TEST_ONLY_BSL_SPAN
+    ASSERT_NOT_NOEXCEPT( sSpan.subspan(4, DYN));
+    ASSERT_NOT_NOEXCEPT(csSpan.subspan(3, DYN));
+    ASSERT_NOT_NOEXCEPT( dSpan.subspan(4, DYN));
+    ASSERT_NOT_NOEXCEPT(cdSpan.subspan(3, DYN));
+#endif
 
     ASSERT(6 == sSubB2.size());
     ASSERT(1 == csSubB2.size());
@@ -602,6 +815,26 @@ void TestIterators()
     bsl::span<const int,  4> csSpan(&arr[5], 4);
     bsl::span<      int>     dSpan (&arr[0], 10);
     bsl::span<const int>     cdSpan(&arr[5], 4);
+
+    ASSERT_NOEXCEPT( sSpan.begin());
+    ASSERT_NOEXCEPT(csSpan.begin());
+    ASSERT_NOEXCEPT( dSpan.begin());
+    ASSERT_NOEXCEPT(cdSpan.begin());
+
+    ASSERT_NOEXCEPT( sSpan.end());
+    ASSERT_NOEXCEPT(csSpan.end());
+    ASSERT_NOEXCEPT( dSpan.end());
+    ASSERT_NOEXCEPT(cdSpan.end());
+
+    ASSERT_NOEXCEPT( sSpan.rbegin());
+    ASSERT_NOEXCEPT(csSpan.rbegin());
+    ASSERT_NOEXCEPT( dSpan.rbegin());
+    ASSERT_NOEXCEPT(cdSpan.rbegin());
+
+    ASSERT_NOEXCEPT( sSpan.rend());
+    ASSERT_NOEXCEPT(csSpan.rend());
+    ASSERT_NOEXCEPT( dSpan.rend());
+    ASSERT_NOEXCEPT(cdSpan.rend());
 
     // Forward iterators
     idx = 0;
@@ -734,6 +967,11 @@ void TestFreeFunctions ()
     auto dBytes1 = bsl::as_bytes(dSpan1);
     auto dBytes2 = bsl::as_writable_bytes(dSpan2);
 
+    ASSERT_NOEXCEPT(bsl::as_bytes(sSpan1));
+    ASSERT_NOEXCEPT(bsl::as_writable_bytes(sSpan2));
+    ASSERT_NOEXCEPT(bsl::as_bytes(dSpan1));
+    ASSERT_NOEXCEPT(bsl::as_writable_bytes(dSpan2));
+
     BSLMF_ASSERT((bsl::is_same_v<decltype(sBytes1),
                                   bsl::span<const std::byte, 5*sizeof(int)>>));
     BSLMF_ASSERT((bsl::is_same_v<decltype(sBytes2),
@@ -763,6 +1001,9 @@ void TestFreeFunctions ()
 
     bsl::swap(sSpan1, sSpan2);
     bsl::swap(dSpan1, dSpan2);
+
+    ASSERT_NOEXCEPT(swap(sSpan1, sSpan2));
+    ASSERT_NOEXCEPT(swap(dSpan1, dSpan2));
 
     ASSERT(&arr[1] == sSpan1.data());
     ASSERT(5       == sSpan1.size());
@@ -1019,9 +1260,9 @@ int main(int argc, char *argv[])
         //: 3 Verify the results of the functions under test.
         //
         // Testing:
-        //   void swap(span a, span b);
-        //   span<const byte> as_bytes(span);
-        //   span<byte> as_writable_bytes(span);
+        //   void swap(span a, span b) noexcept;
+        //   span<const byte> as_bytes(span) noexcept;
+        //   span<byte> as_writable_bytes(span) noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFREE FUNCTIONS"
@@ -1048,10 +1289,10 @@ int main(int argc, char *argv[])
         //:   referred to by the span.
         //
         // Testing:
-        //   iterator begin();
-        //   iterator end();
-        //   reverse_iterator rbegin();
-        //   reverse_iterator rend();
+        //   iterator begin() noexcept;
+        //   iterator end() noexcept;
+        //   reverse_iterator rbegin() noexcept;
+        //   reverse_iterator rend() noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nITERATORS"
@@ -1113,11 +1354,11 @@ int main(int argc, char *argv[])
         //   reference front();
         //   reference back();
         //   reference operator[](size_type);
-        //   bool empty();
+        //   bool empty() noexcept;
         //   size_type extent;
-        //   size_type size();
-        //   size_type size_bytes();
-        //   pointer data();
+        //   size_type size() noexcept;
+        //   size_type size_bytes() noexcept;
+        //   pointer data() noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nACCESSORS"
@@ -1142,10 +1383,10 @@ int main(int argc, char *argv[])
         //:   container that they were created from.
         //
         // Testing:
-        //   span(array<value_type, SIZE>&);
-        //   span(const array<value_type, SIZE>&);
-        //   span(std::array<value_type, SIZE>&);
-        //   span(const std::array<value_type, SIZE>&);
+        //   span(array<value_type, SIZE>&) noexcept;
+        //   span(const array<value_type, SIZE>&) noexcept;
+        //   span(std::array<value_type, SIZE>&) noexcept;
+        //   span(const std::array<value_type, SIZE>&) noexcept;
         //   span(CONTAINER& c);
         //   span(const CONTAINER& c);
         // --------------------------------------------------------------------
@@ -1172,13 +1413,13 @@ int main(int argc, char *argv[])
         //:   the paramaters passed to the constructor.
         //
         // Testing:
-        //   span();
+        //   span() noexcept;
         //   span(pointer, size_type);
         //   span(pointer, pointer);
-        //   span(element_type (&arr)[SIZE]);
-        //   span(const span &);
-        //   span(span<T_OTHER_TYPE>);
-        //   operator=(const span &);
+        //   span(element_type (&arr)[SIZE]) noexcept;
+        //   span(const span &) noexcept;
+        //   span(span<T_OTHER_TYPE>) noexcept;
+        //   operator=(const span &) noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBASIC CONSTRUCTORS"
