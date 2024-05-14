@@ -28,29 +28,152 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. bdlm_metricsregistry                                !DEPRECATED!
+  4. bdlm_metricsregistry
 
-  3. bdlm_metricsadapter                                 !DEPRECATED!
+  3. bdlm_metricsadapter
 
-  2. bdlm_metricdescriptor                               !DEPRECATED!
+  2. bdlm_metricdescriptor
 
-  1. bdlm_instancecount                                  !DEPRECATED!
-     bdlm_metric                                         !DEPRECATED!
+  1. bdlm_instancecount
+     bdlm_metric
 ..
 
 /Component Synopsis
 /------------------
-: 'bdlm_instancecount':                                  !DEPRECATED!
+: 'bdlm_instancecount':
 :      Provide a type specific instance count.
 :
-: 'bdlm_metric':                                         !DEPRECATED!
+: 'bdlm_metric':
 :      Provide a class to store metric values of different types.
 :
-: 'bdlm_metricdescriptor':                               !DEPRECATED!
+: 'bdlm_metricdescriptor':
 :      Provide an attribute class to describe a metric.
 :
-: 'bdlm_metricsadapter':                                 !DEPRECATED!
+: 'bdlm_metricsadapter':
 :      Provide an abstract interface for metrics registration mechanisms.
 :
-: 'bdlm_metricsregistry':                                !DEPRECATED!
+: 'bdlm_metricsregistry':
 :      Provide a transferable registry of metric registrations.
+
+/Instrumenting a Class
+/---------------------
+ Here, we describe how to instrument a low level class ('YourClass') to report
+ metrics through 'bdlm'.  Applications will configure 'bdlm' with a
+ 'bdlm::MetricAdapter' implementation for their preferred metrics framework, so
+ that metrics reported via 'bdlm' will be published through that framework
+ (without requiring a direct library dependency).
+
+ A software metric is a measurement (or collection of measurements) about a
+ running system.  The only metric classification 'bdlm' currently supports is a
+ 'Guage', which is a metric holding a single value for the most recent
+ measurement (other possible metric classifications include summaries,
+ counters, and distributions).  Information is provided to 'bdlm' about a
+ metric by registering a function having the 'bdlm::MetricsRegistry::Callback'
+ signature.  Typically, the function is declared in an unnamed namespace.
+
+ Here we define a metric reporting function 'youMetric' for reporting a metric
+ related to 'YourClass':
+..
+  void yourMetric(BloombergLP::bdlm::Metric             *value,
+                  const BloombergLP::package::YourClass *object)
+  {
+        *value = BloombergLP::bdlm::Metric::Gauge(object->interestingValue());
+  }
+..
+ A class exposes metrics by registering functors with a
+ 'bdlm::MetricsRegistry'.  Typically, this registry is provided in the
+ constructors of the class, or the default singleton registry,
+ 'bdlm::MetricsRegistry::defaultInstance()', is used:
+..
+  YourClass(bdlm::MetricsRegistry *metricsRegistry)
+  {
+      bdlm::MetricsRegistry *registry = metricsRegistry
+                                   ? metricsRegistry
+                                   : &bdlm::MetricsRegistry::defaultInstance();
+..
+ A metrics registration requires information to identify the metric and a
+ functor, with signature 'bdlm::MetricsRegistry::Callback', to produce the
+ metric when the publication system requests the value.  The identity
+ information is provided in a 'bdlm::MetricDescriptor', which is meant to
+ contain a superset of data needed by used publication systems (e.g., BALM and
+ GUTS).
+
+ The pieces of information used to identify a metric are (i.e., the arguments
+ to create a 'MetricDescriptor):
+  * Metric Namespace
+  * Metric Name
+  * A number uniquely identifying this object's instance of the class
+  * A name identifying the class
+  * An abbreviation for the class name
+  * A unique text identifying this object's instance of the class
+
+ See 'bdlm_metricdescriptor' for more detail.
+
+ The instance number is generally best provided by the 'bdlm::InstanceCount'
+ class.  Here we use the constant
+ 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' for the
+ metric namespace, and
+ 'bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION' for the
+ unique text identifying the object instance, to allow the concrete
+ 'MetricAdapter' to select appropriate values for the particular metrics
+ framework.
+..
+      bdlm::InstanceCount::Value instanceNumber =
+                          bdlm::InstanceCount::nextInstanceNumber<YourClass>();
+
+      bdlm::MetricDescriptor mdInteresting(
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
+            "requestCount",       // the metric name
+            instanceNumber,
+            "package.yourclass",  // the class identifier
+            "yc",                 // the class abreviation
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+..
+ Assuming a class member 'd_interestingHandle' to hold the handle for the
+ registered metric, the metric is registered with the 'bdlm::MetricsRegistry':
+..
+      registry->registerCollectionCallback(
+                                &d_interestingHandle,
+                                mdInteresting,
+                                bdlf::BindUtil::bind(&yourMetric,
+                                                     bdlf::PlaceHolders::_1,
+                                                     this));
+  }
+..
+ Note that the destructor of the 'bdlm::MetricsRegistryRegistrationHandle'
+ unregisters the metric.
+ 
+/Configuring a 'MetricsAdapter'
+/------------------------------
+ 'bdlm' is designed to allow application owners to plugin a higher level
+ metrics reporting framework by supplying a concrete 'bdlm::MetricsAdapter'
+ instance to the 'bdlm::MetricsRegistry'.  Imagine we have a hypothetical
+ metrics publication framework GUTS, and a concrete 'bdlm::MetricsAdapter' for
+ GUTS, 'guta::BdlmMetricsAdapter'.
+..
+  int main(int argc, const char *argv[]) {
+      // Initialize GUTS metrics publication
+
+      gtout::PublisherConfig config;
+      config.intervalSec() = 1.0;
+      gtout::PublisherGuard publisher(config);
+
+      // Create concrete 'bdlm::MetricAdapter' implementation of
+      // 'guta::BdlmMetricsAdapter'.
+
+      guta::BdlmMetricsAdapter adapter(
+                        gutz::DefaultMetricsManager::instance(),
+                        "myNamespace",     // a namespace for the metrics
+                        "myServiceName");  // an identifier for the application
+
+      // Assign the adapter to the registry singleton.
+
+      bdlm::MetricsRegistry::singleton().setMetricsAdapter(&adapter);
+
+      // ... 
+
+      // Remove the adapter from the registry singleton.
+
+      bdlm::MetricRegistry::removeMetricsAdapter(&adapter);
+  }
+..

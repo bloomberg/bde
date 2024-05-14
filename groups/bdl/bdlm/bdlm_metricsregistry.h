@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // time, either before or after a metric is registered.
 //
 // A singleton instance of 'MetricsRegistry' is available from the
-// 'defaultRegistry' class method.  This component also provides a registration
+// 'defaultInstance' class method.  This component also provides a registration
 // handle class, 'bdlm::MetricsRegistryRegistrationHandle', that provides RAII
 // semantics for metric registration.
 //
