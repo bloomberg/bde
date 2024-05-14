@@ -12,9 +12,67 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdlm::MetricDescriptor: descriptive information for a metric
 //
-//@DESCRIPTION: This component provides a single attribute class,
+//@DESCRIPTION: This component provides a single unconstrained attribute class,
 // 'bdlm::MetricDescriptor', that is used to supply descriptive information for
-// creating a metric.
+// a metric.  A descriptor is supplied to a 'MetricsRegistry' to identify a
+// metric, which in-turn supplies that description to a higher-level metric
+// publication system (like BALM or GUTS) via a concrete implementation of the
+// 'bdlm::MetricsAdapter' protocol.
+//
+///Attributes
+///----------
+//..
+//  Name                   Type         Default
+//  ------------------     -----------  -------
+//  metricNamespace        bsl::string  [1]
+//  metricName             bsl::string  ""     
+//  instanceNumber         Uint64       0      
+//  objectTypeName         bsl::string  ""
+//  objectTypeAbbreviation bsl::string  ""
+//  objectIdentifier       bsl::string  [2]
+//  
+// [1] k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION
+// [2] k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION
+//..
+//: o 'metricNamespace' - a grouping value for published metrics, which is
+//:   expected to be have implementation specific details from the metric
+//:   publishing system.  Recommended practice is to use
+//:   'k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' indicating concrete
+//:   implementations of 'MetricsAdapter' should determine an appropriate
+//:   value for the metrics framework it adapts (this is often a configured
+//:   value for an application, e.g., a service name).
+//:
+//: o 'metricName' - the name of the metric (e.g., "requestCount")
+//:
+//: o 'instanceCount' - an instance number expected to ensure that a unique
+//:   'MetricsDescriptor' is created for each instance of an object reporting
+//:   metrics.  Recommended practice is to use 'bdlm::InstanceCount' to
+//:   generate this value.
+//:
+//: o 'objectTypeName' - a name that uniquely identifies the type generating
+//:   the metric (e.g., "bdlmt.fixedthreadpool").
+//:
+//: o 'objectTypeAbbreviation' - a shortened, but still unique, version of the
+//:   object type name (e.g., "ftp").
+//:
+//: o 'objectIdentifier' - an application unique value for identifying a
+//:   metric.  Recommended practice is to use
+//:   'k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION' indicating concrete
+//:   implementations of 'MetricsAdapter' should determine an appropriate value
+//:   for the metrics framework it adapts (this is often a value computed from
+//:   the other descriptor properties).
+//..
+// For example, for GUTS (an internal Bloomberg metric framework) using a
+// 'guta::BdlmMetricsAdapter' configured with the namespace "bdlm" and object
+// identifier prefix "svc", supplying (metricNamespace:
+// k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION, metricName: "backlog",
+// instanceNumber: InstanceCount::value<FixedThreadPool>(), objectTypeName:
+// "bdlmt.fixedthreadpool", objectTypeAbbreviation: "ftp",
+// objectIdentifier: '_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION') would result
+// in a metric that is within the namespace "bdlm", had the metric name
+// "backlog.g", and the tags
+// {"identifier":"svc.ftp.1","type":"bdlmt.fixedthreadpool"}, assuming this
+// was the first invocation of 'InstanceCount::value<FixedThreadPool>()'.
 //
 ///Usage
 ///-----
