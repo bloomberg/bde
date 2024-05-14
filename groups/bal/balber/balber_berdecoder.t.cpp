@@ -76,10 +76,48 @@ namespace test = BloombergLP::s_baltst;
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
+//                                 Overview
+//                                 --------
+// TBD...
+// ----------------------------------------------------------------------------
+// [18] int BerDecoder_Node::decode(bsl::vector<char>          *variable,
+//                                  bdlat_TypeCategory::Array  )
+// [18] int BerDecoder_Node::decode(bsl::vector<unsigned char> *variable,
+//                                  bdlat_TypeCategory::Array  )
+//
+// [19] int BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
+// [19] int BerDeocder::decode(bsl::istream&   stream   , TYPE *variable)
+//
+// [20] int decode(bsl::streambuf *streamBuf, TYPE *variable)
+// ----------------------------------------------------------------------------
+// [ 1] FUNDAMENTALS TEST
+// [ 2] ENCODE AND DECODE REAL/FLOATING-POINT
+// [ 3] ENCODE AND DECODE VOCABULARY TYPES
+// [ 4] ENCODE AND DECODE CUSTOMIZED TYPES
+// [ 5] ENCODE AND DECODE ENUMERATIONS
+// [ 6] ENCODE AND DECODE SEQUENCES
+// [ 7] ENCODE AND DECODE CHOICES
+// [ 8] ENCODE AND DECODE NULLABLE VALUES
+// [ 9] ENCODE AND DECODE ARRAYS
+// [10] ENCODE AND DECODE ANONYMOUS CHOICES
+// [11] ENCODE AND DECODE NILLABLE VALUES
+// [12] CHOICE DECODED AS SEQUENCE
+// [13] SEQUENCE DECODED AS CHOICE
+// [14] FUNCTIONS RELATED TO SKIPPED ELEMENTS
+// [15] ENCODE AND DECODE DATE/TIME
+// [16] ENCODE AND DECODE DATE/TIME COMPONENTS
+// [17] DECODE DATE/TIME COMPONENTS USING A VARIANT
+// [18] ENCODE AND DECODE 'RawData'
+// [19] DECODE COMPLEX TYPES WITH DEFAULT ELEMENTS
+// [20] DECODE SEQUENCES OF MAXIMUM SIZE
+// [21] DECODE INTS AS ENUMS AND VICE VERSA
+// [22] USAGE EXAMPLE
+// [-1] PERFORMANCE TEST
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -314,7 +352,7 @@ void printBuffer(const char *buffer, bsl::size_t length)
 void printDiagnostic(balber::BerDecoder & decoder)
 {
     if (veryVerbose) {
-        bsl::cout << decoder.loggedMessages();
+        cout << decoder.loggedMessages();
     }
 }
 
@@ -528,19 +566,22 @@ class MyChoiceWithDefaultValues {
 
 // FREE OPERATORS
 inline
-bool operator==(const MyChoiceWithDefaultValues& lhs, const MyChoiceWithDefaultValues& rhs);
+bool operator==(const MyChoiceWithDefaultValues& lhs,
+                const MyChoiceWithDefaultValues& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MyChoiceWithDefaultValues' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
+    // value, and 'false' otherwise.  Two 'MyChoiceWithDefaultValues' objects
+    // have the same value if either the selections in both objects have the
+    // same ids and the same values, or both selections are undefined.
 
 inline
-bool operator!=(const MyChoiceWithDefaultValues& lhs, const MyChoiceWithDefaultValues& rhs);
+bool operator!=(const MyChoiceWithDefaultValues& lhs,
+                const MyChoiceWithDefaultValues& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MyChoiceWithDefaultValues& rhs);
+bsl::ostream& operator<<(bsl::ostream&                   stream,
+                        const MyChoiceWithDefaultValues& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -548,7 +589,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MyChoiceWithDefaultValues& 
 
 // TRAITS
 
-BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::MyChoiceWithDefaultValues)
+BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
+                                               test::MyChoiceWithDefaultValues)
 
 namespace s_baltst {
 
@@ -556,10 +598,10 @@ namespace s_baltst {
                       // class MyChoiceWithDefaultValues
                       // -------------------------------
 
-// CLASS METHODS
 // CREATORS
 inline
-MyChoiceWithDefaultValues::MyChoiceWithDefaultValues(bslma::Allocator *basicAllocator)
+MyChoiceWithDefaultValues::MyChoiceWithDefaultValues(
+                                              bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -577,17 +619,18 @@ int MyChoiceWithDefaultValues::manipulateSelection(MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION0:
-        return manipulator(&d_selection0.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0]);
+        return manipulator(&d_selection0.object(),                    // RETURN
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0]);
       case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION1:
-        return manipulator(&d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+        return manipulator(&d_selection1.object(),                    // RETURN
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
       case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION2:
-        return manipulator(&d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+        return manipulator(&d_selection2.object(),                    // RETURN
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
       default:
-        BSLS_ASSERT(MyChoiceWithDefaultValues::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        BSLS_ASSERT(MyChoiceWithDefaultValues::SELECTION_ID_UNDEFINED ==
+                                                                d_selectionId);
+        return -1;                                                    // RETURN
     }
 }
 
@@ -624,17 +667,17 @@ int MyChoiceWithDefaultValues::accessSelection(ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION0:
-        return accessor(d_selection0.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0]);
+        return accessor(d_selection0.object(),                        // RETURN
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0]);
       case SELECTION_ID_SELECTION1:
-        return accessor(d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+        return accessor(d_selection1.object(),                        // RETURN
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
       case SELECTION_ID_SELECTION2:
-        return accessor(d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+        return accessor(d_selection2.object(),                        // RETURN
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -684,13 +727,17 @@ bool MyChoiceWithDefaultValues::isUndefinedValue() const
 }
 
 // CONSTANTS
-const char MyChoiceWithDefaultValues::CLASS_NAME[] = "MyChoiceWithDefaultValues";
+const char MyChoiceWithDefaultValues::CLASS_NAME[] =
+                                                   "MyChoiceWithDefaultValues";
 
 const int MyChoiceWithDefaultValues::DEFAULT_INITIALIZER_SELECTION0 = 100;
 
-const char MyChoiceWithDefaultValues::DEFAULT_INITIALIZER_SELECTION1[] = "default";
+const char MyChoiceWithDefaultValues::DEFAULT_INITIALIZER_SELECTION1[] =
+                                                                     "default";
 
-const MyEnumeration::Value MyChoiceWithDefaultValues::DEFAULT_INITIALIZER_SELECTION2 = MyEnumeration::VALUE2;
+const MyEnumeration::Value
+MyChoiceWithDefaultValues::DEFAULT_INITIALIZER_SELECTION2 =
+                                                         MyEnumeration::VALUE2;
 
 const bdlat_SelectionInfo MyChoiceWithDefaultValues::SELECTION_INFO_ARRAY[] = {
     {
@@ -717,60 +764,57 @@ const bdlat_SelectionInfo MyChoiceWithDefaultValues::SELECTION_INFO_ARRAY[] = {
 };
 
 // CLASS METHODS
-
 const bdlat_SelectionInfo *MyChoiceWithDefaultValues::lookupSelectionInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
     for (int i = 0; i < 3; ++i) {
         const bdlat_SelectionInfo& selectionInfo =
-                    MyChoiceWithDefaultValues::SELECTION_INFO_ARRAY[i];
+                            MyChoiceWithDefaultValues::SELECTION_INFO_ARRAY[i];
 
         if (nameLength == selectionInfo.d_nameLength
         &&  0 == bsl::memcmp(selectionInfo.d_name_p, name, nameLength))
         {
-            return &selectionInfo;
+            return &selectionInfo;                                    // RETURN
         }
     }
 
     return 0;
 }
 
-const bdlat_SelectionInfo *MyChoiceWithDefaultValues::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *
+MyChoiceWithDefaultValues::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION0:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0];
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0];     // RETURN
       case SELECTION_ID_SELECTION1:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];     // RETURN
       case SELECTION_ID_SELECTION2:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];     // RETURN
       default:
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
 // CREATORS
-
 MyChoiceWithDefaultValues::MyChoiceWithDefaultValues(
-    const MyChoiceWithDefaultValues& original,
-    bslma::Allocator *basicAllocator)
+                              const MyChoiceWithDefaultValues&  original,
+                              bslma::Allocator                 *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION0: {
-        new (d_selection0.buffer())
-            int(original.d_selection0.object());
+        new (d_selection0.buffer()) int(original.d_selection0.object());
       } break;
       case SELECTION_ID_SELECTION1: {
-        new (d_selection1.buffer())
-            bsl::string(
-                original.d_selection1.object(), d_allocator_p);
+        new (d_selection1.buffer()) bsl::string(original.d_selection1.object(),
+                                    d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION2: {
-        new (d_selection2.buffer())
-            MyEnumeration::Value(original.d_selection2.object());
+        new (d_selection2.buffer()) MyEnumeration::Value(
+                                               original.d_selection2.object());
       } break;
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -778,7 +822,6 @@ MyChoiceWithDefaultValues::MyChoiceWithDefaultValues(
 }
 
 // MANIPULATORS
-
 MyChoiceWithDefaultValues&
 MyChoiceWithDefaultValues::operator=(const MyChoiceWithDefaultValues& rhs)
 {
@@ -846,8 +889,8 @@ int MyChoiceWithDefaultValues::makeSelection(int selectionId)
 
 int MyChoiceWithDefaultValues::makeSelection(const char *name, int nameLength)
 {
-    const bdlat_SelectionInfo *selectionInfo =
-                                         lookupSelectionInfo(name, nameLength);
+    const bdlat_SelectionInfo *selectionInfo = lookupSelectionInfo(name,
+                                                                   nameLength);
     if (0 == selectionInfo) {
        return -1;
     }
@@ -862,8 +905,7 @@ int& MyChoiceWithDefaultValues::makeSelection0()
     }
     else {
         reset();
-        new (d_selection0.buffer())
-            int(DEFAULT_INITIALIZER_SELECTION0);
+        new (d_selection0.buffer()) int(DEFAULT_INITIALIZER_SELECTION0);
         d_selectionId = SELECTION_ID_SELECTION0;
     }
 
@@ -877,8 +919,7 @@ int& MyChoiceWithDefaultValues::makeSelection0(int value)
     }
     else {
         reset();
-        new (d_selection0.buffer())
-                int(value);
+        new (d_selection0.buffer()) int(value);
         d_selectionId = SELECTION_ID_SELECTION0;
     }
 
@@ -892,23 +933,23 @@ bsl::string& MyChoiceWithDefaultValues::makeSelection1()
     }
     else {
         reset();
-        new (d_selection1.buffer())
-            bsl::string(DEFAULT_INITIALIZER_SELECTION1, d_allocator_p);
+        new (d_selection1.buffer()) bsl::string(DEFAULT_INITIALIZER_SELECTION1,
+                                                d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
 }
 
-bsl::string& MyChoiceWithDefaultValues::makeSelection1(const bsl::string& value)
+bsl::string&
+MyChoiceWithDefaultValues::makeSelection1(const bsl::string& value)
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
         d_selection1.object() = value;
     }
     else {
         reset();
-        new (d_selection1.buffer())
-                bsl::string(value, d_allocator_p);
+        new (d_selection1.buffer()) bsl::string(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION1;
     }
 
@@ -922,23 +963,23 @@ MyEnumeration::Value& MyChoiceWithDefaultValues::makeSelection2()
     }
     else {
         reset();
-        new (d_selection2.buffer())
-            MyEnumeration::Value(DEFAULT_INITIALIZER_SELECTION2);
+        new (d_selection2.buffer()) MyEnumeration::Value(
+                                               DEFAULT_INITIALIZER_SELECTION2);
         d_selectionId = SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
 }
 
-MyEnumeration::Value& MyChoiceWithDefaultValues::makeSelection2(MyEnumeration::Value value)
+MyEnumeration::Value&
+MyChoiceWithDefaultValues::makeSelection2(MyEnumeration::Value value)
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
         d_selection2.object() = value;
     }
     else {
         reset();
-        new (d_selection2.buffer())
-                MyEnumeration::Value(value);
+        new (d_selection2.buffer()) MyEnumeration::Value(value);
         d_selectionId = SELECTION_ID_SELECTION2;
     }
 
@@ -946,11 +987,10 @@ MyEnumeration::Value& MyChoiceWithDefaultValues::makeSelection2(MyEnumeration::V
 }
 
 // ACCESSORS
-
-bsl::ostream& MyChoiceWithDefaultValues::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream&
+MyChoiceWithDefaultValues::print(bsl::ostream& stream,
+                                 int           level,
+                                 int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -976,14 +1016,14 @@ const char *MyChoiceWithDefaultValues::selectionName() const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION0:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0].name();
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0].name();//RETURN
       case SELECTION_ID_SELECTION1:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();//RETURN
       case SELECTION_ID_SELECTION2:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();//RETURN
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return "(* UNDEFINED *)";
+        return "(* UNDEFINED *)";                                     // RETURN
     }
 }
 
@@ -1062,7 +1102,8 @@ class MySequenceWithDefaultValues {
         // Destroy this object.
 
     // MANIPULATORS
-    MySequenceWithDefaultValues& operator=(const MySequenceWithDefaultValues& rhs);
+    MySequenceWithDefaultValues&
+    operator=(const MySequenceWithDefaultValues& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
@@ -1169,20 +1210,23 @@ class MySequenceWithDefaultValues {
 
 // FREE OPERATORS
 inline
-bool operator==(const MySequenceWithDefaultValues& lhs, const MySequenceWithDefaultValues& rhs);
+bool operator==(const MySequenceWithDefaultValues& lhs,
+                const MySequenceWithDefaultValues& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const MySequenceWithDefaultValues& lhs, const MySequenceWithDefaultValues& rhs);
+bool operator!=(const MySequenceWithDefaultValues& lhs,
+                const MySequenceWithDefaultValues& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
     // not have the same value if one or more respective attributes differ in
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithDefaultValues& rhs);
+bsl::ostream& operator<<(bsl::ostream&                     stream,
+                        const MySequenceWithDefaultValues& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1190,7 +1234,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithDefaultValues
 
 // TRAITS
 
-BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::MySequenceWithDefaultValues)
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
+                                             test::MySequenceWithDefaultValues)
 
 namespace s_baltst {
 
@@ -1204,56 +1249,62 @@ int MySequenceWithDefaultValues::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_attribute0, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
+    ret = manipulator(&d_attribute0,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = manipulator(&d_attribute1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = manipulator(&d_attribute2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
 }
 
 template <class MANIPULATOR>
-int MySequenceWithDefaultValues::manipulateAttribute(MANIPULATOR& manipulator, int id)
+int MySequenceWithDefaultValues::manipulateAttribute(MANIPULATOR& manipulator,
+                                                     int          id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE0: {
-        return manipulator(&d_attribute0, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
+        return manipulator(&d_attribute0,                             // RETURN
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return manipulator(&d_attribute1,                             // RETURN
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return manipulator(&d_attribute2,                             // RETURN
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
 template <class MANIPULATOR>
-int MySequenceWithDefaultValues::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int MySequenceWithDefaultValues::manipulateAttribute(MANIPULATOR&  manipulator,
+                                                     const char   *name,
+                                                     int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdlat_AttributeInfo *attributeInfo =
-                                         lookupAttributeInfo(name, nameLength);
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+                                                                   nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -1283,56 +1334,62 @@ int MySequenceWithDefaultValues::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_attribute0, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
+    ret = accessor(d_attribute0,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = accessor(d_attribute1,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = accessor(d_attribute2,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
 }
 
 template <class ACCESSOR>
-int MySequenceWithDefaultValues::accessAttribute(ACCESSOR& accessor, int id) const
+int MySequenceWithDefaultValues::accessAttribute(ACCESSOR& accessor,
+                                                 int       id) const
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE0: {
-        return accessor(d_attribute0, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
+        return accessor(d_attribute0,                                 // RETURN
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return accessor(d_attribute1,                                 // RETURN
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return accessor(d_attribute2,                                 // RETURN
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
 template <class ACCESSOR>
-int MySequenceWithDefaultValues::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int MySequenceWithDefaultValues::accessAttribute(ACCESSOR&   accessor,
+                                                 const char *name,
+                                                 int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
-    const bdlat_AttributeInfo *attributeInfo =
-          lookupAttributeInfo(name, nameLength);
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+                                                                   nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -1358,15 +1415,20 @@ MyEnumeration::Value MySequenceWithDefaultValues::attribute2() const
 
 // CONSTANTS
 
-const char MySequenceWithDefaultValues::CLASS_NAME[] = "MySequenceWithDefaultValues";
+const char MySequenceWithDefaultValues::CLASS_NAME[] =
+                                                 "MySequenceWithDefaultValues";
 
 const int MySequenceWithDefaultValues::DEFAULT_INITIALIZER_ATTRIBUTE0 = 100;
 
-const char MySequenceWithDefaultValues::DEFAULT_INITIALIZER_ATTRIBUTE1[] = "default";
+const char MySequenceWithDefaultValues::DEFAULT_INITIALIZER_ATTRIBUTE1[] =
+                                                                     "default";
 
-const MyEnumeration::Value MySequenceWithDefaultValues::DEFAULT_INITIALIZER_ATTRIBUTE2 = MyEnumeration::VALUE2;
+const MyEnumeration::Value
+MySequenceWithDefaultValues::DEFAULT_INITIALIZER_ATTRIBUTE2 =
+                                                         MyEnumeration::VALUE2;
 
-const bdlat_AttributeInfo MySequenceWithDefaultValues::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo
+MySequenceWithDefaultValues::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE0,
         "attribute0",
@@ -1391,10 +1453,9 @@ const bdlat_AttributeInfo MySequenceWithDefaultValues::ATTRIBUTE_INFO_ARRAY[] = 
 };
 
 // CLASS METHODS
-
-const bdlat_AttributeInfo *MySequenceWithDefaultValues::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *
+MySequenceWithDefaultValues::lookupAttributeInfo(const char *name,
+                                                 int         nameLength)
 {
     for (int i = 0; i < 3; ++i) {
         const bdlat_AttributeInfo& attributeInfo =
@@ -1403,38 +1464,41 @@ const bdlat_AttributeInfo *MySequenceWithDefaultValues::lookupAttributeInfo(
         if (nameLength == attributeInfo.d_nameLength
         &&  0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength))
         {
-            return &attributeInfo;
+            return &attributeInfo;                                    // RETURN
         }
     }
 
     return 0;
 }
 
-const bdlat_AttributeInfo *MySequenceWithDefaultValues::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *
+MySequenceWithDefaultValues::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE0:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0];
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0];     // RETURN
       case ATTRIBUTE_ID_ATTRIBUTE1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];     // RETURN
       case ATTRIBUTE_ID_ATTRIBUTE2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];     // RETURN
       default:
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
 // CREATORS
 
-MySequenceWithDefaultValues::MySequenceWithDefaultValues(bslma::Allocator *basicAllocator)
+MySequenceWithDefaultValues::MySequenceWithDefaultValues(
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1(DEFAULT_INITIALIZER_ATTRIBUTE1, basicAllocator)
 , d_attribute0(DEFAULT_INITIALIZER_ATTRIBUTE0)
 , d_attribute2(DEFAULT_INITIALIZER_ATTRIBUTE2)
 {
 }
 
-MySequenceWithDefaultValues::MySequenceWithDefaultValues(const MySequenceWithDefaultValues& original,
-                                                         bslma::Allocator *basicAllocator)
+MySequenceWithDefaultValues::MySequenceWithDefaultValues(
+                            const MySequenceWithDefaultValues&  original,
+                            bslma::Allocator                   *basicAllocator)
 : d_attribute1(original.d_attribute1, basicAllocator)
 , d_attribute0(original.d_attribute0)
 , d_attribute2(original.d_attribute2)
@@ -1446,7 +1510,6 @@ MySequenceWithDefaultValues::~MySequenceWithDefaultValues()
 }
 
 // MANIPULATORS
-
 MySequenceWithDefaultValues&
 MySequenceWithDefaultValues::operator=(const MySequenceWithDefaultValues& rhs)
 {
@@ -1468,10 +1531,10 @@ void MySequenceWithDefaultValues::reset()
 
 // ACCESSORS
 
-bsl::ostream& MySequenceWithDefaultValues::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+bsl::ostream&
+MySequenceWithDefaultValues::print(bsl::ostream& stream,
+                                   int           level,
+                                   int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -1500,7 +1563,7 @@ class Enumeration1 {
 
     friend int bdlat_enumFromString(Enumeration1 *, const char *, int)
     {
-        bsl::cout << "should not be called\n";
+        cout << "should not be called\n";
         ASSERT(false);
         return -1;
     }
@@ -1522,6 +1585,7 @@ class Enumeration1 {
     }
 };
 }  // close namespace s_baltst
+
 namespace bdlat_EnumFunctions {
 template <>
 struct IsEnumeration<test::Enumeration1> : public bsl::true_type {
@@ -1993,21 +2057,20 @@ int main(int argc, char *argv[])
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
-    balber::BerDecoderOptions  options;
-
+    balber::BerDecoderOptions options;
     if (veryVeryVerbose) {
        options.setTraceLevel(1);
     }
 
-    balber::BerEncoder         encoder(0);
-    balber::BerDecoder         decoder(&options);
+    balber::BerEncoder encoder(0);
+    balber::BerDecoder decoder(&options);
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //   Extracted from component header file.
         //
         // Concerns:
@@ -2023,16 +2086,16 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Usage Example"
-                               << "\n=====================" << bsl::endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                             "\n=============\n";
 
         usageExample();
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // DECODING INTS AS ENUMS AND VICE VERSA
+        // DECODE INTS AS ENUMS AND VICE VERSA
         //
         // Concerns:
         //: 1 The encoding produced by 'balber_berencoder' when encoding an
@@ -2063,11 +2126,11 @@ int main(int argc, char *argv[])
         //:   repeat using the generated type 'test::MyIntEnumeration'.  (C-2)
         //
         // Testing:
-        //   DECODING INTS AS ENUMS AND VICE VERSA
+        //   DECODE INTS AS ENUMS AND VICE VERSA
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nDECODING INTS AS ENUMS AND VICE VERSA"
-                          << "\n=====================================" << endl;
+        if (verbose) cout << "\nDECODE INTS AS ENUMS AND VICE VERSA"
+                             "\n===================================\n";
 
         balber::BerEncoder encoder;
         balber::BerDecoder decoder;
@@ -2092,7 +2155,6 @@ int main(int argc, char *argv[])
             test::MyIntEnumeration c;
             ASSERT(0 == decoder.decode(&isb2, &c));
             ASSERT(test::MyIntEnumeration(i) == c);
-
         }
 
         // P-2
@@ -2119,9 +2181,9 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING decoding sequences of maximum size
+        // DECODE SEQUENCES OF MAXIMUM SIZE
         //   Ensure that decoding sequences smaller than the configured maximum
-        //   sequence size succeeds and decodeing sequences larger than the
+        //   sequence size succeeds and decoding sequences larger than the
         //   configured maximum sequence size fails.
         //
         // Concerns:
@@ -2131,7 +2193,7 @@ int main(int argc, char *argv[])
         //: 2 Decoding a single-element 'vector<char>' with a degenerate
         //:   maximum decoded sequence size of 0 fails.
         //;
-        //: 3 Docoding en empty 'vector<char>' with a maximum decoded sequence
+        //: 3 Decoding en empty 'vector<char>' with a maximum decoded sequence
         //:   size of 1 successfully decodes the empty vector.
         //:
         //: 4 Decoding an single-element 'vector<char>' with a maximum decoded
@@ -2145,7 +2207,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 For maximum sequence sizes of 0, 1, 1 Megabyte, and 1 Gigabyte,
-        //:   attmpt to decode a 'vector<char>' of 1 less than, exactly equal
+        //:   attempt to decode a 'vector<char>' of 1 less than, exactly equal
         //:   to, and 1 greater than the maximum sequence size.
         //:
         //: 2 Verify that decoding vectors of sizes less than or equal to the
@@ -2158,10 +2220,8 @@ int main(int argc, char *argv[])
         //   int decode(bsl::streambuf *streamBuf, TYPE *variable);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << "\nTesting decoding sequences of maximum size"
-                      << "\n=========================================="
-                      << bsl::endl;
+        if (verbose) cout << "\nDECODE SEQUENCES OF MAXIMUM SIZE"
+                             "\n================================\n";
 
         // First, ensure that the default maximum sequence size is 1GB.  This
         // assertion will need to be changed as the default value for the
@@ -2246,11 +2306,11 @@ int main(int argc, char *argv[])
                 ASSERT(0 != rc);
             }
         }
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING decoding complex types with default elements
+        // DECODE COMPLEX TYPES WITH DEFAULT ELEMENTS
         //
         // Concerns:
         //: 1 The "DefaultEmptyStrings" decoder option instructs a BER decoder
@@ -2299,17 +2359,12 @@ int main(int argc, char *argv[])
         //   int BerDeocder::decode(bsl::istream&   stream   , TYPE *variable)
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout
-                << "\nTESTING decoding complex types with default elements"
-                << "\n===================================================="
-                << bsl::endl;
+        if (verbose) cout << "\nDECODE COMPLEX TYPES WITH DEFAULT ELEMENTS"
+                             "\n==========================================\n";
 
         if (veryVerbose)
-            bsl::cout
-                << "\nTest decoding choices whose selections have defaults"
-                << "\n----------------------------------------------------"
-                << bsl::endl;
+                   cout << "\nDECODE CHOICES WHOSE SELECTIONS HAVE DEFAULTS"
+                           "\n---------------------------------------------\n";
         {
             enum Selection {
                 INT,
@@ -2392,7 +2447,7 @@ int main(int argc, char *argv[])
                       } break;
                       case DEFAULT: {
                         object.makeSelection0(
-                            SerializableObject::DEFAULT_INITIALIZER_SELECTION0);
+                           SerializableObject::DEFAULT_INITIALIZER_SELECTION0);
                       } break;
                       case ARBITRARY: {
                         object.makeSelection0(ARBITRARY_INT);
@@ -2409,7 +2464,7 @@ int main(int argc, char *argv[])
                       } break;
                       case DEFAULT: {
                         object.makeSelection1(
-                            SerializableObject::DEFAULT_INITIALIZER_SELECTION1);
+                           SerializableObject::DEFAULT_INITIALIZER_SELECTION1);
                       } break;
                       case ARBITRARY: {
                         object.makeSelection1(ARBITRARY_STRING);
@@ -2426,7 +2481,7 @@ int main(int argc, char *argv[])
                       } break;
                       case DEFAULT: {
                         object.makeSelection2(
-                            SerializableObject::DEFAULT_INITIALIZER_SELECTION2);
+                           SerializableObject::DEFAULT_INITIALIZER_SELECTION2);
                       } break;
                       case ARBITRARY: {
                         object.makeSelection2(ARBITRARY_ENUM);
@@ -2528,10 +2583,8 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose)
-            bsl::cout
-                << "\nTest decoding sequences whose attributes have defaults"
-                << "\n------------------------------------------------------"
-                << bsl::endl;
+            cout << "\nDECODE SEQUENCES WHOSE ATTRIBUTES HAVE DEFAULTS"
+                    "\n-----------------------------------------------\n";
         {
             enum Value {
                 ZERO,
@@ -2736,11 +2789,11 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING encoding & decoding for RawData
+        // ENCODE AND DECODE 'RawData'
         //
         // Concerns:
         //: 1 A 'vector<char>' with certain formatting modes will be encoded
@@ -2750,12 +2803,12 @@ int main(int argc, char *argv[])
         //:   'vector<unsigned char>', will be encoded by 'BerEncoder' as a
         //:   sequence of individual values.
         //:
-        //: 3 'BerDecoder' when decoding a 'vecctor<char>' or a
+        //: 3 'BerDecoder' when decoding a 'vector<char>' or a
         //:   'vector<unsigned char>' should be able to decode either of those
-        //:   formats, independant of which encoding choice was made.
+        //:   formats, independent of which encoding choice was made.
         //:
         //: 4 Similarly, since 'char' and 'unsigned char' are generally really
-        //:   used interchangably as 'byte', the type when encoded shouldn't
+        //:   used interchangeably as 'byte', the type when encoded shouldn't
         //:   prevent decoding even if it does not match the type when
         //:   decoding.
         //
@@ -2777,31 +2830,29 @@ int main(int argc, char *argv[])
         //                               bdlat_TypeCategory::Array  )
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING encoding & decoding for RawData"
-                               << "\n======================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE 'RawData'"
+                             "\n===========================\n";
 
-        const char TEST_DATA[] = "300C8001 22A10082 0548656C 6C6F";
-        bsl::vector<char> testData = loadFromHex(TEST_DATA);
+        bsl::vector<char>          testData = loadFromHex(
+                                            "300C8001 22A10082 0548656C 6C6F");
         bsl::vector<unsigned char> utestData;
         bsl::copy(testData.begin(), testData.end(),
-                                    bsl::back_inserter(utestData));
-
+                                                bsl::back_inserter(utestData));
         ASSERT(testData.size() == utestData.size());
 
-        if (verbose) bsl::cout << "\nTesting with rawdata." << bsl::endl;
+        if (verbose) cout << "\nTesting with 'RawData'.\n";
         {
             test::RawData rawData;
             rawData.charvec() = testData;
             bsl::copy(testData.begin(),testData.end(),
-                bsl::back_inserter(rawData.ucharvec()));
+                                       bsl::back_inserter(rawData.ucharvec()));
 
-            ASSERT(testData == rawData.charvec());
+            ASSERT( testData == rawData.charvec());
             ASSERT(utestData == rawData.ucharvec());
 
             balber::BerEncoderOptions encoderOptions;
-            balber::BerEncoder encoder(&encoderOptions);
-            bdlsb::MemOutStreamBuf osb;
+            balber::BerEncoder        encoder(&encoderOptions);
+            bdlsb::MemOutStreamBuf    osb;
             ASSERT(0 == encoder.encode(&osb, rawData));
 
             if (veryVerbose) {
@@ -2809,31 +2860,30 @@ int main(int argc, char *argv[])
                 printBuffer(osb.data(),osb.length());
             }
 
-            balber::BerDecoderOptions decoderOptions;
-            balber::BerDecoder decoder(&decoderOptions);
-            test::RawData rawDataParsed;
+            balber::BerDecoderOptions  decoderOptions;
+            balber::BerDecoder         decoder(&decoderOptions);
+            test::RawData              rawDataParsed;
             bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
             ASSERT(0 == decoder.decode(&isb, &rawDataParsed));
 
-            ASSERT(rawData == rawDataParsed);
-            ASSERT(testData == rawDataParsed.charvec());
+            ASSERT(  rawData == rawDataParsed);
+            ASSERT( testData == rawDataParsed.charvec());
             ASSERT(utestData == rawDataParsed.ucharvec());
         }
 
-        if (verbose) bsl::cout << "\nTesting with rawdataunformatted."
-           << bsl::endl;
+        if (verbose) cout << "\nTesting with 'RawDataUnformatted'.\n";
         {
             test::RawDataUnformatted rawDataUf;
             rawDataUf.charvec() = testData;
             bsl::copy(testData.begin(),testData.end(),
-                bsl::back_inserter(rawDataUf.ucharvec()));
+                                     bsl::back_inserter(rawDataUf.ucharvec()));
 
-            ASSERT(testData == rawDataUf.charvec());
+            ASSERT( testData == rawDataUf.charvec());
             ASSERT(utestData == rawDataUf.ucharvec());
 
             balber::BerEncoderOptions encoderOptions;
-            balber::BerEncoder encoder(&encoderOptions);
-            bdlsb::MemOutStreamBuf osb;
+            balber::BerEncoder        encoder(&encoderOptions);
+            bdlsb::MemOutStreamBuf    osb;
             ASSERT(0 == encoder.encode(&osb, rawDataUf));
 
             if (veryVerbose) {
@@ -2841,29 +2891,28 @@ int main(int argc, char *argv[])
                 printBuffer(osb.data(),osb.length());
             }
 
-            balber::BerDecoderOptions decoderOptions;
-            balber::BerDecoder decoder(&decoderOptions);
-            test::RawData rawDataParsed;
+            balber::BerDecoderOptions  decoderOptions;
+            balber::BerDecoder         decoder(&decoderOptions);
+            test::RawData              rawDataParsed;
             bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
             ASSERT(0 == decoder.decode(&isb, &rawDataParsed));
 
-            ASSERT(testData == rawDataParsed.charvec());
+            ASSERT( testData == rawDataParsed.charvec());
             ASSERT(utestData == rawDataParsed.ucharvec());
         }
 
-        if (verbose) bsl::cout << "\nTesting uchar->char with rawdataswitched."
-           << bsl::endl;
+        if (verbose) cout << "\nTesting uchar->char with 'RawDataSwitched'.\n";
         {
             test::RawDataSwitched rawDataSw;
             bsl::copy(testData.begin(),testData.end(),
-                bsl::back_inserter(rawDataSw.ucharvec()));
+                                     bsl::back_inserter(rawDataSw.ucharvec()));
 
             ASSERT(0 == rawDataSw.charvec().size());
             ASSERT(utestData == rawDataSw.ucharvec());
 
             balber::BerEncoderOptions encoderOptions;
-            balber::BerEncoder encoder(&encoderOptions);
-            bdlsb::MemOutStreamBuf osb;
+            balber::BerEncoder        encoder(&encoderOptions);
+            bdlsb::MemOutStreamBuf    osb;
             ASSERT(0 == encoder.encode(&osb, rawDataSw));
 
             if (veryVerbose) {
@@ -2871,26 +2920,23 @@ int main(int argc, char *argv[])
                 printBuffer(osb.data(),osb.length());
             }
 
-            balber::BerDecoderOptions decoderOptions;
-            balber::BerDecoder decoder(&decoderOptions);
-            test::RawData rawDataParsed;
+            balber::BerDecoderOptions  decoderOptions;
+            balber::BerDecoder         decoder(&decoderOptions);
+            test::RawData              rawDataParsed;
             bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
             int rc = decoder.decode(&isb,&rawDataParsed);
-            if (rc != 0)
-            {
-                bsl::cerr << "Errors parsing:" <<
-                          decoder.loggedMessages() << bsl::endl;
-                ASSERT(rc == 0);
+            if (rc != 0) {
+                cerr << "Errors parsing:" << decoder.loggedMessages() << '\n';
+                ASSERT(0 == rc);
             }
 
             ASSERT(0 == rawDataParsed.ucharvec().size());
             ASSERT(testData == rawDataParsed.charvec());
         }
-
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING decoding for date/time components using a variant
+        // DECODE DATE/TIME COMPONENTS USING A VARIANT
         //
         // Concerns:
         //
@@ -2899,16 +2945,12 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                            << "\nTESTING decoding for date/time using variant"
-                            << "\n============================================"
-                            << bsl::endl;
+        if (verbose) cout << "\nDECODE DATE/TIME COMPONENTS USING A VARIANT"
+                             "\n===========================================\n";
 
         balber::BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
         const balber::BerEncoderOptions DEFOPTS;
-
-        if (verbose) bsl::cout << "\nDefine data" << bsl::endl;
 
         static const struct {
             int d_lineNum;   // source line number
@@ -3084,7 +3126,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Date'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::Date'.\n";
         {
             typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> Variant;
 
@@ -3103,7 +3145,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -3119,8 +3161,7 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value1,
                                  VALUE == value1.the<bdlt::Date>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value1);
+                        P_(VALUE) P(value1);
                     }
                 }
 
@@ -3142,14 +3183,13 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value2,
                                  VALUE == value2.the<bdlt::Date>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value2);
+                        P_(VALUE) P(value2);
                     }
                 }
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DateTz'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::DateTz'.\n";
         {
             typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> Variant;
 
@@ -3169,7 +3209,7 @@ int main(int argc, char *argv[])
 
                 if (OFF) {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -3185,14 +3225,13 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value1,
                                  VALUE == value1.the<bdlt::DateTz>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value1);
+                        P_(VALUE) P(value1);
                     }
                 }
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&DEFOPTS);
+                    balber::BerEncoder     encoder(&DEFOPTS);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -3208,14 +3247,13 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value2,
                                  VALUE == value2.the<bdlt::DateTz>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value1);
+                        P_(VALUE) P(value1);
                     }
                 }
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Time'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::Time'.\n";
         {
             typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> Variant;
 
@@ -3235,7 +3273,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -3251,8 +3289,7 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value1,
                                  VALUE == value1.the<bdlt::Time>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value1);
+                        P_(VALUE) P(value1);
                     }
                 }
 
@@ -3274,14 +3311,13 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value2,
                                  VALUE == value2.the<bdlt::Time>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value2);
+                        P_(VALUE) P(value2);
                     }
                 }
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::TimeTz'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::TimeTz'.\n";
         {
             typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> Variant;
 
@@ -3302,7 +3338,7 @@ int main(int argc, char *argv[])
 
                 if (OFF) {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -3318,14 +3354,13 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value1,
                                  VALUE == value1.the<bdlt::TimeTz>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value1);
+                        P_(VALUE) P(value1);
                     }
                 }
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&DEFOPTS);
+                    balber::BerEncoder     encoder(&DEFOPTS);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -3341,18 +3376,16 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value2,
                                  VALUE == value2.the<bdlt::TimeTz>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value1);
+                        P_(VALUE) P(value1);
                     }
                 }
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Datetime'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::Datetime'.\n";
         {
             typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> Variant;
-
-            typedef bdlt::Datetime Type;
+            typedef bdlt::Datetime                                   Type;
 
             for (int i = 0; i < NUM_DATA ; ++i) {
                 const int LINE = DATA[i].d_lineNum;
@@ -3378,8 +3411,7 @@ int main(int argc, char *argv[])
                     if (osb.length() > 6) {
                         // Datetime objects having length greater that 6 bytes
                         // are always encoded with a time zone.
-
-                        continue;
+                        continue;                                   // CONTINUE
                     }
 
                     if (veryVerbose) {
@@ -3395,8 +3427,7 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value1,
                                  VALUE == value1.the<bdlt::Datetime>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value1);
+                        P_(VALUE) P(value1);
                     }
                 }
 
@@ -3418,14 +3449,13 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value2,
                                  VALUE == value2.the<bdlt::Datetime>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value2);
+                        P_(VALUE) P(value2);
                     }
                 }
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DatetimeTz'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::DatetimeTz'.\n";
         {
             typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> Variant;
 
@@ -3450,7 +3480,7 @@ int main(int argc, char *argv[])
 
                 if (OFF) {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -3466,14 +3496,13 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value1,
                                  VALUE == value1.the<bdlt::DatetimeTz>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value1);
+                        P_(VALUE) P(value1);
                     }
                 }
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&DEFOPTS);
+                    balber::BerEncoder     encoder(&DEFOPTS);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -3489,8 +3518,7 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, VALUE, value2,
                                  VALUE == value2.the<bdlt::DatetimeTz>());
                     if (veryVerbose) {
-                        P(VALUE);
-                        P(value2);
+                        P_(VALUE) P(value2);
                     }
                 }
             }
@@ -3498,7 +3526,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING encoding & decoding for date/time components
+        // ENCODE AND DECODE DATE/TIME COMPONENTS
         //
         // Concerns:
         //
@@ -3507,15 +3535,14 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING encoding & decoding for date/time"
-                               << "\n========================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE DATE/TIME COMPONENTS"
+                             "\n======================================\n";
 
         balber::BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
         const balber::BerEncoderOptions DEFOPTS;
 
-        if (verbose) bsl::cout << "\nTesting Date Brute force." << bsl::endl;
+        if (verbose) cout << "\nDate brute force testing\n";
         {
             const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
                                   1700, 1751, 1752, 1753, 1930, 2000, 2010,
@@ -3540,23 +3567,23 @@ int main(int argc, char *argv[])
                 if (bdlt::Date::isValidYearMonthDay(YEAR, MONTH, DAY)
                  && bdlt::ProlepticDateImpUtil::isValidYearMonthDay(YEAR,
                                                                     MONTH,
-                                                                    DAY)) {
-
+                                                                    DAY))
+                {
                     if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
 
                     const bdlt::Date VALUE(YEAR, MONTH, DAY); bdlt::Date value;
                     const int OFF1 = 0, OFF2 =-1439, OFF3 =1439;
                     const bdlt::DateTz VALUE1(bdlt::Date(YEAR, MONTH, DAY),
-                                             OFF1);
+                                              OFF1);
                     const bdlt::DateTz VALUE2(bdlt::Date(YEAR, MONTH, DAY),
-                                             OFF2);
+                                              OFF2);
                     const bdlt::DateTz VALUE3(bdlt::Date(YEAR, MONTH, DAY),
-                                             OFF3);
+                                              OFF3);
                     bdlt::DateTz value1, value2, value3;
 
                     {
                         bdlsb::MemOutStreamBuf osb;
-                        balber::BerEncoder encoder(&DEFOPTS);
+                        balber::BerEncoder     encoder(&DEFOPTS);
                         ASSERT(0 == encoder.encode(&osb, VALUE));
 
                         if (veryVerbose) {
@@ -3578,7 +3605,7 @@ int main(int argc, char *argv[])
 
                     {
                         bdlsb::MemOutStreamBuf osb1, osb2, osb3;
-                        balber::BerEncoder encoder(&DEFOPTS);
+                        balber::BerEncoder     encoder(&DEFOPTS);
                         ASSERT(0 == encoder.encode(&osb1, VALUE1));
                         ASSERT(0 == encoder.encode(&osb2, VALUE2));
                         ASSERT(0 == encoder.encode(&osb3, VALUE3));
@@ -3593,11 +3620,11 @@ int main(int argc, char *argv[])
                         }
 
                         bdlsb::FixedMemInStreamBuf isb1(osb1.data(),
-                                                       osb1.length());
+                                                        osb1.length());
                         bdlsb::FixedMemInStreamBuf isb2(osb2.data(),
-                                                       osb2.length());
+                                                        osb2.length());
                         bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
-                                                       osb3.length());
+                                                        osb3.length());
 
                         ASSERT(0 == decoder.decode(&isb1, &value1));
                         ASSERT(0 == decoder.decode(&isb2, &value2));
@@ -3616,7 +3643,7 @@ int main(int argc, char *argv[])
 
                     {
                         bdlsb::MemOutStreamBuf osb;
-                        balber::BerEncoder encoder(&DEFOPTS);
+                        balber::BerEncoder     encoder(&DEFOPTS);
                         ASSERT(0 == encoder.encode(&osb, VALUE));
 
                         if (veryVerbose) {
@@ -3625,7 +3652,7 @@ int main(int argc, char *argv[])
                         }
 
                         bdlsb::FixedMemInStreamBuf isb(osb.data(),
-                                                      osb.length());
+                                                       osb.length());
                         ASSERT(0 == decoder.decode(&isb, &value));
                         printDiagnostic(decoder);
 
@@ -3638,7 +3665,7 @@ int main(int argc, char *argv[])
 
                     {
                         bdlsb::MemOutStreamBuf osb;
-                        balber::BerEncoder encoder(&options);
+                        balber::BerEncoder     encoder(&options);
                         ASSERT(0 == encoder.encode(&osb, VALUE));
 
                         if (veryVerbose) {
@@ -3647,7 +3674,7 @@ int main(int argc, char *argv[])
                         }
 
                         bdlsb::FixedMemInStreamBuf isb(osb.data(),
-                                                      osb.length());
+                                                       osb.length());
                         ASSERT(0 == decoder.decode(&isb, &value));
                         printDiagnostic(decoder);
 
@@ -3660,7 +3687,7 @@ int main(int argc, char *argv[])
 
                     {
                         bdlsb::MemOutStreamBuf osb1, osb2, osb3;
-                        balber::BerEncoder encoder(&options);
+                        balber::BerEncoder     encoder(&options);
                         ASSERT(0 == encoder.encode(&osb1, VALUE1));
                         ASSERT(0 == encoder.encode(&osb2, VALUE2));
                         ASSERT(0 == encoder.encode(&osb3, VALUE3));
@@ -3675,11 +3702,11 @@ int main(int argc, char *argv[])
                         }
 
                         bdlsb::FixedMemInStreamBuf isb1(osb1.data(),
-                                                       osb1.length());
+                                                        osb1.length());
                         bdlsb::FixedMemInStreamBuf isb2(osb2.data(),
-                                                       osb2.length());
+                                                        osb2.length());
                         bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
-                                                       osb3.length());
+                                                        osb3.length());
 
                         ASSERT(0 == decoder.decode(&isb1, &value1));
                         ASSERT(0 == decoder.decode(&isb2, &value2));
@@ -3701,7 +3728,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting Time Brute force." << bsl::endl;
+        if (verbose) cout << "\nTesting Time Brute force.\n";
         {
             for (int hour = 0; hour <= 23; ++hour) {
                 for (int min = 0; min < 60; ++min) {
@@ -3714,25 +3741,25 @@ int main(int argc, char *argv[])
                         const int MS1 = 0, MS2 = 500, MS3 = 999;
                         const int OFF1 = 0, OFF2 =-1439, OFF3 =1439;
                         const bdlt::TimeTz VALUE1(bdlt::Time(hour,
-                                                           min,
-                                                           sec,
-                                                           MS1),
+                                                             min,
+                                                             sec,
+                                                             MS1),
                                                  OFF1);
                         const bdlt::TimeTz VALUE2(bdlt::Time(hour,
-                                                           min,
-                                                           sec,
-                                                           MS2),
+                                                             min,
+                                                             sec,
+                                                             MS2),
                                                  OFF2);
                         const bdlt::TimeTz VALUE3(bdlt::Time(hour,
-                                                           min,
-                                                           sec,
-                                                           MS3),
+                                                             min,
+                                                             sec,
+                                                             MS3),
                                                  OFF3);
                         bdlt::TimeTz value1, value2, value3;
 
                         {
                             bdlsb::MemOutStreamBuf osb;
-                            balber::BerEncoder encoder(&DEFOPTS);
+                            balber::BerEncoder     encoder(&DEFOPTS);
                             ASSERT(0 == encoder.encode(&osb, VALUE));
 
                             if (veryVerbose) {
@@ -3741,7 +3768,7 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
-                                                          osb.length());
+                                                           osb.length());
                             ASSERT(0 == decoder.decode(&isb, &value));
                             printDiagnostic(decoder);
 
@@ -3754,7 +3781,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb1, osb2, osb3;
-                            balber::BerEncoder encoder(&DEFOPTS);
+                            balber::BerEncoder     encoder(&DEFOPTS);
                             ASSERT(0 == encoder.encode(&osb1, VALUE1));
                             ASSERT(0 == encoder.encode(&osb2, VALUE2));
                             ASSERT(0 == encoder.encode(&osb3, VALUE3));
@@ -3769,11 +3796,11 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb1(osb1.data(),
-                                                           osb1.length());
+                                                            osb1.length());
                             bdlsb::FixedMemInStreamBuf isb2(osb2.data(),
-                                                           osb2.length());
+                                                            osb2.length());
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
-                                                           osb3.length());
+                                                            osb3.length());
 
                             ASSERT(0 == decoder.decode(&isb1, &value1));
                             ASSERT(0 == decoder.decode(&isb2, &value2));
@@ -3792,7 +3819,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb;
-                            balber::BerEncoder encoder(&options);
+                            balber::BerEncoder     encoder(&options);
                             ASSERT(0 == encoder.encode(&osb, VALUE));
 
                             if (veryVerbose) {
@@ -3801,7 +3828,7 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
-                                                          osb.length());
+                                                           osb.length());
                             ASSERT(0 == decoder.decode(&isb, &value));
                             printDiagnostic(decoder);
 
@@ -3814,7 +3841,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb1, osb2, osb3;
-                            balber::BerEncoder encoder(&options);
+                            balber::BerEncoder     encoder(&options);
                             ASSERT(0 == encoder.encode(&osb1, VALUE1));
                             ASSERT(0 == encoder.encode(&osb2, VALUE2));
                             ASSERT(0 == encoder.encode(&osb3, VALUE3));
@@ -3829,11 +3856,11 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb1(osb1.data(),
-                                                           osb1.length());
+                                                            osb1.length());
                             bdlsb::FixedMemInStreamBuf isb2(osb2.data(),
-                                                           osb2.length());
+                                                            osb2.length());
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
-                                                           osb3.length());
+                                                            osb3.length());
 
                             ASSERT(0 == decoder.decode(&isb1, &value1));
                             ASSERT(0 == decoder.decode(&isb2, &value2));
@@ -3854,8 +3881,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting Datetime Brute force."
-                               << bsl::endl;
+        if (verbose) cout << "\nDatetime brute force testing\n";
         {
             const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
                                   1700, 1751, 1752, 1753, 1930, 2000, 2010,
@@ -3942,7 +3968,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb;
-                            balber::BerEncoder encoder(&DEFOPTS);
+                            balber::BerEncoder     encoder(&DEFOPTS);
                             ASSERT(0 == encoder.encode(&osb, VALUE));
 
                             if (veryVerbose) {
@@ -3951,7 +3977,7 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
-                                                          osb.length());
+                                                           osb.length());
                             ASSERT(0 == decoder.decode(&isb, &value));
                             printDiagnostic(decoder);
 
@@ -3964,7 +3990,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb1, osb2, osb3;
-                            balber::BerEncoder encoder(&DEFOPTS);
+                            balber::BerEncoder     encoder(&DEFOPTS);
                             ASSERT(0 == encoder.encode(&osb1, VALUE1));
                             ASSERT(0 == encoder.encode(&osb2, VALUE2));
                             ASSERT(0 == encoder.encode(&osb3, VALUE3));
@@ -3979,11 +4005,11 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb1(osb1.data(),
-                                                           osb1.length());
+                                                            osb1.length());
                             bdlsb::FixedMemInStreamBuf isb2(osb2.data(),
-                                                           osb2.length());
+                                                            osb2.length());
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
-                                                           osb3.length());
+                                                            osb3.length());
 
                             ASSERT(0 == decoder.decode(&isb1, &value1));
                             ASSERT(0 == decoder.decode(&isb2, &value2));
@@ -4002,7 +4028,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb1, osb2, osb3;
-                            balber::BerEncoder encoder(&DEFOPTS);
+                            balber::BerEncoder     encoder(&DEFOPTS);
                             ASSERT(0 == encoder.encode(&osb1, VALUE4));
                             ASSERT(0 == encoder.encode(&osb2, VALUE5));
                             ASSERT(0 == encoder.encode(&osb3, VALUE6));
@@ -4017,11 +4043,11 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb1(osb1.data(),
-                                                           osb1.length());
+                                                            osb1.length());
                             bdlsb::FixedMemInStreamBuf isb2(osb2.data(),
-                                                           osb2.length());
+                                                            osb2.length());
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
-                                                           osb3.length());
+                                                            osb3.length());
 
                             ASSERT(0 == decoder.decode(&isb1, &value4));
                             ASSERT(0 == decoder.decode(&isb2, &value5));
@@ -4040,7 +4066,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb;
-                            balber::BerEncoder encoder(&options);
+                            balber::BerEncoder     encoder(&options);
                             ASSERT(0 == encoder.encode(&osb, VALUE));
 
                             if (veryVerbose) {
@@ -4049,7 +4075,7 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
-                                                          osb.length());
+                                                           osb.length());
                             ASSERT(0 == decoder.decode(&isb, &value));
                             printDiagnostic(decoder);
 
@@ -4062,7 +4088,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb1, osb2, osb3;
-                            balber::BerEncoder encoder(&options);
+                            balber::BerEncoder     encoder(&options);
                             ASSERT(0 == encoder.encode(&osb1, VALUE1));
                             ASSERT(0 == encoder.encode(&osb2, VALUE2));
                             ASSERT(0 == encoder.encode(&osb3, VALUE3));
@@ -4077,11 +4103,11 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb1(osb1.data(),
-                                                           osb1.length());
+                                                            osb1.length());
                             bdlsb::FixedMemInStreamBuf isb2(osb2.data(),
-                                                           osb2.length());
+                                                            osb2.length());
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
-                                                           osb3.length());
+                                                            osb3.length());
 
                             ASSERT(0 == decoder.decode(&isb1, &value1));
                             ASSERT(0 == decoder.decode(&isb2, &value2));
@@ -4100,7 +4126,7 @@ int main(int argc, char *argv[])
 
                         {
                             bdlsb::MemOutStreamBuf osb1, osb2, osb3;
-                            balber::BerEncoder encoder(&options);
+                            balber::BerEncoder     encoder(&options);
                             ASSERT(0 == encoder.encode(&osb1, VALUE4));
                             ASSERT(0 == encoder.encode(&osb2, VALUE5));
                             ASSERT(0 == encoder.encode(&osb3, VALUE6));
@@ -4115,11 +4141,11 @@ int main(int argc, char *argv[])
                             }
 
                             bdlsb::FixedMemInStreamBuf isb1(osb1.data(),
-                                                           osb1.length());
+                                                            osb1.length());
                             bdlsb::FixedMemInStreamBuf isb2(osb2.data(),
-                                                           osb2.length());
+                                                            osb2.length());
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
-                                                           osb3.length());
+                                                            osb3.length());
 
                             ASSERT(0 == decoder.decode(&isb1, &value4));
                             ASSERT(0 == decoder.decode(&isb2, &value5));
@@ -4146,7 +4172,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING encoding & decoding for date/time components
+        // ENCODE AND DECODE DATE/TIME
         //
         // Concerns:
         //
@@ -4155,15 +4181,14 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING encoding & decoding for date/time"
-                               << "\n========================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE DATE/TIME"
+                             "\n===========================\n";
 
         balber::BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
         const balber::BerEncoderOptions DEFOPTS;
 
-        if (verbose) bsl::cout << "\nDefine data" << bsl::endl;
+        if (verbose) cout << "\nDefine data\n";
 
         static const struct {
             int d_lineNum;   // source line number
@@ -4339,7 +4364,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Date'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::Date'.\n";
         {
             typedef bdlt::Date Type;
 
@@ -4355,7 +4380,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4376,7 +4401,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&DEFOPTS);
+                    balber::BerEncoder     encoder(&DEFOPTS);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4397,7 +4422,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DateTz'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::DateTz'.\n";
         {
             typedef bdlt::DateTz Type;
 
@@ -4414,7 +4439,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4456,7 +4481,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Time'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::Time'.\n";
         {
             typedef bdlt::Time Type;
 
@@ -4472,7 +4497,7 @@ int main(int argc, char *argv[])
                 const Type VALUE(H, MM, S, MS); Type value;
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4493,7 +4518,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&DEFOPTS);
+                    balber::BerEncoder     encoder(&DEFOPTS);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4514,7 +4539,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::TimeTz'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::TimeTz'.\n";
         {
             typedef bdlt::TimeTz Type;
 
@@ -4532,7 +4557,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4553,7 +4578,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&DEFOPTS);
+                    balber::BerEncoder     encoder(&DEFOPTS);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4574,7 +4599,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Datetime'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::Datetime'.\n";
         {
             typedef bdlt::Datetime Type;
 
@@ -4595,7 +4620,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4616,7 +4641,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&DEFOPTS);
+                    balber::BerEncoder     encoder(&DEFOPTS);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4637,7 +4662,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DatetimeTz'." << bsl::endl;
+        if (verbose) cout << "\n'bdlt::DatetimeTz'.\n";
         {
             typedef bdlt::DatetimeTz Type;
 
@@ -4660,7 +4685,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&options);
+                    balber::BerEncoder     encoder(&options);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4681,7 +4706,7 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    balber::BerEncoder encoder(&DEFOPTS);
+                    balber::BerEncoder     encoder(&DEFOPTS);
                     ASSERT(0 == encoder.encode(&osb, VALUE));
 
                     if (veryVerbose) {
@@ -4704,7 +4729,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING functions related to skipped elements
+        // FUNCTIONS RELATED TO SKIPPED ELEMENTS
         //   This test exercises functions that apply to skipped elements.
         //
         // Concerns:
@@ -4720,11 +4745,10 @@ int main(int argc, char *argv[])
         //   int numUnknownElementsSkipped() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nFUNCTIONS related to skipped elements"
-                          << "\n=====================================" << endl;
+        if (verbose) cout << "\nFUNCTIONS RELATED TO SKIPPED ELEMENTS"
+                             "\n=====================================\n";
 
-        if (verbose) cout << "\nTesting setting and getting num skipped elems."
-                          << endl;
+        if (verbose) cout << "\nSETTING AND GETTING NUM SKIPPED ELEMS\n";
         {
             balber::BerDecoder mX; const balber::BerDecoder& X = mX;
             ASSERT(0 == X.numUnknownElementsSkipped());
@@ -4742,17 +4766,18 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING SEQUENCE DECODED AS CHOICE
+        // SEQUENCE DECODED AS CHOICE
         //
         // Concerns:
         //   Decoder needs to be able to handle decoding a sequence as a
         //   choice without aborting, should simply log error messages.
         // --------------------------------------------------------------------
 
-        {
-            if (verbose) bsl::cout << "\nTesting Sequence Decoded as Choice\n"
-                                        "==================================\n";
+        if (verbose) cout << "\nSEQUENCE DECODED AS CHOICE"
+                             "\n==========================\n";
 
+        if (verbose) cout << "\nNon-Empty Sequence\n";
+        {
             bdlsb::MemOutStreamBuf osb;
 
             test::MySequence valueOut;
@@ -4772,17 +4797,14 @@ int main(int argc, char *argv[])
             ASSERT(0 != decoder.decode(&isb, &valueIn));
             ASSERT(decoder.loggedMessages().length() > 0);
             if (veryVerbose) {
-                bsl::cout << "We expect the decoder to complain.  Here is\n"
-                             "what it says:\n";
+                cout << "We expect the decoder to complain.  Here is what it "
+                                                                     "says:\n";
                 printDiagnostic(decoder);
             }
         }
 
+        if (verbose) cout << "\nEmpty Sequence\n";
         {
-            if (verbose) bsl::cout <<
-                                "\nTesting Empty Sequence Decoded as Choice\n"
-                                  "========================================\n";
-
             bdlsb::MemOutStreamBuf osb;
 
             test::MySequence valueOut;
@@ -4800,24 +4822,26 @@ int main(int argc, char *argv[])
             ASSERT(0 != decoder.decode(&isb, &valueIn));
             ASSERT(decoder.loggedMessages().length() > 0);
             if (veryVerbose) {
-                bsl::cout << "We expect the decoder to complain.  Here is\n"
-                             "what it says:\n";
+                cout << "We expect the decoder to complain.  Here is what it "
+                                                                     "says:\n";
                 printDiagnostic(decoder);
             }
         }
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING CHOICE DECODED AS SEQUENCE
+        // CHOICE DECODED AS SEQUENCE
         //
         // Concerns:
         //   Decoder needs to be able to handle decoding a choice as a
         //   sequence without aborting, should simply log error messages.
         // --------------------------------------------------------------------
 
+        if (verbose) cout << "\nCHOICE DECODED AS SEQUENCE"
+                             "\n==========================\n";
+
+        if (verbose) cout << "\nNon-Null Choice\n";
         {
-            if (verbose) bsl::cout << "\nTesting Choice Decoded as Sequence\n"
-                                        "==================================\n";
 
             bdlsb::MemOutStreamBuf osb;
 
@@ -4838,16 +4862,14 @@ int main(int argc, char *argv[])
             ASSERT(0 != decoder.decode(&isb, &valueIn));
             ASSERT(decoder.loggedMessages().length() > 0);
             if (veryVerbose) {
-                bsl::cout << "We expect the decoder to complain.  Here is\n"
-                             "what it says:\n";
+                cout << "We expect the decoder to complain.  Here is what it "
+                                                                     "says:\n";
                 printDiagnostic(decoder);
             }
         }
 
+        if (verbose) cout << "\nNull Choice\n";
         {
-            if (verbose) bsl::cout <<
-                                 "\nTesting Null Choice Decoded as Sequence\n"
-                                   "=======================================\n";
 
             bdlsb::MemOutStreamBuf osb;
 
@@ -4866,15 +4888,15 @@ int main(int argc, char *argv[])
             ASSERT(0 != decoder.decode(&isb, &valueIn));
             ASSERT(decoder.loggedMessages().length() > 0);
             if (veryVerbose) {
-                bsl::cout << "We expect the decoder to complain.  Here is\n"
-                             "what it says:\n";
+                cout << "We expect the decoder to complain.  Here is what it "
+                                                                     "says:\n";
                 printDiagnostic(decoder);
             }
         }
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING NILLABLE VALUES
+        // ENCODE AND DECODE NILLABLE VALUES
         //
         // Concerns:
         //
@@ -4884,10 +4906,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Nillable Values"
-                               << "\n=======================" << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE NILLABLE VALUES"
+                             "\n=================================\n";
 
-        if (verbose) bsl::cout << "\nTesting with null value." << bsl::endl;
+        if (verbose) cout << "\nNull value\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -4912,9 +4934,9 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
+
             {
                 const char NOKALVA_DATA[] = "300C8001 22A10082 0548656C 6C6F";
 
@@ -4925,16 +4947,15 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30808001 22A18000 00820548 "
                                             "656C6C6F 0000";
@@ -4946,7 +4967,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
@@ -4954,8 +4975,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting with non-null value."
-                               << bsl::endl;
+        if (verbose) cout << "\nNon-null value.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -4980,9 +5000,8 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).";
             {
                 const char NOKALVA_DATA[] = "30148001 22A10880 06576F72 "
                                             "6C642182 0548656C 6C6F";
@@ -4993,16 +5012,15 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30808001 22A18080 06576F72 "
                                             "6C642100 00820548 656C6C6F 0000";
@@ -5013,7 +5031,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
@@ -5021,11 +5039,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING ANONYMOUS CHOICES
+        // ENCODE AND DECODE ANONYMOUS CHOICES
         //
         // Concerns:
         //
@@ -5035,10 +5053,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Anonymous Choices"
-                               << "\n=========================" << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE ANONYMOUS CHOICES"
+                             "\n===================================\n";
 
-        if (verbose) bsl::cout << "\nTesting with no selection." << bsl::endl;
+        if (verbose) cout << "\nChoice with no selection.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5064,7 +5082,7 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn);
         }
 
-        if (verbose) bsl::cout << "\nTesting with selection." << bsl::endl;
+        if (verbose) cout << "\nChoice with selection.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5089,9 +5107,8 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "300F8001 22A10380 01418205 "
                                             "48656C6C 6F";
@@ -5109,9 +5126,8 @@ int main(int argc, char *argv[])
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30808001 22A18080 01410000 "
                                             "82054865 6C6C6F00 00";
@@ -5122,13 +5138,14 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
             }
         }
+
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5153,9 +5170,8 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30148001 22A10881 06576F72 "
                                             "6C642182 0548656C 6C6F";
@@ -5173,9 +5189,8 @@ int main(int argc, char *argv[])
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30808001 22A18081 06576F72 "
                                             "6C642100 00820548 656C6C6F 0000";
@@ -5194,11 +5209,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING ARRAYS
+        // ENCODE AND DECODE ARRAYS
         //
         // Concerns:
         //
@@ -5208,10 +5223,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Arrays"
-                               << "\n==============" << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE ARRAYS"
+                             "\n========================\n";
 
-        if (verbose) bsl::cout << "\nTesting with empty array." << bsl::endl;
+        if (verbose) cout << "\nEmpty array.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5238,9 +5253,8 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30058001 22A100";
 
@@ -5254,16 +5268,15 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30808001 22A18000 000000";
 
@@ -5277,7 +5290,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
@@ -5285,9 +5298,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting with empty array and"
-                               << " 'encodeEmptyArrays' option set to 'false'"
-                               << bsl::endl;
+        if (verbose) cout << "\nEmpty array and 'encodeEmptyArrays' option "
+                                                            "set to 'false'\n";
         {
             balber::BerEncoderOptions options;
             options.setEncodeEmptyArrays(false);
@@ -5319,8 +5331,7 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn);
         }
 
-        if (verbose) bsl::cout << "\nTesting with non-empty array."
-                               << bsl::endl;
+        if (verbose) cout << "\nNon-empty array.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5345,9 +5356,8 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30148001 22A10F0C 0548656C "
                                             "6C6F0C06 576F726C 6421";
@@ -5358,16 +5368,15 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30808001 22A1800C 0548656C "
                                             "6C6F0C06 576F726C 64210000 0000";
@@ -5378,7 +5387,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
@@ -5386,11 +5395,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING NULLABLE VALUES
+        // ENCODE AND DECODE NULLABLE VALUES
         //
         // Concerns:
         //
@@ -5400,10 +5409,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Nullable Values"
-                               << "\n=======================" << bsl::endl;
+        if (verbose) bsl::cout << "\nENCODE AND DECODE NULLABLE VALUES"
+                                  "\n=================================\n";
 
-        if (verbose) bsl::cout << "\nTesting with null value." << bsl::endl;
+        if (verbose) cout << "\nNull value.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5428,9 +5437,8 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30038001 22";
 
@@ -5442,16 +5450,15 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30808001 220000";
 
@@ -5463,7 +5470,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
@@ -5471,8 +5478,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting with non-null value."
-                               << bsl::endl;
+        if (verbose) cout << "\nNon-null value.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5496,9 +5502,8 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "300A8001 22810548 656C6C6F";
 
@@ -5515,9 +5520,8 @@ int main(int argc, char *argv[])
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "30808001 22810548 656C6C6F 0000";
 
@@ -5535,11 +5539,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING CHOICES
+        // ENCODE AND DECODE CHOICES
         //
         // Concerns:
         //
@@ -5549,10 +5553,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Choices"
-                               << "\n===============" << bsl::endl;
+        if (verbose) bsl::cout << "\nENCODE AND DECODE CHOICES"
+                                  "\n=========================\n";
 
-        if (verbose) bsl::cout << "\nTesting with no selection." << bsl::endl;
+        if (verbose) cout << "\nChoice with no selection.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5577,7 +5581,7 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn);
         }
 
-        if (verbose) bsl::cout << "\nTesting with selection." << bsl::endl;
+        if (verbose) cout << "\nChoice with selection.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5601,9 +5605,8 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(DEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "3005A003 800122";
 
@@ -5613,16 +5616,15 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
             }
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva "
-                                          "(INDEFINITE LENGTH)."
-                                       << bsl::endl;
+            if (veryVerbose)
+                cout << "\tDecoding from Nokalva (INDEFINITE LENGTH).\n";
             {
                 const char NOKALVA_DATA[] = "3080A080 80012200 000000";
 
@@ -5632,7 +5634,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
@@ -5640,11 +5642,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING SEQUENCES
+        // ENCODE AND DECODE SEQUENCES
         //
         // Concerns:
         //
@@ -5654,8 +5656,8 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Sequences"
-                               << "\n=================" << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE SEQUENCES"
+                             "\n===========================\n";
 
         bdlsb::MemOutStreamBuf osb;
 
@@ -5734,8 +5736,7 @@ int main(int argc, char *argv[])
 
         static const int DATA_LEN = sizeof(DATA) / sizeof(DATA[0]);
 
-        if (verbose) bsl::cout << "Testing with skipUnknownElements == true"
-                               << bsl::endl;
+        if (verbose) cout << "skipUnknownElements == true\n";
         for (int i = 0; i < DATA_LEN; ++i)
         {
             const int   LINE         = DATA[i].d_line;
@@ -5759,12 +5760,12 @@ int main(int argc, char *argv[])
                          NUM_UNKNOWN == decoder.numUnknownElementsSkipped());
 
             LOOP_ASSERT(LINE, 0 == ret);
-            LOOP_ASSERT(LINE, berDataLen == static_cast<bsl::size_t>(isb.pubseekoff(0, bsl::ios::cur)));
+            LOOP_ASSERT(LINE,
+     berDataLen == static_cast<bsl::size_t>(isb.pubseekoff(0, bsl::ios::cur)));
             LOOP_ASSERT(LINE, valueOut == valueFromNokalva);
         }
 
-        if (verbose) bsl::cout << "Testing with skipUnknownElements == false"
-                               << bsl::endl;
+        if (verbose) cout << "skipUnknownElements == false\n";
         for (int i = 0; i < DATA_LEN; ++i)
         {
             const int   LINE         = DATA[i].d_line;
@@ -5797,17 +5798,16 @@ int main(int argc, char *argv[])
             }
             else {
                 LOOP_ASSERT(LINE,
-                            berDataLen == static_cast<bsl::size_t>(isb.pubseekoff(0, bsl::ios::cur)));
+     berDataLen == static_cast<bsl::size_t>(isb.pubseekoff(0, bsl::ios::cur)));
                 LOOP_ASSERT(LINE, valueOut == valueFromNokalva);
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
-
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING ENUMERATIONS
+        // ENCODE AND DECODE ENUMERATIONS
         //
         // Concerns:
         //
@@ -5817,10 +5817,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Enumerations"
-                               << "\n====================" << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE ENUMERATIONS"
+                             "\n==============================\n";
 
-        if (verbose) bsl::cout << "\nTesting with VALUE1." << bsl::endl;
+        if (verbose) cout << "\nTesting with VALUE1.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5842,8 +5842,7 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\tDecoding from Nokalva.\n";
             {
                 const char NOKALVA_DATA[] = "0A0100";
 
@@ -5862,7 +5861,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting with VALUE2." << bsl::endl;
+        if (verbose) cout << "\nVALUE2.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -5884,8 +5883,7 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\tDecoding from Nokalva.\n";
             {
                 const char NOKALVA_DATA[] = "0A0101";
 
@@ -5904,15 +5902,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) {
-            bsl::cout << "\nTesting with unknown value and no fallback."
-                      << bsl::endl;
-        }
+        if (verbose) cout << "\nUnknown value and no fallback.\n";
         {
-            if (veryVerbose) {
-                bsl::cout << "\tDecoding from explicit binary string."
-                          << bsl::endl;
-            }
+            if (veryVerbose)
+                cout << "\tDecoding from explicit binary string.\n";
+
             const char DATA[] = "0A0102";
 
             bsl::vector<char> data = loadFromHex(DATA);
@@ -5926,19 +5920,17 @@ int main(int argc, char *argv[])
             ASSERT(test::MyEnumeration::VALUE1 == valueIn);  // unchanged
         }
 
-        if (verbose) bsl::cout << "\nTesting with unknown value and fallback."
-                               << bsl::endl;
+        if (verbose) cout << "\nTesting with unknown value and fallback.\n";
         {
-            if (veryVerbose) {
-                bsl::cout << "\tDecoding from explicit binary string."
-                          << bsl::endl;
-            }
+            if (veryVerbose)
+                cout << "\tDecoding from explicit binary string.\n";
+
             const char DATA[] = "0A0103";
 
             bsl::vector<char> data = loadFromHex(DATA);
 
             test::MyEnumerationWithFallback::Value valueIn =
-                test::MyEnumerationWithFallback::VALUE1;
+                                       test::MyEnumerationWithFallback::VALUE1;
 
             bdlsb::FixedMemInStreamBuf isb(&data[0], data.size());
             ASSERT(0 == decoder.decode(&isb, &valueIn));
@@ -5947,11 +5939,8 @@ int main(int argc, char *argv[])
             ASSERT(test::MyEnumerationWithFallback::UNKNOWN == valueIn);
         }
 
-        if (verbose) {
-            bsl::cout << "\nTesting encoding with no fallback and then "
-                      << "decoding with fallback"
-                      << bsl::endl;
-        }
+        if (verbose)
+            cout << "\nEncode with no fallback then decode with fallback\n";
         {
             const char *enumValueStrings[] = {"VALUE1", "VALUE2"};
             const bsl::size_t numEnumValueStrings =
@@ -5991,11 +5980,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING CUSTOMIZED TYPES
+        // ENCODE AND DECODE CUSTOMIZED TYPES
         //
         // Concerns:
         //
@@ -6005,12 +5994,12 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Customized Types"
-                               << "\n========================" << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE CUSTOMIZED TYPES"
+                             "\n==================================\n";
 
         const bsl::string VALUE = "Hello";
 
-        if (verbose) bsl::cout << "\nEncoding customized string." << bsl::endl;
+        if (verbose) cout << "\nEncoding customized string.\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -6033,8 +6022,7 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            if (veryVerbose) bsl::cout << "\tDecoding from Nokalva."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\tDecoding from Nokalva.\n";
             {
                 const char NOKALVA_DATA[] = "0C054865 6C6C6F";
 
@@ -6044,7 +6032,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(valueOut != valueFromNokalva);
                 bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                              nokalvaData.size());
+                                               nokalvaData.size());
                 ASSERT(0 == decoder.decode(&isb, &valueFromNokalva));
                 printDiagnostic(decoder);
 
@@ -6052,8 +6040,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEncoding bsl::string (control)."
-                               << bsl::endl;
+        if (verbose) cout << "\nEncoding bsl::string (control).\n";
         {
             bdlsb::MemOutStreamBuf osb;
 
@@ -6076,11 +6063,11 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn.toString());
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VOCABULARY TYPES TEST
+        // ENCODE AND DECODE VOCABULARY TYPES
         //
         // Concerns:
         //
@@ -6090,12 +6077,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nVOCABULARY TYPES TEST"
-                               << "\n=====================" << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE VOCABULARY TYPES"
+                             "\n==================================\n";
 
-        if (verbose) bsl::cout << "\nTesting bdlt::Date"
-                               << "\n=================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\t'bdlt::Date'\n";
         {
             const int YEAR = 2005, MONTH = 12, DAY = 15;
 
@@ -6119,9 +6104,7 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn);
         }
 
-        if (verbose) bsl::cout << "\nTesting bdlt::DateTz"
-                               << "\n===================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\t'bdlt::DateTz'\n";
         {
             const int YEAR = 2005, MONTH = 12, DAY = 15, OFFSET = 45;
 
@@ -6145,9 +6128,7 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn);
         }
 
-        if (verbose) bsl::cout << "\nTesting bdlt::Time"
-                               << "\n=================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\t'bdlt::Time'\n";
         {
             const int HOUR = 12, MIN = 56, SECS = 9, MILLISECS = 134;
 
@@ -6171,15 +6152,13 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn);
         }
 
-        if (verbose) bsl::cout << "\nTesting bdlt::TimeTz"
-                               << "\n===================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\t'bdlt::TimeTz'\n";
         {
             const int HOUR   = 12, MIN = 56, SECS = 9, MILLISECS = 134,
                       OFFSET = 45;
 
             bdlt::TimeTz valueOut(bdlt::Time(HOUR, MIN, SECS, MILLISECS),
-                                 OFFSET);
+                                  OFFSET);
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0 == encoder.encode(&osb, valueOut));
@@ -6199,15 +6178,13 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn);
         }
 
-        if (verbose) bsl::cout << "\nTesting bdlt::Datetime"
-                               << "\n=====================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\t'bdlt::Datetime'\n";
         {
             const int YEAR = 2005, MONTH = 12, DAY = 15;
             const int HOUR = 12, MIN = 56, SECS = 9, MILLISECS = 134;
 
             bdlt::Datetime valueOut(YEAR, MONTH, DAY,
-                                   HOUR, MIN, SECS, MILLISECS);
+                                    HOUR, MIN, SECS, MILLISECS);
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0 == encoder.encode(&osb, valueOut));
@@ -6227,16 +6204,15 @@ int main(int argc, char *argv[])
             ASSERT(valueOut == valueIn);
         }
 
-        if (verbose) bsl::cout << "\nTesting bdlt::DatetimeTz"
-                               << "\n=======================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\t'bdlt::DatetimeTz'\n";
         {
             const int YEAR   = 2005, MONTH = 12, DAY = 15;
             const int HOUR   = 12, MIN = 56, SECS = 9, MILLISECS = 134;
             const int OFFSET = 45;
 
             bdlt::DatetimeTz valueOut(bdlt::Datetime(YEAR, MONTH, DAY,
-                                                   HOUR, MIN, SECS, MILLISECS),
+                                                     HOUR, MIN,
+                                                     SECS, MILLISECS),
                                       OFFSET);
 
             bdlsb::MemOutStreamBuf osb;
@@ -6259,7 +6235,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // REAL TEST
+        // ENCODE AND DECODE REAL/FLOATING-POINT
         //
         // Concerns:
         //
@@ -6269,8 +6245,8 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nREAL TEST"
-                               << "\n=========" << bsl::endl;
+        if (verbose) cout << "\nENCODE AND DECODE REAL/FLOATING-POINT"
+                             "\n=====================================\n";
 
         {
             const float  XA1 = 99.234f;              float  XA2;
@@ -6606,25 +6582,25 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nFUNDAMENTALS TEST"
-                               << "\n=================" << bsl::endl;
+        if (verbose) cout << "\nFUNDAMENTALS TEST"
+                             "\n=================\n";
 
         {
-            const unsigned char   XA1 = UCHAR_MAX;       unsigned char     XA2;
-            const signed   char   XB1 = SCHAR_MIN;       signed   char     XB2;
-            const          char   XC1 = SCHAR_MAX;                char     XC2;
+            const unsigned char   XA1 = UCHAR_MAX;    unsigned char     XA2;
+            const signed   char   XB1 = SCHAR_MIN;    signed   char     XB2;
+            const          char   XC1 = SCHAR_MAX;             char     XC2;
 
             const unsigned short  XD1 = USHRT_MAX;    unsigned short    XD2;
             const signed   short  XE1 = SHRT_MIN;     signed   short    XE2;
             const          short  XF1 = SHRT_MAX;              short    XF2;
 
-            const unsigned int    XG1 = UINT_MAX; unsigned int      XG2;
-            const signed   int    XH1 = INT_MIN;  signed   int      XH2;
-            const          int    XI1 = INT_MAX;           int      XI2;
+            const unsigned int    XG1 = UINT_MAX;     unsigned int      XG2;
+            const signed   int    XH1 = INT_MIN;      signed   int      XH2;
+            const          int    XI1 = INT_MAX;               int      XI2;
 
-            const unsigned long   XJ1 = ULONG_MAX; unsigned long     XJ2;
-            const signed   long   XK1 = LONG_MIN;  signed   long     XK2;
-            const          long   XL1 = LONG_MAX;           long     XL2;
+            const unsigned long   XJ1 = ULONG_MAX;    unsigned long     XJ2;
+            const signed   long   XK1 = LONG_MIN;     signed   long     XK2;
+            const          long   XL1 = LONG_MAX;              long     XL2;
 
             const bsls::Types::Int64  XM1 = 0xff34567890123456LL;
             bsls::Types::Int64        XM2;
@@ -6634,20 +6610,20 @@ int main(int argc, char *argv[])
             const          bool   XO1 = true;             bool         XO2;
 
             const bsl::string     XP1("This is a really long line");
-            bsl::string           XP2;
+            bsl::string                                               XP2;
 
-            const float        XQ1 = 99.234f;          float        XQ2;
-            const float        XR1 = -100.987f;        float        XR2;
-            const float        XS1 = -77723.875f;      float        XS2;
+            const float        XQ1 = 99.234f;           float         XQ2;
+            const float        XR1 = -100.987f;         float         XR2;
+            const float        XS1 = -77723.875f;       float         XS2;
 
-            const double       XT1 = 19998989.1234;    double        XT2;
-            const double       XU1 = -7.8752345;       double        XU2;
+            const double       XT1 = 19998989.1234;     double        XT2;
+            const double       XU1 = -7.8752345;        double        XU2;
 
-            const double       XV1 = 100.1;              double        XV2;
-            const double       XW1 = 200.1;              double        XW2;
-            const double       XX1 = 2500.1;             double        XX2;
-            const double       XY1 = 1600.1;             double        XY2;
-            const double       XZ1 = 100;                double        XZ2;
+            const double       XV1 = 100.1;             double        XV2;
+            const double       XW1 = 200.1;             double        XW2;
+            const double       XX1 = 2500.1;            double        XX2;
+            const double       XY1 = 1600.1;            double        XY2;
+            const double       XZ1 = 100;               double        XZ2;
 
             {
                 bdlsb::MemOutStreamBuf osb;
@@ -7022,8 +6998,8 @@ int main(int argc, char *argv[])
 
         static const bsl::size_t MAX_BUF_SIZE = 100000;
 
-        int reps = 1000;
-        int arraySize = 200;
+        int reps         = 1000;
+        int arraySize    = 200;
         char requestType = 'b';
 
         if (argc > 2) {
@@ -7052,7 +7028,7 @@ int main(int argc, char *argv[])
         bsl::size_t         minOutputSize;
         switch (requestType) {
           case 's': {
-              bsl::cout << "sqrt request" << bsl::endl;
+              cout << "sqrt request\n";
 
               test::Sqrt sqrt;
               sqrt.value() = 3.1415927;
@@ -7060,7 +7036,7 @@ int main(int argc, char *argv[])
               minOutputSize = 2;
           } break;
           case 'r': {
-              bsl::cout << "basicRecord request" << bsl::endl;
+              cout << "basicRecord request\n";
 
               test::BasicRecord basicRec;
               basicRec.i1() = 11;
@@ -7073,8 +7049,8 @@ int main(int argc, char *argv[])
               minOutputSize = 3 * sizeof(int) + basicRec.s().length();
           } break;
           case 'b': {
-              bsl::cout << "bigRecord request with array size of "
-                        << arraySize << bsl::endl;
+              cout << "bigRecord request with array size of "
+                   << arraySize << '\n';
 
               test::BasicRecord basicRec;
               basicRec.i1() = 11;
@@ -7098,12 +7074,11 @@ int main(int argc, char *argv[])
                   bigRec.name().length() + arraySize * minBasicRecSize;
           } break;
           default:
-            bsl::cerr << "Unknown request type: " << '-' << requestType
-                      << bsl::endl;
+            bsl::cerr << "Unknown request type: -" << requestType << '\n';
             return 1;                                                 // RETURN
         }
 
-        bsl::cout << "  " << reps << " repetitions..." << bsl::endl;
+        cout << "  " << reps << " repetitions...\n";
 
         bdlsb::MemOutStreamBuf osb;
         osb.reserveCapacity(MAX_BUF_SIZE);
@@ -7126,13 +7101,13 @@ int main(int argc, char *argv[])
         elapsed = stopwatch.elapsedTime();
         ASSERT(elapsed > 0);
 
-        bsl::cout << "    balber::BerEncoder: "
-                  << elapsed          << " seconds, "
-                  << (reps / elapsed) << " reps/sec, "
-                  << osb.length()     << " bytes" << bsl::endl;
+        cout << "    balber::BerEncoder: "
+             << elapsed          << " seconds, "
+             << (reps / elapsed) << " reps/sec, "
+             << osb.length()     << " bytes\n";
 
-        test::TimingRequest *inRequests = 0;
-        bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+        test::TimingRequest        *inRequests = 0;
+        bdlsb::FixedMemInStreamBuf  isb(osb.data(), osb.length());
 
         isb.pubsetbuf(osb.data(), osb.length());
         inRequests = new test::TimingRequest[reps];
@@ -7151,9 +7126,9 @@ int main(int argc, char *argv[])
         ASSERT(elapsed > 0);
         delete[] inRequests;
 
-        bsl::cout << "    balber::BerDecoder: "
-                  << elapsed          << " seconds, "
-                  << (reps / elapsed) << " reps/sec" << bsl::endl;
+        cout << "    balber::BerDecoder: "
+             << elapsed          << " seconds, "
+             << (reps / elapsed) << " reps/sec\n";
 
         delete[] inRequests;
       } break;
