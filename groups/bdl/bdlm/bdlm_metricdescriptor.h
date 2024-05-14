@@ -73,6 +73,7 @@ BSLS_IDENT("$Id$")
 // "backlog.g", and the tags
 // {"identifier":"svc.ftp.1","type":"bdlmt.fixedthreadpool"}, assuming this
 // was the first invocation of 'InstanceCount::value<FixedThreadPool>()'.
+// Note that the ".g" in "backlock.g" indicates a guage metric type.
 //
 ///Usage
 ///-----
