@@ -28,10 +28,13 @@ int Rule::hash(const Rule& rule, int size)
     BSLS_ASSERT(0 < size);
 
     if (rule.d_hashValue < 0 || rule.d_hashSize != size) {
-        unsigned int hash =
-                           ManagedAttributeSet::hash(rule.d_attributeSet, size)
-                         + ThresholdAggregate::hash(rule.d_thresholds, size)
-                         + bdlb::HashUtil::hash0(rule.d_pattern.c_str(), size);
+        unsigned int attributeHash =
+                          ManagedAttributeSet::hash(rule.d_attributeSet, size);
+        unsigned int threshholdHash =
+                             ThresholdAggregate::hash(rule.d_thresholds, size);
+        unsigned int patternHash =
+                           bdlb::HashUtil::hash0(rule.d_pattern.c_str(), size);
+        unsigned int hash = attributeHash + threshholdHash + patternHash;
         rule.d_hashValue = hash % size;
         rule.d_hashSize = size;
     }
