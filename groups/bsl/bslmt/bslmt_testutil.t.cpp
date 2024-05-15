@@ -29,15 +29,17 @@
 #include <sys/stat.h>   // (ditto)
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-# include <io.h>        // '_dup2'
-# define snprintf _snprintf
+    #include <io.h>        // '_dup2'
+    #define snprintf _snprintf
 #else
-# include <unistd.h>
+    #include <unistd.h>
 #endif
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic ignored "-Wpragmas"
-#pragma GCC diagnostic ignored "-Wstringop-overread"
+    #pragma GCC diagnostic ignored "-Wpragmas"
+#endif
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+    #pragma GCC diagnostic ignored "-Wstringop-overread"
 #endif
 
 // Ensure that the 'BSLMT_TESTUTIL_*' macros do not require:
@@ -195,9 +197,9 @@ typedef BloombergLP::bsls::AtomicInt      AtomicInt;
 typedef BloombergLP::bslmt::Mutex         Mutex;
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-# define U_SLASH_STR "\\"
+    #define U_SLASH_STR "\\"
 #else
-# define U_SLASH_STR "/"
+    #define U_SLASH_STR "/"
 #endif
 
 //=============================================================================

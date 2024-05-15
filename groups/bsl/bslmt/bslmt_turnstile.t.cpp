@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
         Obj        mX(RATE);
         const Obj& X = mX;
 
-        int numTurns = RATE;
+        int numTurns = static_cast<int>(RATE);
 
         ASSERT(0 <=  X.lagTime());   // (likely) lagging on the first turn
         ASSERT(0 == mX.waitTurn());  // first turn can be taken immediately

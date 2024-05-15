@@ -425,14 +425,14 @@ int benchmarkSpeed (LOCK       * /* lock */,
       static const double SCORE_SCALE = 1.33;
       bsls::TimeInterval start, stop;
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
       LOCK lockArray[k_NUM_MUTEXES];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
@@ -875,7 +875,7 @@ int main(int argc, char *argv[])
 
         if (0 != bslmt::ThreadUtil::create(&t1, readerThread) ||
             0 != bslmt::ThreadUtil::create(&t2, readerThread)) {
-            ASSERT(!"Could not create threads!! Bad state! Failing test.");
+            ASSERT(0 == "Could not create threads!!Bad state!Failing test.");
         }
         else {
            startBarrier.wait();

@@ -189,6 +189,7 @@ static const Datum *findElementLinear(const bslstl::StringRef& key,
                          // ========================
                          // class Datum_ArrayProctor
                          // ========================
+
 template <class ELEMENT>
 class Datum_ArrayProctor {
     // This component-local mechanism class provides a specialized proctor
@@ -460,7 +461,7 @@ Datum_CopyVisitor::Datum_CopyVisitor(Datum            *result,
 // MANIPULATORS
 void Datum_CopyVisitor::operator()(bslmf::Nil value)
 {
-    (void) value;
+    (void)value;
     *d_result_p = Datum::createNull();
 }
 
@@ -588,7 +589,6 @@ class Datum_StreamVisitor {
     template <class BDLD_TYPE>
     void operator()(const BDLD_TYPE& value) const;
         // Write the specified 'value' into 'd_stream'.
-
 };
 
                          // -------------------------
@@ -607,7 +607,7 @@ Datum_StreamVisitor::Datum_StreamVisitor(bsl::ostream& stream,
 // MANIPULATORS
 void Datum_StreamVisitor::operator()(bslmf::Nil value) const
 {
-    (void) value;
+    (void)value;
     if (!d_stream.bad()) {
         bdlb::Print::indent(d_stream, d_level, d_spacesPerLevel);
         d_stream << "nil";
@@ -646,6 +646,10 @@ void Datum_StreamVisitor::operator()(const BDLD_TYPE& value) const
         bdlb::PrintMethods::print(d_stream, value, d_level, d_spacesPerLevel);
     }
 }
+
+// ============================================================================
+//                              Utility Functions
+// ----------------------------------------------------------------------------
 
 bool compareIntLess(const DatumIntMapEntry& lhs, const DatumIntMapEntry& rhs)
 {
@@ -820,6 +824,10 @@ const Datum *findElementLinear(const bslstl::StringRef& key,
 
 }  // close unnamed namespace
 
+// ============================================================================
+//                               Implementation
+// ----------------------------------------------------------------------------
+
 namespace BloombergLP {
 namespace bdld {
 
@@ -883,7 +891,7 @@ Datum Datum::createDecimal64(bdldfp::Decimal64  value,
 #else   // end - 32 bit / begin - 64 bit
     // Avoidance of compiler warning.  We don't need to allocate memory to
     // store Decimal64 values on 64-bit platform.
-    (void) basicAllocator;
+    (void)basicAllocator;
 
     result.d_as.d_type = e_INTERNAL_DECIMAL64;
     new (result.theInlineStorage()) bdldfp::Decimal64(value);

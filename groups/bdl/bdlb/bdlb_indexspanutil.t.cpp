@@ -100,17 +100,17 @@ typedef bdlb::IndexSpanUtil Util;
 //
 ///Example1: Taking a IPv6 address out of a URI
 /// - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we a class that stores a parsed URL using a string to store the full
-// URL and 'IndexSpan' objects to describe the individual parts of the URL and.
-// we want to add accessors that handle the case when the host part of the URL
-// is an IPv6 address, such as "http://[ff:fe:9]/index.html".  As observed, an
-// IPv6 address is indicated by the '[' and ']' characters (the URL is ill
-// formed if the closing ']' is not present).  We want to implement two
-// methods, one to query if the host part of the URL is IPv6 ('isIPv6Host') and
-// another to get the IPv6 address (the part without the square brackets) if
-// the host is actually an IPv6 address ('getIPv6Host').
+// Suppose we have a class that stores a parsed URL using a string to store the
+// full URL and 'IndexSpan' objects to describe the individual parts of the
+// URL, and we want to add accessors that handle the case when the host part of
+// the URL is an IPv6 address, such as "http://[ff:fe:9]/index.html".  As
+// observed, an IPv6 address is indicated by the '[' and ']' characters (the
+// URL is ill formed if the closing ']' is not present).  We want to implement
+// two methods, one to query if the host part of the URL is IPv6 ('isIPv6Host')
+// and another to get the IPv6 address (the part without the square brackets)
+// if the host is actually an IPv6 address ('getIPv6Host').
 //
-// First let us create a 'ParsedUrl' class.  For brevity, the class has only
+// First, let us create a 'ParsedUrl' class.  For brevity, the class has only
 // those parts that are needed to implement 'isIPv6Host' and 'getIPv6Host'.
 //..
     class ParsedUrl {

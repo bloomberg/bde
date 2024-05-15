@@ -176,17 +176,23 @@ const bdlt::Datetime &EarlyEpochCopier::copiedValue()
 #define INITATTR
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma init_seg(compiler)
+    #pragma warning(push)
+    #pragma warning(disable:4074)
+        // DISABLE: initializers put in compiler reserved initialization area
+
+    #pragma init_seg(compiler)
+
+    #pragma warning(pop)
 #elif defined(BSLS_PLATFORM_CMP_CLANG)
-#if __has_attribute(init_priority)
-#undef INITATTR
-#define INITATTR __attribute__((init_priority(101)))
-#endif
+    #if __has_attribute(init_priority)
+        #undef INITATTR
+        #define INITATTR __attribute__((init_priority(101)))
+    #endif
 #elif defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_OS_LINUX)
-#undef INITATTR
-#define INITATTR __attribute__((init_priority(101)))
+    #undef INITATTR
+    #define INITATTR __attribute__((init_priority(101)))
 #elif defined(BSLS_PLATFORM_CMP_IBM)
-#pragma priority(-2147482623)
+    #pragma priority(-2147482623)
 #endif
 
 EarlyEpochCopier earlyEpochCopier INITATTR;

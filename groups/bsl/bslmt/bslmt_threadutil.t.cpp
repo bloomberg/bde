@@ -1488,6 +1488,15 @@ long myAbs(long a)
     return a >= 0 ? a : -a;
 }
 
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Winfinite-recursion"
+#endif
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    #pragma warning(push)
+    #pragma warning(disable:4717)
+#endif
+
 void testCaseMinus1Recurser(const char *start)
 {
     enum { k_BUF_LEN = 1024 };
@@ -1511,6 +1520,12 @@ extern "C" void *testCaseMinus1ThreadMain(void *)
 
     return 0;
 }
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    #pragma warning(pop)
+#endif
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG
+    #pragma GCC diagnostic pop
+#endif
 
 // ----------------------------------------------------------------------------
 //                                TEST CASE -2

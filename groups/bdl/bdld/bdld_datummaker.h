@@ -2356,6 +2356,10 @@ class DatumMaker {
         // Return a 'bdld::Datum' having the specified 'value', or null if
         // 'value' is unset.
 
+    bdld::Datum bin(const void *pointer, bsl::size_t size) const;
+        // Return a binary 'bdld::Datum' having a value that is the copy of the
+        // memory area described by the specified 'pointer' and 'size'.
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
     template <typename... ELEMENTS>
     bdld::Datum a(const ELEMENTS&... elements) const;
@@ -7756,6 +7760,13 @@ bdld::Datum DatumMaker::operator()(
                                   const bdlb::NullableValue<TYPE>& value) const
 {
     return value.isNull() ? (*this)() : (*this)(value.value());
+}
+
+
+inline
+bdld::Datum DatumMaker::bin(const void *pointer, bsl::size_t size) const
+{
+    return bdld::Datum::copyBinary(pointer, size, d_allocator_p);
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES

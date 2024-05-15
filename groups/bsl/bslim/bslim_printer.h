@@ -247,7 +247,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::ostream& print(bsl::ostream&           stream,
 //                          const ThirdPartyStruct& data,
 //                          int                     level = 0,
-//                          int                      spacesPerLevel = 4);
+//                          int                     spacesPerLevel = 4);
 //          // You write this function in your own code to accommodate
 //          // 'ThirdPartyStruct'.
 //  };

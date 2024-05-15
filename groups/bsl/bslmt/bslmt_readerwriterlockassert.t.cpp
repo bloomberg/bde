@@ -540,7 +540,7 @@ void test()
             BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE( &rwLock);
             BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(&rwLock);
         } catch (bsls::AssertTestException thrown) {
-            ASSERT(!"Reachable")
+            ASSERT(0 == "Reachable")
         }
 
 #endif // BSLS_ASSERT_SAFE_IS_ACTIVE
@@ -557,19 +557,19 @@ void test()
                   case 'a': {
                     TestCase2::expectedLine = __LINE__ + 1;
                     BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&rwLock);
-                    ASSERTV(cfg, !"Reachable")
+                    ASSERTV(cfg, 0 == "Reachable")
                     break;
                   }
                   case 'b': {
                     TestCase2::expectedLine = __LINE__ + 1;
                     BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&rwLock);
-                    ASSERTV(cfg, !"Reachable")
+                    ASSERTV(cfg, 0 == "Reachable")
                     break;
                   }
                   case 'c': {
                     TestCase2::expectedLine = __LINE__ + 1;
                     BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&rwLock);
-                    ASSERTV(cfg, !"Reachable")
+                    ASSERTV(cfg, 0 == "Reachable")
                     break;
                   }
                 }
@@ -600,19 +600,19 @@ void test()
                   case 'a': {
                     TestCase2::expectedLine = __LINE__ + 1;
                     BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(&rwLock);
-                    ASSERTV(cfg, !"Reachable")
+                    ASSERTV(cfg, 0 == "Reachable")
                     break;
                   }
                   case 'b': {
                     TestCase2::expectedLine = __LINE__ + 1;
                     BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT(&rwLock);
-                    ASSERTV(cfg, !"Reachable")
+                    ASSERTV(cfg, 0 == "Reachable")
                     break;
                   }
                   case 'c': {
                     TestCase2::expectedLine = __LINE__ + 1;
                     BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(&rwLock);
-                    ASSERTV(cfg, !"Reachable")
+                    ASSERTV(cfg, 0 == "Reachable")
                     break;
                   }
                 }

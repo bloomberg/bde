@@ -5,8 +5,6 @@
 
 #include <bdlma_localsequentialallocator.h>
 
-#include <bsl_iostream.h>
-#include <bsl_limits.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>            // to verify that we do not
 #include <bslma_testallocatormonitor.h>     // allocate any memory
@@ -14,6 +12,11 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_review.h>
+
+#include <bsl_iostream.h>
+#include <bsl_limits.h>
+
+#include <string.h>  // for 'memcmp'
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -58,11 +61,10 @@ using namespace bsl;
 // [  ] TBD
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 // [ *] CONCERN: DOES NOT ALLOCATE MEMORY
 // [  ] TEST APPARATUS: TBD
 // [ 5] PRINTING: TBD
-
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -107,30 +109,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-
-#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
-#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
-#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
-#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
-#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
-#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
-
-// ============================================================================
-//                  PRINTF FORMAT MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
-
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -166,7 +144,6 @@ bdld::Datum numCount(const bdld::Datum arrray)
 }
 //..
 
-
 // ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -197,12 +174,117 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&ga), dam(&da);
 
     switch (test) { case 0:
+      case 9: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
+
+///Example 1: Testing of a function
+/// - - - - - - - - - - - - - - - -
+// Suppose we want to test a function, 'numCount', that returns the number of
+// numeric elements in a 'bdld::Datum' array.
+//
+// First we implement the function.  See function implementation of 'numCount'
+// in the section 'USAGE EXAMPLE' above!
+//
+// Then, within the test driver for 'numCount', we define a 'bdld::DatumMaker',
+// and use it to initialize an array to test 'numCount':
+//..
+    bdld::DatumMaker m(&sa);
+//..
+// Here, we create the array we want to use as an argument to 'numCount':
+//..
+    bdld::Datum array = m.a(
+        m(),
+        m(bdld::DatumError(-1)),
+        m.a(
+            m(true),
+            m(false)),
+        m(42.0),
+        m(false),
+        m(0),
+        m(true),
+        m(bsls::Types::Int64(424242)),
+        m.m(
+            "firstName", "Bart",
+            "lastName",  "Simpson",
+            "age",       10
+        ),
+        m(bdlt::Date(2016, 10, 14)),
+        m(bdlt::Time(13, 00, 00, 000)),
+        m(bdlt::Datetime(2016, 10, 14, 13, 01, 30, 87)),
+        m(bdlt::DatetimeInterval(280, 13, 41, 12, 321)),
+        m("foobar")
+    );
+//..
+// Next we call the function with the array-'Datum' as its first argument:
+//..
+    bdld::Datum retVal = numCount(array);
+//..
+// Finally we verify the return value:
+//..
+    ASSERT(retVal.theInteger() == 3);
+//..
+      } break;
       case 8: {
+        // --------------------------------------------------------------------
+        // BIN TEST
+        //
+        // Concerns:
+        //: 1 The 'bin' method creates binary 'Datum' content.
+        //: 2 The binary 'Datum' content is a *copy* of the original.
+        //
+        // Plan:
+        //: 1 Create a binary test pattern to store.
+        //: 2 Use 'bin' to create a 'Datum'.
+        //: 3 Verify that length is same as the original.
+        //: 4 Verify that the pointer differs from the original.
+        //: 5 Verify that the all bytes are the same as the original.
+        //
+        // Testing:
+        //   bdld::Datum bin(const void *ptr, size_t len) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BIN TEST" << endl
+                          << "========" << endl;
+
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
+        bdld::DatumMaker dm(&sa);
+
+        static const unsigned char BIN_DATA[] =
+            "\xDE\xCA\xFB\xAD\0\x1F\xAD\xED\x10\xAD\xC0\xFF\xEE";
+        const size_t BIN_SIZE = (sizeof BIN_DATA) - 1; // No closing null
+
+        const bdld::Datum DATUM = dm.bin(BIN_DATA, BIN_SIZE);
+
+        ASSERT(DATUM.isBinary());
+        ASSERT(DATUM.theBinary().size() == BIN_SIZE);
+        ASSERT(DATUM.theBinary().data() != BIN_DATA);
+        ASSERT(0 == memcmp(DATUM.theBinary().data(), BIN_DATA, BIN_SIZE));
+      } break;
+      case 7: {
         // --------------------------------------------------------------------
         // REF TEST
         //
         // Concerns:
-        //:
         //: 1 The 'ref' method accepts different common types for representing
         //:   string content and produces a 'Datum' that presents itself as a
         //:   string, yet refers to the contents given as an argument.
@@ -214,10 +296,8 @@ int main(int argc, char *argv[])
         //:   integer.  On 32bit platforms the 'Datum' will need to allocate a
         //:   string reference to accommodate for a count with more than 16bit.
         //:   Check that the allocator of the 'DatumMaker' is used for that.
-        //:
         //
         // Plan:
-        //:
         //: 1 Given a test string, present it as an argument to the function
         //:   'ref' under test using different argument types.  For each one
         //:   check that the 'StringRef' obtained from the result points to the
@@ -229,7 +309,6 @@ int main(int argc, char *argv[])
         //:   with the allocator will end up with an in-use count of zero.
         //:   That check should work regardless of whether an allocation was
         //:   necessary or not.
-        //:
         //
         // Testing:
         //   bdld::Datum ref(const bslstl::StringRef&) const;
@@ -296,78 +375,6 @@ int main(int argc, char *argv[])
             ASSERT(localTa.numBlocksInUse() == 0);
         }
       } break;
-
-      case 7: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concerns:
-        //:1 The usage example provided in the component header file compiles,
-        //   links, and runs as shown.
-        //
-        // Plan:
-        //:1 Incorporate usage example from header into test driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
-
-        bdlma::LocalSequentialAllocator<64> sa(&ta);
-
-///Example 1: Testing of a function
-/// - - - - - - - - - - - - - - - -
-// Suppose we want to test a function, 'numCount', that returns the number of
-// numeric elements in a 'bdld::Datum' array.
-//
-// First we implement the function.  See function implementation of 'numCount'
-// in the section 'USAGE EXAMPLE' above!
-//
-// Then, within the test driver for 'numCount', we define a 'bdld::DatumMaker',
-// and use it to initialize an array to test 'numCount':
-//..
-    bdld::DatumMaker m(&sa);
-//..
-// Here, we create the array we want to use as an argument to 'numCount':
-//..
-    bdld::Datum array = m.a(
-        m(),
-        m(bdld::DatumError(-1)),
-        m.a(
-            m(true),
-            m(false)),
-        m(42.0),
-        m(false),
-        m(0),
-        m(true),
-        m(bsls::Types::Int64(424242)),
-        m.m(
-            "firstName", "Bart",
-            "lastName",  "Simpson",
-            "age",       10
-        ),
-        m(bdlt::Date(2016, 10, 14)),
-        m(bdlt::Time(13, 00, 00, 000)),
-        m(bdlt::Datetime(2016, 10, 14, 13, 01, 30, 87)),
-        m(bdlt::DatetimeInterval(280, 13, 41, 12, 321)),
-        m("foobar")
-    );
-//..
-// Next we call the function with the array-'Datum' as its first argument:
-//..
-    bdld::Datum retVal = numCount(array);
-//..
-// Finally we verify the return value:
-//..
-    ASSERT(retVal.theInteger() == 3);
-//..
-
-      } break;
-
       case 6: {
         //---------------------------------------------------------------------
         // INTEGER-MAP TESTS:
@@ -375,7 +382,6 @@ int main(int argc, char *argv[])
         //   functions.
         //
         // Concerns:
-        //:
         //: 1 Integer-map constructors create 'bdld::Datum' integer-maps.
         //:
         //: 2 At least 16 entries are supported on compilers not providing
@@ -388,7 +394,6 @@ int main(int argc, char *argv[])
         //:   constructor.
         //
         // Plan:
-        //:
         //: 1 Use 'DatumMaker' to create integer-maps.
         //:
         //: 2 Use 'bdld::Datum::create*' functions to create oracle maps.
@@ -604,9 +609,7 @@ int main(int argc, char *argv[])
                                                                  36, -1,
                                                                  38, -1));
 #endif
-
       } break;
-
       case 5: {
         //---------------------------------------------------------------------
         // OWNED KEY TESTS:
@@ -614,11 +617,9 @@ int main(int argc, char *argv[])
         //   verifies that the keys are really copied.
         //
         // Concerns:
-        //:
         //: 1 The keys are copied into the 'Datum' map..
         //
         // Plan:
-        //:
         //: 1 Create destroyable strings for the keys.
         //:
         //: 2 Create a key-owning map with the 'DatumMaker'.
@@ -658,9 +659,7 @@ int main(int argc, char *argv[])
                *value == bdld::Datum::createInteger(42));
 
         bdld::Datum::destroy(d, &ta);
-
       } break;
-
       case 4: {
         //---------------------------------------------------------------------
         // ALLOCATOR TESTS:
@@ -669,14 +668,12 @@ int main(int argc, char *argv[])
         //   memory for the 'Datum's created.
         //
         // Concerns:
-        //:
         //: 1 The allocator specified at construction time is used to allocate
         //:  memory for the 'Datum's created.
         //:
         //: 2 Non-allocating members do not allocate.
         //
         // Plan:
-        //:
         //: 1 Supply a 'TestAllocator' at creation to the 'DatumMaker'.
         //:
         //: 2 Use 'TestAllocatorMonitor' to determine the number of allocations
@@ -884,9 +881,7 @@ int main(int argc, char *argv[])
             ASSERT(dam.isInUseSame());
             ASSERT(tam.isInUseSame());
         }
-
       } break;
-
       case 3: {
         //---------------------------------------------------------------------
         // MAP TESTS:
@@ -894,7 +889,6 @@ int main(int argc, char *argv[])
         //   owned keys ('m' and 'mok' functions respectively).
         //
         // Concerns:
-        //:
         //: 1 Map constructors create 'bdld::Datum' maps.
         //:
         //: 2 At least 16 entries are supported on compilers not providing
@@ -907,7 +901,6 @@ int main(int argc, char *argv[])
         //:   constructor.
         //
         // Plan:
-        //:
         //: 1 Use 'DatumMaker' to create maps.
         //:
         //: 2 Use 'bdld::Datum::create*' functions to create oracle maps.
@@ -1286,16 +1279,13 @@ int main(int argc, char *argv[])
                                                                "z", -1,
                                                                "w", -1));
 #endif
-
       } break;
-
       case 2: {
         //---------------------------------------------------------------------
         // ARRAY TESTS:
         //   This case exercises the array constructors.
         //
         // Concerns:
-        //:
         //: 1 Array constructors create 'bdld::Datum' arrays.
         //:
         //: 2 At least 16 elements are supported on compilers not providing
@@ -1308,7 +1298,6 @@ int main(int argc, char *argv[])
         //:   constructor.
         //
         // Plan:
-        //:
         //: 1 Use 'DatumMaker' to create arrays.
         //:
         //: 2 Use 'bdld::Datum::create*' functions to create oracle arrays.
@@ -1385,18 +1374,15 @@ int main(int argc, char *argv[])
                                           -1, -1, -1, -1, -1, -1, -1, -1, -1));
 #endif
       } break;
-
       case 1: {
         //---------------------------------------------------------------------
         // SCALAR TESTS:
         //   This case exercises the scalar constructors.
         //
         // Concerns:
-        //:
         //: 1 Scalar constructors create the required type of 'bdld::Datum'.
         //
         // Plan:
-        //:
         //: 1 Use 'DatumMaker' to create scalars.
         //:
         //: 2 Use 'bdld::Datum::create*' functions to create oracle scalars.
@@ -1470,10 +1456,7 @@ int main(int argc, char *argv[])
         ASSERT(bdld::Datum::createNull() == m(TriBool()));
         ASSERT(bdld::Datum::createBoolean(true) == m(TriBool(true)));
         ASSERT(bdld::Datum::createBoolean(false) == m(TriBool(false)));
-
-
       } break;
-
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
         testStatus = -1;

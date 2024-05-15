@@ -28,7 +28,7 @@
 #include <bsl_sstream.h>
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
-#include <pthread.h>
+    #include <pthread.h>
 #endif
 
 using namespace BloombergLP;
@@ -128,15 +128,15 @@ typedef bslmt::ThreadAttributes Obj;
 
     void myThreadFunction()
     {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wlarger-than="
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         int bufferLocal[k_BUFFER_SIZE];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+    #pragma GCC diagnostic pop
 #endif
 
         // Perform some calculation that involves no subroutine calls or
