@@ -1031,6 +1031,10 @@ BSLS_IDENT("$Id: $")
 //:       o libstdc++ version 12
 //:   o Microsoft Visual Studio 2022 17.2 / MSVC 19.32
 //
+// Note that GCC 11 ranges support is incomplete, as it is missing a number of
+// key Defect Report fixes, notably P2259R1, P2210R2, P2432R1, and P2415R2,
+// the latter being a breaking change between GCC 11 and GCC 12.
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION'
 ///------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION' macro is defined if the
