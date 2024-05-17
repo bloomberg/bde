@@ -4463,6 +4463,14 @@ int BerUtil_Iso8601ImpUtil::getValue(TYPE           *value,
         return -1;                                                    // RETURN
     }
 
+    // DoS attack mitigation: Any reasonable ISO8601 string will be smaller
+    // than this.  Even an ISO 8601 duration (not currently supported) with all
+    // its elements (years, months, days, hours, minutes, and seconds) present
+    // with 17 significant digits and negative signs would be 117 characters.
+    if (length > 126) {
+        return -1;                                                    // RETURN
+    }
+
     char               localBuf[32];  // for common case where length < 32
     bsl::vector<char>  vecBuf;        // for length >= 32
     char              *buf;

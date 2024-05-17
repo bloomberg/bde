@@ -149,8 +149,9 @@ using namespace bsl;
 // [27] CONCERN: 'getValue' reports all failures to read from stream buffer
 // [28] CONCERN: 'put'- & 'getValue' for date/time types in extended binary fmt
 // [29] CONCERN: 'putValue' encoding formation selection
-// [30] CONCERN: TESTING +/- ZERO FLOATING-POINT\n"
-// [31] USAGE EXAMPLE
+// [30] CONCERN: ISO 8601 TEXT LENGTH ANOMALIES
+// [31] CONCERN: TESTING +/- ZERO FLOATING-POINT\n"
+// [32] USAGE EXAMPLE
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
@@ -5424,7 +5425,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -5506,7 +5507,7 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // CONCERN: TESTING +/- ZERO FLOATING-POINT
         //
@@ -5723,6 +5724,543 @@ int main(int argc, char *argv[])
             ASSERT(xx == yy);
             ASSERT(!(xx > yy) && !(yy < xx));
             ASSERT(!bsl::memcmp(&xx, &yy, sizeof(xx)));
+        }
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // CONCERN: ISO 8601 TEXT LENGTH ANOMALIES
+        //
+        //
+        // Concerns:
+        //: 1 ISO 8601-encoded strings longer than the maximum length result in
+        //:   a decoding error.
+        //:
+        //: 2 Valid ISO 8601-encoded strings of exactly the maximum length are
+        //:   decoded properly.
+        //:
+        //: 3 If no data is available for the specified length decoding results
+        //:   in an error even if the available ISO 8601-encoded strings forms
+        //:   a valid value.
+        //:
+        //: 4 Decoding obeys the length parameter even if more data is
+        //:   available from the buffer.
+        //
+        // Plan:
+        //: 1 Specify valid ISO 8601 strings for each individual date, time,
+        //:   and the duration type.
+        //:
+        //: 2 Create variations of the above valid strings that are exactly the
+        //:   maximum length, and are still valid ISO 8601.
+        //:
+        //: 3 Create variations of the above valid strings that are exactly one
+        //:   character longer than the maximum length, and are still valid ISO
+        //:   8601.
+        //:
+        //: 4 Execute 'getValue' on each value and verify that failure occurs
+        //:   only on the too long value.
+        //:
+        //: 5 Execute 'getValue' on each value while specifying a length longer
+        //:   than the available data in the buffer and verify that a failure
+        //:   occurs for all three values.
+        //:
+        //: 6 Execute 'getValue' on the valid values while specifying a length
+        //:   short-enough to truncate the data in the buffer to an invalid
+        //:   string and verify that a failure occurs for all valid values.
+        //:
+        //: 7 Execute 'getValue' on the invalid values while specifying a
+        //:   length short-enough to truncate invalid data to a valid ISO 8601
+        //:   string and verify that no failure occurs.
+        //
+        // Testing:
+        //  int BerUtil_Iso8601ImpUtil::getValue(buf, TYPE, length);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "CONCERN: ISO 8601 TEXT LENGTH ANOMALIES\n"
+                             "=======================================\n";
+
+        const int MAX_LEN = 126;
+
+        typedef balber::BerUtil_Iso8601ImpUtil IsoUtil;
+
+        if (veryVerbose) cout << "\tbdlt::Date\n";
+        {
+
+            const char *STR = "2024-05-15";
+            const int   LEN = static_cast<int>(bsl::strlen(STR));
+            bdlt::Date  value;
+
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDateValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDateValue(&value, &streamBuf, LEN + 1);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDateValue(&value, &streamBuf, LEN - 1);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            using bsl::string;
+            const string STR_MAX = string(STR) + string(MAX_LEN - LEN, '1');
+            ASSERTV(STR_MAX.size(), STR_MAX.size() == MAX_LEN);
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+                int rc = IsoUtil::getDateValue(&value, &streamBuf, MAX_LEN);
+                ASSERTV(rc, -1 == rc);  // Invalid date
+            }
+            { // TRUNCATED to valid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getDateValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);  // Only sees the valid part
+            }
+
+            const string STR_OVER = STR_MAX + "1";
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+                int rc = IsoUtil::getDateValue(&value,
+                                               &streamBuf,
+                                               MAX_LEN + 1);
+                ASSERTV(rc, 0 != rc);  // Too long input
+
+                // Verify that nothing was read from the buffer
+                ASSERTV(MAX_LEN + 1, streamBuf.length(),
+                        MAX_LEN + 1 == streamBuf.length());
+            }
+            { // TRUNCATED to valid
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getDateValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);  // Only sees the valid part
+            }
+        }
+
+        if (veryVerbose) cout << "\tbdlt::DateTz\n";
+        {
+
+            const char   *STR = "2024-05-15+05:00";
+            const int     LEN = static_cast<int>(bsl::strlen(STR));
+            bdlt::DateTz  value;
+
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDateTzValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDateTzValue(&value, &streamBuf, LEN + 1);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDateTzValue(&value, &streamBuf, LEN - 1);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            using bsl::string;
+            const string STR_MAX = string(STR) + string(MAX_LEN - LEN, '1');
+            ASSERTV(STR_MAX.size(), STR_MAX.size() == MAX_LEN);
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getDateTzValue(&value, &streamBuf, MAX_LEN);
+                ASSERTV(rc, -1 == rc);  // Invalid date
+            }
+            {  // TRUNCATED to valid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getDateTzValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);  // Only sees the valid part
+            }
+
+            const string STR_OVER = STR_MAX + "1";
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getDateTzValue(&value,
+                                                 &streamBuf,
+                                                 MAX_LEN + 1);
+                ASSERTV(rc, 0 != rc);  // Too long input
+
+                // Verify that nothing was read from the buffer
+                ASSERTV(MAX_LEN + 1, streamBuf.length(),
+                        MAX_LEN + 1 == streamBuf.length());
+            }
+            {  // TRUNCATED to valid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getDateTzValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);  // Only sees the valid part
+            }
+        }
+
+        if (veryVerbose) cout << "\tbdlt::Time\n";
+        {
+
+            const char *STR = "12:01:01.001";
+            const int   LEN = static_cast<int>(bsl::strlen(STR));
+            bdlt::Time  value;
+
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getTimeValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getTimeValue(&value, &streamBuf, LEN + 1);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getTimeValue(&value, &streamBuf, LEN - 3);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            using bsl::string;
+            const string STR_MAX = string(STR) + string(MAX_LEN - LEN, '1');
+            ASSERTV(STR_MAX.size(), STR_MAX.size() == MAX_LEN);
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getTimeValue(&value, &streamBuf, MAX_LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH more than data
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(),
+                                                     MAX_LEN - 1);
+
+                int rc = IsoUtil::getTimeValue(&value, &streamBuf, MAX_LEN);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getTimeValue(&value, &streamBuf, LEN - 3);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            const string STR_OVER = STR_MAX + "1";
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+                int rc = IsoUtil::getTimeValue(&value,
+                                               &streamBuf,
+                                               MAX_LEN + 1);
+                ASSERTV(rc, 0 != rc);  // Too long input
+
+                // Verify that nothing was read from the buffer
+                ASSERTV(MAX_LEN + 1, streamBuf.length(),
+                        MAX_LEN + 1 == streamBuf.length());
+            }
+            {  // TRUNCATED to valid length
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+                int rc = IsoUtil::getTimeValue(&value,
+                                               &streamBuf,
+                                               MAX_LEN);
+                ASSERTV(rc, 0 == rc);  // Length is fine, extra data ignored
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+                int rc = IsoUtil::getTimeValue(&value,
+                                               &streamBuf,
+                                               LEN - 3);
+                ASSERTV(rc, 0 != rc);
+            }
+        }
+
+        if (veryVerbose) cout << "\tbdlt::TimeTz\n";
+        {
+
+            const char   *STR = "12:01:01.001-05:00";
+            const int     LEN = static_cast<int>(bsl::strlen(STR));
+            bdlt::TimeTz  value;
+
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getTimeTzValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getTimeTzValue(&value, &streamBuf, LEN + 1);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getTimeTzValue(&value, &streamBuf, LEN - 1);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            using bsl::string;
+            const string STR_MAX = "12:01:01.001" + string(MAX_LEN - LEN, '1')
+                                                                    + "-05:00";
+            ASSERTV(STR_MAX.size(), STR_MAX.size() == MAX_LEN);
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getTimeTzValue(&value, &streamBuf, MAX_LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(),
+                                                     MAX_LEN - 1);
+
+                int rc = IsoUtil::getTimeTzValue(&value, &streamBuf, MAX_LEN);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getTimeTzValue(&value,
+                                                 &streamBuf,
+                                                 MAX_LEN - 1);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            const string STR_OVER = STR_MAX + "1";
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getTimeTzValue(&value,
+                                                 &streamBuf,
+                                                 MAX_LEN + 1);
+                ASSERTV(rc, 0 != rc);  // Too long input
+
+                // Verify that nothing was read from the buffer
+                ASSERTV(MAX_LEN + 1, streamBuf.length(),
+                        MAX_LEN + 1 == streamBuf.length());
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN - 1);
+
+                int rc = IsoUtil::getTimeTzValue(&value,
+                                                 &streamBuf,
+                                                 MAX_LEN);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to valid length
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getTimeTzValue(&value, &streamBuf, MAX_LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+        }
+
+        if (veryVerbose) cout << "\tbdlt::Datetime\n";
+        {
+
+            const char     *STR = "2024-05-15T12:01:01.001";
+            const int       LEN = static_cast<int>(bsl::strlen(STR));
+            bdlt::Datetime  value;
+
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDatetimeValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDatetimeValue(&value,
+                                                   &streamBuf,
+                                                   LEN + 1);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDatetimeValue(&value,
+                                                   &streamBuf,
+                                                   LEN - 3);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            using bsl::string;
+            const string STR_MAX = string(STR) + string(MAX_LEN - LEN, '1');
+            ASSERTV(STR_MAX.size(), STR_MAX.size() == MAX_LEN);
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getDatetimeValue(&value,
+                                                   &streamBuf,
+                                                   MAX_LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(),
+                                                     MAX_LEN - 1);
+
+                int rc = IsoUtil::getDatetimeValue(&value,
+                                                   &streamBuf,
+                                                   MAX_LEN);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(),
+                                                     MAX_LEN);
+
+                int rc = IsoUtil::getDatetimeValue(&value,
+                                                   &streamBuf,
+                                                   LEN - 3);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            const string STR_OVER = STR_MAX + "1";
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getDatetimeValue(&value,
+                                                   &streamBuf,
+                                                   MAX_LEN + 1);
+                ASSERTV(rc, 0 != rc);  // Too long input
+
+                // Verify that nothing was read from the buffer
+                ASSERTV(MAX_LEN + 1, streamBuf.length(),
+                        MAX_LEN + 1 == streamBuf.length());
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN - 1);
+
+                int rc = IsoUtil::getDatetimeValue(&value,
+                                                   &streamBuf,
+                                                   MAX_LEN);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATE to valid length
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getDatetimeValue(&value,
+                                                   &streamBuf,
+                                                   MAX_LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+        }
+
+        if (veryVerbose) cout << "\tbdlt::DatetimeTz\n";
+        {
+
+            const char       *STR = "2024-05-15T12:01:01.001-05:00";
+            const int         LEN = static_cast<int>(bsl::strlen(STR));
+            bdlt::DatetimeTz  value;
+
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value, &streamBuf, LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value,
+                                                     &streamBuf,
+                                                     LEN + 1);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATED to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR, LEN);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value,
+                                                     &streamBuf,
+                                                     LEN - 1);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            using bsl::string;
+            const string STR_MAX = "2024-05-15T12:01:01.001"
+                                  + string(MAX_LEN - LEN, '1')
+                                  + "-05:00";
+            ASSERTV(STR_MAX.size(), STR_MAX.size() == MAX_LEN);
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value,
+                                                     &streamBuf,
+                                                     MAX_LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // LENGTH MORE THAN DATA
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(),
+                                                     MAX_LEN - 1);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value,
+                                                     &streamBuf,
+                                                     MAX_LEN);
+                ASSERTV(rc, 0 != rc);
+            }
+            {  // TRUNCATE to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_MAX.data(), MAX_LEN);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value,
+                                                     &streamBuf,
+                                                     MAX_LEN - 1);
+                ASSERTV(rc, 0 != rc);
+            }
+
+            const string STR_OVER = STR_MAX + "1";
+            {
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value,
+                                                     &streamBuf,
+                                                     MAX_LEN + 1);
+                ASSERTV(rc, 0 != rc);  // Too long input
+
+                // Verify that nothing was read from the buffer
+                ASSERTV(MAX_LEN + 1, streamBuf.length(),
+                        MAX_LEN + 1 == streamBuf.length());
+            }
+            {  // TRUNCATE to valid length
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value,
+                                                     &streamBuf,
+                                                     MAX_LEN);
+                ASSERTV(rc, 0 == rc);
+            }
+            {  // TRUNCATE to invalid value
+                bdlsb::FixedMemInStreamBuf streamBuf(STR_OVER.data(),
+                                                     MAX_LEN + 1);
+
+                int rc = IsoUtil::getDatetimeTzValue(&value,
+                                                     &streamBuf,
+                                                     MAX_LEN - 1);
+                ASSERTV(rc, 0 != rc);
+            }
         }
       } break;
       case 29: {

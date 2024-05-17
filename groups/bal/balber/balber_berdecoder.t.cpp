@@ -111,7 +111,9 @@ namespace test = BloombergLP::s_baltst;
 // [19] DECODE COMPLEX TYPES WITH DEFAULT ELEMENTS
 // [20] DECODE SEQUENCES OF MAXIMUM SIZE
 // [21] DECODE INTS AS ENUMS AND VICE VERSA
-// [22] USAGE EXAMPLE
+// [22] DECODE DATE/TIME WITH LENGTH ANOMALIES
+// [23] USAGE EXAMPLE
+//
 // [-1] PERFORMANCE TEST
 
 // ============================================================================
@@ -353,6 +355,201 @@ void printDiagnostic(balber::BerDecoder & decoder)
 {
     if (veryVerbose) {
         cout << decoder.loggedMessages();
+    }
+}
+
+template <class DATE_TYPE>
+void verifyDateTypesLengthAnomalies(bsl::size_t             MAX_LEN,
+                                    bsl::size_t             ISOSTR_LEN,
+                                    int                     LINE,
+                                    const DATE_TYPE&        EXPECTED,
+                                    const bsl::string_view& encoded)
+{
+    const bsl::size_t LEN_POS = encoded.length() - ISOSTR_LEN - 1;
+
+    balber::BerDecoder decoder;
+    int rc;
+
+    // Verify that it decodes as is
+    {
+        bdlsb::FixedMemInStreamBuf isb(encoded.data(), encoded.length());
+        DATE_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 == rc);
+
+        // Verify that we get the expected value
+        ASSERTV(LINE, EXPECTED, value, EXPECTED == value);
+    }
+
+    // Modifiable input to change encoded length
+    bsl::string encAsStr(encoded.data(), encoded.length());
+
+    // Verify that we are writing the length octet to the proper position
+    {
+        // Write the same length
+        encAsStr[LEN_POS] = static_cast<char>(ISOSTR_LEN);
+
+        // Verify that decoding still succeeds
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+        DATE_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 == rc);
+
+        // Verify that we get the expected value
+        ASSERTV(LINE, EXPECTED, value, EXPECTED == value);
+    }
+
+    // Verify that length is obeyed
+    {
+        // Write reduced length
+        encAsStr[LEN_POS] = static_cast<char>(ISOSTR_LEN - 1);
+
+        // Verify that decoding now fails
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+        DATE_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 != rc);
+    }
+
+    // Verify that length longer than data leads to an error
+    {
+        // Write increased length
+        encAsStr[LEN_POS] = static_cast<char>(ISOSTR_LEN + 1);
+
+        // Verify that decoding now fails
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+        DATE_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 != rc);
+    }
+
+    // Verify that length longer than maximum won't read data
+    {
+        // Write absurd length
+        encAsStr[LEN_POS] = static_cast<char>(MAX_LEN + 1);
+
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+
+        // Double-check that decoding fails
+        DATE_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 != rc);
+
+        // Verify that decoding did not read the data part at all
+        ASSERTV(LINE, ISOSTR_LEN, isb.length(), ISOSTR_LEN == isb.length());
+    }
+
+    // Verify that with length exactly at maximum we read the data
+    {
+        encAsStr[LEN_POS] = static_cast<char>(MAX_LEN);
+
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+
+        // Decoding fails because we don't have enough data
+        DATE_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 != rc);
+
+        // Verify that decoding read all the available data
+        ASSERTV(LINE, isb.length(), 0 == isb.length());
+    }
+}
+
+template <class TIME_TYPE>
+void verifyTimeTypesLengthAnomalies(bsl::size_t             MAX_LEN,
+                                    bsl::size_t             ISOSTR_LEN,
+                                    bsl::size_t             INVALIDATE_LEN,
+                                    int                     LINE,
+                                    const TIME_TYPE&        EXPECTED,
+                                    const bsl::string_view& encoded)
+{
+    const bsl::size_t LEN_POS = encoded.length() - ISOSTR_LEN - 1;
+
+    balber::BerDecoder decoder;
+    int rc;
+
+    // Verify that it decodes as is
+    {
+        bdlsb::FixedMemInStreamBuf isb(encoded.data(), encoded.length());
+        TIME_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 == rc);
+
+        // Verify that we get the expected value
+        ASSERTV(LINE, EXPECTED, value, EXPECTED == value);
+    }
+
+    // Modifiable input to change encoded length
+    bsl::string encAsStr(encoded.data(), encoded.length());
+
+    // Verify that we are writing the length octet to the proper position
+    {
+        // Write the same length
+        encAsStr[LEN_POS] = static_cast<char>(ISOSTR_LEN);
+
+        // Verify that decoding still succeeds
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+        TIME_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 == rc);
+
+        // Verify that we get the expected value
+        ASSERTV(LINE, EXPECTED, value, EXPECTED == value);
+    }
+
+    // Verify that length is obeyed
+    {
+        // Write reduced length
+        encAsStr[LEN_POS] = static_cast<char>(ISOSTR_LEN - INVALIDATE_LEN);
+
+        // Verify that decoding now fails
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+        TIME_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 != rc);
+    }
+
+    // Verify that length longer than data leads to an error
+    {
+        // Write increased length
+        encAsStr[LEN_POS] = static_cast<char>(ISOSTR_LEN + 1);
+
+        // Verify that decoding now fails
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+        TIME_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 != rc);
+    }
+
+    // Verify that length longer than maximum won't read data
+    {
+        // Write absurd length
+        encAsStr[LEN_POS] = static_cast<char>(MAX_LEN + 1);
+
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+
+        // Double-check that decoding fails
+        TIME_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 != rc);
+
+        // Verify that decoding did not read the data part at all
+        ASSERTV(LINE, ISOSTR_LEN, isb.length(), ISOSTR_LEN == isb.length());
+    }
+
+    // Verify that with length exactly at maximum we read the data
+    {
+        encAsStr[LEN_POS] = static_cast<char>(MAX_LEN);
+
+        bdlsb::FixedMemInStreamBuf isb(encAsStr.data(), encAsStr.length());
+
+        // Decoding fails because we don't have enough data
+        TIME_TYPE value;
+        rc = decoder.decode(&isb, &value);
+        ASSERTV(LINE, rc, 0 != rc);
+
+        // Verify that decoding read all the available data
+        ASSERTV(LINE, isb.length(), 0 == isb.length());
     }
 }
 
@@ -2068,7 +2265,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2088,10 +2285,255 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUSAGE EXAMPLE"
                              "\n=============\n";
-
         usageExample();
 
         if (verbose) cout << "\nEnd of test.\n";
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // DECODE DATE/TIME WITH LENGTH ANOMALIES
+        //
+        // Concerns:
+        //: 1 Length above 127 characters results in an error regardless of the
+        //:   content.
+        //:
+        //: 2 Length precisely at 127 characters is decoded as usual.
+        //:
+        //: 3 Length beyond available data results in an error regardless of
+        //:   the available content.
+        //
+        // Plan:
+        //: 1 Table based test for each sub-type.
+        //:
+        //: 2 For each valid type for a test data ISO 8601 string:
+        //:   1 Encoded input is generated from the string
+        //:
+        //:   2 Encoded input is then manipulated to change the length for
+        //:     concerns that require a length different from the size of
+        //:     available data
+        //:
+        //:   3 Decoding return value is verified using assertions
+        //
+        // Testing:
+        //   DECODE DATE/TIME WITH LENGTH ANOMALIES
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nDECODE DATE/TIME WITH LENGTH ANOMALIES"
+                             "\n======================================\n";
+
+        // Kept at 126 for "+1" to fit in one byte, BER-encoded
+        const int MAX_LEN = 126;
+
+        if (verbose) cout << "\t'bdlt::Date'/'DateTz'\n";
+        {
+            // Create the encoder that encodes date as ISO 8601 strings
+            balber::BerEncoderOptions mOptions;
+            mOptions.setEncodeDateAndTimeTypesAsBinary(false);
+            const balber::BerEncoderOptions OPTS = mOptions;
+            balber::BerEncoder encoder(&OPTS);
+
+            using bdlt::Date;
+            using bdlt::DateTz;
+
+            static struct {
+                int  d_line;
+                Date d_date;
+                int  d_offset;
+            } TEST_DATA[] = {
+                { L_, Date(2024,5,15), 120 },
+                { L_, Date(2042,2,28),   0 },
+            };
+
+            const bsl::size_t TEST_SIZE = sizeof TEST_DATA / sizeof *TEST_DATA;
+
+            for (bsl::size_t ti = 0; ti < TEST_SIZE; ++ti) {
+                const int   LINE   = TEST_DATA[ti].d_line;
+                const Date& DATE   = TEST_DATA[ti].d_date;
+                const int   OFFSET = TEST_DATA[ti].d_offset;
+
+                if (veryVeryVerbose) { P_(LINE) P_(DATE) P(OFFSET); }
+
+                {
+                    // Create a complete & valid encoded 'Date' octets
+                    bdlsb::MemOutStreamBuf buff;
+                    int rc = encoder.encode(&buff, DATE);
+                    ASSERTV(rc, 0 == rc);
+
+                    const bsl::string_view encoded(buff.data(), buff.length());
+
+                    const bsl::size_t DATE_LEN = 10; // YYYY-MM-DD
+                    verifyDateTypesLengthAnomalies(MAX_LEN,
+                                                   DATE_LEN,
+                                                   LINE,
+                                                   DATE,
+                                                   encoded);
+                }
+
+                {
+                    // Create a complete & valid encoded 'DateTz' octets
+                    const DateTz DATETZ(DATE, OFFSET);
+
+                    bdlsb::MemOutStreamBuf buff;
+                    int rc = encoder.encode(&buff, DATETZ);
+                    ASSERTV(rc, 0 == rc);
+
+                    const bsl::string_view encoded(buff.data(), buff.length());
+
+                    const bsl::size_t DATETZ_LEN = 16; // YYYY-MM-DD+HH:MM
+                    verifyDateTypesLengthAnomalies(MAX_LEN,
+                                                   DATETZ_LEN,
+                                                   LINE,
+                                                   DATETZ,
+                                                   encoded);
+                }
+            }
+        }
+
+        if (verbose) cout << "\t'bdlt::Time'/'TimeTz'\n";
+        {
+            // Create the encoder that encodes times as ISO 8601 strings
+            balber::BerEncoderOptions mOptions;
+            mOptions.setEncodeDateAndTimeTypesAsBinary(false);
+            const bsl::size_t SEC_FRAC_PREC = 6;
+            mOptions.setDatetimeFractionalSecondPrecision(SEC_FRAC_PREC);
+            const balber::BerEncoderOptions OPTS = mOptions;
+            balber::BerEncoder encoder(&OPTS);
+
+            using bdlt::Time;
+            using bdlt::TimeTz;
+
+            static struct {
+                int  d_line;
+                Time d_time;
+                int  d_offset;
+            } TEST_DATA[] = {
+                { L_, Time(12,21,42,999,999), 120 },
+                { L_, Time(12,21,42,999,999),   0 },
+            };
+
+            const bsl::size_t TEST_SIZE = sizeof TEST_DATA / sizeof *TEST_DATA;
+
+            for (bsl::size_t ti = 0; ti < TEST_SIZE; ++ti) {
+                const int   LINE   = TEST_DATA[ti].d_line;
+                const Time& TIME   = TEST_DATA[ti].d_time;
+                const int   OFFSET = TEST_DATA[ti].d_offset;
+
+                if (veryVeryVerbose) { P_(LINE) P_(TIME) P(OFFSET); }
+
+                {
+                    // Create a complete & valid encoded 'Date' octets
+                    bdlsb::MemOutStreamBuf buff;
+                    int rc = encoder.encode(&buff, TIME);
+                    ASSERTV(rc, 0 == rc);
+
+                    const bsl::string_view encoded(buff.data(), buff.length());
+
+                    const bsl::size_t BASE_LEN = 8; // hh:mm:ss       [.ssssss]
+                    const bsl::size_t TIME_LEN = BASE_LEN + SEC_FRAC_PREC + 1;
+                    verifyTimeTypesLengthAnomalies(MAX_LEN,
+                                                   TIME_LEN,
+                                                   SEC_FRAC_PREC,
+                                                   LINE,
+                                                   TIME,
+                                                   encoded);
+                }
+
+                {
+                    // Create a complete & valid encoded 'TimeTz' octets
+                    const TimeTz TIMETZ(TIME, OFFSET);
+
+                    bdlsb::MemOutStreamBuf buff;
+                    int rc = encoder.encode(&buff, TIMETZ);
+                    ASSERTV(rc, 0 == rc);
+
+                    const bsl::string_view encoded(buff.data(), buff.length());
+
+                    const bsl::size_t BASE_LEN = 8; // hh:mm:ss       [.ssssss]
+                    const bsl::size_t TIME_LEN = BASE_LEN + SEC_FRAC_PREC + 1;
+                    const bsl::size_t TZ_LEN = 6; // +HH:MM
+                    verifyTimeTypesLengthAnomalies(MAX_LEN,
+                                                   TIME_LEN + TZ_LEN,
+                                                   1,
+                                                   LINE,
+                                                   TIMETZ,
+                                                   encoded);
+                }
+            }
+        }
+
+        if (verbose) cout << "\t'bdlt::Datetime'/'DatetimeTz'\n";
+        {
+            // Create the encoder that encodes datetimes as ISO 8601 strings
+            balber::BerEncoderOptions mOptions;
+            mOptions.setEncodeDateAndTimeTypesAsBinary(false);
+            const bsl::size_t SEC_FRAC_PREC = 6;
+            mOptions.setDatetimeFractionalSecondPrecision(SEC_FRAC_PREC);
+            const balber::BerEncoderOptions OPTS = mOptions;
+            balber::BerEncoder encoder(&OPTS);
+
+            using bdlt::Datetime;
+            using bdlt::DatetimeTz;
+
+            static struct {
+                int      d_line;
+                Datetime d_datetime;
+                int      d_offset;
+            } TEST_DATA[] = {
+                { L_, Datetime(2024,5,15,12,21,42,999,999), 120 },
+                { L_, Datetime(2024,5,15,12,21,42,999,999),   0 },
+            };
+
+            const bsl::size_t TEST_SIZE = sizeof TEST_DATA / sizeof *TEST_DATA;
+
+            for (bsl::size_t ti = 0; ti < TEST_SIZE; ++ti) {
+                const int       LINE     = TEST_DATA[ti].d_line;
+                const Datetime& DATETIME = TEST_DATA[ti].d_datetime;
+                const int       OFFSET   = TEST_DATA[ti].d_offset;
+
+                if (veryVeryVerbose) { P_(LINE) P_(DATETIME) P(OFFSET); }
+
+                {
+                    // Create a complete & valid encoded 'Date' octets
+                    bdlsb::MemOutStreamBuf buff;
+                    int rc = encoder.encode(&buff, DATETIME);
+                    ASSERTV(rc, 0 == rc);
+
+                    const bsl::string_view encoded(buff.data(), buff.length());
+
+                    const bsl::size_t BASE_LEN = 19; // YYYY-MM-DD+hh:mm:ss
+                    const bsl::size_t DT_LEN   = BASE_LEN + SEC_FRAC_PREC + 1;
+                                                                     // .ssssss
+                    verifyTimeTypesLengthAnomalies(MAX_LEN,
+                                                   DT_LEN,
+                                                   SEC_FRAC_PREC,
+                                                   LINE,
+                                                   DATETIME,
+                                                   encoded);
+                }
+
+                {
+                    // Create a complete & valid encoded 'TimeTz' octets
+                    const DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                    bdlsb::MemOutStreamBuf buff;
+                    int rc = encoder.encode(&buff, DATETIMETZ);
+                    ASSERTV(rc, 0 == rc);
+
+                    const bsl::string_view encoded(buff.data(), buff.length());
+
+                    const bsl::size_t BASE_LEN = 19; // YYYY-MM-DD+hh:mm:ss
+                    const bsl::size_t DT_LEN   = BASE_LEN + SEC_FRAC_PREC + 1;
+                                                                     // .ssssss
+                    const bsl::size_t TZ_LEN   = 6; // +HH:MM
+                    verifyTimeTypesLengthAnomalies(MAX_LEN,
+                                                   DT_LEN + TZ_LEN,
+                                                   1,
+                                                   LINE,
+                                                   DATETIMETZ,
+                                                   encoded);
+                }
+            }
+        }
       } break;
       case 21: {
         // --------------------------------------------------------------------
