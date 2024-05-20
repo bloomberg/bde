@@ -531,9 +531,9 @@ struct bsls_Platform_Assert;
         #else
             #define BSLS_PLATFORM_CPU_SPARC_32                                1
         #endif
-    #elif defined(__arm__) || defined(__arm64__)
+    #elif defined(__arm__) || defined(__arm64__) || defined(__aarch64__)
         #define BSLS_PLATFORM_CPU_ARM                                         1
-        #if defined(__arm64__)
+        #if defined(__arm64__) || defined(__aarch64__)
             #define BSLS_PLATFORM_CPU_64_BIT                                  1
         #endif
         #if defined(__ARM_ARCH)

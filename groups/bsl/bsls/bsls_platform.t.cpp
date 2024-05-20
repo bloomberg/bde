@@ -1762,6 +1762,18 @@ static void printFlags()
     D_MACRO(__arm__);
 #endif
 
+#if defined(__arm64__)
+    P_MACRO(__arm64__);
+#else
+    D_MACRO(__arm64__);
+#endif
+
+#if defined(__aarch64__)
+    P_MACRO(__aarch64__);
+#else
+    D_MACRO(__aarch64__);
+#endif
+
 #if defined(__clang__)
     P_MACRO(__clang__);
 #else
