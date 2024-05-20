@@ -95,23 +95,23 @@ BDEM_VOID         N/A           N/A              null            Encoding error
 
 BDEM_BOOL         boolean       bool             true/false      <BOOLEAN>
 
-BDEM_CHAR         byte          char             number          <NUMBER>
+BDEM_CHAR         byte          char             number/string   <NUMBER>
 
-BDEM_SHORT        short         short            number          <NUMBER>
+BDEM_SHORT        short         short            number/string   <NUMBER>
 
-                  unsignedByte  unsigned char    number          <NUMBER>
+                  unsignedByte  unsigned char    number/string   <NUMBER>
 
-BDEM_INT          int           int              number          <NUMBER>
+BDEM_INT          int           int              number/string   <NUMBER>
 
-                  unsignedShort unsigned short   number          <NUMBER>
+                  unsignedShort unsigned short   number/string   <NUMBER>
 
-BDEM_INT64        integer       Int64            number          <NUMBER>
+BDEM_INT64        integer       Int64            number/string   <NUMBER>
 
-                  long          Int64            number          <NUMBER>
+                  long          Int64            number/string   <NUMBER>
 
-                  unsignedInt   unsigned int     number          <NUMBER>
+                  unsignedInt   unsigned int     number/string   <NUMBER>
 
-                  unsignedLong  unsigned Uint64  number          <NUMBER>
+                  unsignedLong  unsigned Uint64  number/string   <NUMBER>
 
 BDEM_FLOAT        float         float            number/string   <DOUBLE>
 
@@ -147,7 +147,9 @@ BDEM_CHOICE       choice        bcem_Aggregate   object          <CHOICE>
 
 BDEM_CHOICE_ARRAY maxOccurs > 1 bcem_Aggregate   array of objs   <CHOICE_ARRAY>
 
-BDEM_INT/STRING   enumeration   C++ enumeration  string          <STRING>
+BDEM_INT          enumeration   C++ enumeration  string/number   "<NUMBER>"
+
+BDEM_STRING       enumeration   C++ enumeration  string          <STRING>
 
 BDEM_*            minOccurs = 0 NullableValue    null            <NULL_VALUE>
 ..
@@ -160,6 +162,12 @@ BDEM_INT_ARRAY, BDEM_STRING_ARRAY etc) including BDEM_CHAR_ARRAY. A
 nullable scalar types (specified via the 'xs:nillable' attribute) are encoded
 similar to their vector of non-nullable scalar types except that their
 elements could also be specified as 'null'.
+
+* Integral types are always encoded in the <NUMBER> format and int-valued
+enumerations are always encoded in the "<NUMBER>" format, but during decoding
+both of these formats are supported for both of these categories of types.
+This flexibility applies to all integral types, including ones that do not
+support an enumeration constraint.
 
 The format grammar specified below uses the Extended BNF notation (except that
 ',' is not used for concatenation to enhance readability). A quick reference
