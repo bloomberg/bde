@@ -3,9 +3,18 @@
 #include <bsls_nameof.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <cstring>
 #include <string>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+# include <string_view>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+# include <memory_resource>
+#endif
 
 #include <stdio.h>       // sprintf()
 #include <stdlib.h>      // atoi()
@@ -335,7 +344,7 @@ if (verbose) {
         using BloombergLP::bsls::nameOfType;
         using BloombergLP::bsls::Pretty;
 
-        int             ii;
+        int             ii = 0;
         MyType          mt;
         MyUnion         mu;
         bsls::Stopwatch sw;
@@ -344,6 +353,12 @@ if (verbose) {
             P(Pretty<int>());
             P(Pretty<std::string>());
             P(Pretty<MyType>());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            P(Pretty<std::pmr::string>());
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+            P(Pretty<std::string_view>());
+#endif
             P(Pretty<NameOf<std::string> >());
             P(Pretty<NameOf<bsls::Stopwatch> >());
 
@@ -355,7 +370,12 @@ if (verbose) {
             P(NameOf<bsls::Stopwatch>());
             P(NameOf<NameOf<std::string> >());
             P(NameOf<NameOf<bsls::Stopwatch> >());
-
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            P(NameOf<std::pmr::string>());
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+            P(NameOf<std::string_view>());
+#endif
             P(nameOfType(ii));
             P(nameOfType(mt));
             P(nameOfType(mu));
@@ -366,6 +386,12 @@ if (verbose) {
             P(nameOfType(NameOf<int>()));
             P(nameOfType(sw));
             P(nameOfType(&NameOf<std::string>::name));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            P(nameOfType(std::pmr::string()));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+            P(nameOfType(std::string_view()));
+#endif
 
 #if   defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
             P(nameOfType(__PRETTY_FUNCTION__));
@@ -422,6 +448,14 @@ if (verbose) {
         ASSERTV(NameOf<MyType>(),     eq("MyType",     NameOf<MyType>()));
         ASSERTV(NameOf<MyUnion>(),    eq("MyUnion",    NameOf<MyUnion>()));
         ASSERTV(NameOf<std::string>(),eq("std::string",NameOf<std::string>()));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+        ASSERTV(NameOf<std::pmr::string>(),
+                           eq("std::pmr::string", NameOf<std::pmr::string>()));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        ASSERTV(NameOf<std::string_view>(),
+                           eq("std::string_view", NameOf<std::string_view>()));
+#endif
         ASSERTV(NameOf<bsls::Stopwatch>(),
                              eq("bsls::Stopwatch", NameOf<bsls::Stopwatch>()));
         ASSERTV(NameOf<NameOf<int> >(),

@@ -7069,6 +7069,27 @@ int main(int argc, char *argv[])
             ASSERT(0 && "'NameOf' should work everywhere but old Sun CC");
         }
 
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)                 \
+  ||    (defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)             \
+    &&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY))
+        if (verbose) {
+            printf("NameOf<bsl::string_view>: %s\n",
+                                            NameOf<bsl::string_view>().name());
+        }
+        ASSERTV(NameOf<bsl::string_view>().name(),
+                                !std::strcmp(NameOf<bsl::string_view>().name(),
+                                                          "bsl::string_view"));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        if (verbose) {
+            printf("NameOf<std::string_view>: %s\n",
+                                            NameOf<std::string_view>().name());
+        }
+        ASSERTV(NameOf<std::string_view>().name(),
+                                !std::strcmp(NameOf<std::string_view>().name(),
+                                                          "std::string_view"));
+#endif
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         if (verbose) printf("\nAdditional tests: initializer lists.\n");
         {

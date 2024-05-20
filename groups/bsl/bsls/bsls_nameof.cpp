@@ -6,14 +6,19 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 
 #include <stdio.h>
 #include <cstring>
-
-#include <ctype.h>
+#include <cctype>
 
 namespace {
 namespace u {
+
+#define U_SAFE_COPY(dstBuf, srcBuf) do {                                      \
+        enum { k_STATIC_ASSERT = 1 / (sizeof(srcBuf) <= sizeof(dstBuf)) };    \
+        std::strcpy(dstBuf, srcBuf);                                          \
+    } while (false)
 
 void substitute(char       *buffer,
                 const char *pattern,
@@ -27,35 +32,45 @@ void substitute(char       *buffer,
     //
     // Several types of patterns are to be matched:
     //: o namespace 'BloombergLP::'
-    //: o 'std::...string...'
+    //:
+    //: o 'std::...string<...'
+    //:
+    //: o 'bsl::...string<...'
+    //:
+    //: o 'std::...::pmr::string<...'
+    //:
+    //: o 'std::...string_view<...'
+    //:
+    //: o 'bsl::...string_view<...'
+    //:
     //: o anonymous namespace (which may begin with '(', '{', or '<'
-    //: o anonymous nameppace ("::" on Solaris CC).  This is the only pattern
+    //:
+    //: o anonymous namespace ("::" on Solaris CC).  This is the only pattern
     //:   that begins with ':', and it is important that we be careful
     //:   substituting them.
-    //: o gap at end of nested template (" >") which is the only pattern that
-    //:   begins with space, and also the only pattern that may immediately
-    //:   follow an id.
+    //:
+    //: o in C++03, templates sometimes end with "> >" so we substitute ">" for
+    //:   " >" and then all patterns after that assume nested templates end
+    //:   with ">>".
 {
-    const char startPat = pattern[0];
-    std::size_t patternLen;
-    std::size_t replacementLen;
-    bool firstTime = true;
+    const std::size_t patternLen     = std::strlen(pattern);
+    const std::size_t replacementLen = std::strlen(replacement);
+    BSLS_ASSERT_OPT(patternLen >= replacementLen);
 
-    const char semicolon = ';';     // We're assuming ';' (semicolon) will
-                                    // never occur in a type name.
+    static const unsigned char colon = ':';
 
     for (char *pc = buffer; (pc = std::strstr(pc, pattern)); ++pc) {
-        const char prevChar = buffer < pc ? pc[-1] : semicolon;
-        if (' ' != startPat && !std::strchr(";<([{, ", prevChar)) {
-            continue;
-        }
+        if (buffer < pc) {
+            // If we are translating a pattern beginning with 'std' or 'bsl',
+            // make sure that the previous character wasn't an alphanum or ':',
+            // in which case we are in the middle of an id and we should just
+            // skp the match.  If we are translating " >" to ">", we expect
+            // the previous character to be '>' so that will not be skipped.
 
-        if (firstTime) {
-            firstTime = false;
-
-            patternLen     = std::strlen(pattern);
-            replacementLen = std::strlen(replacement);
-            BSLS_ASSERT(patternLen >= replacementLen);
+            const unsigned char prevChar = pc[-1];
+            if (std::isalnum(prevChar) || colon == prevChar) {
+                continue;
+            }
         }
 
         std::memmove(pc, replacement, replacementLen);
@@ -218,37 +233,78 @@ const char *NameOf_Base::initBuffer(char       *buffer,
 
     u::substitute(buffer, " >", ">");
 
-#if   defined(BSLS_PLATFORM_CMP_SUN) && !defined(BSLS_PLATFORM_CMP_GNU)
+    // In this series of '#ifdef/#elif/#else', we set 'stringName' to be the
+    // full template expression describing 'std::string', and we pass
+    // 'stringName' to 'substitute' to match those expressions to translate
+    // them to non-template shorter 'typedef's.  We arrange it so that when we
+    // emerge from these '#ifdef's,
+    //: 1 'stringName' is the expression to be translated to 'std::string'
+    //:
+    //: 2 'stringViewName' is the expression to be translated to
+    //:   'std::string_view', and
+    //:
+    //: 3 'anonymous' is the name the compiler gives to the anonymous
+    //:   namespace, which we will use 'substitute' to translate to nothing.
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && !defined(BSLS_PLATFORM_CMP_GNU)
     char stringName[] = { "std::basic_string<char, std::char_traits<char>,"
                                                     " std::allocator<char>>" };
 
+    char stringViewName[] = "std::basic_string_view<char,"
+                                                    " std::char_traits<char>>";
     static const char anonymous[] = { "::" };
-#elif defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG)
-# if BSLS_PLATFORM_CMP_VERSION < 40502
-    char stringName[] = { "std::basic_string<char, std::char_traits<char>,"
-                                                    " std::allocator<char>>" };
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING)
+    char stringName[] = { "std::__cxx11::basic_string<char,"
+                                       " std::char_traits<char>, std::pmr::"
+                                       "polymorphic_allocator<char>>" };
 
-    static const char anonymous[] = { "<unnamed>::" };
-# elif BSLS_PLATFORM_CMP_VERSION < 40601
-    char stringName[] = { "std::basic_string<char>" };
+    u::substitute(buffer, stringName, "std::pmr::string");
 
-    static const char anonymous[] = { "<unnamed>::" };
-# elif BSLS_PLATFORM_CMP_VERSION < 50000
-    char stringName[] = { "std::basic_string<char>" };
-
-    static const char anonymous[] = { "{anonymous}::" };
+    U_SAFE_COPY(stringName, "std::basic_string<char,"
+                            " std::char_traits<char>, std::allocator<char>>");
 # else
-    char stringName[] = { "std::__cxx11::basic_string<char>" };
+    char stringName[] = {   "std::basic_string<char,"
+                            " std::char_traits<char>, std::allocator<char>>" };
+# endif
 
-    u::substitute(buffer,     stringName,       "std::string");
-    u::substitute(stringName, "std::__cxx11::", "std::");
+    // We iterate to handle various combinations of parts of the definition
+    // being in the "std::" or "bsl::" namespaces, and the closing of the
+    // template being either "> >" or ">>".
 
+    char typedefName[] = { "std::string" };
+
+    u::substitute(buffer,      stringName,           typedefName);
+
+    u::substitute(stringName,  "std::basic",         "bsl::basic");
+    u::substitute(typedefName, "std::",              "bsl::");
+    u::substitute(buffer,      stringName,           typedefName);
+
+    u::substitute(stringName,  "std::alloc",         "bsl::alloc");
+    u::substitute(buffer,      stringName,           typedefName);
+
+    u::substitute(stringName,  "std::",              "bsl::");
+    u::substitute(buffer,      stringName,           typedefName);
+
+    U_SAFE_COPY(stringName,    "std::__cxx11::basic_string<char>");
+    u::substitute(buffer,      stringName,           "std::string");
+    u::substitute(stringName,  "std::__cxx11::",     "std::");
+
+    char stringViewName[] = "std::__cxx11::basic_string_view<char>";
+    u::substitute(buffer,     stringViewName,        "std::string_view");
+    u::substitute(stringViewName,  "std::__cxx11::", "std::");
+
+# if defined(BSLS_PLATFORM_CMP_CLANG)
+    static const char anonymous[] = { "(anonymous namespace)::" };
+# else
     static const char anonymous[] = { "{anonymous}::" };
 # endif
 #elif defined(BSLS_PLATFORM_CMP_IBM)
     char stringName[] = { "std::basic_string<char,std::char_traits<char>,"
                                                      "std::allocator<char>>" };
 
+    char stringViewName[] = "std::basic_string_view<char,"
+                                                     "std::char_traits<char>>";
     static const char anonymous[] = { "<unnamed>::" };
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
     u::substitute(buffer,    "struct ", "");
@@ -256,34 +312,32 @@ const char *NameOf_Base::initBuffer(char       *buffer,
     u::substitute(buffer,    "union ",  "");
 
     char stringName[] = { "std::basic_string<char,std::char_traits<char>,"
-                                                     "std::allocator<char>>" };
+                          "std::pmr::polymorphic_allocator<char>>" };
+    u::substitute(buffer,     stringName,      "std::pmr::string");
+
+    U_SAFE_COPY(stringName, "std::basic_string<char,std::char_traits<char>,"
+                            "std::allocator<char>>");
+
+    char stringViewName[] = "std::basic_string_view<char,"
+                                                     "std::char_traits<char>>";
 
     static const char anonymous[] = { "`anonymous namespace'::" };
-#else
-    // Linux clang, and Darwin clang
-
-# if BSLS_PLATFORM_OS_DARWIN
+#elif BSLS_PLATFORM_OS_DARWIN
     char stringName[] = { "std::__1::basic_string<char>" };
 
     u::substitute(buffer,     stringName,   "std::string");
     u::substitute(stringName, "std::__1::",  "std::");
-# else
-    // Linux clang
 
-    char stringName[] = { "std::basic_string<char>" };
+    char stringViewName[] = "std::__1::basic_string_view<char>";
+    u::substitute(buffer,     stringViewName, "std::string_view");
+    u::substitute(stringViewName, "std::__1::",  "std::");
 
-#   if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
-
-    char longName[] = { "std::basic_string<char,"
-                            " std::char_traits<char>, std::allocator<char>>" };
-    u::substitute(buffer, longName, stringName);
-    u::substitute(longName, "std::", "bsl::");
-    u::substitute(buffer, longName,  "bsl::basic_string<char>");
-
-#   endif
-# endif
     static const char anonymous[] = { "(anonymous namespace)::" };
 #endif
+
+    u::substitute(buffer,     "BloombergLP::", "");
+
+    // ... At this point 'stringName' is the templated version of 'std::string'
 
     u::substitute(buffer,     stringName,      "std::string");
     u::substitute(stringName, "std::basic",    "bsl::basic");
@@ -295,7 +349,19 @@ const char *NameOf_Base::initBuffer(char       *buffer,
     u::substitute(stringName, "bsl::",         "");
     u::substitute(buffer,     stringName,      "string");
 
-    u::substitute(buffer,     "BloombergLP::", "");
+    // ... and 'stringViewName' is the templated version of 'std::string_view',
+    // note that on platforms that don't support 'std::string_view', we go on
+    // to translate 'bsl::string_view'
+
+    u::substitute(buffer, stringViewName, "std::string_view");
+    u::substitute(stringViewName, "std::basic", "bsl::basic");
+    u::substitute(buffer, stringViewName, "bsl::string_view");
+    u::substitute(stringViewName, "std::",      "bsl::");
+    u::substitute(buffer, stringViewName, "bsl::string_view");
+
+    // ... and 'anonymous' is prefix the compiler gives to types that are in
+    // the anonymous namespace
+
     u::substitute(buffer,     anonymous,       "");
 
     return buffer;
