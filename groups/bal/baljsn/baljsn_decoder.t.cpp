@@ -138,8 +138,8 @@ namespace test = BloombergLP::s_baltst;
 // [13] FALLBACK ENUMERATORS
 // [14] DECODING INTS AS ENUMS AND VICE VERSA              {DRQS 166048981<GO>}
 // [15] ARRAY HAVING NULLABLE COMPLEX ELEMENTS             {DRQS 167908706<GO>}
-// [17] 'DecoderOptions' CAN BE CONFIGURED FOR STRICT CONFORMANCE
-// [18] USAGE EXAMPLE
+// [16] 'DecoderOptions' CAN BE CONFIGURED FOR STRICT CONFORMANCE
+// [17] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -36941,7 +36941,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.

@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  baljsn::Decoder: JSON decoder for 'bdeat'-compliant types
 //
-//@SEE_ALSO: baljsn_encoder, baljsn_parserutil, baljsn_parser
+//@SEE_ALSO: baljsn_decoderoptions, balsjn_decoderoptionsutil,
+//           baljsn_encoder, baljsn_parserutil, baljsn_parser
 //
 //@DESCRIPTION: This component provides a class, 'baljsn::Decoder', for
 // decoding value-semantic objects in the JSON format.  In particular, the
