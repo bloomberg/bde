@@ -430,6 +430,18 @@ void TestUtil::loadDecoderOptions(ComplexTypeElement *decoderOptions)
         SchemaUtil::append(&sequence, validateInputIsUtf8);
     }
 
+    {
+        Element validateRootTag;
+        validateRootTag.name()                = "ValidateRootTag";
+        validateRootTag.type()                = "xs:boolean";
+        validateRootTag.minOccurs()           = "0";
+        validateRootTag.maxOccurs()           = "1";
+        validateRootTag.defaultValue()        = "false";
+        validateRootTag.allowsDirectManipulation() = "0";
+        validateRootTag.allocatesMemory()     = "0";
+        SchemaUtil::append(&sequence, validateRootTag);
+    }
+
     SchemaUtil::append(decoderOptions, sequence);
 }
 
@@ -526,7 +538,7 @@ int main(int argc, char *argv[])
         // (modulo annotations) to the content that we expect.
 
         typedef s_baltst::BasicSchemaUtil SchemaUtil;
-        ASSERT(
+        ASSERTV(configSchema, expectedSchema,
              SchemaUtil::areEqualUpToAnnotation(configSchema, expectedSchema));
         if (veryVerbose && !SchemaUtil::areEqualUpToAnnotation(
                                configSchema, expectedSchema)) {
