@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 83 components having 16 levels of physical
+ The 'bsls' package currently has 84 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -109,6 +109,7 @@
       bsls_bslsourcenameparserutil
       bsls_bsltestutil
       bsls_linkcoercion
+      bsls_stackaddressutil_plinktimestamp                            !PRIVATE!
       bsls_types
 
    2. bsls_blockgrowth
@@ -349,6 +350,9 @@
 :
 : 'bsls_stackaddressutil':
 :      Provide a utility for obtaining return addresses from the stack.
+:
+: 'bsls_stackaddressutil_plinktimestamp':                             !PRIVATE!
+:      Declare and weakly define a 'plink_timestamp___' global variable.
 :
 : 'bsls_stopwatch':
 :      Provide access to user, system, and wall times of current process.
