@@ -237,12 +237,13 @@ struct formatter<bsl::string, char> {
 #endif
 
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
 namespace bslfmt {
 
 //using bslfmt_FormatUtil_BasicFormatArg     = std::basic_format_arg;
 
-//using bslfmt_FormatUtil_Alias_FormatError = std::format_error;
+using bslfmt_FormatUtil_Alias_FormatError = std::format_error;
 
 template <class t_OUT, class t_CHAR>
 using bslfmt_FormatUtil_Alias_BasicFormatContext = std::basic_format_context<t_OUT, t_CHAR>;
@@ -325,6 +326,9 @@ struct FormatUtil {
     static bslfmt_FormatUtil_Alias_FormatArgStore<bslfmt_FormatUtil_Alias_DefaultFormatContext, t_ARGS...>
     make_format_args(t_ARGS&... fmt_args)
     {
+        static constexpr int dummy[] = {0, ((void)bslfmt::formatter<std::remove_cvref_t<t_ARGS>, char>{}, 0)...};
+        (void)dummy;
+
         return std::make_format_args<bslfmt_FormatUtil_Alias_DefaultFormatContext>(
                                                                   fmt_args...);
         //return bslfmt_FormatUtil_Alias_MakeFormatArgs<
@@ -342,9 +346,12 @@ struct FormatUtil {
     }
 
     template <class... t_ARGS>
-    static bsl::string format(bslfmt_FormatUtil_Alias_FormatString<t_ARGS...> fmtstr,
-                         t_ARGS&&...                               args)
+    static bsl::string
+    format(bslfmt_FormatUtil_Alias_FormatString<t_ARGS...> fmtstr,
+           t_ARGS&&...args)
     {
+        static constexpr int dummy[] = {0, ((void)bslfmt::formatter<std::remove_cvref_t<t_ARGS>, char>{}, 0)...};
+        (void)dummy;
         return vformat(fmtstr.get(), make_format_args(args...));
     }
 
@@ -566,6 +573,8 @@ struct FormatUtil {
 };
 
 }
+
+#elif 0
 
 #define BSL_FORMAT_CONSTEXPR constexpr
 
@@ -827,7 +836,7 @@ struct formatter<t_ARG, t_CHAR> : bsl::formatter<t_ARG, t_CHAR> {
 };
 }  // close namespace std
 #endif
-#if 1  // defined(XXXBSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#else  // defined(XXXBSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #define BSL_FORMAT_CONSTEXPR constexpr
 namespace bslfmt {
 template <class t_ITERATOR>
@@ -1773,7 +1782,7 @@ format_to_n(t_OUT                                            out,
 #endif  // defined(XXXBSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 namespace bslfmt {
 // FORMATTER SPECIALIZATIONS
-#if 0
+#if 1
 template <>
 struct formatter<int, char> {
     BSL_FORMAT_CONSTEXPR bslfmt_FormatUtil_Alias_FormatParseContext::iterator

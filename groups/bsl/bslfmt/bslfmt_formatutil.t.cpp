@@ -91,20 +91,20 @@ struct FormattableType {
 };
 
 namespace bslfmt {
-#if 0
+#if 1
 template <>
 struct formatter<FormattableType, char> {
-    formatter<int, char> d_formatter;
+    std::formatter<int, char> d_formatter;
 
-    BSL_FORMAT_CONSTEXPR bslfmt_FormatUtil_Alias_FormatParseContext::iterator parse(
-                                      bslfmt_FormatUtil_Alias_FormatParseContext& pc)
+    BSL_FORMAT_CONSTEXPR bslfmt::bslfmt_FormatUtil_Alias_FormatParseContext::iterator parse(
+                                      bslfmt::bslfmt_FormatUtil_Alias_FormatParseContext& pc)
     {
         return d_formatter.parse(pc);
     }
 
     template <class t_OUT>
     t_OUT format(const FormattableType&             value,
-                 bslfmt_FormatUtil_Alias_BasicFormatContext<t_OUT, char>& fc) const
+                 bslfmt::bslfmt_FormatUtil_Alias_BasicFormatContext<t_OUT, char>& fc) const
     {
         const char name[] = "FormattableType";
         t_OUT out = fc.out();
@@ -117,7 +117,7 @@ struct formatter<FormattableType, char> {
     }
 };
 #endif 
-#if 1
+#if 0
 template <>
 struct formatter<FormattableType, char> {
     formatter<int, char> d_formatter;
@@ -168,8 +168,8 @@ int main(int argc, char **argv)
         const int         sum = x + y;
         check(bslfmt::FormatUtil::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
-        check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
-              "Here is a simple equation: 1 + 2 = 3");
+        //check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
+        //      "Here is a simple equation: 1 + 2 = 3");
         check(bslfmt::FormatUtil::vformat(
                                       "{}: {} + {} = {}",
                        bslfmt::FormatUtil::make_format_args(intro, x, y, sum)),
