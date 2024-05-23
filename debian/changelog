@@ -1,5 +1,51 @@
-bsl-internal (4.8.0.0) unstable; urgency=low
+bsl-internal (4.9.0.0) unstable; urgency=low
 
+  * be6e8184d Bumped version to 4.9.0.0
+  * e7668b685 drqs-175365914: 'balxml_encoderoptions': Use 'bsl::string_view' in setters (#4756)
+  * 309503e02 Baljsn decoderoptionsutil drqs 175214394 (#4748)
+  * a309594cd drqs-175250988: 'balxml_configschema': Update with 'ValidateRootTag'. (#4749)
+  * fe6a3572c bsls_nameof: cope with std::pmr::string (#4731)
+  * a3fb45c08 Support Linux on ARM (#4751)
+  * a20bb76cf baljsn documentation for decoding ints as enums and vice versa (#4750)
+  * 8339373aa Limit maximum size of accepted ISO 8601 data. (#4738)
+  * 35308bc19 Remove unused values from ball category holder (#4747)
+  * 337a4ceb4 bdld_DatumUtil::[safe]{T|t}ypedPrint (#4718)
+  * aa239a61b ball_rule-prevent-ub-with-unsigned-drqs-175182635 (#4744)
+  * 044df5891 Doc fix for ranges support (#4745)
+  * 2bd1dd0e9 Format, consistency, brevity, conformance. (#4743)
+  * 7adf81b52 improve doc (#4741)
+  * ef6113e35 improve package doc (#4739)
+  * abdd77156 Merge pull request #4737 from mclow3/span.175008384
+  * 19dd3d642 improve doc (#4740)
+  * e85a6798e Predicate MSVC check on a future version of MSVC
+  * d7666083a Prevent memcpy(nullptr, ..., 0) call (#4736)
+  * 22fb79536 Balst stacktracetestallocator num allocations drqs 174842950 (#4733)
+  * b56b954ab bsl::list return numof removed elems. (#4728)
+  * 2c52f7471 Include guid in BSLS_REVIEW (via cheapstack) (#4725)
+  * 53725e3fd Fix ASSERT_SAFE from bad BER date. (#4732)
+  * e5ec57fb0 Update MetricRegistry to avoid singleton lifetime issues (DRQS 174980848) (#4707)
+  * c3b937e76 Update baljsn_decoderoptions.h (#4735)
+  * dba429f11 Remove unevaluated lambdas from bsl::optional implementation (#4734)
+  * b3355be35 Address compile-time issues for shared_ptr of array types (#4721)
+  * 3c8c90164 Merge pull request #4729 from afeher/DRQS-174788893-bsls_protocoltest-support-const-methods
+  * 1b8311544 bdlf_bind: renamed a lot of thing, mostly template args.  No code cha… (#4665)
+  * c64e978c8 remove reference to now-disabled BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS (#4676)
+  * 97c35beb2 bdljsn_numberutil: disable output on usage except when verbose (#4730)
+  * 3cd0297d9 Add missing append implementation. (#4727)
+  * 93d12b8b8 bslh_hash.t paint long double bytes before assigning value (#4726)
+  * dd1902005 Revert "Revert "balxml_decoder success on incorrect input {DRQS 171405619} (#4475)" (#4549)" (#4708)
+  * f53783e04 UBSAN fixes (#4713)
+  * 153f443c5 add cstdint header in CPP11 and later (#4714)
+  * 42950dfbc TestAllocator leaks memory on limit exception: DRQS 175122712 (#4719)
+  * 6fdcb1f9a Remove spurious method definitions from bdld_datum.h (#4717)
+  * 438a65431 balb_controlmanager private members are now private; internal class indented. (#4715)
+  * 32c919580 Add range accessors Datum Ref types. (#4710)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 23 May 2024 14:27:29 -0400
+
+bsl-internal (4.8.0.0) git; urgency=low
+
+  * fe36f7d5a Changelog for version 4.8.0.0
   * 80bd347c3 Bumped version to 4.8.0.0
   * 783787063 Ball log set category tsan race drqs 171004031 (#4560)
   * 5c1405608 Replace unconditional asserts using !"literal" with 0 != "literal" (#4645)
@@ -9,7 +55,7 @@ bsl-internal (4.8.0.0) unstable; urgency=low
   * 2b7904d01 Fix link coercion symbols section. (#4709)
   * 34f7fd686 `bslma::TestAllocator` cleanup - drqs174842946 (#4696)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 26 Apr 2024 13:57:28 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 26 Apr 2024 14:00:00 -0400
 
 bsl-internal (4.7.0.0) git; urgency=low
 
