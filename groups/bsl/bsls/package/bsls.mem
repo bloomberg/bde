@@ -73,7 +73,6 @@ bsls_review
 bsls_review_macroreset
 bsls_spinlock
 bsls_stackaddressutil
-bsls_stackaddressutil_plinktimestamp
 bsls_stopwatch
 bsls_systemclocktype
 bsls_systemtime

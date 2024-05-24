@@ -6,7 +6,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
-#include <bsls_stackaddressutil_plinktimestamp.h>
 #include <bsls_types.h>
 #include <assert.h>
 #include <stdio.h>
@@ -267,78 +266,6 @@ uintptr_t getStackOffset()
 }  // close unnamed namespace
 
 
-namespace {
-
-const char *getPwhatVar(const char *const tag)
-    // Return the 'pwhat' variable with the specified 'tag'.  The behavior is
-    // undefined unless 'tag' is a non-empty null-terminated string.  Return
-    // '0' if the 'plink_timestamp___' global variable does not contain the
-    // 'tag' or is not well formed.
-{
-    // This is a modified version of 'sysutil_pwhat_getvar', adjusted to not
-    // use additional static data and to be more resilient if
-    // 'plink_timestamp___' is not formed as expected.
-
-    assert(0 != tag);
-
-    size_t taglength = strlen(tag);
-    assert(taglength > 0);
-
-    // Assume that 'plink_timestamp___' is a '0'-terminated list of
-    // '0'-terminated strings.  Each string should roughly match the regular
-    // expression '[^]]*] (?<tag>[A-Z]+) *: (?<value>.*)'.
-
-    for (int i = 0; 0 != plink_timestamp___[i]; ++i) {
-
-        // search through '[^]]*]'
-        const char *p = strchr(plink_timestamp___[i], ']');
-        if (0 == p) {
-            continue;
-        }
-        ++p;
-
-        // make sure the next character is ' '
-        if (' ' != *p) {
-            continue;
-        }
-        ++p;
-
-        // see if the desired 'tag' is next
-        if (0 != strncmp(p,tag,taglength)) {
-            continue;
-        }
-        p += taglength;
-
-        // identify if ' *:' is next and advance past the ':'
-        switch (*p) {
-          case ' ': {
-            p = strchr(p,':');
-          } break;
-          case ':': {
-          } break;
-          default: {
-            // this is an invalid line or a tag that has the requested tag as a
-            // prefix.
-            continue;
-          } break;
-        }
-        ++p;
-
-        // make sure the next character is ' ' (again)
-        if (' ' != *p) {
-            continue;
-        }
-        ++p;
-
-        // the remaining part of this string is the value for the requested
-        // 'tag'
-        return p;                                                     // RETURN
-    }
-
-    return 0;
-}
-
-}  // close unnamed namespace
 
 namespace BloombergLP {
 
@@ -676,16 +603,6 @@ void StackAddressUtil::formatCheapStack(char       *output,
 
     if (printed < 0 || rem <= 0) {
         return;                                                       // RETURN
-    }
-
-    const char *guid = getPwhatVar("GUID");
-    if (0 != guid && 0 != *guid) {
-        printed = snprintf(out, rem, "-g %s ", guid);
-        out += printed;
-        rem -= printed;
-        if (printed < 0 || rem <= 0) {
-            return;                                                   // RETURN
-        }
     }
 
 #if defined(BSLS_PLATFORM_OS_AIX)
