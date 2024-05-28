@@ -28,6 +28,7 @@
 #include <s_baltst_rawdata.h>
 #include <s_baltst_rawdataswitched.h>
 #include <s_baltst_rawdataunformatted.h>
+#include <s_baltst_request.h>
 #include <s_baltst_sqrt.h>
 #include <s_baltst_timingrequest.h>
 
@@ -38,6 +39,8 @@
 #include <bdlsb_memoutstreambuf.h>      // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>  // for testing only
 
+#include <bslim_fuzzdataview.h>
+#include <bslim_fuzzutil.h>
 #include <bslim_printer.h>
 #include <bslim_testutil.h>
 
@@ -2235,6 +2238,72 @@ static void usageExample()
     ASSERT(bob.age()    == obj.age());
     ASSERT(bob.salary() == obj.salary());
 //..
+}
+
+// ============================================================================
+//                              FUZZ TESTING
+// ----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+template <class TYPE>
+bool tryDeserialize(const uint8_t                    *bytes,
+                    size_t                            size,
+                    const balber::BerDecoderOptions&  options)
+    // Try to deserialize an object of the specified 'TYPE' from the specified
+    // span of bytes ['bytes', 'bytes' + 'size').  Return 'true' on success.
+{
+    balber::BerDecoder         decoder(&options);
+    bdlsb::FixedMemInStreamBuf streamBuf(reinterpret_cast<const char*>(bytes),
+                                         size);
+    TYPE                       outValue;
+
+    int rc = decoder.decode(&streamBuf, &outValue);
+    return rc == 0;
+}
+
+template <class TYPE>
+inline
+bool tryDeserialize(const bslim::FuzzDataView&       data,
+                    const balber::BerDecoderOptions& options)
+    // Try to deserialize an object of the specified 'TYPE' from the specified
+    // 'data'.
+{
+    return tryDeserialize<TYPE>(data.data(), data.length(), options);
+}
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *bytes, size_t size)
+    // Use the specified 'bytes' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    typedef bslim::FuzzUtil FuzzUtil;
+    bslim::FuzzDataView data(bytes, size);
+
+    balber::BerDecoderOptions options;
+    options.setMaxDepth(FuzzUtil::consumeNumberInRange<int>(&data, 3, 10));
+    options.setMaxSequenceSize(FuzzUtil::consumeNumberInRange<int>(
+                        &data,
+                        1,
+                        balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE));
+    options.setSkipUnknownElements(FuzzUtil::consumeBool(&data));
+    options.setDefaultEmptyStrings(FuzzUtil::consumeBool(&data));
+
+    using BloombergLP::s_baltst::Request;
+    tryDeserialize<Request>(data, options);
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+    return 0;
 }
 
 // ============================================================================
