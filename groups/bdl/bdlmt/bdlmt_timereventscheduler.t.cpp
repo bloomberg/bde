@@ -852,7 +852,7 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
     ASSERT(d_handles.empty());
     ASSERT(1 == d_descriptors.size());
     ASSERT(d_descriptors[0].metricNamespace()        == "");
-    ASSERT(d_descriptors[0].metricName()             == "startlag");
+    ASSERT(d_descriptors[0].metricName()             == "bde.startlag");
     ASSERT(d_descriptors[0].objectTypeAbbreviation() == "tes");
     ASSERT(d_descriptors[0].objectTypeName()         ==
                                                   "bdlmt.timereventscheduler");
@@ -862,7 +862,7 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
     return d_handles.empty()
         && 1 == d_descriptors.size()
         && d_descriptors[0].metricNamespace()        == ""
-        && d_descriptors[0].metricName()             == "startlag"
+        && d_descriptors[0].metricName()             == "bde.startlag"
         && d_descriptors[0].objectTypeAbbreviation() == "tes"
         && d_descriptors[0].objectTypeName()         ==
                                                     "bdlmt.timereventscheduler"

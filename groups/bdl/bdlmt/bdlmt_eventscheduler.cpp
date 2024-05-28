@@ -330,7 +330,7 @@ void EventScheduler::initialize(bdlm::MetricsRegistry   *metricsRegistry,
 
     bdlm::MetricDescriptor md(
              bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
-             "startlag",
+             "bde.startlag",
              instanceNumber,
              "bdlmt.eventscheduler",
              "es",

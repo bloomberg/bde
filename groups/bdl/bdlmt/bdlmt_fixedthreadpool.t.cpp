@@ -298,14 +298,14 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
     ASSERT(d_handles.empty());
     ASSERT(2 == d_descriptors.size());
     ASSERT(d_descriptors[0].metricNamespace()        == "");
-    ASSERT(d_descriptors[0].metricName()             == "backlog");
+    ASSERT(d_descriptors[0].metricName()             == "bde.backlog");
     ASSERT(d_descriptors[0].objectTypeAbbreviation() == "ftp");
     ASSERT(d_descriptors[0].objectTypeName()         ==
                                                       "bdlmt.fixedthreadpool");
     ASSERT(d_descriptors[0].instanceNumber()         == count);
     ASSERT(d_descriptors[0].objectIdentifier()       == name);
     ASSERT(d_descriptors[1].metricNamespace()        == "");
-    ASSERT(d_descriptors[1].metricName()             == "usedcapacity");
+    ASSERT(d_descriptors[1].metricName()             == "bde.usedcapacity");
     ASSERT(d_descriptors[1].objectTypeAbbreviation() == "ftp");
     ASSERT(d_descriptors[1].objectTypeName()         ==
                                                       "bdlmt.fixedthreadpool");
@@ -315,17 +315,15 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
     return d_handles.empty()
         && 2 == d_descriptors.size()
         && d_descriptors[0].metricNamespace()        == ""
-        && d_descriptors[0].metricName()             == "backlog"
+        && d_descriptors[0].metricName()             == "bde.backlog"
         && d_descriptors[0].objectTypeAbbreviation() == "ftp"
-        && d_descriptors[0].objectTypeName()         ==
-                                                        "bdlmt.fixedthreadpool"
+        && d_descriptors[0].objectTypeName()         == "bdlmt.fixedthreadpool"
         && d_descriptors[0].instanceNumber()         == count
         && d_descriptors[0].objectIdentifier()       == name
         && d_descriptors[1].metricNamespace()        == ""
-        && d_descriptors[1].metricName()             == "usedcapacity"
+        && d_descriptors[1].metricName()             == "bde.usedcapacity"
         && d_descriptors[1].objectTypeAbbreviation() == "ftp"
-        && d_descriptors[1].objectTypeName()         ==
-                                                        "bdlmt.fixedthreadpool"
+        && d_descriptors[1].objectTypeName()         == "bdlmt.fixedthreadpool"
         && d_descriptors[1].instanceNumber()         == count
         && d_descriptors[1].objectIdentifier()       == name;
 }

@@ -111,7 +111,7 @@ void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
 
     bdlm::MetricDescriptor mdBacklog(
              bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
-             "backlog",
+             "bde.backlog",
              instanceNumber,
              "bdlmt.fixedthreadpool",
              "ftp",
@@ -119,7 +119,7 @@ void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
 
     bdlm::MetricDescriptor mdUsedCapacity(
              bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
-             "usedcapacity",
+             "bde.usedcapacity",
              instanceNumber,
              "bdlmt.fixedthreadpool",
              "ftp",
