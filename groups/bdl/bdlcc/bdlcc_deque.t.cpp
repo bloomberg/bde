@@ -4133,22 +4133,28 @@ void highWaterMarkTest()
         bslmt::ThreadUtil::Handle handle;
         bslmt::ThreadUtil::create(&handle, functor);
 
+        while (X.length() < 4) {
+            bslmt::ThreadUtil::yield();
+        }
+
         for (unsigned u = 0; u <= 32 - 4; ++u) {
             bslmt::ThreadUtil::yield();
             bslmt::ThreadUtil::microSleep(50 * 1000);        // 50 mSec
 
-            ASSERT(4 + u == pushCount);
-            ASSERT(4     == X.length());
+            bsl::size_t len = X.length();
+
+            ASSERTV(u, pushCount, 4 + u == pushCount);
+            ASSERTV(len,          4     == len);
 
             if (veryVerbose) { P_(u);    P(ta.numBlocksInUse()); }
 
             if (u & 1) {
                 const int val = u::getData(mX.popBack());
-                ASSERTV(name, val, u, BACK_VAL  == val);
+                ASSERTV(name, val, u, BACK_VAL, FRONT_VAL, BACK_VAL  == val);
             }
             else {
                 const int val = u::getData(mX.popFront());
-                ASSERTV(name, val, u, FRONT_VAL == val);
+                ASSERTV(name, val, u, BACK_VAL, FRONT_VAL, FRONT_VAL == val);
             }
         }
 
