@@ -3832,10 +3832,10 @@ struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
 };
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-// {DRQS 132030795}
+// DRQS 132030795
 
 // Sun CC 12.3 has trouble with the partial specializations above in certain
-// circumstances (see {DRQS 132030795}).  Adding these explicit specializations
+// circumstances (see DRQS 132030795).  Adding these explicit specializations
 // for 'string' and 'wstring' makes the problematic cases work.
 
 template <>
@@ -7358,7 +7358,7 @@ operator()(const CHAR_TYPE *input) const
 }
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-// {DRQS 132030795}
+// DRQS 132030795
 inline
 std::size_t hash<string>::operator()(const string& input) const
 {

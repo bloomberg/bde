@@ -334,7 +334,7 @@ class basic_stringstream
         // this stream object.
 
 #ifndef BSLS_PLATFORM_CMP_SUN
-    // To be enabled once {DRQS 168075157} is resolved
+    // To be enabled once DRQS 168075157 is resolved
     template <class SALLOC>
     typename bsl::enable_if<
         bsl::IsStdAllocator<SALLOC>::value,
