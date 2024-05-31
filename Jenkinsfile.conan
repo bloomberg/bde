@@ -1,0 +1,99 @@
+#!groovy
+
+// ***************************************************************
+// This is an internal Bloomberg Conan recipe.                   *
+// This recipe does not work outside of Bloomberg infrastructure *
+// ***************************************************************
+
+library identifier: "conan-pipeline@main",
+        retriever: modernSCM([
+            $class: 'GitSCMSource',
+            remote: "https://bbgithub.dev.bloomberg.com/conan/conan-pipeline",
+            credentialsId: 'bbgithub_token'
+    ])
+
+jobInfo.failIfBranchIndexing()
+
+node('WINDOWS') {
+    try {
+        stage('Checkout') {
+            checkout scm
+        }
+
+        withConan { conan ->
+            stage('Create package(s)') {
+                conan.profile.detect()
+
+                String user = 'test'
+                String channel = 'unstable'
+
+                if (env.CHANGE_ID) {
+                    user = 'pr'
+                    channel = "pr-${env.CHANGE_ID}"
+                }
+
+                writeFile(file:"standalones/CMakeLists.txt", text: "")
+                writeFile(file:"groups/CMakeLists.txt", text: "")
+
+                writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(ryu)")
+                conan.create(name: 'libryu-dev',
+                             user:    user,
+                             channel: channel,
+                             '-o:a':  '*:dependency_user_channel=test/unstable')
+                writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(inteldfp/LIBRARY)")
+                conan.create(name: 'libinteldfp-dev',
+                             user:    user,
+                             channel: channel,
+                             '-o:a':  '*:dependency_user_channel=test/unstable')
+                writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(pcre2)")
+                conan.create(name: 'libpcre2-dev',
+                             user:    user,
+                             channel: channel,
+                             '-o:a':  '*:dependency_user_channel=test/unstable')
+
+                writeFile(file:"thirdparty/CMakeLists.txt", text: "")
+
+                writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bsl)")
+                conan.create(name: 'libbsl-dev',
+                             user:    user,
+                             channel: channel,
+                             '-o:a':  '*:dependency_user_channel=test/unstable')
+                writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bdl)")
+                conan.create(name: 'libbdl-dev',
+                             user:    user,
+                             channel: channel,
+                             '-o:a':  '*:dependency_user_channel=test/unstable')
+                writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bal)")
+                conan.create(name: 'libbal-dev',
+                             user:    user,
+                             channel: channel,
+                             '-o:a':  '*:dependency_user_channel=test/unstable')
+                writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bbl)")
+                conan.create(name: 'libbbl-dev',
+                             user:    user,
+                             channel: channel,
+                             '-o:a':  '*:dependency_user_channel=test/unstable')
+            }
+            stage('Publish package(s)') {
+                Boolean dryRun = true
+
+                if ((env.BRANCH_NAME ?: '').startsWith('releases/') && debian.isChangelogUpdated()) {
+                    dryRun = false
+                }
+
+                conan.remoteBbConan { remote ->
+                    remote.upload(dryRun: dryRun, pattern: 'libryu-dev')
+                    remote.upload(dryRun: dryRun, pattern: 'libinteldfp-dev')
+                    remote.upload(dryRun: dryRun, pattern: 'libpcre2-dev')
+                    remote.upload(dryRun: dryRun, pattern: 'libbsl-dev')
+                    remote.upload(dryRun: dryRun, pattern: 'libbdl-dev')
+                    remote.upload(dryRun: dryRun, pattern: 'libbal-dev')
+                    remote.upload(dryRun: dryRun, pattern: 'libbbl-dev')
+                }
+            }
+        }
+    }
+    finally {
+        deleteDir()
+    }
+}
