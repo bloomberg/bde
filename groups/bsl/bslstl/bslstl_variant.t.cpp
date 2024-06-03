@@ -7,7 +7,9 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_review.h>
+
 #include <bslstl_string.h>
+#include <bslstl_utility.h>
 
 #include <bslalg_constructorproxy.h>
 #include <bslalg_swaputil.h>
@@ -18,6 +20,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_typeidentity.h>
 
 #include <bsltf_nondefaultconstructibletesttype.h>
 #include <bsltf_templatetestfacility.h>
@@ -26,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>  // usage example
+#include <utility>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -64,6 +68,7 @@ using namespace bsl;
 // [ 4] variant();
 // [ 9] variant(const variant&);
 // [ 9] variant(variant&&);
+// [ 9] explicit variant(t_STD_VARIANT&&);
 // [ 5] variant(TYPE&&);
 // [ 5] variant(in_place_type, ARGS&&...);
 // [ 5] variant(in_place_type, std::initializer_list, ARGS&&...);
@@ -72,6 +77,7 @@ using namespace bsl;
 // [ 4] variant(alloc_arg, alloc);
 // [ 9] variant(alloc_arg, alloc, const variant&);
 // [ 9] variant(alloc_arg, alloc, variant&&);
+// [ 9] explicit variant(alloc_arg, alloc, t_STD_VARIANT&&);
 // [ 5] variant(alloc_arg, alloc, TYPE&&);
 // [ 5] variant(alloc_arg, alloc, in_place_type, ARGS&&...);
 // [ 5] variant(alloc_arg, alloc, in_place_type, init_list, ARGS&&...);
@@ -529,6 +535,98 @@ typedef bsl::variant<Throws, size_t> VARIANT_TYPE_TC3;
         ASSERT(checkAllocator(obj, &ta));                                     \
         ASSERT(checkAllocator(get<INDEX>(obj), &ta));                         \
     }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#define TEST_CONSTRUCT_FROM_STD_LVALUE(source)                                \
+    {                                                                         \
+        int     expCopy = AltType::s_copyConstructorInvocations;              \
+        int     expMove = AltType::s_moveConstructorInvocations;              \
+        AltType expVal(std::get<INDEX>(source));                              \
+        expCopy           = AltType::s_copyConstructorInvocations - expCopy;  \
+        expMove           = AltType::s_moveConstructorInvocations - expMove;  \
+        int       numCopy = AltType::s_copyConstructorInvocations;            \
+        int       numMove = AltType::s_moveConstructorInvocations;            \
+        DEST_TYPE obj(source);                                                \
+        numCopy = AltType::s_copyConstructorInvocations - numCopy;            \
+        numMove = AltType::s_moveConstructorInvocations - numMove;            \
+        ASSERTV(expCopy, numCopy, expCopy == numCopy);                        \
+        ASSERTV(expMove, numMove, expMove == numMove);                        \
+        ASSERT(!obj.valueless_by_exception());                                \
+        ASSERTV(obj.index(), INDEX, obj.index() == INDEX);                    \
+        ASSERT(get<INDEX>(obj) == expVal);                                    \
+        ASSERT(checkAllocator(obj, &da));                                     \
+        ASSERT(checkAllocator(get<INDEX>(obj), &da));                         \
+    }
+
+#define TEST_CONSTRUCT_FROM_STD_RVALUE(source)                                \
+    {                                                                         \
+        SRC_TYPE srcCopy(source);                                             \
+                                                                              \
+        int     expCopy = AltType::s_copyConstructorInvocations;              \
+        int     expMove = AltType::s_moveConstructorInvocations;              \
+        AltType expVal(std::move(std::get<INDEX>(srcCopy)));                  \
+                                                                              \
+        expCopy = AltType::s_copyConstructorInvocations - expCopy;            \
+        expMove = AltType::s_moveConstructorInvocations - expMove;            \
+        int numCopy = AltType::s_copyConstructorInvocations;                  \
+        int numMove = AltType::s_moveConstructorInvocations;                  \
+        ASSERT(checkAllocator(std::get<INDEX>(source), &oa));                 \
+        DEST_TYPE obj(std::move(source));                                     \
+        numCopy = AltType::s_copyConstructorInvocations - numCopy;            \
+        numMove = AltType::s_moveConstructorInvocations - numMove;            \
+        ASSERTV(expCopy, numCopy, expCopy == numCopy);                        \
+        ASSERTV(expMove, numMove, expMove == numMove);                        \
+        ASSERT(!obj.valueless_by_exception());                                \
+        ASSERTV(obj.index(), INDEX, obj.index() == INDEX);                    \
+        ASSERT(get<INDEX>(obj) == expVal);                                    \
+        ASSERT(checkAllocator(obj, &da));                                     \
+        ASSERT(checkAllocator(get<INDEX>(obj), &da));                         \
+    }
+
+#define TEST_EXT_CONSTRUCT_FROM_STD_LVALUE(source)                            \
+    {                                                                         \
+        int     expCopy = AltType::s_copyConstructorInvocations;              \
+        int     expMove = AltType::s_moveConstructorInvocations;              \
+        AltType expVal(std::get<INDEX>(source));                              \
+        expCopy           = AltType::s_copyConstructorInvocations - expCopy;  \
+        expMove           = AltType::s_moveConstructorInvocations - expMove;  \
+        int       numCopy = AltType::s_copyConstructorInvocations;            \
+        int       numMove = AltType::s_moveConstructorInvocations;            \
+        DEST_TYPE obj(bsl::allocator_arg, &ta, source);                       \
+        numCopy = AltType::s_copyConstructorInvocations - numCopy;            \
+        numMove = AltType::s_moveConstructorInvocations - numMove;            \
+        ASSERT(expCopy == numCopy);                                           \
+        ASSERT(expMove == numMove);                                           \
+        ASSERT(!obj.valueless_by_exception());                                \
+        ASSERT(obj.index() == INDEX);                                         \
+        ASSERT(get<INDEX>(obj) == expVal);                                    \
+        ASSERT(checkAllocator(obj, &ta));                                     \
+        ASSERT(checkAllocator(get<INDEX>(obj), &ta));                         \
+    }
+
+#define TEST_EXT_CONSTRUCT_FROM_STD_RVALUE(source)                            \
+    {                                                                         \
+        SRC_TYPE srcCopy(source);                                             \
+        int      expCopy = AltType::s_copyConstructorInvocations;             \
+        int      expMove = AltType::s_moveConstructorInvocations;             \
+        AltType  expVal(std::move(std::get<INDEX>(srcCopy)));                 \
+        expCopy           = AltType::s_copyConstructorInvocations - expCopy;  \
+        expMove           = AltType::s_moveConstructorInvocations - expMove;  \
+        int       numCopy = AltType::s_copyConstructorInvocations;            \
+        int       numMove = AltType::s_moveConstructorInvocations;            \
+        DEST_TYPE obj(bsl::allocator_arg, &ta, std::move(source));            \
+        numCopy = AltType::s_copyConstructorInvocations - numCopy;            \
+        numMove = AltType::s_moveConstructorInvocations - numMove;            \
+        ASSERT(expCopy == numCopy);                                           \
+        ASSERT(expMove == numMove);                                           \
+        ASSERT(!obj.valueless_by_exception());                                \
+        ASSERT(obj.index() == INDEX);                                         \
+        ASSERT(get<INDEX>(obj) == expVal);                                    \
+        ASSERT(checkAllocator(obj, &ta));                                     \
+        ASSERT(checkAllocator(get<INDEX>(obj), &ta));                         \
+    }
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #define TEST_COPY_FROM_VALUE(source)                                          \
     {                                                                         \
@@ -6537,6 +6635,56 @@ bool checkVariantNpos(t_TYPE&)
     return false;
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+namespace {
+template <class t_VARIANT>
+struct BslVariantToStdVariant;
+    // If the specified 't_VARIANT' is a specialization of 'bsl::variant',
+    // provide the member 'type', which is an alias to the corresponding
+    // specialization of 'std::variant'.
+
+template <class t_HEAD, class... t_TAIL>
+struct BslVariantToStdVariant<bsl::variant<t_HEAD, t_TAIL...>> {
+    using type = std::variant<t_HEAD, t_TAIL...>;
+};
+
+template <class t_TYPE>
+void tryCopyInitialize(t_TYPE)
+{
+    // This function is only called in an unevaluated operand, but needs a
+    // definition in order to avoid the 'Wunused-function' warning.
+}
+
+template <class... t_ARGS,
+          class    t_TYPE,
+          class = decltype(
+                       tryCopyInitialize<t_TYPE>({std::declval<t_ARGS>()...}))>
+constexpr bool canCopyListInitializeFrom(t_TYPE*)
+{
+    return true;
+}
+
+template <class... t_ARGS>
+constexpr bool canCopyListInitializeFrom(void*)
+{
+    return false;
+}
+
+template <class t_TYPE, class... t_ARGS>
+constexpr bool isOnlyExplicitlyConstructible =
+                      std::is_constructible_v<t_TYPE, t_ARGS...> &&
+                      !canCopyListInitializeFrom<t_ARGS...>((t_TYPE*)nullptr);
+    // This variable template is 'true' if the specified object type 't_TYPE'
+    // is explicitly constructible from the specified 't_ARGS...' but not
+    // implicitly constructible from a braced-init-list of 't_ARGS...'.  Note
+    // that we can't put the braced-init-list argument directly in the
+    // definition of 'isOnlyExplicitlyConstructible' because the explicit
+    // constructor can win and make the initialization ill formed here (see
+    // CWG2525); we have to push the braced-init-list into an SFINAE context,
+    // necessitating the 'canCopyListInitializeFrom' helper.
+}  // close unnamed namespace
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
 // ----------------------------------------------------------------------------
@@ -6575,6 +6723,12 @@ class TestDriver {
     static void testCase10();
         // TESTING swap
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    static void testCase9f();
+        // TESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM 'std::variant'
+    static void testCase9e();
+        // TESTING CONSTRUCTION FROM 'std::variant'
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     static void testCase9b();
         // TESTING ALLOCATOR EXTENDED CONSTRUCTION FROM VARIANT
     static void testCase9a();
@@ -8111,11 +8265,181 @@ RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(10)
 }
 RUN_FOR_EACH_ALTERNATIVE_COMBINATION_END
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_DEST_TYPE, size_t t_NUM>
+struct testCase9f_imp;
+
+template <class t_DEST_TYPE>
+struct testCase9f_imp<t_DEST_TYPE, 0> {
+};
+
+template <class t_DEST_TYPE, size_t t_NUM>
+struct testCase9f_imp
+: testCase9f_imp<t_DEST_TYPE, t_NUM - 1> {
+    testCase9f_imp()
+    {
+        // --------------------------------------------------------------------
+        // TESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM 'std::variant'
+        //   This test will ensure that allocator-extended construction from an
+        //   lvalue or rvalue of 'std::variant' twith the same sequence of
+        //   alternatives that is not 'valueless_by_exception' works as
+        //   expected.
+        //
+        // Concerns:
+        //: 1 Constructing a 'variant' from a 'std::variant' object with the
+        //:   same sequence of alternatives that is not
+        //:   'valueluess_by_exception' creates a 'variant' where the active
+        //:   alternative type matches that of the source object, and whose
+        //:   managed object is constructed from the managed object of the
+        //:   source variant.
+        //:
+        //: 2 The supplied allocator is used as the allocator of the variant
+        //:   and of the constructed alternative type object.
+        //:
+        //: 3 The 'value_type' object in 'variant' is move constructed when the
+        //:   source 'std::variant' is an rvalue.
+        //:
+        //: 4 No unnecessary copies of the 'value_type' are created.
+        //
+        // Plan:
+        //: 1 Create a 'std::variant' holding alternative object of some type
+        //:   'TYPE' and construct a 'variant' object from an lvalue of the
+        //:   'std::variant' using the allocator-extended constructor.  Verify
+        //:   that the active alternative of the new object is 'TYPE', and that 
+        //:   the value of its managed object matches that of the source
+        //:   object. [C-1]
+        //:
+        //: 2 In step 1, verify that the supplied allocator is used for the
+        //:   variant object and for the managed object. [C-2]
+        //:
+        //: 3 Repeat steps 1-2 using an rvalue for source.  Verify that the
+        //:   move constructor is invoked for alternatives of class type.
+        //:   [C-3]
+        //:
+        //: 4 In steps 1-3, verify that no unnecessary copies of the
+        //:   'value_type' have been created. [C-4]
+        //
+        // Testing:
+        //   explicit variant(alloc_arg, alloc, t_STD_VARIANT&&);
+        // --------------------------------------------------------------------
+
+        // These typedefs are needed by the 'TEST_' macros.
+        using DEST_TYPE = t_DEST_TYPE;
+        using SRC_TYPE  = typename BslVariantToStdVariant<t_DEST_TYPE>::type;
+
+        const size_t INDEX = t_NUM - 1;
+        using AltType      = variant_alternative_t<INDEX, t_DEST_TYPE>;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator         oa("other", veryVeryVeryVerbose);
+        bslma::TestAllocator         ta("third", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+        SRC_TYPE                     source(std::in_place_index<INDEX>);
+
+        TEST_EXT_COPY_CONSTRUCT(source);
+        TEST_EXT_COPY_CONSTRUCT(bsl::as_const(source));
+        TEST_EXT_MOVE_CONSTRUCT(source);
+    }
+};
+
+template <class VARIANT, bool USES_BSLMA_ALLOC>
+void TestDriver<VARIANT, USES_BSLMA_ALLOC>::testCase9f()
+{
+    testCase9f_imp<VARIANT, bsl::variant_size<VARIANT>::value> test;
+}
+
+template <class t_DEST_TYPE, size_t t_NUM>
+struct testCase9e_imp;
+
+template <class t_DEST_TYPE>
+struct testCase9e_imp<t_DEST_TYPE, 0> {
+};
+template <class t_DEST_TYPE, size_t t_NUM>
+struct testCase9e_imp
+: testCase9e_imp<t_DEST_TYPE, t_NUM - 1> {
+    testCase9e_imp()
+    {
+        // --------------------------------------------------------------------
+        // TESTING CONSTRUCTION FROM 'std::variant'
+        //   This test will ensure that construction from an lvalue or rvalue
+        //   of 'std::variant' with the same sequence of alternatives that is
+        //   not 'valueluess_by_exception' works as expected.
+        //
+        // Concerns:
+        //: 1 Constructing a 'variant' from a 'std::variant' object with the
+        //:   same sequence of alternatives that is not
+        //:   'valueluess_by_exception' creates a 'variant' where the active
+        //:   alternative type matches that of the source object, and whose
+        //:   managed object is constructed from the managed object of the
+        //:   source variant.
+        //:
+        //: 2 If 'variant' type is allocator-aware, the default allocator is
+        //:   used.
+        //:
+        //: 3 The 'value_type' object in 'variant' is move constructed when the
+        //:   source 'std::variant' is an rvalue.
+        //:
+        //: 4 No unnecessary copies of the 'value_type' are created.
+        //
+        // Plan:
+        //: 1 Create a 'std::variant' holding alternative object of some type
+        //:   'TYPE' and construct a 'variant' object from an lvalue of the
+        //:   'std::variant'.  Verify that the active alternative of the new
+        //:   object is 'TYPE', and that the value of its managed object
+        //:   matches that of the source object.  [C-1]
+        //:
+        //: 2 In step 1, if the 'variant' is allocator-aware, verify that the
+        //:   currently installed default allocator is used.  [C-2]
+        //:
+        //: 3 Repeat steps 1-2 using an rvalue for source.  Verify that the
+        //:   move constructor is invoked for alternatives of class type.
+        //:   [C-3]
+        //:
+        //: 4 In steps 1-3, verify that no unnecessary copies of the
+        //:   'value_type' have been created.  [C-4]
+        //
+        // Testing:
+        //   explicit variant(t_STD_VARIANT&&);
+        // --------------------------------------------------------------------
+
+        // These typedefs are needed by the 'TEST_' macros.
+        using DEST_TYPE = t_DEST_TYPE;
+        using SRC_TYPE  = typename BslVariantToStdVariant<t_DEST_TYPE>::type;
+
+        const size_t INDEX = t_NUM - 1;
+        using AltType      = variant_alternative_t<INDEX, t_DEST_TYPE>;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator         oa("other", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+        SRC_TYPE                     source(std::in_place_index<INDEX>);
+
+        // Modify the source 'std::variant' such that its active alternative
+        // has '&oa' as its allocator if allocator-aware (to ensure that the
+        // 'bsl::variant' doesn't get its allocator from the source
+        // alternative).
+        AltType& sourceAlternative = std::get<INDEX>(source);
+        sourceAlternative.~AltType();
+        bslma::ConstructionUtil::construct(&sourceAlternative, &oa);
+
+        TEST_COPY_CONSTRUCT(source);
+        TEST_COPY_CONSTRUCT(bsl::as_const(source));
+        TEST_MOVE_CONSTRUCT(source, false);
+    }
+};
+
+template <class VARIANT, bool USES_BSLMA_ALLOC>
+void TestDriver<VARIANT, USES_BSLMA_ALLOC>::testCase9e()
+{
+    testCase9e_imp<VARIANT,
+                   bsl::variant_size<VARIANT>::value> test;
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 void testCase9d()
 {
     // --------------------------------------------------------------------
-    // TESTING CONSTRUCTIBLE TRAITS
-    //
+    // TESTING CONSTRUCTIBLE AND CONVERTIBLE TRAITS
     //   This test will ensure that the copy/move construction is disabled
     //   under certain conditions.
     //
@@ -8125,18 +8449,24 @@ void testCase9d()
     //:   copyable, the variant is movable, but not copyable.
     //:
     //: 2 That the same rules apply to allocator extended constructors.
+    //:
+    //: 3 That the same rules apply to direct-initialization of 'bsl::variant'
+    //:   from 'std::variant'.
+    //:
+    //: 4 That 'bsl::variant' is not convertible from 'std::variant' (the
+    //:   constructor is explicit).
     //
     // Plan:
-    //: 1 For the concerns above, check 'is_constructible' trait with the
-    //:   appropriate set of arguments.
-    //:
+    //: 1 For the concerns above, check 'is_constructible' and 'is_convertible'
+    //:   traits with the appropriate set of arguments.  (C-1..4)
     //
     // Testing:
-    //
-    //    variant(const variant&);
-    //    variant(variant&&);
-    //    variant(allocator_arg_t, allocator, const variant&);
-    //    variant(allocator_arg_t, allocator, variant&&);
+    //   variant(const variant&);
+    //   variant(variant&&);
+    //   explicit variant(t_STD_VARIANT&&);
+    //   variant(alloc_arg, alloc, const variant&);
+    //   variant(alloc_arg, alloc, variant&&);
+    //   explicit variant(alloc_arg, alloc, t_STD_VARIANT&&);
 
 #ifdef U_VARIANT_FULL_IMPLEMENTATION
     struct NonCopyable {
@@ -8152,12 +8482,15 @@ void testCase9d()
 
     typedef bsl::variant<MyClass2, NonCopyable> NonCopy_Variant;
     typedef bsl::variant<MyClass2, MoveOnly>    MoveOnly_Variant;
+    typedef bsl::variant<MyClass2, int>         CopyMove_Variant;
 
     ASSERT(!(std::is_copy_constructible<NonCopy_Variant>::value));
     ASSERT(!(std::is_copy_constructible<MoveOnly_Variant>::value));
+    ASSERT( (std::is_copy_constructible<CopyMove_Variant>::value));
 
     ASSERT(!(std::is_move_constructible<NonCopy_Variant>::value));
-    ASSERT((std::is_move_constructible<MoveOnly_Variant>::value));
+    ASSERT( (std::is_move_constructible<MoveOnly_Variant>::value));
+    ASSERT( (std::is_move_constructible<CopyMove_Variant>::value));
 
     // allocator extended copy/move
     ASSERT(!(std::is_constructible<NonCopy_Variant,
@@ -8172,11 +8505,70 @@ void testCase9d()
                                    allocator_arg_t,
                                    MoveOnly_Variant::allocator_type,
                                    const MoveOnly_Variant&>::value));
-    ASSERT((std::is_constructible<MoveOnly_Variant,
-                                  allocator_arg_t,
-                                  MoveOnly_Variant::allocator_type,
-                                  MoveOnly_Variant>::value));
+    ASSERT( (std::is_constructible<MoveOnly_Variant,
+                                   allocator_arg_t,
+                                   MoveOnly_Variant::allocator_type,
+                                   MoveOnly_Variant>::value));
+    ASSERT( (std::is_constructible<CopyMove_Variant,
+                                   allocator_arg_t,
+                                   CopyMove_Variant::allocator_type,
+                                   const CopyMove_Variant&>::value));
+    ASSERT( (std::is_constructible<CopyMove_Variant,
+                                   allocator_arg_t,
+                                   CopyMove_Variant::allocator_type,
+                                   CopyMove_Variant>::value));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // copy/move from 'std::variant'
+    using NonCopy_StdVariant =
+                             BslVariantToStdVariant<NonCopy_Variant>::type;
+    using MoveOnly_StdVariant =
+                             BslVariantToStdVariant<MoveOnly_Variant>::type;
+    using CopyMove_StdVariant =
+                             BslVariantToStdVariant<CopyMove_Variant>::type;
 
+    ASSERT(!(std::is_constructible_v<NonCopy_Variant,
+                                     const NonCopy_StdVariant&>));
+    ASSERT(!(std::is_constructible_v<NonCopy_Variant,
+                                     NonCopy_StdVariant>));
+
+    ASSERT(!(std::is_constructible_v<     MoveOnly_Variant,
+                                          const MoveOnly_StdVariant&>));
+    ASSERT((isOnlyExplicitlyConstructible<MoveOnly_Variant,
+                                          MoveOnly_StdVariant>));
+
+    ASSERT((isOnlyExplicitlyConstructible<CopyMove_Variant,
+                                          const CopyMove_StdVariant&>));
+    ASSERT((isOnlyExplicitlyConstructible<CopyMove_Variant,
+                                          CopyMove_StdVariant>));
+
+    ASSERT(!(std::is_constructible_v<NonCopy_Variant,
+                                     allocator_arg_t,
+                                     NonCopy_Variant::allocator_type,
+                                     const NonCopy_StdVariant&>));
+    ASSERT(!(std::is_constructible_v<NonCopy_Variant,
+                                     allocator_arg_t,
+                                     NonCopy_Variant::allocator_type,
+                                     NonCopy_StdVariant>));
+
+    ASSERT(!(std::is_constructible_v<     MoveOnly_Variant,
+                                          allocator_arg_t,
+                                          MoveOnly_Variant::allocator_type,
+                                          const MoveOnly_StdVariant&>));
+    ASSERT((isOnlyExplicitlyConstructible<MoveOnly_Variant,
+                                          allocator_arg_t,
+                                          MoveOnly_Variant::allocator_type,
+                                          MoveOnly_StdVariant>));
+
+    ASSERT((isOnlyExplicitlyConstructible<CopyMove_Variant,
+                                          allocator_arg_t,
+                                          CopyMove_Variant::allocator_type,
+                                          const CopyMove_StdVariant&>));
+    ASSERT((isOnlyExplicitlyConstructible<CopyMove_Variant,
+                                          allocator_arg_t,
+                                          CopyMove_Variant::allocator_type,
+                                          CopyMove_StdVariant>));
+    // allocator-extended copy/move from 'std::variant'
+#endif
 #endif  // U_VARIANT_FULL_IMPLEMENTATION
 }
 
@@ -8187,7 +8579,9 @@ void testCase9c()
     //
     //   This test will ensure that the construction from a
     //   'valueless_by_exception' variant works as expected. This test only
-    //   makes sense if exceptions are enabled.
+    //   makes sense if exceptions are enabled.  In C++17, this test also
+    //   includes a case where the source object is a 'std::variant' with the
+    //   same sequence of alternatives.
     //
     // Concerns:
     //: 1 Constructing a 'variant' from a 'variant' object that is
@@ -8199,8 +8593,13 @@ void testCase9c()
     // Otherwise
     //:   default allocator is used for the new 'variant' object.
     //:
-    //: 3 If allocator extended constructor is used, the supplied allocators is
+    //: 3 If allocator extended constructor is used, the supplied allocator is
     //:   used as the allocator for the new 'variant' object.
+    //:
+    //: 4 In C++17 and later, constructing a 'variant' from a 'std::variant'
+    //:   object with the same sequence of alternatives that is valueless by
+    //:   exception produces an object that is valueless by exception and uses
+    //:   the default allocator or the supplied allocator.
     //
     // Plan:
     //: 1 Create a 'variant' source object, and using 'Throws'
@@ -8216,16 +8615,17 @@ void testCase9c()
     //:
     //: 3 Repeat step 1 for an allocator aware variant using an allocator
     //:   extended constructor.  Verify the supplied allocator is used for the
-    //:   new 'variant' object.
+    //:   new 'variant' object.  [C-3]
     //:
-    //:
+    //: 4 Repeat steps 1-3 with a 'std::variant' as the source object.  [C-4]
     //
     // Testing:
-    //
-    //    variant(const variant&);
-    //    variant(variant&&);
-    //      variant(alloc_arg, alloc, const variant&);
-    //      variant(alloc_arg, alloc, variant&&);
+    //   variant(const variant&);
+    //   variant(variant&&);
+    //   explicit variant(t_STD_VARIANT&&);
+    //   variant(alloc_arg, alloc, const variant&);
+    //   variant(alloc_arg, alloc, variant&&);
+    //   explicit variant(alloc_arg, alloc, t_STD_VARIANT&&);
 
 #ifdef BDE_BUILD_TARGET_EXC
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -8275,6 +8675,50 @@ void testCase9c()
         ASSERT(obj4.index() == bsl::variant_npos);
         ASSERT(obj4.get_allocator() == &ta);
     }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    {
+        std::variant<int, Throws> source;
+        Throws::s_should_throw = true;
+        BSLS_TRY { source.emplace<Throws>(); }
+        BSLS_CATCH(...) {}
+
+        bsl::variant<int, Throws> obj(source);
+        ASSERT(obj.valueless_by_exception());
+        ASSERT(obj.index() == bsl::variant_npos);
+
+        bsl::variant<int, Throws> obj2(std::move(source));
+        ASSERT(obj2.valueless_by_exception());
+        ASSERT(obj2.index() == bsl::variant_npos);
+    }
+    {
+        std::variant<MyClass2, Throws> source(std::in_place_index<0>, &oa);
+        Throws::s_should_throw = true;
+        BSLS_TRY { source.emplace<Throws>(); }
+        BSLS_CATCH(...) {}
+
+        bsl::variant<MyClass2, Throws> obj(source);
+        ASSERT(obj.valueless_by_exception());
+        ASSERT(obj.index() == bsl::variant_npos);
+        ASSERT(obj.get_allocator() == &da);
+
+        bsl::variant<MyClass2, Throws> obj2(std::move(source));
+        ASSERT(obj2.valueless_by_exception());
+        ASSERT(obj2.index() == bsl::variant_npos);
+        ASSERT(obj2.get_allocator() == &da);
+
+        bsl::variant<MyClass2, Throws> obj3(bsl::allocator_arg, &ta, source);
+        ASSERT(obj3.valueless_by_exception());
+        ASSERT(obj3.index() == bsl::variant_npos);
+        ASSERT(obj3.get_allocator() == &ta);
+
+        bsl::variant<MyClass2, Throws> obj4(bsl::allocator_arg,
+                                            &ta,
+                                            std::move(source));
+        ASSERT(obj4.valueless_by_exception());
+        ASSERT(obj4.index() == bsl::variant_npos);
+        ASSERT(obj4.get_allocator() == &ta);
+    }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_BUILD_TARGET_EXC
 }
 
@@ -13720,10 +14164,31 @@ int main(int argc, char **argv)
         testCase9c();
 
         if (verbose)
-            printf("\nTESTING CONSTRUCTIBLE TRAITS"
-                   "\n============================\n");
+            printf("\nTESTING CONSTRUCTIBLE AND CONVERTIBLE TRAITS"
+                   "\n============================================\n");
         testCase9d();
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        if (verbose)
+            printf("\nTESTING CONSTRUCTION FROM 'std::variant'"
+                   "\n========================================\n");
+        RUN_EACH_TYPE(TestDriver,
+                      testCase9e,
+                      BSLSTL_VARIANT_TEST_TYPES_INSTANCE_COUNTING,
+                      BSLSTL_VARIANT_TEST_TYPES_INSTANCE_COUNTING_NONUNIQUE,
+                      BSLSTL_VARIANT_TEST_TYPES_INSTANCE_COUNTING_CVNONUNIQUE);
+        if (verbose)
+            printf(
+                "\nTESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM 'std::variant'"
+                "\n==========================================================="
+                "\n");
+        RUN_EACH_TYPE(
+                   TestDriver,
+                   testCase9f,
+                   BSLSTL_VARIANT_TEST_TYPES_AA_INSTANCE_COUNTING,
+                   BSLSTL_VARIANT_TEST_TYPES_AA_INSTANCE_COUNTING_NONUNIQUE,
+                   BSLSTL_VARIANT_TEST_TYPES_AA_INSTANCE_COUNTING_CVNONUNIQUE);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
       case 8: {
         if (verbose)

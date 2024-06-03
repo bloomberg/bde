@@ -206,6 +206,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_allocatorargt.h>
 #include <bslmf_assert.h>
+#include <bslmf_conjunction.h>
 #include <bslmf_integersequence.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_invokeresult.h>
@@ -257,6 +258,10 @@ BSLS_IDENT("$Id: $")
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #include <initializer_list>
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <variant>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
@@ -660,6 +665,10 @@ operator<=>(const variant<t_ALTS...>& lhs, const variant<t_ALTS...>& rhs);
 
 namespace BloombergLP {
 namespace bslstl {
+// COMPONENT-PRIVATE TAG TYPES
+struct Variant_ConstructFromStdTag {};
+    // This component-private tag type is used as a parameter type for
+    // constructors of 'Variant_Base' that accept a 'std::variant'.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_HEAD = BSLSTL_VARIANT_NOT_A_TYPE, class... t_TAIL>
@@ -767,6 +776,19 @@ struct Variant_IsAssignable : bsl::true_type {
     // This component-private macro is used as a constraint in function
     // declarations which require the specified 'VARIANT' to be constructible
     // from the specified 'TYPE'.
+
+#define BSLSTL_VARIANT_DEFINE_IF_CONSTRUCTS_FROM_STD(STD_VARIANT)             \
+    bsl::enable_if_t<                                                         \
+        BloombergLP::bslstl::variant_constructsFromStd<variant, STD_VARIANT>, \
+        BloombergLP::bslstl::Variant_NoSuchType>
+    // This component-private macro is used as a constraint when defining
+    // constructors of 'variant' from the corresponding 'std::variant'.
+
+#define BSLSTL_VARIANT_DECLARE_IF_CONSTRUCTS_FROM_STD(STD_VARIANT)            \
+    BSLSTL_VARIANT_DEFINE_IF_CONSTRUCTS_FROM_STD(STD_VARIANT)                 \
+        = BloombergLP::bslstl::Variant_NoSuchType(0)
+    // This component-private macro is used as a constraintwhen declaring
+    // constructors of 'variant' from the corresponding 'std::variant'.
 
 #define BSLSTL_VARIANT_DEFINE_IF_HAS_UNIQUE_TYPE(TYPE)                        \
     typename bsl::enable_if<                                                  \
@@ -1152,7 +1174,52 @@ struct Variant_ImpUtil {
         // 'rhs' hold the same alternative.  Note that the capitalization of
         // the names of these methods has been chosen so that their definitions
         // can be generated using a macro.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    template <class t_VARIANT, class t_STD_VARIANT>
+    class ConstructFromStdVisitor;
+        // This visitor is used to implement the explicit constructor for
+        // 'bsl::variant' from 'std::variant'.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 };
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+               // ==============================================
+               // class Variant_ImpUtil::ConstructFromStdVisitor
+               // ==============================================
+
+template <class t_VARIANT, class t_STD_VARIANT>
+class Variant_ImpUtil::ConstructFromStdVisitor {
+  private:
+    // DATA
+    t_VARIANT&     d_target;
+    t_STD_VARIANT& d_original;
+
+  public:
+    // CREATORS
+    explicit ConstructFromStdVisitor(t_VARIANT&     target,
+                                     t_STD_VARIANT& original);
+        // Create a 'ConstructFromStdVisitor' object that, when invoked, will
+        // construct the alternative of the specified 'target' corresponding to
+        // the active alternative of the specified 'original'.  'target' shall
+        // have the same sequence of alternative types as 'original'.
+
+    // ACCESSORS
+    template <size_t t_INDEX, class t_TYPE>
+    void operator()(bsl::in_place_index_t<t_INDEX>, t_TYPE&) const;
+        // Construct the alternative at index (template parameter) 't_INDEX'
+        // in 'd_target' from the contained value of 'd_original'.  If
+        // 't_STD_VARIANT' is an lvalue reference type, the alternative will be
+        // created by copy construction, otherwise it will be created by move
+        // construction.  The behavior is undefined unless 'd_original' holds a
+        // value and 'd_target.index() == d_original.index()'.  Note that the
+        // unused parameter of type 't_TYPE&' refers to the alternative that
+        // will be constructed, but we do not construct directly into that
+        // object because we need to make sure that the allocator of 'd_target'
+        // (if any) is used.
+};
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifdef BSL_VARIANT_FULL_IMPLEMENTATION
 template <class t_TYPE>
@@ -1397,6 +1464,21 @@ struct Variant_isAlternativeAssignableFrom<t_VARIANT,
 : bsl::false_type {
 };
 
+template <class t_TYPE>
+struct Variant_CorrespondingStdVariant {
+    // This component-private metafunction declares a member 'type' that is an
+    // alias to the 'std::variant' type corresponding to 't_TYPE' if one
+    // exists, and 'void' otherwise.
+    typedef void type;
+};
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_HEAD, class... t_TAIL>
+struct Variant_CorrespondingStdVariant<bsl::variant<t_HEAD, t_TAIL...>> {
+    typedef std::variant<t_HEAD, t_TAIL...> type;
+};
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 template <class t_VARIANT, class t_TYPE>
 struct Variant_ConstructsFromType
 : bsl::integral_constant<
@@ -1404,10 +1486,14 @@ struct Variant_ConstructsFromType
       !bsl::is_same<typename bsl::remove_cvref<t_TYPE>::type,
                     t_VARIANT>::value &&
           !Variant_IsTag<typename bsl::remove_cvref<t_TYPE>::type>::value &&
+          !bsl::is_same<
+              typename Variant_CorrespondingStdVariant<t_VARIANT>::type,
+              typename bsl::remove_cvref<t_TYPE>::type>::value &&
           Variant_IsAlternativeConstructibleFrom<t_VARIANT, t_TYPE>::value> {
     // This component-private metafunction is derived from 'bsl::true_type' if
-    // (template parameter) 't_TYPE' is neither a tag type nor the type
-    // (template parameter) 't_VARIANT' (modulo cv-qualification), there is a
+    // (template parameter) 't_TYPE' is neither a tag type, nor the type
+    // (template parameter) 't_VARIANT' (modulo cv-qualification), nor the
+    // corresponding (possibly cv-qualified) 'std::variant' type, there is a
     // unique best match alternative in 't_VARIANT' for
     // 'std::declval<t_TYPE>()', and that alternative is constructible from
     // 'std::declval<t_TYPE>()'; otherwise, this metafunction is derived from
@@ -1430,6 +1516,26 @@ struct Variant_AssignsFromType
     // assignable from 'std::declval<t_TYPE>()'; otherwise, this metafunction
     // is derived from 'bsl::false_type'.
 };
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_VARIANT, class t_STD_VARIANT>
+constexpr bool variant_constructsFromStd =
+    // This component-private constexpr variable template is 'true' if
+    // 't_VARIANT' is a specialization of 'bsl::variant', and 't_STD_VARIANT'
+    // is the 'std::variant' type (possibly with added cvref-qualification)
+    // that has the same sequence of alternatives, and each alternative of
+    // 't_VARIANT' is constructible from the corresponding alternative of
+    // 't_STD_VARIANT' (with cv-qualification and value category matching that
+    // of 't_STD_VARIANT').  Note that we use 'bsl::conjunction_v' for its
+    // short-circuiting properties: if 't_STD_VARIANT' isn't a 'std::variant'
+    // (for example, if it's a 'bsl::variant') we avoid recursing into the
+    // constraints of 'bsl::variant'.
+  bsl::conjunction_v<
+      bsl::is_same<typename Variant_CorrespondingStdVariant<t_VARIANT>::type,
+                   bsl::remove_cvref_t<t_STD_VARIANT>>,
+      std::is_constructible<bsl::remove_cvref_t<t_STD_VARIANT>,
+                            t_STD_VARIANT>>;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifdef BSL_VARIANT_FULL_IMPLEMENTATION
 // The following component-private machinery allows for conditionally deleting
@@ -2492,6 +2598,7 @@ struct Variant_DestructorVisitor {
         bslma::DestructionUtil::destroy(&object);
     }
 };
+
                        // ==============================
                        // struct Variant_##NAME##Visitor
                        // ==============================
@@ -2813,6 +2920,13 @@ struct Variant_Base
         // contained value is move-constructed from the contained value of
         // 'original'.  All alternatives shall be move constructible.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    Variant_Base(Variant_ConstructFromStdTag, size_t index);
+        // Create a 'Variant_Base' object whose index is the specified 'index'
+        // without constructing an alternative object.  If this 'Variant_Base'
+        // is allocator-aware, the default allocator is used to supply memory.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
     template <size_t t_INDEX, class... t_ARGS>
     explicit Variant_Base(bsl::in_place_index_t<t_INDEX>, t_ARGS&&... args);
         // Create a 'Variant_Base' object holding the alternative with index
@@ -2838,6 +2952,17 @@ struct Variant_Base
         // If the 'original' object is not valueless by exception, the
         // contained value is copy/move constructed from the contained value of
         // 'original'.  All alternatives shall be copy/move constructible.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    Variant_Base(bsl::allocator_arg_t,
+                 allocator_type allocator,
+                 Variant_ConstructFromStdTag,
+                 size_t         index);
+        // Create a 'Variant_Base' object whose index is the specified 'index'
+        // without constructing an alternative object.  If this 'Variant_Base'
+        // is allocator-aware, the specified 'allocator' is used to supply
+        // memory.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
     template <size_t t_INDEX, class... t_ARGS>
     explicit Variant_Base(bsl::allocator_arg_t,
@@ -3524,6 +3649,32 @@ class variant
         //: o 'constexpr' is not implemented
         //: o 'noexcept' specification is not implemented
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    template <class t_STD_VARIANT>
+    explicit variant(
+                  t_STD_VARIANT&& original,
+                  BSLSTL_VARIANT_DECLARE_IF_CONSTRUCTS_FROM_STD(t_STD_VARIANT))
+        // Create a 'variant' object holding the same alternative (if any) held
+        // by the specified 'original'.  If this 'variant' is allocator-aware,
+        // the specified 'allocator' is used to supply memory.  If 'original'
+        // is not valueless by exception, the contained value is
+        // copy/move-constructed from the contained value of 'original'.  This
+        // constructor participates in overload resolution only if all
+        // alternatives are copy/move-constructible.
+    : Variant_Base(BloombergLP::bslstl::Variant_ConstructFromStdTag(),
+                   original.index())
+    {
+        // MSVC 19.22 and later has a bug where if this constructor is defined
+        // out of line, it becomes non-explicit in copy-list-initialization.
+        if (!valueless_by_exception()) {
+            BloombergLP::bslstl::Variant_ImpUtil::
+                ConstructFromStdVisitor<variant, decltype(original)>
+                    visitor(*this, original);
+            BSLSTL_VARIANT_VISITID(void, visitor, *this);
+        }
+    }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
     template <class t_TYPE>
     variant(t_TYPE&& t,
             BSLSTL_VARIANT_DECLARE_IF_CONSTRUCTS_FROM(variant, t_TYPE));
@@ -3708,6 +3859,36 @@ class variant
         // definition, as Microsoft Visual C++ does not recognize the
         // definition as matching this signature when placed out-of-line.
     }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    template <class t_STD_VARIANT>
+    explicit variant(
+                  bsl::allocator_arg_t,
+                  allocator_type  allocator,
+                  t_STD_VARIANT&& original,
+                  BSLSTL_VARIANT_DECLARE_IF_CONSTRUCTS_FROM_STD(t_STD_VARIANT))
+        // Create a 'variant' object holding the same alternative (if any) held
+        // by the specified 'original'.  If this 'variant' is allocator-aware,
+        // the specified 'allocator' is used to supply memory.  If 'original'
+        // is not valueless by exception, the contained value is
+        // copy/move-constructed from the contained value of 'original'.  This
+        // constructor participates in overload resolution only if all
+        // alternatives are copy/move-constructible.
+    : Variant_Base(bsl::allocator_arg_t(),
+                   allocator,
+                   BloombergLP::bslstl::Variant_ConstructFromStdTag(),
+                   original.index())
+    {
+        // MSVC 19.22 and later has a bug where if this constructor is defined
+        // out of line, it becomes non-explicit in copy-list-initialization.
+        if (!valueless_by_exception()) {
+            BloombergLP::bslstl::Variant_ImpUtil::
+                ConstructFromStdVisitor<variant, decltype(original)>
+                    visitor(*this, original);
+            BSLSTL_VARIANT_VISITID(void, visitor, *this);
+        }
+    }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
     template <class t_TYPE>
     variant(
@@ -5458,6 +5639,38 @@ t_RET Variant_ImpUtil::visitId(t_VISITOR& visitor, const t_VARIANT& variant)
 
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+               // ----------------------------------------------
+               // class Variant_ImpUtil::ConstructFromStdVisitor
+               // ----------------------------------------------
+
+template <class t_VARIANT, class t_STD_VARIANT>
+Variant_ImpUtil::ConstructFromStdVisitor<t_VARIANT, t_STD_VARIANT>::
+    ConstructFromStdVisitor(t_VARIANT& target, t_STD_VARIANT& original)
+: d_target(target)
+, d_original(original)
+{
+}
+
+template <class t_VARIANT, class t_STD_VARIANT>
+template <size_t t_INDEX, class t_TYPE>
+void
+Variant_ImpUtil::ConstructFromStdVisitor<t_VARIANT, t_STD_VARIANT>::
+    operator()(bsl::in_place_index_t<t_INDEX>, t_TYPE&) const
+{
+    // Implementation note: calling the correct overload of 'operator()' is
+    // made possible only by the fact that we have set 'd_target.d_type' to
+    // 'd_original.index()' prior to invoking the visitor.  But we must now use
+    // private access to 'd_target' to set the index to -1 before we call
+    // 'baseEmplace' (otherwise, 'baseEmplace' would attempt to destroy the
+    // alternative first before constructing a new one).
+
+    d_target.d_type = bsl::variant_npos;
+    d_target.template baseEmplace<t_INDEX>(
+               std::get<t_INDEX>(std::forward<t_STD_VARIANT>(d_original)));
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
                           // ------------------------
                           // class Variant_NoSuchType
                           // ------------------------
@@ -5605,6 +5818,16 @@ Variant_Base<t_HEAD, t_TAIL...>::Variant_Base(Variant_Base&& original)
     }
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_HEAD, class... t_TAIL>
+Variant_Base<t_HEAD, t_TAIL...>::Variant_Base(Variant_ConstructFromStdTag,
+                                              size_t index)
+: AllocBase()
+, d_type(index)
+{
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 template <class t_HEAD, class... t_TAIL>
 inline
 Variant_Base<t_HEAD, t_TAIL...>::Variant_Base(bsl::allocator_arg_t,
@@ -5644,6 +5867,18 @@ Variant_Base<t_HEAD, t_TAIL...>::Variant_Base(bsl::allocator_arg_t,
         BSLSTL_VARIANT_VISITID(void, moveConstructor, original);
     }
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_HEAD, class... t_TAIL>
+Variant_Base<t_HEAD, t_TAIL...>::Variant_Base(bsl::allocator_arg_t,
+                                              allocator_type allocator,
+                                              Variant_ConstructFromStdTag,
+                                              size_t         index)
+: AllocBase(allocator)
+, d_type(index)
+{
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 template <class t_HEAD, class... t_TAIL>
 template <size_t t_INDEX, class... t_ARGS>
