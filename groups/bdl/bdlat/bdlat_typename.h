@@ -255,13 +255,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_switch.h>
 
 #include <bsls_assert.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_string.h>
 #include <bsl_vector.h>
 #include <bsl_typeinfo.h>
-#include <bsl_cstring.h>
 
 
 
@@ -508,6 +508,7 @@ struct bdlat_TypeName_Imp {
                          // struct bdlat_TypeName_Imp
                          // -------------------------
 
+// PRIVATE CLASS METHODS
 template <class TYPE>
 inline
 const char *bdlat_TypeName_Imp::classNameImp(const TYPE *, HasClassName)
@@ -530,6 +531,7 @@ const char *bdlat_TypeName_Imp::classNameImp(const TYPE *, Other)
     return 0;
 }
 
+// PUBLIC CLASS METHODS
 template <class TYPE>
 inline
 const char *bdlat_TypeName_Imp::className(const TYPE *object)
@@ -563,9 +565,9 @@ const char *bdlat_TypeName_Imp::className(const TYPE *object)
 
 template <class TYPE>
 inline
-const char *bdlat_TypeName_Imp::name(const TYPE *object)
+const char *bdlat_TypeName_Imp::name(const TYPE *type_p)
 {
-    const char *cname = bdlat_TypeName::className(*object);
+    const char *cname = bdlat_TypeName::className(*type_p);
     return cname ? cname : typeid(TYPE).name();
 }
 
@@ -722,23 +724,24 @@ const char *bdlat_TypeName_Imp::name(const bdlt::TimeTz *)
 template <class TYPE>
 const char *bdlat_TypeName_Imp::name(const bsl::vector<TYPE> *)
 {
-    static const int  MAX_LEN = 100;
-    static char       name[MAX_LEN + 1];
-    static bool       initialized = false;
-    static TYPE      *pointer;
+    static const int                MAX_LEN = 100;
+    static char                     name[MAX_LEN + 1];
+    static bsls::ObjectBuffer<TYPE> buffer;
+    static bool                     initialized = false;
+
 
     if (! initialized) {
         // This is thread-safe because even if two threads execute this code
         // simultaneously, the same values will be written on top of each
-        // other (i.e., the operations are idempotent).  Note that the object
-        // obtained by dereferencing 'pointer' does not exist, since 'pointer'
-        // is null, but since it's just used for static type dispatching, it's
-        // harmless.  This code used to have the more straightforward
-        // '*(TYPE*)0' until compilers started noticing.
+        // other (i.e., the operations are idempotent).  Note that the
+        // footprint of the object buffer is never read, it's just used for
+        // static type dispatching.  This code used to be the more
+        // straightforward '*(TYPE*)0' until compilers, particularly ubsan,
+        // started noticing.
 
         const char *segments[3] = {
             (const char*)BDLAT_NAME_VECTOR_BEGIN,
-            bdlat_TypeName::name(*pointer),
+            bdlat_TypeName::name(buffer.object()),
             (const char*)BDLAT_NAME_VECTOR_END,
         };
 
