@@ -1,6 +1,8 @@
 // bslstl_stringview.t.cpp                                            -*-C++-*-
 #include <bslstl_stringview.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslstl_algorithm.h>  // bsl::count()
 
 #include <bslma_default.h>
@@ -1131,7 +1133,8 @@ void TestDriver<TYPE,TRAITS>::testCase25()
 # ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // check constexpr construction
     constexpr std::string_view dummy1("0123456789");
-    constexpr bsl::string_view dummy2(dummy1);
+
+    BSLA_MAYBE_UNUSED constexpr bsl::string_view dummy2(dummy1);
 # endif
 #endif
 
@@ -5692,6 +5695,11 @@ void TestDriver<TYPE, TRAITS>::testCase8()
     }
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // check constexpr construction
+    BSLA_MAYBE_UNUSED constexpr bsl::string_view dummy("0123456789");
+#endif
+
     // Verify no memory was ever allocated.
     ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 }
@@ -6250,10 +6258,11 @@ void TestDriver<TYPE, TRAITS>::testCase5()
     // Check that no additional memory has been allocated.
     ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
     // check constexpr construction
-    constexpr bsl::string_view dummy1("0123456789");
-    constexpr bsl::string_view dummy2(dummy1);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+    constexpr bsl::string_view dummy1("0123456789", 10);
+
+    BSLA_MAYBE_UNUSED constexpr bsl::string_view dummy2(dummy1);
 #endif
 }
 
@@ -6630,7 +6639,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
             fa.deleteObject(objPtr);
         }
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-        constexpr Obj dummy;
+        BSLA_MAYBE_UNUSED constexpr Obj dummy;
 #endif
     }
 
@@ -6681,9 +6690,10 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         }
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         // check constexpr construction
-        constexpr bsl::string_view dummy1("0123456789");
-        constexpr bsl::string_view dummy2("0123456789", 9);
-        constexpr bsl::string_view dummy3(dummy2.begin(), dummy2.end());
+        constexpr bsl::string_view dummy1("0123456789", 9);
+
+        BSLA_MAYBE_UNUSED constexpr bsl::string_view dummy2(dummy1.begin(),
+                                                            dummy1.end());
 #endif
     }
 

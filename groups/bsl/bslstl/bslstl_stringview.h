@@ -227,6 +227,12 @@ BSLS_IDENT("$Id: $")
 #define BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+#define BSLSTL_STRING_VIEW_CHAR_TRAITS_LENGTH_CONSTEXPR constexpr
+#else
+#define BSLSTL_STRING_VIEW_CHAR_TRAITS_LENGTH_CONSTEXPR
+#endif
+
 // 'BDE_DISABLE_CPP17_ABI' is intended for CI builds only, to allow simulation
 // of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
 // Bloomberg production builds.
@@ -446,7 +452,7 @@ class basic_string_view {
         // Create a view that has the same value as the specified 'original'
         // object.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14
+    BSLSTL_STRING_VIEW_CHAR_TRAITS_LENGTH_CONSTEXPR
     basic_string_view(const CHAR_TYPE *characterString);  // IMPLICIT
         // Create a view of the specified null-terminated 'characterString' (of
         // length 'CHAR_TRAITS::length(characterString)').
@@ -1424,7 +1430,7 @@ basic_string_view<CHAR_TYPE,CHAR_TRAITS>::basic_string_view()
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-BSLS_KEYWORD_CONSTEXPR_CPP14
+BSLSTL_STRING_VIEW_CHAR_TRAITS_LENGTH_CONSTEXPR
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
                                               const CHAR_TYPE *characterString)
 : d_start_p(characterString)
@@ -2772,6 +2778,7 @@ void bslh::hashAppend(
 }  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
+#undef BSLSTL_STRING_VIEW_CHAR_TRAITS_LENGTH_CONSTEXPR
 #undef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
 #endif
