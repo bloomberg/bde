@@ -853,29 +853,35 @@ BSLS_IDENT("$Id: $")
 //          "isReverse",                                   // name
 //          "sort in reverse order",                       // description
 //          TypeInfo(&reverse),                            // link
+//          OccurrenceInfo(),                              // occurrence
+//          ""                                             // env var name
 //        },
 //        {
 //          "f|field-separator",                           // tag
 //          "fieldSeparator",                              // name
 //          "field separator character",                   // description
 //          TypeInfo(&fieldSeparator),                     // link
+//          OccurrenceInfo(),                              // occurrence
+//          ""                                             // env var name
 //        },
 //        {
 //          "o|outputfile",                                // tag
 //          "outputFile",                                  // name
 //          "output file",                                 // description
 //          TypeInfo(&outputFile),                         // link
-//          OccurrenceInfo::e_REQUIRED                     // occurrence info
+//          OccurrenceInfo::e_REQUIRED,                    // occurrence info
 //                                                         // (not optional)
+//          ""                                             // env var name
 //        },
 //        {
 //          "",                                            // non-option
 //          "fileList",                                    // name
 //          "input files to be sorted",                    // description
 //          TypeInfo(&files),                              // link
-//          OccurrenceInfo::e_REQUIRED                     // occurrence info
+//          OccurrenceInfo::e_REQUIRED,                    // occurrence info
 //                                                         // (at least one
 //                                                         // file required)
+//          ""                                             // env var name
 //        }
 //      };
 //..
@@ -1016,6 +1022,7 @@ BSLS_IDENT("$Id: $")
 //          return -1;                                                // RETURN
 //      }
 //..
+//
 // 'balcl::CommandLine' uses the following precedence to determine the value of
 // a command line option:
 //
@@ -1144,7 +1151,9 @@ BSLS_IDENT("$Id: $")
 //          "r|reverse",                             // tag
 //          "isReverse",                             // name
 //          "sort in reverse order",                 // description
-//          TypeInfo(&reverse)                       // linked variable
+//          TypeInfo(&reverse),                      // linked variable
+//          OccurrenceInfo(),                        // default value
+//          ""                                       // env variable name
 //        },
 //        {
 //          "f|field-separator",                     // tag
@@ -1152,7 +1161,8 @@ BSLS_IDENT("$Id: $")
 //          "field separator character",             // description
 //          TypeInfo(&fieldSeparator,                // linked variable
 //                   &isValidFieldSeparator),        // constraint
-//          OccurrenceInfo('|')                      // default value
+//          OccurrenceInfo('|'),
+//          ""                                       // env variable name
 //        },
 //        {
 //          "",                                      // non-option
@@ -1160,8 +1170,9 @@ BSLS_IDENT("$Id: $")
 //          "input files to be sorted",              // description
 //          TypeInfo(&files, &isValidFileName),      // linked variable and
 //                                                   // constraint
-//          OccurrenceInfo::e_REQUIRED               // at least one file
+//          OccurrenceInfo::e_REQUIRED,              // at least one file
 //                                                   // required
+//          ""                                       // env variable name
 //        }
 //      };
 //
@@ -1196,7 +1207,9 @@ BSLS_IDENT("$Id: $")
 //          "i|inputFile",                         // tag
 //          "filename",                            // name
 //          "name of input file",                  // description
-//          balcl::TypeInfo(&optionalFileName)     // linked optional variable
+//          balcl::TypeInfo(&optionalFileName),    // linked optional variable
+//          balcl::OccurrenceInfo(),               // occurence info
+//          ""                                     // env variable name
 //        }
 //      };
 //

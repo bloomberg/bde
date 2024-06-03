@@ -2003,6 +2003,7 @@ int main(int argc, const char *argv[])  {
                                       , ""
                                       , TypeInfo()
                                       , OccurrenceInfo()
+                                      , ""
                                       };
 
                 Obj mX(OI); const Obj& X = mX;
@@ -2026,6 +2027,7 @@ int main(int argc, const char *argv[])  {
                                   , ""
                                   , TypeInfo(Ot::k_BOOL)
                                   , OccurrenceInfo()
+                                  , ""
                                   };
 
             Obj mX(OI); const Obj& X = mX;
@@ -2806,6 +2808,7 @@ int main(int argc, const char *argv[])  {
                                        , DESC1
                                        , TYPE_INFO1
                                        , OCCUR_INFO1
+                                       , ""
                                        };
 
                 bslma::TestAllocator *saX = &sa1;
@@ -2843,6 +2846,7 @@ int main(int argc, const char *argv[])  {
                                            , DESC2
                                            , TYPE_INFO2
                                            , OCCUR_INFO2
+                                           , ""
                                            };
 
                     const bool EXP = ti == tj;  // expected value for equality
@@ -2996,6 +3000,7 @@ int main(int argc, const char *argv[])  {
                                                    , DESC
                                                    , TYPEINFO
                                                    , OCCURRENCE_INFO
+                                                   , ""
                                                    };
 
             if (veryVerbose) {

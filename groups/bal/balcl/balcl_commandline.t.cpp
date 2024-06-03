@@ -479,7 +479,6 @@ void unsetEnvironmentVariable(const char *envVarName)
 }  // close namespace u
 }  // close unnamed namespace
 
-
                         // =====================
                         // struct TestConstraint
                         // =====================
@@ -759,77 +758,88 @@ static const struct {
                      "Name_a",
                      "Description for a",
                      TypeInfo(&linkedBoolA),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "b|bLong",
                      "Name_b",
                      "Description for b",
                      TypeInfo(&linkedBoolB),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "c|cLong",
                      "Name_c",
                      "Description for c",
                      TypeInfo(&linkedBoolC),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "i|iLong",
                      "Name_i",
                      "Description for i",
                      TypeInfo(&linkedInt),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "d|dLong",
                      "Name_d",
                      "Description for d",
                      TypeInfo(&linkedDouble),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "s|sLong",
                      "Name_s",
                      "Description for s",
                      TypeInfo(&linkedString),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "I|ILong",
                      "Name_I",
                      "Description for I",
                      TypeInfo(&linkedIntArray),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "D|DLong",
                      "Name_D",
                      "Description for D",
                      TypeInfo(&linkedDoubleArray),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "S|SLong",
                      "Name_S",
                      "Description for S",
                      TypeInfo(&linkedStringArray),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "",
                      "Name1",
                      "Description1",
                      TypeInfo(&linkedString1),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  },
                  {
                      "",
                      "Name2",
                      "Description2",
                      TypeInfo(&linkedStringArray1),
-                     OccurrenceInfo::e_OPTIONAL
+                     OccurrenceInfo::e_OPTIONAL,
+                     ""
                  }
              }
     }
@@ -1567,7 +1577,8 @@ int generateTestData(bsl::vector<OptionInfo>  *options,
             bsl::string(NAME) + uniqueIdent,
             DESC,
             TYPE_INFO,
-            OCCURRENCE_INFO
+            OCCURRENCE_INFO,
+            ""
         };
 
         if (Ot::e_BOOL == TYPE_INFO.type() && OPTION_INFO.d_tag.empty()) {
@@ -1922,29 +1933,35 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE_1 {
             "isReverse",                                   // name
             "sort in reverse order",                       // description
             TypeInfo(&reverse),                            // link
+            OccurrenceInfo(),                              // occurrence
+            ""                                             // env var name
           },
           {
             "f|field-separator",                           // tag
             "fieldSeparator",                              // name
             "field separator character",                   // description
             TypeInfo(&fieldSeparator),                     // link
+            OccurrenceInfo(),                              // occurrence
+            ""                                             // env var name
           },
           {
             "o|outputfile",                                // tag
             "outputFile",                                  // name
             "output file",                                 // description
             TypeInfo(&outputFile),                         // link
-            OccurrenceInfo::e_REQUIRED                     // occurrence info
+            OccurrenceInfo::e_REQUIRED,                    // occurrence info
                                                            // (not optional)
+            ""                                             // env var name
           },
           {
             "",                                            // non-option
             "fileList",                                    // name
             "input files to be sorted",                    // description
             TypeInfo(&files),                              // link
-            OccurrenceInfo::e_REQUIRED                     // occurrence info
+            OccurrenceInfo::e_REQUIRED,                    // occurrence info
                                                            // (at least one
                                                            // file required)
+            ""                                             // env var name
           }
         };
 //..
@@ -2275,7 +2292,9 @@ void checkExample5(const balcl::CommandLine& cmdLine, int rc)
             "r|reverse",                             // tag
             "isReverse",                             // name
             "sort in reverse order",                 // description
-            TypeInfo(&reverse)                       // linked variable
+            TypeInfo(&reverse),                      // linked variable
+            OccurrenceInfo(),                        // default value
+            ""                                       // env variable name
           },
           {
             "f|field-separator",                     // tag
@@ -2283,7 +2302,8 @@ void checkExample5(const balcl::CommandLine& cmdLine, int rc)
             "field separator character",             // description
             TypeInfo(&fieldSeparator,                // linked variable
                      &isValidFieldSeparator),        // constraint
-            OccurrenceInfo('|')                      // default value
+            OccurrenceInfo('|'),
+            ""                                       // env variable name
           },
           {
             "",                                      // non-option
@@ -2291,8 +2311,9 @@ void checkExample5(const balcl::CommandLine& cmdLine, int rc)
             "input files to be sorted",              // description
             TypeInfo(&files, &isValidFileName),      // linked variable and
                                                      // constraint
-            OccurrenceInfo::e_REQUIRED               // at least one file
+            OccurrenceInfo::e_REQUIRED,              // at least one file
                                                      // required
+            ""                                       // env variable name
           }
         };
 //
@@ -2348,7 +2369,9 @@ void performTask(bsl::istream& input)
             "i|inputFile",                         // tag
             "filename",                            // name
             "name of input file",                  // description
-            balcl::TypeInfo(&optionalFileName)     // linked optional variable
+            balcl::TypeInfo(&optionalFileName),    // linked optional variable
+            balcl::OccurrenceInfo(),               // occurence info
+            ""                                     // env variable name
           }
         };
 
@@ -3385,7 +3408,8 @@ int main(int argc, const char *argv[])
                     "isReverse",                 // name
                     "sort in reverse order",     // description
                     TypeInfo(Ot::k_BOOL),        // flag option
-                    OccurrenceInfo::e_REQUIRED   // occurrence required
+                    OccurrenceInfo::e_REQUIRED,  // occurrence required
+                    ""                           // env var name
                 }
             };
 
@@ -3410,14 +3434,16 @@ int main(int argc, const char *argv[])
                     "requiredOption",            // name
                     "Oxymoron",                  // description
                     TypeInfo(Ot::k_BOOL),        // flag option
-                    OccurrenceInfo::e_REQUIRED   // occurrence required
+                    OccurrenceInfo::e_REQUIRED,  // occurrence required
+                    ""                           // env var name
                 }
               , {
                     "o|optional",                // tag
                     "optionalOption",            // name
                     "Redundant",                 // description
                     TypeInfo(Ot::k_BOOL),        // flag option
-                    OccurrenceInfo::e_OPTIONAL   // occurrence required
+                    OccurrenceInfo::e_OPTIONAL,  // occurrence required
+                    ""                           // env var name
                 }
             };
 
@@ -3474,6 +3500,7 @@ int main(int argc, const char *argv[])
                                              , "Flag description."
                                              , TYPE_INFO
                                              , OccurrenceInfo::e_REQUIRED
+                                             , ""
                                              };
                 if (veryVerbose) {
                     P_(i) P_(optInfo.d_typeInfo) P(optInfo.d_defaultInfo)
@@ -3588,7 +3615,8 @@ int main(int argc, const char *argv[])
                 "Name_"#LETTER,                                               \
                 "Description for "#LETTER,                                    \
                 TypeInfo(ADDRESS),                                            \
-                OccurrenceInfo::e_OPTIONAL                                    \
+                OccurrenceInfo::e_OPTIONAL,                                   \
+                ""                                                            \
             }                                                                 \
 
         const OptionInfo SPECS[] = {
@@ -3816,7 +3844,8 @@ int main(int argc, const char *argv[])
                               "Name_a",                        // name
                               "Description_a",                 // description
                               TypeInfo(&oLinkedInt),
-                              OccurrenceInfo::e_REQUIRED
+                              OccurrenceInfo::e_REQUIRED,
+                              ""                               // env var name
                           }  // optional link and "required".
                       }
             , "Link to 'bsl::optional' object disallowed "
@@ -3829,7 +3858,8 @@ int main(int argc, const char *argv[])
                               "Name_a",                        // name
                               "Description_a",                 // description
                               TypeInfo(&oLinkedString),
-                              OccurrenceInfo(bsl::string("default-string"))
+                              OccurrenceInfo(bsl::string("default-string")),
+                              ""                               // env var name
                           }  // optional link and default value
                       }
             , "Link to 'bsl::optional' object disallowed "
@@ -3960,28 +3990,32 @@ int main(int argc, const char *argv[])
                 "isReverse",
                 "sort in reverse order",
                 balcl::TypeInfo(Ot::k_BOOL),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
               {
                 "i|insensitivetocase",
                 "isCaseInsensitive",
                 "be case insensitive while sorting",
                 balcl::TypeInfo(Ot::k_BOOL),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
               {
                 "u|uniq",
                 "isUniq",
                 "discard duplicate lines",
                 balcl::TypeInfo(Ot::k_BOOL),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
               {
                 "a|algorithm",
                 "sortAlgo",
                 "sorting algorithm",
                 balcl::TypeInfo(Ot::k_STRING),
-                balcl::OccurrenceInfo(bsl::string("quickSort"))
+                balcl::OccurrenceInfo(bsl::string("quickSort")),
+                ""
               },
               {
                 "o|outputfile",
@@ -3989,14 +4023,16 @@ int main(int argc, const char *argv[])
                 "output file with a very long option description so we can "
                 "see the line wrapping behavior",
                 balcl::TypeInfo(Ot::k_STRING),
-                balcl::OccurrenceInfo::e_REQUIRED
+                balcl::OccurrenceInfo::e_REQUIRED,
+                ""
               },
               {
                 "",
                 "fileList",
                 "files to be sorted",
                 balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                balcl::OccurrenceInfo::e_REQUIRED
+                balcl::OccurrenceInfo::e_REQUIRED,
+                ""
               }
             };
 
@@ -4142,49 +4178,56 @@ int main(int argc, const char *argv[])
                 "woof",
                 "grrowll",
                 balcl::TypeInfo(Ot::k_BOOL),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
               {
                 "a|arf",
                 "arf",
                 "arrrrrrrrrrf",
                 balcl::TypeInfo(Ot::k_BOOL),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
               {
                 "meow",
                 "meow",
                 "merrrrower",
                 balcl::TypeInfo(Ot::k_BOOL),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
               {
                 "n|number",
                 "number",
                 "#",
                 balcl::TypeInfo(Ot::k_INT),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
               {
                 "s|size",
                 "size",
                 "size in bytes",
                 balcl::TypeInfo(Ot::k_INT),
-                balcl::OccurrenceInfo::e_REQUIRED
+                balcl::OccurrenceInfo::e_REQUIRED,
+                ""
               },
               {
                 "m|meters",
                 "meters",
                 "distance",
                 balcl::TypeInfo(Ot::k_INT),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
               {
                 "radius",
                 "radius",
                 "half diameter",
                 balcl::TypeInfo(Ot::k_INT),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               },
             };
 
@@ -4218,7 +4261,8 @@ int main(int argc, const char *argv[])
                 "isReverse",
                 "sort in reverse order",
                 balcl::TypeInfo(Ot::k_BOOL),
-                balcl::OccurrenceInfo()
+                balcl::OccurrenceInfo(),
+                ""
               }
             };
 
@@ -4257,21 +4301,24 @@ int main(int argc, const char *argv[])
                     "1234567890 1234567890 1234567890 1234567890"
                                          " 1234567890 1234567890",
                     balcl::TypeInfo(Ot::k_STRING),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
                   {
                       "123",
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4301,21 +4348,24 @@ int main(int argc, const char *argv[])
                     "123456",    // length = 6
                     "1",
                     balcl::TypeInfo(Ot::k_STRING),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
                   {
                       "123",
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4345,7 +4395,8 @@ int main(int argc, const char *argv[])
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                     "123456",     // length = 6
@@ -4353,14 +4404,16 @@ int main(int argc, const char *argv[])
                     "1234567890 1234567890 1234567890 1234567890"
                                          " 1234567890 1234567890",
                     balcl::TypeInfo(Ot::k_STRING),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4390,21 +4443,24 @@ int main(int argc, const char *argv[])
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                     "123456789",  // length = 9
                     "123456",     // length = 6
                     "1",
                     balcl::TypeInfo(Ot::k_STRING),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4434,14 +4490,16 @@ int main(int argc, const char *argv[])
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                     "123456",      // length = 6
@@ -4449,7 +4507,8 @@ int main(int argc, const char *argv[])
                     "1234567890 1234567890 1234567890 1234567890"
                               " 1234567890 1234567890 1234567890",
                     balcl::TypeInfo(Ot::k_STRING),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   }
 
                 };
@@ -4483,21 +4542,24 @@ int main(int argc, const char *argv[])
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                     "1234567890",  // length = 10
                     "123456",      // length = 6
                     "1",
                     balcl::TypeInfo(Ot::k_STRING),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
 
                 };
@@ -4535,21 +4597,24 @@ int main(int argc, const char *argv[])
                       "123",
                       "1",
                       balcl::TypeInfo(Ot::k_STRING),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                     "123",                             // length = 3
                     "123456789012345678901234567890",  // length = 30
                     "12",
                     balcl::TypeInfo(Ot::k_BOOL),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4579,21 +4644,24 @@ int main(int argc, const char *argv[])
                       "123",
                       "1",
                       balcl::TypeInfo(Ot::k_STRING),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                     "123456789012345678901234567890",  // length = 30
                     "1234",                            // length = 4
                     "12",
                     balcl::TypeInfo(Ot::k_BOOL),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4630,14 +4698,16 @@ int main(int argc, const char *argv[])
                       "123",
                       "1",
                       balcl::TypeInfo(Ot::k_STRING),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "123",  // length = 3 (tag)
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "",              // length = 0
@@ -4645,7 +4715,8 @@ int main(int argc, const char *argv[])
                       "1234567890 1234567890 1234567890 1234567890"
                                            " 1234567890 1234567890",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4677,14 +4748,16 @@ int main(int argc, const char *argv[])
                       "123",
                       "1",
                       balcl::TypeInfo(Ot::k_STRING),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "123",  // length = 3 (tag)
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "",
@@ -4692,7 +4765,8 @@ int main(int argc, const char *argv[])
                       "12345678901234567890 12345678901234567890 1234567890 "
                       "12345678901234567890 12345678901234567890 1234567890",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4728,21 +4802,24 @@ int main(int argc, const char *argv[])
                     "123",         // length = 3
                     "1",
                     balcl::TypeInfo(Ot::k_STRING),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
                   {
                       "123",
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4782,21 +4859,24 @@ int main(int argc, const char *argv[])
                     "1234567890",  // length = 90
                     "1",
                     balcl::TypeInfo(Ot::k_STRING),
-                    balcl::OccurrenceInfo()
+                    balcl::OccurrenceInfo(),
+                    ""
                   },
                   {
                       "123",
                       "1234",
                       "12",
                       balcl::TypeInfo(Ot::k_BOOL),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   },
                   {
                       "",
                       "12345",
                       "123",
                       balcl::TypeInfo(Ot::k_STRING_ARRAY),
-                      balcl::OccurrenceInfo()
+                      balcl::OccurrenceInfo(),
+                      ""
                   }
                 };
 
@@ -4859,7 +4939,6 @@ int main(int argc, const char *argv[])
                           << "TESTING ABILITY TO INPUT VALUE FOR FLAG" << endl
                           << "=======================================" << endl;
 
-
         if (verbose) cout << "Test command line args in isolation.\n";
 
         const bsl::size_t npos = bsl::string::npos;
@@ -4883,14 +4962,16 @@ int main(int argc, const char *argv[])
                 "Name_a",
                 "Description for a",
                 TypeInfo(&aBool),
-                OccurrenceInfo::e_OPTIONAL
+                OccurrenceInfo::e_OPTIONAL,
+                ""
             },
             {
                 "b|bBool",
                 "Name_b",
                 "Description for b",
                 TypeInfo(&bBool),
-                OccurrenceInfo::e_OPTIONAL
+                OccurrenceInfo::e_OPTIONAL,
+                ""
             },
         };
         enum { k_TAGS_NUM_A = sizeof SPEC_A / sizeof *SPEC_A };
@@ -5989,11 +6070,12 @@ int main(int argc, const char *argv[])
 
             OptionInfo SPEC[] = {
               {
-                TAG,                 // non-option
-                "SomeValidName",     // name
-                "Some description",  // description
+                TAG,                           // non-option
+                "SomeValidName",               // name
+                "Some description",            // description
                 u::createTypeInfo(Ot::e_BOOL),
-                OccurrenceInfo::e_OPTIONAL
+                OccurrenceInfo::e_OPTIONAL,
+                ""                             // env var name
               }
             };
 
@@ -6044,7 +6126,8 @@ int main(int argc, const char *argv[])
                               "",                              // name
                               "Some description.",             // description
                               u::createTypeInfo(Ot::e_BOOL),
-                              OccurrenceInfo::e_OPTIONAL
+                              OccurrenceInfo::e_OPTIONAL,
+                              ""                               // env var name
                           }  // Invalid name
                       }
             , "Flags cannot have an empty tag."                              NL
@@ -6058,7 +6141,8 @@ int main(int argc, const char *argv[])
                               "SomeName",                      // name
                               "",                              // description
                               u::createTypeInfo(Ot::e_BOOL),
-                              OccurrenceInfo::e_OPTIONAL
+                              OccurrenceInfo::e_OPTIONAL,
+                              ""                               // env var name
                           }  // Invalid description
                       }
             , "Flags cannot have an empty tag."                              NL
@@ -6073,7 +6157,8 @@ int main(int argc, const char *argv[])
                               "SomeName",                      // name
                               "Some description",              // description
                               u::createTypeInfo(Ot::e_BOOL),
-                              OccurrenceInfo::e_OPTIONAL
+                              OccurrenceInfo::e_OPTIONAL,
+                              ""                               // env var name
                           }  // Non-options cannot be of type 'bool'.
                       }
             , "Flags cannot have an empty tag."                              NL
@@ -6089,7 +6174,8 @@ int main(int argc, const char *argv[])
                               u::createOccurrenceInfo(
                                                     OccurrenceInfo::e_OPTIONAL,
                                                     Ot::e_INT,  // type 'int'
-                                                    &valueInt)
+                                                    &valueInt),
+                              ""                                // env var name
                           }  // Type of default value does not match type info.
                       }
 
@@ -6110,7 +6196,8 @@ int main(int argc, const char *argv[])
                               u::createOccurrenceInfo(
                                                     OccurrenceInfo::e_OPTIONAL,
                                                     Ot::e_INT,  // type 'int'
-                                                    &valueInt)
+                                                    &valueInt),
+                              ""                                 // env var
                           }  // The default value does not meet constraint.
                       }
             , "Constraint Functor: error message."                           NL
@@ -6166,14 +6253,16 @@ int main(int argc, const char *argv[])
                               "SomeCommonName",                  // name
                               "Some description",                // description
                               u::createTypeInfo(Ot::e_BOOL),
-                              OccurrenceInfo::e_OPTIONAL
+                              OccurrenceInfo::e_OPTIONAL,
+                              ""                                 // env var
                           },
                           {
                               "",                                // non-option
                               "SomeCommonName",                  // name
                               "Some description",                // description
                               u::createTypeInfo(Ot::e_BOOL),
-                              OccurrenceInfo::e_OPTIONAL
+                              OccurrenceInfo::e_OPTIONAL,
+                              ""                                 // env var
                           }
                       }  // Names must be unique.
             , "Flags cannot have an empty tag."                              NL
@@ -6192,14 +6281,16 @@ int main(int argc, const char *argv[])
                               u::createOccurrenceInfo(           // *optional*
                                                     OccurrenceInfo::e_OPTIONAL,
                                                     Ot::e_INT,
-                                                    &valueInt)
+                                                    &valueInt),
+                              ""                                 // env var
                           },
                           {
                               "",                                // non-option
                               "SomeCommonName2",                 // name
                               "Some description",                // description
                               u::createTypeInfo(Ot::e_INT),
-                              OccurrenceInfo::e_REQUIRED         // *required*
+                              OccurrenceInfo::e_REQUIRED,        // *required*
+                              ""                                 // env var
                           }
                       }  // Defaulted non-option argument cannot be followed by
                          // required non-options.
@@ -6353,7 +6444,8 @@ int main(int argc, const char *argv[])
                               "SomeName",                        // name
                               "Some description",                // description
                               u::createTypeInfo(Ot::e_BOOL),
-                              OccurrenceInfo::e_OPTIONAL
+                              OccurrenceInfo::e_OPTIONAL,
+                              ""                                // env var name
                           };
             const OptionInfo OI1 =
                           {
@@ -6361,7 +6453,8 @@ int main(int argc, const char *argv[])
                               "SomeOtherName",                   // name
                               "Some description",                // description
                               u::createTypeInfo(Ot::e_BOOL),
-                              OccurrenceInfo::e_OPTIONAL
+                              OccurrenceInfo::e_OPTIONAL,
+                              ""                                // env var name
                           };
 
                   OptionInfo table[] = { OI0, OI1 };
@@ -6420,6 +6513,7 @@ int main(int argc, const char *argv[])
                              , "description"              // description
                              , TypeInfo(Ot::k_BOOL)       // no linked variable
                              , OccurrenceInfo::e_OPTIONAL // occurrence
+                             , ""                         // env var name
                              };
 
             const OptionInfo TABLE[] = { OI };
@@ -6845,6 +6939,7 @@ int main(int argc, const char *argv[])
                              , "description"#ALIAS                            \
                              , TypeInfo(Ot::k_##TYPE)                         \
                              , OccurrenceInfo(value##ALIAS)                   \
+                             , ""                                             \
                              }                                                \
 
             const OptionInfo TABLE[] = {
@@ -6853,6 +6948,7 @@ int main(int argc, const char *argv[])
                              , "descriptionBool"          // description
                              , TypeInfo(Ot::k_BOOL)       // no linked variable
                              , OccurrenceInfo::e_OPTIONAL // occurrence
+                             , ""                         // env var name
                              }
 
                            , ENTRY(CHAR,         Char)
@@ -7241,6 +7337,7 @@ int main(int argc, const char *argv[])
               , "description:  Bool"
               , TypeInfo(Ot::k_BOOL)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "b|bLongTag"
@@ -7248,6 +7345,7 @@ int main(int argc, const char *argv[])
               , "description:  Char"
               , TypeInfo(Ot::k_CHAR)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "c|cLongTag"
@@ -7255,6 +7353,7 @@ int main(int argc, const char *argv[])
               , "description:  Int"
               , TypeInfo(Ot::k_INT)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "d|dLongTag"
@@ -7262,6 +7361,7 @@ int main(int argc, const char *argv[])
               , "description:  Int64"
               , TypeInfo(Ot::k_INT64)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "e|eLongTag"
@@ -7269,6 +7369,7 @@ int main(int argc, const char *argv[])
               , "description:  Double"
               , TypeInfo(Ot::k_DOUBLE)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "f|fLongTag"
@@ -7276,6 +7377,7 @@ int main(int argc, const char *argv[])
               , "description:  String"
               , TypeInfo(Ot::k_STRING)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "g|gLongTag"
@@ -7283,6 +7385,7 @@ int main(int argc, const char *argv[])
               , "description:  Datetime"
               , TypeInfo(Ot::k_DATETIME)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "h|hLongTag"
@@ -7290,6 +7393,7 @@ int main(int argc, const char *argv[])
               , "description:  Date"
               , TypeInfo(Ot::k_DATE)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "i|iLongTag"
@@ -7297,6 +7401,7 @@ int main(int argc, const char *argv[])
               , "description:  Time"
               , TypeInfo(Ot::k_TIME)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "j|jLongTag"
@@ -7304,6 +7409,7 @@ int main(int argc, const char *argv[])
               , "description:  CharArray"
               , TypeInfo(Ot::k_CHAR_ARRAY)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "k|kLongTag"
@@ -7311,6 +7417,7 @@ int main(int argc, const char *argv[])
               , "description:  IntArray"
               , TypeInfo(Ot::k_INT_ARRAY)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "l|lLongTag"
@@ -7318,6 +7425,7 @@ int main(int argc, const char *argv[])
               , "description:  Int64Array"
               , TypeInfo(Ot::k_INT64_ARRAY)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "m|mLongTag"
@@ -7325,6 +7433,7 @@ int main(int argc, const char *argv[])
               , "description:  DoubleArray"
               , TypeInfo(Ot::k_DOUBLE_ARRAY)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "n|nLongTag"
@@ -7332,6 +7441,7 @@ int main(int argc, const char *argv[])
               , "description:  StringArray"
               , TypeInfo(Ot::k_STRING_ARRAY)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "o|oLongTag"
@@ -7339,6 +7449,7 @@ int main(int argc, const char *argv[])
               , "description:  DatetimeArray"
               , TypeInfo(Ot::k_DATETIME_ARRAY)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "p|pLongTag"
@@ -7346,6 +7457,7 @@ int main(int argc, const char *argv[])
               , "description:  DateArray"
               , TypeInfo(Ot::k_DATE_ARRAY)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "r|rLongTag"
@@ -7353,6 +7465,7 @@ int main(int argc, const char *argv[])
               , "description:  TimeArray"
               , TypeInfo(Ot::k_TIME_ARRAY)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             };
 
@@ -7755,6 +7868,7 @@ int main(int argc, const char *argv[])
               , "description:  Bool"
               , TypeInfo(Ot::k_BOOL)
               , OccurrenceInfo::e_OPTIONAL
+              , ""
               }
             , {
                 "b|bLongTag"
@@ -7762,6 +7876,7 @@ int main(int argc, const char *argv[])
               , "description:  Char"
               , TypeInfo(Ot::k_CHAR)
               , OccurrenceInfo(Char())
+              , ""
               }
             , {
                 "c|cLongTag"
@@ -7769,6 +7884,7 @@ int main(int argc, const char *argv[])
               , "description:  Int"
               , TypeInfo(Ot::k_INT)
               , OccurrenceInfo(Int())
+              , ""
               }
             , {
                 "d|dLongTag"
@@ -7776,6 +7892,7 @@ int main(int argc, const char *argv[])
               , "description:  Int64"
               , TypeInfo(Ot::k_INT64)
               , OccurrenceInfo(Int64())
+              , ""
               }
             , {
                 "e|eLongTag"
@@ -7783,6 +7900,7 @@ int main(int argc, const char *argv[])
               , "description:  Double"
               , TypeInfo(Ot::k_DOUBLE)
               , OccurrenceInfo(Double())
+              , ""
               }
             , {
                 "f|fLongTag"
@@ -7790,6 +7908,7 @@ int main(int argc, const char *argv[])
               , "description:  String"
               , TypeInfo(Ot::k_STRING)
               , OccurrenceInfo(String())
+              , ""
               }
             , {
                 "g|gLongTag"
@@ -7797,6 +7916,7 @@ int main(int argc, const char *argv[])
               , "description:  Datetime"
               , TypeInfo(Ot::k_DATETIME)
               , OccurrenceInfo(Datetime())
+              , ""
               }
             , {
                 "h|hLongTag"
@@ -7804,6 +7924,7 @@ int main(int argc, const char *argv[])
               , "description:  Date"
               , TypeInfo(Ot::k_DATE)
               , OccurrenceInfo(Date())
+              , ""
               }
             , {
                 "i|iLongTag"
@@ -7811,6 +7932,7 @@ int main(int argc, const char *argv[])
               , "description:  Time"
               , TypeInfo(Ot::k_TIME)
               , OccurrenceInfo(Time())
+              , ""
               }
             , {
                 "j|jLongTag"
@@ -7818,6 +7940,7 @@ int main(int argc, const char *argv[])
               , "description:  CharArray"
               , TypeInfo(Ot::k_CHAR_ARRAY)
               , OccurrenceInfo(CharArray())
+              , ""
               }
             , {
                 "k|kLongTag"
@@ -7825,6 +7948,7 @@ int main(int argc, const char *argv[])
               , "description:  IntArray"
               , TypeInfo(Ot::k_INT_ARRAY)
               , OccurrenceInfo(IntArray())
+              , ""
               }
             , {
                 "l|lLongTag"
@@ -7832,6 +7956,7 @@ int main(int argc, const char *argv[])
               , "description:  Int64Array"
               , TypeInfo(Ot::k_INT64_ARRAY)
               , OccurrenceInfo(Int64Array())
+              , ""
               }
             , {
                 "m|mLongTag"
@@ -7839,6 +7964,7 @@ int main(int argc, const char *argv[])
               , "description:  DoubleArray"
               , TypeInfo(Ot::k_DOUBLE_ARRAY)
               , OccurrenceInfo(DoubleArray())
+              , ""
               }
             , {
                 "n|nLongTag"
@@ -7846,6 +7972,7 @@ int main(int argc, const char *argv[])
               , "description:  StringArray"
               , TypeInfo(Ot::k_STRING_ARRAY)
               , OccurrenceInfo(StringArray())
+              , ""
               }
             , {
                 "o|oLongTag"
@@ -7853,6 +7980,7 @@ int main(int argc, const char *argv[])
               , "description:  DatetimeArray"
               , TypeInfo(Ot::k_DATETIME_ARRAY)
               , OccurrenceInfo(DatetimeArray())
+              , ""
               }
             , {
                 "p|pLongTag"
@@ -7860,6 +7988,7 @@ int main(int argc, const char *argv[])
               , "description:  DateArray"
               , TypeInfo(Ot::k_DATE_ARRAY)
               , OccurrenceInfo(DateArray())
+              , ""
               }
             , {
                 "r|rLongTag"
@@ -7867,6 +7996,7 @@ int main(int argc, const char *argv[])
               , "description:  TimeArray"
               , TypeInfo(Ot::k_TIME_ARRAY)
               , OccurrenceInfo(TimeArray())
+              , ""
               }
             };
 
@@ -8060,6 +8190,7 @@ int main(int argc, const char *argv[])
                  , "Description for a"
                  , TypeInfo(Ot::k_BOOL)
                  , OccurrenceInfo::e_OPTIONAL
+                 , ""
                  }
 
                , { "b|bLong"
@@ -8067,6 +8198,7 @@ int main(int argc, const char *argv[])
                  , "Description for b"
                  , TypeInfo(Ot::k_BOOL)
                  , OccurrenceInfo::e_OPTIONAL
+                 , ""
                  }
 
                , { "c|cLong"
@@ -8074,24 +8206,28 @@ int main(int argc, const char *argv[])
                  , "Description for c"
                  , TypeInfo(Ot::k_INT)
                  , OccurrenceInfo::e_OPTIONAL
+                 , ""
                  }
                , { "d|dLong"
                  , "dName"
                  , "Description for d"
                  , TypeInfo(Ot::k_INT_ARRAY)
                  , OccurrenceInfo::e_OPTIONAL
+                 , ""
                  }
                , { ""    // non-option
                  , "eName"
                  , "Description for e"
                  , TypeInfo(Ot::k_STRING)
                  , OccurrenceInfo::e_OPTIONAL
+                 , ""
                  }
                , { ""    // array non-option, must be last
                  , "fName"
                  , "Description for f"
                  , TypeInfo(Ot::k_STRING_ARRAY)
                  , OccurrenceInfo::e_OPTIONAL
+                 , ""
                  }
             };
 
@@ -8398,7 +8534,8 @@ int main(int argc, const char *argv[])
                                 "fileList",              // name
                                 "files to be sorted",    // description
                                 balcl::TypeInfo(&files), // link
-                                balcl::OccurrenceInfo()  // occurrence
+                                balcl::OccurrenceInfo(), // occurrence
+                                ""                       // env var name
                               };
 
               OptionInfo table[] = { OI };
@@ -8876,6 +9013,7 @@ int main(int argc, const char *argv[])
                              , "description"              // description
                              , TypeInfo(Ot::k_BOOL)       // no linked variable
                              , OccurrenceInfo::e_OPTIONAL // occurrence
+                             , ""                         // env var name
                              };
 
             const OptionInfo TABLE[] = { OI };
@@ -9175,6 +9313,7 @@ int main(int argc, const char *argv[])
                              , "description"              // description
                              , TypeInfo(Ot::k_BOOL)       // no linked variable
                              , OccurrenceInfo::e_OPTIONAL // occurrence
+                             , ""                         // env var name
                              };
 
             const OptionInfo TABLE[] = { OI };
@@ -10197,49 +10336,53 @@ int main(int argc, const char *argv[])
 
         balcl::OptionInfo specTable[] = {
           {
-            "f|flag",                                        // tag
-            "genericFlag",                                   // name
-            "provide generic option for breathing test",     // description
+            "f|flag",                                     // tag
+            "genericFlag",                                // name
+            "provide generic option for breathing test",  // description
             balcl::TypeInfo(balcl::OptionType::k_BOOL),   // no linked variable
-            balcl::OccurrenceInfo::e_REQUIRED             // occurrence info
+            balcl::OccurrenceInfo::e_REQUIRED,            // occurrence info
+            ""                                            // env var name
           },
           {
-            "s|long-option-with-dashes",                     // tag
-            "longOptionValue",                               // name
-            "provide generic option for breathing test",     // description
+            "s|long-option-with-dashes",                  // tag
+            "longOptionValue",                            // name
+            "provide generic option for breathing test",  // description
             balcl::TypeInfo(balcl::OptionType::k_INT_ARRAY),
                                                           // no linked variable
-            balcl::OccurrenceInfo::e_REQUIRED // occurrence info
+            balcl::OccurrenceInfo::e_REQUIRED,            // occurrence info
+            ""                                            // env var name
           },
           {
-            "long-option-only",                              // tag
-            "longOptionOnlyValue",                           // name
-            "provide generic option for breathing test",     // description
-            balcl::TypeInfo(&longOptionOnlyValue), // linked variable
-            balcl::OccurrenceInfo::e_HIDDEN   // occurrence info
+            "long-option-only",                           // tag
+            "longOptionOnlyValue",                        // name
+            "provide generic option for breathing test",  // description
+            balcl::TypeInfo(&longOptionOnlyValue),        // linked variable
+            balcl::OccurrenceInfo::e_HIDDEN,              // occurrence info
+            ""                                            // env var name
           },
           {
-            "",                                              // tag
-            "nonOptionValue1",                               // name
-            "provide generic option for breathing test",     // description
-            balcl::TypeInfo(&nonOptionValue1),     // linked variable
-            balcl::OccurrenceInfo::e_REQUIRED // occurrence info
+            "",                                           // tag
+            "nonOptionValue1",                            // name
+            "provide generic option for breathing test",  // description
+            balcl::TypeInfo(&nonOptionValue1),            // linked variable
+            balcl::OccurrenceInfo::e_REQUIRED,            // occurrence info
+            ""                                            // env var name
           },
           {
             "",                                           // tag
             "nonOptionValue2",                            // name
             "provide generic option for breathing test",  // description
-            balcl::TypeInfo(&nonOptionValue2),  // linked variable
-            balcl::OccurrenceInfo(defaultNonOptionValue)
-                                                          // occurrence info
+            balcl::TypeInfo(&nonOptionValue2),            // linked variable
+            balcl::OccurrenceInfo(defaultNonOptionValue), // occurrence info
+            ""                                            // env var name
           },
           {
             "",                                           // tag
             "nonOptionValue3",                            // name
             "provide generic option for breathing test",  // description
-            balcl::TypeInfo(&nonOptionValue3),  // linked variable
-            balcl::OccurrenceInfo(defaultNonOptionValue)
-                                                          // occurrence info
+            balcl::TypeInfo(&nonOptionValue3),            // linked variable
+            balcl::OccurrenceInfo(defaultNonOptionValue), // occurrence info
+            ""                                            // env var name
           }
         };
         enum { numSpecTable = sizeof specTable / sizeof *specTable };

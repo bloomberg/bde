@@ -513,20 +513,34 @@ int main(int argc, const char *argv[])
         (void) specTableA;
         const Obj specTableB[] = {
                     {
-                      tagString                              // tag
+                      tagString,                             // tag
+                      "",                                    // name
+                      "",                                    // description
+                      TypeInfo(),                            // dflt typeinfo
+                      OccurrenceInfo(),                      // dflt occurrence
+                      ""                                     // env var name                      
                     }
         };
         (void) specTableB;
         const Obj specTableC[] = {
                     {
-                      "s|longTag"                            // tag
+                      "s|longTag",                           // tag
+                      "",                                    // name
+                      "",                                    // description
+                      TypeInfo(),                            // dflt typeinfo
+                      OccurrenceInfo(),                      // dflt occurrence
+                      ""                                     // env var name                      
                     }
         };
         (void) specTableC;
         const Obj specTableD[] = {
                     {
                       "s|longTag",                           // tag
-                      "name"                                 // name
+                      "name",                                // name
+                      "",                                    // description
+                      TypeInfo(),                            // dflt typeinfo
+                      OccurrenceInfo(),                      // dflt occurrence
+                      ""                                     // env var name                      
                     }
         };
         (void) specTableD;
@@ -534,7 +548,10 @@ int main(int argc, const char *argv[])
                     {
                       "s|longTag",                           // tag
                       "name",                                // name
-                      "description"                          // description
+                      "description",                         // description
+                      TypeInfo(),                            // dflt typeinfo
+                      OccurrenceInfo(),                      // dflt occurrence
+                      ""                                     // env var name                      
                     }
         };
         (void) specTableE;
@@ -543,7 +560,9 @@ int main(int argc, const char *argv[])
                       "s|longTag",                           // tag
                       "name",                                // name
                       "description",                         // description
-                      balcl::TypeInfo(&linkedFlag)           // linked variable
+                      balcl::TypeInfo(&linkedFlag),          // linked variable
+                      OccurrenceInfo(),                      // occurrence info
+                      ""                                     // env var name                      
                     }
         };
         (void) specTableF;
@@ -564,7 +583,8 @@ int main(int argc, const char *argv[])
                       "name",                                // name
                       "description",                         // description
                       balcl::TypeInfo(&linkedFlag),          // linked variable
-                      balcl::OccurrenceInfo::e_REQUIRED      // occurrence info
+                      balcl::OccurrenceInfo::e_REQUIRED,     // occurrence info
+                      ""                                     // env var name                      
                     }
         };
         (void) specTableH;
@@ -586,7 +606,8 @@ int main(int argc, const char *argv[])
                       "name",                                // name
                       "description",                         // description
                       balcl::TypeInfo(&linkedFlag),          // linked variable
-                      balcl::OccurrenceInfo(defaultValue)    // occurrence info
+                      balcl::OccurrenceInfo(defaultValue),   // occurrence info
+                      ""                                     // env var name                      
                     }
         };
         (void) specTableJ;
