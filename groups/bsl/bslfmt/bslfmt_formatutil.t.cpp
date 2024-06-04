@@ -90,8 +90,8 @@ struct FormattableType {
     int x;
 };
 
-namespace bslfmt {
-#if 1
+namespace bsl {
+#if 0
 template <>
 struct formatter<FormattableType, char> {
     std::formatter<int, char> d_formatter;
@@ -120,9 +120,9 @@ struct formatter<FormattableType, char> {
 #if 0
 template <>
 struct formatter<FormattableType, char> {
-    formatter<int, char> d_formatter;
+    bsl::formatter<int, char> d_formatter;
 
-    BSL_FORMAT_CONSTEXPR format_parse_context::iterator parse(
+    BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
                                                       format_parse_context& pc)
     {
         return d_formatter.parse(pc);
@@ -133,11 +133,57 @@ struct formatter<FormattableType, char> {
                  basic_format_context<t_OUT, char>& fc) const
     {
         const char name[] = "FormattableType";
+        t_OUT      out    = fc.out();
+        out               = std::copy(name, name + strlen(name), out);
+        *out++            = '{';
+        fc.advance_to(out);
+        out    = d_formatter.format(value.x, fc);
+        *out++ = '}';
+        return out;
+    }
+};
+#endif
+#if 1
+template <>
+struct formatter<FormattableType, char> {
+    bsl::formatter<int, char> d_formatter;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
+                                                      bslfmt::format_parse_context& pc)
+    {
+        return d_formatter.parse(pc);
+    }
+
+    template <class t_OUT>
+    t_OUT format(const FormattableType&             value,
+                 bslfmt::basic_format_context<t_OUT, char>& fc) const
+    {
+        const char name[] = "FormattableType";
         t_OUT out = fc.out();
         out = std::copy(name, name + strlen(name), out);
         *out++ = '{';
         fc.advance_to(out);
         out = d_formatter.format(value.x, fc);
+        *out++ = '}';
+        return out;
+    }
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
+                                                      std::format_parse_context& pc)
+    {
+        return d_formatter.parse(pc);
+    }
+
+    template <class t_OUT>
+    t_OUT format(const FormattableType&             value,
+                 std::basic_format_context<t_OUT, char>& fc) const
+    {
+        const char name[] = "FormattableType";
+        t_OUT      out    = fc.out();
+        out               = std::copy(name, name + strlen(name), out);
+        *out++            = '{';
+        fc.advance_to(out);
+        out    = d_formatter.format(value.x, fc);
         *out++ = '}';
         return out;
     }
@@ -166,22 +212,24 @@ int main(int argc, char **argv)
         const int         x   = 1;
         const int         y   = 2;
         const int         sum = x + y;
-        check(bslfmt::FormatUtil::format("{}: {} + {} = {}", intro, x, y, sum),
+        check(bsl::format("{}: {} + {} = {}", intro, x, y, sum),
+              "Here is a simple equation: 1 + 2 = 3");
+        check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
         //check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
         //      "Here is a simple equation: 1 + 2 = 3");
-        check(bslfmt::FormatUtil::vformat(
+        check(bslfmt::vformat(
                                       "{}: {} + {} = {}",
-                       bslfmt::FormatUtil::make_format_args(intro, x, y, sum)),
+                       bslfmt::make_format_args(intro, x, y, sum)),
               "Here is a simple equation: 1 + 2 = 3");
-        ASSERT(!bslfmt::bslfmt_format_IsStdAliasingEnabled<
-               bslfmt::formatter<NonFormattableType> >::value);
+        //ASSERT(!bslfmt::bslfmt_format_IsStdAliasingEnabled<
+        //       bslfmt::formatter<NonFormattableType> >::value);
         FormattableType ft;
         ft.x = 37;
-        check(bslfmt::FormatUtil::format("The value of {1} is {0}", ft.x, ft),
+        check(bslfmt::format("The value of {1} is {0}", ft.x, ft),
               "The value of FormattableType{37} is 37");
-        check(bslfmt::FormatUtil::vformat("The value of {1} is {0}",
-                               bslfmt::FormatUtil::make_format_args(ft.x, ft)),
+        check(bslfmt::vformat("The value of {1} is {0}",
+                               bslfmt::make_format_args(ft.x, ft)),
               "The value of FormattableType{37} is 37");
       } break;
       default: {

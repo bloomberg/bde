@@ -1549,6 +1549,11 @@ BSLS_IDENT("$Id: $")
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17                   1
     #endif  // at least C++17
   #endif  // at least Microsoft Visual Studio 2017
+  #if BSLS_PLATFORM_CMP_VERSION >= 1928  // Microsoft Visual Studio 2019 v 16.9
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+      #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                   1
+    #endif  // at least C++20
+  #endif  // at least Microsoft Visual Studio 2019 v 16.9
 
   // MSVC does not support the non-standard '#include_next' directive
   //#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
