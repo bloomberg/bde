@@ -728,7 +728,7 @@ class TimeQueue {
         // list.
 
         // PUBLIC DATA MEMBERS
-        int                       d_index;
+        unsigned int              d_index;
         bsls::TimeInterval        d_time;
         Key                       d_key;
         Node                     *d_prev_p;
@@ -769,9 +769,9 @@ class TimeQueue {
         // time index.
 
     // PRIVATE DATA MEMBERS
-    const int                d_indexMask;
-    const int                d_indexIterationMask;
-    const int                d_indexIterationInc;
+    const unsigned int        d_indexMask;
+    const unsigned int        d_indexIterationMask;
+    const unsigned int        d_indexIterationInc;
 
     mutable bslmt::Mutex      d_mutex;          // used for synchronizing
                                                 // access to this queue
@@ -852,6 +852,12 @@ class TimeQueue {
         // 'd_nextFreeNode_p', making 'begin' the new 'd_nextFreeNode_p' and
         // calling 'freeNode'.  Note that the caller must not have acquired the
         // lock to this queue.
+
+    // PRIVATE ACCESSORS
+    Node* getNodeFromHandle(Handle handle, Key key) const;
+        // Return a pointer to the node correlating to the specified 'handle'
+        // and 'key' if such a node exists, otherwise return a null pointer.
+
 
   private:
     // NOT IMPLEMENTED
@@ -1358,11 +1364,29 @@ void TimeQueue<DATA>::putFreeNodeList(Node *begin)
     return;
 }
 
+// PRIVATE ACCESSORS
+template <class DATA>
+typename TimeQueue<DATA>::Node *TimeQueue<DATA>::getNodeFromHandle(
+                                                              Handle handle,
+                                                              Key    key) const
+{
+    unsigned int uhandle = static_cast<unsigned int>(handle) & d_indexMask;
+    if (0 == uhandle) {
+        return 0;                                                     // RETURN
+    }
+    Node *node = d_nodeArray[uhandle - 1];
+    if (node->d_index != static_cast<unsigned>(handle) || node->d_key != key ||
+        0 == node->d_prev_p) {
+        return 0;                                                     // RETURN
+    }
+    return node;
+}
+
 // CREATORS
 template <class DATA>
 TimeQueue<DATA>::TimeQueue(bslma::Allocator *basicAllocator)
-: d_indexMask((1 << k_NUM_INDEX_BITS_DEFAULT) - 1)
-, d_indexIterationMask(~(int)d_indexMask)
+: d_indexMask((1U << k_NUM_INDEX_BITS_DEFAULT) - 1)
+, d_indexIterationMask(~d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
@@ -1375,8 +1399,8 @@ TimeQueue<DATA>::TimeQueue(bslma::Allocator *basicAllocator)
 template <class DATA>
 TimeQueue<DATA>::TimeQueue(bool              poolTimerMemory,
                            bslma::Allocator *basicAllocator)
-: d_indexMask((1 << k_NUM_INDEX_BITS_DEFAULT) - 1)
-, d_indexIterationMask(~(int)d_indexMask)
+: d_indexMask((1U << k_NUM_INDEX_BITS_DEFAULT) - 1)
+, d_indexIterationMask(~d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
@@ -1482,7 +1506,7 @@ typename TimeQueue<DATA>:: Handle TimeQueue<DATA>::add(
         // The number of nodes cannot grow to a size larger than the range of
         // available indices.
 
-        if ((int)d_nodeArray.size() >= d_indexMask - 1) {
+        if (d_nodeArray.size() >= d_indexMask - 1) {
             return -1;                                                // RETURN
         }
 
@@ -1522,7 +1546,6 @@ typename TimeQueue<DATA>:: Handle TimeQueue<DATA>::add(
         *newLength = d_length;
     }
 
-    BSLS_ASSERT(-1 != node->d_index);
     return node->d_index;
 }
 
@@ -1684,22 +1707,17 @@ int TimeQueue<DATA>::remove(typename TimeQueue<DATA>::Handle  handle,
                             TimeQueueItem<DATA>              *item)
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    int index = ((int)handle & d_indexMask) - 1;
-    if (index < 0 || index >= (int)d_nodeArray.size()) {
-        return 1;                                                     // RETURN
-    }
-    Node *node = d_nodeArray[index];
 
-    if (node->d_index != (int)handle
-     || node->d_key != key
-     || 0 == node->d_prev_p) {
+    Node *node = getNodeFromHandle(handle, key);
+
+    if (!node) {
         return 1;                                                     // RETURN
     }
 
     if (item) {
         item->time()   = node->d_time;
         item->data()   = node->d_data.object();
-        item->handle() = node->d_index;
+        item->handle() = handle;
         item->key()    = node->d_key;
     }
 
@@ -1788,14 +1806,10 @@ int TimeQueue<DATA>::update(typename TimeQueue<DATA>::Handle  handle,
                             int                              *isNewTop)
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    int index = ((int)handle & d_indexMask) - 1;
 
-    if (index < 0 || (unsigned) index >= d_nodeArray.size()) {
-        return 1;                                                     // RETURN
-    }
-    Node *node = d_nodeArray[index];
+    Node *node = getNodeFromHandle(handle, key);
 
-    if (node->d_index != (int)handle || node->d_key != key) {
+    if (!node) {
         return 1;                                                     // RETURN
     }
 
@@ -1856,18 +1870,10 @@ bool TimeQueue<DATA>::isRegisteredHandle(
                                     const Key&                       key) const
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    int index = (handle & d_indexMask) - 1;
 
-    if ( 0 > index || index >= (int)d_nodeArray.size()) {
-        return false;                                                 // RETURN
-    }
-    Node *node = d_nodeArray[index];
+    Node *node = getNodeFromHandle(handle, key);
 
-    if (node->d_index != (int)handle || node->d_key != key) {
-        return false;                                                 // RETURN
-    }
-
-    return true;
+    return node != 0;
 }
 
 template <class DATA>

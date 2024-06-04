@@ -89,7 +89,8 @@ using namespace bsl;  // automatically added by script
 // [12] CONCERN: The queue can be used after a call to 'drain'.
 // [13] CONCERN: Memory Pooling
 // [14] CONCERN: ORDER PRESERVATION
-// [15] USAGE EXAMPLE
+// [15] CONCERN: OVERFLOW OF INDEX GENERATION COUNT
+// [16] USAGE EXAMPLE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -1107,6 +1108,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     , d_ioTimeout(ioTimeout)
     , d_connectionThreadHandle(bslmt::ThreadUtil::invalidHandle())
     , d_timerThreadHandle(bslmt::ThreadUtil::invalidHandle())
+    , d_done(false)
     {
     }
 
@@ -1472,7 +1474,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -1502,6 +1504,52 @@ int main(int argc, char *argv[])
             usageExample(verbose);
         }
 
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // CONCERN: OVERFLOW OF INDEX GENERATION COUNT
+        //
+        // Concerns:
+        //: 1 When a node is re-used sufficiently many times, the handle will
+        //:   be re-used.  This test exercises that roll over, and can be used
+        //:   with sanitizers to check for problems.
+        //
+        // Plan:
+        //: 1 Starting with an object with maximal node bits, create and remove
+        //:   nodes repeatedly until re-use of a handle value is certain.
+        //:
+        //: 2 Increment a counter each time the first handle value is re-used.
+        //:   Check to see that the counter is greater than 0.
+        //
+        // Testing:
+        //   CONCERN: OVERFLOW OF INDEX GENERATION COUNT
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "CONCERN: OVERFLOW OF INDEX GENERATION COUNT" << endl
+                 << "===========================================" << endl;
+
+        Obj mX(24);
+
+        unsigned int index = 0;
+        int          reuse = -1;  // the first iteration will increment to zero
+
+        while (++index < (1 << 10)) {
+            if (veryVeryVerbose)
+            //if (veryVeryVerbose && (0 != index % 1024))
+                    cout << index << '\n';
+
+            Obj::Handle handle = mX.add(bsls::TimeInterval(), "");
+
+            const static Obj::Handle firstHandle = handle;
+            if (firstHandle == handle) {
+                ++reuse;
+            }
+            mX.remove(handle);
+        }
+
+        ASSERTV(reuse, reuse > 0);
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -1957,8 +2005,8 @@ int main(int argc, char *argv[])
         }
 
         bslmt::ThreadUtil::create(&threads[k_NUM_THREADS],
-                                   testLengthAndCountLE,
-                                   NULL);
+                                  testLengthAndCountLE,
+                                  0);
 
         int size = 0;
         for (int i = 0; i < k_NUM_THREADS; ++i) {
