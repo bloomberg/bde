@@ -60,6 +60,20 @@ class ManagedAllocator : public Allocator {
     // memory currently allocated through the protocol back to the memory
     // supplier of the derived concrete allocator object.
 
+  private:
+    // PRIVATE ACCESSORS
+    virtual void vtableDummy() const;
+        // Do nothing.  Note that this function is added to avoid including a
+        // (redundant) vtable into every translation unit that includes this
+        // type.  Although we expect that these redundant vtables, identified
+        // by the '-Wweak-vtables' warning of the clang compiler (version 4.0
+        // and higher), will be consolidated by the linker, this workaround
+        // avoids the space being used in the generated object files, which may
+        // be important for very heavily used types like this one.
+        // Implementing a virtual function out-of-line enables the compiler to
+        // use this component translation unit as a "home" for the single
+        // shared copy of the vtable.
+
   public:
     // MANIPULATORS
     virtual void release() = 0;

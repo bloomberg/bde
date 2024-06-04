@@ -16,6 +16,11 @@ namespace bslma {
                           // class SharedPtrRep
                           // ------------------
 
+// PRIVATE ACCESSORS
+void SharedPtrRep::vtableDummy() const
+{
+}
+
 // MANIPULATORS
 void SharedPtrRep::acquireWeakRef()
 {

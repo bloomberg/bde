@@ -6,6 +6,23 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+namespace BloombergLP {
+
+namespace bslma {
+
+                        // ----------------------
+                        // class ManagedAllocator
+                        // ----------------------
+
+// PRIVATE ACCESSORS
+void ManagedAllocator::vtableDummy() const
+{
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #endif // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 // ----------------------------------------------------------------------------
