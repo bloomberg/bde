@@ -63,6 +63,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE: type trait
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER: type trait
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE: type traits
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD: 'std::jthread'
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -1202,6 +1203,20 @@ BSLS_IDENT("$Id: $")
 //
 // (no current version of clang supports this feature)
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD'
+///----------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is defined if the C++20
+// 'bsl::jthread' class in the '<bsl_thread.h>' header available.
+//
+// Note that the standard feature test macro '__cpp_lib_jthread' is also
+// defined and has a value of at least '201911L'.
+//
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 10.1
+//:   o Microsoft Visual Studio 2019 Update 9 / _MSC_FULL_VER 192829913
+//:   o clang 18.0 with -fexperimental-library
+//
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++ standard
@@ -2159,6 +2174,10 @@ BSLS_IDENT("$Id: $")
   #if defined(__cpp_lib_is_pointer_interconvertible) &&                       \
               __cpp_lib_is_pointer_interconvertible >= 201907L
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE        1
+  #endif
+
+  #if defined(__cpp_lib_jthread) && __cpp_lib_jthread >= 201911L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD                            1
   #endif
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY

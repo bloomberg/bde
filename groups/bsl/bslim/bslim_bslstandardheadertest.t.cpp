@@ -169,7 +169,7 @@
 #if !defined(BDE_OPENSOURCE_PUBLICATION) \
  && !defined(BDE_OMIT_INTERNAL_DEPRECATED)
     // stlport containers are deprecated and are not forwarded in the
-    // opensource distribution
+    // open-source distribution
 
     #include <bsl_hash_map.h>
     #include <bsl_hash_set.h>
@@ -233,8 +233,8 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 // [38] CONCERN: 'copy_n' function is usable from 'bsl'.
-// [37] C++20 'bsl_type_traits.h' HEADER ADDITIONS
-// [36] C++20 'std::ranges' interop with 'bsl::array' CONTAINER
+// [37] C++20 'bsl_type_traits.h' ADDITIONS
+// [36] C++20 'std::ranges' interop with 'bsl::array'
 // [35] bsl::coroutine_traits<>
 // [35] bsl::coroutine_handle<>
 // [35] bsl::noop_coroutine()
@@ -242,8 +242,8 @@ using namespace BloombergLP;
 // [35] bsl::noop_coroutine_handle
 // [35] bsl::suspend_never
 // [35] bsl::suspend_always
-// [34] C++20 'bsl_concepts.h' HEADER ADDITIONS
-// [33] C++20 'bsl_iterator.h' HEADER ADDITIONS
+// [34] C++20 'bsl_concepts.h' ADDITIONS
+// [33] C++20 'bsl_iterator.h' ADDITIONS
 // [32] bsl::cmp_equal();
 // [32] bsl::cmp_not_equal();
 // [32] bsl::cmp_less();
@@ -252,17 +252,17 @@ using namespace BloombergLP;
 // [32] bsl::cmp_greater_equal();
 // [32] bsl::in_range();
 // [31] MISC C++20 ADDITIONS TO HEADERS
-// [30] C++20 'bsl_atomic.h' HEADER ADDITIONS
-// [29] C++20 'bsl_memory.h' HEADER ADDITIONS
+// [30] C++20 'bsl_atomic.h' ADDITIONS
+// [29] C++20 'bsl_memory.h' ADDITIONS
 // [28] CONCERN: Entities from 'std::ranges' are available and usable.
 // [27] CONCERN: The type 'bsl::stop_token' is available and usable.
 // [27] CONCERN: The type 'bsl::stop_source' is available and usable.
 // [27] CONCERN: The type 'bsl::nostopstate_t' is available and usable.
 // [27] CONCERN: The type 'bsl::stop_callback' is available and usable.
 // [27] CONCERN: 'bsl::nostopstate' is available and usable.
-// [26] C++20 'bsl_source_location.h' HEADER
-// [25] C++20 'bsl_bit.h' HEADER
-// [24] C++20 'bsl_numbers.h' HEADER
+// [26] C++20 'bsl_source_location.h'
+// [25] C++20 'bsl_bit.h'
+// [24] C++20 'bsl_numbers.h'
 // [23] CONCERN: 'bsl::barrier' is available and usable.
 // [23] CONCERN: 'bsl::latch' is available and usable.
 // [23] CONCERN: 'bsl::counting_semaphore' is available and usable.
@@ -271,7 +271,7 @@ using namespace BloombergLP;
 // [21] CONCERN: 'bsl::span' is available and usable
 // [20] CONCERN: 'bsl::invoke' is usable when available.
 // [20] CONCERN: 'bsl::not_fn' is usable when available.
-// [19] C++17 <bsl_filesystem.h>
+// [19] C++17 'bsl_filesystem.h'
 // [19] CONCERN: 'hashAppend' of 'std::filesystem::path' is usable.
 // [18] bsl::byte;
 // [18] bsl::apply();
@@ -864,7 +864,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 38: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::copy_n'
+        // 'bsl::copy_n'
         //
         // Concerns:
         //: 1 The 'copy_n' function is available in 'bsl' to users who include
@@ -878,8 +878,8 @@ int main(int argc, char *argv[])
         //   CONCERN: 'copy_n' function is usable from 'bsl'.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::copy_n'"
-                            "\n=====================\n");
+        if (verbose) puts("\n'bsl::copy_n'"
+                          "\n=============");
 
         typedef bsl::vector<int>       Vector;
         typedef Vector::iterator       Iterator;
@@ -916,7 +916,7 @@ int main(int argc, char *argv[])
       } break;
       case 37: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_type_traits.h' HEADER ADDITIONS
+        // C++20 'bsl_type_traits.h' ADDITIONS
         //
         // Concerns:
         //: 1 The following names are available in 'bsl' to users who include
@@ -950,12 +950,11 @@ int main(int argc, char *argv[])
         //: 2 Form some syntactically valid expressions for each added trait.
         //
         // Testing
-        //   C++20 'bsl_type_traits.h' HEADER ADDITIONS
+        //   C++20 'bsl_type_traits.h' ADDITIONS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                     "\nTESTING C++20 'bsl_type_traits.h' HEADER ADDITIONS"
-                     "\n==================================================\n");
+        if (verbose) puts("\nC++20 'bsl_type_traits.h' ADDITIONS"
+                          "\n===================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
         if (veryVerbose) {
@@ -1009,9 +1008,9 @@ int main(int argc, char *argv[])
         }
 #else
         if (veryVerbose) {
-            printf("SKIPPED: "
-                   "'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' "
-                   "undefined.\n");
+            puts("SKIPPED: "
+                 "'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is not "
+                 "defined.");
         }
 #endif
 
@@ -1043,9 +1042,9 @@ int main(int argc, char *argv[])
         }
 #else
         if (veryVerbose) {
-            printf("SKIPPED: "
-                   "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' "
-                   "undefined.\n");
+            puts("SKIPPED: "
+                 "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' is "
+                 "not defined.");
         }
 #endif
 
@@ -1069,9 +1068,9 @@ int main(int argc, char *argv[])
         }
 #else
         if (veryVerbose) {
-            printf("SKIPPED: "
-                   "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' "
-                   "undefined.\n");
+            puts("SKIPPED: "
+                 "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' is "
+                 "not defined.");
         }
 #endif
 
@@ -1118,16 +1117,15 @@ int main(int argc, char *argv[])
         }
 #else
         if (veryVerbose) {
-            printf(
-                "SKIPPED: "
-                "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE' "
-                "undefined.\n");
+            puts("SKIPPED: "
+                "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'"
+                " is not defined.");
         }
 #endif
       } break;
       case 36: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'std::ranges' INTEROP WITH 'bsl::array' CONTAINER
+        // C++20 'std::ranges' INTEROP WITH 'bsl::array'
         //
         // Concerns:
         //: 1 The definitions from '<ranges>' defined by the C++20 Standard are
@@ -1147,13 +1145,10 @@ int main(int argc, char *argv[])
         //:   usable by bsl::array.  (C-2)
         //
         // Testing:
-        //   C++20 'std::ranges' interop with 'bsl::array' CONTAINER
+        //   C++20 'std::ranges' interop with 'bsl::array'
         // --------------------------------------------------------------------
-        if (verbose)
-            printf("\nTESTING C++20 'std::ranges' INTEROP WITH 'bsl::array' "
-                   "CONTAINER"
-                   "\n========================================================"
-                   "=======\n");
+        if (verbose) puts("\nC++20 'std::ranges' INTEROP WITH 'bsl::array'"
+                          "\n=============================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         namespace ranges = bsl::ranges;
@@ -1878,8 +1873,8 @@ int main(int argc, char *argv[])
         //   bsl::suspend_never
         //   bsl::suspend_always
         // --------------------------------------------------------------------
-        if (verbose) printf("\nC++20 '<bsl_coroutine.h>'"
-                            "\n=========================\n");
+        if (verbose) puts("\nC++20 '<bsl_coroutine.h>'"
+                          "\n=========================");
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
         {
@@ -1906,7 +1901,7 @@ int main(int argc, char *argv[])
       } break;
       case 34: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_concepts.h' HEADER ADDITIONS
+        // C++20 'bsl_concepts.h' ADDITIONS
         //
         // Concerns:
         //: 1 The definitions from '<concepts>' defined by the C++20 Standard
@@ -1917,11 +1912,10 @@ int main(int argc, char *argv[])
         //: 1 Form some valid expressions with every name with 'bsl' prefix.
         //
         // Testing
-        //   C++20 'bsl_concepts.h' HEADER ADDITIONS
+        //   C++20 'bsl_concepts.h' ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose)
-            printf("\nTESTING C++20 'bsl_concepts.h' HEADER ADDITIONS"
-                   "\n===============================================\n");
+        if (verbose) puts("\nC++20 'bsl_concepts.h' ADDITIONS"
+                          "\n================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
         BSLMF_ASSERT(( bsl::same_as<int, int >));
@@ -2009,12 +2003,11 @@ int main(int argc, char *argv[])
       } break;
       case 33: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_iterator.h' HEADER ADDITIONS
+        // C++20 'bsl_iterator.h' ADDITIONS
         //
         // Concerns:
         //: 1 The C++20 special iterator traits, concepts, and tags all exist
         //:   in namespace 'bsl'.
-        //:
         //
         // Plan:
         //: 2 Create simple examples that use these entities.  Compilation of
@@ -2022,11 +2015,10 @@ int main(int argc, char *argv[])
         //:   (C-1)
         //
         // Testing:
-        //   C++20 'bsl_iterator.h' HEADER ADDITIONS
+        //   C++20 'bsl_iterator.h' ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose)
-            printf("\nTESTING C++20 'bsl_iterator.h' HEADER ADDITIONS"
-                   "\n===============================================\n");
+        if (verbose) puts("\nC++20 'bsl_iterator.h' ADDITIONS"
+                          "\n================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
         typedef bsl::vector<int>                     Vector;
@@ -2238,7 +2230,7 @@ int main(int argc, char *argv[])
       } break;
       case 32: {
         // --------------------------------------------------------------------
-        // TESTING C++20 <BSL_UTILITY.H> ADDITIONS
+        // C++20 'bsl_utility.h' ADDITIONS
         //
         // Concerns:
         //: 1 The C++20 special integer comparison functions all exist in
@@ -2264,8 +2256,8 @@ int main(int argc, char *argv[])
         //   bsl::cmp_greater_equal();
         //   bsl::in_range();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING C++20 <BSL_UTILITY.H> ADDITIONS"
-                            "\n=======================================\n");
+        if (verbose) puts("\nC++20 'bsl_utility.h' ADDITIONS"
+                          "\n===============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
         BSLMF_ASSERT(__cpp_lib_integer_comparison_functions >= 202002L);
@@ -2282,7 +2274,7 @@ int main(int argc, char *argv[])
       } break;
       case 31: {
         // --------------------------------------------------------------------
-        // TESTING MISC C++20 ADDITIONS TO HEADERS
+        // MISC C++20 ADDITIONS TO HEADERS
         //
         // Concerns:
         //: 1 'lerp' is available in C++20 mode in the 'bsl' namespace to users
@@ -2306,9 +2298,10 @@ int main(int argc, char *argv[])
         //: 5 'bind_front' is available in C++20 mode in the 'bsl' namespace to
         //:   users who include 'bsl_functional.h'.
         //:
-        //: 6 'jthread' is available in C++20 mode in the 'bsl' namespace to
-        //:   users who include `bsl_thread.h", and is an alias to the
-        //:   standard library type.
+        //: 6 In C++20 mode when 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is
+        //:   defined the 'jthread' class is available in the 'bsl'
+        //:   namespace to users who include `bsl_thread.h', and it is an alias
+        //:   to the standard library type.
         //
         //: 7 The feature test macros defined for the imported features are
         //:   available and have appropriate values.
@@ -2325,10 +2318,13 @@ int main(int argc, char *argv[])
         // Testing
         //   MISC C++20 ADDITIONS TO HEADERS
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING MISC C++20 ADDITIONS TO HEADERS"
-                            "\n=======================================\n");
+        if (verbose) puts("\nMISC C++20 ADDITIONS TO HEADERS"
+                          "\n===============================");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        if (veryVerbose) puts("SKIPPED: C++20 baseline not available.");
+
+#else  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
         BSLMF_ASSERT(__cpp_lib_interpolate >= 201902L);
         (void) bsl::lerp(1.0, 1.0, 1.0);
         (void) bsl::midpoint(1, 1);
@@ -2351,15 +2347,18 @@ int main(int argc, char *argv[])
         BSLMF_ASSERT(__cpp_lib_bind_front >= 201907L);
         (void) bsl::bind_front([](int){}, 1);
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD
         BSLMF_ASSERT(__cpp_lib_jthread>= 201911L);
         bsl::jthread jthread;
         (void) jthread;
         ASSERT((bsl::is_same_v<std::jthread, bsl::jthread>));
 #endif
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
       } break;
       case 30: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_atomic.h' HEADER ADDITIONS
+        // C++20 'bsl_atomic.h' ADDITIONS
         //
         // Concerns:
         //: 1 The following names are available in 'bsl' to users who include
@@ -2386,11 +2385,10 @@ int main(int argc, char *argv[])
         //: 2 Form some valid expressions with every name with 'bsl' prefix.
         //
         // Testing
-        //   C++20 'bsl_atomic.h' HEADER ADDITIONS
+        //   C++20 'bsl_atomic.h' ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose) printf(
-                          "\nTESTING C++20 'bsl_atomic.h' HEADER ADDITIONS"
-                          "\n=============================================\n");
+        if (verbose) puts("\nC++20 'bsl_atomic.h' ADDITIONS"
+                          "\n==============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
@@ -2439,7 +2437,7 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_memory.h' HEADER ADDITIONS
+        // C++20 'bsl_memory.h' ADDITIONS
         //
         // Concerns:
         //: 1 'to_address', 'assume_aligned', 'make_unique_for_overwrite' and
@@ -2469,11 +2467,10 @@ int main(int argc, char *argv[])
         //: 6 Verify that 'bsl::pointer_traits' is usable in constexpr context.
         //
         // Testing
-        //   C++20 'bsl_memory.h' HEADER ADDITIONS
+        //   C++20 'bsl_memory.h' ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose) printf(
-                          "\nTESTING C++20 'bsl_memory.h' HEADER ADDITIONS"
-                          "\n=============================================\n");
+        if (verbose) puts("\nC++20 'bsl_memory.h' ADDITIONS"
+                          "\n==============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
         BSLMF_ASSERT(__cpp_lib_to_address >= 201711L);
@@ -2513,7 +2510,7 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'std::ranges' ADDITION
+        // C++20 'std::ranges' ADDITION
         //
         // Concerns:
         //: 1 The definitions from '<ranges>' defined by the C++20 Standard are
@@ -2535,8 +2532,8 @@ int main(int argc, char *argv[])
         // Testing
         //   CONCERN: Entities from 'std::ranges' are available and usable.
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING C++20 'std::ranges' ADDITION"
-                            "\n====================================\n");
+        if (verbose) puts("\nC++20 'std::ranges' ADDITION"
+                          "\n============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         namespace ranges = bsl::ranges;
@@ -3232,12 +3229,11 @@ int main(int argc, char *argv[])
         (void) inOutOutResult;
         (void) minMaxResult2;
         (void) inFoundResult;
-
 #endif
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // TESTING C++20 <BSL_STOP_TOKEN.H> ADDITIONS
+        // C++20 'bsl_stop_token.h' ADDITIONS
         //
         // Concerns:
         //: 1 The types defined in 'bsl_stop_token.h' exist in the 'bsl'
@@ -3260,9 +3256,8 @@ int main(int argc, char *argv[])
         //   CONCERN: 'bsl::nostopstate' is available and usable.
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nTESTING C++20 <BSL_STOP_TOKEN.H> ADDITIONS"
-                   "\n==========================================\n");
+        if (verbose) puts("\nC++20 'bsl_stop_token.h' ADDITIONS"
+                          "\n==================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
         class DummyCallback {
@@ -3280,11 +3275,10 @@ int main(int argc, char *argv[])
         (void) s_callback;
         (void) no_stop;
 #endif
-
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_source_location.h' HEADER
+        // C++20 'bsl_source_location.h'
         //
         // Concerns:
         //: 1 The definitions from '<source_location>' defined by the C++20
@@ -3301,11 +3295,10 @@ int main(int argc, char *argv[])
         //:   called and an object of type 'bsl::source_location' is returned.
         //
         // Testing
-        //   C++20 'bsl_source_location.h' HEADER
+        //   C++20 'bsl_source_location.h'
         // --------------------------------------------------------------------
-        if (verbose) printf(
-                           "\nTESTING C++20 'bsl_source_location.h' HEADER"
-                           "\n============================================\n");
+        if (verbose) puts("\nC++20 'bsl_source_location.h'"
+                          "\n=============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
         BSLMF_ASSERT(__cpp_lib_source_location >= 201907L);
@@ -3313,11 +3306,10 @@ int main(int argc, char *argv[])
         const bsl::source_location sl = bsl::source_location::current();
         (void) sl;
 #endif
-
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_bit.h' HEADER
+        // C++20 'bsl_bit.h'
         //
         // Concerns:
         //: 1 The definitions from '<bit>' defined by the C++20 Standard are
@@ -3338,10 +3330,10 @@ int main(int argc, char *argv[])
         //:   perform couple of sanity tests.
         //
         // Testing
-        //   C++20 'bsl_bit.h' HEADER
+        //   C++20 'bsl_bit.h'
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING C++20 'bsl_bit.h' HEADER"
-                            "\n================================\n");
+        if (verbose) puts("\nC++20 'bsl_bit.h'"
+                          "\n=================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
         BSLMF_ASSERT(__cpp_lib_endian >= 201907L);
@@ -3411,7 +3403,7 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_numbers.h' HEADER
+        // C++20 'bsl_numbers.h'
         //
         // Concerns:
         //: 1 The definitions from '<numbers>' defined by the C++20 Standard
@@ -3430,10 +3422,10 @@ int main(int argc, char *argv[])
         //: 3 Verify that each 'bsl::numbers::foo' has type 'const double'.
         //
         // Testing
-        //   C++20 'bsl_numbers.h' HEADER
+        //   C++20 'bsl_numbers.h'
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING C++20 'bsl_numbers.h' HEADER"
-                            "\n====================================\n");
+        if (verbose) puts("\nC++20 'bsl_numbers.h'"
+                          "\n=====================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
             BSLMF_ASSERT(__cpp_lib_math_constants >= 201907L);
@@ -3501,7 +3493,7 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING C++20 THREAD_COORDINATION CLASSES
+        // C++20 THREAD_COORDINATION CLASSES
         //   The following classes have been added 'std::barrier',
         //    'std::latch', 'std::counting_semaphore' and
         //    'std::binary_semaphore'.  BDE aliases them in the following
@@ -3532,9 +3524,8 @@ int main(int argc, char *argv[])
         //   CONCERN: 'bsl::binary_semaphore' is available and usable.
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nTESTING C++20 THREAD_COORDINATION CLASSES"
-                   "\n=========================================\n");
+        if (verbose) puts("\nC++20 THREAD_COORDINATION CLASSES"
+                          "\n=================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
        bsl::barrier<CompletionFunction> barrier(0);
@@ -3554,11 +3545,10 @@ int main(int argc, char *argv[])
        (void) binarySemaphore;
        ASSERT((bsl::is_same_v<std::binary_semaphore, bsl::binary_semaphore>));
 #endif
-
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING C++20 <BSL_VERSION.H> ADDITION
+        // C++20 'bsl_version.h'
         //   The <version> header, added in C++20, defines numerous
         //   feature-test macros.  Since the same macros are available when
         //   including various standard headers, in order to check the
@@ -3581,9 +3571,8 @@ int main(int argc, char *argv[])
         //   CONCERN: feature-test macros are available and usable.
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nTESTING C++20 <BSL_VERSION.H> ADDITION"
-                   "\n======================================\n");
+        if (verbose) puts("\nC++20 'bsl_version.h'"
+                          "\n=====================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
 
@@ -3595,7 +3584,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING C++20 <BSL_SPAN.H> ADDITION
+        // C++20 'bsl_span.h'
         //
         // Concerns:
         //: 1 The 'span' type exists in the 'bsl' namespace and, for C++20, is
@@ -3620,9 +3609,9 @@ int main(int argc, char *argv[])
         //   CONCERN: 'bsl::span' is available and usable.
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nTESTING C++20 <BSL_SPAN.H> ADDITION"
-                   "\n===================================\n");
+        if (verbose) puts("\nC++20 'bsl_span.h'"
+                          "\n==================");
+
         int               arr[5] = {0, 1, 2, 3, 4};
         bsl::span<int, 5> ss0(arr);
         bsl::span<int>    sd0(&arr[0], 5);
@@ -3638,11 +3627,10 @@ int main(int argc, char *argv[])
                                decltype(std::dynamic_extent)>));
         ASSERT(bsl::dynamic_extent == std::dynamic_extent);
 #endif
-
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_FUNCTIONAL.H> ADDITIONS
+        // C++17 'bsl_functional.h' ADDITIONS
         //
         // Concerns:
         //: 1 'invoke' and 'not_fn' are available in 'bsl' to users who include
@@ -3657,8 +3645,8 @@ int main(int argc, char *argv[])
         //   CONCERN: 'bsl::not_fn' is usable when available.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_FUNCTIONAL.H> ADDITIONS"
-                            "\n==========================================\n");
+        if (verbose) puts("\nC++17 'bsl_functional.h' ADDITIONS"
+                          "\n==================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         IsEven even;
@@ -3675,7 +3663,7 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_FILESYSTEM.H>
+        // C++17 'bsl_filesystem.h'
         //
         // Concerns:
         //: 1 The types defined in the filesystem library exist in the 'bsl'
@@ -3697,12 +3685,12 @@ int main(int argc, char *argv[])
         //:   correctly.
         //
         // Testing:
-        //   C++17 <bsl_filesystem.h>
+        //   C++17 'bsl_filesystem.h'
         //   CONCERN: 'hashAppend' of 'std::filesystem::path' is usable.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_FILESYSTEM.H>"
-                            "\n================================\n");
+        if (verbose) puts("\nC++17 'bsl_filesystem.h'"
+                          "\n========================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
         // Make sure that the types exist (P-1)
@@ -3777,7 +3765,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_CSTDDEF/TUPLE/CTIME/CSTDDEF.H> ADDITIONS
+        // C++17 'bsl_cstddef/tuple/ctime/cstddef.h' ADDITIONS
         //
         // Concerns:
         //: 1 The type 'bsl::byte' exists.
@@ -3802,10 +3790,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf(
-                "\nTESTING C++17 <BSL_CSTDDEF/TUPLE/CTIME/CSTDDEF.H> ADDITIONS"
-                "\n==========================================================="
-                "\n");
+            puts("\nC++17 'bsl_cstddef/tuple/ctime/cstddef.h' ADDITIONS"
+                 "\n===================================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         bsl::byte *bp = nullptr;
@@ -3835,7 +3821,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_CMATH.H> ADDITIONS
+        // C++17 'bsl_cmath.h' ADDITIONS
         //
         // Concerns:
         //: 1 The C++17 special math functions all exist in namespace 'bsl'.
@@ -3913,8 +3899,8 @@ int main(int argc, char *argv[])
         //   bsl::sph_neumannl();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_CMATH.H> ADDITIONS"
-                            "\n=====================================\n");
+        if (verbose) puts("\nC++17 'bsl_cmath.h' ADDITIONS"
+                          "\n=============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
 
@@ -4097,13 +4083,11 @@ int main(int argc, char *argv[])
                bsl::sph_neumannf(3U, 10.0F));
         ASSERT(std::sph_neumannl(3U, 10.0L) ==
                bsl::sph_neumannl(3U, 10.0L));
-
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
-
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_MEMORY.H> ADDITIONS
+        // C++17 'bsl_memory.h' ADDITIONS
         //
         // Concerns:
         //: 1 The C++17 memory algorithms are available in 'bsl' to users who
@@ -4125,8 +4109,8 @@ int main(int argc, char *argv[])
         //   bsl::uninitialized_value_construct_n()
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_MEMORY.H> ADDITIONS"
-                            "\n======================================\n");
+        if (verbose) puts("\nC++17 'bsl_memory.h' ADDITIONS"
+                          "\n==============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         int vals[5];
@@ -4143,11 +4127,10 @@ int main(int argc, char *argv[])
         bsl::uninitialized_value_construct  (vals, vals+5);
         bsl::uninitialized_value_construct_n(vals,      5);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_MUTEX.H> ADDITIONS
+        // C++17 'bsl_mutex.h' ADDITIONS
         //
         // Concerns:
         //: 1 The C++17 mutex primitives are available in 'bsl' to users who
@@ -4161,25 +4144,21 @@ int main(int argc, char *argv[])
         //   bsl::scoped_lock;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_MUTEX.H> ADDITIONS"
-                            "\n=====================================\n");
+        if (verbose) puts("\nC++17 'bsl_mutex.h' ADDITIONS"
+                          "\n=============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
         bsl::mutex mtx;
         {
             bsl::scoped_lock sl(mtx);
-            if (veryVerbose)
-            {
-                puts("scoped_lock acquired lock");
-            }
+            if (veryVerbose) puts("scoped_lock acquired lock");
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_NEW.H> ADDITIONS
+        // C++17 'bsl_new.h' ADDITIONS
         //
         // Concerns:
         //: 1 The C++17 memory algorithms are available in 'bsl' to users who
@@ -4195,8 +4174,8 @@ int main(int argc, char *argv[])
         //   bsl::launder()
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_NEW.H> ADDITIONS"
-                            "\n===================================\n");
+        if (verbose) puts("\nC++17 'bsl_new.h' ADDITIONS"
+                          "\n===========================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         typedef bsl::align_val_t MyAlign;
@@ -4206,11 +4185,11 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_ALGORITHM.H> ADDITIONS
+        // C++17 'bsl_algorithm.h' ADDITIONS
         //
         // Concerns:
         //: 1 The calls 'bsl::clamp', 'bls:for_each_n', and 'bsl::sample' all
-        //    exist and return expected values for simple cases.
+        //:   exist and return expected values for simple cases.
         //
         // Plan:
         //: 1 Call each of the three algorithms with simple inputs and verify
@@ -4222,8 +4201,8 @@ int main(int argc, char *argv[])
         //   bsl::sample();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_ALGORITHM.H> ADDITIONS"
-                            "\n=========================================\n");
+        if (verbose) puts("\nC++17 'bsl_algorithm.h' ADDITIONS"
+                          "\n=================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         ASSERT(3 == bsl::clamp(3, 1, 10));
@@ -4246,7 +4225,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING C++17 <BSL_NUMERIC.H> ADDITIONS
+        // C++17 'bsl_numeric.h' ADDITIONS
         //
         // Concerns:
         //: 1 The C++17 numeric algorithms are available in 'bsl' to users who
@@ -4268,8 +4247,8 @@ int main(int argc, char *argv[])
         //   bsl::transform_reduce()
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_NUMERIC.H> ADDITIONS"
-                            "\n=======================================\n");
+        if (verbose) puts("\nC++17 'bsl_numeric.h' ADDITIONS"
+                          "\n===============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
@@ -4377,8 +4356,9 @@ int main(int argc, char *argv[])
         //   bsl::in_place
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 <BSL_UTILITY.H> ADDITIONS"
-                            "\n=======================================\n");
+        if (verbose) puts("\nC++17 'bsl_utility.h' ADDITIONS"
+                          "\n===============================");
+
         typedef bsl::pair<int, double> Obj;
 
         Obj X;
@@ -4393,11 +4373,10 @@ int main(int argc, char *argv[])
         // Just check that the identifiers are accessible
         bsl::in_place_t my_inplace = bsl::in_place;
         (void) my_inplace;
-
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING C++17 TYPE ALIASES
+        // C++17 TYPE ALIASES
         //
         // Concerns:
         //: 1 The *_v inline variable definitions added for C++17 type alias
@@ -4411,8 +4390,8 @@ int main(int argc, char *argv[])
         //   C++17 TYPE ALIASES
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING C++17 TYPE ALIASES"
-                            "\n==========================\n");
+        if (verbose) puts("\nC++17 TYPE ALIASES"
+                          "\n==================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         // We don't really need to call these routines, because all they do is
@@ -4425,11 +4404,10 @@ int main(int argc, char *argv[])
         TestCpp17TypeAliases::IsSwappable();
         TestCpp17TypeAliases::IsSwappableWith();
 #endif
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'
+        // 'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'
         //
         // Concerns:
         //: 1 The 'bslh::hashAppend' functions defined for 'std::pair' and
@@ -4447,12 +4425,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf(
-                 "\nTESTING 'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'"
-                 "\n=========================================================="
-                 "\n");
+            puts("\n'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'"
+                 "\n==================================================");
 
-        if (verbose) printf("Testing 'hashAppend' of 'std::pair'\n");
+        if (verbose) puts("Testing 'hashAppend' of 'std::pair'");
 
         typedef std::pair<int, int> StdKeyPair;
         typedef bsl::pair<int, int> BslKeyPair;
@@ -4500,7 +4476,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        if (verbose) printf("Testing 'hashAppend' of 'std::tuple'\n");
+        if (verbose) puts("Testing 'hashAppend' of 'std::tuple'");
 
         using StdKeyTuple = std::tuple<int, int, int>;
         using BslKeyTuple = bsl::tuple<int, int, int>;
@@ -4548,11 +4524,10 @@ int main(int argc, char *argv[])
 #else
         if (verbose) puts("SKIP: 'std::tuple' not available");
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING SEARCHERS
+        // SEARCHERS
         //
         // Concerns:
         //: 1 'default_searcher' and 'boyer_moore_horspool_seacher' are
@@ -4568,8 +4543,8 @@ int main(int argc, char *argv[])
         //   CONCERN: 'bsl::search' function is usable.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING SEARCHERS"
-                            "\n=================\n");
+        if (verbose) puts("\nSEARCHERS"
+                          "\n=========");
 
         typedef const char *                                 ConstItr;
         typedef bsl::default_searcher             <ConstItr> DftSearcher;
@@ -4609,11 +4584,10 @@ int main(int argc, char *argv[])
 
         ASSERT(bmResult == bmhResult);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'forward_list'
+        // 'forward_list'
         //
         // Concerns:
         //: 1 'bsl::forward_list' is available in baseline C++11 builds.
@@ -4632,12 +4606,12 @@ int main(int argc, char *argv[])
         //   CONCERN: 'forward_list' is available in C++11 builds
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'forward_list'"
-                            "\n======================\n");
+        if (verbose) puts("\n'forward_list'"
+                          "\n==============");
+
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
-        if (verbose) printf("\n'bsl::forward_list' is not supported"
-                            "\n====================================\n");
+        if (verbose) puts("\nSKIPPED: 'bsl::forward_list' is not supported");
 #else
         using Obj = bsl::forward_list<bsl::string>;
 
@@ -4646,7 +4620,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta("forward", veryVeryVeryVerbose);
 
-        if (verbose) printf("Testing allocators are hooked up correctly.\n");
+        if (verbose) puts("Testing allocators are hooked up correctly.");
         {
             Obj mX(&ta);    const Obj& X = mX;
 
@@ -4680,7 +4654,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING SUPPORT FOR MOVE-ONLY TYPES
+        // SUPPORT FOR MOVE-ONLY TYPES
         //   This tests a general concern for C++11 compilers that the 'bsl'
         //   implementation of standard components support move-only types.
         //   Motivated by DRQS 126478885.
@@ -4698,8 +4672,8 @@ int main(int argc, char *argv[])
         //   CONCERN: Range functions are not ambiguous with 'std' under ADL
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING SUPPORT FOR MOVE-ONLY TYPES"
-                            "\n===================================\n");
+        if (verbose) puts("\nSUPPORT FOR MOVE-ONLY TYPES"
+                          "\n===========================");
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         typedef bsl::unique_ptr<int> Id;
@@ -4729,7 +4703,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING ITERATOR RANGE FUNCTIONS
+        // ITERATOR RANGE FUNCTIONS
         //
         // Concerns:
         //: 1 Iterator range functions can be used with 'std' containers under
@@ -4744,8 +4718,8 @@ int main(int argc, char *argv[])
         //   CONCERN: Range functions are not ambiguous with 'std' under ADL
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING ITERATOR RANGE FUNCTIONS"
-                            "\n================================\n");
+        if (verbose) puts("\nITERATOR RANGE FUNCTIONS"
+                          "\n========================");
 
         bsl::set<int> mX;
 
@@ -4774,10 +4748,9 @@ int main(int argc, char *argv[])
         //   maps of smart pointers
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "CONCERN: MAPS CONTAINING SMART POINTERS\n"
-                      << "=======================================\n";
-        }
+        if (verbose) puts("\nCONCERN: MAPS CONTAINING SMART POINTERS"
+                          "\n=======================================");
+
 #if __cplusplus >= 201103
         if (veryVerbose) {
             bsl::cout << "Testing bsl::map of bsl::unique_ptr\n";
@@ -4790,12 +4763,12 @@ int main(int argc, char *argv[])
         }
 #else
         if (veryVerbose) {
-            bsl::cout << "Not testing bsl::map of bsl::unique_ptr\n";
+            puts("Not testing bsl::map of bsl::unique_ptr");
         }
 #endif
 
         if (veryVerbose) {
-            bsl::cout << "Testing bsl::map of bsl::shared_ptr\n";
+            puts("Testing bsl::map of bsl::shared_ptr");
         }
         {
             bsl::map<char, bsl::shared_ptr<char> > m;
@@ -4819,10 +4792,8 @@ int main(int argc, char *argv[])
         //   string vector resize
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "CONCERN: RESIZE OF EMPTY VECTOR OF STRINGS\n"
-                      << "==========================================\n";
-        }
+        if (verbose) puts("\nCONCERN: RESIZE OF EMPTY VECTOR OF STRINGS"
+                          "\n==========================================");
         {
             bsl::vector<bsl::string>().resize(10);
         }
@@ -4845,13 +4816,11 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "CONCERN: REGRESSION TEST FOR C99 FEATURES\n"
-                      << "=========================================\n";
-        }
+        if (verbose) puts("\nCONCERN: REGRESSION TEST FOR C99 FEATURES"
+                          "\n=========================================");
         {
             if (verbose) {
-                bsl::cout << "Testing C99 as aliases.\n";
+                puts("Testing C99 as aliases.");
             }
 #if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
             typedef int (*FuncPtrType)(double);
@@ -4862,12 +4831,10 @@ int main(int argc, char *argv[])
         }
       } break;
       case 1: {
-        if (verbose) {
-            bsl::cout << "TESTING REFERENCES AS 'mapped_type'.\n"
-                      << "====================================\n";
-        }
+        if (verbose) puts("\nTESTING REFERENCES AS 'mapped_type'."
+                          "\n====================================");
 
-        if (verbose) { bsl::cout << "Testing 'map' container.\n"; }
+        if (verbose) puts("\tin 'map'");
         {
             typedef bsl::map<int, bsltf::SimpleTestType&>  MapType1;
             typedef bsl::map<int, bsltf::AllocTestType&>   MapType2;
@@ -4878,7 +4845,7 @@ int main(int argc, char *argv[])
                           MapType1, MapType2, MapType3);
         }
 
-        if (verbose) { bsl::cout << "Testing 'multimap' container.\n"; }
+        if (verbose) puts("\tin 'multimap'");
         {
             typedef bsl::multimap<int, bsltf::SimpleTestType&>  MapType1;
             typedef bsl::multimap<int, bsltf::AllocTestType&>   MapType2;
@@ -4889,7 +4856,7 @@ int main(int argc, char *argv[])
                           MapType1, MapType2, MapType3);
         }
 
-        if (verbose) { bsl::cout << "Testing 'unordered_map' container.\n"; }
+        if (verbose) puts("\tin 'unordered_map'");
         {
             typedef bsl::unordered_map<int, bsltf::SimpleTestType&>  MapType1;
             typedef bsl::unordered_map<int, bsltf::AllocTestType&>   MapType2;
@@ -4900,9 +4867,7 @@ int main(int argc, char *argv[])
                           MapType1, MapType2, MapType3);
         }
 
-        if (verbose) {
-            bsl::cout << "Testing 'unordered_multimap' container.\n";
-        }
+        if (verbose) puts("\tin 'unordered_multimap'");
         {
             typedef bsl::unordered_multimap<int, bsltf::SimpleTestType&>
                                                                       MapType1;

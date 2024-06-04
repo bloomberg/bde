@@ -31,9 +31,9 @@ namespace bsl {
     }  // close namespace this_thread
     using std::thread;
 
-    #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD
     using std::jthread;
-    #endif
+#endif
 }  // close package namespace
 
 #endif

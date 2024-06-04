@@ -226,6 +226,7 @@
 // [21] BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
 // [23] BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
 // [22] BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
+// [24] BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -236,7 +237,7 @@
 // [ 7] int std::isblank(int);
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
-// [24] USAGE EXAMPLE
+// [25] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -1453,6 +1454,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD));
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP: ");
 #ifdef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
     printf("%s\n",
@@ -1688,7 +1696,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1708,6 +1716,45 @@ int main(int argc, char *argv[])
 
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD'
+        //
+        // Concerns:
+        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is defined, the
+        //:   'std::jthread' class is available.
+        //:
+        //: 2 The corresponding standard feature test macro is defined and has
+        //:   a value in the expected range.
+        //
+        // Plan:
+        //: 1 Make simple use of the 'std::jthread' class name and the member
+        //:   type 'id' to verify its reasonable availability when
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is defined.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD'\n"
+                   "================================================\n");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER)
+
+        ASSERTV("__cpp_lib_jthread >= 201911L check", __cpp_lib_jthread,
+                __cpp_lib_jthread >= 201911L);
+
+        using std_jthread_test = std::jthread;
+
+        ASSERT((std::is_same_v<std::jthread::id, std::thread::id>));
+#else
+        if (veryVerbose) {
+            puts("SKIPPED: 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is not "
+                 "defined.");
+        }
+#endif
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -1731,8 +1778,7 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            printf(
+        if (verbose) printf(
          "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER'\n"
          "================================================================\n");
 
@@ -1754,7 +1800,6 @@ int main(int argc, char *argv[])
                    "undefined.\n");
         }
 #endif
-        }
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -1777,11 +1822,9 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            printf(
+        if (verbose) printf(
      "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'\n"
      "====================================================================\n");
-        }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE)
 
