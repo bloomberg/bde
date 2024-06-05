@@ -210,7 +210,7 @@ void CategoryManager::privateApplyRulesToAllCategories(
     Int64       batch;
     bool        done         = false;
 
-    bsl::vector<Category *> cachedCategories;
+    bsl::vector<Category *> cachedCategories(d_allocator_p);
     while (!done) {
         cachedCategories.clear();
         {
