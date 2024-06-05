@@ -1174,6 +1174,32 @@ int main(int argc, char *argv[])
             }
             mX.removeAllRules();
         }
+
+        if (verbose) {
+            cout << "\tTest updating a large number of categories with a rule."
+                 << endl;
+        }
+        {
+
+            Obj mX(&ta);
+
+            // Adding a rule with  4K+ categories; DRQS 175529764
+            for (int j = 0; j < 4096*2; ++j) {
+                bsl::stringstream categoryPattern;
+                categoryPattern << "Category" << j;
+
+                bsl::string categoryName = categoryPattern.str();
+
+                const Entry *C = mX.addCategory(categoryName.c_str(),
+                                                255, 255, 255, 255);
+                ASSERT(C == mX.lookupCategory(categoryName.c_str()));
+            }
+
+            ball::Rule rule("C", 1, 2, 3, 4);
+            ASSERT(1 == mX.addRule(rule));
+
+            mX.removeAllRules();
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------

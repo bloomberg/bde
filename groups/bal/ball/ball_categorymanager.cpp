@@ -221,6 +221,7 @@ void CategoryManager::privateApplyRulesToAllCategories(
             done = (remaining == batch);
             cachedCategories.assign(d_categories.begin() + offset,
                                     d_categories.begin() + offset + batch);
+            offset += batch;
         }
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
