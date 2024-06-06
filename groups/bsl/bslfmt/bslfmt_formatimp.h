@@ -1,12 +1,12 @@
-// bslfmt_formatutil.h                                                    -*-C++-*-
+// bslfmt_formatimp.h                                                    -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATUTIL
-#define INCLUDED_BSLFMT_FORMATUTIL
+#ifndef INCLUDED_BSLFMT_FORMATIMP
+#define INCLUDED_BSLFMT_FORMATIMP
 
 
 #include <bslscm_version.h>
 
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
 #include <bslalg_numericformatterutil.h>
 
 #include <bslmf_conditional.h>
@@ -15,34 +15,25 @@
 #include <bslmf_isintegral.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
-#endif
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_libraryfeatures.h>
-//#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <bsls_unspecifiedbool.h>
 #include <bsls_util.h>
-//#endif
 
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
-//#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <bslstl_array.h>
 #include <bslstl_monostate.h>
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
-//#endif
 
 #include <iterator>
 #include <string>
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-#include <format>
-#include <locale>
-#endif
 #include <stdexcept>
-//#endif
+#include <string_view>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03 Generated on Wed Oct 18
@@ -52,356 +43,57 @@
 #undef COMPILING_BSLSTL_FORMAT_H
 #else
 
-namespace bsl {
+namespace BloombergLP {
+namespace bslfmt {
 template <class t_FORMATTER, class = void>
-struct bslstl_format_IsEnabled : true_type {
+struct FormatImp_formatterIsStdAliasingEnabled : bsl::true_type {
 };
 
 template <class t_FORMATTER>
-struct bslstl_format_IsEnabled<
+struct FormatImp_formatterIsStdAliasingEnabled<
     t_FORMATTER,
-    typename t_FORMATTER::bslstl_format_IsPrimaryFormatterTemplate>
-: false_type {
+    typename t_FORMATTER::PreventStdAliasing> : bsl::false_type {
 };
+}  // close namespace bslfmt
+}  // close enterprise namespace
 
+namespace bsl {
 template <class t_ARG, class t_CHAR = char>
 struct formatter {
   public:
-    typedef void bslstl_format_IsPrimaryFormatterTemplate;
+    typedef void PreventStdAliasing;
 
   private:
     // NOT IMPLEMENTED
     formatter(const formatter&) BSLS_KEYWORD_DELETED;
     formatter& operator=(const formatter&) BSLS_KEYWORD_DELETED;
 };
-}  // close namespace bsl
+}  // close namespace bslfmt
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
-namespace bsl {
-using std::basic_format_arg;
-using std::basic_format_args;
-using std::basic_format_context;
-using std::basic_format_parse_context;
-using std::basic_format_string;
-using std::format_args;
-using std::format_error;
-using std::format_parse_context;
-using std::format_string;
-using std::format_to;
-using std::format_to_n;
-using std::format_to_n_result;
-using std::formatted_size;
-using std::make_format_args;
-using std::make_wformat_args;
-using std::vformat_to;
-using std::visit_format_arg;
-using std::wformat_args;
-using std::wformat_parse_context;
-using std::wformat_string;
-
-template <class... t_ARGS>
-string format(format_string<t_ARGS...>, t_ARGS&&...);
-
-template <class... t_ARGS>
-wstring format(wformat_string<t_ARGS...>, t_ARGS&&...);
-
-template <class... t_ARGS>
-string format(const std::locale&, format_string<t_ARGS...>, t_ARGS&&...);
-
-template <class... t_ARGS>
-wstring format(const std::locale&, wformat_string<t_ARGS...>, t_ARGS&&...);
-
-template <class... t_ARGS>
-string format(allocator<char>, format_string<t_ARGS...>, t_ARGS&&...);
-
-template <class... t_ARGS>
-wstring format(allocator<wchar_t>, wformat_string<t_ARGS...>, t_ARGS&&...);
-
-template <class... t_ARGS>
-string format(allocator<char>,
-              const std::locale&,
-              format_string<t_ARGS...>,
-              t_ARGS&&...);
-
-template <class... t_ARGS>
-wstring format(allocator<wchar_t>,
-               const std::locale&,
-               wformat_string<t_ARGS...>,
-               t_ARGS&&...);
-
-string vformat(std::string_view fmt, format_args);
-
-wstring vformat(std::wstring_view fmt, wformat_args);
-
-string vformat(const std::locale&, std::string_view fmt, format_args);
-
-wstring vformat(const std::locale&, std::wstring_view fmt, wformat_args);
-
-string vformat(allocator<char>, std::string_view fmt, format_args);
-
-wstring vformat(allocator<wchar_t>, std::wstring_view fmt, wformat_args);
-
-string vformat(allocator<char>,
-               const std::locale&,
-               std::string_view   fmt,
-               format_args);
-
-wstring vformat(allocator<wchar_t>,
-                const std::locale&,
-                std::wstring_view  fmt,
-                wformat_args);
-
-template <class... t_ARGS>
-void format_to(string *, format_string<t_ARGS...>, t_ARGS&&...);
-
-template <class... t_ARGS>
-void format_to(wstring *, wformat_string<t_ARGS...>, t_ARGS&&...);
-
-template <class... t_ARGS>
-void format_to(string                   *,
-               const std::locale&,
-               format_string<t_ARGS...>,
-               t_ARGS&&...);
-
-template <class... t_ARGS>
-void format_to(wstring                   *,
-               const std::locale&,
-               wformat_string<t_ARGS...>,
-               t_ARGS&&...);
-
-void vformat_to(string *, std::string_view fmt, format_args);
-
-void vformat_to(wstring *, std::wstring_view fmt, wformat_args);
-
-void vformat_to(string             *,
-                const std::locale&,
-                std::string_view    fmt,
-                format_args);
-
-void vformat_to(wstring            *,
-                const std::locale&,
-                std::wstring_view   fmt,
-                wformat_args);
-
-// INLINE DEFINITIONS
-template <class... t_ARGS>
-string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args)
-{
-    return bsl::vformat(fmtstr.get(), make_format_args(args...));
-}
-
-template <class... t_ARGS>
-wstring format(wformat_string<t_ARGS...> fmtstr, t_ARGS&&... args)
-{
-    return bsl::vformat(fmtstr.get(), make_wformat_args(args...));
-}
-
-template <class... t_ARGS>
-string format(const std::locale&       loc,
-              format_string<t_ARGS...> fmtstr,
-              t_ARGS&&...              args)
-{
-    return bsl::vformat(loc, fmtstr.get(), make_format_args(args...));
-}
-
-template <class... t_ARGS>
-wstring format(const std::locale&        loc,
-               wformat_string<t_ARGS...> fmtstr,
-               t_ARGS&&...               args)
-{
-    return bsl::vformat(loc, fmtstr.get(), make_wformat_args(args...));
-}
-
-template <class... t_ARGS>
-string format(allocator<char>          alloc,
-              format_string<t_ARGS...> fmtstr,
-              t_ARGS&&...              args)
-{
-    return bsl::vformat(alloc, fmtstr.get(), make_format_args(args...));
-}
-
-template <class... t_ARGS>
-wstring format(allocator<wchar_t>        alloc,
-               wformat_string<t_ARGS...> fmtstr,
-               t_ARGS&&...               args)
-{
-    return bsl::vformat(alloc, fmtstr.get(), make_wformat_args(args...));
-}
-
-template <class... t_ARGS>
-string format(allocator<char>          alloc,
-              const std::locale&       loc,
-              format_string<t_ARGS...> fmtstr,
-              t_ARGS&&...              args)
-{
-    return bsl::vformat(alloc, loc, fmtstr.get(), make_format_args(args...));
-}
-
-template <class... t_ARGS>
-wstring format(allocator<char>           alloc,
-               const std::locale&        loc,
-               wformat_string<t_ARGS...> fmtstr,
-               t_ARGS&&...               args)
-{
-    return bsl::vformat(alloc, loc, fmtstr.get(), make_wformat_args(args...));
-}
-
-inline
-string vformat(std::string_view fmt, format_args args)
-{
-    string result;
-    bsl::vformat_to(&result, fmt, args);
-    return result;
-}
-
-inline
-wstring vformat(std::wstring_view fmt, wformat_args args)
-{
-    wstring result;
-    bsl::vformat_to(&result, fmt, args);
-    return result;
-}
-
-inline
-string vformat(const std::locale& loc, std::string_view fmt, format_args args)
-{
-    string result;
-    bsl::vformat_to(&result, loc, fmt, args);
-    return result;
-}
-
-inline
-wstring vformat(const std::locale& loc,
-                std::wstring_view  fmt,
-                wformat_args       args)
-{
-    wstring result;
-    bsl::vformat_to(&result, loc, fmt, args);
-    return result;
-}
-
-inline
-string vformat(allocator<char> alloc, std::string_view fmt, format_args args)
-{
-    string result(alloc);
-    bsl::vformat_to(&result, fmt, args);
-    return result;
-}
-
-inline
-wstring vformat(allocator<wchar_t> alloc,
-                std::wstring_view  fmt,
-                wformat_args       args)
-{
-    wstring result(alloc);
-    bsl::vformat_to(&result, fmt, args);
-    return result;
-}
-
-inline
-string vformat(allocator<char>    alloc,
-               const std::locale& loc,
-               std::string_view   fmt,
-               format_args        args)
-{
-    string result(alloc);
-    bsl::vformat_to(&result, loc, fmt, args);
-    return result;
-}
-
-inline
-wstring vformat(allocator<wchar_t> alloc,
-                const std::locale& loc,
-                std::wstring_view  fmt,
-                wformat_args       args)
-{
-    wstring result(alloc);
-    bsl::vformat_to(&result, loc, fmt, args);
-    return result;
-}
-
-template <class... t_ARGS>
-void format_to(string *out, format_string<t_ARGS...> fmtstr, t_ARGS&&... args)
-{
-    bsl::vformat_to(out, fmtstr.get(), make_format_args(args...));
-}
-
-template <class... t_ARGS>
-void format_to(wstring *out, wformat_string<t_ARGS...> fmtstr, t_ARGS&&...args)
-{
-    bsl::vformat_to(out, fmtstr.get(), make_wformat_args(args...));
-}
-
-template <class... t_ARGS>
-void format_to(string                   *out,
-               const std::locale&        loc,
-               format_string<t_ARGS...>  fmtstr,
-               t_ARGS&&...               args)
-{
-    bsl::vformat_to(out, loc, fmtstr.get(), make_format_args(args...));
-}
-
-template <class... t_ARGS>
-void format_to(wstring                   *out,
-               const std::locale&         loc,
-               wformat_string<t_ARGS...>  fmtstr,
-               t_ARGS&&...                args)
-{
-    bsl::vformat_to(out, loc, fmtstr.get(), make_wformat_args(args...));
-}
-
-inline
-void vformat_to(string *out, std::string_view fmt, format_args args)
-{
-    out->clear();
-    std::vformat_to(std::back_inserter(*out), fmt, args);
-}
-
-inline
-void vformat_to(wstring *out, std::wstring_view fmt, wformat_args args)
-{
-    out->clear();
-    std::vformat_to(std::back_inserter(*out), fmt, args);
-}
-
-inline
-void vformat_to(string             *out,
-                const std::locale&  loc,
-                std::string_view    fmt,
-                format_args         args)
-{
-    out->clear();
-    std::vformat_to(std::back_inserter(*out), loc, fmt, args);
-}
-
-inline
-void vformat_to(wstring            *out,
-                const std::locale&  loc,
-                std::wstring_view   fmt,
-                wformat_args        args)
-{
-    out->clear();
-    std::vformat_to(std::back_inserter(*out), loc, fmt, args);
-}
-
-
-
+namespace BloombergLP {
+namespace bslfmt {
 template <class t_TYPE>
-constexpr bool bslstl_format_isStdBasicString = false;
+constexpr bool bslfmt_format_IsStdBasicString = false;
 
 template <class charT, class traits, class Allocator>
-constexpr bool bslstl_format_isStdBasicString<
+constexpr bool bslfmt_format_IsStdBasicString<
     std::basic_string<charT, traits, Allocator> > = true;
 
 template <class t_TYPE>
-constexpr bool bslstl_format_isStdBasicStringView = false;
+constexpr bool bslfmt_format_IsStdBasicStringView = false;
 
 template <class charT, class traits>
-constexpr bool bslstl_format_isStdBasicStringView<
-    std::basic_string_view<charT, traits> > = true;
-}  // close namespace bsl
+constexpr bool bslfmt_format_IsStdBasicStringView<
+    ::std::basic_string_view<charT, traits> > = true;
+}  // close namespace bslfmt
+}  // close enterprise namespace
+
 namespace std {
+template <class t_ARG, class t_CHAR>
+struct formatter;
+
 template <class t_ARG, class t_CHAR>
 requires(
     !std::is_arithmetic_v<t_ARG> && !std::is_same_v<t_ARG, std::nullptr_t> &&
@@ -409,16 +101,41 @@ requires(
     !std::is_same_v<t_ARG, t_CHAR *> &&
     !std::is_same_v<t_ARG, const t_CHAR *> &&
     !std::is_same_v<std::remove_extent_t<t_ARG>, const t_CHAR> &&
-    !bsl::bslstl_format_isStdBasicString<t_ARG> &&
-    !bsl::bslstl_format_isStdBasicStringView<t_ARG> &&
-    bsl::bslstl_format_IsEnabled<
-        bsl::formatter<t_ARG, t_CHAR> >::value) struct formatter<t_ARG, t_CHAR>
-: bsl::formatter<t_ARG, t_CHAR> {
-};
+    !BloombergLP::bslfmt::bslfmt_format_IsStdBasicString<t_ARG> &&
+    !BloombergLP::bslfmt::bslfmt_format_IsStdBasicStringView<t_ARG> &&
+    BloombergLP::bslfmt::FormatImp_formatterIsStdAliasingEnabled<
+        bsl::formatter<t_ARG, t_CHAR> >::value
+)
+struct formatter<t_ARG, t_CHAR>
+: bsl::formatter<t_ARG, t_CHAR> {};
 }  // close namespace std
-#else  // defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+#endif
 
+//namespace bsl {
+//template <class t_FORMATTER, class = void>
+//struct bslstl_format_IsEnabled : true_type {
+//};
+//
+//template <class t_FORMATTER>
+//struct bslstl_format_IsEnabled<
+//    t_FORMATTER,
+//    typename t_FORMATTER::bslstl_format_IsPrimaryFormatterTemplate>
+//: false_type {
+//};
+//
+//template <class t_ARG, class t_CHAR = char>
+//struct formatter {
+//  public:
+//    typedef void bslstl_format_IsPrimaryFormatterTemplate;
+//
+//  private:
+//    // NOT IMPLEMENTED
+//    formatter(const formatter&) BSLS_KEYWORD_DELETED;
+//    formatter& operator=(const formatter&) BSLS_KEYWORD_DELETED;
+//};
+//}  // close namespace bsl
+
+namespace BloombergLP {
 namespace bslfmt {
 template <class t_ITERATOR>
 class bslstl_format_TruncatingIterator {
@@ -553,6 +270,9 @@ class bslstl_format_OutputIteratorRef {
     }
 };
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+using std::format_error;
+#else
 class format_error : public std::runtime_error {
   public:
     // CREATORS
@@ -575,6 +295,7 @@ class format_error : public std::runtime_error {
     {
     }
 };
+#endif
 
 template <class t_OUT, class t_CHAR>
 class basic_format_context;
@@ -583,9 +304,10 @@ template <class t_CHAR>
 class basic_format_parse_context {
   public:
     // TYPES
-    typedef t_CHAR                                             char_type;
-    typedef typename bsl::basic_string_view<t_CHAR>::const_iterator const_iterator;
-    typedef const_iterator                                     iterator;
+    typedef t_CHAR char_type;
+    typedef
+        typename bsl::basic_string_view<t_CHAR>::const_iterator const_iterator;
+    typedef const_iterator                                      iterator;
 
   private:
     // TYPES
@@ -601,7 +323,7 @@ class basic_format_parse_context {
   public:
     // CREATORS
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
-                           bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT
+                      bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT
     : d_begin(fmt.begin())
     , d_end(fmt.end())
     , d_indexing(e_UNKNOWN)
@@ -612,8 +334,8 @@ class basic_format_parse_context {
 
     // TODO: this constructor should be private
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
-                       bsl::basic_string_view<t_CHAR> fmt,
-                       size_t                    numArgs) BSLS_KEYWORD_NOEXCEPT
+                  bsl::basic_string_view<t_CHAR> fmt,
+                  size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT
     : d_begin(fmt.begin())
     , d_end(fmt.end())
     , d_indexing(e_UNKNOWN)
@@ -731,19 +453,19 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     // DATA
     bsl::variant<bsl::monostate,
-            bool,
-            char_type,
-            int,
-            unsigned,
-            long long,
-            unsigned long long,
-            float,
-            double,
-            long double,
-            const char_type *,
-            bsl::basic_string_view<char_type>,
-            const void *,
-            handle>
+                 bool,
+                 char_type,
+                 int,
+                 unsigned,
+                 long long,
+                 unsigned long long,
+                 float,
+                 double,
+                 long double,
+                 const char_type *,
+                 bsl::basic_string_view<char_type>,
+                 const void *,
+                 handle>
         d_value;
 
   public:
@@ -761,20 +483,20 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     template <class t_TYPE>
     explicit basic_format_arg(
-                     t_TYPE value,
-                     typename bsl::enable_if<bsl::is_same<t_TYPE, char>::value &&
-                                            bsl::is_same<char_type, wchar_t>::value,
-                                        int>::type = 0) BSLS_KEYWORD_NOEXCEPT
+           t_TYPE value,
+           typename bsl::enable_if<bsl::is_same<t_TYPE, char>::value &&
+                                       bsl::is_same<char_type, wchar_t>::value,
+                                   int>::type = 0) BSLS_KEYWORD_NOEXCEPT
     : d_value(static_cast<wchar_t>(value))
     {
     }
 
     template <class t_TYPE>
     explicit basic_format_arg(
-        t_TYPE value,
-        typename bsl::enable_if<bsl::is_integral<t_TYPE>::value && sizeof(t_TYPE) <=
-                                                             sizeof(long long),
-                           int>::type = 0) BSLS_KEYWORD_NOEXCEPT
+               t_TYPE value,
+               typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+                                           sizeof(t_TYPE) <= sizeof(long long),
+                                       int>::type = 0) BSLS_KEYWORD_NOEXCEPT
     {
         if (static_cast<t_TYPE>(-1) < static_cast<t_TYPE>(0)) {
             // 't_TYPE' is signed
@@ -813,21 +535,22 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     template <class t_TRAITS>
     explicit basic_format_arg(
-            bsl::basic_string_view<char_type, t_TRAITS> value) BSLS_KEYWORD_NOEXCEPT
+       bsl::basic_string_view<char_type, t_TRAITS> value) BSLS_KEYWORD_NOEXCEPT
+    : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
+    {
+    }
+
+    template <class t_TRAITS, class t_ALLOC>
+    explicit basic_format_arg(bsl::basic_string<char_type, t_TRAITS, t_ALLOC>&
+                                  value) BSLS_KEYWORD_NOEXCEPT
     : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
     {
     }
 
     template <class t_TRAITS, class t_ALLOC>
     explicit basic_format_arg(
-       bsl::basic_string<char_type, t_TRAITS, t_ALLOC>& value) BSLS_KEYWORD_NOEXCEPT
-    : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
-    {
-    }
-
-    template <class t_TRAITS, class t_ALLOC>
-    explicit basic_format_arg(const bsl::basic_string<char_type, t_TRAITS, t_ALLOC>&
-                                  value) BSLS_KEYWORD_NOEXCEPT
+                  const bsl::basic_string<char_type, t_TRAITS, t_ALLOC>& value)
+        BSLS_KEYWORD_NOEXCEPT
     : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
     {
     }
@@ -876,8 +599,8 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     template <class t_TYPE>
     explicit basic_format_arg(
-                   const t_TYPE& value,
-                   typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
+              const t_TYPE& value,
+              typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
                                           (sizeof(t_TYPE) > sizeof(long long)),
                                       int>::type = 0) BSLS_KEYWORD_NOEXCEPT
     : d_value(handle(value))
@@ -902,7 +625,8 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     // ACCESSORS
     operator BoolType() const BSLS_KEYWORD_NOEXCEPT
     {
-        return BoolType::makeValue(!holds_alternative<bsl::monostate>(d_value));
+        return BoolType::makeValue(
+                                  !holds_alternative<bsl::monostate>(d_value));
     }
 };
 
@@ -920,7 +644,7 @@ class bslstl_format_FormatArgStore {
 
     // PRIVATE CREATORS
     explicit bslstl_format_FormatArgStore(
-             const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
+        const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
         BSLS_KEYWORD_NOEXCEPT : d_args(args)
     {
     }
@@ -990,7 +714,7 @@ class bslstl_format_BasicFormatArgs {
     template <class t_OUT, class t_CHAR>
     friend t_OUT bslstl_format_VFormatImpl(
     t_OUT                                                               out,
-    bsl::basic_string_view<t_CHAR>                                           fmtstr,
+    bsl::basic_string_view<t_CHAR>                                      fmtstr,
     bslstl_format_BasicFormatArgs<basic_format_context<t_OUT, t_CHAR> > args);
 };
 
@@ -1003,9 +727,8 @@ decltype(auto) visit_format_arg(t_VISITOR&& v, basic_format_arg<t_CONTEXT> a)
 }
 #else
 template <class t_VISITOR, class t_CONTEXT>
-typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type visit_format_arg(
-                                                 t_VISITOR&                  v,
-                                                 basic_format_arg<t_CONTEXT> a)
+typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
+visit_format_arg(t_VISITOR& v, basic_format_arg<t_CONTEXT> a)
 {
     return bsl::visit(v, a.d_value);
 }
@@ -1074,7 +797,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format_impl(
 
 template <class t_OUT>
 struct format_to_n_result {
-    t_OUT                                            out;
+    t_OUT                                                 out;
     typename bsl::iterator_traits<t_OUT>::difference_type size;
 };
 
@@ -1169,7 +892,7 @@ struct bslstl_format_FormatVisitor {
 template <class t_OUT, class t_CHAR>
 t_OUT bslstl_format_VFormatImpl(
     t_OUT                                                               out,
-    bsl::basic_string_view<t_CHAR>                                           fmtstr,
+    bsl::basic_string_view<t_CHAR>                                      fmtstr,
     bslstl_format_BasicFormatArgs<basic_format_context<t_OUT, t_CHAR> > args)
     // The actual meat of the implementation.  This overload is used when the
     // iterator type 't_OUT' matches the iterator type that 'args' is able to
@@ -1177,10 +900,10 @@ t_OUT bslstl_format_VFormatImpl(
 {
     typedef basic_format_context<t_OUT, t_CHAR> FC;
 
-    basic_format_parse_context<t_CHAR>           pc(fmtstr, args.size());
-    FC                                           fc(out, args);
+    basic_format_parse_context<t_CHAR>                pc(fmtstr, args.size());
+    FC                                                fc(out, args);
     typename bsl::basic_string_view<t_CHAR>::iterator it = pc.begin();
-    bslstl_format_FormatVisitor<t_OUT, t_CHAR>   visitor(pc, fc);
+    bslstl_format_FormatVisitor<t_OUT, t_CHAR>        visitor(pc, fc);
 
     while (it != pc.end()) {
         if (*it == '{') {
@@ -1251,7 +974,7 @@ t_OUT bslstl_format_VFormatImpl(
 template <class t_OUT, class t_CHAR, class t_CONTEXT>
 t_OUT bslstl_format_VFormatImpl(
                                t_OUT                                    out,
-                               bsl::basic_string_view<t_CHAR>                fmtstr,
+                               bsl::basic_string_view<t_CHAR>           fmtstr,
                                bslstl_format_BasicFormatArgs<t_CONTEXT> args)
 {
     bslstl_format_OutputIteratorImpl<char, t_OUT> wrappedOut(out);
@@ -1281,7 +1004,7 @@ t_OUT format_to(t_OUT out, bsl::string_view fmtstr, const t_ARGS&... args)
 }
 
 template <class... t_ARGS>
-void format_to(bsl::string *out, bsl::string_view fmtstr, const t_ARGS&... args)
+void format_to(bsl::string *out, bsl::string_view fmtstr, const t_ARGS&...args)
 {
     format_to(std::back_inserter(*out), fmtstr, args...);
 }
@@ -1300,7 +1023,9 @@ bsl::string format(bsl::string_view fmtstr, const t_ARGS&... args)
 }
 
 template <class... t_ARGS>
-bsl::string format(bsl::allocator<char> alloc, bsl::string_view fmtstr, const t_ARGS&... args)
+bsl::string format(bsl::allocator<char> alloc,
+                   bsl::string_view     fmtstr,
+                   const t_ARGS&...     args)
 {
     bsl::string result(alloc);
     format_to(&result, fmtstr, args...);
@@ -1316,7 +1041,8 @@ bsl::string vformat(bsl::string_view fmt, format_args args)
 }
 
 inline
-bsl::string vformat(bsl::allocator<char> alloc, bsl::string_view fmt, bslfmt::format_args args)
+bsl::string
+vformat(bsl::allocator<char> alloc, bsl::string_view fmt, format_args args)
 {
     bsl::string result(alloc);
     vformat_to(&result, fmt, args);
@@ -1333,10 +1059,10 @@ std::size_t formatted_size(bsl::string_view fmtstr, const t_ARGS&... args)
 
 template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT> format_to_n(
-                       t_OUT                                            out,
-                       typename bsl::iterator_traits<t_OUT>::difference_type n,
-                       bsl::string_view                                      fmtstr,
-                       const t_ARGS&...                                 args)
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  bsl::string_view                                      fmtstr,
+                  const t_ARGS&...                                      args)
 {
     if (n < 0)
         n = 0;
@@ -1349,6 +1075,14 @@ format_to_n_result<t_OUT> format_to_n(
 }
 #endif
 }  // close namespace bslfmt
+} // close enterprise namespace
+
+namespace bsl {
+// TEMPORARY HACKS TO MAKE THE FORMATTER BIT WORK
+    using BloombergLP::bslfmt::basic_format_context;
+    using BloombergLP::bslfmt::format_parse_context;
+    using BloombergLP::bslfmt::format_error;
+}
 
 namespace bsl {
 // FORMATTER SPECIALIZATIONS
@@ -1357,7 +1091,7 @@ namespace bsl {
 //struct formatter<int, char> : std::formatter<int, char> {
 //};
 
-//#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
 
 //template <>
 //struct formatter<int, char> {
@@ -1435,16 +1169,15 @@ template <> struct formatter<int, char> {
                                                       pc)
     {
         if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bslfmt::format_error("not implemented"));
+            BSLS_THROW(format_error("not implemented"));
         }
         return pc.begin();
     }
 
-    template <class t_OUT, template<class, class> class t_FORMAT_CONTEXT>
+    template <class t_OUT, template <class, class> class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT<t_OUT, char>::iterator format(
-                                   int                                x,
-                                       t_FORMAT_CONTEXT<t_OUT, char>& fc)
-                                   const
+                                       int                            x,
+                                       t_FORMAT_CONTEXT<t_OUT, char>& fc) const
     {
         typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
         char  buf[NFUtil::ToCharsMaxLength<int>::k_VALUE];
@@ -1475,19 +1208,20 @@ template <> struct formatter<int, char> {
 
 template <>
 struct formatter<string_view, char> {
-    BSLS_KEYWORD_CONSTEXPR_CPP20 bslfmt::format_parse_context::iterator parse(
-                                                      bslfmt::format_parse_context& pc)
-    {
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 t_PARSE_CONTEXT::iterator parse(
+                                                           t_PARSE_CONTEXT& pc) {
         if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bslfmt::format_error("not implemented"));
+            BSLS_THROW(format_error("not implemented"));
         }
         return pc.begin();
     }
 
     template <class t_OUT>
-    typename bslfmt::basic_format_context<t_OUT, char>::iterator format(
+    typename BloombergLP::bslfmt::basic_format_context<t_OUT, char>::iterator
+    format(
                                    string_view                        sv,
-                                   bslfmt::basic_format_context<t_OUT, char>& fc) const
+           BloombergLP::bslfmt::basic_format_context<t_OUT, char>& fc) const
     {
         return std::copy(sv.begin(), sv.end(), fc.out());
     }
@@ -1496,7 +1230,7 @@ struct formatter<string_view, char> {
                                                       std::format_parse_context& pc)
     {
         if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(std::format_error("not implemented"));
+            BSLS_THROW(format_error("not implemented"));
         }
         return pc.begin();
     }
@@ -1510,36 +1244,19 @@ struct formatter<string_view, char> {
     }
 };
 
-//#endif  // defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-
 }
 
 
 
-
-
-namespace bsl {
+namespace std {
 // FORMATTER SPECIALIZATIONS
 template <>
-struct formatter<string, char> {
-    BSLS_KEYWORD_CONSTEXPR_CPP20 bslfmt::format_parse_context::iterator parse(
-                                                      bslfmt::format_parse_context& pc)
-    {
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bslfmt::format_error("not implemented"));
-        }
-        return pc.begin();
-    }
-
-    template <class t_OUT>
-    typename bslfmt::basic_format_context<t_OUT, char>::iterator format(
-                                   const string&                      str,
-                                   bslfmt::basic_format_context<t_OUT, char>& fc) const
-    {
-        return std::copy(str.begin(), str.end(), fc.out());
-    }
+struct formatter<bsl::string, char> : formatter<bsl::string_view, char> {
 };
 }  // close namespace bsl
+
+
+
 
 #endif  // End C++11 code
 

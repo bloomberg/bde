@@ -1,6 +1,5 @@
-// bslstl_format.t.cpp                                                -*-C++-*-
-//#include <bslstl_format.h>
-#include <bslfmt_formatutil.h>
+// bslstl_formatimp.t.cpp                                             -*-C++-*-
+#include <bslfmt_formatimp.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -84,6 +83,7 @@ void check(const std::string&, const char *) {
     ASSERT(false);
 }
 
+//
 //template <class... t_ARGS>
 //bool doTestWithOracle(string_view              result,
 //                      format_string<t_ARGS...> fmtstr,
@@ -106,7 +106,7 @@ void check(const std::string&, const char *) {
 
 template <class... t_ARGS>
 bool doTestWithOracle(string_view              result,
-                      format_string<t_ARGS...> fmtstr,
+                      std::format_string<t_ARGS...> fmtstr,
                       t_ARGS&&...              args)
 {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
@@ -249,20 +249,19 @@ int main(int argc, char **argv)
         const int         x   = 1;
         const int         y   = 2;
         const int         sum = x + y;
-        check(bsl::format("{}: {} + {} = {}", intro, x, y, sum),
+        check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
         check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
         std::formatter<bsl::string, char> dummy;
-
         doTestWithOracle("Here is a simple equation: 1 + 2 = 3",
                     "{}: {} + {} = {}",
                     intro,
                     x,
                     y,
                     sum);
-        //check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
-        //      "Here is a simple equation: 1 + 2 = 3");
+        check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
+              "Here is a simple equation: 1 + 2 = 3");
         check(bslfmt::vformat(
                                       "{}: {} + {} = {}",
                        bslfmt::make_format_args(intro, x, y, sum)),
