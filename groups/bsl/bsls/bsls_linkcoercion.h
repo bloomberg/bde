@@ -116,8 +116,11 @@ namespace BloombergLP {
         #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,               \
                                                           refName,            \
                                                           referredSymbol)     \
+        _Pragma("GCC diagnostic push")                                        \
+        _Pragma("GCC diagnostic ignored \"-Wattributes\"")                    \
         static type *refName __attribute__((retain,used,section("coercion"))) \
-                                                             = &referredSymbol;
+                                                           = &referredSymbol; \
+        _Pragma("GCC diagnostic pop")
     #else
         #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,               \
                                                           refName,            \
