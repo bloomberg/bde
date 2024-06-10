@@ -925,7 +925,6 @@ struct Iso8601Util {
     static int generate(std::string                     *string,
                         const DatetimeOrDatetimeTz&      object,
                         const GenerateConfiguration&     configuration);
-
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int generate(std::pmr::string                *string,
                         const bsls::TimeInterval&        object);
@@ -977,14 +976,15 @@ struct Iso8601Util {
     static int generate(std::pmr::string                *string,
                         const DatetimeOrDatetimeTz&      object,
                         const GenerateConfiguration&     configuration);
+#endif
         // Load the ISO 8601 representation of the specified 'object' into the
-        // specified 'string'.  Optionally specify a 'configuration' to affect
+        // specified 'string' of type 'bsl::string', 'std::string', or
+        // 'std::pmr::string'.  Optionally specify a 'configuration' to affect
         // the format of the generated string.  If 'configuration' is not
         // supplied, the process-wide default value
         // 'Iso8601UtilConfiguration::defaultConfiguration()' is used.  Return
         // the number of characters in the formatted string.  The previous
         // contents of 'string' (if any) are discarded.
-#endif
 
     static bsl::ostream& generate(
                                 bsl::ostream&                   stream,
