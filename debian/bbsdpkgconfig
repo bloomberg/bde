@@ -2,7 +2,7 @@
 "platforms": {
     "amd64": [
     {
-        "ufids": [ "opt_64_pic" ],
+        "ufids": [ "opt_dbg_64_pic" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks",
@@ -31,6 +31,19 @@
         }
     },
     {
+        "ufids": [ "opt_64_pic" ],
+        "targets": [ "all" ],
+        "install": {
+            "libbal-dev":      [ "bal", "bal-symlinks" ],
+            "libbbl-dev":      [ "bbl", "bbl-symlinks" ],
+            "libbdl-dev":      [ "bdl", "bdl-symlinks" ],
+            "libbsl-dev":      [ "bsl", "bsl-symlinks" ],
+            "libinteldfp-dev": [ "inteldfp", "inteldfp-symlinks" ],
+            "libpcre2-dev":    [ "pcre2", "pcre2-symlinks" ],
+            "libryu-dev":      [ "ryu", "ryu-symlinks" ]
+        }
+    },
+    {
         "ufids": [ "opt_32"],
         "targets": [ "all" ],
         "install": {
@@ -51,7 +64,7 @@
         }
     },
     {
-        "ufids": [ "opt_dbg_32", "dbg_32", "opt_dbg_64_pic", "dbg_64_pic" ],
+        "ufids": [ "opt_dbg_32", "dbg_32", "dbg_64_pic" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks" ],
