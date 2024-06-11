@@ -41,14 +41,14 @@ BSLS_IDENT("$Id: $")
 //
 // Soft delimiters are used in applications where multiple consecutive
 // delimiter characters are to be treated as just a single delimiter.  For
-// example, if we want the input string '"Sticks  and stones"' to parse into a
+// example, if we want the input string ' "Sticks  and stones" ' to parse into a
 // sequence of three non-empty tokens ["Sticks", "and", "stones"], rather than
 // the four-token sequence ["Sticks", "", "and", "stones"], we would make the
 // space (' ') a soft-delimiter character.
 //
 // Hard delimiters are used in applications where consecutive delimiter
 // characters are to be treated as separate delimiters, giving rise to the
-// possibility of empty tokens.  Making the slash ('/') in the standard date
+// possibility of empty tokens.  Making the slash ( '/' ) in the standard date
 // format a hard delimiter for the input string "15//9" yields the three-token
 // sequence ["15", "", "9"], rather than the two-token one ["15", "9"] had it
 // been made soft.
@@ -87,8 +87,8 @@ BSLS_IDENT("$Id: $")
 // Parsing is from left to right and is *greedy* -- i.e., the longest sequence
 // satisfying the regular expression is the one that matches.  For example, let
 // 's' represent the start of a soft delimiter, 'd' the start of a hard
-// delimiter, '^" the start of a token, and '~' the continuation of that same
-// delimiter or token.  Using '.' as a soft delimiter and "/" as a hard one,
+// delimiter, '^' the start of a token, and '~' the continuation of that same
+// delimiter or token.  Using '.' as a soft delimiter and '/' as a hard one,
 // the string
 //..
 //         s~   h~  h~~  h~     s~   hh  s  h~h    h~~~        Delimiters
@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 //
 //  (..)   (/.)  (./.)  (./)     (..)   (/)(/)  (.)  (/.)(/)   (./..)  Delims
 //..
-// Notice that in pair of hard delimiters "/./" before the token "sea", the
+// Notice that in pair of hard delimiters '/./' before the token "sea", the
 // soft token character between the two hard ones binds to the earlier
 // delimiter.
 //
