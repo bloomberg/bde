@@ -29,11 +29,12 @@
 #include <bslstl_variant.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03 Generated on Wed Oct 18
-// 11:10:11 2023 Command line: sim_cpp11_features.pl bslstl_format.h
-#define COMPILING_BSLSTL_FORMAT_H
-#include <bslstl_format_cpp03.h>
-#undef COMPILING_BSLSTL_FORMAT_H
+// Include version that can be compiled with C++03
+// Generated on Tue Jun 11 07:56:24 2024
+// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
+# define COMPILING_BSLFMT_FORMATIMP_H
+# include <bslfmt_formatimp_cpp03.h>
+# undef COMPILING_BSLFMT_FORMATIMP_H
 #else
 
 namespace BloombergLP {
@@ -266,7 +267,7 @@ class bslstl_format_OutputIteratorRef {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 using std::format_error;
 #else
-class format_error : public bsl::runtime_error {
+class format_error : public std::runtime_error {
   public:
     // CREATORS
     explicit format_error(const std::string& what_arg)
@@ -288,10 +289,11 @@ class format_error : public bsl::runtime_error {
     {
     }
 
-    explicit format_error(const format_error& other)
+    format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT
     : runtime_error(other)
     {
-    };
+    }
+};
 #endif
 
 template <class t_OUT, class t_CHAR>
@@ -448,8 +450,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     // PRIVATE TYPES
     typedef t_CHAR char_type;
 
-    // DATA
-    bsl::variant<bsl::monostate,
+    typedef bsl::variant<bsl::monostate,
                  bool,
                  char_type,
                  int,
@@ -463,7 +464,10 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
                  bsl::basic_string_view<char_type>,
                  const void *,
                  handle>
-        d_value;
+        variant_type;
+
+    // DATA
+    variant_type    d_value;
 
   public:
     // TODO: All the value constructors need to be private (with appropriate
@@ -622,8 +626,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     // ACCESSORS
     operator BoolType() const BSLS_KEYWORD_NOEXCEPT
     {
-        return BoolType::makeValue(
-                                  !holds_alternative<bsl::monostate>(d_value));
+        return BoolType::makeValue(!bsl::holds_alternative<bsl::monostate>(d_value));
     }
 };
 
@@ -1161,7 +1164,7 @@ namespace bsl {
 
 template <> struct formatter<int, char> {
     template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 t_PARSE_CONTEXT::iterator parse(
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                            t_PARSE_CONTEXT&
                                                       pc)
     {
@@ -1206,7 +1209,7 @@ template <> struct formatter<int, char> {
 template <>
 struct formatter<string_view, char> {
     template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 t_PARSE_CONTEXT::iterator parse(
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                            t_PARSE_CONTEXT& pc) {
         if (pc.begin() != pc.end() && *pc.begin() != '}') {
             BSLS_THROW(format_error("not implemented"));
@@ -1223,6 +1226,7 @@ struct formatter<string_view, char> {
         return bsl::copy(sv.begin(), sv.end(), fc.out());
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
     BSLS_KEYWORD_CONSTEXPR_CPP20 std::format_parse_context::iterator parse(
                                                       std::format_parse_context& pc)
     {
@@ -1239,23 +1243,23 @@ struct formatter<string_view, char> {
     {
         return bsl::copy(sv.begin(), sv.end(), fc.out());
     }
+#endif
 };
 
 }
 
 
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 namespace std {
 // FORMATTER SPECIALIZATIONS
 template <>
 struct formatter<bsl::string, char> : formatter<bsl::string_view, char> {
 };
 }  // close namespace bsl
+#endif
 
-
-
-
-#endif  // End C++11 code
+#endif // End C++11 code
 
 #endif  // INCLUDED_BSLSTL_FORMATIMP
 
