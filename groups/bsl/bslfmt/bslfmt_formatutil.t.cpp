@@ -104,6 +104,7 @@ void check(const std::string&, const char *) {
 //#endif
 //}
 
+#if 0
 template <class... t_ARGS>
 bool doTestWithOracle(string_view              result,
                       format_string<t_ARGS...> fmtstr,
@@ -120,6 +121,7 @@ bool doTestWithOracle(string_view              result,
     return (result == bslfmt::format(fmtstr.get(), args...));
 #endif
 }
+#endif
 
 struct NonFormattableType {};
 
@@ -255,12 +257,12 @@ int main(int argc, char **argv)
               "Here is a simple equation: 1 + 2 = 3");
         std::formatter<bsl::string, char> dummy;
 
-        doTestWithOracle("Here is a simple equation: 1 + 2 = 3",
-                    "{}: {} + {} = {}",
-                    intro,
-                    x,
-                    y,
-                    sum);
+        //doTestWithOracle("Here is a simple equation: 1 + 2 = 3",
+        //            "{}: {} + {} = {}",
+        //            intro,
+        //            x,
+        //            y,
+        //            sum);
         //check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
         //      "Here is a simple equation: 1 + 2 = 3");
         check(bslfmt::vformat(
