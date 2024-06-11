@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BSLFMT_FORMATIMP
 #define INCLUDED_BSLFMT_FORMATIMP
 
-
 #include <bslscm_version.h>
-
 
 #include <bslalg_numericformatterutil.h>
 
@@ -29,11 +27,6 @@
 #include <bslstl_monostate.h>
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
-
-#include <iterator>
-#include <string>
-#include <stdexcept>
-#include <string_view>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03 Generated on Wed Oct 18
@@ -96,11 +89,11 @@ struct formatter;
 
 template <class t_ARG, class t_CHAR>
 requires(
-    !std::is_arithmetic_v<t_ARG> && !std::is_same_v<t_ARG, std::nullptr_t> &&
-    !std::is_same_v<t_ARG, void *> && !std::is_same_v<t_ARG, const void *> &&
-    !std::is_same_v<t_ARG, t_CHAR *> &&
-    !std::is_same_v<t_ARG, const t_CHAR *> &&
-    !std::is_same_v<std::remove_extent_t<t_ARG>, const t_CHAR> &&
+    !bsl::is_arithmetic_v<t_ARG> && !bsl::is_same_v<t_ARG, bsl::nullptr_t> &&
+    !bsl::is_same_v<t_ARG, void *> && !bsl::is_same_v<t_ARG, const void *> &&
+    !bsl::is_same_v<t_ARG, t_CHAR *> &&
+    !bsl::is_same_v<t_ARG, const t_CHAR *> &&
+    !bsl::is_same_v<bsl::remove_extent_t<t_ARG>, const t_CHAR> &&
     !BloombergLP::bslfmt::bslfmt_format_IsStdBasicString<t_ARG> &&
     !BloombergLP::bslfmt::bslfmt_format_IsStdBasicStringView<t_ARG> &&
     BloombergLP::bslfmt::FormatImp_formatterIsStdAliasingEnabled<
@@ -150,7 +143,7 @@ class bslstl_format_TruncatingIterator {
 
   public:
     // TYPES
-    typedef std::output_iterator_tag iterator_category;
+    typedef bsl::output_iterator_tag iterator_category;
     typedef void                     difference_type;
     typedef void                     value_type;
     typedef void                     reference;
@@ -235,7 +228,7 @@ class bslstl_format_OutputIteratorRef {
 
   public:
     // TYPES
-    typedef std::output_iterator_tag iterator_category;
+    typedef bsl::output_iterator_tag iterator_category;
     typedef void                     difference_type;
     typedef void                     value_type;
     typedef void                     reference;
@@ -273,7 +266,7 @@ class bslstl_format_OutputIteratorRef {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 using std::format_error;
 #else
-class format_error : public std::runtime_error {
+class format_error : public bsl::runtime_error {
   public:
     // CREATORS
     explicit format_error(const std::string& what_arg)
@@ -294,7 +287,11 @@ class format_error : public std::runtime_error {
     : runtime_error(what_arg.c_str())
     {
     }
-};
+
+    explicit format_error(const format_error& other)
+    : runtime_error(other)
+    {
+    };
 #endif
 
 template <class t_OUT, class t_CHAR>
@@ -821,7 +818,7 @@ struct formatter<int, char> {
         typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
         char  buf[NFUtil::ToCharsMaxLength<int>::k_VALUE];
         char *result = NFUtil::toChars(buf, buf + sizeof(buf), x);
-        return std::copy(buf, result, fc.out());
+        return bsl::copy(buf, result, fc.out());
     }
 };
 
@@ -840,7 +837,7 @@ struct formatter<string_view, char> {
                                    string_view                        sv,
                                    basic_format_context<t_OUT, char>& fc) const
     {
-        return std::copy(sv.begin(), sv.end(), fc.out());
+        return bsl::copy(sv.begin(), sv.end(), fc.out());
     }
 };
 #endif
@@ -1006,12 +1003,12 @@ t_OUT format_to(t_OUT out, bsl::string_view fmtstr, const t_ARGS&... args)
 template <class... t_ARGS>
 void format_to(bsl::string *out, bsl::string_view fmtstr, const t_ARGS&...args)
 {
-    format_to(std::back_inserter(*out), fmtstr, args...);
+    format_to(bsl::back_inserter(*out), fmtstr, args...);
 }
 
 void vformat_to(bsl::string *out, bsl::string_view fmtstr, format_args args)
 {
-    vformat_to(std::back_inserter(*out), fmtstr, args);
+    vformat_to(bsl::back_inserter(*out), fmtstr, args);
 }
 
 template <class... t_ARGS>
@@ -1182,7 +1179,7 @@ template <> struct formatter<int, char> {
         typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
         char  buf[NFUtil::ToCharsMaxLength<int>::k_VALUE];
         char *result = NFUtil::toChars(buf, buf + sizeof(buf), x);
-        return std::copy(buf, result, fc.out());
+        return bsl::copy(buf, result, fc.out());
     }
 };
 
@@ -1202,7 +1199,7 @@ template <> struct formatter<int, char> {
 //                                   string_view                        sv,
 //                                   basic_format_context<t_OUT, char>& fc) const
 //    {
-//        return std::copy(sv.begin(), sv.end(), fc.out());
+//        return bsl::copy(sv.begin(), sv.end(), fc.out());
 //    }
 //};
 
@@ -1223,7 +1220,7 @@ struct formatter<string_view, char> {
                                    string_view                        sv,
            BloombergLP::bslfmt::basic_format_context<t_OUT, char>& fc) const
     {
-        return std::copy(sv.begin(), sv.end(), fc.out());
+        return bsl::copy(sv.begin(), sv.end(), fc.out());
     }
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 std::format_parse_context::iterator parse(
@@ -1240,7 +1237,7 @@ struct formatter<string_view, char> {
                                    string_view                        sv,
                                    std::basic_format_context<t_OUT, char>& fc) const
     {
-        return std::copy(sv.begin(), sv.end(), fc.out());
+        return bsl::copy(sv.begin(), sv.end(), fc.out());
     }
 };
 
@@ -1260,7 +1257,7 @@ struct formatter<bsl::string, char> : formatter<bsl::string_view, char> {
 
 #endif  // End C++11 code
 
-#endif  // INCLUDED_BSLSTL_FORMAT
+#endif  // INCLUDED_BSLSTL_FORMATIMP
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
