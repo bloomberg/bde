@@ -104,22 +104,32 @@ void check(const std::string&, const char *) {
 //#endif
 //}
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 template <class... t_ARGS>
 bool doTestWithOracle(string_view              result,
                       std::format_string<t_ARGS...> fmtstr,
                       t_ARGS&&...              args)
 {
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
     typedef string RT;
 
     RT res_bde   = bslfmt::format(fmtstr.get(), args...);
     RT res_std   = std::format(fmtstr, args...);
 
     return (result == res_bde && result == res_std);
-#else
-    return (result == bslfmt::format(fmtstr.get(), args...));
-#endif
 }
+#  define DOTESTWITHORACLE(...) doTestWithOracle(__VA_ARGS__);
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+//template <class... t_ARGS>
+//bool doTestWithOracle(string_view              result,
+//                      bsl::format_string<t_ARGS...> fmtstr,
+//                      t_ARGS&&...              args)
+//{
+//    return (result == bslfmt::format(fmtstr.get(), args...));
+//}
+#  define DOTESTWITHORACLE(RESULT, ...) (RESULT == bslfmt::format(__VA_ARGS__));
+#else
+#  define DOTESTWITHORACLE(RESULT, ...) (RESULT == bslfmt::format(__VA_ARGS__));
+#endif
 
 struct NonFormattableType {};
 
@@ -205,6 +215,7 @@ struct formatter<FormattableType, char> {
         return out;
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
     BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
                                                       std::format_parse_context& pc)
     {
@@ -224,6 +235,7 @@ struct formatter<FormattableType, char> {
         *out++ = '}';
         return out;
     }
+#endif
 };
 #endif
 }  // close namespace bsl
@@ -253,8 +265,8 @@ int main(int argc, char **argv)
               "Here is a simple equation: 1 + 2 = 3");
         check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
-        std::formatter<bsl::string, char> dummy;
-        doTestWithOracle("Here is a simple equation: 1 + 2 = 3",
+        //std::formatter<bsl::string, char> dummy;
+        DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
                     "{}: {} + {} = {}",
                     intro,
                     x,
