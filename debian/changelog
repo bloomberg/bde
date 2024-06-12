@@ -1,5 +1,31 @@
-bsl-internal (4.9.0.0) unstable; urgency=low
+bsl-internal (4.10.0.0) unstable; urgency=low
 
+  * 985a293d8 Bumped version to 4.10.0.0
+  * d86110fa8 bdlt_iso8601util: doc tweak (#4784)
+  * f9169d06b Change default ufid for amd64 (#4716)
+  * 65453955f Attribute warning has been suppressed for 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' (#4783)
+  * 354289294 Fix addRule for large number of categories (#4779)
+  * 569c46563 ball_categorymanager: fix default allocation (#4763)
+  * 3bf351c39 bdlcc_timequeue UBSAN fixes (#4755)
+  * 8341802f7 Add BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD. (#4772)
+  * e4582935a Some classes were modified to prevent 'weak-vtables' clang warning. DRQS 175319778 (#4767)
+  * a2319564e Add explicit constructor for bsl::variant from std::variant (DRQS 174781823) (#4746)
+  * 601b78f8a bdlat_typename: silence ubsan (#4742)
+  * e7da85972 make string_view(const char*) constructor constexpr only in C++17 and later (#4774)
+  * 1f74743fe drqs-175455194: 'balcl': Fix C++03 warnings in test drivers. (#4773)
+  * 6db4313f5 Add Jenkinsfile.conan (#4759)
+  * c6a7fe319 bdlcc_deque.t.cpp: extremely intermittent error in TC 11 (#4771)
+  * d757f2108 Merge pull request #4769 from bchapman/balst_stacktrack-squelch-errors-drqs-175431980
+  * b535eb1ff BSLS_REVIEW uses plink symbols GUID where available (with size fix) (#4768)
+  * 9e77574ca Create a fuzz test for the BER decoder (DRQS 175252233) (#4752)
+  * a28cb6f9a Drqs 175400868/teom metric names (#4764)
+  * 0d0d1a5b1 Revert "Include guid in BSLS_REVIEW (via cheapstack) (#4725)" (#4765)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 12 Jun 2024 13:08:55 -0400
+
+bsl-internal (4.9.0.0) git; urgency=low
+
+  * aa37bcf85 Changelog for version 4.9.0.0
   * be6e8184d Bumped version to 4.9.0.0
   * e7668b685 drqs-175365914: 'balxml_encoderoptions': Use 'bsl::string_view' in setters (#4756)
   * 309503e02 Baljsn decoderoptionsutil drqs 175214394 (#4748)
@@ -41,7 +67,7 @@ bsl-internal (4.9.0.0) unstable; urgency=low
   * 438a65431 balb_controlmanager private members are now private; internal class indented. (#4715)
   * 32c919580 Add range accessors Datum Ref types. (#4710)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 23 May 2024 14:27:29 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 23 May 2024 14:30:22 -0400
 
 bsl-internal (4.8.0.0) git; urgency=low
 
