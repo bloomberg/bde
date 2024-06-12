@@ -257,6 +257,9 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
+        bsl::formatter<int, char>              dummy1;
+        bsl::formatter<bsl::string_view, char> dummy2;
+
         const bsl::string intro = "Here is a simple equation";
         const int         x   = 1;
         const int         y   = 2;

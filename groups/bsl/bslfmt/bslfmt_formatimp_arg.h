@@ -28,6 +28,9 @@
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
 
+#include <bslfmt_formatimp_error.h>
+#include <bslfmt_formatimp_formatterbase.h>
+
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
 // Generated on Tue Jun 11 07:56:24 2024
@@ -39,173 +42,6 @@
 
 namespace BloombergLP {
 namespace bslfmt {
-template <class t_FORMATTER, class = void>
-struct FormatImp_formatterIsStdAliasingEnabled : bsl::true_type {
-};
-
-template <class t_FORMATTER>
-struct FormatImp_formatterIsStdAliasingEnabled<
-    t_FORMATTER,
-    typename t_FORMATTER::PreventStdAliasing> : bsl::false_type {
-};
-}  // close namespace bslfmt
-}  // close enterprise namespace
-
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatImp_PreventStdPromotion
-#else
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20
-#endif
-
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP23                      \
-    typedef void FormatImp_PreventStdPromotion
-#else
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP23
-#endif
-
-namespace bsl {
-template <class t_ARG, class t_CHAR = char>
-struct formatter {
-  public:
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
-  private:
-    // NOT IMPLEMENTED
-    formatter(const formatter&) BSLS_KEYWORD_DELETED;
-    formatter& operator=(const formatter&) BSLS_KEYWORD_DELETED;
-};
-}  // close namespace bslfmt
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-
-namespace BloombergLP {
-namespace bslfmt {
-template <class t_TYPE>
-constexpr bool bslfmt_format_IsStdBasicString = false;
-
-template <class charT, class traits, class Allocator>
-constexpr bool bslfmt_format_IsStdBasicString<
-    std::basic_string<charT, traits, Allocator> > = true;
-
-template <class t_TYPE>
-constexpr bool bslfmt_format_IsStdBasicStringView = false;
-
-template <class charT, class traits>
-constexpr bool bslfmt_format_IsStdBasicStringView<
-    ::std::basic_string_view<charT, traits> > = true;
-}  // close namespace bslfmt
-}  // close enterprise namespace
-
-namespace std {
-template <class t_ARG, class t_CHAR>
-struct formatter;
-
-template <class t_ARG, class t_CHAR>
-requires(
-    //!bsl::is_arithmetic_v<t_ARG> && !bsl::is_same_v<t_ARG, bsl::nullptr_t> &&
-    //!bsl::is_same_v<t_ARG, void *> && !bsl::is_same_v<t_ARG, const void *> &&
-    //!bsl::is_same_v<t_ARG, t_CHAR *> &&
-    //!bsl::is_same_v<t_ARG, const t_CHAR *> &&
-    //!bsl::is_same_v<bsl::remove_extent_t<t_ARG>, const t_CHAR> &&
-    //!BloombergLP::bslfmt::bslfmt_format_IsStdBasicString<t_ARG> &&
-    //!BloombergLP::bslfmt::bslfmt_format_IsStdBasicStringView<t_ARG> &&
-    BloombergLP::bslfmt::FormatImp_formatterIsStdAliasingEnabled<
-        bsl::formatter<t_ARG, t_CHAR> >::value
-)
-struct formatter<t_ARG, t_CHAR>
-: bsl::formatter<t_ARG, t_CHAR> {};
-}  // close namespace std
-#endif
-
-//namespace bsl {
-//template <class t_FORMATTER, class = void>
-//struct bslstl_format_IsEnabled : true_type {
-//};
-//
-//template <class t_FORMATTER>
-//struct bslstl_format_IsEnabled<
-//    t_FORMATTER,
-//    typename t_FORMATTER::bslstl_format_IsPrimaryFormatterTemplate>
-//: false_type {
-//};
-//
-//template <class t_ARG, class t_CHAR = char>
-//struct formatter {
-//  public:
-//    typedef void bslstl_format_IsPrimaryFormatterTemplate;
-//
-//  private:
-//    // NOT IMPLEMENTED
-//    formatter(const formatter&) BSLS_KEYWORD_DELETED;
-//    formatter& operator=(const formatter&) BSLS_KEYWORD_DELETED;
-//};
-//}  // close namespace bsl
-
-namespace BloombergLP {
-namespace bslfmt {
-template <class t_ITERATOR>
-class bslstl_format_TruncatingIterator {
-  private:
-    // TYPES
-    typedef typename bsl::iterator_traits<t_ITERATOR>::difference_type DT;
-
-    // DATA
-    t_ITERATOR d_iterator;
-    DT         d_limit;
-    DT         d_count;
-
-  public:
-    // TYPES
-    typedef bsl::output_iterator_tag iterator_category;
-    typedef void                     difference_type;
-    typedef void                     value_type;
-    typedef void                     reference;
-    typedef void                     pointer;
-
-    // CREATORS
-    bslstl_format_TruncatingIterator(t_ITERATOR iterator, DT limit)
-    : d_iterator(iterator)
-    , d_limit(limit)
-    , d_count(0)
-    {
-    }
-
-    // MANIPULATORS
-    bslstl_format_TruncatingIterator& operator*()
-    {
-        return *this;
-    }
-
-    void operator=(typename bsl::iterator_traits<t_ITERATOR>::value_type x)
-    {
-        if (d_count++ < d_limit) {
-            *d_iterator++ = x;
-        }
-    }
-
-    bslstl_format_TruncatingIterator& operator++()
-    {
-        return *this;
-    }
-
-    bslstl_format_TruncatingIterator operator++(int)
-    {
-        return *this;
-    }
-
-    // ACCESSORS
-    DT count() const
-    {
-        return d_count;
-    }
-
-    t_ITERATOR underlying() const
-    {
-        return d_iterator;
-    }
-};
 
 template <class t_VALUE>
 class bslstl_format_OutputIteratorBase {
@@ -278,143 +114,11 @@ class bslstl_format_OutputIteratorRef {
     }
 };
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-using std::format_error;
-#else
-class format_error : public std::runtime_error {
-  public:
-    // CREATORS
-    explicit format_error(const std::string& what_arg)
-    : runtime_error(what_arg)
-    {
-    }
-
-    explicit format_error(const char *what_arg)
-    : runtime_error(what_arg)
-    {
-    }
-
-    // If a 'bsl::string' is passed to the 'std::string' constructor, two
-    // copies occur (one to initialize 'what_arg', and one to initialize the
-    // internal reference-counted string).  This constructor ensures that only
-    // a single copy needs to be performed.
-    explicit format_error(const bsl::string& what_arg)
-    : runtime_error(what_arg.c_str())
-    {
-    }
-
-    format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT
-    : runtime_error(other)
-    {
-    }
-};
-#endif
+template <class t_CHAR>
+class basic_format_parse_context;
 
 template <class t_OUT, class t_CHAR>
 class basic_format_context;
-
-template <class t_CHAR>
-class basic_format_parse_context {
-  public:
-    // TYPES
-    typedef t_CHAR char_type;
-    typedef
-        typename bsl::basic_string_view<t_CHAR>::const_iterator const_iterator;
-    typedef const_iterator                                      iterator;
-
-  private:
-    // TYPES
-    enum Indexing { e_UNKNOWN, e_MANUAL, e_AUTOMATIC };
-
-    // DATA
-    iterator d_begin;
-    iterator d_end;
-    Indexing d_indexing;
-    size_t   d_next_arg_id;
-    size_t   d_num_args;
-
-  public:
-    // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
-                      bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT
-    : d_begin(fmt.begin())
-    , d_end(fmt.end())
-    , d_indexing(e_UNKNOWN)
-    , d_next_arg_id(0)
-    , d_num_args(0)
-    {
-    }
-
-    // TODO: this constructor should be private
-    BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
-                  bsl::basic_string_view<t_CHAR> fmt,
-                  size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT
-    : d_begin(fmt.begin())
-    , d_end(fmt.end())
-    , d_indexing(e_UNKNOWN)
-    , d_next_arg_id(0)
-    , d_num_args(numArgs)
-    {
-    }
-
-    // MANIPULATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it)
-    {
-        d_begin = it;
-    }
-
-    BSLS_KEYWORD_CONSTEXPR_CPP20 size_t next_arg_id()
-    {
-        if (d_indexing == e_MANUAL) {
-            BSLS_THROW(
-                      format_error("mixing of automatic and manual indexing"));
-        }
-        if (d_next_arg_id >= d_num_args) {
-            BSLS_THROW(format_error("number of conversion specifiers exceeds "
-            "number of arguments"));
-        }
-        if (d_indexing == e_UNKNOWN) {
-            d_indexing = e_AUTOMATIC;
-        }
-        return d_next_arg_id++;
-    }
-
-    BSLS_KEYWORD_CONSTEXPR_CPP20 void check_arg_id(size_t id)
-    {
-        if (d_indexing == e_AUTOMATIC) {
-            BSLS_THROW(
-                      format_error("mixing of automatic and manual indexing"));
-        }
-        if (id >= d_num_args) {
-            BSLS_THROW(format_error("invalid argument index"));
-        }
-        if (d_indexing == e_UNKNOWN) {
-            d_indexing = e_MANUAL;
-        }
-    }
-
-    // ACCESSORS
-    BSLS_KEYWORD_CONSTEXPR_CPP20 const_iterator
-    begin() const BSLS_KEYWORD_NOEXCEPT
-    {
-        return d_begin;
-    }
-
-    BSLS_KEYWORD_CONSTEXPR_CPP20 const_iterator
-    end() const BSLS_KEYWORD_NOEXCEPT
-    {
-        return d_end;
-    }
-
-  private:
-    // NOT IMPLEMENTED
-    basic_format_parse_context(
-                       const basic_format_parse_context&) BSLS_KEYWORD_DELETED;
-    basic_format_parse_context& operator=(
-                       const basic_format_parse_context&) BSLS_KEYWORD_DELETED;
-};
-
-typedef basic_format_parse_context<char> format_parse_context;
 
 template <class t_CONTEXT>
 class basic_format_arg;
@@ -644,8 +348,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     }
 };
 
-typedef basic_format_context<bslstl_format_OutputIteratorRef<char>, char>
-    bslstl_format_DefaultFormatContext;
+class bslstl_format_DefaultFormatContext;
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_CONTEXT, class... t_ARGS>
@@ -748,53 +451,6 @@ visit_format_arg(t_VISITOR& v, basic_format_arg<t_CONTEXT> a)
 }
 #endif
 
-template <class t_OUT, class t_CHAR>
-class basic_format_context {
-  private:
-    // TYPES
-    typedef basic_format_arg<basic_format_context> Arg;
-
-    // DATA
-    bslstl_format_BasicFormatArgs<basic_format_context> d_args;
-    t_OUT                                               d_out;
-
-  public:
-    // TYPES
-    typedef t_OUT  iterator;
-    typedef t_CHAR char_type;
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-    template <class t_TYPE>
-    using formatter_type = bsl::formatter<t_TYPE, t_CHAR>;
-#endif
-
-    // CREATORS TODO: This constructor should be made private (callable only by
-    // 'bsl::format' internals)
-    basic_format_context(
-                      t_OUT                                               out,
-                      bslstl_format_BasicFormatArgs<basic_format_context> args)
-    : d_args(args)
-    , d_out(out)
-    {
-    }
-
-    // MANIPULATORS
-    iterator out()
-    {
-        return BloombergLP::bslmf::MovableRefUtil::move(d_out);
-    }
-
-    void advance_to(iterator it)
-    {
-        d_out = BloombergLP::bslmf::MovableRefUtil::move(it);
-    }
-
-    // ACCESSORS
-    Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT
-    {
-        return d_args.get(id);
-    }
-};
 
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
@@ -815,49 +471,7 @@ struct format_to_n_result {
     typename bsl::iterator_traits<t_OUT>::difference_type size;
 };
 
-// FORMATTER SPECIALIZATIONS
-#if 0
-template <>
-struct formatter<int, char> {
-    format_parse_context::iterator parse(format_parse_context& pc)
-    {
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(format_error("not implemented"));
-        }
-        return pc.begin();
-    }
 
-    template <class t_OUT>
-    typename basic_format_context<t_OUT, char>::iterator format(
-                                   int                                x,
-                                   basic_format_context<t_OUT, char>& fc) const
-    {
-        typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
-        char  buf[NFUtil::ToCharsMaxLength<int>::k_VALUE];
-        char *result = NFUtil::toChars(buf, buf + sizeof(buf), x);
-        return bsl::copy(buf, result, fc.out());
-    }
-};
-
-template <>
-struct formatter<string_view, char> {
-    format_parse_context::iterator parse(format_parse_context& pc)
-    {
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(format_error("not implemented"));
-        }
-        return pc.begin();
-    }
-
-    template <class t_OUT>
-    typename basic_format_context<t_OUT, char>::iterator format(
-                                   string_view                        sv,
-                                   basic_format_context<t_OUT, char>& fc) const
-    {
-        return bsl::copy(sv.begin(), sv.end(), fc.out());
-    }
-};
-#endif
 
 template <class t_OUT, class t_CHAR>
 struct bslstl_format_FormatVisitor {
@@ -1177,8 +791,6 @@ namespace bsl {
 //};
 
 template <> struct formatter<int, char> {
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                            t_PARSE_CONTEXT&
@@ -1224,8 +836,6 @@ template <> struct formatter<int, char> {
 
 template <>
 struct formatter<string_view, char> {
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                            t_PARSE_CONTEXT& pc) {
