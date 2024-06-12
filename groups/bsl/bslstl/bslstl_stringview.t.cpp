@@ -1,8 +1,6 @@
 // bslstl_stringview.t.cpp                                            -*-C++-*-
 #include <bslstl_stringview.h>
 
-#include <bsla_maybeunused.h>
-
 #include <bslstl_algorithm.h>  // bsl::count()
 
 #include <bslma_default.h>
@@ -14,6 +12,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
@@ -927,6 +926,12 @@ struct TestDriver {
     typedef typename Obj::reverse_iterator       reverse_iterator;
     typedef typename Obj::const_reverse_iterator const_reverse_iterator;
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) \
+&&  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+    typedef std::basic_string_view<TYPE, TRAITS> StdObj;
+    typedef std::basic_string     <TYPE, TRAITS> StdString;
+# endif
+
     // CLASS DATA
 
     // We have to define 's_testStringLength' constant inside of the class
@@ -936,8 +941,34 @@ struct TestDriver {
     // for constant static arrays, defined outside of the class declaration:
     // "C2070: 'const char []': illegal sizeof operand".
 
-    static const TYPE s_testString[];           // common test string
+#define TYPE_ARRAY_49   {                                      \
+                       /*  0   1   2   3   4   5   6 */        \
+                       /* --  --  --  --  --  --  -- */        \
+                           0, 48, 49, 50, 51, 52, 53, /* 00 */ \
+                          48,  0, 49, 50, 51, 52, 53, /* 01 */ \
+                          48, 49,  0, 50, 51, 52, 53, /* 02 */ \
+                          48, 49, 50,  0, 51, 52, 53, /* 03 */ \
+                          48, 49, 50, 51,  0, 52, 53, /* 04 */ \
+                          48, 49, 50, 51, 52,  0, 53, /* 05 */ \
+                          48, 49, 50, 51, 52, 53,  0  /* 06 */ \
+                        }
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L // pre C++20
+    static           const TYPE s_testString[];           // common test string
+#else
+    static constexpr const TYPE s_testString[] = TYPE_ARRAY_49;
+#endif
     static const int  s_testStringLength = 49;  // length of test string
+
+    // CLASS METHODS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+    constexpr static Obj useManipulators();
+    constexpr static Obj useSwap();
+    constexpr static Obj assignFromBslObj();
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    constexpr static Obj assignFromStdObj();
+# endif
+#endif
 
 // BDE_VERIFY pragma: -FABC01  // not in alphanumeric order
 
@@ -1011,21 +1042,83 @@ struct TestDriver {
 
 // BDE_VERIFY pragma: +FABC01  // not in alphanumeric order
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L // pre-C++20
+
                                 // ----------
                                 // CLASS DATA
                                 // ----------
 
 template <class TYPE, class TRAITS>
-const TYPE TestDriver<TYPE, TRAITS>::s_testString [] =
-                                                  {
-                                                     0, 48, 49, 50, 51, 52, 53,
-                                                    48,  0, 49, 50, 51, 52, 53,
-                                                    48, 49,  0, 50, 51, 52, 53,
-                                                    48, 49, 50,  0, 51, 52, 53,
-                                                    48, 49, 50, 51,  0, 52, 53,
-                                                    48, 49, 50, 51, 52,  0, 53,
-                                                    48, 49, 50, 51, 52, 53,  0
-                                                  };
+BSLS_KEYWORD_CONSTEXPR
+const TYPE TestDriver<TYPE, TRAITS>::s_testString[] = TYPE_ARRAY_49;
+#endif
+#undef TYPE_ARRAY_49
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+template <class TYPE, class TRAITS>
+constexpr
+typename
+TestDriver<TYPE,TRAITS>::Obj
+TestDriver<TYPE,TRAITS>::useManipulators()
+{
+    const TYPE      *const STRING        = s_testString;
+    const size_type        STRING_LENGTH = s_testStringLength;
+
+    Obj local(STRING, STRING_LENGTH);
+
+    local.remove_prefix(1);  // Shorten from begin.
+    local.remove_suffix(1);  // Shorten from end;
+    Obj local2;
+    local2 = local;          // Copy assignment
+
+    return local2;
+}
+
+template <class TYPE, class TRAITS>
+constexpr
+typename
+TestDriver<TYPE,TRAITS>::Obj
+TestDriver<TYPE,TRAITS>::useSwap()
+{
+    Obj x;
+    Obj y;
+
+    x.swap(y);                                                          // TEST
+
+    return x;
+}
+
+template <class TYPE, class TRAITS>
+constexpr
+typename
+TestDriver<TYPE,TRAITS>::Obj
+TestDriver<TYPE,TRAITS>::assignFromBslObj()
+{
+    Obj objA;
+    Obj objB;
+
+    objA = objB;                                                        // TEST
+
+    return objA;
+}
+
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class TYPE, class TRAITS>
+constexpr
+typename
+TestDriver<TYPE,TRAITS>::Obj
+TestDriver<TYPE,TRAITS>::assignFromStdObj()
+{
+    Obj    obj;
+    StdObj stdObj;
+
+    obj = stdObj;                                                       // TEST
+
+    return obj;
+}
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 
                                 // ----------
                                 // TEST CASES
@@ -1078,14 +1171,25 @@ void TestDriver<TYPE,TRAITS>::testCase25()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
+    ASSERT((!bsl::is_same<Obj, std::basic_string_view<TYPE, TRAITS> >::value));
 
-        ASSERT((!bsl::is_same<Obj,
-                              std::basic_string_view<TYPE, TRAITS> >::value));
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE      *const STRING        = s_testString;
+    BSLS_KEYWORD_CONSTEXPR
+    const size_type        STRING_LENGTH = s_testStringLength;
 
-    typedef std::basic_string_view<TYPE, TRAITS> StdObj;
-    typedef std::basic_string     <TYPE, TRAITS> StdString;
+    if (verbose) printf("Check 'constexpr' construction.\n");
+    {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) \
+&&  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        constexpr StdObj ctv1(STRING, STRING_LENGTH);
+        constexpr Obj    ctv2(ctv1);
+        constexpr Obj    ctv3 = TestDriver<TYPE, TRAITS>::assignFromStdObj();
+
+        (void) ctv2;
+        (void) ctv3;
+#endif
+    }
 
     if (veryVerbose) printf("Testing empty objects.\n");
     {
@@ -1128,15 +1232,6 @@ void TestDriver<TYPE,TRAITS>::testCase25()
             ASSERT(X.length() == Y.length());
         }
     }
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    // check constexpr construction
-    constexpr std::string_view dummy1("0123456789");
-
-    BSLA_MAYBE_UNUSED constexpr bsl::string_view dummy2(dummy1);
-# endif
-#endif
 
     if (veryVerbose) printf(
           "Testing compatibility with 'std::string'.\n");
@@ -1472,11 +1567,45 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
                               std::basic_string_view<TYPE, TRAITS> >::value));
 #endif
 
-    const TYPE      *STRING     = s_testString;
-    const TYPE      *NULL_PTR   = 0;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE *const STRING        = s_testString;
+    BSLS_KEYWORD_CONSTEXPR
+    const size_type   STRING_LENGTH = s_testStringLength; (void)STRING_LENGTH;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE *const NULL_PTR      = 0;
 
     const size_type  NPOS       = Obj::npos;
     const size_type  MAX_LENGTH = 5;
+
+    if (verbose) printf("Check 'constexpr' accessors.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        {
+            constexpr Obj  ctv1;
+            constexpr bool startsWith = ctv1.starts_with(STRING[0]);
+            constexpr Obj  ctv2;
+            constexpr bool endsWith   = ctv2.ends_with  (STRING[0]);
+
+            (void)startsWith;
+            (void)  endsWith;
+
+            constexpr Obj  ctv3(STRING, STRING_LENGTH);
+            constexpr Obj  ctv4(STRING, STRING_LENGTH/2);
+            constexpr bool startsWithA = ctv3.starts_with(ctv4);
+            constexpr bool   endsWithA = ctv3.ends_with  (ctv4);
+
+            (void)startsWithA;
+            (void)  endsWithA;
+
+            constexpr Obj ctv5(STRING, STRING_LENGTH);
+            constexpr bool startsWithB = ctv5.starts_with(STRING);
+            constexpr bool   endsWithB = ctv5.ends_with  (STRING);
+
+            (void)startsWithB;
+            (void)  endsWithB;
+        }
+#endif
+    }
 
     static const struct {
         int        d_lineNum;             // line number
@@ -1765,8 +1894,26 @@ void TestDriver<TYPE,TRAITS>::testCase20()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE *STRING   = s_testString;
-    const TYPE *NULL_PTR = 0;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE *const STRING        = s_testString;
+    BSLS_KEYWORD_CONSTEXPR
+    const size_type   STRING_LENGTH = s_testStringLength;  (void)STRING_LENGTH;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE *      NULL_PTR      = 0;
+
+    if (verbose) printf("Check 'constexpr' operators.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        {
+        constexpr Obj  ctvLhs(STRING, STRING_LENGTH);
+        constexpr Obj  ctvRhs(STRING, STRING_LENGTH);
+        constexpr bool gt = ctvLhs >  ctvRhs;  (void) gt;
+        constexpr bool ge = ctvLhs >= ctvRhs;  (void) ge;
+        constexpr bool le = ctvLhs <= ctvRhs;  (void) le;
+        constexpr bool lt = ctvLhs <  ctvRhs;  (void) lt;
+        }
+#endif
+    }
 
     Obj        mXEmpty(NULL_PTR, 0);
     const Obj& XEmpty = mXEmpty;
@@ -2156,11 +2303,40 @@ void TestDriver<TYPE, TRAITS>::testCase18()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING        = s_testString;
-    const TYPE      *NULL_PTR      = 0;
+    BSLS_KEYWORD_CONSTEXPR const TYPE *const STRING   = s_testString;
+    BSLS_KEYWORD_CONSTEXPR const TYPE *const NULL_PTR = 0;
 
     const size_type  NPOS          = Obj::npos;
     const size_type  MAX_LENGTH    = 5;
+
+    if (verbose) printf("Check 'constexpr' accesors.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        {
+            constexpr Obj ctv;
+            constexpr Obj ctv0;
+            constexpr int compare0 = ctv0.compare(ctv);        (void) compare0;
+
+            constexpr Obj ctv1;
+            constexpr int compare1 = ctv1.compare(0, 0, STRING);
+                                                               (void) compare1;
+
+            constexpr Obj ctv2;
+            constexpr Obj other;
+            constexpr int compare2 = ctv2.compare(0, 0, other, 0, 0);
+                                                               (void) compare2;
+            constexpr Obj ctv3;
+            constexpr int compare3 = ctv3.compare(STRING);     (void) compare3;
+
+            constexpr Obj ctv4;
+            constexpr int compare4 = ctv4.compare(0, 0, STRING);
+                                                               (void) compare4;
+            constexpr Obj ctv5;
+            constexpr int compare5 = ctv5.compare( 0, 0, STRING, 0);
+                                                               (void) compare5;
+        }
+#endif
+    }
 
     static const struct {
         int        d_lineNum;             // line number
@@ -2824,8 +3000,18 @@ void TestDriver<TYPE, TRAITS>::testCase17()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE      *const STRING        = s_testString;
+    BSLS_KEYWORD_CONSTEXPR
+    const size_type        STRING_LENGTH = s_testStringLength;
+
+    if (verbose) printf("Check 'constexpr' accesors.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr Obj ctv1(STRING, STRING_LENGTH);
+        constexpr Obj ctv2 = ctv1.substr(0, STRING_LENGTH); (void) ctv2;
+#endif
+    }
 
     if (verbose) printf("\tTesting basic behavior.\n");
 
@@ -3065,10 +3251,41 @@ void TestDriver<TYPE, TRAITS>::testCase16()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING   = s_testString;
-    const TYPE      *NULL_PTR = 0;
-    const size_type  NPOS     = Obj::npos;
+    BSLS_KEYWORD_CONSTEXPR const TYPE      *const STRING   = s_testString;
+    BSLS_KEYWORD_CONSTEXPR const TYPE      *const NULL_PTR = 0;
+    BSLS_KEYWORD_CONSTEXPR const size_type        NPOS     = Obj::npos;
 
+    if (verbose) printf("Check 'constexpr' accessor.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr Obj   ctv;
+        constexpr size_type pos0 = ctv.find_first_not_of(ctv,       0);
+        constexpr size_type pos1 = ctv.find_first_not_of(STRING,    0, 0);
+
+        (void) pos0;
+        (void) pos1;
+
+        constexpr size_type pos4 = ctv.find_last_not_of (ctv,       0);
+        constexpr size_type pos5 = ctv.find_last_not_of (STRING,    0, 0);
+
+        (void) pos4;
+        (void) pos5;
+
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        constexpr size_type pos2 = ctv.find_first_not_of(STRING,    0);
+        constexpr size_type pos6 = ctv.find_last_not_of (STRING,    0);
+        (void) pos2;
+        (void) pos6;
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr size_type pos3 = ctv.find_first_not_of(STRING[0], 0);
+        constexpr size_type pos7 = ctv.find_last_not_of (STRING[0], 0);
+
+        (void) pos3;
+        (void) pos7;
+#endif
+    }
     if (verbose) printf("\tTesting basic behavior.\n");
 
     // Testing empty object.
@@ -3661,9 +3878,41 @@ void TestDriver<TYPE, TRAITS>::testCase15()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING   = s_testString;
-    const TYPE      *NULL_PTR = 0;
-    const size_type  NPOS     = Obj::npos;
+    BSLS_KEYWORD_CONSTEXPR const TYPE      *const STRING   = s_testString;
+    BSLS_KEYWORD_CONSTEXPR const TYPE      *const NULL_PTR = 0;
+    BSLS_KEYWORD_CONSTEXPR const size_type        NPOS     = Obj::npos;
+
+    if (verbose) printf("Check 'constexpr' accessor.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr Obj   ctv;
+        constexpr size_type pos0 = ctv.find_first_of(ctv,       0);
+        constexpr size_type pos1 = ctv.find_first_of(STRING,    0, 0);
+
+        (void) pos0;
+        (void) pos1;
+
+        constexpr size_type pos4 = ctv.find_last_of (ctv,       0);
+        constexpr size_type pos5 = ctv.find_last_of (STRING,    0, 0);
+
+        (void) pos4;
+        (void) pos5;
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        constexpr size_type pos2 = ctv.find_first_of(STRING,    0);
+        constexpr size_type pos6 = ctv.find_last_of (STRING,    0);
+
+        (void) pos2;
+        (void) pos6;
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr size_type pos3 = ctv.find_first_of(STRING[0], 0);
+        constexpr size_type pos7 = ctv.find_last_of (STRING[0], 0);
+
+        (void) pos3;
+        (void) pos7;
+#endif
+    }
 
     if (verbose) printf("\tTesting basic behavior.\n");
 
@@ -4241,9 +4490,30 @@ void TestDriver<TYPE, TRAITS>::testCase14()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING   = s_testString;
-    const TYPE      *NULL_PTR = 0;
-    const size_type  NPOS     = Obj::npos;
+    BSLS_KEYWORD_CONSTEXPR const TYPE      *STRING   = s_testString;
+    BSLS_KEYWORD_CONSTEXPR const TYPE      *NULL_PTR = 0;
+    BSLS_KEYWORD_CONSTEXPR const size_type  NPOS     = Obj::npos;
+
+    if (verbose) printf("Check 'constexpr' accessor.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr Obj   ctv;
+        constexpr size_type pos0 = ctv. find(ctv,       0);      (void) pos0;
+        constexpr size_type pos1 = ctv. find(STRING,    0, 0);   (void) pos1;
+
+        constexpr size_type pos4 = ctv.rfind(ctv,       0);      (void) pos4;
+        constexpr size_type pos5 = ctv.rfind(STRING,    0, 0);   (void) pos5;
+
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        constexpr size_type pos2 = ctv. find(STRING,    0);      (void) pos2;
+        constexpr size_type pos6 = ctv.rfind(STRING,    0);      (void) pos6;
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr size_type pos3 = ctv. find(STRING[0], 0);      (void) pos3;
+        constexpr size_type pos7 = ctv.rfind(STRING[0], 0);      (void) pos7;
+#endif
+    }
 
     if (verbose) printf("\tTesting basic behavior.\n");
 
@@ -5111,8 +5381,16 @@ void TestDriver<TYPE, TRAITS>::testCase12()
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
+    const TYPE      *const STRING        = s_testString;
+    const size_type        STRING_LENGTH = s_testStringLength;
+
+    if (verbose) printf("Check 'constexpr' construction.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr Obj ctv = TestDriver<TYPE, TRAITS>::useManipulators();
+        (void) ctv;
+#endif
+    }
 
     if (verbose) printf("\tTesting basic behavior.\n");
 
@@ -5273,6 +5551,26 @@ void TestDriver<TYPE, TRAITS>::testCase11()
     typedef typename Obj::const_iterator         CIter;
     typedef typename Obj::const_reverse_iterator CRIter;
 
+    if (verbose) printf("Check 'constexpr' construction.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        constexpr Obj obj;
+
+        constexpr CIter    ib  = obj.begin();    (void)   ib;
+        constexpr CIter   icb  = obj.cbegin();   (void)  icb;
+
+        constexpr CIter    ie  = obj.end();      (void)   ie;
+        constexpr CIter   ice  = obj.cend();     (void)  ice;
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        constexpr CRIter  irb  = obj.rbegin();   (void)  irb;
+        constexpr CRIter icrb  = obj.crbegin();  (void) icrb;
+
+        constexpr CRIter  ire  = obj.rend();     (void)  ire;
+        constexpr CRIter icre  = obj.crend();    (void) icre;
+#endif
+    }
+
     // Testing empty object.
     {
         const TYPE *NULL_PTR = 0;
@@ -5406,8 +5704,21 @@ void TestDriver<TYPE, TRAITS>::testCase10()
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE      *const STRING        = s_testString;
+    BSLS_KEYWORD_CONSTEXPR
+    const size_type        STRING_LENGTH = s_testStringLength;
+
+    if (verbose) printf("Check 'constexpr' accesors.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr Obj                           ctv(STRING, STRING_LENGTH);
+        constexpr typename Obj::const_reference cr = ctv[0];      (void) cr;
+        constexpr typename Obj::const_reference at = ctv.at(0);   (void) at;
+        constexpr typename Obj::const_reference fr = ctv.front(); (void) fr;
+        constexpr typename Obj::const_reference ba = ctv.back();  (void) ba;
+#endif
+    }
 
     if (verbose) printf("\tTesting basic behavior.\n");
 
@@ -5541,6 +5852,20 @@ void TestDriver<TYPE, TRAITS>::testCase9()
     const TYPE      *STRING        = s_testString;
     const size_type  STRING_LENGTH = s_testStringLength;
 
+    if (verbose) printf("Check 'constexpr' accesors.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        constexpr Obj                     ctv;
+        constexpr typename Obj::size_type size     = ctv.size();
+        constexpr typename Obj::size_type max_size = ctv.max_size();
+        constexpr bool                    isEmpty  = ctv.empty();
+
+        (void) size;
+        (void) max_size;
+        (void) isEmpty;
+#endif
+    }
+
     // libc++ defines string_view::max_size using numeric_limits<size_type> see
     // https://github.com/llvm-mirror/libcxx/blob/master/include/string_view
     const size_type  MAX_MAX_SIZE =
@@ -5630,8 +5955,20 @@ void TestDriver<TYPE, TRAITS>::testCase8()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE      *const STRING        = s_testString;
+    BSLS_KEYWORD_CONSTEXPR
+    const size_type        STRING_LENGTH = s_testStringLength;
+
+    if (verbose) printf("Check 'constexpr' construction.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        constexpr Obj ctv1;         (void)ctv1;
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+       constexpr Obj ctv2(STRING); (void)ctv2;
+#endif
+    }
 
     bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
     bslma::TestAllocator da("default",   veryVeryVeryVerbose);
@@ -5693,11 +6030,6 @@ void TestDriver<TYPE, TRAITS>::testCase8()
         ASSERT_SAFE_FAIL((Obj(                 0)));
         ASSERT_SAFE_FAIL((DummyStringView(STRING)));
     }
-#endif
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    // check constexpr construction
-    BSLA_MAYBE_UNUSED constexpr bsl::string_view dummy("0123456789");
 #endif
 
     // Verify no memory was ever allocated.
@@ -5773,6 +6105,16 @@ void TestDriver<TYPE, TRAITS>::testCase7()
 
         operatorPtr operatorAssignment = &Obj::operator=;
         (void)operatorAssignment;  // quash potential compiler warning
+    }
+
+    if (verbose) printf("Check 'constexpr' operator.\n");
+    {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) \
+&&  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        constexpr Obj ctv = TestDriver<TYPE, TRAITS>::assignFromBslObj();
+
+        (void) ctv;
+#endif
     }
 
     if (verbose) printf("\tTesting basic behavior.\n");
@@ -6172,8 +6514,10 @@ void TestDriver<TYPE, TRAITS>::testCase5()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE      *const STRING        = s_testString;
+    BSLS_KEYWORD_CONSTEXPR
+    const size_type        STRING_LENGTH = s_testStringLength;
 
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -6258,12 +6602,13 @@ void TestDriver<TYPE, TRAITS>::testCase5()
     // Check that no additional memory has been allocated.
     ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
 
-    // check constexpr construction
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
-    constexpr bsl::string_view dummy1("0123456789", 10);
-
-    BSLA_MAYBE_UNUSED constexpr bsl::string_view dummy2(dummy1);
+    if (verbose) printf("Check 'constexpr' construction.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        constexpr Obj ctv1(STRING, STRING_LENGTH);
+        constexpr Obj ctv2(ctv1); (void) ctv2;
 #endif
+    }
 }
 
 template <class TYPE, class TRAITS>
@@ -6362,13 +6707,24 @@ void TestDriver<TYPE, TRAITS>::testCase4()
     }
 #endif
 
-    if (verbose) printf("\tTesting basic behavior.\n");
-
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    const TYPE      *STRING1       = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
+    const TYPE      *const STRING1       = s_testString;
+    const size_type        STRING_LENGTH = s_testStringLength;
+
+    if (verbose) printf("Check 'constexpr' operators.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_17
+        constexpr Obj  ctvLhs(STRING1, STRING_LENGTH);
+        constexpr Obj  ctvRhs(STRING1, STRING_LENGTH);
+        constexpr bool eq = ctvLhs == ctvRhs;  (void) eq;
+        constexpr bool ne = ctvLhs != ctvRhs;  (void) ne;
+#endif
+    }
+
+    if (verbose) printf("\tTesting basic behavior.\n");
+
     TYPE             STRING2[STRING_LENGTH];
 
     memcpy(STRING2, STRING1, STRING_LENGTH * sizeof(TYPE));
@@ -6518,11 +6874,30 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    bslma::TestAllocator          da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
+    BSLS_KEYWORD_CONSTEXPR
+    const TYPE      *const STRING        = s_testString;
+    BSLS_KEYWORD_CONSTEXPR
+    const size_type        STRING_LENGTH = s_testStringLength;
+
+    if (verbose) printf("Check 'constexpr' accesors.\n");
+    {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        constexpr Obj                         ctv;
+        constexpr typename Obj::const_pointer cp = ctv.data();   (void) cp;
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr typename Obj::size_type length = ctv.length(); (void) length;
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        constexpr Obj ctv1(STRING,          STRING_LENGTH); (void)ctv1;
+        constexpr Obj ctv2(STRING, STRING + STRING_LENGTH); (void)ctv2;
+#endif
+    }
 
     if (verbose) printf("Validate 'TestIterator' and 'TestSentinel'.\n");
 
@@ -6638,9 +7013,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 
             fa.deleteObject(objPtr);
         }
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-        BSLA_MAYBE_UNUSED constexpr Obj dummy;
-#endif
+
     }
 
     if (veryVerbose) { printf("Testing construction of non-empty objects.\n");
@@ -6688,13 +7061,14 @@ void TestDriver<TYPE, TRAITS>::testCase2()
             }
         }
         }
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
-        // check constexpr construction
-        constexpr bsl::string_view dummy1("0123456789", 9);
 
-        BSLA_MAYBE_UNUSED constexpr bsl::string_view dummy2(dummy1.begin(),
-                                                            dummy1.end());
+        if (verbose) printf("Check 'constexpr' construction.\n");
+        {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+            constexpr Obj ctv2(STRING, STRING_LENGTH/2);
+            constexpr Obj ctv3(ctv2.begin(), ctv2.end()); (void)ctv3;
 #endif
+        }
     }
 
 #if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
