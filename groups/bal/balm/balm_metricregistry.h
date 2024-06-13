@@ -1,12 +1,4 @@
 // balm_metricregistry.h                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_METRICREGISTRY
 #define INCLUDED_BALM_METRICREGISTRY
 
@@ -41,6 +33,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example illustrates how to create and use a
 // 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry'
 // object, 'registry', and then using this registry to create a

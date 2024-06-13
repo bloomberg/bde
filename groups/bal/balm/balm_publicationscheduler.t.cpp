@@ -1,23 +1,24 @@
 // balm_publicationscheduler.t.cpp                                    -*-C++-*-
 #include <balm_publicationscheduler.h>
 
-#include <balm_publisher.h>
-#include <balm_metricsmanager.h>
 #include <balm_metricsample.h>
+#include <balm_metricsmanager.h>
+#include <balm_publisher.h>
 
 #include <bdlf_bind.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlmt_timereventscheduler.h>
 
-#include <bslmt_barrier.h>
-#include <bslmt_threadutil.h>
-
+#include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocatorexception.h>
 #include <bslma_testallocator.h>
-
+#include <bslma_testallocatorexception.h>
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
+#include <bslmt_barrier.h>
+#include <bslmt_threadutil.h>
+#include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_c_stdio.h>
 #include <bsl_cstddef.h>
@@ -28,14 +29,9 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
-#include <bsls_assert.h>
-#include <bsls_types.h>
-
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf_s
 #endif
-
-#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 

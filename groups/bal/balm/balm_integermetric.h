@@ -1,12 +1,4 @@
 // balm_integermetric.h                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_INTEGERMETRIC
 #define INCLUDED_BALM_INTEGERMETRIC
 
@@ -67,8 +59,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following examples demonstrate how to configure, collect, and publish
-// metrics.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Metric Collection With 'balm::IntegerMetric'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -

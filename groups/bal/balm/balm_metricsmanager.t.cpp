@@ -1,33 +1,21 @@
 // balm_metricsmanager.t.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_metricsmanager.h>
 
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
 
-#include <bslma_testallocator.h>
-#include <bslmt_barrier.h>
-#include <bdlmt_fixedthreadpool.h>
-
 #include <bdlf_bind.h>
-
+#include <bdlmt_fixedthreadpool.h>
 #include <bdlt_dateutil.h>
 #include <bdlt_currenttime.h>
 
 #include <bsla_maybeunused.h>
-
 #include <bslma_allocator.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
-#include <bslma_defaultallocatorguard.h>
-
+#include <bslmt_barrier.h>
 #include <bsls_assert.h>
 
 #include <bsl_c_stdio.h>

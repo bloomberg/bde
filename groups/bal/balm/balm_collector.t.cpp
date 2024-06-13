@@ -1,24 +1,13 @@
 // balm_collector.t.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_collector.h>
 
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-
-#include <bslma_testallocator.h>
-
-#include <bslmt_barrier.h>
+#include <bdlf_bind.h>
 #include <bdlmt_fixedthreadpool.h>
 
-#include <bdlf_bind.h>
-
+#include <bslim_testutil.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslmt_barrier.h>
 #include <bsls_types.h>
 
 #include <bsl_cstring.h>
@@ -29,7 +18,6 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
-#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 

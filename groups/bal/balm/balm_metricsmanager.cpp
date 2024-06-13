@@ -1,12 +1,4 @@
 // balm_metricsmanager.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_metricsmanager.h>
 
 #include <bsls_ident.h>
@@ -15,23 +7,18 @@ BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
 
+#include <bdlb_print.h>
 #include <bdlf_bind.h>
-
 #include <bdlf_placeholder.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_datetimetz.h>
 
-#include <bdlb_print.h>
-
-#include <bslmt_readlockguard.h>
-#include <bslmt_writelockguard.h>
-#include <bslmt_lockguard.h>
-
 #include <bslma_default.h>
-
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
-
+#include <bslmt_lockguard.h>
+#include <bslmt_readlockguard.h>
+#include <bslmt_writelockguard.h>
 #include <bsls_assert.h>
 #include <bsls_log.h>
 

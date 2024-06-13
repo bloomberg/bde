@@ -1,12 +1,4 @@
 // balm_metricrecord.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_METRICRECORD
 #define INCLUDED_BALM_METRICRECORD
 
@@ -49,6 +41,10 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example demonstrates how a 'balm::MetricRecord' can be used
 // to describe a set of metric values.  In the example we create a
 // 'RequestProcessor' class that collects information about the sizes of the

@@ -1,12 +1,4 @@
 // balm_publisher.h                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_PUBLISHER
 #define INCLUDED_BALM_PUBLISHER
 
@@ -32,9 +24,7 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //
 ///Usage
 ///-----
-// In the following examples we create a simple implementation of a
-// 'balm::Publisher', and then use it to publish metrics recorded by a trivial
-// event manager.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Implementing the 'balm::Publisher' Protocol
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -

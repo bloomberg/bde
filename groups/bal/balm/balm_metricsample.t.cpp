@@ -1,19 +1,13 @@
 // balm_metricsample.t.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_metricsample.h>
-
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_dateutil.h>
+
+#include <bslim_testutil.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bsls_assert.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -22,10 +16,6 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
-
-#include <bsls_assert.h>
-
-#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 

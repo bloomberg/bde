@@ -1,17 +1,8 @@
 // balm_publicationtype.cpp   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
+#include <balm_publicationtype.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_publicationtype_cpp,"$Id$ $CSID$ $CCId$")
-
-#include <balm_publicationtype.h>
 
 #include <bdlat_valuetypefunctions.h>
 #include <bdlb_print.h>
@@ -20,8 +11,8 @@ BSLS_IDENT_RCSID(balm_publicationtype_cpp,"$Id$ $CSID$ $CCId$")
 
 #include <bsls_assert.h>
 
-#include <bsl_ostream.h>
 #include <bsl_iomanip.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 

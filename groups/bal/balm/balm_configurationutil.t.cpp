@@ -1,12 +1,4 @@
 // balm_configurationutil.t.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_configurationutil.h>
 
 #include <balm_category.h>
@@ -18,18 +10,17 @@
 #include <balm_publisher.h>
 
 #include <bdlf_bind.h>
-#include <bslma_allocator.h>
-
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
-
-#include <bsl_ostream.h>
-#include <bsl_cstring.h>
-#include <bsl_cstdlib.h>
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
 
 #include <bslim_testutil.h>
+#include <bslma_allocator.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_iostream.h>
+#include <bsl_ostream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 

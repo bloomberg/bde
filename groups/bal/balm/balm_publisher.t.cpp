@@ -1,12 +1,4 @@
 // balm_publisher.t.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_publisher.h>
 
 #include <balm_collector.h>         // for testing only
@@ -14,19 +6,16 @@
 
 #include <bdlt_currenttime.h>
 
+#include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-
 #include <bsls_protocoltest.h>      // for testing only
-
-#include <bsl_iostream.h>
-#include <bsl_ostream.h>
-#include <bsl_sstream.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-
-#include <bslim_testutil.h>
+#include <bsl_iostream.h>
+#include <bsl_ostream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 

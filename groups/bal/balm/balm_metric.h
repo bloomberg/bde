@@ -1,12 +1,4 @@
 // balm_metric.h                                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_METRIC
 #define INCLUDED_BALM_METRIC
 
@@ -62,8 +54,7 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //
 ///Usage
 ///-----
-// The following examples demonstrate how to configure, collect, and publish
-// metrics.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Metric Collection With 'balm::Metric'
 /// - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,12 +1,4 @@
 // balm_stopwatchscopedguard.h                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_STOPWATCHSCOPEDGUARD
 #define INCLUDED_BALM_STOPWATCHSCOPEDGUARD
 
@@ -55,8 +47,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following examples demonstrate how to record the elapsed time of a block
-// of code using a 'balm::StopwatchScopedGuard'.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Create and Configure the Default 'balm::MetricsManager' Instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

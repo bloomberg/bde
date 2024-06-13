@@ -1,5 +1,4 @@
 // balm_bdlmmetricsadapter.cpp                                        -*-C++-*-
-
 #include <balm_bdlmmetricsadapter.h>
 
 #include <bsls_ident.h>

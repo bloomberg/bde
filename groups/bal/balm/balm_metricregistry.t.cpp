@@ -1,29 +1,19 @@
 // balm_metricregistry.t.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_metricregistry.h>
 
 #include <balm_metricdescription.h>
-#include <balm_metricid.h>
 #include <balm_metricformat.h>
+#include <balm_metricid.h>
 #include <balm_publicationtype.h>
 
 #include <bdlf_bind.h>
-
 #include <bdlmt_fixedthreadpool.h>
 
+#include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
-
 #include <bslmt_barrier.h>
-
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -40,8 +30,6 @@
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf_s
 #endif
-
-#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 

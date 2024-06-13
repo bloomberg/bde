@@ -7,18 +7,15 @@ BSLS_IDENT_RCSID(balm_publicationscheduler_cpp,"$Id$ $CSID$")
 #include <balm_metricsmanager.h>
 
 #include <bdlb_print.h>
-#include <bdlmt_timereventscheduler.h>
 #include <bdlf_bind.h>
+#include <bdlmt_timereventscheduler.h>
 #include <bdlt_currenttime.h>
 
-#include <bslmt_mutex.h>
-#include <bslmt_lockguard.h>
-
 #include <bslma_default.h>
-
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
-
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 #include <bsls_assert.h>
 
 #include <bsl_ostream.h>

@@ -1,12 +1,4 @@
 // balm_integercollector.h                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_INTEGERCOLLECTOR
 #define INCLUDED_BALM_INTEGERCOLLECTOR
 
@@ -46,6 +38,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example creates a 'balm::IntegerCollector', modifies its
 // values, then collects a 'balm::MetricRecord'.
 //

@@ -1,12 +1,4 @@
 // balm_metricid.t.cpp                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_metricid.h>
 
 #include <balm_category.h>
@@ -14,6 +6,7 @@
 
 #include <bdlf_bind.h>
 
+#include <bslim_testutil.h>
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -24,8 +17,6 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-
-#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 

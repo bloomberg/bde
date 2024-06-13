@@ -1,12 +1,4 @@
 // balm_metricformat.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_METRICFORMAT
 #define INCLUDED_BALM_METRICFORMAT
 
@@ -66,6 +58,10 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example demonstrates how to create and configure a
 // 'balm::MetricFormat'.  Note that clients of the 'balm' package can set the
 // format for a metric through 'balm_configurationutil' or

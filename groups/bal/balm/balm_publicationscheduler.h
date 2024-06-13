@@ -41,6 +41,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example demonstrates how to use 'balm::PublicationScheduler'.
 // Before instantiating the publication scheduler, we create a
 // 'bdlmt::TimerEventScheduler' as well as a 'balm::MetricsManager'.  We obtain

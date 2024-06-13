@@ -1,23 +1,14 @@
 // balm_publicationtype.t.cpp                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
+#include <balm_publicationtype.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_publicationtype_t_cpp,"$Id$ $CSID$")
 
-#include <balm_publicationtype.h>
+#include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-
-#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 

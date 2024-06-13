@@ -1,12 +1,4 @@
 // balm_metricid.h                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_METRICID
 #define INCLUDED_BALM_METRICID
 
@@ -43,6 +35,10 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example demonstrates how to create and use a 'balm::MetricId'
 // object.  We start by creating a category and two metric description objects:
 //..

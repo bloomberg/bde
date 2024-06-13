@@ -1,27 +1,18 @@
 // balm_metrics.t.cpp                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_metrics.h>
 
 #include <balm_metricregistry.h>
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
 
-#include <bslma_testallocator.h>
-#include <bslmt_barrier.h>
+#include <bdlf_bind.h>
 #include <bdlmt_fixedthreadpool.h>
 
-#include <bdlf_bind.h>
-
+#include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-#include <bslim_testutil.h>
+#include <bslma_testallocator.h>
+#include <bslmt_barrier.h>
 #include <bsls_assert.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
@@ -33,8 +24,6 @@
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-
-#include <bslim_testutil.h>
 
 // It is very important not to say 'using BloombergLP;' in this test driver, in
 // order to test that the macros will work when 'BloombergLP' is not in scope.

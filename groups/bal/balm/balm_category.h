@@ -1,12 +1,4 @@
 // balm_category.h                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALM_CATEGORY
 #define INCLUDED_BALM_CATEGORY
 
@@ -49,6 +41,10 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example demonstrates how to create, access, and modify a
 // 'balm::Category' object.  We start by creating three category objects with
 // different names:
@@ -86,9 +82,9 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 
 #include <balscm_version.h>
 
-#include <bsl_iosfwd.h>
-
 #include <bsls_atomic.h>
+
+#include <bsl_iosfwd.h>
 
 namespace BloombergLP {
 
