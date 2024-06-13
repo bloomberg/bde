@@ -78,6 +78,11 @@ void check(const bsl::string& actual, const char *expected) {
     ASSERT(expected == actual);
 }
 
+void check(const bsl::wstring& actual, const wchar_t *expected)
+{
+    ASSERT(expected == actual);
+}
+
 void check(const std::string&, const char *) {
     printf("'bsl::format' should return 'bsl::string'\n");
     ASSERT(false);
@@ -262,12 +267,14 @@ int main(int argc, char **argv)
 
         const bsl::string intro = "Here is a simple equation";
         const int         x   = 1;
-        const int         y   = 2;
+        const unsigned int          y   = 2;
         const int         sum = x + y;
+        check(bslfmt::format("{}", y),
+              "2");
         check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
-        check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
-              "Here is a simple equation: 1 + 2 = 3");
+        //check(bslfmt::format(L"{}", L"Hello World"),
+        //      L"Hello World");
         //std::formatter<bsl::string, char> dummy;
         DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
                     "{}: {} + {} = {}",
