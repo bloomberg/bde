@@ -7582,7 +7582,7 @@ int main(int argc, char *argv[])
 
           bsls::TimeInterval elapsed = u::now() - now;
           if (elapsed < T6) {
-              ASSERT( 0 == x.cancelEvent(h) );
+              ASSERT( 0 == x.cancelEventAndWait(h) );
               ASSERT( 0 != x.cancelEvent(h) );
 
               const int NEXEC = testObj.numExecuted();
@@ -7630,7 +7630,7 @@ int main(int argc, char *argv[])
 
           bsls::TimeInterval elapsed = u::now() - now;
           if (elapsed < T6) {
-              ASSERT( 0 == x.cancelEvent(h) );
+              ASSERT( 0 == x.cancelEventAndWait(h) );
               ASSERT( 0 != x.cancelEvent(h) );
 
               const int NEXEC = testObj.numExecuted();
@@ -7671,7 +7671,7 @@ int main(int argc, char *argv[])
                      T3,
                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
 
-          x.cancelAllEvents();
+          x.cancelAllEventsAndWait();
           ASSERT( 0 != x.cancelEvent(h1) );
           ASSERT( 0 != x.cancelEvent(h2) );
 
@@ -7717,7 +7717,7 @@ int main(int argc, char *argv[])
                      T3,
                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
 
-          x.cancelAllEvents();
+          x.cancelAllEventsAndWait();
           ASSERT( 0 != x.cancelEvent(h1) );
           ASSERT( 0 != x.cancelEvent(h2) );
 
