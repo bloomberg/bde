@@ -171,6 +171,91 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Difference In Moving Trivial And Non-trivial Fields
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example will show the definition of a couple simple move constructor
+// that use 'MovableRef', and highlight the difference in how different data
+// members are handled.
+//
+// First, we create an minimal type similar to 'string_view'.  For simplicity,
+// we implement methods we are interested in directly in the class declaration
+// and omit the rest:
+//..
+//  class StringView {
+//      // This class provides a view on a C-string.
+//
+//      // DATA
+//      const char *d_string_p;  // pointer to the data
+//
+//    public:
+//      // CREATORS
+//      ...
+//..
+// Here we define the move constructor for 'StringView'.  Note that the
+// 'original' here is either an object of type 'MovableRef<StringView> (in
+// C++03), or an true r-value reference 'StringView&&', in C++11 or later.
+// Because the type of 'original' may be different when built with different
+// language standards, we must take care to manipulate and access the value in
+// a way that is syntactically valid irrespective of the language-standard
+// being used.  Here, we use 'MovableRefUtil::access' to obtain 'const &' to
+// 'original', and we assign 'original' to an l-value reference ('StringView&')
+// to set its value to 0.  These are both operations that support the same
+// syntax across language standards:
+//..
+//      StringView(bslmf::MovableRef<StringView> original)
+//      // Create a 'StringView' object that refers to the same c-string
+//      // as the specified 'original' object, and reset 'original' to not
+//      // refer to any string.
+//      : d_string_p(bslmf::MovableRefUtil::access(original).d_string_p)
+//      {
+//          StringView& reference = original;
+//          reference.d_string_p  = 0;
+//      }
+//
+//      // ACCESSORS
+//      ...
+//  };
+//..
+// Now, we define a second class, 'Employee', that contains both non-trivial
+// 'StringView' and a trivial integer field:
+//..
+//  class Employee {
+//      // This class represents an employee card.
+//
+//      // DATA
+//      StringView d_name;  // employee name
+//      int        d_id;    // employee id
+//
+//    public:
+//      // CREATORS
+//      ...
+//..
+// Here we define the move constructor for 'Employee".  Note that for the data
+// members of 'original', 'd_id' is a fundamental type and we simply can access
+// the value as a 'const &', but 'd_name' is a 'StringView', so that we must
+// use 'MovableRefUtil::move' to move it in a language-standard neutral way:
+//..
+//      Employee(bslmf::MovableRef<Employee> original)
+//          // Create an 'Employee' object that has the same value as the
+//          // specified 'original' object, and reset 'original' to the default
+//          // state.
+//      : d_name(bslmf::MovableRefUtil::move(
+//                             bslmf::MovableRefUtil::access(original).d_name))
+//      , d_id(bslmf::MovableRefUtil::access(original).d_id)
+//      {
+//          Employee& reference = original;
+//          reference.d_id = 0;
+//      }
+//
+//      // ACCESSORS
+//      ...
+//  };
+//..
+//
+///Example 2: Basic 'MovableRef<T>' Usage
+/// - - - - - - - - - - - - - - - - - - -
 // There are two sides of move semantics:
 //
 //: 1 Classes or class templates that are _move-enabled_, i.e., which can
@@ -368,7 +453,7 @@ BSLS_IDENT("$Id: $")
 //      if (!other.empty()) {
 //          this->reserve(4 < other.size()? other.size(): 4);
 //
-//          ASSERT(other.size() <= this->capacity());
+//          assert(other.size() <= this->capacity());
 //          for (t_TYPE* it = other.d_begin; it != other.d_end; ++it) {
 //              new (this->d_end) t_TYPE(*it);
 //              ++this->d_end;
