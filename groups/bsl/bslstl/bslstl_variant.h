@@ -494,15 +494,75 @@ typename add_pointer<const t_TYPE>::type get_if(
     // active alternative.  't_TYPE' shall appear exactly once in the variant's
     // list of alternatives.
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
+
+// See 'bslstl_variant.cpp' for implementation notes regarding 'bsl::get'.
+template <bool t_VALID, size_t t_INDEX, class t_ARG, class t_VARIANT>
+struct Variant_GetIndexReturnTypeImpl {
+    // This component-private metafunction computes the return types for
+    // 'bsl::get<t_INDEX>' and 'bsl::get_if<t_INDEX>' with an argument of type
+    // 't_ARG' or 't_ARG*', respectively, where 't_VARIANT' is 't_ARG' with
+    // cvref-qualifiers stripped, and shall be a specialization of
+    // 'bsl::variant'.  't_VALID' shall be 'true' if and only if 't_INDEX' is a
+    // valid index for 't_VARIANT'.  If 't_VALID' is 'false', no member
+    // typedefs are provided.
+};
+
+template <size_t t_INDEX, class t_VARIANT>
+struct Variant_GetIndexReturnTypeImpl<true, t_INDEX, t_VARIANT, t_VARIANT> {
+    typedef typename bsl::variant_alternative<t_INDEX, t_VARIANT>::type& type;
+
+    typedef
+        typename bsl::variant_alternative<t_INDEX, t_VARIANT>::type *pointer;
+};
+
+template <size_t t_INDEX, class t_VARIANT>
+struct Variant_GetIndexReturnTypeImpl<true,
+                                      t_INDEX,
+                                      const t_VARIANT,
+                                      t_VARIANT> {
+    typedef typename bsl::variant_alternative<t_INDEX, const t_VARIANT>::type&
+        type;
+
+    typedef typename bsl::variant_alternative<t_INDEX, const t_VARIANT>::type
+        *pointer;
+};
+
+template <size_t t_INDEX, class t_VARIANT>
+struct Variant_GetIndexReturnTypeImpl<
+    true,
+    t_INDEX,
+    BloombergLP::bslmf::MovableRef<t_VARIANT>,
+    t_VARIANT> {
+    typedef BloombergLP::bslmf::MovableRef<
+        typename bsl::variant_alternative<t_INDEX, t_VARIANT>::type>
+        type;
+};
+
+template <size_t t_INDEX,
+          class  t_ARG,
+          class  t_VARIANT = typename BloombergLP::bslmf::MovableRefUtil::
+              Decay<t_ARG>::type>
+struct Variant_GetIndexReturnType;
+    // This component-private metafunction computes the return types for
+    // 'bsl::get<t_INDEX>' and 'bsl::get_if<t_INDEX>' with an argument of type
+    // 't_ARG' or 't_ARG*' respectively.  If 't_ARG' is not a (possibly
+    // cvref-qualified) 'bsl::variant', no definition is provided.  If
+    // 't_INDEX' is not a valid index for 't_ARG', the member typedefs 'type'
+    // and 'pointer' are not provided.
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Implementation note: The C++03 versions of the 'get' and 'get_if' functions
-// are declared with non-variadic signatures because the IBM compiler does not
-// like the generated code for functions that take an argument of template
-// class with variadic template arguments.  The problem was only observed with
-// 'get' and 'get_if' functions, and the exact issue is not known.
+template <size_t t_INDEX, class t_ARG, class t_HEAD, class... t_TAIL>
+struct Variant_GetIndexReturnType<t_INDEX,
+                                  t_ARG,
+                                  bsl::variant<t_HEAD, t_TAIL...> >
+: Variant_GetIndexReturnTypeImpl<(t_INDEX <= sizeof...(t_TAIL)),
+                                 t_INDEX,
+                                 t_ARG,
+                                 bsl::variant<t_HEAD, t_TAIL...> > {
+};
 
 template <class t_TYPE, class t_HEAD, class... t_TAIL>
-struct Variant_ReturnType;
+struct Variant_GetTypeReturnType;
     // This component-private metafunction is defined only when 't_HEAD' is a
     // specialization of 'bsl::variant' and 't_TAIL' is empty, in which case it
     // provides member typedefs corresponding to 't_TYPE'.  Naming these member
@@ -510,7 +570,7 @@ struct Variant_ReturnType;
     // defined.
 
 template <class t_TYPE, class t_HEAD, class... t_TAIL>
-struct Variant_ReturnType<t_TYPE, bsl::variant<t_HEAD, t_TAIL...> > {
+struct Variant_GetTypeReturnType<t_TYPE, bsl::variant<t_HEAD, t_TAIL...> > {
     // This partial specialization provides member typedefs that are used to
     // declare the 'get' and 'get_if' function templates in C++03 as
     // non-variadic function templates that are constrained to accept only
@@ -518,38 +578,32 @@ struct Variant_ReturnType<t_TYPE, bsl::variant<t_HEAD, t_TAIL...> > {
     typedef t_TYPE                             type;
     typedef typename add_pointer<t_TYPE>::type pointer;
 };
+#endif
 
 template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    typename variant_alternative<t_INDEX, t_VARIANT>::type&,
-    t_VARIANT>::type
+typename Variant_GetIndexReturnType<t_INDEX, t_VARIANT>::type
 get(t_VARIANT&                                obj);
 template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    const typename variant_alternative<t_INDEX, t_VARIANT>::type&,
-    t_VARIANT>::type
-get(const t_VARIANT&                          obj);
-template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    BloombergLP::bslmf::MovableRef<
-        typename variant_alternative<t_INDEX, t_VARIANT>::type>,
-    t_VARIANT>::type
+typename Variant_GetIndexReturnType<
+    t_INDEX,
+    BloombergLP::bslmf::MovableRef<t_VARIANT> >::type
 get(BloombergLP::bslmf::MovableRef<t_VARIANT> obj);
     // Return a reference to the alternative object at index (template
     // parameter) 't_INDEX' in the specified 'obj'.  If 't_INDEX' is not the
     // index of the currently active alternative, throw an exception of type
     // 'bad_variant_access'.  't_INDEX' shall be a valid index for the variant
-    // type of 'obj'.
+    // type of 'obj'.  Note that 't_VARIANT' may be const-qualified.
 
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<t_TYPE&, t_VARIANT>::type get(t_VARIANT& obj);
+typename Variant_GetTypeReturnType<t_TYPE&, t_VARIANT>::type get(
+                                t_VARIANT&                                obj);
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<const t_TYPE&, t_VARIANT>::type get(
-                                                         const t_VARIANT& obj);
+typename Variant_GetTypeReturnType<const t_TYPE&, t_VARIANT>::type get(
+                                const t_VARIANT&                          obj);
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<BloombergLP::bslmf::MovableRef<t_TYPE>,
-                            t_VARIANT>::type
-get(BloombergLP::bslmf::MovableRef<t_VARIANT> obj);
+typename Variant_GetTypeReturnType<BloombergLP::bslmf::MovableRef<t_TYPE>,
+                                   t_VARIANT>::type get(
+                                BloombergLP::bslmf::MovableRef<t_VARIANT> obj);
     // Return a reference to the alternative object with type (template
     // parameter) 't_TYPE' in the specified 'obj'.  If 't_TYPE' is not the type
     // of the currently active alternative, throw an exception of type
@@ -557,33 +611,25 @@ get(BloombergLP::bslmf::MovableRef<t_VARIANT> obj);
     // variant's list of alternatives.
 
 template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    typename variant_alternative<t_INDEX, t_VARIANT>::type,
-    t_VARIANT>::pointer
+typename Variant_GetIndexReturnType<t_INDEX, t_VARIANT>::pointer
 get_if(t_VARIANT *obj) BSLS_KEYWORD_NOEXCEPT;
-template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    const typename variant_alternative<t_INDEX, t_VARIANT>::type,
-    t_VARIANT>::pointer
-get_if(const t_VARIANT *obj) BSLS_KEYWORD_NOEXCEPT;
     // Return a pointer to the alternative object with index (template
     // parameter) 't_INDEX' in the specified 'obj', or a null pointer if 'obj'
     // itself is a null pointer or if 't_INDEX' is not the index of the
     // currently active alternative.  't_INDEX' shall be a valid alternative
-    // index.
+    // index.  Note that 't_VARIANT' may be const-qualified.
 
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<t_TYPE, t_VARIANT>::pointer get_if(
+typename Variant_GetTypeReturnType<t_TYPE, t_VARIANT>::pointer get_if(
                                          t_VARIANT *obj) BSLS_KEYWORD_NOEXCEPT;
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<const t_TYPE, t_VARIANT>::pointer get_if(
+typename Variant_GetTypeReturnType<const t_TYPE, t_VARIANT>::pointer get_if(
                                    const t_VARIANT *obj) BSLS_KEYWORD_NOEXCEPT;
     // Return a pointer to the alternative object with type (template
     // parameter) 't_TYPE' in the specified 'obj', or a null pointer if 'obj'
     // itself is a null pointer or if 't_TYPE' is not the type of the currently
     // active alternative.  't_TYPE' shall appear exactly once in the variant's
     // list of alternatives.
-#endif
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 // FREE OPERATORS
 
@@ -9072,9 +9118,7 @@ get(const variant<t_HEAD, t_TAIL...>&& obj)
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    typename variant_alternative<t_INDEX, t_VARIANT>::type&,
-    t_VARIANT>::type
+typename Variant_GetIndexReturnType<t_INDEX, t_VARIANT>::type
 get(t_VARIANT& obj)
 {
     BSLMF_ASSERT((t_INDEX < variant_size<t_VARIANT>::value));
@@ -9086,24 +9130,9 @@ get(t_VARIANT& obj)
 }
 
 template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    const typename variant_alternative<t_INDEX, t_VARIANT>::type&,
-    t_VARIANT>::type
-get(const t_VARIANT& obj)
-{
-    BSLMF_ASSERT((t_INDEX < variant_size<t_VARIANT>::value));
-
-    typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
-    typedef typename bsl::variant_alternative<t_INDEX, t_VARIANT>::type Ret;
-
-    return ImpUtil::get<const Ret, t_INDEX>(obj);
-}
-
-template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    BloombergLP::bslmf::MovableRef<
-        typename variant_alternative<t_INDEX, t_VARIANT>::type>,
-    t_VARIANT>::type
+typename Variant_GetIndexReturnType<
+    t_INDEX,
+    BloombergLP::bslmf::MovableRef<t_VARIANT> >::type
 get(BloombergLP::bslmf::MovableRef<t_VARIANT> obj)
 {
     typedef BloombergLP::bslmf::MovableRefUtil   MoveUtil;
@@ -9178,7 +9207,8 @@ const t_TYPE&& get(const variant<t_HEAD, t_TAIL...>&& obj)
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<t_TYPE&, t_VARIANT>::type get(t_VARIANT& obj)
+typename Variant_GetTypeReturnType<t_TYPE&, t_VARIANT>::type
+get(t_VARIANT& obj)
 {
     BSLMF_ASSERT((
         BloombergLP::bslstl::Variant_HasUniqueType<t_TYPE, t_VARIANT>::value));
@@ -9190,8 +9220,8 @@ typename Variant_ReturnType<t_TYPE&, t_VARIANT>::type get(t_VARIANT& obj)
 }
 
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<const t_TYPE&, t_VARIANT>::type get(
-                                                          const t_VARIANT& obj)
+typename Variant_GetTypeReturnType<const t_TYPE&, t_VARIANT>::type
+get(const t_VARIANT& obj)
 {
     BSLMF_ASSERT((
         BloombergLP::bslstl::Variant_HasUniqueType<t_TYPE, t_VARIANT>::value));
@@ -9203,8 +9233,8 @@ typename Variant_ReturnType<const t_TYPE&, t_VARIANT>::type get(
 }
 
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<BloombergLP::bslmf::MovableRef<t_TYPE>,
-                            t_VARIANT>::type
+typename Variant_GetTypeReturnType<BloombergLP::bslmf::MovableRef<t_TYPE>,
+                                   t_VARIANT>::type
 get(BloombergLP::bslmf::MovableRef<t_VARIANT> obj)
 {
     BSLMF_ASSERT((
@@ -9298,9 +9328,7 @@ typename add_pointer<const t_TYPE>::type get_if(
 #else
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    typename variant_alternative<t_INDEX, t_VARIANT>::type,
-    t_VARIANT>::pointer
+typename Variant_GetIndexReturnType<t_INDEX, t_VARIANT>::pointer
 get_if(t_VARIANT *ptr) BSLS_KEYWORD_NOEXCEPT
 {
     BSLMF_ASSERT((t_INDEX < variant_size<t_VARIANT>::value));
@@ -9314,26 +9342,10 @@ get_if(t_VARIANT *ptr) BSLS_KEYWORD_NOEXCEPT
 
     return BSLS_UTIL_ADDRESSOF((ImpUtil::get<Ret, t_INDEX>(*ptr)));
 }
-template <size_t t_INDEX, class t_VARIANT>
-typename Variant_ReturnType<
-    const typename variant_alternative<t_INDEX, t_VARIANT>::type,
-    t_VARIANT>::pointer
-get_if(const t_VARIANT *ptr) BSLS_KEYWORD_NOEXCEPT
-{
-    BSLMF_ASSERT((t_INDEX < variant_size<t_VARIANT>::value));
-
-    typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
-    typedef typename bsl::variant_alternative<t_INDEX, t_VARIANT>::type Ret;
-
-    if (ptr == 0 || ptr->index() != t_INDEX) {
-        return NULL;                                                  // RETURN
-    }
-    return BSLS_UTIL_ADDRESSOF((ImpUtil::get<const Ret, t_INDEX>(*ptr)));
-}
 
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<t_TYPE, t_VARIANT>::pointer get_if(
-                                          t_VARIANT *ptr) BSLS_KEYWORD_NOEXCEPT
+typename Variant_GetTypeReturnType<t_TYPE, t_VARIANT>::pointer
+get_if(t_VARIANT *ptr) BSLS_KEYWORD_NOEXCEPT
 {
     BSLMF_ASSERT((
         BloombergLP::bslstl::Variant_HasUniqueType<t_TYPE, t_VARIANT>::value));
@@ -9350,8 +9362,8 @@ typename Variant_ReturnType<t_TYPE, t_VARIANT>::pointer get_if(
 }
 
 template <class t_TYPE, class t_VARIANT>
-typename Variant_ReturnType<const t_TYPE, t_VARIANT>::pointer get_if(
-                                    const t_VARIANT *ptr) BSLS_KEYWORD_NOEXCEPT
+typename Variant_GetTypeReturnType<const t_TYPE, t_VARIANT>::pointer
+get_if(const t_VARIANT *ptr) BSLS_KEYWORD_NOEXCEPT
 {
     BSLMF_ASSERT((
         BloombergLP::bslstl::Variant_HasUniqueType<t_TYPE, t_VARIANT>::value));

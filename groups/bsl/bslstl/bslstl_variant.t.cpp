@@ -134,7 +134,8 @@ using namespace bsl;
 // [ 3] size_t variant_npos;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [16] USAGE EXAMPLE
+// [17] USAGE EXAMPLE
+// [16] CONCERN: SFINAE for 'get' works on Solaris (DRQS 175366735)
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -6684,6 +6685,32 @@ constexpr bool isOnlyExplicitlyConstructible =
     // necessitating the 'canCopyListInitializeFrom' helper.
 }  // close unnamed namespace
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+// ============================================================================
+//                              TEST CASE 16
+// ----------------------------------------------------------------------------
+
+namespace test_case_16 {
+template <class t_TYPE>
+struct T { };
+
+template <size_t t_INDEX, class t_TYPE>
+bool get(const T<t_TYPE>&)
+{
+    return true;
+}
+
+template <class t_ELEM_TYPE, class t_TYPE>
+bool get(const T<t_TYPE>&)
+{
+    return true;
+}
+
+template <class t_TYPE>
+bool m(const t_TYPE& t) {
+    return get<0>(t) && get<int>(t);
+}
+}  // close namespace test_case_16
 
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
@@ -13936,7 +13963,7 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -14030,6 +14057,54 @@ int main(int argc, char **argv)
     ASSERT(bsl::holds_alternative<S>(v3));
 //..
 
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // SFINAE FOR 'get'
+        //
+        // Concerns:
+        //: 1 'bsl::get' for 'bsl::variant' does not participate in overload
+        //:   resolution unless the argument's type is (possibly cv-qualified)
+        //:   'bsl::variant' or derived therefrom.  In particular, SunCC has a
+        //:   bug in which the call 'get<N>(t)', where 't' has a dependent
+        //:   type, triggers argument-dependent lookup (ADL).  (Note that ADL
+        //:   should not take place in this call until C++20.)  This bug then
+        //:   triggers another bug in which certain invalid types are not
+        //:   treated as substitution failures, resulting in a hard error when
+        //:   'bsl::get' is in the overload set.
+        //
+        // Plan:
+        //: 1 Define a class template, 'T', that can take a 'bsl::variant' type
+        //:   as a template argument.  (This is needed to trigger ADL that will
+        //:   look in the 'bsl' namespace.)
+        //:
+        //: 2 Define two function templates named 'get' that can accept a
+        //:   function argument of any specialization of 'T'.  One 'get'
+        //:   template takes a template argument of type 'size_t', and the
+        //:   other takes a type template argument.
+        //:
+        //: 3 Define another function template, 'm', that calls 'get<0>' and
+        //:   'get<int>' on its argument.
+        //:
+        //: 4 Create an object 't' of type 'T<bsl::variant<int> >'.  (This will
+        //:   make 'bsl' an associated namespace for ADL calls that have 't' as
+        //:   an argument.)
+        //:
+        //: 5 Call 'm(t)' and verify that the function templates defined in P-2
+        //:   were called.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: SFINAE for 'get' works on Solaris (DRQS 175366735)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nSFINAE FOR 'get'"
+                   "\n================\n");
+
+        using namespace test_case_16;
+
+        T<bsl::variant<int> > t;
+        ASSERT(m(t));
       } break;
       case 15: {
         // --------------------------------------------------------------------
