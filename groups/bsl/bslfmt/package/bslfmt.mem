@@ -1,5 +1,5 @@
 bslfmt_formatimp
-bslfmt_formatimp_arg
-bslfmt_formatimp_context
-bslfmt_formatimp_error
-bslfmt_formatimp_formatterbase
+bslfmt_formatarg
+bslfmt_formatcontext
+bslfmt_formaterror
+bslfmt_formatterbase

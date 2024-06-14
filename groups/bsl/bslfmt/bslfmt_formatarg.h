@@ -28,8 +28,14 @@
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
 
-#include <bslfmt_formatimp_error.h>
-#include <bslfmt_formatimp_formatterbase.h>
+#ifdef BSL_VARIANT_FULL_IMPLEMENTATION
+#error "variant error 1"
+#else
+#error "variant error 2"
+#endif
+
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatterbase.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
@@ -257,10 +263,12 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     // FRIENDS
 #ifdef BSL_VARIANT_FULL_IMPLEMENTATION
+#error "testing error 1"
     template <class t_VISITOR, class t_CONTEXT>
     friend decltype(auto) visit_format_arg(t_VISITOR&&                 v,
                                            basic_format_arg<t_CONTEXT> a);
 #else
+#error "testing error 2"
     template <class t_VISITOR, class t_CONTEXT>
     friend typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
     visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> a);

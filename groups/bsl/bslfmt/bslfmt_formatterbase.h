@@ -1,7 +1,7 @@
 // bslfmt_formatimp.h                                                    -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATIMP_FORMATTERBASE
-#define INCLUDED_BSLFMT_FORMATIMP_FORMATTERBASE
+#ifndef INCLUDED_BSLFMT_FORMATTERBASE
+#define INCLUDED_BSLFMT_FORMATTERBASE
 
 #include <bslscm_version.h>
 
@@ -19,7 +19,10 @@
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
 
-#include <bslfmt_formatimp_error.h>
+#include <bslfmt_formaterror.h>
+
+#include <locale>     // for 'std::ctype', 'locale'
+#include <string>     // for 'std::char_traits'
 
 //#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 //// Include version that can be compiled with C++03
@@ -64,67 +67,62 @@ struct formatter {
 namespace BloombergLP {
 namespace bslfmt {
 template <class t_FORMATTER, class = void>
-struct FormatImp_formatterIsStdAliasingEnabled : bsl::true_type {
+struct Formatter_IsStdAliasingEnabled : bsl::true_type {
 };
 
 template <class t_FORMATTER>
-struct FormatImp_formatterIsStdAliasingEnabled<
+struct Formatter_IsStdAliasingEnabled<
     t_FORMATTER,
-    typename t_FORMATTER::FormatImp_PreventStdPromotion> : bsl::false_type {
+    typename t_FORMATTER::Formatter_PreventStdPromotion> : bsl::false_type {
 };
-}  // close namespace bslfmt
-}  // close enterprise namespace
 
-//namespace BloombergLP {
-//namespace bslfmt {
-//template <class t_TYPE>
-//constexpr bool bslfmt_format_IsStdBasicString = false;
-//
-//template <class charT, class traits, class Allocator>
-//constexpr bool bslfmt_format_IsStdBasicString<
-//    std::basic_string<charT, traits, Allocator> > = true;
-//
-//template <class t_TYPE>
-//constexpr bool bslfmt_format_IsStdBasicStringView = false;
-//
-//template <class charT, class traits>
-//constexpr bool bslfmt_format_IsStdBasicStringView<
-//    ::std::basic_string_view<charT, traits> > = true;
-//}  // close namespace bslfmt
-//}  // close enterprise namespace
+template <class t_CHAR>
+struct Formatter_CharUtils {
+  public:
+    // CLASS METHODS
+};
 
-namespace std {
-template <class t_ARG, class t_CHAR>
-struct formatter;
 
-template <class t_ARG, class t_CHAR>
-requires(
-    BloombergLP::bslfmt::FormatImp_formatterIsStdAliasingEnabled<
-        bsl::formatter<t_ARG, t_CHAR> >::value
-)
-struct formatter<t_ARG, t_CHAR>
-: bsl::formatter<t_ARG, t_CHAR> {};
+template <>
+struct Formatter_CharUtils<char> {
+  public:
+    // CLASS METHODS
+    template <class t_FORMAT_CONTEXT>
+    static typename t_FORMAT_CONTEXT::iterator outputFromChar(
+                                                       const char       *begin,
+                                                       const char       *end,
+                                                       t_FORMAT_CONTEXT& fc)
+    {
+        return bsl::copy(begin, end, fc.out());
+    }
+};
 
-//template <class t_ARG, class t_CHAR>
-//requires(
-//    !bsl::is_arithmetic_v<t_ARG> && !bsl::is_same_v<t_ARG, bsl::nullptr_t> &&
-//    !bsl::is_same_v<t_ARG, void *> && !bsl::is_same_v<t_ARG, const void *> &&
-//    !bsl::is_same_v<t_ARG, t_CHAR *> &&
-//    !bsl::is_same_v<t_ARG, const t_CHAR *> &&
-//    !bsl::is_same_v<bsl::remove_extent_t<t_ARG>, const t_CHAR> &&
-//    !BloombergLP::bslfmt::bslfmt_format_IsStdBasicString<t_ARG> &&
-//    !BloombergLP::bslfmt::bslfmt_format_IsStdBasicStringView<t_ARG> &&
-//    BloombergLP::bslfmt::FormatImp_formatterIsStdAliasingEnabled<
-//        bsl::formatter<t_ARG, t_CHAR> >::value) struct formatter<t_ARG, t_CHAR>
-//: bsl::formatter<t_ARG, t_CHAR> {
-//};
-}  // close namespace std
-#endif
 
-namespace bsl {
-// FORMATTER SPECIALIZATIONS
+template <>
+struct Formatter_CharUtils<wchar_t> {
+  public:
+    // CLASS METHODS
+    template <class t_FORMAT_CONTEXT>
+    static typename t_FORMAT_CONTEXT::iterator outputFromChar(
+                                                      const char        *begin,
+                                                      const char        *end,
+                                                      t_FORMAT_CONTEXT&  fc)
+    {
+        static const std::ctype<wchar_t>& ct =
+                  std::use_facet<std::ctype<wchar_t> >(std::locale::classic());
+        typename t_FORMAT_CONTEXT::iterator out = fc.out();
 
-template <> struct formatter<int, char> {
+        for (; begin != end; (void)++begin, (void)++out) {
+            wchar_t wc = ct.widen(*begin);
+            *out = ct.widen(*begin);
+        }
+
+        return out;
+    }
+};
+
+template <class t_VALUE, class t_CHAR>
+struct Formatter_IntegerBase {
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
@@ -132,8 +130,7 @@ template <> struct formatter<int, char> {
     // MANIPULATORS
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                           t_PARSE_CONTEXT&
-                                                      pc)
+                                                           t_PARSE_CONTEXT& pc)
     {
         if (pc.begin() != pc.end() && *pc.begin() != '}') {
             BSLS_THROW(bsl::format_error("not implemented"));
@@ -142,16 +139,43 @@ template <> struct formatter<int, char> {
     }
 
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(
-                                       int                            x,
-                                       t_FORMAT_CONTEXT& fc) const
+    typename t_FORMAT_CONTEXT::iterator format(t_VALUE           x,
+                                               t_FORMAT_CONTEXT& fc) const
     {
         typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
-        char  buf[NFUtil::ToCharsMaxLength<int>::k_VALUE];
+        char  buf[NFUtil::ToCharsMaxLength<t_VALUE>::k_VALUE];
         char *result = NFUtil::toChars(buf, buf + sizeof(buf), x);
-        return bsl::copy(buf, result, fc.out());
+        return BloombergLP::bslfmt::Formatter_CharUtils<
+            t_CHAR>::outputFromChar(buf, result, fc);
     }
 };
+
+}  // close namespace bslfmt
+}  // close enterprise namespace
+
+namespace std {
+template <class t_ARG, class t_CHAR>
+struct formatter;
+
+template <class t_ARG, class t_CHAR>
+requires(
+    BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+        bsl::formatter<t_ARG, t_CHAR> >::value
+)
+struct formatter<t_ARG, t_CHAR>
+: bsl::formatter<t_ARG, t_CHAR> {};
+
+}  // close namespace std
+#endif
+
+namespace bsl {
+// FORMATTER SPECIALIZATIONS
+
+template <class t_CHAR>
+struct formatter<int, t_CHAR>
+: BloombergLP::bslfmt::Formatter_IntegerBase<int, t_CHAR> {
+};
+
 
 template <class t_CHAR>
 struct formatter<basic_string_view<t_CHAR>, t_CHAR> {

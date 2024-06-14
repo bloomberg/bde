@@ -250,6 +250,9 @@ struct formatter<FormattableType, char> {
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
+    int        aaa     = sizeof(char);
+    int        bbb     = sizeof(wchar_t);
+
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
     // const bool veryVerbose = argc > 3;
@@ -262,19 +265,24 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        bsl::formatter<int, char>              dummy1;
+        std::formatter<int, char>              dummy1;
         bsl::formatter<bsl::string_view, char> dummy2;
+
 
         const bsl::string intro = "Here is a simple equation";
         const int         x   = 1;
-        const unsigned int          y   = 2;
+        const int          y   = 2;
         const int         sum = x + y;
+
+
+        check(bslfmt::format(L"{}", x), L"1");
+
         check(bslfmt::format("{}", y),
               "2");
         check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
-        //check(bslfmt::format(L"{}", L"Hello World"),
-        //      L"Hello World");
+        check(bslfmt::format(L"{}", L"Hello World"),
+              L"Hello World");
         //std::formatter<bsl::string, char> dummy;
         DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
                     "{}: {} + {} = {}",

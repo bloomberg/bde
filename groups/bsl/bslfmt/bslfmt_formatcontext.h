@@ -28,8 +28,8 @@
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
 
-#include <bslfmt_formatimp_error.h>
-#include <bslfmt_formatimp_formatterbase.h>
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatterbase.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03

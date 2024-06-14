@@ -28,10 +28,10 @@
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
 
-#include <bslfmt_formatimp_error.h>
-#include <bslfmt_formatimp_formatterbase.h>
-#include <bslfmt_formatimp_arg.h>
-#include <bslfmt_formatimp_context.h>
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatterbase.h>
+#include <bslfmt_formatarg.h>
+#include <bslfmt_formatcontext.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
@@ -129,10 +129,16 @@ struct bslstl_format_FormatVisitor {
         typename basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle
             handle;
 
-    template <class t_TYPE>
-    void operator()(t_TYPE) const
+    //template <class t_TYPE>
+    //void operator()(t_TYPE) const
+    //{
+    //    BSLS_THROW(format_error("this argument type isn't supported yet"));
+    //}
+
+    void operator()(bsl::monostate) const
     {
-        BSLS_THROW(format_error("this argument type isn't supported yet"));
+        BSLMF_ASSERT(false);
+        //BSLS_THROW(format_error("this argument type isn't supported yet"));
     }
 
     void operator()(bool) const

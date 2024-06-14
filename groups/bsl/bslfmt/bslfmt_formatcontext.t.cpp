@@ -1,5 +1,5 @@
 // bslstl_formatimp_error.t.cpp                                       -*-C++-*-
-#include <bslfmt_formatimp_context.h>
+#include <bslfmt_formatcontext.h>
 
 #include <bsls_bsltestutil.h>
 
