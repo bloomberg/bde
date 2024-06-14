@@ -535,8 +535,8 @@ int main(int argc, char *argv[])
                (OQUEUE_MAX_PROC, MAX_QUEUESIZE, &tp, &ta);
 
             if (0 != tp.start()) {
-               ASSERT(!"Could not start thread pool!  "
-                       "Threads cannot be created!");
+               ASSERT(0 == "Could not start thread pool!  "
+                           "Threads cannot be created!");
                break;
             }
             if (veryVerbose) cout << "Thread-pool Started" << endl;
@@ -640,8 +640,8 @@ int main(int argc, char *argv[])
             bdlmt::FixedThreadPool tp(NUM_THREADS, MAX_QUEUESIZE, &ta);
 
             if (0 != tp.start()) {
-               ASSERT(!"Could not start thread pool!  "
-                       "Threads cannot be created!");
+               ASSERT(0 == "Could not start thread pool!  "
+                           "Threads cannot be created!");
                break;
             }
             if (veryVerbose) cout << "Thread-pool Started" << endl;
@@ -709,8 +709,8 @@ int main(int argc, char *argv[])
             TestQueue otherQueue(maxProc, MAX_QUEUESIZE, &tp, &ta);
 
             if (0 != tp.start()) {
-               ASSERT(!"Could not start thread pool!  "
-                       "Threads cannot be created!");
+               ASSERT(0 == "Could not start thread pool!  "
+                           "Threads cannot be created!");
                break;
             }
             if (veryVerbose) cout << "Thread-pool Started" << endl;

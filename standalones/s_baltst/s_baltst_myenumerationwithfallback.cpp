@@ -107,7 +107,7 @@ const char *MyEnumerationWithFallback::toString(MyEnumerationWithFallback::Value
       }
     }
 
-    BSLS_ASSERT(!"invalid enumerator");
+    BSLS_ASSERT(0 == "invalid enumerator");
     return 0;
 }
 

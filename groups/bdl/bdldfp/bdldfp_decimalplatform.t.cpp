@@ -185,8 +185,8 @@ int main(int argc, char* argv[])
                                << bsl::endl;
 
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
-            ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
-                    " is not defined!");
+            ASSERT(0 == "BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
+                        " is not defined!");
         #endif
 
         // NaN macros must exist, and be valid NaN objects, by not comparing
@@ -605,8 +605,8 @@ int main(int argc, char* argv[])
                                << "SANE CONFIGURATION" << bsl::endl
                                << "==================" << bsl::endl;
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
-            ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
-                    " is not defined!");
+            ASSERT(0 == "BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
+                        " is not defined!");
         #endif
 
         #ifdef BDLDFP_DECIMALPLATFORM_C99_TR

@@ -794,7 +794,7 @@ BSLS_IDENT("$Id: $")
 //          return bdlat_TypeCategory::e_SIMPLE_CATEGORY;             // RETURN
 //      }
 //
-//      assert(!"Reached");
+//      assert(0 == "Reached");
 //
 //      // Note that this 'return' is never reached and hence the returned
 //      // value is immaterial.

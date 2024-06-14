@@ -268,7 +268,7 @@ BSLS_IDENT("$Id: $")
 //                  bsl::cout << obj.value() << ": NG too small" << bsl::endl;
 //              } break;
 //              case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-//                assert(!"reached");
+//                assert(0 == "reached");
 //              } break;
 //          }
 //..
@@ -289,7 +289,7 @@ BSLS_IDENT("$Id: $")
 //                  bsl::cout << value << ": inexact: USE approximation";
 //              } break;
 //              case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-//                assert(!"reached");
+//                assert(0 == "reached");
 //              } break;
 //          }
 //

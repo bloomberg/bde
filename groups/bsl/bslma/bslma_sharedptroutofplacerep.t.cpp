@@ -441,8 +441,8 @@ MyAllocArgTestDeleter::MyAllocArgTestDeleter(
 , d_deleter_p(original.d_deleter_p)
 , d_memory_p(d_allocator_p->allocate(13))
 {
-    ASSERT(!"'MyAllocArgTestDeleter::MyAllocArgTestDeleter(original)' should"
-            " not be used.");
+    ASSERT(0 == "'MyAllocArgTestDeleter::MyAllocArgTestDeleter(original)'"
+                " should not be used.");
 }
 
 MyAllocArgTestDeleter::MyAllocArgTestDeleter(
@@ -549,8 +549,9 @@ MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(
 , d_deleter_p(original.d_deleter_p)
 , d_memory_p(d_allocator.allocate(13))
 {
-    ASSERT(!"'MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(original)'"
-            " should not be used.");
+    ASSERT(0 ==
+               "'MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(original)'"
+               " should not be used.");
 }
 
 MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(

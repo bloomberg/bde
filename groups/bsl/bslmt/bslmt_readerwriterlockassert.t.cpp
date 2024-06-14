@@ -584,7 +584,7 @@ void test()
             BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ( &rwLock);
             BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&rwLock);
         } catch (bsls::AssertTestException thrown) {
-            ASSERT(!"Reachable")
+            ASSERT(0 == "Reachable")
         }
 #endif // BSLS_ASSERT_IS_ACTIVE
 
@@ -628,7 +628,7 @@ void test()
             BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT( &rwLock);
             BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(&rwLock);
         } catch (bsls::AssertTestException thrown) {
-            ASSERT(!"Reachable")
+            ASSERT(0 == "Reachable")
         }
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
