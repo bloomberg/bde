@@ -123,17 +123,9 @@ bool doTestWithOracle(string_view              result,
     return (result == res_bde && result == res_std);
 }
 #  define DOTESTWITHORACLE(...) doTestWithOracle(__VA_ARGS__);
-#elif defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-//template <class... t_ARGS>
-//bool doTestWithOracle(string_view              result,
-//                      bsl::format_string<t_ARGS...> fmtstr,
-//                      t_ARGS&&...              args)
-//{
-//    return (result == bslfmt::format(fmtstr.get(), args...));
-//}
-#  define DOTESTWITHORACLE(RESULT, ...) (RESULT == bslfmt::format(__VA_ARGS__));
 #else
-#  define DOTESTWITHORACLE(RESULT, ...) (RESULT == bslfmt::format(__VA_ARGS__));
+# define DOTESTWITHORACLE(RESULT, ...)                                        \
+             (RESULT == bslfmt::format(__VA_ARGS__));
 #endif
 
 struct NonFormattableType {};
