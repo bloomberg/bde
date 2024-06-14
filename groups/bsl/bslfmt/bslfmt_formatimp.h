@@ -451,12 +451,12 @@ format_to_n_result<t_OUT> format_to_n(
 
 namespace bsl {
 // TEMPORARY HACKS TO MAKE THE FORMATTER BIT WORK
-    using BloombergLP::bslfmt::basic_format_context;
-    using BloombergLP::bslfmt::format_context;
-    using BloombergLP::bslfmt::wformat_context;
-    using BloombergLP::bslfmt::basic_format_parse_context;
-    using BloombergLP::bslfmt::format_parse_context;
-    using BloombergLP::bslfmt::wformat_parse_context;
+    //using BloombergLP::bslfmt::basic_format_context;
+    //using BloombergLP::bslfmt::format_context;
+    //using BloombergLP::bslfmt::wformat_context;
+    //using BloombergLP::bslfmt::basic_format_parse_context;
+    //using BloombergLP::bslfmt::format_parse_context;
+    //using BloombergLP::bslfmt::wformat_parse_context;
     using BloombergLP::bslfmt::format_error;
 }
 

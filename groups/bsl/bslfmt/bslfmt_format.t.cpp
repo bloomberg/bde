@@ -1,5 +1,5 @@
-// bslstl_formatimp.t.cpp                                             -*-C++-*-
-#include <bslfmt_formatimp.h>
+// bslfmt_format.t.cpp                                                -*-C++-*-
+#include <bslfmt_format.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -200,7 +200,7 @@ template <>
 struct formatter<FormattableType, char> {
     bsl::formatter<int, char> d_formatter;
 
-    BSLS_KEYWORD_CONSTEXPR_CPP20 bslfmt::format_parse_context::iterator parse(
+    BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
                                                       bslfmt::format_parse_context& pc)
     {
         return d_formatter.parse(pc);
@@ -221,7 +221,7 @@ struct formatter<FormattableType, char> {
     }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    BSLS_KEYWORD_CONSTEXPR_CPP20 std::format_parse_context::iterator parse(
+    BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
                                                       std::format_parse_context& pc)
     {
         return d_formatter.parse(pc);
@@ -275,13 +275,13 @@ int main(int argc, char **argv)
         const int         sum = x + y;
 
 
-        check(bslfmt::format(L"{}", x), L"1");
+        check(bsl::format(L"{}", x), L"1");
 
-        check(bslfmt::format("{}", y),
+        check(bsl::format("{}", y),
               "2");
-        check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
+        check(bsl::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
-        check(bslfmt::format(L"{}", L"Hello World"),
+        check(bsl::format(L"{}", L"Hello World"),
               L"Hello World");
         //std::formatter<bsl::string, char> dummy;
         DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
@@ -290,20 +290,20 @@ int main(int argc, char **argv)
                     x,
                     y,
                     sum);
-        check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
+        check(bsl::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
-        check(bslfmt::vformat(
+        check(bsl::vformat(
                                       "{}: {} + {} = {}",
-                       bslfmt::make_format_args(intro, x, y, sum)),
+                       bsl::make_format_args(intro, x, y, sum)),
               "Here is a simple equation: 1 + 2 = 3");
         //ASSERT(!bslfmt::bslfmt_format_IsStdAliasingEnabled<
         //       bslfmt::formatter<NonFormattableType> >::value);
         FormattableType ft;
         ft.x = 37;
-        check(bslfmt::format("The value of {1} is {0}", ft.x, ft),
+        check(bsl::format("The value of {1} is {0}", ft.x, ft),
               "The value of FormattableType{37} is 37");
-        check(bslfmt::vformat("The value of {1} is {0}",
-                               bslfmt::make_format_args(ft.x, ft)),
+        check(bsl::vformat("The value of {1} is {0}",
+                               bsl::make_format_args(ft.x, ft)),
               "The value of FormattableType{37} is 37");
       } break;
       default: {
