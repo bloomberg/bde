@@ -368,7 +368,7 @@ MyAllocTestDeleter::~MyAllocTestDeleter()
 MyAllocTestDeleter& MyAllocTestDeleter::operator=(
                                                  const MyAllocTestDeleter& rhs)
 {
-    ASSERT(!"'MyAllocTestDeleter::operator=' should not be used.");
+    ASSERT(0 == "'MyAllocTestDeleter::operator=' should not be used.");
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }
@@ -464,7 +464,7 @@ MyAllocArgTestDeleter::~MyAllocArgTestDeleter()
 MyAllocArgTestDeleter& MyAllocArgTestDeleter::operator=(
                                               const MyAllocArgTestDeleter& rhs)
 {
-    ASSERT(!"'MyAllocArgTestDeleter::operator=' should not be used.");
+    ASSERT(0 == "'MyAllocArgTestDeleter::operator=' should not be used.");
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }
@@ -572,7 +572,7 @@ MyBslAllocArgTestDeleter::~MyBslAllocArgTestDeleter()
 MyBslAllocArgTestDeleter& MyBslAllocArgTestDeleter::operator=(
                                                const MyBslAllocArgTestDeleter&)
 {
-    ASSERT(!"'MyBslAllocArgTestDeleter::operator=' should not be used.");
+    ASSERT(0 == "'MyBslAllocArgTestDeleter::operator=' should not be used.");
     return *this;
 }
 

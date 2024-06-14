@@ -34346,7 +34346,7 @@ const char *Colors::toString(Colors::Value value)
       } break;
     }
 
-    BSLS_ASSERT(!"invalid enumerator");
+    BSLS_ASSERT(0 == "invalid enumerator");
     return 0;
 }
 
@@ -35573,7 +35573,7 @@ const char *Color::toString(Color::Value value)
       } break;
     }
 
-    BSLS_ASSERT(!"invalid enumerator");
+    BSLS_ASSERT(0 == "invalid enumerator");
     return 0;
 }
 

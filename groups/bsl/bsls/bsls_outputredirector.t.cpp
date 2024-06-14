@@ -237,18 +237,18 @@ int main(int argc, char *argv[])
 
         if (!redirector.load()) {
             redirector.disable();
-            ASSERT(!"Could not load redirected output into buffer.");
+            ASSERT(0 == "Could not load redirected output into buffer.");
         }
         else {
             redirector.disable();
 
             if (!redirector.isOutputReady()) {
-                ASSERT(!"Redirected output buffer is empty.");
+                ASSERT(0 == "Redirected output buffer is empty.");
                 break;
             }
 
             if (redirector.outputSize() < 12 ) {
-                ASSERT(!"Redirected output buffer is shorted than expected.");
+                ASSERT(0 == "Redirected output buffer is shorted than expected.");
                 break;
             }
 

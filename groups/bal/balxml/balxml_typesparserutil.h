@@ -934,7 +934,7 @@ int TypesParserUtil::parse(TYPE       *result,
                                               Tag());                 // RETURN
       } break;
       default: {
-        BSLS_ASSERT_SAFE(!"Unsupported operation!");
+        BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
         return k_FAILURE;                                             // RETURN
       } break;
@@ -1047,7 +1047,7 @@ int TypesParserUtil_Imp::parseBase64(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     // Note: 'parseBase64' for 'bsl::string' and 'bsl::vector<char>' is inside
     //       the CPP file.
@@ -1116,7 +1116,7 @@ int TypesParserUtil_Imp::parseDecimal(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     return k_FAILURE;
 }
@@ -1175,7 +1175,7 @@ int TypesParserUtil_Imp::parseDefault(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     return k_FAILURE;
 }
@@ -1422,7 +1422,7 @@ int TypesParserUtil_Imp::parseHex(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     // Note: 'parseHex' for 'bsl::string' and 'bsl::vector<char>' is inside the
     //       CPP file.
@@ -1476,7 +1476,7 @@ int TypesParserUtil_Imp::parseList(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     return k_FAILURE;
 }
@@ -1579,7 +1579,7 @@ int TypesParserUtil_Imp::parseText(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     return k_FAILURE;
 }

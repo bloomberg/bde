@@ -1164,7 +1164,7 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
         return "VALUE2";                                              // RETURN
       } break;
       default:
-        BSLS_ASSERT(!"encountered out-of-bound enumerated value");
+        BSLS_ASSERT(0 == "encountered out-of-bound enumerated value");
     }
 
     return 0;

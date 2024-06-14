@@ -208,7 +208,7 @@ void bdlat_enumToInt(int *result, const PolygonType& value)
         return;                                                       // RETURN
       }
     }
-    ASSERT(!"invalid enumerator");
+    ASSERT(0 == "invalid enumerator");
 }
 
 void bdlat_enumToString(bsl::string *result, const PolygonType& value)
@@ -229,7 +229,7 @@ void bdlat_enumToString(bsl::string *result, const PolygonType& value)
         return;                                                       // RETURN
       }
     }
-    ASSERT(!"invalid enumerator");
+    ASSERT(0 == "invalid enumerator");
 }
 
 }  // close namespace test
@@ -537,7 +537,7 @@ const char *PrimaryColor::toString(PrimaryColor::Value value)
     }
 
     return 0;                                                         // RETURN
-    BSLS_ASSERT_SAFE(!"unreachable");
+    BSLS_ASSERT_SAFE(0 == "unreachable");
 }
 
 template <class STREAM>
@@ -769,7 +769,7 @@ const char *MyEnumWithFallback::toString(MyEnumWithFallback::Value value)
       }
     }
 
-    BSLS_ASSERT(!"invalid enumerator");
+    BSLS_ASSERT(0 == "invalid enumerator");
     return 0;
 }
 

@@ -427,7 +427,7 @@ using namespace bsl;  // automatically added by script
       case ScalarData::Ft::e_TIME:
         os << data.d_time; break;
       default:
-        BSLS_ASSERT_OPT(!"ScalarData type not accepted");
+        BSLS_ASSERT_OPT(0 == "ScalarData type not accepted");
     }
     return os;
 }

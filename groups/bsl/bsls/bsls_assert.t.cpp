@@ -4180,7 +4180,7 @@ void test_case_m8() {
         // Fire an assertion
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-        BSLS_ASSERT(!"This is an intentional assert");
+        BSLS_ASSERT(0 == "This is an intentional assert");
 #endif
 
         printf( "This message should not be seen.\n" );

@@ -182,7 +182,7 @@ BSLS_IDENT("$Id: $")
 //      JobQueue             criticalQueue(maxProc, &tp);
 //
 //      if (0 != tp.start()) {
-//         ASSERT(!"Could not start thread pool!");
+//         ASSERT(0 == "Could not start thread pool!");
 //         return -1;
 //      }
 //

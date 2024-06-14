@@ -521,7 +521,7 @@ int ggg(Json *object, const char *spec, int verbose)
                 stack.emplace_back(e_OBJECT_EXPECT_MEMBER, state.d_json_p);
               } break;
               default: {
-                ASSERT(!"illegal");
+                ASSERT(0 == "illegal");
               } break;
             }
           } break;
@@ -556,7 +556,7 @@ int ggg(Json *object, const char *spec, int verbose)
                                    &stack.back().d_json_p->theArray().back());
               } break;
               default: {
-                ASSERT(!"illegal");
+                ASSERT(0 == "illegal");
               } break;
             }
           } break;
@@ -574,7 +574,7 @@ int ggg(Json *object, const char *spec, int verbose)
                 stack.pop_back();
               } break;
               default: {
-                ASSERT(!"illegal");
+                ASSERT(0 == "illegal");
               } break;
             }
           } break;
@@ -631,12 +631,12 @@ int ggg(Json *object, const char *spec, int verbose)
                                 .d_json_p->theObject()[stack.back().d_member]);
               } break;
               default: {
-                ASSERT(!"illegal");
+                ASSERT(0 == "illegal");
               } break;
             }
           } break;
           default: {
-            ASSERT(!"illegal");
+            ASSERT(0 == "illegal");
           } break;
         }
     }
@@ -3805,7 +3805,7 @@ class JsonValueEnumeration
             allocated = true;
           } break;
           default: {
-            BSLS_ASSERT_OPT(!"Bad JSON value enumerator config");
+            BSLS_ASSERT_OPT(0 == "Bad JSON value enumerator config");
             allocated = false;
           } break;
         }
@@ -6788,7 +6788,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(VALUE_CONFIG,
@@ -6850,7 +6850,7 @@ int main(int argc, char *argv[])
                         // No allocator.
                     }
                     else {
-                        BSLS_ASSERT_OPT(!"JSON is no known type");
+                        BSLS_ASSERT_OPT(0 == "JSON is no known type");
                     }
                     ASSERTV(VALUE_CONFIG, CONFIG, &oa == X.allocator());
                     ASSERTV(VALUE_CONFIG, CONFIG, &scratch == Z.allocator());
@@ -7137,7 +7137,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config");
                       } break;
                     }
                     ASSERTV(VALUE_CONFIG,
@@ -7186,7 +7186,7 @@ int main(int argc, char *argv[])
                         // No allocator.
                     }
                     else {
-                        BSLS_ASSERT_OPT(!"JSON is no known type");
+                        BSLS_ASSERT_OPT(0 == "JSON is no known type");
                     }
 
                     // Also invoke the object's 'allocator' accessor, as well
@@ -7795,7 +7795,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -7843,7 +7843,7 @@ int main(int argc, char *argv[])
                                              &sa);
                         ASSERTV(CONFIG, tam.isTotalSame());
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -7874,7 +7874,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -7908,7 +7908,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -7932,7 +7932,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -7966,7 +7966,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8000,7 +8000,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8034,7 +8034,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8068,7 +8068,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8102,7 +8102,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8136,7 +8136,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8170,7 +8170,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8228,7 +8228,7 @@ int main(int argc, char *argv[])
                                              &sa);
                         ASSERTV(CONFIG, tam.isTotalSame());
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8269,7 +8269,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8317,7 +8317,7 @@ int main(int argc, char *argv[])
                                              &sa);
                         ASSERTV(CONFIG, tam.isTotalSame());
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8348,7 +8348,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8379,7 +8379,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8410,7 +8410,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8457,7 +8457,7 @@ int main(int argc, char *argv[])
                                              &sa);
                         ASSERTV(CONFIG, tam.isTotalSame());
                     } else {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -8476,7 +8476,7 @@ int main(int argc, char *argv[])
                             == Helper::getValue());
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(!"Bad constructor config.");
+                    BSLS_ASSERT_OPT(0 == "Bad constructor config.");
                   } break;
                 }
 
@@ -8649,7 +8649,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(objAllocatorPtr);
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 
@@ -9154,7 +9154,7 @@ int main(int argc, char *argv[])
                 mX.find(KEY)->second = GOOD;
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -9196,7 +9196,7 @@ int main(int argc, char *argv[])
                 ASSERT(!r2);
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -9269,7 +9269,7 @@ int main(int argc, char *argv[])
                 ASSERT(false == r2.second);
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, elided, (K == X) || elided);
@@ -10629,7 +10629,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -10948,7 +10948,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -11890,7 +11890,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
 
@@ -12191,7 +12191,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(objAllocatorPtr);
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 
@@ -12589,7 +12589,7 @@ int main(int argc, char *argv[])
                 mX.back() = GOOD;
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -12630,7 +12630,7 @@ int main(int argc, char *argv[])
                 mX.popBack();
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -12692,7 +12692,7 @@ int main(int argc, char *argv[])
                 ASSERT(r == mX.begin());
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -13972,7 +13972,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -14290,7 +14290,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -15291,7 +15291,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
 
@@ -15588,7 +15588,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(objAllocatorPtr);
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 

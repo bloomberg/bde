@@ -3197,7 +3197,7 @@ unsigned char ResultCatKey::convertToBits(Result::ValueCat valueCategory)
     }
 
     // Not in 'default' to not silence 'enum' warnings
-    ASSERT(!"unknown-value-category");
+    ASSERT(0 == "unknown-value-category");
     return 0;
 }
 
@@ -3212,7 +3212,7 @@ Result::ValueCat ResultCatKey::convertToValueCategory(unsigned bits)
       case 4: return Result::e_NAN;                                   // RETURN
     }
 
-    ASSERT(!"unknown-value-category-bits");
+    ASSERT(0 == "unknown-value-category-bits");
     return Result::e_ZERO;
 }
 

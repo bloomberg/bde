@@ -526,7 +526,7 @@ void testCase14(const string& pipeName)
 
     const int rc = server.start(pipeName);
     if (0 != rc) {
-        ASSERT(!"Failed to start pipe control channel");
+        ASSERT(0 == "Failed to start pipe control channel");
         return;                                                       // RETURN
     }
 
@@ -545,7 +545,7 @@ void testCase14(const string& pipeName)
 
     DWORD dummy;
     if (!WriteFile(pipe, "EXIT\n", 5, &dummy, 0)) {
-        ASSERT(!"Failed to send EXIT message");
+        ASSERT(0 == "Failed to send EXIT message");
         return;                                                       // RETURN
     }
 
@@ -563,18 +563,18 @@ void testCase14(const string& pipeName)
 
     const int rc = server.start(pipeName);
     if (0 != rc) {
-        ASSERT(!"Failed to start pipe control channel");
+        ASSERT(0 == "Failed to start pipe control channel");
         return;                                                       // RETURN
     }
 
     const int pipe = open(pipeName.c_str(), O_WRONLY);
     if (pipe < 0) {
-        ASSERT(!"Failed to open the pipe for writing");
+        ASSERT(0 == "Failed to open the pipe for writing");
         return;                                                       // RETURN
     }
 
     if (write(pipe, "EXIT\n", 5) <= static_cast<ssize_t>(0)) {
-        ASSERT(!"Failed to send EXIT message");
+        ASSERT(0 == "Failed to send EXIT message");
         return;                                                       // RETURN
     }
 
@@ -1397,7 +1397,7 @@ int main(int argc, char *argv[])
         _exit(1);
 #endif
 
-        ASSERT(!"unreachable");
+        ASSERT(0 == "unreachable");
       } break;
       case 8: {
         // --------------------------------------------------------------------

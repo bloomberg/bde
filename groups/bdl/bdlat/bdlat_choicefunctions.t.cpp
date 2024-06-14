@@ -503,7 +503,7 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
             return manipulator(&object->d_floatValue, info);          // RETURN
           }
           default:
-            BSLS_ASSERT_SAFE(!"Invalid selection!");
+            BSLS_ASSERT_SAFE(0 == "Invalid selection!");
         }
         return 0;
     }
@@ -549,7 +549,7 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
             return accessor(object.d_floatValue, info);               // RETURN
           }
           default:
-            BSLS_ASSERT_SAFE(!"Invalid selection!");
+            BSLS_ASSERT_SAFE(0 == "Invalid selection!");
         }
         return 0;
     }

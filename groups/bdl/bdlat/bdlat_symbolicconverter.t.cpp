@@ -2364,7 +2364,7 @@ const char *EnumerationA::toString(EnumerationA::Value value)
         return "VALUE2";                                              // RETURN
       } break;
       default:
-        BSLS_ASSERT(!"encountered out-of-bound enumerated value");
+        BSLS_ASSERT(0 == "encountered out-of-bound enumerated value");
     }
 
     return 0;
@@ -2683,7 +2683,7 @@ const char *EnumerationB::toString(EnumerationB::Value value)
         return "VALUE2";                                              // RETURN
       } break;
       default:
-        BSLS_ASSERT(!"encountered out-of-bound enumerated value");
+        BSLS_ASSERT(0 == "encountered out-of-bound enumerated value");
     }
 
     return 0;

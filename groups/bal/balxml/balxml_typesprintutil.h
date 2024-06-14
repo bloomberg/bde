@@ -1134,7 +1134,7 @@ bsl::ostream& TypesPrintUtil::print(bsl::ostream&         stream,
             stream, object, encoderOptions, Tag());
       } break;
       default: {
-        BSLS_ASSERT_SAFE(!"Unsupported operation!");
+        BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
         stream.setstate(bsl::ios_base::failbit);
         return stream;                                                // RETURN
       } break;
@@ -1269,7 +1269,7 @@ bsl::ostream& TypesPrintUtil_Imp::printBase64(bsl::ostream&         stream,
                                               const EncoderOptions *,
                                               ANY_CATEGORY)
 {
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     stream.setstate(bsl::ios_base::failbit);
 
@@ -1333,7 +1333,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(bsl::ostream&         stream,
                                                const EncoderOptions *,
                                                ANY_CATEGORY)
 {
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     stream.setstate(bsl::ios_base::failbit);
 
@@ -1522,7 +1522,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(bsl::ostream&         stream,
                                                const EncoderOptions *,
                                                ANY_CATEGORY)
 {
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     stream.setstate(bsl::ios_base::failbit);
 
@@ -1873,7 +1873,7 @@ bsl::ostream& TypesPrintUtil_Imp::printHex(bsl::ostream&         stream,
                                            const EncoderOptions *,
                                            ANY_CATEGORY)
 {
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     stream.setstate(bsl::ios_base::failbit);
 
@@ -1946,7 +1946,7 @@ bsl::ostream& TypesPrintUtil_Imp::printList(bsl::ostream&         stream,
                                             const EncoderOptions *,
                                             ANY_CATEGORY)
 {
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     stream.setstate(bsl::ios_base::failbit);
 
@@ -2004,7 +2004,7 @@ bsl::ostream& TypesPrintUtil_Imp::printText(bsl::ostream&         stream,
                                             const EncoderOptions *,
                                             ANY_CATEGORY)
 {
-    BSLS_ASSERT_SAFE(!"Unsupported operation!");
+    BSLS_ASSERT_SAFE(0 == "Unsupported operation!");
 
     stream.setstate(bsl::ios_base::failbit);
 

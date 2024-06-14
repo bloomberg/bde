@@ -536,7 +536,7 @@ void NaturallyAlignAllocator::deallocate(void *address)
         }
     }
 
-    BSLS_ASSERT(!"Bad address to deallocate!");
+    BSLS_ASSERT(0 == "Bad address to deallocate!");
 }
 
 }  // close namespace testCase14

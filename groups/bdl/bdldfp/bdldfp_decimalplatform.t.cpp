@@ -194,37 +194,37 @@ int main(int argc, char* argv[])
 
         #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN32
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN32 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_QNAN32 is not defined!");
             #else
                 ASSERT(BDLDFP_DECIMALPLATFORM_C99_QNAN32
                                          != BDLDFP_DECIMALPLATFORM_C99_QNAN32);
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN64
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN64 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_QNAN64 is not defined!");
             #else
                 ASSERT(BDLDFP_DECIMALPLATFORM_C99_QNAN64
                                          != BDLDFP_DECIMALPLATFORM_C99_QNAN64);
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN128
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN128 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_QNAN128 is not defined!");
             #else
                 ASSERT(BDLDFP_DECIMALPLATFORM_C99_QNAN128
                                         != BDLDFP_DECIMALPLATFORM_C99_QNAN128);
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_SNAN32
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_SNAN32 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_SNAN32 is not defined!");
             #else
                 ASSERT(BDLDFP_DECIMALPLATFORM_C99_SNAN32
                                          != BDLDFP_DECIMALPLATFORM_C99_SNAN32);
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_SNAN64
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_SNAN64 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_SNAN64 is not defined!");
             #else
                 ASSERT(BDLDFP_DECIMALPLATFORM_C99_SNAN64
                                          != BDLDFP_DECIMALPLATFORM_C99_SNAN64);
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_SNAN128
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_SNAN128 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_SNAN128 is not defined!");
             #else
                 ASSERT(BDLDFP_DECIMALPLATFORM_C99_SNAN128
                                         != BDLDFP_DECIMALPLATFORM_C99_SNAN128);
@@ -611,22 +611,22 @@ int main(int argc, char* argv[])
 
         #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN32
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN32 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_QNAN32 is not defined!");
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN64
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN64 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_QNAN64 is not defined!");
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN128
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN128 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_QNAN128 is not defined!");
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_SNAN32
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_SNAN32 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_SNAN32 is not defined!");
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_SNAN64
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_SNAN64 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_SNAN64 is not defined!");
             #endif
             #ifndef BDLDFP_DECIMALPLATFORM_C99_SNAN128
-                ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_SNAN128 is not defined!");
+                ASSERT(0 == "BDLDFP_DECIMALPLATFORM_C99_SNAN128 is not defined!");
             #endif
         #endif
     } break;

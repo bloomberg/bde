@@ -249,7 +249,7 @@ int TestLoader::load(bdlt::PackedCalendar *result, const char *calendarName)
             firstDate = gFirstDate3;
           } break;
           default: {
-            ASSERT(!"Internal error.");
+            ASSERT(0 == "Internal error.");
           }
         }
 

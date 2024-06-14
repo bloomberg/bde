@@ -857,7 +857,7 @@ class MyType {
 #ifdef BDE_BUILD_TARGET_EXC
             throw s_liveCount;
 #else
-            ASSERT(!"Exceptions not supported");
+            ASSERT(0 == "Exceptions not supported");
 #endif
         }
         else {
@@ -888,7 +888,7 @@ void runTest() {
         (void)X;
     }
     catch(...) {
-        ASSERT(!"Strange error! No exceptions were expected.");
+        ASSERT(0 == "Strange error! No exceptions were expected.");
     }
     ASSERT(0 == MyType::s_liveCount);
 
@@ -1406,7 +1406,7 @@ Task<> coroutineRunner(Io& c) {
 
     co_await e();  // 'e()' throws
 
-    ASSERT(!"We should never get here");
+    ASSERT(0 == "We should never get here");
 }
 
 }  // close namespace Complex
@@ -2283,7 +2283,7 @@ int main(int argc, char *argv[])
         // C-1
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
   #ifndef __cpp_lib_coroutine
-        ASSERT(!"'__cpp_lib_coroutine' is not defined by '<coroutine>'");
+        ASSERT(0 == "'__cpp_lib_coroutine' is not defined by '<coroutine>'");
   #else
         ASSERTV(__cpp_lib_coroutine, __cpp_lib_coroutine >= 201902L);
   #endif
@@ -2938,10 +2938,10 @@ will not improve the flavor.
             caughtBadException = true;
         }
         catch(int) {
-            ASSERTV(!"Exception specification was ignored.");
+            ASSERTV(0 == "Exception specification was ignored.");
         }
         catch(...) {
-            ASSERTV(!"Unexpected exception type was caught.");
+            ASSERTV(0 == "Unexpected exception type was caught.");
         }
 
         ASSERT(true == caughtBadException);
@@ -3926,15 +3926,15 @@ will not improve the flavor.
                       "Relaxed (C++17) 'constexpr' is not supported");
 
         if (sizeof(Sniffer::test<Feature17>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++17 did not detect more relaxed constexpr");
+            ASSERT(0 == "C++17 did not detect more relaxed constexpr");
         }
 
         if (sizeof(Sniffer::test<Feature14>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++17 did not detect relaxed constexpr");
+            ASSERT(0 == "C++17 did not detect relaxed constexpr");
         }
 
         if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++17 did not detect original constexpr");
+            ASSERT(0 == "C++17 did not detect original constexpr");
         }
 #endif
       } break;
@@ -3977,15 +3977,15 @@ will not improve the flavor.
                       "Relaxed (C++14) 'constexpr' is not supported");
 
         if (sizeof(Sniffer::test<Feature14>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++14 did not detect relaxed constexpr");
+            ASSERT(0 == "C++14 did not detect relaxed constexpr");
         }
 
         if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++14 did not detect original constexpr");
+            ASSERT(0 == "C++14 did not detect original constexpr");
         }
 
         if (sizeof(ConstexprConst::test<Feature14>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++14 constexpr erroneously makes member function const");
+            ASSERT(0 == "C++14 constexpr erroneously makes member function const");
         }
 #endif
       } break;
@@ -4019,7 +4019,7 @@ will not improve the flavor.
         ASSERT(v == 42);
 
         if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++11 did not detect original 'constexpr'");
+            ASSERT(0 == "C++11 did not detect original 'constexpr'");
         }
 #endif
       } break;

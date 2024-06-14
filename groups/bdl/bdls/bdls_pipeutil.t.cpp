@@ -316,7 +316,7 @@ int main(int argc, char *argv[]) {
                     if (0 != bslmt::ThreadUtil::create(&serverThread,
                                                        ConnectAndRead(handle)))
                     {
-                        ASSERT(!"Failed to create server thread");
+                        ASSERT(0 == "Failed to create server thread");
                         continue;
                     }
                 }

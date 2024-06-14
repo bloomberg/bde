@@ -2133,7 +2133,7 @@ int main(int argc, char *argv[])
                                 0 == da.numBlocksTotal());
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());

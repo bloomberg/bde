@@ -1657,7 +1657,7 @@ class TestObserverVisitor {
     void operator()(bsl::shared_ptr<ball::Observer>&,
                     const bsl::string_view&) const
     {
-        ASSERT(!"This overload must not be ever called.");
+        ASSERT(0 == "This overload must not be ever called.");
     }
 };
 

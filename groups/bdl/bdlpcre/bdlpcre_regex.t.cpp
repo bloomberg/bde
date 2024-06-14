@@ -1110,7 +1110,7 @@ int main(int argc, char *argv[])
                                          8192);
                   } break;
                   default: {
-                    ASSERT(!"Invalid configuration!");
+                    ASSERT(0 == "Invalid configuration!");
                   }
                 }
                 ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);

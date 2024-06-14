@@ -1228,7 +1228,7 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
         accessMode = FILE_APPEND_DATA;
       } break;
       default: {
-        BSLS_ASSERT_OPT(!"Unknown IO policy");
+        BSLS_ASSERT_OPT(0 == "Unknown IO policy");
       } break;
     }
 
@@ -1260,7 +1260,7 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
         }
       } break;
       default: {
-        BSLS_ASSERT_OPT(!"Unknown open policy");
+        BSLS_ASSERT_OPT(0 == "Unknown open policy");
       } break;
     }
 
@@ -1341,7 +1341,7 @@ FilesystemUtil::Offset FilesystemUtil::seek(FileDescriptor         descriptor,
         whence = FILE_END;
       } break;
       default: {
-        BSLS_ASSERT(!"Unknown from whence seeking");
+        BSLS_ASSERT(0 == "Unknown from whence seeking");
       } break;
     }
     LARGE_INTEGER li;

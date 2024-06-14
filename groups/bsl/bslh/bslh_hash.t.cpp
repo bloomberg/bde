@@ -1071,7 +1071,7 @@ namespace Y {
         // Do nothing with the specified 'hashAlg' and 'a'. This is a test
         // 'hashAppend' that should not be picked up by ADL.
     {
-        ASSERT(!"ADL picked the wrong 'hashAppend'");
+        ASSERT(0 == "ADL picked the wrong 'hashAppend'");
         (void) hashAlg;
         (void) &a;
     }

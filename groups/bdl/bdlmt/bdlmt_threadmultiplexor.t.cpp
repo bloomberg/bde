@@ -384,7 +384,7 @@ int usageExample(bslma::Allocator *allocator)
     JobQueue               criticalQueue(maxProc, &tp);
 
     if (0 != tp.start()) {
-       ASSERT(!"Could not start thread pool! Threads cannot be created!");
+       ASSERT(0 == "Could not start thread pool! Threads cannot be created!");
        return -1;                                                     // RETURN
     }
 

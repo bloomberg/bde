@@ -1169,7 +1169,7 @@ int main(int argc, char *argv[])
                     index          = 0;
                     break;
                   default:
-                    ASSERTV(!"Unexpected function mode");
+                    ASSERTV(0 == "Unexpected function mode");
                 }
 
                 if (veryVerbose) {
@@ -1244,7 +1244,7 @@ int main(int argc, char *argv[])
                     index = 0;
                     break;
                   default:
-                    ASSERTV(!"Unexpected function mode");
+                    ASSERTV(0 == "Unexpected function mode");
                 }
 
                 (model.*memberFunction)(MoveUtil::move(modelEmptyBuffer));
@@ -1305,7 +1305,7 @@ int main(int argc, char *argv[])
                     index = 0;
                     break;
                   default:
-                    ASSERTV(!"Unexpected function mode");
+                    ASSERTV(0 == "Unexpected function mode");
                 }
 
                 (model.*memberFunction)(MoveUtil::move(
@@ -1528,7 +1528,7 @@ int main(int argc, char *argv[])
                                                        MoveUtil::move(buffer));
                     break;
                   default:
-                    ASSERTV(!"Unexpected function mode");
+                    ASSERTV(0 == "Unexpected function mode");
                 }
 
                 ASSERT(modelResult == result);

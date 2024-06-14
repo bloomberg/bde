@@ -178,7 +178,7 @@ void bdlat_enumToInt(int *result, const PolygonType& value)
         return;                                                       // RETURN
       }
     }
-    ASSERT(!"invalid enumerator");
+    ASSERT(0 == "invalid enumerator");
 }
 
 void bdlat_enumToString(bsl::string *result, const PolygonType& value)
@@ -199,7 +199,7 @@ void bdlat_enumToString(bsl::string *result, const PolygonType& value)
         return;                                                       // RETURN
       }
     }
-    ASSERT(!"invalid enumerator");
+    ASSERT(0 == "invalid enumerator");
 }
 
 }  // close namespace test

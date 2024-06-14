@@ -774,7 +774,7 @@ struct MyAccessor {
             return bdlat_TypeCategory::e_SIMPLE_CATEGORY;             // RETURN
         }
 
-        ASSERT(!"Reached");
+        ASSERT(0 == "Reached");
 
         // Note that this 'return' is never reached and hence the returned
         // value is immaterial.

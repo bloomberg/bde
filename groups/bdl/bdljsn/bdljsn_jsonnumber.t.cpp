@@ -530,7 +530,7 @@ void testCase11I(int        argc,
                     objPtr = new (fa) Obj(VALUE, objAllocatorPtr);      // TEST
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(!"reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
 
@@ -561,7 +561,7 @@ void testCase11I(int        argc,
                    // Skip test
                   } break;
                   default : {
-                    BSLS_ASSERT_OPT(!"reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
                 ASSERTV(CONFIG, noa.numBlocksTotal(),
@@ -800,7 +800,7 @@ void testCase11F(int                  argc,
                     objPtr = new (fa) Obj(VALUE, objAllocatorPtr);      // TEST
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(!"reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
 
@@ -831,7 +831,7 @@ void testCase11F(int                  argc,
                    // Skip test
                   } break;
                   default : {
-                    BSLS_ASSERT_OPT(!"reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
                 ASSERTV(CONFIG, noa.numBlocksTotal(),
@@ -1129,7 +1129,7 @@ int main(int argc, char *argv[])
                     bsl::cout << obj.value() << ": NG too small" << bsl::endl;
                 } break;
                 case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-                  ASSERT(!"reached");
+                  ASSERT(0 == "reached");
                 } break;
             }
 //..
@@ -1150,7 +1150,7 @@ int main(int argc, char *argv[])
                     bsl::cout << value << ": inexact: USE approximation";
                 } break;
                 case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-                  ASSERT(!"reached");
+                  ASSERT(0 == "reached");
                 } break;
             }
 
@@ -1465,7 +1465,7 @@ int main(int argc, char *argv[])
                                Deci64(0) == result);
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"reachable");
+                BSLS_ASSERT_OPT(0 == "reachable");
               } break;
             }
 
@@ -3252,7 +3252,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -3580,7 +3580,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -3878,7 +3878,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -4519,7 +4519,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(objAllocatorPtr);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(!"reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
 
@@ -4615,7 +4615,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(SV(TEXT), objAllocatorPtr);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(!"reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
 
@@ -4645,7 +4645,7 @@ int main(int argc, char *argv[])
                             0 ==  oa.numBlocksTotal());
                   } break;
                   default : {
-                    BSLS_ASSERT_OPT(!"reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
                 ASSERTV(CONFIG, noa.numBlocksTotal(),

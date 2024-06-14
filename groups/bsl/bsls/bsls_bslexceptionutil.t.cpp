@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
             }
         }
         catch(...) {
-            ASSERT(!"Threw the wrong exception type, expected std::bad_alloc");
+            ASSERT(0 == "Threw the wrong exception type, expected std::bad_alloc");
         }
 
         try {
@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
             }
         }
         catch(...) {
-            ASSERT(!"Threw the wrong exception type, expected std::bad_cast");
+            ASSERT(0 == "Threw the wrong exception type, expected std::bad_cast");
         }
 
         try {
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
             }
         }
         catch(...) {
-            ASSERT(!"Threw the wrong exception type, expected std::exception");
+            ASSERT(0 == "Threw the wrong exception type, expected std::exception");
         }
 #endif // defined BDE_BUILD_TARGET_EXC
       } break;

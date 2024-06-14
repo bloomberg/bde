@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(e.what(), "bslma::TestAllocatorException"));
         }
         catch (...) {
-            ASSERT(!"Uncaught exception");
+            ASSERT(0 == "Uncaught exception");
         }
 #endif
       } break;

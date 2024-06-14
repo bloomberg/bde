@@ -407,7 +407,7 @@ bslstl::StringRef functionName(const bslstl::StringRef& code)
         return "findLastNotOf(STRING, CHARACTERS, POS)";              // RETURN
     }
 
-    ASSERT(!"UNKNOWN CALL IDENTIFIER");
+    ASSERT(0 == "UNKNOWN CALL IDENTIFIER");
     return "*** UNKNOWN FUNCTION ***";
 }
 
@@ -455,7 +455,7 @@ Util::size_type callFunction(const bslstl::StringRef& code,
         return Util::findLastNotOf(string, characters, position);     // RETURN
     }
 
-    ASSERT(!"UNKNOWN CALL IDENTIFIER");
+    ASSERT(0 == "UNKNOWN CALL IDENTIFIER");
     return 42u;
 }
 

@@ -4883,7 +4883,7 @@ void TestDriver<TEST_TYPE>::testCase18_withoutAllocator()
               case 4: addr = &mX.makeValueInplace(v1, v2, v3, v4);     break;
               case 5: addr = &mX.makeValueInplace(v1, v2, v3, v4, v5); break;
               default:
-                ASSERT(!"Too many parameters.");
+                ASSERT(0 == "Too many parameters.");
                 return;                                               // RETURN
             }
         }
@@ -4904,7 +4904,7 @@ void TestDriver<TEST_TYPE>::testCase18_withoutAllocator()
               case 4: addr = &mX.makeValueInplace(v1, v2, v3, v4);     break;
               case 5: addr = &mX.makeValueInplace(v1, v2, v3, v4, v5); break;
               default:
-                ASSERT(!"Too many parameters.");
+                ASSERT(0 == "Too many parameters.");
                 return;                                               // RETURN
             }
         }
@@ -5000,7 +5000,7 @@ void TestDriver<TEST_TYPE>::testCase18_withAllocator()
               case 4: addr = &mX.makeValueInplace(v1, v2, v3, v4);     break;
               case 5: addr = &mX.makeValueInplace(v1, v2, v3, v4, v5); break;
               default:
-                ASSERT(!"Too many parameters.");
+                ASSERT(0 == "Too many parameters.");
                 return;                                               // RETURN
             }
             ASSERT(true == tam.isTotalUp());
@@ -5025,7 +5025,7 @@ void TestDriver<TEST_TYPE>::testCase18_withAllocator()
               case 4: addr = &mX.makeValueInplace(v1, v2, v3, v4);     break;
               case 5: addr = &mX.makeValueInplace(v1, v2, v3, v4, v5); break;
               default:
-                ASSERT(!"Too many parameters.");
+                ASSERT(0 == "Too many parameters.");
                 return;                                               // RETURN
             }
             ASSERT(tam.isTotalUp());
@@ -5062,7 +5062,7 @@ void TestDriver<TEST_TYPE>::testCase18_withAllocator()
               case 4: addr = &mX.makeValueInplace(v1, v2, v3, v4);     break;
               case 5: addr = &mX.makeValueInplace(v1, v2, v3, v4, v5); break;
               default:
-                ASSERT(!"Too many parameters.");
+                ASSERT(0 == "Too many parameters.");
             }
             ASSERT(0    <  loopCount);
             ASSERT(true == tam.isTotalUp());
@@ -5102,7 +5102,7 @@ void TestDriver<TEST_TYPE>::testCase18_withAllocator()
               case 4: addr = &mX.makeValueInplace(v1, v2, v3, v4);     break;
               case 5: addr = &mX.makeValueInplace(v1, v2, v3, v4, v5); break;
               default:
-                ASSERT(!"Too many parameters.");
+                ASSERT(0 == "Too many parameters.");
             }
             ASSERT(0    <  loopCount);
             ASSERT(true == tam.isTotalUp());
@@ -6230,7 +6230,7 @@ void runTestCase18()
                     case  3: { ThrowingHelper helper(3, 3, 3); }       break;
                     case  4: { ThrowingHelper helper(4, 4, 4, 4); }    break;
                     case  5: { ThrowingHelper helper(5, 5, 5, 5, 5); } break;
-                    default: { ASSERT(!"Unexpected argument count"); } break;
+                    default: { ASSERT(0 == "Unexpected argument count"); } break;
                 }
 
                 ASSERTV(numParams, !"expected exception missing");
@@ -6326,7 +6326,7 @@ void runTestCase18()
                         case 4: obj.makeValueInplace(1, 2, 3, 4);    break;
                         case 5: obj.makeValueInplace(1, 2, 3, 4, 5); break;
                         default:
-                        ASSERT(!"Too many parameters.");
+                        ASSERT(0 == "Too many parameters.");
                     }
 
                     ASSERTV(numParams, !"Expected exception missing");

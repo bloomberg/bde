@@ -562,7 +562,7 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::hardwareConcurrency()
 
 #else
 
-    BSLMF_ASSERT(!"Unsupported platform");
+    BSLMF_ASSERT(0 == "Unsupported platform");
 
 #endif
 

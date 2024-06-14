@@ -11846,7 +11846,7 @@ int main(int argc, char *argv[])
                 ASSERT(&X == o.get());
 
                 Obj o2(o);  // should not compile
-                ASSERT(!"The preceding line should not have compiled");
+                ASSERT(0 == "The preceding line should not have compiled");
             }
 #endif
         }

@@ -898,7 +898,7 @@ static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
                                    &zoneSubKey);
 
     if (res != ERROR_SUCCESS) {
-        ASSERT(!"error opening registry for some specific time zone\n");
+        ASSERT(0 == "error opening registry for some specific time zone\n");
         P(timezone);
         return -1;                                                    // RETURN
     }
@@ -912,7 +912,7 @@ static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
                           reinterpret_cast<LPBYTE>(&obsoleteValue),
                           &obsoleteValueSize);
     if (ERROR_SUCCESS != res && ERROR_FILE_NOT_FOUND != res) {
-        ASSERT(!"error querying value of 'IsObsolete'\n");
+        ASSERT(0 == "error querying value of 'IsObsolete'\n");
         RegCloseKey(zoneSubKey);
         return -1;                                                    // RETURN
     }
@@ -940,7 +940,7 @@ static int loadTimezonesFromRegistry(vector<string> *timezones)
                                             &zonesKey);
 
     if (res != ERROR_SUCCESS) {
-        ASSERT(!"error opening registry: Time Zones\n");
+        ASSERT(0 == "error opening registry: Time Zones\n");
         return -1;                                                    // RETURN
     }
 
@@ -971,7 +971,7 @@ static int loadTimezonesFromRegistry(vector<string> *timezones)
                                        zonesKey,
                                        zoneBuf);
         if (0 != res) {
-            ASSERT(!"error getting timezone obsolete flag");
+            ASSERT(0 == "error getting timezone obsolete flag");
             RegCloseKey(zonesKey);  // put this into a guard
             return -1;                                                // RETURN
         }

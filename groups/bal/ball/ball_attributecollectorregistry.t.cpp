@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(alloc);
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 

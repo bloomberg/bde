@@ -247,7 +247,7 @@ int TestLoader::load(bdlt::Timetable *result, const char *timetableName)
             firstDate = gFirstDate3;
           } break;
           default: {
-            ASSERT(!"Internal error.");
+            ASSERT(0 == "Internal error.");
           }
         }
 

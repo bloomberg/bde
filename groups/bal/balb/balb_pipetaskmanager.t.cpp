@@ -183,7 +183,7 @@ void noop(const bsl::string_view& , bsl::istream& )
     // Fail the test.  Note that in the absence of errors this callback is
     // never invoked.
 {
-    ASSERT(!"called");
+    ASSERT(0 == "called");
 }
 
 void rc1cb(const bsl::string_view& , bsl::istream&, int *rc)
@@ -603,7 +603,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(sharedCm, objAllocatorPtr);       // TEST
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
             ASSERT(objPtr);
@@ -1072,7 +1072,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(objAllocatorPtr);
               } break;
               default: {
-                BSLS_ASSERT_OPT(!"Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 

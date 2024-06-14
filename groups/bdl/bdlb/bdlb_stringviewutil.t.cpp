@@ -416,7 +416,7 @@ SV functionName(SV code)
         return "findLastNotOf(STRING, CHARACTERS, POS)";              // RETURN
     }
 
-    ASSERT(!"UNKNOWN CALL IDENTIFIER");
+    ASSERT(0 == "UNKNOWN CALL IDENTIFIER");
     return "*** UNKNOWN FUNCTION ***";
 }
 
@@ -464,7 +464,7 @@ Util::size_type callFunction(SV              code,
         return Util::findLastNotOf(string, characters, position);     // RETURN
     }
 
-    ASSERT(!"UNKNOWN CALL IDENTIFIER");
+    ASSERT(0 == "UNKNOWN CALL IDENTIFIER");
     return k_NPOS;
 }
 

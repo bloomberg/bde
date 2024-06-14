@@ -2343,7 +2343,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_PLATFORM_CMP_CLANG) &&                                       \
                         BSLS_PLATFORM_CMP_VERSION >= u_NEXT_CLANG_MAJOR_VERSION
-    ASSERT(!"This clang major release fixed the 2 phase name lookup issue.");
+    ASSERT(0 == "This clang major release fixed the 2 phase name lookup issue.");
     // Time to plan phasing out the function-pointer workaround
 #endif  // The test driver should not have compiled
 

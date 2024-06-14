@@ -291,7 +291,7 @@ BSLS_IDENT("$Id: $")
 //          return manipulator(&object->d_floatValue, info);          // RETURN
 //        }
 //        default:
-//          BSLS_ASSERT_SAFE(!"Invalid selection!");
+//          BSLS_ASSERT_SAFE(0 == "Invalid selection!");
 //      }
 //      return 0;
 //  }
@@ -337,7 +337,7 @@ BSLS_IDENT("$Id: $")
 //          return accessor(object.d_floatValue, info);               // RETURN
 //        }
 //        default:
-//          BSLS_ASSERT_SAFE(!"Invalid selection!");
+//          BSLS_ASSERT_SAFE(0 == "Invalid selection!");
 //      }
 //      return 0;
 //  }
