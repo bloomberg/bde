@@ -375,6 +375,7 @@ class basic_format_args {
     const basic_format_arg<t_CONTEXT> *d_data;
 
   public:
+
     // CREATORS
     basic_format_args() BSLS_KEYWORD_NOEXCEPT
     : d_size(0) {}
@@ -405,7 +406,7 @@ class basic_format_args {
 
     // FRIENDS
     template <class t_CONTEXT>
-    friend int Format_FormatArgsSize(basic_format_args<t_CONTEXT>& args);
+    friend int Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args);
 };
 
 typedef basic_format_args<format_context> format_args;
@@ -413,7 +414,7 @@ typedef basic_format_args<format_context> format_args;
 typedef basic_format_args<wformat_context> wformat_args;
 
 template<class t_CONTEXT>
-int Format_FormatArgsSize(basic_format_args<t_CONTEXT>& args)
+int Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args)
     // This component-private function returns the result of calling 'size()'
     // on the specified 'args' parameter. This is to permit access to the
     // private 'size' accessor of 'basic_format_args' without requiring long

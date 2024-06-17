@@ -214,22 +214,20 @@ struct Format_FormatVisitor {
 };
 
 template <class t_OUT, class t_CHAR>
-t_OUT Format_VFormatImpl(
-    t_OUT                                                               out,
-    bsl::basic_string_view<t_CHAR>                                      fmtstr,
-    basic_format_args<basic_format_context<t_OUT, t_CHAR> > args)
-    // The actual meat of the implementation.  This overload is used when the
-    // iterator type 't_OUT' matches the iterator type that 'args' is able to
-    // format to.  In all other cases the iterator must be wrapped.
+t_OUT Format_VFormatProcess(
+         t_OUT&                                                         out,
+         bsl::basic_string_view<t_CHAR>                                 fmtstr,
+         const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
+    // The actual meat of the implementation.
 {
-    typedef basic_format_context<t_OUT, t_CHAR> FC;
-
     const int argssize = Format_FormatArgsSize(args);
 
-    basic_format_parse_context<t_CHAR>                pc(fmtstr, argssize);
-    FC                                                fc(out, args);
+    basic_format_parse_context<t_CHAR>  pc(fmtstr, argssize);
+    basic_format_context<t_OUT, t_CHAR> fc(
+                                       Format_FormatContextFactory(out, args));
+    Format_FormatVisitor<t_OUT, t_CHAR> visitor(pc, fc);
+
     typename bsl::basic_string_view<t_CHAR>::iterator it = pc.begin();
-    Format_FormatVisitor<t_OUT, t_CHAR>        visitor(pc, fc);
 
     while (it != pc.end()) {
         if (*it == '{') {
@@ -297,17 +295,25 @@ t_OUT Format_VFormatImpl(
     return fc.out();
 }
 
-template <class t_OUT, class t_CHAR, class t_CONTEXT>
-t_OUT Format_VFormatImpl(
-                               t_OUT                                    out,
-                               bsl::basic_string_view<t_CHAR>           fmtstr,
-                               basic_format_args<t_CONTEXT> args)
+template <class t_CHAR>
+Format_OutputIteratorRef<t_CHAR> Format_VFormatImpl(
+    Format_OutputIteratorRef<t_CHAR> out,
+    bsl::basic_string_view<t_CHAR>   fmtstr,
+    const basic_format_args<
+        basic_format_context<Format_OutputIteratorRef<t_CHAR>, t_CHAR> >& args)
 {
-    Format_OutputIteratorImpl<char, t_OUT> wrappedOut(out);
-    Format_VFormatImpl(
-                            Format_OutputIteratorRef<char>(&wrappedOut),
-                            fmtstr,
-                            args);
+    Format_VFormatProcess(out, fmtstr, args);
+    return out;
+}
+
+template <class t_OUT, class t_CHAR, class t_CONTEXT>
+t_OUT Format_VFormatImpl(t_OUT                               out,
+                         bsl::basic_string_view<t_CHAR>      fmtstr,
+                         const basic_format_args<t_CONTEXT>& args)
+{
+    Format_OutputIteratorImpl<t_CHAR, t_OUT> wrappedOut(out);
+    Format_OutputIteratorRef<t_CHAR>         wrappedOutRef(&wrappedOut);
+    Format_VFormatProcess(wrappedOutRef, fmtstr, args);
     return out;
 }
 
@@ -328,23 +334,13 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT out, bsl::string_view fmtstr, const t_ARGS&... args)
 {
-    typedef basic_format_context<t_OUT, char>      Context;
-    typedef basic_format_args<Context> Args;
-    return Format_VFormatImpl(
-                         out,
-                         fmtstr,
-                         Args(Format_MakeFormatArgs<Context>(args...)));
+    return vformat_to(out, fmtstr, make_format_args(args...));
 }
 
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT out, bsl::wstring_view fmtstr, const t_ARGS&... args)
 {
-    typedef basic_format_context<t_OUT, wchar_t>      Context;
-    typedef basic_format_args<Context> Args;
-    return Format_VFormatImpl(
-                         out,
-                         fmtstr,
-                         Args(Format_MakeFormatArgs<Context>(args...)));
+    return vformat_to(out, fmtstr, make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
@@ -450,27 +446,6 @@ format_to_n_result<t_OUT> format_to_n(
 #endif // end C++11 code
 }  // close namespace bslfmt
 } // close enterprise namespace
-
-namespace bsl {
-// TEMPORARY HACKS TO MAKE THE FORMATTER BIT WORK
-    //using BloombergLP::bslfmt::basic_format_context;
-    //using BloombergLP::bslfmt::format_context;
-    //using BloombergLP::bslfmt::wformat_context;
-    //using BloombergLP::bslfmt::basic_format_parse_context;
-    //using BloombergLP::bslfmt::format_parse_context;
-    //using BloombergLP::bslfmt::wformat_parse_context;
-    using BloombergLP::bslfmt::format_error;
-}
-
-
-//#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-//namespace std {
-//// FORMATTER SPECIALIZATIONS
-//template <>
-//struct formatter<bsl::string, char> : formatter<bsl::string_view, char> {
-//};
-//}  // close namespace bsl
-//#endif
 
 #endif // End C++11 code
 

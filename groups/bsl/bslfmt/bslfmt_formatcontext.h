@@ -257,15 +257,24 @@ class basic_format_context {
     using formatter_type = bsl::formatter<t_TYPE, t_CHAR>;
 #endif
 
-    // CREATORS TODO: This constructor should be made private (callable only by
-    // 'bsl::format' internals)
+  private:
+    // PRIVATE CREATORS
+
     basic_format_context(
                       t_OUT                                               out,
-                      basic_format_args<basic_format_context> args)
+                      const basic_format_args<basic_format_context> &args)
     : d_args(args)
     , d_out(out)
     {
     }
+
+    // FRIENDS
+    template <class t_OUT, class t_CHAR>
+    friend basic_format_context<t_OUT, t_CHAR> Format_FormatContextFactory(
+          t_OUT                                                          out,
+          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args);
+
+  public:
 
     // MANIPULATORS
     iterator out()
@@ -285,6 +294,13 @@ class basic_format_context {
     }
 };
 
+template <class t_OUT, class t_CHAR>
+basic_format_context<t_OUT, t_CHAR> Format_FormatContextFactory(
+           t_OUT                                                          out,
+           const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
+{
+    return basic_format_context<t_OUT, t_CHAR>(out, args);
+}
 
 }  // close namespace bslfmt
 } // close enterprise namespace
