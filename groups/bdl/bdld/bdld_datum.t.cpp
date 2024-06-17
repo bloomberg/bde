@@ -2214,7 +2214,7 @@ HashHexPrinter hexPrint(const MockAccumulatingHashingAlgorithm& hasher,
 //                  CLANG TEST FOR SECOND PHASE LOOKUP ISSUE
 //-----------------------------------------------------------------------------
 
-#define u_NEXT_CLANG_MAJOR_VERSION (16 * 10000)
+#define u_NEXT_CLANG_MAJOR_VERSION (18 * 10000)
 #if !defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
                         BSLS_PLATFORM_CMP_VERSION >= u_NEXT_CLANG_MAJOR_VERSION
 

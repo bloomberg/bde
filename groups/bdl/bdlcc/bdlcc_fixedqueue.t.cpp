@@ -2694,7 +2694,7 @@ int main(int argc, char *argv[])
           args.d_goCond.broadcast();
           args.d_mutex.unlock();
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 // disable the larger than warning for this buffer
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
@@ -2702,7 +2702,7 @@ int main(int argc, char *argv[])
 
           char reserved[NITERATIONS+1];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 

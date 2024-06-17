@@ -1,4 +1,3 @@
-// bdlb_scopeexit.t.cpp                                               -*-C++-*-
 #include <bdlb_scopeexit.h>
 
 #include <bdlb_tokenizer.h>
@@ -31,7 +30,7 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 

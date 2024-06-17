@@ -25,7 +25,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wstringop-truncation"
 #endif
 

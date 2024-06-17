@@ -37,7 +37,7 @@ static_assert(std::is_trivially_destructible<
 #endif
 #endif
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wstringop-truncation"
 #endif
 

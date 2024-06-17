@@ -10,7 +10,7 @@
 #include <bsls_platform.h>
 
 // the following suppresses warnings from '#include' inlined functions
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 

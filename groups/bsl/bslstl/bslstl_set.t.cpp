@@ -5,6 +5,8 @@
 // the following suppresses warnings from '#include' inlined functions
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wstringop-overflow="
 #endif
 

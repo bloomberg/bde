@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wvolatile"
 #endif
 

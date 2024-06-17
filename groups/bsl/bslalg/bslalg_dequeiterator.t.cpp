@@ -122,7 +122,7 @@ debugprint(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
 //-----------------------------------------------------------------------------
 static bool verbose = false;
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
@@ -130,7 +130,7 @@ static bool verbose = false;
 char* globalArena1[65536];  // needed for 'blocks' in 'getValues' below
 char* globalArena2[1024];   // needed for 'blockPtrs' in 'getValues' below
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 

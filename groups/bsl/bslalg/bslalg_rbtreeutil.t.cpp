@@ -3352,14 +3352,14 @@ void TestDriver<VALUE>::testCase9()
             NUM_VALUES = 50000
         };
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         int VALUES[NUM_VALUES];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
@@ -3609,14 +3609,14 @@ void TestDriver<VALUE>::testCase10()
             NUM_VALUES = 50000
         };
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         int VALUES[NUM_VALUES];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
@@ -3815,14 +3815,14 @@ void TestDriver<VALUE>::testCase11()
             NUM_VALUES = 50000
         };
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         int VALUES[NUM_VALUES];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
@@ -4034,14 +4034,14 @@ void TestDriver<VALUE>::testCase12()
             NUM_VALUES = 50000
         };
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         int VALUES[NUM_VALUES];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
@@ -4243,14 +4243,14 @@ void TestDriver<VALUE>::testCase13()
             NUM_VALUES = 50000
         };
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         int VALUES[NUM_VALUES];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
@@ -4695,14 +4695,14 @@ void TestDriver<VALUE>::testCase15()
             NUM_VALUES = 50000
         };
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         int VALUES[NUM_VALUES];
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 

@@ -73,7 +73,7 @@
 #pragma error_messages(off, SEC_NULL_PTR_DEREF)
 #endif
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #pragma GCC diagnostic ignored "-Wstringop-overflow="
 #endif
@@ -5210,14 +5210,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     if (verbose) printf("Use 'bslh::Hash' to hash a few values of strings with"
                         " each char type. (C-1,2)\n");
     {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         unsigned char collisions[PRIME] = {};
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
@@ -5276,14 +5276,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'std'"
                         " strings with each char type. (C-1,2)\n");
     {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         unsigned char collisions[PRIME] = {};
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
@@ -5343,14 +5343,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'std::pmr'"
                         " strings with each char type. (C-1,2)\n");
     {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
         unsigned char collisions[PRIME] = {};
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 
