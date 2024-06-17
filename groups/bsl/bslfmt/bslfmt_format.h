@@ -35,6 +35,7 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatarg.h>
 #include <bslfmt_formatcontext.h>
+#include <bslfmt_formatparsecontext.h>
 #include <bslfmt_formatimp.h>
 #endif
 

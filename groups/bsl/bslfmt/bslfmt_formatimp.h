@@ -32,6 +32,8 @@
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatarg.h>
 #include <bslfmt_formatcontext.h>
+#include <bslfmt_formatparsecontext.h>
+
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03

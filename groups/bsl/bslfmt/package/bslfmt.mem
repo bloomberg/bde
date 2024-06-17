@@ -3,4 +3,5 @@ bslfmt_formatimp
 bslfmt_formatarg
 bslfmt_formatcontext
 bslfmt_formaterror
+bslfmt_formatparsecontext
 bslfmt_formatterbase
