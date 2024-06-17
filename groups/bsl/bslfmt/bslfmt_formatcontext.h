@@ -45,22 +45,22 @@ namespace BloombergLP {
 namespace bslfmt {
 
 template <class t_VALUE>
-class bslstl_format_OutputIteratorBase {
+class Format_OutputIteratorBase {
   public:
     // MANIPULATORS
     virtual void put(t_VALUE) = 0;
 };
 
 template <class t_VALUE, class t_ITER>
-class bslstl_format_OutputIteratorImpl
-: public bslstl_format_OutputIteratorBase<t_VALUE> {
+class Format_OutputIteratorImpl
+: public Format_OutputIteratorBase<t_VALUE> {
   private:
     // DATA
     t_ITER& d_iter;
 
   public:
     // CREATORS
-    bslstl_format_OutputIteratorImpl(t_ITER& iter)
+    Format_OutputIteratorImpl(t_ITER& iter)
     : d_iter(iter)
     {
     }
@@ -73,10 +73,10 @@ class bslstl_format_OutputIteratorImpl
 };
 
 template <class t_VALUE>
-class bslstl_format_OutputIteratorRef {
+class Format_OutputIteratorRef {
   private:
     // DATA
-    bslstl_format_OutputIteratorBase<t_VALUE> *d_base_p;
+    Format_OutputIteratorBase<t_VALUE> *d_base_p;
 
   public:
     // TYPES
@@ -87,14 +87,14 @@ class bslstl_format_OutputIteratorRef {
     typedef void                     pointer;
 
     // CREATORS
-    bslstl_format_OutputIteratorRef(
-                               bslstl_format_OutputIteratorBase<t_VALUE> *base)
+    Format_OutputIteratorRef(
+                               Format_OutputIteratorBase<t_VALUE> *base)
     : d_base_p(base)
     {
     }
 
     // MANIPULATORS
-    bslstl_format_OutputIteratorRef& operator*()
+    Format_OutputIteratorRef& operator*()
     {
         return *this;
     }
@@ -104,12 +104,12 @@ class bslstl_format_OutputIteratorRef {
         d_base_p->put(x);
     }
 
-    bslstl_format_OutputIteratorRef& operator++()
+    Format_OutputIteratorRef& operator++()
     {
         return *this;
     }
 
-    bslstl_format_OutputIteratorRef operator++(int)
+    Format_OutputIteratorRef operator++(int)
     {
         return *this;
     }
@@ -150,7 +150,6 @@ class basic_format_parse_context {
     {
     }
 
-    // TODO: this constructor should be private
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
                   bsl::basic_string_view<t_CHAR> fmt,
                   size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT
@@ -161,6 +160,8 @@ class basic_format_parse_context {
     , d_num_args(numArgs)
     {
     }
+
+  public:
 
     // MANIPULATORS
     BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it)
@@ -223,10 +224,10 @@ typedef basic_format_parse_context<char> format_parse_context;
 
 typedef basic_format_parse_context<wchar_t> wformat_parse_context;
 
-typedef basic_format_context<bslstl_format_OutputIteratorRef<char>, char>
+typedef basic_format_context<Format_OutputIteratorRef<char>, char>
     format_context;
 
-typedef basic_format_context<bslstl_format_OutputIteratorRef<wchar_t>, wchar_t>
+typedef basic_format_context<Format_OutputIteratorRef<wchar_t>, wchar_t>
     wformat_context;
 
 
@@ -234,7 +235,7 @@ template <class t_CONTEXT>
 class basic_format_arg;
 
 template <class t_CONTEXT>
-class bslstl_format_BasicFormatArgs;
+class basic_format_args;
 
 template <class t_OUT, class t_CHAR>
 class basic_format_context {
@@ -243,7 +244,7 @@ class basic_format_context {
     typedef basic_format_arg<basic_format_context> Arg;
 
     // DATA
-    bslstl_format_BasicFormatArgs<basic_format_context> d_args;
+    basic_format_args<basic_format_context> d_args;
     t_OUT                                               d_out;
 
   public:
@@ -260,7 +261,7 @@ class basic_format_context {
     // 'bsl::format' internals)
     basic_format_context(
                       t_OUT                                               out,
-                      bslstl_format_BasicFormatArgs<basic_format_context> args)
+                      basic_format_args<basic_format_context> args)
     : d_args(args)
     , d_out(out)
     {

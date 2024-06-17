@@ -46,7 +46,7 @@ namespace BloombergLP {
 namespace bslfmt {
 
 template <class t_ITERATOR>
-class bslstl_format_TruncatingIterator {
+class Format_TruncatingIterator {
   private:
     // TYPES
     typedef typename bsl::iterator_traits<t_ITERATOR>::difference_type DT;
@@ -65,7 +65,7 @@ class bslstl_format_TruncatingIterator {
     typedef void                     pointer;
 
     // CREATORS
-    bslstl_format_TruncatingIterator(t_ITERATOR iterator, DT limit)
+    Format_TruncatingIterator(t_ITERATOR iterator, DT limit)
     : d_iterator(iterator)
     , d_limit(limit)
     , d_count(0)
@@ -73,7 +73,7 @@ class bslstl_format_TruncatingIterator {
     }
 
     // MANIPULATORS
-    bslstl_format_TruncatingIterator& operator*()
+    Format_TruncatingIterator& operator*()
     {
         return *this;
     }
@@ -85,12 +85,12 @@ class bslstl_format_TruncatingIterator {
         }
     }
 
-    bslstl_format_TruncatingIterator& operator++()
+    Format_TruncatingIterator& operator++()
     {
         return *this;
     }
 
-    bslstl_format_TruncatingIterator operator++(int)
+    Format_TruncatingIterator operator++(int)
     {
         return *this;
     }
@@ -114,11 +114,11 @@ struct format_to_n_result {
 };
 
 template <class t_OUT, class t_CHAR>
-struct bslstl_format_FormatVisitor {
+struct Format_FormatVisitor {
     basic_format_parse_context<t_CHAR>  *d_parseContext_p;
     basic_format_context<t_OUT, t_CHAR> *d_formatContext_p;
 
-    bslstl_format_FormatVisitor(basic_format_parse_context<t_CHAR>&  pc,
+    Format_FormatVisitor(basic_format_parse_context<t_CHAR>&  pc,
                                 basic_format_context<t_OUT, t_CHAR>& fc)
     : d_parseContext_p(&pc)
     , d_formatContext_p(&fc)
@@ -214,20 +214,22 @@ struct bslstl_format_FormatVisitor {
 };
 
 template <class t_OUT, class t_CHAR>
-t_OUT bslstl_format_VFormatImpl(
+t_OUT Format_VFormatImpl(
     t_OUT                                                               out,
     bsl::basic_string_view<t_CHAR>                                      fmtstr,
-    bslstl_format_BasicFormatArgs<basic_format_context<t_OUT, t_CHAR> > args)
+    basic_format_args<basic_format_context<t_OUT, t_CHAR> > args)
     // The actual meat of the implementation.  This overload is used when the
     // iterator type 't_OUT' matches the iterator type that 'args' is able to
     // format to.  In all other cases the iterator must be wrapped.
 {
     typedef basic_format_context<t_OUT, t_CHAR> FC;
 
-    basic_format_parse_context<t_CHAR>                pc(fmtstr, args.size());
+    const int argssize = Format_FormatArgsSize(args);
+
+    basic_format_parse_context<t_CHAR>                pc(fmtstr, argssize);
     FC                                                fc(out, args);
     typename bsl::basic_string_view<t_CHAR>::iterator it = pc.begin();
-    bslstl_format_FormatVisitor<t_OUT, t_CHAR>        visitor(pc, fc);
+    Format_FormatVisitor<t_OUT, t_CHAR>        visitor(pc, fc);
 
     while (it != pc.end()) {
         if (*it == '{') {
@@ -249,7 +251,7 @@ t_OUT bslstl_format_VFormatImpl(
                 id = 0;
                 while (it != pc.end() && *it >= '0' && *it <= '9') {
                     id = 10 * id + (*it++ - '0');
-                    if (id >= args.size()) {
+                    if (id >= argssize) {
                         BSLS_THROW(format_error("arg id too large"));
                     }
                 }
@@ -296,14 +298,14 @@ t_OUT bslstl_format_VFormatImpl(
 }
 
 template <class t_OUT, class t_CHAR, class t_CONTEXT>
-t_OUT bslstl_format_VFormatImpl(
+t_OUT Format_VFormatImpl(
                                t_OUT                                    out,
                                bsl::basic_string_view<t_CHAR>           fmtstr,
-                               bslstl_format_BasicFormatArgs<t_CONTEXT> args)
+                               basic_format_args<t_CONTEXT> args)
 {
-    bslstl_format_OutputIteratorImpl<char, t_OUT> wrappedOut(out);
-    bslstl_format_VFormatImpl(
-                            bslstl_format_OutputIteratorRef<char>(&wrappedOut),
+    Format_OutputIteratorImpl<char, t_OUT> wrappedOut(out);
+    Format_VFormatImpl(
+                            Format_OutputIteratorRef<char>(&wrappedOut),
                             fmtstr,
                             args);
     return out;
@@ -312,14 +314,14 @@ t_OUT bslstl_format_VFormatImpl(
 template <class t_OUT>
 t_OUT vformat_to(t_OUT out, bsl::string_view fmtstr, format_args args)
 {
-    return bslstl_format_VFormatImpl(out, fmtstr, args);
+    return Format_VFormatImpl(out, fmtstr, args);
 }
 
 
 template <class t_OUT>
 t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 {
-    return bslstl_format_VFormatImpl(out, fmtstr, args);
+    return Format_VFormatImpl(out, fmtstr, args);
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -327,22 +329,22 @@ template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT out, bsl::string_view fmtstr, const t_ARGS&... args)
 {
     typedef basic_format_context<t_OUT, char>      Context;
-    typedef bslstl_format_BasicFormatArgs<Context> Args;
-    return bslstl_format_VFormatImpl(
+    typedef basic_format_args<Context> Args;
+    return Format_VFormatImpl(
                          out,
                          fmtstr,
-                         Args(bslstl_format_MakeFormatArgs<Context>(args...)));
+                         Args(Format_MakeFormatArgs<Context>(args...)));
 }
 
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT out, bsl::wstring_view fmtstr, const t_ARGS&... args)
 {
     typedef basic_format_context<t_OUT, wchar_t>      Context;
-    typedef bslstl_format_BasicFormatArgs<Context> Args;
-    return bslstl_format_VFormatImpl(
+    typedef basic_format_args<Context> Args;
+    return Format_VFormatImpl(
                          out,
                          fmtstr,
-                         Args(bslstl_format_MakeFormatArgs<Context>(args...)));
+                         Args(Format_MakeFormatArgs<Context>(args...)));
 }
 
 template <class... t_ARGS>
@@ -424,7 +426,7 @@ vformat(bsl::allocator<char> alloc, bsl::string_view fmt, format_args args)
 template <class... t_ARGS>
 std::size_t formatted_size(bsl::string_view fmtstr, const t_ARGS&... args)
 {
-    bslstl_format_TruncatingIterator<char *> it(0, 0);
+    Format_TruncatingIterator<char *> it(0, 0);
     format_to(it, fmtstr, args...);
     return it.count();
 }
@@ -438,7 +440,7 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    bslstl_format_TruncatingIterator<t_OUT> it(out, n);
+    Format_TruncatingIterator<t_OUT> it(out, n);
     format_to(it, fmtstr, args...);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();
