@@ -1030,11 +1030,13 @@ static void test4_signaler_connect()
     }
 
 #if defined(BDE_BUILD_TARGET_EXC)
-# if defined(BSLS_PLATFORM_CMP_IBM) && defined(BSLS_PLATFORM_CPU_32_BIT)
+# if defined(BSLS_PLATFORM_CMP_IBM)
     const int major = (0xff00 & BSLS_PLATFORM_CMP_VERSION) >> 8;
     const int minor =  0x00ff & BSLS_PLATFORM_CMP_VERSION;
 
     const bdlt::Datetime now = bdlt::CurrentTime::local();
+
+    if (verbose) { P_(major);    P(minor); }
 
     if (major < 16 || (16 == major && minor <= 1)) {
         // There is a compiler bug on Aix {DRQS 166134166<GO>} that causes the
