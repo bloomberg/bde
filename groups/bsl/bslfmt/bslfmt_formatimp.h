@@ -34,10 +34,9 @@
 #include <bslfmt_formatcontext.h>
 #include <bslfmt_formatparsecontext.h>
 
-
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Tue Jun 11 07:56:24 2024
+// Generated on Tue Jun 18 08:08:38 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 # define COMPILING_BSLFMT_FORMATIMP_H
 # include <bslfmt_formatimp_cpp03.h>
@@ -445,7 +444,7 @@ format_to_n_result<t_OUT> format_to_n(
     result.size = it.count();
     return result;
 }
-#endif // end C++11 code
+#endif
 }  // close namespace bslfmt
 } // close enterprise namespace
 

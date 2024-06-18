@@ -257,7 +257,9 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         std::formatter<int, char>              dummy1;
+#endif
         bsl::formatter<bsl::string_view, char> dummy2;
 
 

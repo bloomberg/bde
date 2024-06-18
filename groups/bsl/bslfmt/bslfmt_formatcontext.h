@@ -31,14 +31,14 @@
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 
-#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03
-// Generated on Tue Jun 11 07:56:24 2024
-// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
-# define COMPILING_BSLFMT_FORMATIMP_H
-# include <bslfmt_formatimp_cpp03.h>
-# undef COMPILING_BSLFMT_FORMATIMP_H
-#else
+//#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+//// Include version that can be compiled with C++03
+//// Generated on Tue Jun 11 07:56:24 2024
+//// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
+//# define COMPILING_BSLFMT_FORMATIMP_H
+//# include <bslfmt_formatcontext_cpp03.h>
+//# undef COMPILING_BSLFMT_FORMATIMP_H
+//#else
 
 
 namespace BloombergLP {
@@ -163,10 +163,10 @@ class basic_format_context {
     }
 
     // FRIENDS
-    template <class t_OUT, class t_CHAR>
-    friend basic_format_context<t_OUT, t_CHAR> Format_FormatContextFactory(
-          t_OUT                                                          out,
-          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args);
+    template <class t_INNER_OUT, class t_INNER_CHAR>
+    friend basic_format_context<t_INNER_OUT, t_INNER_CHAR> Format_FormatContextFactory(
+          t_INNER_OUT                                                          out,
+          const basic_format_args<basic_format_context<t_INNER_OUT, t_INNER_CHAR> >& args);
 
   public:
 
@@ -200,7 +200,7 @@ basic_format_context<t_OUT, t_CHAR> Format_FormatContextFactory(
 } // close enterprise namespace
 
 
-#endif // End C++11 code
+//#endif // End C++11 code
 
 #endif  // INCLUDED_BSLSTL_FORMATIMP
 

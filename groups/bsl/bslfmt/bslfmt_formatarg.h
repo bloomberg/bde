@@ -33,11 +33,11 @@
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Tue Jun 11 07:56:24 2024
-// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
-# define COMPILING_BSLFMT_FORMATIMP_H
-# include <bslfmt_formatimp_cpp03.h>
-# undef COMPILING_BSLFMT_FORMATIMP_H
+// Generated on Tue Jun 18 08:19:54 2024
+// Command line: sim_cpp11_features.pl bslfmt_formatarg.h
+# define COMPILING_BSLFMT_FORMATARG_H
+# include <bslfmt_formatarg_cpp03.h>
+# undef COMPILING_BSLFMT_FORMATARG_H
 #else
 
 namespace BloombergLP {
@@ -52,8 +52,10 @@ class basic_format_context;
 template <class t_CONTEXT>
 class basic_format_arg;
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_CONTEXT, class... t_ARGS>
 class Format_FormatArgStore;
+#endif
 
 template <class t_OUT, class t_CHAR>
 class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
@@ -121,9 +123,11 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     variant_type    d_value;
 
     // FRIENDS
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class t_CONTEXT, class... t_ARGS>
     friend Format_FormatArgStore<t_CONTEXT, t_ARGS...> Format_MakeFormatArgs(
                                                           t_ARGS&... fmt_args);
+#endif
 
   public:
     // MANIPULATORS
@@ -328,12 +332,12 @@ class Format_FormatArgStore {
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> d_args;
 
     // FRIENDS
-    template <class t_CONTEXT>
+    template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_CONTEXT, class... t_ARGS>
-    friend Format_FormatArgStore<t_CONTEXT, t_ARGS...>
-        Format_MakeFormatArgs(t_ARGS&... fmt_args);
+    template <class t_INNER_CONTEXT, class... t_INNER_ARGS>
+    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS...>
+        Format_MakeFormatArgs(t_INNER_ARGS&... fmt_args);
 
     // PRIVATE CREATORS
     explicit Format_FormatArgStore(
@@ -405,8 +409,9 @@ class basic_format_args {
     }
 
     // FRIENDS
-    template <class t_CONTEXT>
-    friend int Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args);
+    template <class t_INNER_CONTEXT>
+    friend int Format_FormatArgsSize(
+            const basic_format_args<t_INNER_CONTEXT>& args);
 };
 
 typedef basic_format_args<format_context> format_args;

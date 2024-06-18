@@ -18,7 +18,7 @@
 //// Generated on Tue Jun 11 07:56:24 2024
 //// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 //# define COMPILING_BSLFMT_FORMATIMP_H
-//# include <bslfmt_formatimp_error_cpp03.h>
+//# include <bslfmt_formaterror_cpp03.h>
 //# undef COMPILING_BSLFMT_FORMATIMP_H
 //#else
 

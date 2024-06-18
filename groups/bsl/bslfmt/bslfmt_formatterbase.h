@@ -29,7 +29,7 @@
 //// Generated on Tue Jun 11 07:56:24 2024
 //// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 //# define COMPILING_BSLFMT_FORMATIMP_H
-//# include <bslfmt_formatimp_cpp03.h>
+//# include <bslfmt_formatterbase_cpp03.h>
 //# undef COMPILING_BSLFMT_FORMATIMP_H
 //#else
 
@@ -66,6 +66,7 @@ struct formatter {
 
 namespace BloombergLP {
 namespace bslfmt {
+
 template <class t_FORMATTER, class = void>
 struct Formatter_IsStdAliasingEnabled : bsl::true_type {
 };
@@ -75,6 +76,29 @@ struct Formatter_IsStdAliasingEnabled<
     t_FORMATTER,
     typename t_FORMATTER::Formatter_PreventStdPromotion> : bsl::false_type {
 };
+
+}  // close namespace bslfmt
+}  // close enterprise namespace
+
+namespace std {
+
+template <class t_ARG, class t_CHAR>
+struct formatter;
+
+template <class t_ARG, class t_CHAR>
+requires(
+    BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+        bsl::formatter<t_ARG, t_CHAR> >::value
+)
+struct formatter<t_ARG, t_CHAR>
+: bsl::formatter<t_ARG, t_CHAR> {};
+
+}  // close namespace std
+#endif
+
+
+namespace BloombergLP {
+namespace bslfmt {
 
 template <class t_CHAR>
 struct Formatter_CharUtils {
@@ -152,21 +176,6 @@ struct Formatter_IntegerBase {
 
 }  // close namespace bslfmt
 }  // close enterprise namespace
-
-namespace std {
-template <class t_ARG, class t_CHAR>
-struct formatter;
-
-template <class t_ARG, class t_CHAR>
-requires(
-    BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
-        bsl::formatter<t_ARG, t_CHAR> >::value
-)
-struct formatter<t_ARG, t_CHAR>
-: bsl::formatter<t_ARG, t_CHAR> {};
-
-}  // close namespace std
-#endif
 
 namespace bsl {
 // FORMATTER SPECIALIZATIONS
