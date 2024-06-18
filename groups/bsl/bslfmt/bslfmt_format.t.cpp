@@ -110,6 +110,8 @@ void check(const std::string&, const char *) {
 //}
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
+
 template <class... t_ARGS>
 bool doTestWithOracle(string_view              result,
                       std::format_string<t_ARGS...> fmtstr,
@@ -117,7 +119,9 @@ bool doTestWithOracle(string_view              result,
 {
     typedef string RT;
 
-    RT res_bde   = bslfmt::format(fmtstr.get(), args...);
+    bslfmt::FormatString_Basic_Tester<char, t_ARGS...> bslfmt(fmtstr.get());
+
+    RT res_bde = bslfmt::format(bslfmt, args...);
     RT res_std   = std::format(fmtstr, args...);
 
     return (result == res_bde && result == res_std);

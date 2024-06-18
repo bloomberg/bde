@@ -33,6 +33,7 @@
 #include <bslfmt_formatarg.h>
 #include <bslfmt_formatcontext.h>
 #include <bslfmt_formatparsecontext.h>
+#include <bslfmt_formatstring.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
@@ -333,31 +334,35 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_OUT, class... t_ARGS>
-t_OUT format_to(t_OUT out, bsl::string_view fmtstr, const t_ARGS&... args)
+t_OUT format_to(t_OUT                            out,
+                bslfmt::format_string<t_ARGS...> fmtstr,
+                const t_ARGS&...                 args)
 {
     return vformat_to(out, fmtstr, make_format_args(args...));
 }
 
 template <class t_OUT, class... t_ARGS>
-t_OUT format_to(t_OUT out, bsl::wstring_view fmtstr, const t_ARGS&... args)
+t_OUT format_to(t_OUT                             out,
+                bslfmt::wformat_string<t_ARGS...> fmtstr,
+                const t_ARGS&...                  args)
 {
     return vformat_to(out, fmtstr, make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
-void format_to(bsl::string      *out,
-               bsl::string_view  fmtstr,
-               const t_ARGS&...  args)
+void format_to(bsl::string                      *out,
+               bslfmt::format_string<t_ARGS...>  fmtstr,
+               const t_ARGS&...                  args)
 {
-    format_to(bsl::back_inserter(*out), fmtstr, args...);
+    vformat_to(bsl::back_inserter(*out), fmtstr, make_format_args(args...));
 }
 
 template <class... t_ARGS>
-void format_to(bsl::wstring      *out,
-               bsl::wstring_view  fmtstr,
-               const t_ARGS&...   args)
+void format_to(bsl::wstring                      *out,
+               bslfmt::wformat_string<t_ARGS...>  fmtstr,
+               const t_ARGS&...                   args)
 {
-    format_to(bsl::back_inserter(*out), fmtstr, args...);
+    vformat_to(bsl::back_inserter(*out), fmtstr, make_wformat_args(args...));
 }
 
 inline
@@ -366,40 +371,48 @@ void vformat_to(bsl::string *out, bsl::string_view fmtstr, format_args args)
     vformat_to(bsl::back_inserter(*out), fmtstr, args);
 }
 
+inline
+void vformat_to(bsl::wstring *out, bsl::wstring_view fmtstr, wformat_args args)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr, args);
+}
+
 template <class... t_ARGS>
-bsl::string format(bsl::string_view fmtstr, const t_ARGS&... args)
+bsl::string format(bslfmt::format_string<t_ARGS...> fmtstr,
+                   const t_ARGS&...                 args)
 {
     bsl::string result;
-    format_to(&result, fmtstr, args...);
+    vformat_to(&result, fmtstr.get(), make_format_args(args...));
     return result;
 }
 
 template <class... t_ARGS>
-bsl::wstring format(bsl::wstring_view fmtstr, const t_ARGS&... args)
+bsl::wstring format(bslfmt::wformat_string<t_ARGS...> fmtstr,
+                    const t_ARGS&...                  args)
 {
     bsl::wstring result;
-    format_to(&result, fmtstr, args...);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args...));
     return result;
 }
 
 template <class... t_ARGS>
-bsl::string format(bsl::allocator<char> alloc,
-                   bsl::string_view     fmtstr,
-                   const t_ARGS&...     args)
+bsl::string format(bsl::allocator<char>             alloc,
+                   bslfmt::format_string<t_ARGS...> fmtstr,
+                   const t_ARGS&...                 args)
 {
     bsl::string result(alloc);
-    format_to(&result, fmtstr, args...);
+    vformat_to(&result, fmtstr.get(), make_format_args(args...));
     return result;
 }
 
 
 template <class... t_ARGS>
-bsl::wstring format(bsl::allocator<wchar_t> alloc,
-                    bsl::wstring_view       fmtstr,
-                    const t_ARGS&...       args)
+bsl::wstring format(bsl::allocator<wchar_t>           alloc,
+                    bslfmt::wformat_string<t_ARGS...> fmtstr,
+                    const t_ARGS&...                  args)
 {
     bsl::wstring result(alloc);
-    format_to(&result, fmtstr, args...);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args...));
     return result;
 }
 
@@ -412,8 +425,9 @@ bsl::string vformat(bsl::string_view fmt, format_args args)
 }
 
 inline
-bsl::string
-vformat(bsl::allocator<char> alloc, bsl::string_view fmt, format_args args)
+bsl::string vformat(bsl::allocator<char> alloc,
+                    bsl::string_view     fmt,
+                    format_args          args)
 {
     bsl::string result(alloc);
     vformat_to(&result, fmt, args);
@@ -421,9 +435,19 @@ vformat(bsl::allocator<char> alloc, bsl::string_view fmt, format_args args)
 }
 
 template <class... t_ARGS>
-std::size_t formatted_size(bsl::string_view fmtstr, const t_ARGS&... args)
+std::size_t formatted_size(bslfmt::format_string<t_ARGS...> fmtstr,
+                           const t_ARGS&...                 args)
 {
     Format_TruncatingIterator<char *> it(0, 0);
+    format_to(it, fmtstr, args...);
+    return it.count();
+}
+
+
+template <class... t_ARGS>
+std::size_t formatted_size(bsl::wstring_view fmtstr, const t_ARGS&... args)
+{
+    Format_TruncatingIterator<wchar_t *> it(0, 0);
     format_to(it, fmtstr, args...);
     return it.count();
 }
@@ -432,7 +456,24 @@ template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bsl::string_view                                      fmtstr,
+                  bslfmt::format_string<t_ARGS...>                      fmtstr,
+                  const t_ARGS&...                                      args)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args...);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+
+template <class t_OUT, class... t_ARGS>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  bslfmt::wformat_string<t_ARGS...>                     fmtstr,
                   const t_ARGS&...                                      args)
 {
     if (n < 0)

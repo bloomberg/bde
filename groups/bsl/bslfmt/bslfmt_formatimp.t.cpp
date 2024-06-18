@@ -117,7 +117,9 @@ bool doTestWithOracle(string_view              result,
 {
     typedef string RT;
 
-    RT res_bde   = bslfmt::format(fmtstr.get(), args...);
+    bslfmt::FormatString_Basic_Tester<char, t_ARGS...> bslfmt(fmtstr.get());
+
+    RT res_bde = bslfmt::format(bslfmt, args...);
     RT res_std   = std::format(fmtstr, args...);
 
     return (result == res_bde && result == res_std);
