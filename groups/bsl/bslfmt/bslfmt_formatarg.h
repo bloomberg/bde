@@ -1,4 +1,4 @@
-// bslfmt_formatimp.h                                                    -*-C++-*-
+// bslfmt_formatarg.h                                                 -*-C++-*-
 
 #ifndef INCLUDED_BSLFMT_FORMATARG
 #define INCLUDED_BSLFMT_FORMATARG
@@ -468,7 +468,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format_impl(
 
 #endif // End C++11 code
 
-#endif  // INCLUDED_BSLSTL_FORMATIMP
+#endif  // INCLUDED_BSLFMT_FORMATARG
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

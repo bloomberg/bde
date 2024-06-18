@@ -1,4 +1,4 @@
-// bslfmt_formatimp.h                                                    -*-C++-*-
+// bslfmt_formatterbase.h                                             -*-C++-*-
 
 #ifndef INCLUDED_BSLFMT_FORMATTERBASE
 #define INCLUDED_BSLFMT_FORMATTERBASE
@@ -23,15 +23,6 @@
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
-
-//#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-//// Include version that can be compiled with C++03
-//// Generated on Tue Jun 11 07:56:24 2024
-//// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
-//# define COMPILING_BSLFMT_FORMATIMP_H
-//# include <bslfmt_formatterbase_cpp03.h>
-//# undef COMPILING_BSLFMT_FORMATIMP_H
-//#else
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
@@ -224,9 +215,7 @@ struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
 }  // close namespace bsl
 #endif
 
-//#endif // End C++11 code
-
-#endif  // INCLUDED_BSLSTL_FORMATIMP
+#endif  // INCLUDED_BSLFMT_FORMATTERBASE
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

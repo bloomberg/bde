@@ -1,4 +1,4 @@
-// bslfmt_formatimp.h                                                    -*-C++-*-
+// bslfmt_formatcontext.h                                             -*-C++-*-
 
 #ifndef INCLUDED_BSLFMT_FORMATCONTEXT
 #define INCLUDED_BSLFMT_FORMATCONTEXT
@@ -30,16 +30,6 @@
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
-
-//#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-//// Include version that can be compiled with C++03
-//// Generated on Tue Jun 11 07:56:24 2024
-//// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
-//# define COMPILING_BSLFMT_FORMATIMP_H
-//# include <bslfmt_formatcontext_cpp03.h>
-//# undef COMPILING_BSLFMT_FORMATIMP_H
-//#else
-
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -199,10 +189,7 @@ basic_format_context<t_OUT, t_CHAR> Format_FormatContextFactory(
 }  // close namespace bslfmt
 } // close enterprise namespace
 
-
-//#endif // End C++11 code
-
-#endif  // INCLUDED_BSLSTL_FORMATIMP
+#endif  // INCLUDED_BSLFMT_FORMATCONTEXT
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

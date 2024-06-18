@@ -1,4 +1,4 @@
-// bslstl_formatimp_error.t.cpp                                       -*-C++-*-
+// bslstl_formaterror.t.cpp                                           -*-C++-*-
 #include <bslfmt_formaterror.h>
 
 #include <bsls_bsltestutil.h>

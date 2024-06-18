@@ -1,4 +1,4 @@
-// bslstl_formatimp_error.t.cpp                                       -*-C++-*-
+// bslstl_formatterbase.t.cpp                                         -*-C++-*-
 #include <bslfmt_formatterbase.h>
 
 #include <bsls_bsltestutil.h>

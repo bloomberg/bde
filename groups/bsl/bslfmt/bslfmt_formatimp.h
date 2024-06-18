@@ -450,7 +450,7 @@ format_to_n_result<t_OUT> format_to_n(
 
 #endif // End C++11 code
 
-#endif  // INCLUDED_BSLSTL_FORMATIMP
+#endif  // INCLUDED_BSLFMT_FORMATIMP
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
