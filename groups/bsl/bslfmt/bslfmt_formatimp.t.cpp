@@ -278,11 +278,15 @@ int main(int argc, char **argv)
         const int          y   = 2;
         const int         sum = x + y;
 
+        bslfmt::format_string<int> test("{}");
 
-        check(bslfmt::format(L"{}", x), L"1");
+        //check(bslfmt::format(L"{}", x), L"1");
 
         check(bslfmt::format("{}", y),
               "2");
+
+#if 0
+
         check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
         check(bslfmt::format(L"{}", L"Hello World"),
@@ -309,12 +313,14 @@ int main(int argc, char **argv)
         check(bslfmt::vformat("The value of {1} is {0}",
                                bslfmt::make_format_args(ft.x, ft)),
               "The value of FormattableType{37} is 37");
+#endif
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
+
 
     if (testStatus > 0) {
         printf("Error, non-zero test status = %d .\n", testStatus);

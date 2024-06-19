@@ -7,4 +7,5 @@ bslfmt_formatimp
 bslfmt_formatimp_cpp03
 bslfmt_formatparsecontext
 bslfmt_formatstring
+bslfmt_formatstring_cpp03
 bslfmt_formatterbase

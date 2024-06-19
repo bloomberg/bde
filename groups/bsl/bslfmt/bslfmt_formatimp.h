@@ -222,7 +222,7 @@ t_OUT Format_VFormatProcess(
          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
     // The actual meat of the implementation.
 {
-    const int argssize = Format_FormatArgsSize(args);
+    const size_t argssize = Format_FormatArgsSize(args);
 
     basic_format_parse_context<t_CHAR>  pc(fmtstr, argssize);
     basic_format_context<t_OUT, t_CHAR> fc(
@@ -332,13 +332,13 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
     return Format_VFormatImpl(out, fmtstr, args);
 }
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT                            out,
                 bslfmt::format_string<t_ARGS...> fmtstr,
                 const t_ARGS&...                 args)
 {
-    return vformat_to(out, fmtstr, make_format_args(args...));
+    return vformat_to(out, fmtstr.get(), make_format_args(args...));
 }
 
 template <class t_OUT, class... t_ARGS>
@@ -346,7 +346,7 @@ t_OUT format_to(t_OUT                             out,
                 bslfmt::wformat_string<t_ARGS...> fmtstr,
                 const t_ARGS&...                  args)
 {
-    return vformat_to(out, fmtstr, make_wformat_args(args...));
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
@@ -354,7 +354,7 @@ void format_to(bsl::string                      *out,
                bslfmt::format_string<t_ARGS...>  fmtstr,
                const t_ARGS&...                  args)
 {
-    vformat_to(bsl::back_inserter(*out), fmtstr, make_format_args(args...));
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(args...));
 }
 
 template <class... t_ARGS>
@@ -362,7 +362,7 @@ void format_to(bsl::wstring                      *out,
                bslfmt::wformat_string<t_ARGS...>  fmtstr,
                const t_ARGS&...                   args)
 {
-    vformat_to(bsl::back_inserter(*out), fmtstr, make_wformat_args(args...));
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(args...));
 }
 
 inline
@@ -445,7 +445,8 @@ std::size_t formatted_size(bslfmt::format_string<t_ARGS...> fmtstr,
 
 
 template <class... t_ARGS>
-std::size_t formatted_size(bsl::wstring_view fmtstr, const t_ARGS&... args)
+std::size_t formatted_size(bslfmt::wformat_string<t_ARGS...> fmtstr,
+                           const t_ARGS&...                  args)
 {
     Format_TruncatingIterator<wchar_t *> it(0, 0);
     format_to(it, fmtstr, args...);

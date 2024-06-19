@@ -13,17 +13,24 @@
 
 #include <stdexcept>
 
-
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03 Generated on Tue Jun 18
-// 08:08:38 2024 Command line: sim_cpp11_features.pl bslfmt_formatimp.h
-#define COMPILING_BSLFMT_FORMATSTRING_H
-#include <bslfmt_formatstring_cpp03.h>
-#undef COMPILING_BSLFMT_FORMATSTRING_H
+// Include version that can be compiled with C++03
+// Generated on Tue Jun 18 12:03:43 2024
+// Command line: sim_cpp11_features.pl bslfmt_formatstring.h
+# define COMPILING_BSLFMT_FORMATSTRING_H
+# include <bslfmt_formatstring_cpp03.h>
+# undef COMPILING_BSLFMT_FORMATSTRING_H
 #else
 
 namespace BloombergLP {
 namespace bslfmt {
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
+
+template <class t_CHAR>
+struct FormatString_Test_Updater;
+
+#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
@@ -53,7 +60,7 @@ struct basic_format_string {
   private:
     // FRIENDS
     template <class t_INNER_CHAR, class... t_INNER_ARGS>
-    friend class FormatString_Basic_Tester;
+    friend struct FormatString_Test_Updater;
 };
 
 template <class... t_ARGS>
@@ -82,8 +89,8 @@ struct basic_format_string {
 
   private:
     // FRIENDS
-    template <class t_INNER_CHAR, class... t_INNER_ARGS>
-    friend class FormatString_Basic_Tester;
+    template <class t_INNER_CHAR, class... t_ARGS>
+    friend struct FormatString_Test_Updater;
 };
 
 template <class... t_ARGS>
@@ -96,7 +103,7 @@ using wformat_string =
 
 #else
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
 
 template <class t_CHAR, class... t_ARGS>
 struct basic_format_string {
@@ -114,46 +121,81 @@ struct basic_format_string {
 
   private:
     // FRIENDS
-    template <class t_INNER_CHAR, class... t_INNER_ARGS>
-    friend class FormatString_Basic_Tester;
+    template <class t_INNER_CHAR>
+    friend struct FormatString_Test_Updater;
 };
 
-template <class... t_ARGS>
-using format_string =
-                    basic_format_string<char, bsl::type_identity_t<t_ARGS>...>;
+
 
 template <class... t_ARGS>
-using wformat_string =
-                  basic_format_string<wchar_t, bsl::type_identity_t<t_ARGS>...>;
+struct format_string {
+    bsl::basic_string_view<char> d_formatString;
 
-#endif // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    BSLS_KEYWORD_CONSTEXPR_CPP14 format_string(const char *s)
+    {
+        d_formatString = s;
+    }
+
+    BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<char> get()
+    {
+        return d_formatString;
+    }
+
+  private:
+    // FRIENDS
+    template <class t_INNER_CHAR>
+    friend struct FormatString_Test_Updater;
+};
+
+
+//template <class... t_ARGS>
+//struct format_string : public basic_format_string<char, typename bsl::type_identity<t_ARGS>::type...> {
+//    BSLS_KEYWORD_CONSTEXPR_CPP14 format_string(const char *s)
+//    : basic_format_string<char, typename bsl::type_identity<t_ARGS>::type...>(s)
+//    {
+//        this->d_formatString = s;
+//    }
+//};
+
+template <class... t_ARGS>
+struct wformat_string : public basic_format_string<wchar_t, typename bsl::type_identity<t_ARGS>::type...> {
+    BSLS_KEYWORD_CONSTEXPR_CPP14 wformat_string(const wchar_t *s)
+    : basic_format_string<wchar_t, typename bsl::type_identity<t_ARGS>::type...>(s)
+    {
+        this->d_formatString = s;
+    }
+};
+
+#endif
 
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11/20_BASELINE_LIBRARY
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
 
-template <class t_CHAR, class... t_ARGS>
-struct FormatString_Basic_Tester
-: public basic_format_string<t_CHAR, bsl::decay_t<t_ARGS>...> {
-    FormatString_Basic_Tester(const t_CHAR *v)
-    : basic_format_string<t_CHAR, bsl::decay_t<t_ARGS>...>("")
+template <class t_CHAR>
+struct FormatString_Test_Updater
+{
+    template <class t_FORMATSTRING>
+    static void
+    update(t_FORMATSTRING *out, const t_CHAR *v)
     {
-        this->d_formatString = v;
+        out->d_formatString = v;
     }
 
-    FormatString_Basic_Tester(bsl::basic_string_view<t_CHAR> v)
-    : basic_format_string<t_CHAR, bsl::decay_t<t_ARGS>...>("")
+    template <class t_FORMATSTRING>
+    static void
+    update(t_FORMATSTRING *out, bsl::basic_string_view<t_CHAR> v)
     {
-        this->d_formatString = v;
+        out->d_formatString = v;
     }
 };
 
-#endif  // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#endif
 
 } // close namespace bslfmt
 } // close enterprise namespace
 
-#endif  // End C++11 code
+#endif // End C++11 code
 
 #endif  // INCLUDED_BSLFMT_FORMATSTRING
 

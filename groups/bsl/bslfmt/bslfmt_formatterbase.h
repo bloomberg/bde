@@ -23,6 +23,7 @@
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
+#include <cstdio>     // for 'std::snprintf'
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
@@ -128,7 +129,6 @@ struct Formatter_CharUtils<wchar_t> {
         typename t_FORMAT_CONTEXT::iterator out = fc.out();
 
         for (; begin != end; (void)++begin, (void)++out) {
-            wchar_t wc = ct.widen(*begin);
             *out = ct.widen(*begin);
         }
 
@@ -165,6 +165,35 @@ struct Formatter_IntegerBase {
     }
 };
 
+template <class t_VALUE, class t_CHAR>
+struct Formatter_FloatingBase {
+  public:
+    // TRAITS
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // MANIPULATORS
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                           t_PARSE_CONTEXT& pc)
+    {
+        if (pc.begin() != pc.end() && *pc.begin() != '}') {
+            BSLS_THROW(bsl::format_error("not implemented"));
+        }
+        return pc.begin();
+    }
+
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(t_VALUE           x,
+                                               t_FORMAT_CONTEXT& fc) const
+    {
+        typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
+        char  buf[NFUtil::ToCharsMaxLength<double>::k_VALUE];
+        char *result = NFUtil::toChars(buf, buf + sizeof(buf), (double)x);
+        return BloombergLP::bslfmt::Formatter_CharUtils<
+            t_CHAR>::outputFromChar(buf, result, fc);
+    }
+};
+
 }  // close namespace bslfmt
 }  // close enterprise namespace
 
@@ -172,8 +201,154 @@ namespace bsl {
 // FORMATTER SPECIALIZATIONS
 
 template <class t_CHAR>
+struct formatter<bool, t_CHAR> {
+  public:
+    // TRAITS
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // MANIPULATORS
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                           t_PARSE_CONTEXT& pc)
+    {
+        if (pc.begin() != pc.end() && *pc.begin() != '}') {
+            BSLS_THROW(bsl::format_error("not implemented"));
+        }
+        return pc.begin();
+    }
+
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(bool            v,
+                                               t_FORMAT_CONTEXT& fc) const
+    {
+        const char *buf = v ? "1" : "0";
+
+        return BloombergLP::bslfmt::Formatter_CharUtils<
+            t_CHAR>::outputFromChar(buf, buf + 1, fc);
+    }
+};
+
+template <class t_CHAR>
 struct formatter<int, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<int, t_CHAR> {
+};
+
+template <class t_CHAR>
+struct formatter<unsigned, t_CHAR>
+: BloombergLP::bslfmt::Formatter_IntegerBase<unsigned, t_CHAR> {
+};
+
+template <class t_CHAR>
+struct formatter<long long, t_CHAR>
+: BloombergLP::bslfmt::Formatter_IntegerBase<long long, t_CHAR> {
+};
+
+template <class t_CHAR>
+struct formatter<unsigned long long, t_CHAR>
+: BloombergLP::bslfmt::Formatter_IntegerBase<unsigned long long, t_CHAR> {
+};
+
+template <class t_CHAR>
+struct formatter<float, t_CHAR>
+: BloombergLP::bslfmt::Formatter_FloatingBase<float, t_CHAR> {
+};
+
+template <class t_CHAR>
+struct formatter<double, t_CHAR>
+: BloombergLP::bslfmt::Formatter_FloatingBase<double, t_CHAR> {
+};
+
+template <class t_CHAR>
+struct formatter<long double, t_CHAR>
+: BloombergLP::bslfmt::Formatter_FloatingBase<long double, t_CHAR> {
+};
+
+
+template <class t_CHAR>
+struct formatter<const void *, t_CHAR> {
+  public:
+    // TRAITS
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // MANIPULATORS
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                           t_PARSE_CONTEXT& pc)
+    {
+        if (pc.begin() != pc.end() && *pc.begin() != '}') {
+            BSLS_THROW(bsl::format_error("not implemented"));
+        }
+        return pc.begin();
+    }
+
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(const void *              v,
+                                               t_FORMAT_CONTEXT& fc) const
+    {
+        char buf[64];
+        size_t req = std::snprintf(buf, sizeof(buf), "%p", v);
+
+        if (req >= sizeof(buf))
+            BSLS_THROW(bsl::format_error("buffer overflow"));
+
+        return BloombergLP::bslfmt::Formatter_CharUtils<
+            t_CHAR>::outputFromChar(buf, buf + req, fc);
+    }
+};
+
+
+template <class t_CHAR>
+struct formatter<t_CHAR, t_CHAR> {
+  public:
+    // TRAITS
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // MANIPULATORS
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                           t_PARSE_CONTEXT& pc)
+    {
+        if (pc.begin() != pc.end() && *pc.begin() != '}') {
+            BSLS_THROW(bsl::format_error("not implemented"));
+        }
+        return pc.begin();
+    }
+
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(t_CHAR            c,
+                                               t_FORMAT_CONTEXT& fc) const
+    {
+        typename t_FORMAT_CONTEXT::iterator o = fc.out();
+
+        *o++ = c;
+        return o;
+    }
+};
+
+template <class t_CHAR>
+struct formatter<const t_CHAR *, t_CHAR> {
+  public:
+    // TRAITS
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // MANIPULATORS
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                           t_PARSE_CONTEXT& pc)
+    {
+        if (pc.begin() != pc.end() && *pc.begin() != '}') {
+            BSLS_THROW(bsl::format_error("not implemented"));
+        }
+        return pc.begin();
+    }
+
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(const t_CHAR      *c,
+                                               t_FORMAT_CONTEXT&  fc) const
+    {
+        basic_string_view<t_CHAR> sv(c);
+        return bsl::copy(sv.begin(), sv.end(), fc.out());
+    }
 };
 
 

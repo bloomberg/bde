@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jun 18 08:42:19 2024
+// Generated on Tue Jun 18 15:04:42 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -2266,7 +2266,7 @@ class basic_format_args {
 
     // FRIENDS
     template <class t_INNER_CONTEXT>
-    friend int Format_FormatArgsSize(
+    friend size_t Format_FormatArgsSize(
             const basic_format_args<t_INNER_CONTEXT>& args);
 };
 
@@ -2275,7 +2275,7 @@ typedef basic_format_args<format_context> format_args;
 typedef basic_format_args<wformat_context> wformat_args;
 
 template<class t_CONTEXT>
-int Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args)
+size_t Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args)
     // This component-private function returns the result of calling 'size()'
     // on the specified 'args' parameter. This is to permit access to the
     // private 'size' accessor of 'basic_format_args' without requiring long
