@@ -4,6 +4,8 @@
 
 #include <bdlt_currenttime.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslmt_threadutil.h>
 
 #include <bsls_asserttest.h>
@@ -356,8 +358,8 @@ static Ti testLB(
 
     object.setRateAndCapacity(rate, capacity);
 
-    Uint64 numSleeps=0;
-    Uint64 loops = 0;
+    BSLA_MAYBE_UNUSED Uint64 numSleeps=0;
+    BSLA_MAYBE_UNUSED Uint64 loops = 0;
 
     while (dataSent < dataSize) {
         ++loops;
@@ -560,7 +562,6 @@ int main(int argc, char *argv[])
                           << "FUNCTIONALITY" << endl
                           << "=============" << endl;
 
-        const Ti CREATION_TIME;
         const Uint64 M = 1024*1024;
         const Uint64 G = 1024LL*1024*1024;
 
@@ -1036,8 +1037,6 @@ int main(int argc, char *argv[])
         const Uint64 Gb    = 1 << 30;
         const Uint64 G     = 1000000000;
         const Uint64 M     = 1000000;
-
-        const Ti MNS_T(0, 999999999);
 
         // Numbers of units to be consumed during different intervals
         // at maximum rate.

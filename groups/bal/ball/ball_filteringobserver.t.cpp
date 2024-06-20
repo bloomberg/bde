@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 
@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(innerObserver, callback, &sa);
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 

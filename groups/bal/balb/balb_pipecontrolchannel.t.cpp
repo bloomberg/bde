@@ -1704,7 +1704,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == rc);
             }
 
-            ASSERT("The calling thread is unblocked.");
+            // The calling thread is unblocked.
         }
         ASSERT(0 == ta.numBytesInUse());
       } break;

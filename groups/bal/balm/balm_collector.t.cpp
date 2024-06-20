@@ -4,10 +4,15 @@
 #include <bdlf_bind.h>
 #include <bdlmt_fixedthreadpool.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
 #include <bslmt_barrier.h>
+
 #include <bsls_types.h>
 
 #include <bsl_cstring.h>
@@ -109,10 +114,10 @@ class ConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool  d_pool;
-    bslmt::Barrier          d_barrier;
-    balm::Collector        *d_collector_p;
-    bslma::Allocator       *d_allocator_p;
+    bdlmt::FixedThreadPool              d_pool;
+    bslmt::Barrier                      d_barrier;
+    balm::Collector                    *d_collector_p;
+    BSLA_MAYBE_UNUSED bslma::Allocator *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();

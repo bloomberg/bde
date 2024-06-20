@@ -1778,7 +1778,7 @@ int main(int argc, const char *argv[])  {
     int                test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int             verbose = argc > 2;
     int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;
+    int     veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
     int veryVeryVeryVerbose = argc > 5;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
@@ -1868,7 +1868,7 @@ int main(int argc, const char *argv[])  {
 
         ASSERTV(maxSize, 4 == maxSize);
 
-        if (verbose) "C-2 Paring incorrect input.\n";
+        if (verbose) cout << "C-2 Parsing incorrect input.\n";
 
         static const struct ErrorData {
             int         d_line;

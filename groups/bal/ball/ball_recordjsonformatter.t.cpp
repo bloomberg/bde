@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
                       srcAllocatorPtr = &oa;
                   } break;
                   default: {
-                      ASSERTV(CONFIG, !"Bad allocator config.");
+                      ASSERTV(CONFIG, 0 == "Bad allocator config.");
                   } break;
                 }
                 bslma::TestAllocator& sa = *srcAllocatorPtr;
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
                                 srcAllocatorPtr = &oa;
                               } break;
                               default: {
-                                ASSERTV(CONFIG, !"Bad allocator config.");
+                                ASSERTV(CONFIG, 0 == "Bad allocator config.");
                               } break;
                             }
                             bslma::TestAllocator& sa = *srcAllocatorPtr;
@@ -711,7 +711,7 @@ int main(int argc, char *argv[])
                     objAllocatorPtr = &za;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, 0 == "Bad allocator config.");
                   } break;
                 }
 
@@ -1194,7 +1194,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -2321,7 +2321,7 @@ int main(int argc, char *argv[])
                 othAllocatorPtr = &da;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 

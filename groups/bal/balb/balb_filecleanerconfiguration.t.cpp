@@ -774,7 +774,7 @@ int main(int argc, char *argv[])
                           objAllocatorPtr = &sa;
                       } break;
                       default: {
-                          ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                          ASSERTV(LINE, CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -1491,7 +1491,7 @@ int main(int argc, char *argv[])
                   objAllocatorPtr = &sa;
               } break;
               default: {
-                  ASSERTV(CONFIG, !"Bad allocator config.");
+                  ASSERTV(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 

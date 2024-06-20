@@ -17,6 +17,8 @@
 #include <bdlt_currenttime.h>
 #include <bdlt_timeunitratio.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
@@ -176,13 +178,13 @@ typedef BloombergLP::bslma::TestAllocator     TestAllocator;
 typedef BloombergLP::bsls::Types::IntPtr      IntPtr;
 typedef BloombergLP::bsls::Types::Int64       Int64;
 
-const int TRACE = Sev::e_TRACE;
-const int DEBUG = Sev::e_DEBUG;
-const int INFO  = Sev::e_INFO;
-const int WARN  = Sev::e_WARN;
-const int ERROR = Sev::e_ERROR;
-const int FATAL = Sev::e_FATAL;
-const int OFF   = Sev::e_OFF;
+BSLA_MAYBE_UNUSED const int TRACE = Sev::e_TRACE;
+BSLA_MAYBE_UNUSED const int DEBUG = Sev::e_DEBUG;
+BSLA_MAYBE_UNUSED const int INFO  = Sev::e_INFO;
+BSLA_MAYBE_UNUSED const int WARN  = Sev::e_WARN;
+BSLA_MAYBE_UNUSED const int ERROR = Sev::e_ERROR;
+BSLA_MAYBE_UNUSED const int FATAL = Sev::e_FATAL;
+BSLA_MAYBE_UNUSED const int OFF   = Sev::e_OFF;
 
 static bool verbose;
 static bool veryVerbose;

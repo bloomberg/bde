@@ -24,6 +24,10 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
+
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------

@@ -9,11 +9,16 @@
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlt_currenttime.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocator.h>
+
 #include <bslmt_barrier.h>
+
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
@@ -149,11 +154,11 @@ class MetricConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool  d_pool;
-    balm::IntegerMetric    *d_metric;
-    balm::MetricRegistry   *d_registry;
-    bslmt::Barrier          d_barrier;
-    bslma::Allocator       *d_allocator_p;
+    bdlmt::FixedThreadPool              d_pool;
+    balm::IntegerMetric                *d_metric;
+    balm::MetricRegistry               *d_registry;
+    bslmt::Barrier                      d_barrier;
+    BSLA_MAYBE_UNUSED bslma::Allocator *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();

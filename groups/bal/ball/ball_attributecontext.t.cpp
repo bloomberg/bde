@@ -2041,7 +2041,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = Z;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 

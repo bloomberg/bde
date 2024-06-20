@@ -53,6 +53,10 @@ using bsl::strcmp;
 using bsl::string;
 using bsl::uppercase;
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
+
 // ============================================================================
 //                                   TEST PLAN
 // ----------------------------------------------------------------------------

@@ -7,6 +7,8 @@
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_default.h>
 
 #include <bslmt_barrier.h>
@@ -134,6 +136,7 @@ static bslmt::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
 #define PT_(X) { printMutex.lock(); P_(X); printMutex.unlock(); }
 
+BSLA_MAYBE_UNUSED
 static bslmt::Mutex &assertMutex = printMutex;  // mutex to protect assert
                                                 // macros
 

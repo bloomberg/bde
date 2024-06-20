@@ -16,7 +16,8 @@ namespace {
 namespace u {
 
 #define U_SAFE_COPY(dstBuf, srcBuf) do {                                      \
-        enum { k_STATIC_ASSERT = 1 / (sizeof(srcBuf) <= sizeof(dstBuf)) };    \
+        enum { k_STATIC_ASSERT =                                              \
+                           1 / (sizeof(srcBuf) <= sizeof(dstBuf) ? 1 : 0) };  \
         std::strcpy(dstBuf, srcBuf);                                          \
     } while (false)
 

@@ -43,6 +43,10 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
+
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------

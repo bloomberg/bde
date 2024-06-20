@@ -15,6 +15,8 @@ BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 #include <balst_stacktrace.h>
 #include <balst_stacktraceutil.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslmt_lockguard.h>
 
 #include <bslma_allocator.h>
@@ -453,7 +455,7 @@ void StackTraceTestAllocator::release()
         }
     }
 
-    int numBlocks = 0;
+    BSLA_MAYBE_UNUSED int numBlocks = 0;
     for (BlockHeader *blockHdr = d_blocks; blockHdr; ) {
         ++numBlocks;
 
@@ -523,7 +525,7 @@ void StackTraceTestAllocator::reportBlocksInUse(bsl::ostream *ostream) const
     StackTraceVecMap stackTraceVecMap(d_allocator_p);
     StackTraceVec traceVec(d_allocator_p);
 
-    int numBlocksInUse = 0;
+    BSLA_MAYBE_UNUSED int numBlocksInUse = 0;
     for (BlockHeader *blockHdr = d_blocks; blockHdr;
                                                blockHdr = blockHdr->d_next_p) {
         if (k_ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
