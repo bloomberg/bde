@@ -10,29 +10,29 @@
 #include <bsls_keyword.h>
 
 #include <bslstl_string.h>
+#include <bslstl_stringview.h>
+
+#include <bslmf_enableif.h>
+#include <bslmf_typeidentity.h>
 
 #include <stdexcept>
 
-#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03
-// Generated on Tue Jun 18 12:03:43 2024
-// Command line: sim_cpp11_features.pl bslfmt_formatstring.h
-# define COMPILING_BSLFMT_FORMATSTRING_H
-# include <bslfmt_formatstring_cpp03.h>
-# undef COMPILING_BSLFMT_FORMATSTRING_H
-#else
+//#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+//// Include version that can be compiled with C++03
+//// Generated on Tue Jun 18 12:03:43 2024
+//// Command line: sim_cpp11_features.pl bslfmt_formatstring.h
+//# define COMPILING_BSLFMT_FORMATSTRING_H
+//# include <bslfmt_formatstring_cpp03.h>
+//# undef COMPILING_BSLFMT_FORMATSTRING_H
+//#else
 
 namespace BloombergLP {
 namespace bslfmt {
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
-
 template <class t_CHAR>
 struct FormatString_Test_Updater;
 
-#endif
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#if defined(xxBSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
 
 template <class t_CHAR, class... t_ARGS>
 struct basic_format_string {
@@ -59,7 +59,7 @@ struct basic_format_string {
 
   private:
     // FRIENDS
-    template <class t_INNER_CHAR, class... t_INNER_ARGS>
+    template <class t_INNER_CHAR>
     friend struct FormatString_Test_Updater;
 };
 
@@ -71,7 +71,8 @@ template <class... t_ARGS>
 using wformat_string =
                  basic_format_string<wchar_t, bsl::type_identity_t<t_ARGS>...>;
 
-#elif BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
+    defined(xxBSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
 template <class t_CHAR, class... t_ARGS>
 struct basic_format_string {
@@ -89,7 +90,7 @@ struct basic_format_string {
 
   private:
     // FRIENDS
-    template <class t_INNER_CHAR, class... t_ARGS>
+    template <class t_INNER_CHAR>
     friend struct FormatString_Test_Updater;
 };
 
@@ -103,9 +104,7 @@ using wformat_string =
 
 #else
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
-
-template <class t_CHAR, class... t_ARGS>
+template <class t_CHAR>
 struct basic_format_string {
     bsl::basic_string_view<t_CHAR> d_formatString;
 
@@ -125,52 +124,10 @@ struct basic_format_string {
     friend struct FormatString_Test_Updater;
 };
 
+typedef basic_format_string<char>    format_string;
+typedef basic_format_string<wchar_t> wformat_string;
 
-
-template <class... t_ARGS>
-struct format_string {
-    bsl::basic_string_view<char> d_formatString;
-
-    BSLS_KEYWORD_CONSTEXPR_CPP14 format_string(const char *s)
-    {
-        d_formatString = s;
-    }
-
-    BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<char> get()
-    {
-        return d_formatString;
-    }
-
-  private:
-    // FRIENDS
-    template <class t_INNER_CHAR>
-    friend struct FormatString_Test_Updater;
-};
-
-
-//template <class... t_ARGS>
-//struct format_string : public basic_format_string<char, typename bsl::type_identity<t_ARGS>::type...> {
-//    BSLS_KEYWORD_CONSTEXPR_CPP14 format_string(const char *s)
-//    : basic_format_string<char, typename bsl::type_identity<t_ARGS>::type...>(s)
-//    {
-//        this->d_formatString = s;
-//    }
-//};
-
-template <class... t_ARGS>
-struct wformat_string : public basic_format_string<wchar_t, typename bsl::type_identity<t_ARGS>::type...> {
-    BSLS_KEYWORD_CONSTEXPR_CPP14 wformat_string(const wchar_t *s)
-    : basic_format_string<wchar_t, typename bsl::type_identity<t_ARGS>::type...>(s)
-    {
-        this->d_formatString = s;
-    }
-};
-
-#endif
-
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP11/20_BASELINE_LIBRARY
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
+#endif // Support for Alias and Variadic templates
 
 template <class t_CHAR>
 struct FormatString_Test_Updater
@@ -190,12 +147,10 @@ struct FormatString_Test_Updater
     }
 };
 
-#endif
-
 } // close namespace bslfmt
 } // close enterprise namespace
 
-#endif // End C++11 code
+//#endif // End C++11 code
 
 #endif  // INCLUDED_BSLFMT_FORMATSTRING
 

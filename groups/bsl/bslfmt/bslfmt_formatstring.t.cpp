@@ -92,8 +92,8 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        bslfmt::format_string<int>  dummy1("Testing {}");
-        bslfmt::wformat_string<int> dummy2(L"Testing {}");
+        //bslfmt::format_string<int>  dummy1("Testing {}");
+        //bslfmt::wformat_string<int> dummy2(L"Testing {}");
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

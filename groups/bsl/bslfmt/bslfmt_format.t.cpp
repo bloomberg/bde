@@ -111,6 +111,18 @@ void check(const std::string&, const char *) {
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
+    defined(xxBSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#define BSLFMT_FORMAT_STRING_PARAMETER                                        \
+    bslfmt::format_string<bsl::decay_t<t_ARGS>...>
+#define BSLFMT_FORMAT_WSTRING_PARAMETER                                       \
+    bslfmt::wformat_string<bsl::decay_t<t_ARGS>...>
+#else
+// We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
+// have to use non-template versions instead.
+#define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
+#define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 template <class... t_ARGS>
 bool doTestWithOracle(string_view              result,
@@ -119,10 +131,15 @@ bool doTestWithOracle(string_view              result,
 {
     typedef string RT;
 
-    bslfmt::FormatString_Basic_Tester<char, t_ARGS...> bslfmt(fmtstr.get());
+    // Work around for the fact we cannot construct a bslfmt::format_string
+    // from non-consteval fmtstr.
+    BSLFMT_FORMAT_STRING_PARAMETER          bslfmt("");
+    bslfmt::FormatString_Test_Updater<char> tu;
 
-    RT res_bde = bslfmt::format(bslfmt, args...);
-    RT res_std   = std::format(fmtstr, args...);
+    tu.update(&bslfmt, fmtstr.get());
+
+    RT res_bde = bslfmt::format(bslfmt, std::forward<t_ARGS>(args)...);
+    RT res_std = std::format(fmtstr, std::forward<t_ARGS>(args)...);
 
     return (result == res_bde && result == res_std);
 }

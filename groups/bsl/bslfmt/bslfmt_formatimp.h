@@ -44,6 +44,17 @@
 # undef COMPILING_BSLFMT_FORMATIMP_H
 #else
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
+    defined(xxBSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#  define BSLFMT_FORMAT_STRING_PARAMETER  bslfmt::format_string<t_ARGS...>
+#  define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string<t_ARGS...>
+#else
+// We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
+// have to use non-template versions instead.
+#  define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
+#  define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
 namespace BloombergLP {
 namespace bslfmt {
 
@@ -335,7 +346,7 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT                            out,
-                bslfmt::format_string<t_ARGS...> fmtstr,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                 const t_ARGS&...                 args)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args...));
@@ -343,7 +354,7 @@ t_OUT format_to(t_OUT                            out,
 
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT                             out,
-                bslfmt::wformat_string<t_ARGS...> fmtstr,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
                 const t_ARGS&...                  args)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args...));
@@ -351,7 +362,7 @@ t_OUT format_to(t_OUT                             out,
 
 template <class... t_ARGS>
 void format_to(bsl::string                      *out,
-               bslfmt::format_string<t_ARGS...>  fmtstr,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
                const t_ARGS&...                  args)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(args...));
@@ -359,7 +370,7 @@ void format_to(bsl::string                      *out,
 
 template <class... t_ARGS>
 void format_to(bsl::wstring                      *out,
-               bslfmt::wformat_string<t_ARGS...>  fmtstr,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
                const t_ARGS&...                   args)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(args...));
@@ -378,7 +389,7 @@ void vformat_to(bsl::wstring *out, bsl::wstring_view fmtstr, wformat_args args)
 }
 
 template <class... t_ARGS>
-bsl::string format(bslfmt::format_string<t_ARGS...> fmtstr,
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                    const t_ARGS&...                 args)
 {
     bsl::string result;
@@ -387,7 +398,7 @@ bsl::string format(bslfmt::format_string<t_ARGS...> fmtstr,
 }
 
 template <class... t_ARGS>
-bsl::wstring format(bslfmt::wformat_string<t_ARGS...> fmtstr,
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                     const t_ARGS&...                  args)
 {
     bsl::wstring result;
@@ -397,7 +408,7 @@ bsl::wstring format(bslfmt::wformat_string<t_ARGS...> fmtstr,
 
 template <class... t_ARGS>
 bsl::string format(bsl::allocator<char>             alloc,
-                   bslfmt::format_string<t_ARGS...> fmtstr,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                    const t_ARGS&...                 args)
 {
     bsl::string result(alloc);
@@ -408,7 +419,7 @@ bsl::string format(bsl::allocator<char>             alloc,
 
 template <class... t_ARGS>
 bsl::wstring format(bsl::allocator<wchar_t>           alloc,
-                    bslfmt::wformat_string<t_ARGS...> fmtstr,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                     const t_ARGS&...                  args)
 {
     bsl::wstring result(alloc);
@@ -435,7 +446,7 @@ bsl::string vformat(bsl::allocator<char> alloc,
 }
 
 template <class... t_ARGS>
-std::size_t formatted_size(bslfmt::format_string<t_ARGS...> fmtstr,
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS&...                 args)
 {
     Format_TruncatingIterator<char *> it(0, 0);
@@ -445,7 +456,7 @@ std::size_t formatted_size(bslfmt::format_string<t_ARGS...> fmtstr,
 
 
 template <class... t_ARGS>
-std::size_t formatted_size(bslfmt::wformat_string<t_ARGS...> fmtstr,
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS&...                  args)
 {
     Format_TruncatingIterator<wchar_t *> it(0, 0);
@@ -457,7 +468,7 @@ template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::format_string<t_ARGS...>                      fmtstr,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
                   const t_ARGS&...                                      args)
 {
     if (n < 0)
@@ -474,7 +485,7 @@ template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::wformat_string<t_ARGS...>                     fmtstr,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
                   const t_ARGS&...                                      args)
 {
     if (n < 0)
@@ -489,6 +500,9 @@ format_to_n_result<t_OUT> format_to_n(
 #endif
 }  // close namespace bslfmt
 } // close enterprise namespace
+
+#undef BSLFMT_FORMAT_STRING_PARAMETER
+#undef BSLFMT_FORMAT_WSTRING_PARAMETER
 
 #endif // End C++11 code
 
