@@ -112,7 +112,7 @@ void check(const std::string&, const char *) {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
-    defined(xxBSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 #define BSLFMT_FORMAT_STRING_PARAMETER                                        \
     bslfmt::format_string<bsl::decay_t<t_ARGS>...>
 #define BSLFMT_FORMAT_WSTRING_PARAMETER                                       \
