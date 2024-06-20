@@ -21,10 +21,21 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jun 18 15:02:27 2024
+// Generated on Thu Jun 20 11:32:58 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 
 #ifdef COMPILING_BSLFMT_FORMATIMP_H
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#  define BSLFMT_FORMAT_STRING_PARAMETER  bslfmt::format_string<t_ARGS...>
+#  define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string<t_ARGS...>
+#else
+// We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
+// have to use non-template versions instead.
+#  define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
+#  define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -348,7 +359,7 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 #ifndef BSLFMT_FORMATIMP_VARIADIC_LIMIT
-#define BSLFMT_FORMATIMP_VARIADIC_LIMIT 3
+#define BSLFMT_FORMATIMP_VARIADIC_LIMIT 10
 #endif
 #ifndef BSLFMT_FORMATIMP_VARIADIC_LIMIT_A
 #define BSLFMT_FORMATIMP_VARIADIC_LIMIT_A BSLFMT_FORMATIMP_VARIADIC_LIMIT
@@ -356,213 +367,999 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
 t_OUT format_to(t_OUT                            out,
-                bslfmt::format_string<> fmtstr)
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr)
 {
     return vformat_to(out, fmtstr.get(), make_format_args());
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_OUT, class t_ARGS_1>
+template <class t_OUT, class t_ARGS_01>
 t_OUT format_to(t_OUT                            out,
-                bslfmt::format_string<t_ARGS_1> fmtstr,
-                const t_ARGS_1& args_1)
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01)
 {
-    return vformat_to(out, fmtstr.get(), make_format_args(args_1));
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_OUT, class t_ARGS_1,
-                       class t_ARGS_2>
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02>
 t_OUT format_to(t_OUT                            out,
-                bslfmt::format_string<t_ARGS_1,
-                                      t_ARGS_2> fmtstr,
-                const t_ARGS_1& args_1,
-                const t_ARGS_2& args_2)
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02)
 {
-    return vformat_to(out, fmtstr.get(), make_format_args(args_1,
-                                                          args_2));
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_OUT, class t_ARGS_1,
-                       class t_ARGS_2,
-                       class t_ARGS_3>
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03>
 t_OUT format_to(t_OUT                            out,
-                bslfmt::format_string<t_ARGS_1,
-                                      t_ARGS_2,
-                                      t_ARGS_3> fmtstr,
-                const t_ARGS_1& args_1,
-                const t_ARGS_2& args_2,
-                const t_ARGS_3& args_3)
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03)
 {
-    return vformat_to(out, fmtstr.get(), make_format_args(args_1,
-                                                          args_2,
-                                                          args_3));
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02,
+                                                          args_03));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04>
+t_OUT format_to(t_OUT                            out,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04)
+{
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02,
+                                                          args_03,
+                                                          args_04));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05>
+t_OUT format_to(t_OUT                            out,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05)
+{
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02,
+                                                          args_03,
+                                                          args_04,
+                                                          args_05));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06>
+t_OUT format_to(t_OUT                            out,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06)
+{
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02,
+                                                          args_03,
+                                                          args_04,
+                                                          args_05,
+                                                          args_06));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07>
+t_OUT format_to(t_OUT                            out,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06,
+                const t_ARGS_07& args_07)
+{
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02,
+                                                          args_03,
+                                                          args_04,
+                                                          args_05,
+                                                          args_06,
+                                                          args_07));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08>
+t_OUT format_to(t_OUT                            out,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06,
+                const t_ARGS_07& args_07,
+                const t_ARGS_08& args_08)
+{
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02,
+                                                          args_03,
+                                                          args_04,
+                                                          args_05,
+                                                          args_06,
+                                                          args_07,
+                                                          args_08));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08,
+                       class t_ARGS_09>
+t_OUT format_to(t_OUT                            out,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06,
+                const t_ARGS_07& args_07,
+                const t_ARGS_08& args_08,
+                const t_ARGS_09& args_09)
+{
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02,
+                                                          args_03,
+                                                          args_04,
+                                                          args_05,
+                                                          args_06,
+                                                          args_07,
+                                                          args_08,
+                                                          args_09));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08,
+                       class t_ARGS_09,
+                       class t_ARGS_10>
+t_OUT format_to(t_OUT                            out,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06,
+                const t_ARGS_07& args_07,
+                const t_ARGS_08& args_08,
+                const t_ARGS_09& args_09,
+                const t_ARGS_10& args_10)
+{
+    return vformat_to(out, fmtstr.get(), make_format_args(args_01,
+                                                          args_02,
+                                                          args_03,
+                                                          args_04,
+                                                          args_05,
+                                                          args_06,
+                                                          args_07,
+                                                          args_08,
+                                                          args_09,
+                                                          args_10));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
 t_OUT format_to(t_OUT                             out,
-                bslfmt::wformat_string<> fmtstr)
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args());
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_OUT, class t_ARGS_1>
+template <class t_OUT, class t_ARGS_01>
 t_OUT format_to(t_OUT                             out,
-                bslfmt::wformat_string<t_ARGS_1> fmtstr,
-                const t_ARGS_1& args_1)
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01)
 {
-    return vformat_to(out, fmtstr.get(), make_wformat_args(args_1));
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_OUT, class t_ARGS_1,
-                       class t_ARGS_2>
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02>
 t_OUT format_to(t_OUT                             out,
-                bslfmt::wformat_string<t_ARGS_1,
-                                       t_ARGS_2> fmtstr,
-                const t_ARGS_1& args_1,
-                const t_ARGS_2& args_2)
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02)
 {
-    return vformat_to(out, fmtstr.get(), make_wformat_args(args_1,
-                                                           args_2));
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_OUT, class t_ARGS_1,
-                       class t_ARGS_2,
-                       class t_ARGS_3>
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03>
 t_OUT format_to(t_OUT                             out,
-                bslfmt::wformat_string<t_ARGS_1,
-                                       t_ARGS_2,
-                                       t_ARGS_3> fmtstr,
-                const t_ARGS_1& args_1,
-                const t_ARGS_2& args_2,
-                const t_ARGS_3& args_3)
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03)
 {
-    return vformat_to(out, fmtstr.get(), make_wformat_args(args_1,
-                                                           args_2,
-                                                           args_3));
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02,
+                                                           args_03));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04>
+t_OUT format_to(t_OUT                             out,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04)
+{
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02,
+                                                           args_03,
+                                                           args_04));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05>
+t_OUT format_to(t_OUT                             out,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05)
+{
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02,
+                                                           args_03,
+                                                           args_04,
+                                                           args_05));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06>
+t_OUT format_to(t_OUT                             out,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06)
+{
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02,
+                                                           args_03,
+                                                           args_04,
+                                                           args_05,
+                                                           args_06));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07>
+t_OUT format_to(t_OUT                             out,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06,
+                const t_ARGS_07& args_07)
+{
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02,
+                                                           args_03,
+                                                           args_04,
+                                                           args_05,
+                                                           args_06,
+                                                           args_07));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08>
+t_OUT format_to(t_OUT                             out,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06,
+                const t_ARGS_07& args_07,
+                const t_ARGS_08& args_08)
+{
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02,
+                                                           args_03,
+                                                           args_04,
+                                                           args_05,
+                                                           args_06,
+                                                           args_07,
+                                                           args_08));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08,
+                       class t_ARGS_09>
+t_OUT format_to(t_OUT                             out,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06,
+                const t_ARGS_07& args_07,
+                const t_ARGS_08& args_08,
+                const t_ARGS_09& args_09)
+{
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02,
+                                                           args_03,
+                                                           args_04,
+                                                           args_05,
+                                                           args_06,
+                                                           args_07,
+                                                           args_08,
+                                                           args_09));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08,
+                       class t_ARGS_09,
+                       class t_ARGS_10>
+t_OUT format_to(t_OUT                             out,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                const t_ARGS_01& args_01,
+                const t_ARGS_02& args_02,
+                const t_ARGS_03& args_03,
+                const t_ARGS_04& args_04,
+                const t_ARGS_05& args_05,
+                const t_ARGS_06& args_06,
+                const t_ARGS_07& args_07,
+                const t_ARGS_08& args_08,
+                const t_ARGS_09& args_09,
+                const t_ARGS_10& args_10)
+{
+    return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
+                                                           args_02,
+                                                           args_03,
+                                                           args_04,
+                                                           args_05,
+                                                           args_06,
+                                                           args_07,
+                                                           args_08,
+                                                           args_09,
+                                                           args_10));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 void format_to(bsl::string                      *out,
-               bslfmt::format_string<>  fmtstr)
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args());
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_1>
+template <class t_ARGS_01>
 void format_to(bsl::string                      *out,
-               bslfmt::format_string<t_ARGS_1>  fmtstr,
-               const t_ARGS_1& args_1)
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
-                                                                      args_1));
+                                                                     args_01));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_1,
-          class t_ARGS_2>
+template <class t_ARGS_01,
+          class t_ARGS_02>
 void format_to(bsl::string                      *out,
-               bslfmt::format_string<t_ARGS_1,
-                                     t_ARGS_2>  fmtstr,
-               const t_ARGS_1& args_1,
-               const t_ARGS_2& args_2)
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
-                                                                      args_1,
-                                                                      args_2));
+                                                                     args_01,
+                                                                     args_02));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_1,
-          class t_ARGS_2,
-          class t_ARGS_3>
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
 void format_to(bsl::string                      *out,
-               bslfmt::format_string<t_ARGS_1,
-                                     t_ARGS_2,
-                                     t_ARGS_3>  fmtstr,
-               const t_ARGS_1& args_1,
-               const t_ARGS_2& args_2,
-               const t_ARGS_3& args_3)
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
-                                                                      args_1,
-                                                                      args_2,
-                                                                      args_3));
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+void format_to(bsl::string                      *out,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+void format_to(bsl::string                      *out,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+void format_to(bsl::string                      *out,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+void format_to(bsl::string                      *out,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06,
+               const t_ARGS_07& args_07)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06,
+                                                                     args_07));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+void format_to(bsl::string                      *out,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06,
+               const t_ARGS_07& args_07,
+               const t_ARGS_08& args_08)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06,
+                                                                     args_07,
+                                                                     args_08));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+void format_to(bsl::string                      *out,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06,
+               const t_ARGS_07& args_07,
+               const t_ARGS_08& args_08,
+               const t_ARGS_09& args_09)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06,
+                                                                     args_07,
+                                                                     args_08,
+                                                                     args_09));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+void format_to(bsl::string                      *out,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06,
+               const t_ARGS_07& args_07,
+               const t_ARGS_08& args_08,
+               const t_ARGS_09& args_09,
+               const t_ARGS_10& args_10)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06,
+                                                                     args_07,
+                                                                     args_08,
+                                                                     args_09,
+                                                                     args_10));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 void format_to(bsl::wstring                      *out,
-               bslfmt::wformat_string<>  fmtstr)
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args());
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_1>
+template <class t_ARGS_01>
 void format_to(bsl::wstring                      *out,
-               bslfmt::wformat_string<t_ARGS_1>  fmtstr,
-               const t_ARGS_1& args_1)
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
-                                                                      args_1));
+                                                                     args_01));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_1,
-          class t_ARGS_2>
+template <class t_ARGS_01,
+          class t_ARGS_02>
 void format_to(bsl::wstring                      *out,
-               bslfmt::wformat_string<t_ARGS_1,
-                                      t_ARGS_2>  fmtstr,
-               const t_ARGS_1& args_1,
-               const t_ARGS_2& args_2)
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
-                                                                      args_1,
-                                                                      args_2));
+                                                                     args_01,
+                                                                     args_02));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_1,
-          class t_ARGS_2,
-          class t_ARGS_3>
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
 void format_to(bsl::wstring                      *out,
-               bslfmt::wformat_string<t_ARGS_1,
-                                      t_ARGS_2,
-                                      t_ARGS_3>  fmtstr,
-               const t_ARGS_1& args_1,
-               const t_ARGS_2& args_2,
-               const t_ARGS_3& args_3)
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
-                                                                      args_1,
-                                                                      args_2,
-                                                                      args_3));
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03));
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+void format_to(bsl::wstring                      *out,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+void format_to(bsl::wstring                      *out,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+void format_to(bsl::wstring                      *out,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+void format_to(bsl::wstring                      *out,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06,
+               const t_ARGS_07& args_07)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06,
+                                                                     args_07));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+void format_to(bsl::wstring                      *out,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06,
+               const t_ARGS_07& args_07,
+               const t_ARGS_08& args_08)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06,
+                                                                     args_07,
+                                                                     args_08));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+void format_to(bsl::wstring                      *out,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06,
+               const t_ARGS_07& args_07,
+               const t_ARGS_08& args_08,
+               const t_ARGS_09& args_09)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06,
+                                                                     args_07,
+                                                                     args_08,
+                                                                     args_09));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+void format_to(bsl::wstring                      *out,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
+               const t_ARGS_01& args_01,
+               const t_ARGS_02& args_02,
+               const t_ARGS_03& args_03,
+               const t_ARGS_04& args_04,
+               const t_ARGS_05& args_05,
+               const t_ARGS_06& args_06,
+               const t_ARGS_07& args_07,
+               const t_ARGS_08& args_08,
+               const t_ARGS_09& args_09,
+               const t_ARGS_10& args_10)
+{
+    vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(
+                                                                     args_01,
+                                                                     args_02,
+                                                                     args_03,
+                                                                     args_04,
+                                                                     args_05,
+                                                                     args_06,
+                                                                     args_07,
+                                                                     args_08,
+                                                                     args_09,
+                                                                     args_10));
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 inline
@@ -578,7 +1375,7 @@ void vformat_to(bsl::wstring *out, bsl::wstring_view fmtstr, wformat_args args)
 }
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
-bsl::string format(bslfmt::format_string<> fmtstr)
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr)
 {
     bsl::string result;
     vformat_to(&result, fmtstr.get(), make_format_args());
@@ -587,53 +1384,253 @@ bsl::string format(bslfmt::format_string<> fmtstr)
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_1>
-bsl::string format(bslfmt::format_string<t_ARGS_1> fmtstr,
-                   const t_ARGS_1& args_1)
+template <class t_ARGS_01>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01)
 {
     bsl::string result;
-    vformat_to(&result, fmtstr.get(), make_format_args(args_1));
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_1,
-          class t_ARGS_2>
-bsl::string format(bslfmt::format_string<t_ARGS_1,
-                                         t_ARGS_2> fmtstr,
-                   const t_ARGS_1& args_1,
-                   const t_ARGS_2& args_2)
+template <class t_ARGS_01,
+          class t_ARGS_02>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02)
 {
     bsl::string result;
-    vformat_to(&result, fmtstr.get(), make_format_args(args_1,
-                                                       args_2));
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_1,
-          class t_ARGS_2,
-          class t_ARGS_3>
-bsl::string format(bslfmt::format_string<t_ARGS_1,
-                                         t_ARGS_2,
-                                         t_ARGS_3> fmtstr,
-                   const t_ARGS_1& args_1,
-                   const t_ARGS_2& args_2,
-                   const t_ARGS_3& args_3)
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03)
 {
     bsl::string result;
-    vformat_to(&result, fmtstr.get(), make_format_args(args_1,
-                                                       args_2,
-                                                       args_3));
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
 
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04)
+{
+    bsl::string result;
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05)
+{
+    bsl::string result;
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06)
+{
+    bsl::string result;
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06,
+                   const t_ARGS_07& args_07)
+{
+    bsl::string result;
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06,
+                                                       args_07));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06,
+                   const t_ARGS_07& args_07,
+                   const t_ARGS_08& args_08)
+{
+    bsl::string result;
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06,
+                                                       args_07,
+                                                       args_08));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06,
+                   const t_ARGS_07& args_07,
+                   const t_ARGS_08& args_08,
+                   const t_ARGS_09& args_09)
+{
+    bsl::string result;
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06,
+                                                       args_07,
+                                                       args_08,
+                                                       args_09));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06,
+                   const t_ARGS_07& args_07,
+                   const t_ARGS_08& args_08,
+                   const t_ARGS_09& args_09,
+                   const t_ARGS_10& args_10)
+{
+    bsl::string result;
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06,
+                                                       args_07,
+                                                       args_08,
+                                                       args_09,
+                                                       args_10));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
-bsl::wstring format(bslfmt::wformat_string<> fmtstr)
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr)
 {
     bsl::wstring result;
     vformat_to(&result, fmtstr.get(), make_wformat_args());
@@ -642,54 +1639,254 @@ bsl::wstring format(bslfmt::wformat_string<> fmtstr)
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_1>
-bsl::wstring format(bslfmt::wformat_string<t_ARGS_1> fmtstr,
-                    const t_ARGS_1& args_1)
+template <class t_ARGS_01>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01)
 {
     bsl::wstring result;
-    vformat_to(&result, fmtstr.get(), make_wformat_args(args_1));
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_1,
-          class t_ARGS_2>
-bsl::wstring format(bslfmt::wformat_string<t_ARGS_1,
-                                           t_ARGS_2> fmtstr,
-                    const t_ARGS_1& args_1,
-                    const t_ARGS_2& args_2)
+template <class t_ARGS_01,
+          class t_ARGS_02>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02)
 {
     bsl::wstring result;
-    vformat_to(&result, fmtstr.get(), make_wformat_args(args_1,
-                                                        args_2));
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_1,
-          class t_ARGS_2,
-          class t_ARGS_3>
-bsl::wstring format(bslfmt::wformat_string<t_ARGS_1,
-                                           t_ARGS_2,
-                                           t_ARGS_3> fmtstr,
-                    const t_ARGS_1& args_1,
-                    const t_ARGS_2& args_2,
-                    const t_ARGS_3& args_3)
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03)
 {
     bsl::wstring result;
-    vformat_to(&result, fmtstr.get(), make_wformat_args(args_1,
-                                                        args_2,
-                                                        args_3));
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
 
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06,
+                    const t_ARGS_07& args_07)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06,
+                                                        args_07));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06,
+                    const t_ARGS_07& args_07,
+                    const t_ARGS_08& args_08)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06,
+                                                        args_07,
+                                                        args_08));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06,
+                    const t_ARGS_07& args_07,
+                    const t_ARGS_08& args_08,
+                    const t_ARGS_09& args_09)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06,
+                                                        args_07,
+                                                        args_08,
+                                                        args_09));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06,
+                    const t_ARGS_07& args_07,
+                    const t_ARGS_08& args_08,
+                    const t_ARGS_09& args_09,
+                    const t_ARGS_10& args_10)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06,
+                                                        args_07,
+                                                        args_08,
+                                                        args_09,
+                                                        args_10));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 bsl::string format(bsl::allocator<char>             alloc,
-                   bslfmt::format_string<> fmtstr)
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr)
 {
     bsl::string result(alloc);
     vformat_to(&result, fmtstr.get(), make_format_args());
@@ -698,58 +1895,265 @@ bsl::string format(bsl::allocator<char>             alloc,
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_1>
+template <class t_ARGS_01>
 bsl::string format(bsl::allocator<char>             alloc,
-                   bslfmt::format_string<t_ARGS_1> fmtstr,
-                   const t_ARGS_1& args_1)
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01)
 {
     bsl::string result(alloc);
-    vformat_to(&result, fmtstr.get(), make_format_args(args_1));
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_1,
-          class t_ARGS_2>
+template <class t_ARGS_01,
+          class t_ARGS_02>
 bsl::string format(bsl::allocator<char>             alloc,
-                   bslfmt::format_string<t_ARGS_1,
-                                         t_ARGS_2> fmtstr,
-                   const t_ARGS_1& args_1,
-                   const t_ARGS_2& args_2)
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02)
 {
     bsl::string result(alloc);
-    vformat_to(&result, fmtstr.get(), make_format_args(args_1,
-                                                       args_2));
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_1,
-          class t_ARGS_2,
-          class t_ARGS_3>
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
 bsl::string format(bsl::allocator<char>             alloc,
-                   bslfmt::format_string<t_ARGS_1,
-                                         t_ARGS_2,
-                                         t_ARGS_3> fmtstr,
-                   const t_ARGS_1& args_1,
-                   const t_ARGS_2& args_2,
-                   const t_ARGS_3& args_3)
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03)
 {
     bsl::string result(alloc);
-    vformat_to(&result, fmtstr.get(), make_format_args(args_1,
-                                                       args_2,
-                                                       args_3));
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+bsl::string format(bsl::allocator<char>             alloc,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04)
+{
+    bsl::string result(alloc);
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+bsl::string format(bsl::allocator<char>             alloc,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05)
+{
+    bsl::string result(alloc);
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+bsl::string format(bsl::allocator<char>             alloc,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06)
+{
+    bsl::string result(alloc);
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+bsl::string format(bsl::allocator<char>             alloc,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06,
+                   const t_ARGS_07& args_07)
+{
+    bsl::string result(alloc);
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06,
+                                                       args_07));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+bsl::string format(bsl::allocator<char>             alloc,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06,
+                   const t_ARGS_07& args_07,
+                   const t_ARGS_08& args_08)
+{
+    bsl::string result(alloc);
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06,
+                                                       args_07,
+                                                       args_08));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+bsl::string format(bsl::allocator<char>             alloc,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06,
+                   const t_ARGS_07& args_07,
+                   const t_ARGS_08& args_08,
+                   const t_ARGS_09& args_09)
+{
+    bsl::string result(alloc);
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06,
+                                                       args_07,
+                                                       args_08,
+                                                       args_09));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+bsl::string format(bsl::allocator<char>             alloc,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                   const t_ARGS_01& args_01,
+                   const t_ARGS_02& args_02,
+                   const t_ARGS_03& args_03,
+                   const t_ARGS_04& args_04,
+                   const t_ARGS_05& args_05,
+                   const t_ARGS_06& args_06,
+                   const t_ARGS_07& args_07,
+                   const t_ARGS_08& args_08,
+                   const t_ARGS_09& args_09,
+                   const t_ARGS_10& args_10)
+{
+    bsl::string result(alloc);
+    vformat_to(&result, fmtstr.get(), make_format_args(args_01,
+                                                       args_02,
+                                                       args_03,
+                                                       args_04,
+                                                       args_05,
+                                                       args_06,
+                                                       args_07,
+                                                       args_08,
+                                                       args_09,
+                                                       args_10));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 bsl::wstring format(bsl::allocator<wchar_t>           alloc,
-                    bslfmt::wformat_string<> fmtstr)
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr)
 {
     bsl::wstring result(alloc);
     vformat_to(&result, fmtstr.get(), make_wformat_args());
@@ -758,52 +2162,259 @@ bsl::wstring format(bsl::allocator<wchar_t>           alloc,
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_1>
+template <class t_ARGS_01>
 bsl::wstring format(bsl::allocator<wchar_t>           alloc,
-                    bslfmt::wformat_string<t_ARGS_1> fmtstr,
-                    const t_ARGS_1& args_1)
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01)
 {
     bsl::wstring result(alloc);
-    vformat_to(&result, fmtstr.get(), make_wformat_args(args_1));
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_1,
-          class t_ARGS_2>
+template <class t_ARGS_01,
+          class t_ARGS_02>
 bsl::wstring format(bsl::allocator<wchar_t>           alloc,
-                    bslfmt::wformat_string<t_ARGS_1,
-                                           t_ARGS_2> fmtstr,
-                    const t_ARGS_1& args_1,
-                    const t_ARGS_2& args_2)
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02)
 {
     bsl::wstring result(alloc);
-    vformat_to(&result, fmtstr.get(), make_wformat_args(args_1,
-                                                        args_2));
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_1,
-          class t_ARGS_2,
-          class t_ARGS_3>
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
 bsl::wstring format(bsl::allocator<wchar_t>           alloc,
-                    bslfmt::wformat_string<t_ARGS_1,
-                                           t_ARGS_2,
-                                           t_ARGS_3> fmtstr,
-                    const t_ARGS_1& args_1,
-                    const t_ARGS_2& args_2,
-                    const t_ARGS_3& args_3)
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03)
 {
     bsl::wstring result(alloc);
-    vformat_to(&result, fmtstr.get(), make_wformat_args(args_1,
-                                                        args_2,
-                                                        args_3));
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03));
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+bsl::wstring format(bsl::allocator<wchar_t>           alloc,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+bsl::wstring format(bsl::allocator<wchar_t>           alloc,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+bsl::wstring format(bsl::allocator<wchar_t>           alloc,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+bsl::wstring format(bsl::allocator<wchar_t>           alloc,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06,
+                    const t_ARGS_07& args_07)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06,
+                                                        args_07));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+bsl::wstring format(bsl::allocator<wchar_t>           alloc,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06,
+                    const t_ARGS_07& args_07,
+                    const t_ARGS_08& args_08)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06,
+                                                        args_07,
+                                                        args_08));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+bsl::wstring format(bsl::allocator<wchar_t>           alloc,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06,
+                    const t_ARGS_07& args_07,
+                    const t_ARGS_08& args_08,
+                    const t_ARGS_09& args_09)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06,
+                                                        args_07,
+                                                        args_08,
+                                                        args_09));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+bsl::wstring format(bsl::allocator<wchar_t>           alloc,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                    const t_ARGS_01& args_01,
+                    const t_ARGS_02& args_02,
+                    const t_ARGS_03& args_03,
+                    const t_ARGS_04& args_04,
+                    const t_ARGS_05& args_05,
+                    const t_ARGS_06& args_06,
+                    const t_ARGS_07& args_07,
+                    const t_ARGS_08& args_08,
+                    const t_ARGS_09& args_09,
+                    const t_ARGS_10& args_10)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmtstr.get(), make_wformat_args(args_01,
+                                                        args_02,
+                                                        args_03,
+                                                        args_04,
+                                                        args_05,
+                                                        args_06,
+                                                        args_07,
+                                                        args_08,
+                                                        args_09,
+                                                        args_10));
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 inline
@@ -825,7 +2436,7 @@ bsl::string vformat(bsl::allocator<char> alloc,
 }
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
-std::size_t formatted_size(bslfmt::format_string<> fmtstr)
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr)
 {
     Format_TruncatingIterator<char *> it(0, 0);
     format_to(it, fmtstr);
@@ -834,54 +2445,254 @@ std::size_t formatted_size(bslfmt::format_string<> fmtstr)
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_1>
-std::size_t formatted_size(bslfmt::format_string<t_ARGS_1> fmtstr,
-                           const t_ARGS_1& args_1)
+template <class t_ARGS_01>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01)
 {
     Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_1);
+    format_to(it, fmtstr, args_01);
     return it.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_1,
-          class t_ARGS_2>
-std::size_t formatted_size(bslfmt::format_string<t_ARGS_1,
-                                                 t_ARGS_2> fmtstr,
-                           const t_ARGS_1& args_1,
-                           const t_ARGS_2& args_2)
+template <class t_ARGS_01,
+          class t_ARGS_02>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02)
 {
     Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_1,
-                          args_2);
+    format_to(it, fmtstr, args_01,
+                          args_02);
     return it.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_1,
-          class t_ARGS_2,
-          class t_ARGS_3>
-std::size_t formatted_size(bslfmt::format_string<t_ARGS_1,
-                                                 t_ARGS_2,
-                                                 t_ARGS_3> fmtstr,
-                           const t_ARGS_1& args_1,
-                           const t_ARGS_2& args_2,
-                           const t_ARGS_3& args_3)
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03)
 {
     Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_1,
-                          args_2,
-                          args_3);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03);
     return it.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04)
+{
+    Format_TruncatingIterator<char *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05)
+{
+    Format_TruncatingIterator<char *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06)
+{
+    Format_TruncatingIterator<char *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06,
+                           const t_ARGS_07& args_07)
+{
+    Format_TruncatingIterator<char *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06,
+                           const t_ARGS_07& args_07,
+                           const t_ARGS_08& args_08)
+{
+    Format_TruncatingIterator<char *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06,
+                           const t_ARGS_07& args_07,
+                           const t_ARGS_08& args_08,
+                           const t_ARGS_09& args_09)
+{
+    Format_TruncatingIterator<char *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06,
+                           const t_ARGS_07& args_07,
+                           const t_ARGS_08& args_08,
+                           const t_ARGS_09& args_09,
+                           const t_ARGS_10& args_10)
+{
+    Format_TruncatingIterator<char *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09,
+                          args_10);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
-std::size_t formatted_size(bslfmt::wformat_string<> fmtstr)
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr)
 {
     Format_TruncatingIterator<wchar_t *> it(0, 0);
     format_to(it, fmtstr);
@@ -890,49 +2701,249 @@ std::size_t formatted_size(bslfmt::wformat_string<> fmtstr)
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_1>
-std::size_t formatted_size(bslfmt::wformat_string<t_ARGS_1> fmtstr,
-                           const t_ARGS_1& args_1)
+template <class t_ARGS_01>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01)
 {
     Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_1);
+    format_to(it, fmtstr, args_01);
     return it.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_1,
-          class t_ARGS_2>
-std::size_t formatted_size(bslfmt::wformat_string<t_ARGS_1,
-                                                  t_ARGS_2> fmtstr,
-                           const t_ARGS_1& args_1,
-                           const t_ARGS_2& args_2)
+template <class t_ARGS_01,
+          class t_ARGS_02>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02)
 {
     Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_1,
-                          args_2);
+    format_to(it, fmtstr, args_01,
+                          args_02);
     return it.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_1,
-          class t_ARGS_2,
-          class t_ARGS_3>
-std::size_t formatted_size(bslfmt::wformat_string<t_ARGS_1,
-                                                  t_ARGS_2,
-                                                  t_ARGS_3> fmtstr,
-                           const t_ARGS_1& args_1,
-                           const t_ARGS_2& args_2,
-                           const t_ARGS_3& args_3)
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03)
 {
     Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_1,
-                          args_2,
-                          args_3);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03);
     return it.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04)
+{
+    Format_TruncatingIterator<wchar_t *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05)
+{
+    Format_TruncatingIterator<wchar_t *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06)
+{
+    Format_TruncatingIterator<wchar_t *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06,
+                           const t_ARGS_07& args_07)
+{
+    Format_TruncatingIterator<wchar_t *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06,
+                           const t_ARGS_07& args_07,
+                           const t_ARGS_08& args_08)
+{
+    Format_TruncatingIterator<wchar_t *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06,
+                           const t_ARGS_07& args_07,
+                           const t_ARGS_08& args_08,
+                           const t_ARGS_09& args_09)
+{
+    Format_TruncatingIterator<wchar_t *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
+                           const t_ARGS_01& args_01,
+                           const t_ARGS_02& args_02,
+                           const t_ARGS_03& args_03,
+                           const t_ARGS_04& args_04,
+                           const t_ARGS_05& args_05,
+                           const t_ARGS_06& args_06,
+                           const t_ARGS_07& args_07,
+                           const t_ARGS_08& args_08,
+                           const t_ARGS_09& args_09,
+                           const t_ARGS_10& args_10)
+{
+    Format_TruncatingIterator<wchar_t *> it(0, 0);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09,
+                          args_10);
+    return it.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
@@ -940,7 +2951,7 @@ template <class t_OUT>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::format_string<>                      fmtstr)
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr)
 {
     if (n < 0)
         n = 0;
@@ -954,17 +2965,17 @@ format_to_n_result<t_OUT> format_to_n(
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_OUT, class t_ARGS_1>
+template <class t_OUT, class t_ARGS_01>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::format_string<t_ARGS_1>                      fmtstr,
-                  const t_ARGS_1& args_1)
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01)
 {
     if (n < 0)
         n = 0;
     Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_1);
+    format_to(it, fmtstr, args_01);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();
     result.size = it.count();
@@ -973,21 +2984,20 @@ format_to_n_result<t_OUT> format_to_n(
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_OUT, class t_ARGS_1,
-                       class t_ARGS_2>
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::format_string<t_ARGS_1,
-                                        t_ARGS_2>                      fmtstr,
-                  const t_ARGS_1& args_1,
-                  const t_ARGS_2& args_2)
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02)
 {
     if (n < 0)
         n = 0;
     Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_1,
-                          args_2);
+    format_to(it, fmtstr, args_01,
+                          args_02);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();
     result.size = it.count();
@@ -996,31 +3006,288 @@ format_to_n_result<t_OUT> format_to_n(
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_OUT, class t_ARGS_1,
-                       class t_ARGS_2,
-                       class t_ARGS_3>
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::format_string<t_ARGS_1,
-                                        t_ARGS_2,
-                                        t_ARGS_3>                      fmtstr,
-                  const t_ARGS_1& args_1,
-                  const t_ARGS_2& args_2,
-                  const t_ARGS_3& args_3)
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03)
 {
     if (n < 0)
         n = 0;
     Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_1,
-                          args_2,
-                          args_3);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();
     result.size = it.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06,
+                  const t_ARGS_07& args_07)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06,
+                  const t_ARGS_07& args_07,
+                  const t_ARGS_08& args_08)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08,
+                       class t_ARGS_09>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06,
+                  const t_ARGS_07& args_07,
+                  const t_ARGS_08& args_08,
+                  const t_ARGS_09& args_09)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08,
+                       class t_ARGS_09,
+                       class t_ARGS_10>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06,
+                  const t_ARGS_07& args_07,
+                  const t_ARGS_08& args_08,
+                  const t_ARGS_09& args_09,
+                  const t_ARGS_10& args_10)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09,
+                          args_10);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
@@ -1028,7 +3295,7 @@ template <class t_OUT>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::wformat_string<>                     fmtstr)
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr)
 {
     if (n < 0)
         n = 0;
@@ -1042,17 +3309,17 @@ format_to_n_result<t_OUT> format_to_n(
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
-template <class t_OUT, class t_ARGS_1>
+template <class t_OUT, class t_ARGS_01>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::wformat_string<t_ARGS_1>                     fmtstr,
-                  const t_ARGS_1& args_1)
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01)
 {
     if (n < 0)
         n = 0;
     Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_1);
+    format_to(it, fmtstr, args_01);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();
     result.size = it.count();
@@ -1061,21 +3328,20 @@ format_to_n_result<t_OUT> format_to_n(
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
-template <class t_OUT, class t_ARGS_1,
-                       class t_ARGS_2>
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::wformat_string<t_ARGS_1,
-                                         t_ARGS_2>                     fmtstr,
-                  const t_ARGS_1& args_1,
-                  const t_ARGS_2& args_2)
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02)
 {
     if (n < 0)
         n = 0;
     Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_1,
-                          args_2);
+    format_to(it, fmtstr, args_01,
+                          args_02);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();
     result.size = it.count();
@@ -1084,38 +3350,295 @@ format_to_n_result<t_OUT> format_to_n(
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
-template <class t_OUT, class t_ARGS_1,
-                       class t_ARGS_2,
-                       class t_ARGS_3>
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::wformat_string<t_ARGS_1,
-                                         t_ARGS_2,
-                                         t_ARGS_3>                     fmtstr,
-                  const t_ARGS_1& args_1,
-                  const t_ARGS_2& args_2,
-                  const t_ARGS_3& args_3)
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03)
 {
     if (n < 0)
         n = 0;
     Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_1,
-                          args_2,
-                          args_3);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();
     result.size = it.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06,
+                  const t_ARGS_07& args_07)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06,
+                  const t_ARGS_07& args_07,
+                  const t_ARGS_08& args_08)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08,
+                       class t_ARGS_09>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06,
+                  const t_ARGS_07& args_07,
+                  const t_ARGS_08& args_08,
+                  const t_ARGS_09& args_09)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_OUT, class t_ARGS_01,
+                       class t_ARGS_02,
+                       class t_ARGS_03,
+                       class t_ARGS_04,
+                       class t_ARGS_05,
+                       class t_ARGS_06,
+                       class t_ARGS_07,
+                       class t_ARGS_08,
+                       class t_ARGS_09,
+                       class t_ARGS_10>
+format_to_n_result<t_OUT> format_to_n(
+                  t_OUT                                                 out,
+                  typename bsl::iterator_traits<t_OUT>::difference_type n,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+                  const t_ARGS_01& args_01,
+                  const t_ARGS_02& args_02,
+                  const t_ARGS_03& args_03,
+                  const t_ARGS_04& args_04,
+                  const t_ARGS_05& args_05,
+                  const t_ARGS_06& args_06,
+                  const t_ARGS_07& args_07,
+                  const t_ARGS_08& args_08,
+                  const t_ARGS_09& args_09,
+                  const t_ARGS_10& args_10)
+{
+    if (n < 0)
+        n = 0;
+    Format_TruncatingIterator<t_OUT> it(out, n);
+    format_to(it, fmtstr, args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09,
+                          args_10);
+    format_to_n_result<t_OUT> result;
+    result.out  = it.underlying();
+    result.size = it.count();
+    return result;
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT                            out,
-                bslfmt::format_string<t_ARGS...> fmtstr,
+                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                 const t_ARGS&...                 args)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args...));
@@ -1123,7 +3646,7 @@ t_OUT format_to(t_OUT                            out,
 
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT                             out,
-                bslfmt::wformat_string<t_ARGS...> fmtstr,
+                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
                 const t_ARGS&...                  args)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args...));
@@ -1131,7 +3654,7 @@ t_OUT format_to(t_OUT                             out,
 
 template <class... t_ARGS>
 void format_to(bsl::string                      *out,
-               bslfmt::format_string<t_ARGS...>  fmtstr,
+               BSLFMT_FORMAT_STRING_PARAMETER    fmtstr,
                const t_ARGS&...                  args)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_format_args(args...));
@@ -1139,7 +3662,7 @@ void format_to(bsl::string                      *out,
 
 template <class... t_ARGS>
 void format_to(bsl::wstring                      *out,
-               bslfmt::wformat_string<t_ARGS...>  fmtstr,
+               BSLFMT_FORMAT_WSTRING_PARAMETER    fmtstr,
                const t_ARGS&...                   args)
 {
     vformat_to(bsl::back_inserter(*out), fmtstr.get(), make_wformat_args(args...));
@@ -1158,7 +3681,7 @@ void vformat_to(bsl::wstring *out, bsl::wstring_view fmtstr, wformat_args args)
 }
 
 template <class... t_ARGS>
-bsl::string format(bslfmt::format_string<t_ARGS...> fmtstr,
+bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                    const t_ARGS&...                 args)
 {
     bsl::string result;
@@ -1167,7 +3690,7 @@ bsl::string format(bslfmt::format_string<t_ARGS...> fmtstr,
 }
 
 template <class... t_ARGS>
-bsl::wstring format(bslfmt::wformat_string<t_ARGS...> fmtstr,
+bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                     const t_ARGS&...                  args)
 {
     bsl::wstring result;
@@ -1177,7 +3700,7 @@ bsl::wstring format(bslfmt::wformat_string<t_ARGS...> fmtstr,
 
 template <class... t_ARGS>
 bsl::string format(bsl::allocator<char>             alloc,
-                   bslfmt::format_string<t_ARGS...> fmtstr,
+                   BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                    const t_ARGS&...                 args)
 {
     bsl::string result(alloc);
@@ -1188,7 +3711,7 @@ bsl::string format(bsl::allocator<char>             alloc,
 
 template <class... t_ARGS>
 bsl::wstring format(bsl::allocator<wchar_t>           alloc,
-                    bslfmt::wformat_string<t_ARGS...> fmtstr,
+                    BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                     const t_ARGS&...                  args)
 {
     bsl::wstring result(alloc);
@@ -1215,7 +3738,7 @@ bsl::string vformat(bsl::allocator<char> alloc,
 }
 
 template <class... t_ARGS>
-std::size_t formatted_size(bslfmt::format_string<t_ARGS...> fmtstr,
+std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS&...                 args)
 {
     Format_TruncatingIterator<char *> it(0, 0);
@@ -1225,7 +3748,7 @@ std::size_t formatted_size(bslfmt::format_string<t_ARGS...> fmtstr,
 
 
 template <class... t_ARGS>
-std::size_t formatted_size(bslfmt::wformat_string<t_ARGS...> fmtstr,
+std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS&...                  args)
 {
     Format_TruncatingIterator<wchar_t *> it(0, 0);
@@ -1237,7 +3760,7 @@ template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::format_string<t_ARGS...>                      fmtstr,
+                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
                   const t_ARGS&...                                      args)
 {
     if (n < 0)
@@ -1254,7 +3777,7 @@ template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
                   typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  bslfmt::wformat_string<t_ARGS...>                     fmtstr,
+                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
                   const t_ARGS&...                                      args)
 {
     if (n < 0)
@@ -1270,6 +3793,9 @@ format_to_n_result<t_OUT> format_to_n(
 #endif
 }  // close namespace bslfmt
 } // close enterprise namespace
+
+#undef BSLFMT_FORMAT_STRING_PARAMETER
+#undef BSLFMT_FORMAT_WSTRING_PARAMETER
 
 #else // if ! defined(DEFINED_BSLFMT_FORMATIMP_H)
 # error Not valid except when included from bslfmt_formatimp.h

@@ -32,7 +32,7 @@ namespace bslfmt {
 template <class t_CHAR>
 struct FormatString_Test_Updater;
 
-#if defined(xxBSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
 
 template <class t_CHAR, class... t_ARGS>
 struct basic_format_string {
@@ -72,7 +72,7 @@ using wformat_string =
                  basic_format_string<wchar_t, bsl::type_identity_t<t_ARGS>...>;
 
 #elif defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
-    defined(xxBSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
 template <class t_CHAR, class... t_ARGS>
 struct basic_format_string {

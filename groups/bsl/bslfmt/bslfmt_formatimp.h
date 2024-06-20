@@ -45,7 +45,7 @@
 #else
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
-    defined(xxBSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 #  define BSLFMT_FORMAT_STRING_PARAMETER  bslfmt::format_string<t_ARGS...>
 #  define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string<t_ARGS...>
 #else
@@ -343,7 +343,7 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
     return Format_VFormatImpl(out, fmtstr, args);
 }
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=3
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_OUT, class... t_ARGS>
 t_OUT format_to(t_OUT                            out,
                 BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,

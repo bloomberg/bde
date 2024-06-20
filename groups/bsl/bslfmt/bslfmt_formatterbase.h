@@ -23,7 +23,8 @@
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
-#include <cstdio>     // for 'std::snprintf'
+
+#include <stdio.h>    // for 'snprintf'
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
@@ -286,7 +287,7 @@ struct formatter<const void *, t_CHAR> {
                                                t_FORMAT_CONTEXT& fc) const
     {
         char buf[64];
-        size_t req = std::snprintf(buf, sizeof(buf), "%p", v);
+        size_t req = snprintf(buf, sizeof(buf), "%p", v);
 
         if (req >= sizeof(buf))
             BSLS_THROW(bsl::format_error("buffer overflow"));
