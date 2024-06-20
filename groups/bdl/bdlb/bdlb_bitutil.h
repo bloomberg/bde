@@ -122,6 +122,12 @@ BSLS_IDENT("$Id: $")
 #include <intrin.h>
 # define BDLB_BITUTIL_USE_MSVC_INTRINSICS 1
     // Use the intrinsics that map directly to CPU instructions on MSVC
+
+# if defined(BSLS_PLATFORM_CPU_ARM)
+#  define BDLB_BITUTIL_USE_MSVC_COUNT_ONE_BITS 1
+    // Use _CountOneBits instead of __popcnt intrinsics on MSVC
+# endif
+
 #endif
 
 namespace BloombergLP {
@@ -320,7 +326,11 @@ int BitUtil::numBitsSet(unsigned int value)
 #elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     return __builtin_popcount(value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
+# if !defined(BDLB_BITUTIL_USE_MSVC_COUNT_ONE_BITS)
     return __popcnt(value);
+# else
+    return _CountOneBits(value);
+# endif
 #else
     return privateNumBitsSet(value);
 #endif
@@ -334,12 +344,17 @@ int BitUtil::numBitsSet(unsigned long long value)
 #elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     return __builtin_popcountll(value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
-    #if defined(BSLS_PLATFORM_CPU_64_BIT)
-        return static_cast<int>(__popcnt64(value));
+    #if !defined(BDLB_BITUTIL_USE_MSVC_COUNT_ONE_BITS)
+        #if defined(BSLS_PLATFORM_CPU_64_BIT)
+            return static_cast<int>(__popcnt64(value));
+        #else
+            // '__popcnt64' available only in 64bit target
+            return __popcnt(static_cast<unsigned int>(value)) +
+                   __popcnt(static_cast<unsigned int>(value >>
+                                                      k_BITS_PER_INT32));
+        #endif
     #else
-        // '__popcnt64' available only in 64bit target
-        return __popcnt(static_cast<unsigned int>(value)) +
-               __popcnt(static_cast<unsigned int>(value >> k_BITS_PER_INT32));
+        return _CountOneBits64(value);
     #endif
 #else
     return privateNumBitsSet(value);

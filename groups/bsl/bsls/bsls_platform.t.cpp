@@ -2086,6 +2086,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING SSE MACROS"
                             "\n==================\n");
 
+        #if !defined(BSLS_PLATFORM_CPU_ARM)
+
         int info[4];
 
         cpuid(info, 0);
@@ -2143,6 +2145,18 @@ int main(int argc, char *argv[])
          && !defined(BSLS_PLATFORM_CPU_X86_64)
             ASSERT(false);
         #endif
+
+        #else  // !ARM
+
+        #if defined(BSLS_PLATFORM_CPU_SSE)
+         || defined(BSLS_PLATFORM_CPU_SSE2)
+         || defined(BSLS_PLATFORM_CPU_SSE3)
+         || defined(BSLS_PLATFORM_CPU_SSE4_1)
+         || defined(BSLS_PLATFORM_CPU_SSE4_2)
+            ASSERT(false);
+        #endif
+
+        #endif  // !ARM
       } break;
       case 4: {
         // --------------------------------------------------------------------

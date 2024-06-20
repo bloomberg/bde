@@ -743,6 +743,12 @@ BSLS_IDENT("$Id: $")
 #elif defined(BSLS_PLATFORM_CPU_ARM)
 #   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include <bsls_atomicoperations_arm_all_gcc.h>
+#   elif defined(BSLS_PLATFORM_CMP_MSVC)
+#       if defined(BSLS_PLATFORM_CPU_64_BIT)
+#           include <bsls_atomicoperations_arm64_win_msvc.h>
+#       else
+#           include <bsls_atomicoperations_arm32_win_msvc.h>
+#       endif
 #   else
 #       define BSLS_ATOMICOPERATIONS_ERROR
 #   endif

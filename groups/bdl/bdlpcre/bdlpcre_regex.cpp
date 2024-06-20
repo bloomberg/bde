@@ -741,7 +741,7 @@ bool RegEx::isJitAvailable()
     unsigned int result = 0;
     (void) result;
 
-#if !(defined(BSLS_PLATFORM_OS_DARWIN) && defined(BSLS_PLATFORM_CPU_ARM))
+#if !defined(BSLS_PLATFORM_CPU_ARM)
     // Currently pcre2_config incorrectly reports JIT support is available for
     // Apple M1 hardware, but it currently does not work.
 

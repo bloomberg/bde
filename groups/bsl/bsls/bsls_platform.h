@@ -415,6 +415,20 @@ struct bsls_Platform_Assert;
     #elif defined(_M_MRX000)
         #define BSLS_PLATFORM_CPU_MIPS                                        1
         #define BSLS_PLATFORM_CPU_VER_MAJOR _M_MRX000
+    #elif defined(_M_ARM)
+        #define BSLS_PLATFORM_CPU_ARM                                         1
+        #define BSLS_PLATFORM_CPU_32_BIT                                      1
+
+        // MSVC doesn't provide macros for differentiating version, but the 
+        // minimum supported one is ARMv7
+        #define BSLS_PLATFORM_CPU_ARM_V7                                      1
+    #elif defined(_M_ARM64)
+        #define BSLS_PLATFORM_CPU_ARM                                         1
+        #define BSLS_PLATFORM_CPU_64_BIT                                      1
+
+        // MSVC doesn't provide macros for differentiating version, but the 
+        // minimum supported one is ARMv7
+        #define BSLS_PLATFORM_CPU_ARM_V7                                      1
     #else
         #error "Unable to identify CPU on which the MSVC compiler is running."
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -807,9 +821,11 @@ struct bsls_Platform_Assert;
 // detect whether most x86 instruction set extensions are enabled.
 
 #if defined(_MSC_VER)
-    #define BSLS_PLATFORM_CPU_SSE                                             1
-    #define BSLS_PLATFORM_CPU_SSE2                                            1
-    #define BSLS_PLATFORM_CPU_SSE3                                            1
+    #if !defined(BSLS_PLATFORM_CPU_ARM)
+        #define BSLS_PLATFORM_CPU_SSE                                             1
+        #define BSLS_PLATFORM_CPU_SSE2                                            1
+        #define BSLS_PLATFORM_CPU_SSE3                                            1
+    #endif
 #elif defined(__clang__) || defined(__GNUC__) || defined(__EDG__)
     #if defined(__SSE__)
         #define BSLS_PLATFORM_CPU_SSE                                         1

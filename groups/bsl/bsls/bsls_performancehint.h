@@ -365,7 +365,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CPU_ARM)
 #include <xmmintrin.h>     // for '_mm_prefetch', '_MM_HINT_T0'
+#endif
 
 #include <intrin.h>
 #endif
@@ -538,8 +540,12 @@ void PerformanceHint::prefetchForReading(const void *address)
 
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
 
+#if !defined(BSLS_PLATFORM_CPU_ARM)
     _mm_prefetch(static_cast<const char*>(address), _MM_HINT_T0);
         // '_MM_HINT_T0' fetches data to all levels of cache.
+#else
+    __prefetch(address);
+#endif
 
 #elif defined(BSLS_PLATFORM_CMP_HP)
 
@@ -569,8 +575,12 @@ void PerformanceHint::prefetchForWriting(void *address)
 
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
 
+#if !defined(BSLS_PLATFORM_CPU_ARM)
     _mm_prefetch(static_cast<const char*>(address), _MM_HINT_T0);
         // '_MM_HINT_T0' fetches data to all levels of cache.
+#else
+    __prefetch(address);
+#endif
 
 #elif defined(BSLS_PLATFORM_CMP_HP)
 

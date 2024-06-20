@@ -162,7 +162,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)   \
  && BSLS_PLATFORM_CMP_VERSION >= 1930 \
- && BSLS_PLATFORM_CMP_VERSION <= 1939
+ && BSLS_PLATFORM_CMP_VERSION <= 1940
 #define MSVC_2022 1
 #else
 #define MSVC_2022 0
