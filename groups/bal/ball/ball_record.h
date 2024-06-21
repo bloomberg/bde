@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we set the fixed fields of the record to contain a simple message:
 //..
-//  int                 processId = bdlsu::ProcessUtil::getProcessId();
+//  int                 processId = bdls::ProcessUtil::getProcessId();
 //  bsls::Types::Uint64 threadId  = bslmt::ThreadUtil::selfIdAsUint64();
 //
 //  ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
