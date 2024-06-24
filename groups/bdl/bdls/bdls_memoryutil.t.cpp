@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdls_memoryutil.h>
 
 #include <bslim_testutil.h>

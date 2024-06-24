@@ -1,20 +1,12 @@
 // bdls_filedescriptorguard.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdls_filedescriptorguard.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdls_filedescriptorguard_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
-
 namespace bdls {
+
 // MANIPULATORS
 void FileDescriptorGuard::closeAndRelease()
 {
@@ -26,8 +18,8 @@ void FileDescriptorGuard::closeAndRelease()
 
     d_descriptor = FilesystemUtil::k_INVALID_FD;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

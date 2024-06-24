@@ -1,12 +1,4 @@
 // bdls_osutil.t.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdls_osutil.h>
 
 #include <bslim_testutil.h>
@@ -23,9 +15,10 @@
 #include <bsl_string.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#include <process.h>
 #include <bsl_cstring.h>
+
+#include <process.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #include <sys/utsname.h>
