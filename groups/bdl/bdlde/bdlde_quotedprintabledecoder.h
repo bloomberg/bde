@@ -108,7 +108,11 @@ BSLS_IDENT("$Id: $")
 // reference-semantics) identifies the offending character.
 //
 ///Usage
-///- - -
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // TBD
 
 #include <bdlscm_version.h>

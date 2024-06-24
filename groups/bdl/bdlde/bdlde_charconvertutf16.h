@@ -1,12 +1,4 @@
 // bdlde_charconvertutf16.h                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLDE_CHARCONVERTUTF16
 #define INCLUDED_BDLDE_CHARCONVERTUTF16
 
@@ -78,7 +70,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Translation to Fixed-Length Buffers
 /// - - - - - - - - - - - - - - - - - - - - - - -

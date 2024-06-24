@@ -1,12 +1,4 @@
 // bdlde_utf8util.h                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLDE_UTF8UTIL
 #define INCLUDED_BDLDE_UTF8UTIL
 
@@ -83,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Validating Strings and Counting Unicode Code Points
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -345,17 +337,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_iosfwd.h>
+#include <bsl_streambuf.h>
 #include <bsl_string.h>
 
-#include <bsls_libraryfeatures.h>
-
 #include <string>            // 'std::string', 'std::pmr::string'
-#include <bsl_streambuf.h>
 
 namespace BloombergLP {
 

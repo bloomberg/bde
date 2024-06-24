@@ -1,13 +1,4 @@
 // bdlde_crc32.t.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlde_crc32.h>
 
 #include <bslx_testoutstream.h>                 // for testing only
@@ -177,6 +168,10 @@ typedef bslx::TestOutStream Out;
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate a typical use of the
 // 'bdlde::Crc32' class.  Each function would typically execute in separate
 // processes or potentially on separate machines.  The 'senderExample' function

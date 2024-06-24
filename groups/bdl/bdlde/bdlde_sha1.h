@@ -43,11 +43,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.  The
-// 'validatePassword' function below returns whether a specified password has a
-// specified hash value.  The 'assertPasswordIsExpected' function below has a
-// sample password to hash and a hash value that matches it.  Note that the
-// output of 'loadDigest' is a binary representation.  When hashes are
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// The 'validatePassword' function below returns whether a specified password
+// has a specified hash value.  The 'assertPasswordIsExpected' function below
+// has a sample password to hash and a hash value that matches it.  Note that
+// the output of 'loadDigest' is a binary representation.  When hashes are
 // displayed for human consumption, they are typically converted to hex, but
 // that would create unnecessary overhead here.  Also note that because SHA-1
 // digests are inexpensive to compute, they are vulnerable to brute force

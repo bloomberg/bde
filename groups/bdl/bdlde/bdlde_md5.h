@@ -1,12 +1,4 @@
 // bdlde_md5.h                                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLDE_MD5
 #define INCLUDED_BDLDE_MD5
 
@@ -62,6 +54,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate a typical use of the 'bdlde::Md5'
 // class.  Each function would typically execute in separate processes or
 // potentially on separate machines.  The 'senderExample' function below

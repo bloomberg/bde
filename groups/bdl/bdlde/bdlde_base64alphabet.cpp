@@ -1,5 +1,4 @@
 // bdlde_base64alphabet.cpp                                           -*-C++-*-
-
 #include <bdlde_base64alphabet.h>
 
 #include <bsls_ident.h>

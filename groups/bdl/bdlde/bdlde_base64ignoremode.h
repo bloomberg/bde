@@ -1,5 +1,4 @@
 // bdlde_base64ignoremode.h                                           -*-C++-*-
-
 #ifndef INCLUDED_BDLDE_BASE64IGNOREMODE
 #define INCLUDED_BDLDE_BASE64IGNOREMODE
 
@@ -30,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -

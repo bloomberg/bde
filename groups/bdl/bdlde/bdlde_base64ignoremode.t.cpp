@@ -1,5 +1,4 @@
 // bdlde_base64ignoremode.t.cpp                                       -*-C++-*-
-
 #include <bdlde_base64ignoremode.h>
 
 #include <bslim_testutil.h>
@@ -149,7 +148,7 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -

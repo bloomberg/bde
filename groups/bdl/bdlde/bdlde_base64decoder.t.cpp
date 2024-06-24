@@ -1,11 +1,5 @@
 // bdlde_base64decoder.t.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
+#include <bdlde_base64decoder.h>
 
 // ----------------------------------------------------------------------------
 //                            U_ENABLE_DEPRECATIONS
@@ -22,8 +16,6 @@
 # define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
 # include <bsls_deprecatefeature.h>
 #endif
-
-#include <bdlde_base64decoder.h>
 
 #include <bdlde_base64encoder.h>        // for testing only
 

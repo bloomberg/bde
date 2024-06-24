@@ -1,17 +1,10 @@
 // bdlde_charconvertutf32.cpp                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlde_charconvertutf32.h>
-#include <bdlde_utf8util.h>    // for testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_charconvertutf32_cpp,"$Id$ $CSID$")
+
+#include <bdlde_utf8util.h>    // for testing only
 
 #include <bslmf_assert.h>     // 'BSLMF_ASSERT'
 #include <bslmf_issame.h>

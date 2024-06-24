@@ -1,19 +1,11 @@
 // bdlde_quotedprintableencoder.t.cpp                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlde_quotedprintableencoder.h>
 
 #include <bslim_testutil.h>
 
+#include <bsl_cctype.h>    // 'isprint', 'toupper', etc.
 #include <bsl_cstdlib.h>   // 'atoi'
 #include <bsl_cstring.h>   // 'memset'
-#include <bsl_cctype.h>    // 'isprint', 'toupper', etc.
 #include <bsl_iostream.h>
 #include <bsl_limits.h>    // INT_MAX
 #include <bsl_sstream.h>

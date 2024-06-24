@@ -1,12 +1,4 @@
 // bdlde_base64encoder.h                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLDE_BASE64ENCODER
 #define INCLUDED_BDLDE_BASE64ENCODER
 
@@ -193,6 +185,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example shows how to use a 'bdlde::Base64Encoder' object to
 // implement a function, 'streamEncoder', that reads text from a
 // 'bsl::istream', encodes that text in base 64 representation, and writes the

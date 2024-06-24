@@ -1,12 +1,4 @@
 // bdlde_charconvertutf32.h                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLDE_CHARCONVERTUTF32
 #define INCLUDED_BDLDE_CHARCONVERTUTF32
 
@@ -63,10 +55,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
-///Example: Round-Trip Multi-Lingual Conversion
-///--------------------------------------------
+///Example 1: Round-Trip Multi-Lingual Conversion
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate a typical use of the
 // 'bdlde::CharConvertUtf32' struct's utility functions, first converting from
 // UTF-8 to UTF-32, and then converting back to make sure the round trip

@@ -1,5 +1,4 @@
 // bdlde_base64encoderoptions.cpp                                     -*-C++-*-
-
 #include <bdlde_base64encoderoptions.h>
 
 #include <bsls_ident.h>

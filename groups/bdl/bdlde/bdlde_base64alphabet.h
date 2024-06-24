@@ -29,10 +29,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
-///Example 1:
-/// - - - - -
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
 // 'bdlde::Base64Alphabet' usage.
 //

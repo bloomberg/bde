@@ -1,19 +1,10 @@
 // bdlde_base64encoder.t.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlde_base64encoderoptions.h>
 
 #include <bslim_testutil.h>
 
-#include <bsl_limits.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
@@ -142,10 +133,10 @@ int main(int argc, char *argv[])
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
-///Example 1:
-/// - - - - -
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose we want a 'Base64EncoderOptions' object configured for MIME
 // encoding, meaning 'maxLineLength == 76', 'alphabet == e_BASIC', and
 // 'isPadded == true'.

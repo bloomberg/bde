@@ -1,13 +1,4 @@
 // bdlde_byteorder.t.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlde_byteorder.h>
 
 #include <bslma_default.h>
@@ -169,7 +160,7 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -

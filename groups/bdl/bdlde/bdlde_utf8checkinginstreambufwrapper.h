@@ -1,5 +1,4 @@
 // bdlde_utf8checkinginstreambufwrapper.h                             -*-C++-*-
-
 #ifndef INCLUDED_BDLDE_UTF8CHECKINGINSTREAMBUFWRAPPER
 #define INCLUDED_BDLDE_UTF8CHECKINGINSTREAMBUFWRAPPER
 
@@ -100,9 +99,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1: Detecting invalid UTF-8 read from a 'streambuf':
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Detecting invalid UTF-8 read from a 'streambuf'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose one has a 'streambuf', 'myStreamBuf' containing UTF-8 that one wants
 // to read, checking that it is valid UTF-8.
 //

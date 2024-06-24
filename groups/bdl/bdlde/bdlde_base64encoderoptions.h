@@ -29,10 +29,10 @@ BSLS_IDENT_PRAGMA_ONCE
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
-///Example 1:
-/// - - - - -
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose we want a 'Base64EncoderOptions' object configured for MIME
 // encoding, meaning 'maxLineLength == 76', 'alphabet == e_BASIC', and
 // 'isPadded == true'.
