@@ -485,41 +485,41 @@ constexpr bool is_base_of_v = std::is_base_of<TYPE1, TYPE2>::value;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t has_unique_object_representations_v =
+constexpr bool has_unique_object_representations_v =
                     std::has_unique_object_representations<TYPE>::value;
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_aggregate_v = std::is_aggregate<TYPE>::value;
+constexpr bool is_aggregate_v = std::is_aggregate<TYPE>::value;
 
 template <class TYPE, class ...Args>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_invocable_v =
+constexpr bool is_invocable_v =
                                 std::is_invocable<TYPE, Args...>::value;
 
 template <class RET, class TYPE, class ...Args>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_invocable_r_v =
+constexpr bool is_invocable_r_v =
                          std::is_invocable_r<RET, TYPE, Args...>::value;
 
 template <class TYPE, class ...Args>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_nothrow_invocable_v =
+constexpr bool is_nothrow_invocable_v =
                         std::is_nothrow_invocable<TYPE, Args...>::value;
 
 template <class RET, class TYPE, class ...Args>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_nothrow_invocable_r_v =
+constexpr bool is_nothrow_invocable_r_v =
                  std::is_nothrow_invocable_r<RET, TYPE, Args...>::value;
 
 template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_swappable_with_v =
+constexpr bool is_swappable_with_v =
                             std::is_swappable_with<TYPE1, TYPE2>::value;
 
 template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_nothrow_swappable_with_v =
+constexpr bool is_nothrow_swappable_with_v =
                     std::is_nothrow_swappable_with<TYPE1, TYPE2>::value;
 #endif
 #endif

@@ -647,6 +647,11 @@ void HasUniqueObjectReps ()
 {
     struct S { int d_i; };
 
+    static_assert(bsl::is_same<const bool,
+              decltype(bsl::has_unique_object_representations_v<int>)>::value);
+    static_assert(bsl::is_same<const bool,
+              decltype(bsl::has_unique_object_representations_v<S>  )>::value);
+
     static_assert(bsl::has_unique_object_representations  <int>::value ==
                   bsl::has_unique_object_representations_v<int>);
     static_assert(bsl::has_unique_object_representations  <S>::value ==
@@ -660,14 +665,41 @@ void IsAggregate ()
 {
     struct S { int d_i; };
 
+    static_assert(bsl::is_same<const bool,
+                                   decltype(bsl::is_aggregate_v<int>)>::value);
+    static_assert(bsl::is_same<const bool,
+                                   decltype(bsl::is_aggregate_v<S>  )>::value);
+
     static_assert(bsl::is_aggregate  <int>::value == bsl::is_aggregate_v<int>);
     static_assert(bsl::is_aggregate<S>::value == bsl::is_aggregate_v<S>);
+}
+
+void IsBaseOf ()
+    // Test that 'bsl::is_base_of_v<TYPE1, TYPE2>' returns the same value as
+    // 'bsl::is_base_of<TYPE1, TYPE2>::value'.
+{
+    class B { int d_i; };
+    class D : public B {};
+    typedef int   ND[5]; // not derived
+
+    static_assert(bsl::is_same<const bool,
+                                   decltype(bsl::is_base_of_v<B,  D>)>::value);
+    static_assert(bsl::is_same<const bool,
+                                   decltype(bsl::is_base_of_v<B, ND>)>::value);
+
+    static_assert(bsl::is_base_of<B,  D>::value == bsl::is_base_of_v<B,  D>);
+    static_assert(bsl::is_base_of<B, ND>::value == bsl::is_base_of_v<B, ND>);
 }
 
 void IsInvocable ()
     // Test that 'bsl::is_invocable_v<FN, Args...>' returns the same value as
     // 'bsl::is_invocable<FN, Args...>::value'.
 {
+    static_assert(bsl::is_same<const bool,
+                           decltype(bsl::is_invocable_v<int>)>::value);
+    static_assert(bsl::is_same<const bool,
+                           decltype(bsl::is_invocable_v<int(), long>)>::value);
+
     static_assert(bsl::is_invocable  <int>::value == bsl::is_invocable_v<int>);
     static_assert(bsl::is_invocable  <int(), long>::value ==
                   bsl::is_invocable_v<int(), long>);
@@ -677,10 +709,45 @@ void IsInvocableR ()
     // Test that 'bsl::is_invocable_r_v<RET, FN, Args...>' returns the same
     // value as 'bsl::is_invocable_r<RET, FN, Args...>::value'.
 {
-    static_assert(bsl::is_invocable  <void, int>::value ==
-                  bsl::is_invocable_v<void, int>);
-    static_assert(bsl::is_invocable  <float, float(int), int>::value ==
-                  bsl::is_invocable_v<float, float(int), int>);
+    static_assert(bsl::is_same<const bool,
+              decltype(bsl::is_invocable_r_v<void, int>)>::value);
+    static_assert(bsl::is_same<const bool,
+              decltype(bsl::is_invocable_r_v<float, float(int), int>)>::value);
+
+    static_assert(bsl::is_invocable_r  <void, int>::value ==
+                  bsl::is_invocable_r_v<void, int>);
+    static_assert(bsl::is_invocable_r  <float, float(int), int>::value ==
+                  bsl::is_invocable_r_v<float, float(int), int>);
+}
+
+void IsNothrowInvokable ()
+    // Test that 'bsl::is_nothrow_invocable_v<RET, FN, Args...>' returns the
+    // asme value as 'bsl::is_nothrow_invocable<RET, FN, Args...>::value'.
+{
+    static_assert(bsl::is_same<const bool,
+        decltype(bsl::is_nothrow_invocable_v<void, int>)>::value);
+    static_assert(bsl::is_same<const bool,
+        decltype(bsl::is_nothrow_invocable_v<float, float(int), int>)>::value);
+
+    static_assert(bsl::is_nothrow_invocable  <void, int>::value ==
+                  bsl::is_nothrow_invocable_v<void, int>);
+    static_assert(bsl::is_nothrow_invocable  <float, float(int), int>::value ==
+                  bsl::is_nothrow_invocable_v<float, float(int), int>);
+}
+
+void IsNothrowInvokableR ()
+    // Test that 'bsl::is_nothrow_invocable_r_v<RET, FN, Args...>' returns the
+    // asme value as 'bsl::is_nothrow_invocable_r<RET, FN, Args...>::value'.
+{
+    static_assert(bsl::is_same<const bool,
+      decltype(bsl::is_nothrow_invocable_r_v<void, int>)>::value);
+    static_assert(bsl::is_same<const bool,
+      decltype(bsl::is_nothrow_invocable_r_v<float, float(int), int>)>::value);
+
+    static_assert(bsl::is_nothrow_invocable_r  <void, int>::value ==
+                  bsl::is_nothrow_invocable_r_v<void, int>);
+    static_assert(bsl::is_nothrow_invocable_r  <float, float(int), int>::value
+               == bsl::is_nothrow_invocable_r_v<float, float(int), int>);
 }
 
 void IsSwappable ()
@@ -689,6 +756,11 @@ void IsSwappable ()
     // 'bsl::is_swappable<TYPE>::value' and
     // 'bsl::is_nothrow_swappable<TYPE>::value', respectively.
 {
+    static_assert(bsl::is_same<const bool,
+                             decltype(bsl::is_swappable_v<SW::SwapA>)>::value);
+    static_assert(bsl::is_same<const bool,
+                             decltype(bsl::is_swappable_v<char>     )>::value);
+
     static_assert(bsl::is_swappable  <SW::SwapA>::value ==
                   bsl::is_swappable_v<SW::SwapA>);
     static_assert(bsl::is_swappable  <char>::value ==
@@ -705,6 +777,11 @@ void IsSwappableWith ()
     // 'bsl::is_swappable_with<TYPE>::value' and
     // 'bsl::is_nothrow_swappable_with<TYPE>::value', respectively.
 {
+    static_assert(bsl::is_same<const bool,
+             decltype(bsl::is_swappable_with_v<SW::SwapA, SW::SwapB>)>::value);
+    static_assert(bsl::is_same<const bool,
+             decltype(bsl::is_swappable_with_v<SW::SwapA, SW::SwapC>)>::value);
+
     static_assert(bsl::is_swappable_with  <SW::SwapA, SW::SwapB>::value ==
                   bsl::is_swappable_with_v<SW::SwapA, SW::SwapB>);
     static_assert(bsl::is_swappable_with  <SW::SwapA, SW::SwapC>::value ==
@@ -4399,8 +4476,11 @@ int main(int argc, char *argv[])
         // "unused functions".
         TestCpp17TypeAliases::HasUniqueObjectReps();
         TestCpp17TypeAliases::IsAggregate();
+        TestCpp17TypeAliases::IsBaseOf();
         TestCpp17TypeAliases::IsInvocable();
         TestCpp17TypeAliases::IsInvocableR();
+        TestCpp17TypeAliases::IsNothrowInvokable();
+        TestCpp17TypeAliases::IsNothrowInvokableR();
         TestCpp17TypeAliases::IsSwappable();
         TestCpp17TypeAliases::IsSwappableWith();
 #endif
