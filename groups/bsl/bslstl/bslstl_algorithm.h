@@ -170,11 +170,8 @@ namespace bsl {
     using std::any_of;
     using std::copy_if;
 
-    // 'copy_n' is implemented separately in 'bslstp_exalgorithm' for backwards
-    // compatibility with the previous STLport definition (which differs from
-    // the platform implementation).
-    //
-    // using std::(copy_n);
+    using std::copy_n;
+    #define BSLSTL_ALGORITHM_COPY_N_IS_ALIASED
 
     using std::find_if_not;
     using std::is_heap;
@@ -487,6 +484,21 @@ namespace ranges {
 
 }  // close namespace bsl
 
+
+
+#ifndef BSLSTL_ALGORITHM_COPY_N_IS_ALIASED
+namespace bsl {
+template <class t_INPUT_ITERATOR, class t_SIZE, class t_OUTPUT_ITERATOR>
+inline
+t_OUTPUT_ITERATOR copy_n(t_INPUT_ITERATOR  first,
+                         t_SIZE            count,
+                         t_OUTPUT_ITERATOR result);
+    // Copy the specified 'count' elements from the specified 'first' to the
+    // specified 'result'.  Return an iterator pointing past the last copied
+    // element in the output range.
+}  // close namespace bsl
+#endif  // BSLSTL_ALGORITHM_COPY_N_IS_ALIASED
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -672,6 +684,18 @@ bsl::search(FORWARD_ITERATOR first,
 }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
 
+#ifndef BSLSTL_ALGORITHM_COPY_N_IS_ALIASED
+template <class t_INPUT_ITERATOR, class t_SIZE, class t_OUTPUT_ITERATOR>
+inline
+t_OUTPUT_ITERATOR bsl::copy_n(t_INPUT_ITERATOR  first,
+                              t_SIZE            count,
+                              t_OUTPUT_ITERATOR result)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::copyN(first,
+                                                     count,
+                                                     result);
+}
+#endif  // BSLSTL_ALGORITHM_COPY_N_IS_ALIASED
 
 #endif  // INCLUDED_BSLSTL_ALGORITHM
 

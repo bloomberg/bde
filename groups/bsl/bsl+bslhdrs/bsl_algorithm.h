@@ -23,10 +23,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslstl_algorithm.h>
 
-#ifndef BDE_OPENSOURCE_PUBLICATION // STP
-#include <bslstp_exalgorithm.h>
-#endif  // BDE_OPENSOURCE_PUBLICATION -- STP
-
 #endif
 
 // ----------------------------------------------------------------------------

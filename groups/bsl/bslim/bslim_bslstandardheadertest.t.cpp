@@ -972,17 +972,12 @@ int main(int argc, char *argv[])
             out.push_back(i + 10);
         }
 
-        ConstIterator EXPECTED_IN  = in.cbegin() + NUM_ITEMS_TO_COPY;
-        Iterator      EXPECTED_OUT = out.begin() + NUM_ITEMS_TO_COPY;
+        ConstIterator EXPECTED_OUT = out.begin() + NUM_ITEMS_TO_COPY;
 
-        bsl::pair<ConstIterator, Iterator> result =
+        Iterator result =
                       bsl::copy_n(in.cbegin(), NUM_ITEMS_TO_COPY, out.begin());
 
-        ConstIterator resultIn  = result.first;
-        Iterator      resultOut = result.second;
-
-        ASSERT(EXPECTED_IN  == resultIn);
-        ASSERT(EXPECTED_OUT == resultOut);
+        ASSERT(EXPECTED_OUT == result);
 
         for (size_t i = 0; i < NUM_ITEMS_TO_COPY; ++i) {
             ASSERTV(in[i], out[i], in[i] == out[i]);

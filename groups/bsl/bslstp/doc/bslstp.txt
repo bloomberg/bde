@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstp' package currently has 11 components having 3 levels of physical
+ The 'bslstp' package currently has 10 components having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -30,7 +30,6 @@
      bslstp_slist                                        !DEPRECATED!
 
   1. bslstp_alloc                                        !DEPRECATED!
-     bslstp_exalgorithm                                  !DEPRECATED!
      bslstp_exfunctional                                 !DEPRECATED!
      bslstp_hash                                         !DEPRECATED!
      bslstp_iterator                                     !DEPRECATED!
@@ -42,9 +41,6 @@
 /------------------
 : 'bslstp_alloc':                                        !DEPRECATED!
 :      Provide facilities for STLPort implementation.
-:
-: 'bslstp_exalgorithm':                                  !DEPRECATED!
-:      Provide a namespace for algorithm extensions.
 :
 : 'bslstp_exfunctional':                                 !DEPRECATED!
 :      Provide a namespace for functional extensions.
