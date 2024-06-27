@@ -198,6 +198,7 @@ int BerDecoder_Node::logError(const char *msg)
 int BerDecoder_Node::decode(bsl::vector<char>         *variable,
                             bdlat_TypeCategory::Array  )
 {
+    typedef bdlat_FormattingMode FMode;
     switch (d_tagType) {
       case BerConstants::e_PRIMITIVE:
           // 'BerEncoder' will encode 'vector<char>' this way if and only if
@@ -206,7 +207,13 @@ int BerDecoder_Node::decode(bsl::vector<char>         *variable,
           // or 'e_TEXT'
         return this->readVectorChar(variable); // RETURN
       case BerConstants::e_CONSTRUCTED:
-        return this->decodeArray(variable); // RETURN
+        switch (d_formattingMode & FMode::e_TYPE_MASK) {
+          case FMode::e_DEFAULT:
+          case FMode::e_DEC:
+            return this->decodeArray(variable);                       // RETURN
+          default:
+            return logError("Unexpected CONSTRUCTED encoding");       // RETURN
+        }
       default:
         return logError("Expected PRIMITIVE or CONSTRUCTED tag class"
                         " for vector<char>");                         // RETURN

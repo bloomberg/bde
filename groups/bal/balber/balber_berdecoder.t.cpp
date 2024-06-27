@@ -115,7 +115,8 @@ namespace test = BloombergLP::s_baltst;
 // [20] DECODE SEQUENCES OF MAXIMUM SIZE
 // [21] DECODE INTS AS ENUMS AND VICE VERSA
 // [22] DECODE DATE/TIME WITH LENGTH ANOMALIES
-// [23] USAGE EXAMPLE
+// [23] FUZZ TEST BUG (DRQS 175594554)
+// [24] USAGE EXAMPLE
 //
 // [-1] PERFORMANCE TEST
 
@@ -2306,6 +2307,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *bytes, size_t size)
     return 0;
 }
 
+void reproduceFuzzTest(const char *hexDump)
+{
+    bsl::vector<char> testData = loadFromHex(hexDump);
+    LLVMFuzzerTestOneInput(reinterpret_cast<const uint8_t *>(testData.data()),
+                           testData.size());
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -2334,7 +2342,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2357,6 +2365,25 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of test.\n";
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // FUZZ TEST BUG (DRQS 175594554)
+        //
+        // Concerns:
+        //: 1 The input sample mustn't cause a crash.
+        //
+        // Plan:
+        //: 1 Reproduce the failing fuzz test.
+        //
+        // Testing:
+        //   FUZZ TEST BUG (DRQS 175594554)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nFUZZ TEST BUG (DRQS 175594554)"
+                             "\n==============================\n";
+
+        reproduceFuzzTest("2a0a353d ff87ff30 5da05da1 00a024a1 10000031 00");
       } break;
       case 22: {
         // --------------------------------------------------------------------
