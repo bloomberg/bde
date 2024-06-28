@@ -1078,7 +1078,7 @@ BSLS_IDENT("$Id: $")
 // supplying the string to the shell (e.g., avoiding "C:\\\\file\\ name\\ 1").
 //
 ///Example 4: Option Constraints
-// - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - -
 // Suppose, we are again implementing 'mysort', and we want to introduce some
 // constraints on the values supplied for the variables.  In this example, we
 // will ensure that the supplied input files exist and are not directories, and

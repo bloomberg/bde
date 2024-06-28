@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 //  allowUnescapedControlCharacters() == false;
 //..
 // See also {'bdljsn_tokenizer'|Strict Conformance}.
-///
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

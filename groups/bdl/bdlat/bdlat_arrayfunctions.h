@@ -84,11 +84,11 @@ BSLS_IDENT("$Id: $")
 // overloads of the required functions and meta-function specializations.
 //
 ///Usage
-//------
+///-----
 // The following code illustrate the usage of this component.
 //
 ///Example 1: Defining an "Array" Type
-// - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - -
 // Suppose you had a type, 'mine::MyIntArray', that provides the essential
 // features of an "array" type.
 //..

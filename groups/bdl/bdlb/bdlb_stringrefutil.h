@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Trimming Whitespace
-//- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - -
 // Many applications must normalize user input by removing leading and trailing
 // whitespace characters to obtain the essential text that is the intended
 // input.  Naturally, one would prefer to do this as efficiently as possible.
