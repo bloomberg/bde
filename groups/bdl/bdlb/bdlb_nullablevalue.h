@@ -1,12 +1,4 @@
 // bdlb_nullablevalue.h                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLB_NULLABLEVALUE
 #define INCLUDED_BDLB_NULLABLEVALUE
 
@@ -76,8 +68,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate use of this component:
+// This section illustrates intended use of this component.
 //
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // First, create a nullable 'int' object:
 //..
 //  bdlb::NullableValue<int> nullableInt;

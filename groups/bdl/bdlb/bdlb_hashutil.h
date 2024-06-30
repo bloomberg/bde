@@ -1,12 +1,4 @@
 // bdlb_hashutil.h                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLB_HASHUTIL
 #define INCLUDED_BDLB_HASHUTIL
 
@@ -161,6 +153,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Examples Introduction
+///- - - - - - - - - - -
 // We illustrate the usage of this component by some experiments (code and
 // results) on the number of collision expected for various usage.  For
 // returning the results of an experiment, we will use the following structure:

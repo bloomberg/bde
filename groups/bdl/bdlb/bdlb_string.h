@@ -1,12 +1,4 @@
 // bdlb_string.h                                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLB_STRING
 #define INCLUDED_BDLB_STRING
 
@@ -71,6 +63,14 @@ BSLS_IDENT("$Id: $")
 // with base ASCII *only*.  For example, for strings encoded in UTF-8, the
 // functions behave as expected for the ASCII subset of UTF-8 but do *not*
 // provide full Unicode support.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: TBD
+/// - - - - - - -
+// TBD
 
 #include <bdlscm_version.h>
 

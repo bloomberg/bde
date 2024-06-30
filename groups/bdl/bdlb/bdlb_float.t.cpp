@@ -1,21 +1,12 @@
 // bdlb_float.t.cpp                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlb_float.h>
 
 #include <bsls_platform.h>
 
+#include <bsl_cfloat.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-#include <bsl_cfloat.h>
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 // xlC 8 has a more-or-less C99-compliant math library that we can
