@@ -231,8 +231,8 @@ void *ConcurrentPool::allocate()
             for (int i = 0; i < 3; ++i) {
                 // To avoid unnecessary contention, assume that if we did not
                 // get the first reference, then the other thread is about to
-                // complete the pop.  Wait for a few cycles until he does.  If
-                // he does not complete then go on and try to acquire it
+                // complete the pop.  Wait for a few cycles until it does.  If
+                // it does not complete then go on and try to acquire it
                 // ourselves.
 
                 if (d_freeList.loadRelaxed() != p) {
