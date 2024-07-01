@@ -262,7 +262,7 @@ int TestMetricsAdapter::size() const
     return static_cast<int>(d_descriptors.size());
 }
 
-template <class Callback>
+template <class t_CALLBACK>
 bool TestMetricsAdapter::contains(const bdlm::MetricDescriptor& descriptor)
                                                                           const
 {
@@ -270,7 +270,7 @@ bool TestMetricsAdapter::contains(const bdlm::MetricDescriptor& descriptor)
                              it != d_descriptors.end();
                            ++it) {
         if (it->second.first == descriptor
-        &&  it->second.second.target<Callback>()) {
+        &&  it->second.second.target<t_CALLBACK>()) {
             return true;                                              // RETURN
         }
     }
