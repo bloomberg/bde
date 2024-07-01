@@ -1,30 +1,15 @@
 // bdlcc_sharedobjectpool.t.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlcc_sharedobjectpool.h>
 
 #include <bdlcc_objectpool.h>
 
+#include <bdlf_bind.h>
 #include <bdlf_memfn.h>
-
-#include <bslim_testutil.h>
+#include <bdlf_placeholder.h>
 
 #include <bdlma_concurrentpoolallocator.h>
 
-#include <bslmt_mutex.h>
-#include <bslmt_threadutil.h>
-#include <bslmt_threadattributes.h>
-#include <bslmt_threadgroup.h>
-
-#include <bdlf_bind.h>
-#include <bdlf_placeholder.h>
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -32,6 +17,11 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
+
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_spinlock.h>
 #include <bsls_stopwatch.h>

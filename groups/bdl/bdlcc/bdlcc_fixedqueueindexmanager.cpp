@@ -1,23 +1,15 @@
 // bdlcc_fixedqueueindexmanager.cpp                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlcc_fixedqueueindexmanager.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlcc_fixedqueueindexmanager_cpp,"$Id$ $CSID$")
 
-#include <bslmt_threadutil.h>
-
 #include <bslalg_arraydestructionprimitives.h>
 #include <bslalg_arrayprimitives.h>
 
 #include <bslma_default.h>
+
+#include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
 

@@ -1,24 +1,17 @@
 // bdlmt_timereventscheduler.t.cpp                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlmt_timereventscheduler.h>
+
+#include <bdlb_bitutil.h>
+
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
+#include <bdlf_memfn.h>
 
 #include <bdlm_instancecount.h>
 #include <bdlm_metricdescriptor.h>
 #include <bdlm_metricsadapter.h>
 #include <bdlm_metricsregistry.h>
 
-#include <bdlf_bind.h>
-#include <bdlf_placeholder.h>
-#include <bdlf_memfn.h>
-#include <bdlb_bitutil.h>
-#include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bdlt_datetime.h>
 #include <bdlt_timeunitratio.h>
 
@@ -43,14 +36,15 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bsl_cmath.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_list.h>
-#include <bsl_ostream.h>
 #include <bsl_map.h>
+#include <bsl_ostream.h>
 #include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>

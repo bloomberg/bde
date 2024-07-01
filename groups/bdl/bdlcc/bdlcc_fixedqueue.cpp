@@ -1,19 +1,11 @@
 // bdlcc_fixedqueue.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlcc_fixedqueue.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlcc_fixedqueue_cpp,"$Id$$CSID$")
 
 namespace BloombergLP {
+namespace bdlcc {
 
 ///Implementation Note
 ///===================
@@ -86,6 +78,7 @@ namespace BloombergLP {
 // 'bdlcc::FixedQueue' object holds a 'bdlcc::AtomicRinBufferIndexManager' that
 // it uses to manage the state of the elements in 'd_elements'.
 
+}  // close pacakge namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

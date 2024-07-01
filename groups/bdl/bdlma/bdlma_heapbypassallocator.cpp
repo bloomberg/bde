@@ -1,18 +1,11 @@
 // bdlma_heapbypassallocator.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlma_heapbypassallocator.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_heapbypassallocator_cpp,"$Id$ $CSID$")
 
 #include <bslmt_lockguard.h>
+
 #include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
 

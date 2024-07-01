@@ -1,20 +1,24 @@
 // bdlcc_skiplist.t.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlcc_skiplist.h>
 
-#include <bdlf_bind.h>
-#include <bdlt_currenttime.h>
-#include <bdlt_intervalconversionutil.h>
-#include <bdlt_datetime.h>
-
 #include <bdlb_bitutil.h>
+
+#include <bdlf_bind.h>
+
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
+#include <bdlt_intervalconversionutil.h>
+
+#include <bsla_fallthrough.h>
+
+#include <bslalg_constructorproxy.h>
+
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_assert.h>
 
 #include <bslmt_lockguard.h>
 #include <bslmt_barrier.h>
@@ -29,17 +33,6 @@
 #include <bsltf_streamutil.h>
 #include <bsltf_templatetestfacility.h>
 
-#include <bslalg_constructorproxy.h>
-
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslma_usesbslmaallocator.h>
-
-#include <bslmf_assert.h>
-
-#include <bsla_fallthrough.h>
-
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_nameof.h>
@@ -52,15 +45,16 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>    // 'min'
-#include <bsl_cstdlib.h>
-#include <bsl_c_stdlib.h>     // 'rand_r'
-#include <bsl_c_ctype.h>
 #include <bsl_cmath.h>        // 'floor', 'ceil'
+#include <bsl_cstdlib.h>
 #include <bsl_functional.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+
+#include <bsl_c_ctype.h>
+#include <bsl_c_stdlib.h>     // 'rand_r'
 
 using namespace BloombergLP;
 using bsl::cout;

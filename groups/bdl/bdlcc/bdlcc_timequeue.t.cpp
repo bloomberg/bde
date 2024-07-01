@@ -1,29 +1,10 @@
 // bdlcc_timequeue.t.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlcc_timequeue.h>
 
-#include <bslma_testallocator.h>
-#include <bslmt_lockguard.h>
-#include <bslmt_barrier.h>
-#include <bslmt_condition.h>
-#include <bslmt_mutex.h>
-#include <bslmt_testutil.h>
-#include <bslmt_threadattributes.h>
-#include <bslmt_threadutil.h>
-#include <bslmt_threadgroup.h>
-#include <bsls_systemtime.h>
+#include <bdlb_random.h>
 
 #include <bdlf_bind.h>
 
-#include <bdlb_random.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
 
@@ -31,21 +12,31 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmt_barrier.h>
+#include <bslmt_condition.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_testutil.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_ctime.h>
-#include <bsl_iostream.h>
 #include <bsl_iomanip.h>
+#include <bsl_iostream.h>
+#include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_set.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

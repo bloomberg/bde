@@ -1,12 +1,4 @@
 // bdlmt_multiprioritythreadpool.t.cpp                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlmt_multiprioritythreadpool.h>
 
 #include <bdlcc_queue.h>
@@ -15,14 +7,19 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
+#include <bslma_newdeleteallocator.h>
+#include <bslma_testallocator.h>       // for testing only
+
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_qlock.h>
 #include <bslmt_testutil.h>
 #include <bslmt_threadgroup.h>
+
+#include <bsls_atomic.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
@@ -32,17 +29,6 @@
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_string.h>
-
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_newdeleteallocator.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocator.h>       // for testing only
-
-#include <bsls_atomic.h>
-#include <bsls_timeinterval.h>
-
-#include <bsl_algorithm.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>

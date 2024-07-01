@@ -1,32 +1,27 @@
 // bdlmt_threadmultiplexor.t.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlmt_threadmultiplexor.h>
+
+#include <bdlmt_fixedthreadpool.h>
+
+#include <bdlf_bind.h>
 
 #include <bslim_testutil.h>
 
-#include <bdlf_bind.h>
+#include <bslma_managedptr.h>
+#include <bslma_testallocator.h>
+
 #include <bslmt_semaphore.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
-#include <bdlmt_fixedthreadpool.h>
-#include <bsls_atomic.h>
 
-#include <bslma_managedptr.h>
-#include <bslma_testallocator.h>
+#include <bsls_atomic.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_streambuf.h>
+
 #include <bsl_c_math.h>
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC

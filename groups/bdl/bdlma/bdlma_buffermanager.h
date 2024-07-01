@@ -1,12 +1,4 @@
 // bdlma_buffermanager.h                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMA_BUFFERMANAGER
 #define INCLUDED_BDLMA_BUFFERMANAGER
 
@@ -48,6 +40,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose that we need to detect whether there are at least 'n' duplicates
 // within an array of integers.  Furthermore, suppose that speed is a concern
 // and we need the fastest possible implementation.  A natural solution will be

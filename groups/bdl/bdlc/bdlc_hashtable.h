@@ -1,12 +1,4 @@
 // bdlc_hashtable.h                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLC_HASHTABLE
 #define INCLUDED_BDLC_HASHTABLE
 
@@ -495,6 +487,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.
 // Suppose we wanted to store a table of 'int' keys with 'double' values.  We
 // will use a capacity hint of 10, default traits, and default hash functors

@@ -1,12 +1,4 @@
 // bdlma_concurrentpoolallocator.cpp                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlma_concurrentpoolallocator.h>
 
 #include <bsls_ident.h>
@@ -14,9 +6,9 @@ BSLS_IDENT_RCSID(bdlma_concurrentpoolallocator_cpp,"$Id$ $CSID$")
 
 #include <bdlma_guardingallocator.h>  // for testing only
 
-#include <bslmt_threadutil.h>
-
 #include <bslma_default.h>
+
+#include <bslmt_threadutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>

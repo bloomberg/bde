@@ -1,12 +1,4 @@
 // bdlma_concurrentallocatoradapter.cpp                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlma_concurrentallocatoradapter.h>
 
 #include <bsls_ident.h>
@@ -38,8 +30,8 @@ void ConcurrentAllocatorAdapter::deallocate(void *address)
     bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
     d_allocator_p->deallocate(address);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -1,12 +1,4 @@
 // bdlmt_fixedthreadpool.h                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMT_FIXEDTHREADPOOL
 #define INCLUDED_BDLMT_FIXEDTHREADPOOL
 
@@ -310,7 +302,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlcc_boundedqueue.h>
 
+#include <bdlf_bind.h>
+
 #include <bdlm_metricsregistry.h>
+
+#include <bslma_allocator.h>
 
 #include <bslmf_movableref.h>
 
@@ -324,10 +320,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
-
-#include <bdlf_bind.h>
-
-#include <bslma_allocator.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_functional.h>

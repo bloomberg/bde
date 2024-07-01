@@ -1,33 +1,24 @@
 // bdlcc_queue.t.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlcc_queue.h>
 
 #include <bdlf_bind.h>
 #include <bdlb_random.h>
 
-#include <bslim_testutil.h>
-
-#include <bslmt_barrier.h>
-#include <bslmt_lockguard.h>
-#include <bslmt_semaphore.h>
-#include <bslmt_condition.h>
-#include <bslmt_mutex.h>
-#include <bslmt_threadutil.h>
-#include <bslmt_threadgroup.h>
-
 #include <bslalg_constructorproxy.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bslmt_barrier.h>
+#include <bslmt_condition.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
@@ -35,7 +26,6 @@
 #include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
-
 #include <bsl_cstdlib.h>
 #include <bsl_deque.h>
 #include <bsl_functional.h>

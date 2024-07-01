@@ -1,12 +1,4 @@
 // bdlma_heapbypassallocator.h                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
 #define INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
 
@@ -46,6 +38,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Here we allocate some memory using a heap bypass allocator, then write to
 // that memory, then read from it and verify the values written are preserved.
 //..

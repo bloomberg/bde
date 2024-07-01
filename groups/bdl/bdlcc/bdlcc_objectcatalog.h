@@ -1,12 +1,4 @@
 // bdlcc_objectcatalog.h                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLCC_OBJECTCATALOG
 #define INCLUDED_BDLCC_OBJECTCATALOG
 
@@ -1161,7 +1153,6 @@ bsl::pair<int, TYPE> ObjectCatalogIter<TYPE>::operator()() const
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

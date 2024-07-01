@@ -1,12 +1,4 @@
 // bdlma_concurrentfixedpool.h                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMA_CONCURRENTFIXEDPOOL
 #define INCLUDED_BDLMA_CONCURRENTFIXEDPOOL
 
@@ -37,6 +29,10 @@
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // 'bdlma::ConcurrentFixedPool' is intended to implement *out-of-place*
 // container classes that hold up to a fixed number of elements, all of uniform
 // size.  Suppose we wish to implement a simple thread pool.  We want the

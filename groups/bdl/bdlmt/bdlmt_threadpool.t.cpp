@@ -1,26 +1,17 @@
 // bdlmt_threadpool.t.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlmt_threadpool.h>
+
+#include <bdlf_bind.h>
 
 #include <bdlm_instancecount.h>
 #include <bdlm_metricdescriptor.h>
 #include <bdlm_metricsadapter.h>
 #include <bdlm_metricsregistry.h>
 
-#include <bslmt_configuration.h>
-
 #include <bslma_testallocator.h>
 
-#include <bdlf_bind.h>
-
 #include <bslmt_barrier.h>           // for test only
+#include <bslmt_configuration.h>
 #include <bslmt_latch.h>             // for test only
 #include <bslmt_lockguard.h>         // for test only
 #include <bslmt_testutil.h>

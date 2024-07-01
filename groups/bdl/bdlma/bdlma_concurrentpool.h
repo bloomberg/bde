@@ -1,12 +1,4 @@
 // bdlma_concurrentpool.h                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOL
 #define INCLUDED_BDLMA_CONCURRENTPOOL
 
@@ -138,6 +130,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // A 'bdlma::ConcurrentPool' can be used by node-based containers (such as
 // lists, trees, and hash tables that hold multiple elements of uniform size)
 // for efficient memory allocation of new elements.  The following container

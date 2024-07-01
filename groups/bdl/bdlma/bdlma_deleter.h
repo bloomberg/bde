@@ -1,12 +1,4 @@
 // bdlma_deleter.h                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMA_DELETER
 #define INCLUDED_BDLMA_DELETER
 
@@ -28,6 +20,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose that we would like to transfer ownership of an object between
 // threads using 'bsl::shared_ptr'.  For the sake of discussion, the type of
 // this object is 'my_Obj', we will suppose that it is created using a given

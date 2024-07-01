@@ -1,26 +1,7 @@
 // bdlcc_multipriorityqueue.t.cpp                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlcc_multipriorityqueue.h>
 
 #include <bslim_testutil.h>    // streaming of bsltf types
-
-#include <bslmt_barrier.h>
-#include <bslmt_lockguard.h>
-#include <bslmt_semaphore.h>
-#include <bslma_testallocator.h>
-#include <bslmt_mutex.h>
-#include <bslmt_testutil.h>
-#include <bslmt_threadutil.h>
-#include <bslmt_threadgroup.h>
-#include <bsls_systemtime.h>
 
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -30,24 +11,33 @@
 
 #include <bslmf_assert.h>
 
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_semaphore.h>
+#include <bslma_testallocator.h>
+#include <bslmt_mutex.h>
+#include <bslmt_testutil.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadgroup.h>
+
 #include <bsls_atomic.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
-#include <bsltf_templatetestfacility.h>
 #include <bsltf_streamutil.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_list.h>
-#include <bsl_string.h>
-
 #include <bsl_cerrno.h>
 #include <bsl_climits.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_list.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using bsl::cout;

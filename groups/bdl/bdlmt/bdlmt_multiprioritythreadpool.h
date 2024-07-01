@@ -1,12 +1,4 @@
 // bdlmt_multiprioritythreadpool.h                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMT_MULTIPRIORITYTHREADPOOL
 #define INCLUDED_BDLMT_MULTIPRIORITYTHREADPOOL
 
@@ -101,8 +93,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following two examples illustrate use of the multi-priority thread pool
-// provided in this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: The 'void function'/'void pointer' Interface
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -

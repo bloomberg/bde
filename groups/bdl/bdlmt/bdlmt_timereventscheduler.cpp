@@ -1,16 +1,10 @@
 // bdlmt_timereventscheduler.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlmt_timereventscheduler.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
+
+#include <bdlb_bitutil.h>
 
 #include <bdlf_bind.h>
 
@@ -18,15 +12,14 @@ BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 #include <bdlm_metric.h>
 #include <bdlm_metricdescriptor.h>
 
-#include <bslmt_lockguard.h>
+#include <bdlt_timeunitratio.h>
 
 #include <bslma_default.h>
 
+#include <bslmt_lockguard.h>
+
 #include <bsls_assert.h>
 #include <bsls_systemtime.h>
-
-#include <bdlt_timeunitratio.h>
-#include <bdlb_bitutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>   // for 'CHAR_BIT'

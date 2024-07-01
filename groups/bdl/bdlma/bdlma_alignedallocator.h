@@ -1,12 +1,4 @@
 // bdlma_alignedallocator.h                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMA_ALIGNEDALLOCATOR
 #define INCLUDED_BDLMA_ALIGNEDALLOCATOR
 
@@ -18,7 +10,7 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdlma::AlignedAllocator: protocol for aligned memory allocators
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslma_allocator
 //
 //@DESCRIPTION: This component provides an implementation,
 // 'bdlma::AlignedAllocator', of the base-level protocol (pure abstract

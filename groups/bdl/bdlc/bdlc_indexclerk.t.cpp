@@ -1,21 +1,7 @@
 // bdlc_indexclerk.t.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlc_indexclerk.h>
 
 #include <bslim_testutil.h>
-
-#include <bslx_outstreamfunctions.h>            // for testing only
-#include <bslx_testoutstream.h>                 // for testing only
-#include <bslx_testinstream.h>                  // for testing only
-#include <bslx_testinstreamexception.h>         // for testing only
 
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
@@ -27,6 +13,11 @@
 #include <bsls_review.h>
 #include <bsls_types.h>
 
+#include <bslx_outstreamfunctions.h>            // for testing only
+#include <bslx_testinstream.h>                  // for testing only
+#include <bslx_testinstreamexception.h>         // for testing only
+#include <bslx_testoutstream.h>                 // for testing only
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
@@ -36,7 +27,7 @@
 #include <bsl_cstring.h>     // strcmp
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                                TEST PLAN

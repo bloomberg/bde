@@ -1,12 +1,4 @@
 // bdlma_concurrentallocatoradapter.h                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
 #define INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
 
@@ -44,6 +36,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In the following usage example, we develop a simple 'AddressBook' class
 // containing two thread-enabled vectors of strings: one for names, the other
 // for addresses.  We use a 'bdlma::ConcurrentAllocatorAdapter' to synchronize
@@ -302,8 +298,8 @@ ConcurrentAllocatorAdapter::ConcurrentAllocatorAdapter(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

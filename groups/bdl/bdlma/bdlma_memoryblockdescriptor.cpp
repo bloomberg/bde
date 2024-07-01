@@ -1,12 +1,4 @@
 // bdlma_memoryblockdescriptor.cpp                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlma_memoryblockdescriptor.h>
 
 #include <bsls_ident.h>
@@ -33,8 +25,8 @@ void MemoryBlockDescriptor::print() const
     std::printf("[%p, " ZU "]", address(), size());
 #undef ZU
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

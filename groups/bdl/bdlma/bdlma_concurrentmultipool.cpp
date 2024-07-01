@@ -1,12 +1,4 @@
 // bdlma_concurrentmultipool.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlma_concurrentmultipool.h>
 
 #include <bsls_ident.h>
@@ -16,17 +8,17 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitutil.h>
 
-#include <bslmt_lockguard.h>
 #include <bslmt_condition.h>
+#include <bslmt_lockguard.h>
 
-#include <bslma_deallocatorproctor.h>
 #include <bslma_autodestructor.h>
+#include <bslma_deallocatorproctor.h>
 #include <bslma_default.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
-#include <bsls_performancehint.h>
 #include <bsls_log.h>
+#include <bsls_performancehint.h>
 
 #include <bsl_cstdio.h>  // 'fprintf'
 #include <bsl_cstdint.h>

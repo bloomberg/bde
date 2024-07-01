@@ -1,20 +1,12 @@
 // bdlma_concurrentmultipool.t.cpp                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlma_concurrentmultipool.h>
+
+#include <bdlma_bufferedsequentialallocator.h>
 #include <bdlma_concurrentpool.h>
 
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>                // for testing only
-
-#include <bdlma_bufferedsequentialallocator.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -26,11 +18,11 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bsl_iostream.h>
-#include <bsl_vector.h>
+#include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>                         // 'atoi'
 #include <bsl_cstring.h>                         // 'memcpy', 'memset'
-#include <bsl_cstdint.h>
+#include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

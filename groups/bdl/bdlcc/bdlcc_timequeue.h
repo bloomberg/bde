@@ -1,12 +1,4 @@
 // bdlcc_timequeue.h                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLCC_TIMEQUEUE
 #define INCLUDED_BDLCC_TIMEQUEUE
 
@@ -602,9 +594,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #include <bdlma_pool.h>
 
-#include <bslmt_lockguard.h>
-#include <bslmt_mutex.h>
-
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_default.h>
@@ -613,6 +602,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
+
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 
 #include <bsls_alignment.h>
 #include <bsls_assert.h>

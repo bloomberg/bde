@@ -1,17 +1,9 @@
 // bdlma_concurrentpool.t.cpp                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlma_concurrentpool.h>
 
-#include <bdlf_bind.h>
-
 #include <bdlma_infrequentdeleteblocklist.h>
+
+#include <bdlf_bind.h>
 
 #include <bslim_testutil.h>
 

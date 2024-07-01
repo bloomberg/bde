@@ -86,6 +86,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a queue.
 // First, create an empty 'bdlc::Queue<double>' 'q' and populate it with two
 // elements 'E1' and 'E2'.

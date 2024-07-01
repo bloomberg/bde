@@ -1,12 +1,4 @@
 // bdlc_indexclerk.h                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLC_INDEXCLERK
 #define INCLUDED_BDLC_INDEXCLERK
 
@@ -56,6 +48,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // A 'bdlc::IndexClerk' is commonly used in conjunction with an array to enable
 // machine-address-independent referencing.  Rather than dynamically allocating
 // an object and holding its address, the object is stored in the array at the

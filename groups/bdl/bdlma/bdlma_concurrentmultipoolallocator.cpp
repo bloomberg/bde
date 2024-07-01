@@ -1,12 +1,4 @@
 // bdlma_concurrentmultipoolallocator.cpp                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlma_concurrentmultipoolallocator.h>
 
 #include <bsls_ident.h>
@@ -53,7 +45,6 @@ void ConcurrentMultipoolAllocator::release()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

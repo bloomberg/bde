@@ -1,12 +1,4 @@
 // bdlmt_fixedthreadpool.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bsls_ident.h>
@@ -24,12 +16,12 @@ BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>
 
+#include <bsl_functional.h>
+#include <bsl_string.h>
+
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
-
-#include <bsl_functional.h>
-#include <bsl_string.h>
 
 namespace {
 

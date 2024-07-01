@@ -1,18 +1,18 @@
 // bdlcc_fixedqueue.t.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlcc_fixedqueue.h>
 
 #include <bdlcc_queue.h>
 #include <bdlcc_skiplist.h>
 
+#include <bdlb_random.h>
+
+#include <bdlf_bind.h>
+
 #include <bslim_testutil.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmt_barrier.h>
 #include <bslmt_condition.h>
@@ -21,24 +21,17 @@
 #include <bslmt_mutex.h>
 #include <bslmt_qlock.h>
 #include <bslmt_recursivemutex.h>
-#include <bslma_testallocator.h>
-#include <bslmt_timedsemaphore.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedsemaphore.h>
 #include <bslmt_turnstile.h>
-#include <bsls_systemtime.h>
-
-#include <bdlf_bind.h>
-#include <bdlb_random.h>
-
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocatormonitor.h>
 
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
@@ -62,7 +55,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO

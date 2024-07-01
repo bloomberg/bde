@@ -1,38 +1,28 @@
 // bdlcc_objectpool.t.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlcc_objectpool.h>
+
+#include <bdlcc_fixedqueue.h>
+
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
 
 #include <bslim_testutil.h>
 
-#include <bdlcc_fixedqueue.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslma_testallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
 
-#include <bsls_atomic.h>
-#include <bsls_review.h>
-
-#include <bdlf_bind.h>
-#include <bdlf_placeholder.h>
-
-#include <bslmf_nestedtraitdeclaration.h>
-
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_usesbslmaallocator.h>
-#include <bslma_testallocator.h>
-
 #include <bsls_alignmentfromtype.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
@@ -44,7 +34,7 @@
 #include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                   TEST PLAN

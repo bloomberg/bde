@@ -1,22 +1,17 @@
 // bdlcc_skiplist.cpp                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlcc_skiplist.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlcc_skiplist_cpp,"$Id$ $CSID$")
 
-#include <bdlma_infrequentdeleteblocklist.h>
 #include <bdlb_random.h>
 
+#include <bdlma_infrequentdeleteblocklist.h>
+
 #include <bslma_allocator.h>
+
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_log.h>
 

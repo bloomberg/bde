@@ -1,12 +1,4 @@
 // bdlmt_timereventscheduler.h                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 #define INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 
@@ -154,6 +146,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example shows how to use a 'bdlmt::TimerEventScheduler' to
 // implement a timeout mechanism in a server.  'my_Session' maintains several
 // connections.  It closes a connection if the data for it does not arrive
@@ -265,7 +261,7 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 //
-///Example 3: Using the Test Time Source
+///Example 2: Using the Test Time Source
 ///- - - - - - - - - - - - - - - - - - -
 // For testing purposes, the class 'bdlmt::TimerEventSchedulerTestTimeSource'
 // is provided to allow a test to manipulate the system-time observed by a
@@ -274,8 +270,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlmt::TimerEventSchedulerTestTimeSource' object can be created atop the
 // scheduler.  A test can then use the test time-source to advance the
 // scheduler's observed system-time in order to dispatch events in a manner
-// coordinated by the test.  Note that a
-// 'bdlmt::TimerEventSchedulerTestTimeSource' *must* be created on an
+// coordinated by the test.  Note that a2// 'bdlmt::TimerEventSchedulerTestTimeSource' *must* be created on an
 // event-scheduler before any events are scheduled, or the event-scheduler is
 // started.
 //

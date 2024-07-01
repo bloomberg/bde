@@ -1,13 +1,4 @@
 // bdlma_memoryblockdescriptor.t.cpp                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlma_memoryblockdescriptor.h>
 
 #include <bslim_testutil.h>
@@ -18,12 +9,11 @@
 #include <bsls_alignment.h>
 #include <bsls_review.h>
 
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
-
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>   // 'atoi'
 #include <bsl_cstring.h>   // 'memcpy'
+#include <bsl_iostream.h>
+#include <bsl_sstream.h>
 
 #include <bsl_c_stdio.h>   // 'snprintf' (<cstdio> doesn't declare 'snprintf')
 
@@ -32,7 +22,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                  TEST PLAN

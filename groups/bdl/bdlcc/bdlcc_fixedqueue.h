@@ -1,12 +1,4 @@
 // bdlcc_fixedqueue.h                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLCC_FIXEDQUEUE
 #define INCLUDED_BDLCC_FIXEDQUEUE
 
@@ -197,11 +189,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlcc_fixedqueueindexmanager.h>
 
-#include <bslmt_semaphore.h>
-#include <bslmt_threadutil.h>
-
-#include <bsls_atomic.h>
-
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_default.h>
@@ -211,9 +198,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bslmt_semaphore.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_assert.h>
-#include <bsls_platform.h>
+#include <bsls_atomic.h>
 #include <bsls_performancehint.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -943,8 +934,8 @@ void FixedQueue_PushProctor<VALUE>::release()
 {
     d_parent_p = 0;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

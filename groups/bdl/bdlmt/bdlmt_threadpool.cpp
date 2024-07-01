@@ -1,13 +1,8 @@
 // bdlmt_threadpool.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlmt_threadpool.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 
 #include <bdlm_instancecount.h>
 #include <bdlm_metric.h>
@@ -15,30 +10,26 @@
 
 #include <bdlf_bind.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
-
-#include <bslmt_lockguard.h>
-#include <bsls_systemclocktype.h>
-#include <bsls_systemtime.h>
-#include <bsls_assert.h>
-#include <bsls_platform.h>
-#include <bsls_timeinterval.h>
-#include <bsls_timeutil.h>
-#include <bsls_types.h>
-
 #include <bslmt_barrier.h>           // for testing only
 #include <bslmt_lockguard.h>         // for testing only
 #include <bslmt_threadattributes.h>  // for testing only
 #include <bslmt_threadutil.h>        // for testing only
 
-#if defined(BSLS_PLATFORM_OS_UNIX)
-#include <bsl_c_signal.h>              // sigfillset
-#endif
+#include <bsls_assert.h>
+#include <bsls_platform.h>
+#include <bsls_systemclocktype.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
+#include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_string.h>
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+#include <bsl_c_signal.h>              // sigfillset
+#endif
 
 namespace {
 
@@ -671,8 +662,8 @@ double ThreadPool::percentBusy() const
 
     return percentBusy;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

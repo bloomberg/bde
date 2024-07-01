@@ -14,17 +14,16 @@
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
 
-#include <bsls_alignment.h>
-#include <bsls_platform.h>
-
 #include <bdlb_random.h>
 
 #include <bdlf_bind.h>
 
 #include <bslmt_barrier.h>
-#include <bslmt_threadgroup.h>
 #include <bslmt_qlock.h>
+#include <bslmt_threadgroup.h>
 
+#include <bsls_alignment.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -36,7 +35,7 @@
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO

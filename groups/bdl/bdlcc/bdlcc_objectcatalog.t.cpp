@@ -1,12 +1,5 @@
 // bdlcc_objectcatalog.t.cpp                                          -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bsls_platform.h>
 
 // the following suppresses warnings from '#include' inlined functions
@@ -20,25 +13,26 @@
 
 #include <bdlt_currenttime.h>
 
+#include <bsla_unused.h>
+
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isfundamental.h>
+#include <bslmf_issame.h>
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_condition.h>
 #include <bslmt_mutex.h>
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
+
 #include <bsltf_movestate.h>
 #include <bsltf_streamutil.h>
 #include <bsltf_templatetestfacility.h>
-
-#include <bslma_default.h>
-#include <bslma_usesbslmaallocator.h>
-#include <bslma_testallocator.h>
-
-#include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_isfundamental.h>
-#include <bslmf_issame.h>
-
-#include <bsla_unused.h>
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
