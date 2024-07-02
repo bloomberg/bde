@@ -335,8 +335,8 @@ void TimeZoneUtilImp::resolveLocalTime(
         BSLS_ASSERT(*resultValidity != Validity::e_VALID_UNIQUE
                  || utcOffset1 == utcOffset2);
 
-         utcOffsetInSeconds = *resultValidity == Validity::e_INVALID
-                            ? utcOffset1 : utcOffset2;
+        utcOffsetInSeconds = *resultValidity == Validity::e_INVALID
+                           ? utcOffset1 : utcOffset2;
     }
 
     // Use the resolved UTC offset to create the resolved UTC value for
@@ -346,22 +346,8 @@ void TimeZoneUtilImp::resolveLocalTime(
     bdlt::Datetime resolvedUtcTime    = localTime;
 
     const int rc = resolvedUtcTime.addMinutesIfValid(-utcOffsetInMinutes);
-    BSLS_REVIEW_OPT(0 == rc &&
-                    "'addMinutes' would return an invalid Datetime.");
-
-    // The following block should be removed once the above 'BSLS_REVIEW_OPT'
-    // is replaced by 'BSLS_ASSERT'.
+    BSLS_ASSERT_SAFE(0 == rc); // See DRQS 174142713.
     if (0 != rc) {
-        const int buffSize = 32;
-        char      resolvedBuffer[buffSize];
-        resolvedUtcTime.printToBuffer(resolvedBuffer, buffSize);
-        BSLS_LOG_ERROR(
-            "DRQS 171227423: Converting 'resolvedUtcTime'=\"%s\" using "
-            "'resolvedUtcTime.addMinutes(-utcOffsetInMinutes)' where "
-            "'utcOffsetInMinutes=%d' would result in an invalid 'Datetime'.",
-            resolvedBuffer,
-            utcOffsetInMinutes);
-
         resolvedUtcTime.addMinutes(-utcOffsetInMinutes);
     }
 

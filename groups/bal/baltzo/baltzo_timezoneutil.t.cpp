@@ -2286,10 +2286,10 @@ int main(int argc, char *argv[])
         //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
-        //: 2 'baltzo::TimeZoneUtilImp::convertLocalToUtc' is invoked return
-        //:   the correct result.
+        //: 2 'baltzo::TimeZoneUtilImp::convertLocalToUtc' is invoked and
+        //:   the correct result is returned.
         //:
-        //: 3 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
+        //: 3 'dstPolicy' defaults to 'e_UNSPECIFIED' if not specified.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -2306,7 +2306,8 @@ int main(int argc, char *argv[])
         //:
         //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-4)
+        //:   macros).  Use 'BSLS_ASSERTTEST_ASSERT_FAIL_RAW' for verifying
+        //:   defensive checks triggered from other components. (C-4)
         //
         // Testing:
         //   convertLocalToUtc(Datetm *, const Datetm&, const ch *, Dst);
@@ -2473,8 +2474,7 @@ int main(int argc, char *argv[])
                                   "\t'convertLocalToUtc' class method" << endl;
             {
                 const bdlt::Datetime TIME(2010, 1, 1, 12, 0);
-
-                bdlt::Datetime      resultTime;
+                bdlt::Datetime        resultTime;
                 baltzo::LocalDatetime resultLcl;
 
                 ASSERT_PASS(Obj::convertLocalToUtc(&resultTime,
@@ -2502,6 +2502,20 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Obj::convertLocalToUtc(&resultLcl,
                                                    TIME,
                                                    0));
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                const bdlt::Datetime TIME2(1, 1, 1);
+
+                BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Obj::convertLocalToUtc(
+                                                                   &resultTime,
+                                                                   TIME2,
+                                                                   SA));
+
+                BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Obj::convertLocalToUtc(
+                                                                    &resultLcl,
+                                                                    TIME2,
+                                                                    SA));
+#endif
             }
         }
       } break;
@@ -2513,10 +2527,10 @@ int main(int argc, char *argv[])
         //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
-        //: 2 'baltzo::TimeZoneUtilImp::initLocalTime' is invoked return the
-        //:   correct result.
+        //: 2 'baltzo::TimeZoneUtilImp::initLocalTime' is invoked and the
+        //:   correct result is returned.
         //:
-        //: 3 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
+        //: 3 'dstPolicy' defaults to 'e_UNSPECIFIED' if not specified.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -2533,7 +2547,8 @@ int main(int argc, char *argv[])
         //:
         //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-4)
+        //:   macros).  Use 'BSLS_ASSERTTEST_ASSERT_FAIL_RAW' for verifying
+        //:   defensive checks triggered from other components. (C-4)
         //
         // Testing:
         //   initLocalTime(DatetmTz *, const Datetm&, const ch *, Dst);
@@ -2714,10 +2729,10 @@ int main(int argc, char *argv[])
             {
                 const bdlt::Datetime TIME(2010, 1, 1, 12, 0);
 
-                bdlt::Datetime      resultTime;
-                bdlt::DatetimeTz    resultTz;
+                bdlt::Datetime        resultTime;
+                bdlt::DatetimeTz      resultTz;
                 baltzo::LocalDatetime resultLcl;
-                Validity::Enum     resultValidity;
+                Validity::Enum        resultValidity;
 
                 ASSERT_PASS(Obj::initLocalTime(&resultTz,
                                                TIME,
@@ -2745,6 +2760,18 @@ int main(int argc, char *argv[])
                                                TIME,
                                                0));
 
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                const bdlt::Datetime TIME2(1, 1, 1);
+
+                BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Obj::initLocalTime(&resultTz,
+                                                                    TIME2,
+                                                                    SA));
+
+                BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Obj::initLocalTime(&resultLcl,
+                                                                    TIME2,
+                                                                    SA));
+#endif
+
                 // ------------------------------------------------------------
 
                 ASSERT_PASS(Obj::initLocalTime(&resultTz,
@@ -2767,6 +2794,14 @@ int main(int argc, char *argv[])
                                                TIME,
                                                0));
 
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Obj::initLocalTime(
+                                                               &resultTz,
+                                                               &resultValidity,
+                                                                TIME2,
+                                                                SA));
+#endif
+
                 // ------------------------------------------------------------
 
                 ASSERT_PASS(Obj::initLocalTime(&resultLcl,
@@ -2788,6 +2823,14 @@ int main(int argc, char *argv[])
                                                &resultValidity,
                                                TIME,
                                                0));
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Obj::initLocalTime(
+                                                               &resultLcl,
+                                                               &resultValidity,
+                                                                TIME2,
+                                                                SA));
+#endif
             }
         }
       } break;

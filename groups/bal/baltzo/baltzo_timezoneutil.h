@@ -580,7 +580,8 @@ struct TimeZoneUtil {
         // UTC of the time zone is rounded down to minute precision.  Return 0
         // on success, and a non-zero value with no effect otherwise.  A return
         // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId'
-        // was not recognized.
+        // was not recognized.  The behavior is undefined unless the result of
+        // the initialization falls within the supported epoch.
 
     static int convertLocalToUtc(bdlt::Datetime        *result,
                                  const bdlt::Datetime&  localTime,
@@ -604,7 +605,9 @@ struct TimeZoneUtil {
         // offset from UTC of the time zone is rounded down to minute
         // precision.  Return 0 on success, and a non-zero value with no effect
         // otherwise.  A return value of 'ErrorCode::k_UNSUPPORTED_ID'
-        // indicates that 'timeZoneId' was not recognized.
+        // indicates that 'timeZoneId' was not recognized.  The behavior is
+        // undefined unless the result of the conversion falls within the
+        // supported epoch.
 
     static int loadLocalTimePeriod(LocalTimePeriod      *result,
                                    const LocalDatetime&  localTime);

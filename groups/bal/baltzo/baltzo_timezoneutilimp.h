@@ -200,7 +200,8 @@ struct TimeZoneUtilImp {
         // whether 'localTime' is unique, ambiguous but valid, or invalid.
         // Return 0 on success, and a non-zero value otherwise.  A return
         // status of 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId'
-        // is not recognized.
+        // is not recognized.  The behavior is undefined unless the result of
+        // the initialization falls within the supported epoch.
 
     static int loadLocalTimePeriodForUtc(LocalTimePeriod       *result,
                                          const char            *timeZoneId,
@@ -230,7 +231,8 @@ struct TimeZoneUtilImp {
         // unique, valid but ambiguous, or invalid; load into the specified
         // 'transitionIter' an iterator pointing to the transition that
         // characterizes the attributes of 'localTime'.  The behavior is
-        // undefined unless 'ZoneinfoUtil::isWellFormed(timeZone)' is 'true'.
+        // undefined unless 'ZoneinfoUtil::isWellFormed(timeZone)' is 'true'
+        // and the result of the resolution falls within the supported epoch.
 
 };
 

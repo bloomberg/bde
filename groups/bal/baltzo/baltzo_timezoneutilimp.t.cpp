@@ -1488,6 +1488,8 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The parameters are correctly forwarded to 'resolveLocalTime'.
         //:
+        //: 2 Asserted precondition violations are detected when enabled.
+        //:
         //: 3 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
@@ -1496,10 +1498,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Invoke 'initLocalTime' passing an invalid time zone id
-        //:   and check the result.  (C-6)
+        //:   and check the result.  (C-3)
         //:
         //: 2 Invoke 'initLocalTime' passing an invalid time zone
-        //:   cache and check the result.  (C-7)
+        //:   cache and check the result.  (C-4)
         //:
         //: 3 Using the table-driven technique:
         //:
@@ -1508,6 +1510,9 @@ int main(int argc, char *argv[])
         //:     passed in as input, (d) the expected validity of the input
         //:     time, and (e) the expected local time value to be loaded in the
         //:     result (C-1).
+        //:
+        //: 4 Do negative testing to verify that asserts catch all the
+        //:   undefined behavior in the contract. (C-2)
         //
         // Testing:
         //   'initLocalTime(DatetimeTz *, Datetime& , char *, Dst, Cache *)
@@ -1741,10 +1746,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tCLASS METHOD 'initLocalTime'" << endl;
             {
                 const bdlt::Datetime   VALID_INPUT(2011, 04, 10);
-                const baltzo::Zoneinfo BAD;
 
                 bdlt::DatetimeTz result;
-                Validity::Enum  resultValidity;
+                Validity::Enum   resultValidity;
 
                 ASSERT_PASS(Obj::initLocalTime(&result,
                                                &resultValidity,
@@ -1780,6 +1784,17 @@ int main(int argc, char *argv[])
                                                NY,
                                                DU,
                                                0));
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                const bdlt::Datetime    VALID_INPUT2(1, 1, 1);
+
+                ASSERT_FAIL(Obj::initLocalTime(&result,
+                                               &resultValidity,
+                                               VALID_INPUT2,
+                                               SA,
+                                               DU,
+                                               &testCache));
+#endif
             }
         }
       } break;
@@ -1799,32 +1814,22 @@ int main(int argc, char *argv[])
         //: 4 The (output) iterator refers to the specified input
         //:   'baltzo::Zoneinfo'.
         //:
-        //: 5 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
-        //:   passed.
+        //: 5 Asserted precondition violations are detected when enabled.
         //:
-        //: 6 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
-        //:   occurs.
+        //: 6 The correct transition and descriptor is applied for time zones
+        //:   for which the local time always with DST *on*, passing in
+        //:   different policies.
         //:
-        //:7 The correct transition and descriptor is applied for time zones
-        //:  for which the local time always with DST *on*, passing in
-        //:  different policies.
+        //: 7 The correct transition and descriptor is applied for time zones
+        //:   for which the local time always with DST *off*, passing in
+        //:   different policies.
         //:
-        //:8 The correct transition and descriptor is applied for time zones
-        //:  for which the local time always with DST *off*, passing in
-        //:  different policies.
-        //:
-        //:9 The correct transition and descriptor is applied for time zones
-        //:  that have only one transition to DST in the past, passing in
-        //:  different policies.
+        //: 8 The correct transition and descriptor is applied for time zones
+        //:   that have only one transition to DST in the past, passing in
+        //:   different policies.
         //
         // Plan:
-        //: 1 Invoke 'resolveLocalTime' passing an invalid time zone id
-        //:   and check the result.  (C-5)
-        //:
-        //: 2 Invoke 'resolveLocalTime' passing an invalid time zone
-        //:   cache and check the result.  (C-6)
-        //:
-        //: 3 Using the table-driven technique:
+        //: 1 Using the table-driven technique:
         //:
         //:   1 Specify a set values (one per row), including (a) time zone id,
         //:     (b) local time values to be passed in as input, (c) DST policy
@@ -1832,7 +1837,10 @@ int main(int argc, char *argv[])
         //:     the expected validity of the input time, and (f) the attribute
         //:     values describing the expected local-time descriptor held by
         //:     the transition to which the loaded (output) iterator refers.
-        //:     (C-1..4, 7..9)
+        //:     (C-1..4, 6..8)
+        //:
+        //: 2 Do negative testing to verify that asserts catch all the
+        //:   undefined behavior in the contract. (C-5)
         //
         // Testing:
         //   'resolveLocalTime(...)
@@ -2356,10 +2364,8 @@ int main(int argc, char *argv[])
                              "\t'resolveLocalTime' class method " << endl;
             {
                 const bdlt::Datetime    VALID_INPUT(2011, 04, 10);
-                const bdlt::Datetime    VALID_INPUT2(1, 1, 1);
                 const baltzo::Zoneinfo  BAD;
                 const baltzo::Zoneinfo *NYZI = testCache.lookupZoneinfo(NY);
-                const baltzo::Zoneinfo *SAZI = testCache.lookupZoneinfo(SA);
 
                 bdlt::DatetimeTz result;
                 Iterator         resultIterator;
@@ -2400,12 +2406,17 @@ int main(int argc, char *argv[])
                                                   DU,
                                                   BAD));
 
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                const bdlt::Datetime    VALID_INPUT2(1, 1, 1);
+                const baltzo::Zoneinfo *SAZI = testCache.lookupZoneinfo(SA);
+
                 ASSERT_FAIL(Obj::resolveLocalTime(&result,
                                                   &resultValidity,
                                                   &resultIterator,
                                                   VALID_INPUT2,
                                                   DU,
                                                   *SAZI));
+#endif
             }
         }
       } break;
