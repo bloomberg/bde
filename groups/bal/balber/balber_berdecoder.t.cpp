@@ -116,7 +116,8 @@ namespace test = BloombergLP::s_baltst;
 // [21] DECODE INTS AS ENUMS AND VICE VERSA
 // [22] DECODE DATE/TIME WITH LENGTH ANOMALIES
 // [23] FUZZ TEST BUG (DRQS 175594554)
-// [24] USAGE EXAMPLE
+// [24] FUZZ TEST BUG (DRQS 175741365)
+// [25] USAGE EXAMPLE
 //
 // [-1] PERFORMANCE TEST
 
@@ -2342,7 +2343,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2365,6 +2366,30 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of test.\n";
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // FUZZ TEST BUG (DRQS 175741365)
+        //
+        // Concerns:
+        //: 1 The input sample mustn't cause a crash.
+        //
+        // Plan:
+        //: 1 Reproduce the failing fuzz test.
+        //
+        // Testing:
+        //   FUZZ TEST BUG (DRQS 175741365)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nFUZZ TEST BUG (DRQS 175741365)"
+                             "\n==============================\n";
+
+        reproduceFuzzTest("3dc8ff4c 01230a30 31bf0010 bf0100bf"
+                          "0010a710 bf0010bf 00109f09 0000001a"
+                          "1000bf00 10bf0600 ffff05ff ffffffff"
+                          "ffffffff ffffffff ffffffff ffffffff"
+                          "ffffffff ffffffff ffffffff ffffffff"
+                          "ffffffff ff10ff");
       } break;
       case 23: {
         // --------------------------------------------------------------------

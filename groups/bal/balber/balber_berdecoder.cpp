@@ -396,7 +396,8 @@ int BerDecoder_Node::readVectorUnsignedChar(
                                                                       // RETURN
     }
 
-    if (d_expectedLength < 0) {
+    const int length = d_expectedLength;
+    if (length < 0) {
         return logError("'vector<unsigned char>' with indefinite "
                         "length is not supported at this time");      // RETURN
 
@@ -406,22 +407,22 @@ int BerDecoder_Node::readVectorUnsignedChar(
     }
 
     int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
-    if (d_expectedLength > maxSize) {
+    if (length > maxSize) {
         return logError("'vector<unsigned char>' length more then limit");
                                                                       // RETURN
     }
 
-    variable->resize(d_expectedLength);
+    variable->resize(length);
 
-    char *variabledata = reinterpret_cast<char *>(&(*variable)[0]);
-    if (0 != d_expectedLength &&
-        d_expectedLength !=
-            d_decoder->d_streamBuf->sgetn(variabledata, d_expectedLength)) {
-        return logError("Stream error while reading 'vector<unsigned char>'");
-                                                                      // RETURN
+    if (length != 0) {
+        char *data = reinterpret_cast<char *>(variable->data());
+        if (length != d_decoder->d_streamBuf->sgetn(data, length)) {
+            return logError(
+              "Stream error while reading 'vector<unsigned char>'");  // RETURN
+        }
     }
 
-    d_consumedBodyBytes += d_expectedLength;
+    d_consumedBodyBytes += length;
 
     return BerDecoder::e_BER_SUCCESS;
 }
