@@ -101,6 +101,9 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
         explicit handle(const t_TYPE& value) BSLS_KEYWORD_NOEXCEPT;
 
       public:
+        // CREATORS
+        handle(bslmf::MovableRef<handle> rhs) BSLS_KEYWORD_NOEXCEPT;
+
         // ACCESSORS
         void format(basic_format_parse_context<t_CHAR>&  pc,
                     basic_format_context<t_OUT, t_CHAR>& fc) const;
@@ -244,6 +247,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
 // FREE FUNCTIONS
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_CONTEXT, class... t_FMTARGS>
 void Format_MakeFormatArgArray(
           bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
@@ -254,6 +258,7 @@ void Format_MakeFormatArgArray(
         {basic_format_arg<t_CONTEXT>(fmt_args)...}};
     out->swap(tmp);
 }
+#endif
 
                  // ------------------------------------------
                  // class Format_FormatArgStore<t_OUT, T_CHAR>
@@ -293,8 +298,8 @@ Format_MakeFormatArgs(t_ARGS&... fmt_args)
     // Use the form of braced initialization that is valid in C++03
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
     Format_MakeFormatArgArray<t_CONTEXT, t_ARGS...>(&arg_array, fmt_args...);
-    //bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array = {
-    //    {basic_format_arg<t_CONTEXT>(fmt_args)...}};
+    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array2 = {
+        {basic_format_arg<t_CONTEXT>(fmt_args)...}};
     return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
 }
 
@@ -416,7 +421,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format_impl(
     fc.advance_to(f.format(*static_cast<const t_TYPE *>(value), fc));
 }
 
-// CREATORS
+// PRIVATE CREATORS
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
@@ -424,6 +429,17 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
 : d_value_p(BSLS_UTIL_ADDRESSOF(value))
 , d_format_impl_p(format_impl<t_TYPE>)
 {
+}
+
+// CREATORS
+template <class t_OUT, class t_CHAR>
+basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
+                           bslmf::MovableRef<handle> rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    d_value_p = bslmf::MovableRefUtil::move(
+                           bslmf::MovableRefUtil::access(rhs).d_value_p);
+    d_format_impl_p = bslmf::MovableRefUtil::move(
+                           bslmf::MovableRefUtil::access(rhs).d_format_impl_p);
 }
 
 // ACCESSORS
