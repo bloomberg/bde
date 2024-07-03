@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 
 
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#if defined(xxBSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
 namespace bsl {
 
