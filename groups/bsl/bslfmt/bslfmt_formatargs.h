@@ -28,12 +28,13 @@
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
 
+#include <bslfmt_formatarg.h>
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Tue Jun 18 08:19:54 2024
+// Generated on Thu Jul  4 12:04:46 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatargs.h
 # define COMPILING_BSLFMT_FORMATARGS_H
 # include <bslfmt_formatargs_cpp03.h>
@@ -47,9 +48,6 @@ namespace bslfmt {
 
 template <class t_OUT, class t_CHAR>
 class basic_format_context;
-
-template <class t_CONTEXT>
-class basic_format_arg;
 
 template <class t_CONTEXT>
 class basic_format_args;
@@ -180,11 +178,8 @@ template <class t_CONTEXT, class... t_ARGS>
 Format_FormatArgStore<t_CONTEXT, t_ARGS...> Format_MakeFormatArgs(
                                                            t_ARGS&... fmt_args)
 {
-    // Use the form of braced initialization that is valid in C++03
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
     Format_MakeFormatArgArray<t_CONTEXT, t_ARGS...>(&arg_array, fmt_args...);
-    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array2 = {
-        {basic_format_arg<t_CONTEXT>(fmt_args)...}};
     return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
 }
 
@@ -202,7 +197,7 @@ Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
     return Format_MakeFormatArgs<wformat_context>(fmt_args...);
 }
 
-#endif // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#endif
 
                      // ----------------------------------
                      // class basic_format_args<t_CONTEXT>
@@ -225,7 +220,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#endif
 
 // ACCESSORS
 template <class t_CONTEXT>

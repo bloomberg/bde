@@ -57,11 +57,6 @@ class basic_format_arg;
 template <class t_VALUE>
 class Format_OutputIteratorRef;
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class t_CONTEXT, class... t_ARGS>
-class Format_FormatArgStore;
-#endif
-
 // TYPEDEFS
 
 typedef basic_format_context<Format_OutputIteratorRef<char>, char>
@@ -144,10 +139,6 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     // FRIENDS
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class t_CONTEXT, class... t_ARGS>
-    friend Format_FormatArgStore<t_CONTEXT, t_ARGS...> Format_MakeFormatArgs(
-                                                          t_ARGS&... fmt_args);
-
     template <class t_CONTEXT, class... t_FMTARGS>
     friend void
     Format_MakeFormatArgArray(
