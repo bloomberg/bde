@@ -31,6 +31,7 @@
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatarg.h>
+#include <bslfmt_formatargs.h>
 #include <bslfmt_formatcontext.h>
 #include <bslfmt_formatparsecontext.h>
 #include <bslfmt_formatstring.h>

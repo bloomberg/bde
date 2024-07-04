@@ -102,7 +102,13 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
       public:
         // CREATORS
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         handle(bslmf::MovableRef<handle> rhs) BSLS_KEYWORD_NOEXCEPT;
+            // This is required to support use within a variant on C++03, but
+            // must *not* be specified for C++11 and later as it will result in
+            // the implicit deletion of other defaulted special member
+            // functions
+#endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
         // ACCESSORS
         void format(basic_format_parse_context<t_CHAR>&  pc,
@@ -230,11 +236,10 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     operator BoolType() const BSLS_KEYWORD_NOEXCEPT;
 
     // MANIPULATORS
-
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
     // BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
     // BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
     // bslstl_variant.h
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
     template <class t_VISITOR>
     decltype(auto) visit(t_VISITOR&& visitor);
 #else
@@ -250,153 +255,21 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_CONTEXT, class... t_FMTARGS>
 void Format_MakeFormatArgArray(
-          bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
-          t_FMTARGS&...                                                  fmt_args)
-{
-    // Use the form of braced initialization that is valid in C++03
-    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> tmp = {
-        {basic_format_arg<t_CONTEXT>(fmt_args)...}};
-    out->swap(tmp);
-}
+      bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
+      t_FMTARGS&...                                                  fmt_args);
 #endif
 
-                 // ------------------------------------------
-                 // class Format_FormatArgStore<t_OUT, T_CHAR>
-                 // ------------------------------------------
-
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class t_CONTEXT, class... t_ARGS>
-class Format_FormatArgStore {
-
-  private:
-    // DATA
-    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> d_args;
-
-    // FRIENDS
-    template <class t_INNER_CONTEXT>
-    friend class basic_format_args;
-
-    template <class t_INNER_CONTEXT, class... t_INNER_ARGS>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS...>
-        Format_MakeFormatArgs(t_INNER_ARGS&... fmt_args);
-
-    // PRIVATE CREATORS
-    explicit Format_FormatArgStore(
-        const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
-        BSLS_KEYWORD_NOEXCEPT : d_args(args)
-    {
-    }
-};
-
-// FREE FUNCTIONS
-
-template <class t_CONTEXT, class... t_ARGS>
-Format_FormatArgStore<t_CONTEXT, t_ARGS...>
-Format_MakeFormatArgs(t_ARGS&... fmt_args)
-{
-    // Use the form of braced initialization that is valid in C++03
-    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS...>(&arg_array, fmt_args...);
-    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array2 = {
-        {basic_format_arg<t_CONTEXT>(fmt_args)...}};
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
-}
-
-template <class... t_ARGS>
-Format_FormatArgStore<format_context, t_ARGS...>
-make_format_args(t_ARGS&... fmt_args)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args...);
-}
-
-template <class... t_ARGS>
-Format_FormatArgStore<wformat_context, t_ARGS...>
-make_wformat_args(t_ARGS&... fmt_args)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args...);
-}
-#endif
-
-
-                     // ----------------------------------
-                     // class basic_format_args<t_CONTEXT>
-                     // ----------------------------------
-
-
-template <class t_CONTEXT>
-class basic_format_args {
-    // DATA
-    size_t                             d_size;
-    const basic_format_arg<t_CONTEXT> *d_data;
-
-  public:
-
-    // CREATORS
-    basic_format_args() BSLS_KEYWORD_NOEXCEPT
-    : d_size(0) {}
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class... t_ARGS>
-    basic_format_args(
-               const Format_FormatArgStore<t_CONTEXT, t_ARGS...>& store)
-        BSLS_KEYWORD_NOEXCEPT                                       // IMPLICIT
-    : d_size(sizeof...(t_ARGS)),
-      d_data(store.d_args.data())
-    {
-    }
-#endif
-
-    // ACCESSORS
-    basic_format_arg<t_CONTEXT> get(size_t i) const BSLS_KEYWORD_NOEXCEPT
-    {
-        return i < d_size ? d_data[i] : basic_format_arg<t_CONTEXT>();
-    }
-
-  private:
-    // PRIVATE ACCESSORS
-    size_t size() const
-    {
-        return d_size;
-    }
-
-    // FRIENDS
-    template <class t_INNER_CONTEXT>
-    friend size_t Format_FormatArgsSize(
-            const basic_format_args<t_INNER_CONTEXT>& args);
-};
-
-typedef basic_format_args<format_context> format_args;
-
-typedef basic_format_args<wformat_context> wformat_args;
-
-template<class t_CONTEXT>
-size_t Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args)
-    // This component-private function returns the result of calling 'size()'
-    // on the specified 'args' parameter. This is to permit access to the
-    // private 'size' accessor of 'basic_format_args' without requiring long
-    // distance friendship.
-{
-    return args.size();
-}
-
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 // BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
 // BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
 // bslstl_variant.h
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 template <class t_VISITOR, class t_CONTEXT>
-decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
-                                basic_format_arg<t_CONTEXT> arg)
-{
-    return arg.visit(std::forward<t_VISITOR>(visitor));
-}
+decltype(auto)
+visit_format_arg(t_VISITOR&& visitor, basic_format_arg<t_CONTEXT> arg);
 #else
 template <class t_VISITOR, class t_CONTEXT>
 typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
-visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
-{
-    return arg.visit(visitor);
-}
+visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg);
 #endif
 
 // ============================================================================
@@ -432,6 +305,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
 }
 
 // CREATORS
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class t_OUT, class t_CHAR>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
                            bslmf::MovableRef<handle> rhs) BSLS_KEYWORD_NOEXCEPT
@@ -441,6 +315,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
     d_format_impl_p = bslmf::MovableRefUtil::move(
                            bslmf::MovableRefUtil::access(rhs).d_format_impl_p);
 }
+#endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 // ACCESSORS
 template <class t_OUT, class t_CHAR>
@@ -457,10 +332,10 @@ void basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format(
 
 // MANIPULATORS
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 // BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
 // BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
 // bslstl_variant.h
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 template <class t_OUT, class t_CHAR>
 template <class t_VISITOR>
 decltype(auto) basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(
@@ -645,8 +520,6 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 #endif
 
-
-
 // CREATORS
 template <class t_OUT, class t_CHAR>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg()
@@ -662,6 +535,40 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
     return BoolType::makeValue(
                              !bsl::holds_alternative<bsl::monostate>(d_value));
 }
+
+// FREE FUNCTIONS
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class t_CONTEXT, class... t_FMTARGS>
+void Format_MakeFormatArgArray(
+       bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
+       t_FMTARGS&...                                                  fmt_args)
+{
+    // Use the form of braced initialization that is valid in C++03
+    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> tmp = {
+        {basic_format_arg<t_CONTEXT>(fmt_args)...}};
+    out->swap(tmp);
+}
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
+// BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
+// BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
+// bslstl_variant.h
+template <class t_VISITOR, class t_CONTEXT>
+decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
+                                basic_format_arg<t_CONTEXT> arg)
+{
+    return arg.visit(std::forward<t_VISITOR>(visitor));
+}
+#else
+template <class t_VISITOR, class t_CONTEXT>
+typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
+visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
+{
+    return arg.visit(visitor);
+}
+#endif
 
 }  // close namespace bslfmt
 } // close enterprise namespace

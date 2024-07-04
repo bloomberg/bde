@@ -1,6 +1,8 @@
 bslfmt_format
 bslfmt_formatarg
 bslfmt_formatarg_cpp03
+bslfmt_formatargs
+bslfmt_formatargs_cpp03
 bslfmt_formatcontext
 bslfmt_formaterror
 bslfmt_formatimp
