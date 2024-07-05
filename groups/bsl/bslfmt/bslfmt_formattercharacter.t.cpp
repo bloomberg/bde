@@ -1,5 +1,5 @@
-// bslstl_formatterbase.t.cpp                                         -*-C++-*-
-#include <bslfmt_formatterbase.h>
+// bslstl_formattercharacter.t.cpp                                    -*-C++-*-
+#include <bslfmt_formattercharacter.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -91,6 +91,10 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
+
+        bsl::formatter<char, char>                  dummy1;
+        bsl::formatter<wchar_t, wchar_t>     dummy2;
+
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

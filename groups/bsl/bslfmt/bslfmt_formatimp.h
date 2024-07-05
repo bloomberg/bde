@@ -29,12 +29,18 @@
 #include <bslstl_variant.h>
 
 #include <bslfmt_formaterror.h>
-#include <bslfmt_formatterbase.h>
 #include <bslfmt_formatarg.h>
 #include <bslfmt_formatargs.h>
 #include <bslfmt_formatcontext.h>
 #include <bslfmt_formatparsecontext.h>
 #include <bslfmt_formatstring.h>
+
+#include <bslfmt_formatterbase.h>
+#include <bslfmt_formattercharacter.h>
+#include <bslfmt_formatterintegral.h>
+#include <bslfmt_formatterfloating.h>
+#include <bslfmt_formatterpointer.h>
+#include <bslfmt_formatterstring.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
