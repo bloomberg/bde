@@ -42,6 +42,12 @@ using bsl::memcmp;
 using bsl::strncmp;
 using bsl::strncpy;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
+
 // ============================================================================
 //                                  TEST PLAN
 // ----------------------------------------------------------------------------
@@ -4679,7 +4685,7 @@ int main(int argc, char *argv[])
 
                 ++iter;
                 if (iter == TZ.endTransitions()) {
-                    LOOP_ASSERT(ti, !"Unexpected number of transitions");
+                    LOOP_ASSERT(ti, 0 == "Unexpected number of transitions");
                     continue;
                 }
 
@@ -4717,7 +4723,7 @@ int main(int argc, char *argv[])
 
                 ++iter;
                 if (iter == TZ.endTransitions()) {
-                    LOOP_ASSERT(ti, !"Unexpected number of transitions");
+                    LOOP_ASSERT(ti, 0 == "Unexpected number of transitions");
                     continue;
                 }
 
@@ -4762,7 +4768,7 @@ int main(int argc, char *argv[])
 
                 --iter;
                 if (iter == TZ.beginTransitions()) {
-                    LOOP_ASSERT(ti, !"Unexpected number of transitions");
+                    LOOP_ASSERT(ti, 0 == "Unexpected number of transitions");
                     continue;
                 }
 
@@ -4808,7 +4814,7 @@ int main(int argc, char *argv[])
 
                 --iter;
                 if (iter == TZ.beginTransitions()) {
-                    LOOP_ASSERT(ti, !"Unexpected number of transitions");
+                    LOOP_ASSERT(ti, 0 == "Unexpected number of transitions");
                     continue;
                 }
 

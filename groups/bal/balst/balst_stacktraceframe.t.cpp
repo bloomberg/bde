@@ -1865,7 +1865,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
                         continue;
                       } break;
                     }
@@ -3250,7 +3250,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP2_ASSERT(LINE, CONFIG, !"Bad allocator config.");
+                        LOOP2_ASSERT(LINE, CONFIG, 0 == "Bad allocator config.");
                         continue;
                       } break;
                     }
@@ -3674,7 +3674,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
                 continue;
               } break;
             }

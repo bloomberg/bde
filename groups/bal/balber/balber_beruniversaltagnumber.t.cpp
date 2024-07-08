@@ -35,9 +35,11 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslmf_conditional.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_iosfwd.h>
@@ -55,6 +57,12 @@ using bsl::endl;
 using bsl::ends;
 using bsl::flush;
 namespace test = BloombergLP::s_baltst;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wuninitialized-const-reference"
+#endif
+#endif
 
 // ============================================================================
 //                                 TEST PLAN

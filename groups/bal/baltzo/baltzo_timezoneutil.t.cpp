@@ -2957,7 +2957,7 @@ int main(int argc, char *argv[])
                                                              TZID));
                       } break;
                       default: {
-                        LOOP2_ASSERT(LINE, CONFIG, !"Bad test config.");
+                        LOOP2_ASSERT(LINE, CONFIG, 0 == "Bad test config.");
                       } break;
                     }
 

@@ -1039,7 +1039,7 @@ int main(int argc, char *argv[])
                         done = true;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG,
@@ -2414,7 +2414,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     LOOP2_ASSERT(LINE, CONFIG,
@@ -3532,7 +3532,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP2_ASSERT(LINE, CONFIG, !"Bad allocator config.");
+                        LOOP2_ASSERT(LINE, CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     LOOP2_ASSERT(LINE, CONFIG,
@@ -3875,7 +3875,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 

@@ -347,7 +347,6 @@ class StandardMacroConcurrencyTest {
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
     Corp::bslmt::Barrier          d_barrier;
-    Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -360,7 +359,6 @@ class StandardMacroConcurrencyTest {
                                  Corp::bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
-    , d_allocator_p(basicAllocator)
     {
         d_pool.start();
     }
@@ -494,7 +492,6 @@ class DynamicMacroConcurrencyTest {
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
     Corp::bslmt::Barrier          d_barrier;
-    Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -506,7 +503,6 @@ class DynamicMacroConcurrencyTest {
                                 Corp::bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
-    , d_allocator_p(basicAllocator)
     {
         d_pool.start();
     }
@@ -802,7 +798,6 @@ class StandardIntMacroConcurrencyTest {
     // DATA
     Corp::bdlmt::FixedThreadPool   d_pool;
     Corp::bslmt::Barrier           d_barrier;
-    Corp::bslma::Allocator        *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -815,7 +810,6 @@ class StandardIntMacroConcurrencyTest {
                                     Corp::bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
-    , d_allocator_p(basicAllocator)
     {
         d_pool.start();
     }
@@ -950,7 +944,6 @@ class DynamicIntMacroConcurrencyTest {
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
     Corp::bslmt::Barrier          d_barrier;
-    Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -962,7 +955,6 @@ class DynamicIntMacroConcurrencyTest {
                                    Corp::bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
-    , d_allocator_p(basicAllocator)
     {
         d_pool.start();
     }

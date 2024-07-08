@@ -5,9 +5,12 @@
 #include <bdlt_dateutil.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -22,6 +25,12 @@ using namespace BloombergLP;
 using bsl::cout;
 using bsl::endl;
 using bsl::flush;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+#endif
+#endif
 
 // ============================================================================
 //                                  TEST PLAN

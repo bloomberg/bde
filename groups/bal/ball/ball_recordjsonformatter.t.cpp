@@ -2146,12 +2146,12 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE, SPEC, SPEC == X.format());
             ASSERTV(LINE, RSEP, RSEP == X.recordSeparator());
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
             ASSERTV(LINE, SPEC, &oa == X.allocator());
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 # pragma GCC diagnostic pop
 #endif
             ASSERTV(LINE, SPEC, &oa == X.get_allocator());

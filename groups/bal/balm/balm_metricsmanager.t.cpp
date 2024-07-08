@@ -2053,7 +2053,7 @@ int main(int argc, char *argv[])
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
-        const char *METRICS[] = { "A", "B", "C", "MyMetric" "90123metric" };
+        const char *METRICS[] = { "A", "B", "C", "MyMetric", "90123metric" };
         const int   NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
         typedef bsl::shared_ptr<TestCallback> CbPtr;
@@ -2119,7 +2119,7 @@ int main(int argc, char *argv[])
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
-        const char *METRICS[] = { "A", "B", "C", "MyMetric" "90123metric" };
+        const char *METRICS[] = { "A", "B", "C", "MyMetric", "90123metric" };
         const int NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
         // Create a map, from metric id to 'TestCallback' functor.
@@ -2357,7 +2357,7 @@ int main(int argc, char *argv[])
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
-        const char *METRICS[] = { "A", "B", "C", "MyMetric" "90123metric" };
+        const char *METRICS[] = { "A", "B", "C", "MyMetric", "90123metric" };
         const int NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
         // Create a map, from metric id to 'TestCallback' functor.
@@ -3771,7 +3771,7 @@ int main(int argc, char *argv[])
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
-        const char *METRICS[] = { "A", "B", "C", "MyMetric" "90123metric" };
+        const char *METRICS[] = { "A", "B", "C", "MyMetric", "90123metric" };
         const int NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
         // Create a map, from metric id to 'TestCallback' functor.

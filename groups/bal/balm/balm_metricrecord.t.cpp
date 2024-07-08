@@ -3,6 +3,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
@@ -17,6 +19,12 @@ using namespace BloombergLP;
 using bsl::cout;
 using bsl::endl;
 using bsl::flush;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+#endif
+#endif
 
 // ============================================================================
 //                                  TEST PLAN

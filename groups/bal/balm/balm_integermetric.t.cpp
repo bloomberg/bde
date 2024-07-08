@@ -154,11 +154,10 @@ class MetricConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool              d_pool;
-    balm::IntegerMetric                *d_metric;
-    balm::MetricRegistry               *d_registry;
-    bslmt::Barrier                      d_barrier;
-    BSLA_MAYBE_UNUSED bslma::Allocator *d_allocator_p;
+    bdlmt::FixedThreadPool  d_pool;
+    balm::IntegerMetric    *d_metric;
+    balm::MetricRegistry   *d_registry;
+    bslmt::Barrier          d_barrier;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -175,7 +174,6 @@ class MetricConcurrencyTest {
     , d_metric(metric)
     , d_registry(registry)
     , d_barrier(numThreads)
-    , d_allocator_p(basicAllocator)
     {
         d_pool.start();
     }

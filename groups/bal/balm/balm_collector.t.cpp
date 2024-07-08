@@ -114,10 +114,9 @@ class ConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool              d_pool;
-    bslmt::Barrier                      d_barrier;
-    balm::Collector                    *d_collector_p;
-    BSLA_MAYBE_UNUSED bslma::Allocator *d_allocator_p;
+    bdlmt::FixedThreadPool  d_pool;
+    bslmt::Barrier          d_barrier;
+    balm::Collector        *d_collector_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -132,7 +131,6 @@ class ConcurrencyTest {
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_collector_p(collector)
-    , d_allocator_p(basicAllocator)
     {
         d_pool.start();
     }
