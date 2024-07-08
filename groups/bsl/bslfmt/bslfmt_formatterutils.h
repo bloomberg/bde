@@ -1,7 +1,7 @@
-// bslfmt_formatterbase.h                                             -*-C++-*-
+// bslfmt_formatterutils.h                                            -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATTERBASE
-#define INCLUDED_BSLFMT_FORMATTERBASE
+#ifndef INCLUDED_BSLFMT_FORMATTERUTILS
+#define INCLUDED_BSLFMT_FORMATTERUTILS
 
 #include <bslscm_version.h>
 
@@ -27,70 +27,7 @@
 
 #include <stdio.h>    // for 'snprintf'
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatImp_PreventStdPromotion
-#else
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20
-#endif
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP23                      \
-    typedef void FormatImp_PreventStdPromotion
-#else
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP23
-#endif
-
-
-namespace bsl {
-template <class t_ARG, class t_CHAR = char>
-struct formatter {
-  public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
-  private:
-    // NOT IMPLEMENTED
-    formatter(const formatter&) BSLS_KEYWORD_DELETED;
-    formatter& operator=(const formatter&) BSLS_KEYWORD_DELETED;
-};
-}  // close namespace bsl
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-
-namespace BloombergLP {
-namespace bslfmt {
-
-template <class t_FORMATTER, class = void>
-struct Formatter_IsStdAliasingEnabled : bsl::true_type {
-};
-
-template <class t_FORMATTER>
-struct Formatter_IsStdAliasingEnabled<
-    t_FORMATTER,
-    typename t_FORMATTER::Formatter_PreventStdPromotion> : bsl::false_type {
-};
-
-}  // close namespace bslfmt
-}  // close enterprise namespace
-
-namespace std {
-
-template <class t_ARG, class t_CHAR>
-struct formatter;
-
-template <class t_ARG, class t_CHAR>
-requires(
-    BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
-        bsl::formatter<t_ARG, t_CHAR> >::value
-)
-struct formatter<t_ARG, t_CHAR>
-: bsl::formatter<t_ARG, t_CHAR> {};
-
-}  // close namespace std
-#endif
-
-#if 0
 namespace BloombergLP {
 namespace bslfmt {
 
@@ -172,8 +109,6 @@ struct Formatter_CharUtils<wchar_t> {
 
 }  // close namespace bslfmt
 }  // close enterprise namespace
-#endif
-
 
 #endif  // INCLUDED_BSLFMT_FORMATTERBASE
 

@@ -10,8 +10,10 @@ bslfmt_formatimp_cpp03
 bslfmt_formatparsecontext
 bslfmt_formatstring
 bslfmt_formatterbase
+bslfmt_formatterbool
 bslfmt_formattercharacter
 bslfmt_formatterfloating
 bslfmt_formatterintegral
 bslfmt_formatterpointer
 bslfmt_formatterstring
+bslfmt_formatterutils

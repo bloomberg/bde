@@ -1,12 +1,13 @@
-// bslfmt_formatterfloating.h                                         -*-C++-*-
+// bslfmt_formatterbase.h                                             -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATTERFLOATING
-#define INCLUDED_BSLFMT_FORMATTERFLOATING
+#ifndef INCLUDED_BSLFMT_FORMATTERBOOL
+#define INCLUDED_BSLFMT_FORMATTERBOOL
 
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isarithmetic.h>
 #include <bslmf_issame.h>
@@ -21,6 +22,7 @@
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formatterintegral.h>
 #include <bslfmt_formatterutils.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
@@ -28,11 +30,12 @@
 
 #include <stdio.h>    // for 'snprintf'
 
-namespace BloombergLP {
-namespace bslfmt {
 
-template <class t_VALUE, class t_CHAR>
-struct Formatter_FloatingBase {
+namespace bsl {
+// FORMATTER SPECIALIZATIONS
+
+template <class t_CHAR>
+struct formatter<bool, t_CHAR> {
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
@@ -49,40 +52,18 @@ struct Formatter_FloatingBase {
     }
 
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(t_VALUE           x,
+    typename t_FORMAT_CONTEXT::iterator format(bool            v,
                                                t_FORMAT_CONTEXT& fc) const
     {
-        typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
-        char  buf[NFUtil::ToCharsMaxLength<double>::k_VALUE];
-        char *result = NFUtil::toChars(buf, buf + sizeof(buf), (double)x);
+        const char *buf = v ? "1" : "0";
+
         return BloombergLP::bslfmt::Formatter_CharUtils<
-            t_CHAR>::outputFromChar(buf, result, fc.out());
+            t_CHAR>::outputFromChar(buf, buf + 1, fc.out());
     }
 };
 
-}  // close namespace bslfmt
-}  // close enterprise namespace
-
-namespace bsl {
-// FORMATTER SPECIALIZATIONS
-
-template <class t_CHAR>
-struct formatter<float, t_CHAR>
-: BloombergLP::bslfmt::Formatter_FloatingBase<float, t_CHAR> {
-};
-
-template <class t_CHAR>
-struct formatter<double, t_CHAR>
-: BloombergLP::bslfmt::Formatter_FloatingBase<double, t_CHAR> {
-};
-
-template <class t_CHAR>
-struct formatter<long double, t_CHAR>
-: BloombergLP::bslfmt::Formatter_FloatingBase<long double, t_CHAR> {
-};
-
-
 }
+
 
 #endif  // INCLUDED_BSLFMT_FORMATTERBASE
 

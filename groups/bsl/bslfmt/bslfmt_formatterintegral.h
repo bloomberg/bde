@@ -21,6 +21,7 @@
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formatterutils.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
@@ -55,7 +56,7 @@ struct Formatter_IntegerBase {
         char  buf[NFUtil::ToCharsMaxLength<t_VALUE>::k_VALUE];
         char *result = NFUtil::toChars(buf, buf + sizeof(buf), x);
         return BloombergLP::bslfmt::Formatter_CharUtils<
-            t_CHAR>::outputFromChar(buf, result, fc);
+            t_CHAR>::outputFromChar(buf, result, fc.out());
     }
 };
 

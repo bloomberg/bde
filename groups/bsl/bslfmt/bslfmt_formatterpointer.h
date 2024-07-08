@@ -21,6 +21,7 @@
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formatterutils.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
@@ -58,7 +59,7 @@ struct formatter<const void *, t_CHAR> {
             BSLS_THROW(bsl::format_error("buffer overflow"));
 
         return BloombergLP::bslfmt::Formatter_CharUtils<
-            t_CHAR>::outputFromChar(buf, buf + req, fc);
+            t_CHAR>::outputFromChar(buf, buf + req, fc.out());
     }
 };
 

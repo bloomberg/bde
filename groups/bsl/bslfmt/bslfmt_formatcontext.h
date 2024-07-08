@@ -7,6 +7,7 @@
 
 #include <bslalg_numericformatterutil.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_conditional.h>
 #include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
@@ -41,6 +42,9 @@ class Format_OutputIteratorBase {
     virtual void put(t_VALUE) = 0;
 };
 
+struct Dummy {
+};
+
 template <class t_VALUE, class t_ITER>
 class Format_OutputIteratorImpl
 : public Format_OutputIteratorBase<t_VALUE> {
@@ -53,6 +57,12 @@ class Format_OutputIteratorImpl
     Format_OutputIteratorImpl(t_ITER& iter)
     : d_iter(iter)
     {
+        typedef typename bsl::iterator_traits<t_ITER>::value_type valuetype;
+        
+        // We allow void because the standard library
+        // `back_insert_iterator` has a `value_type` of `void`.
+        BSLMF_ASSERT((bsl::is_same<valuetype, void>::value || \
+                      bsl::is_same<valuetype, t_VALUE>::value));
     }
 
     // MANIPULATORS
@@ -72,13 +82,12 @@ class Format_OutputIteratorRef {
     // TYPES
     typedef bsl::output_iterator_tag iterator_category;
     typedef void                     difference_type;
-    typedef void                     value_type;
+    typedef t_VALUE                  value_type;
     typedef void                     reference;
     typedef void                     pointer;
 
     // CREATORS
-    Format_OutputIteratorRef(
-                               Format_OutputIteratorBase<t_VALUE> *base)
+    Format_OutputIteratorRef(Format_OutputIteratorBase<t_VALUE> *base)
     : d_base_p(base)
     {
     }
@@ -144,9 +153,8 @@ class basic_format_context {
   private:
     // PRIVATE CREATORS
 
-    basic_format_context(
-                      t_OUT                                               out,
-                      const basic_format_args<basic_format_context> &args)
+    basic_format_context(t_OUT                                          out,
+                         const basic_format_args<basic_format_context>& args)
     : d_args(args)
     , d_out(out)
     {

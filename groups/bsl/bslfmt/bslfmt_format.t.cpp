@@ -294,6 +294,7 @@ int main(int argc, char **argv)
 
         check(bsl::format("{}", y),
               "2");
+        check(bsl::format("{}", 'x'), "x");
         check(bsl::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
         check(bsl::format(L"{}", L"Hello World"),

@@ -27,9 +27,79 @@
 
 #include <stdio.h>    // for 'snprintf'
 
+namespace BloombergLP {
+namespace bslfmt {
+
+template <class t_VALUE, class t_CHAR, class t_DERIVED>
+struct Formatter_CharacterBase {
+  public:
+    // TRAITS
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // MANIPULATORS
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                           t_PARSE_CONTEXT& pc)
+    {
+        if (pc.begin() != pc.end() && *pc.begin() != '}') {
+            BSLS_THROW(bsl::format_error("not implemented"));
+        }
+        return pc.begin();
+    }
+
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(t_VALUE           x,
+                                               t_FORMAT_CONTEXT& fc) const
+    {
+        typename t_FORMAT_CONTEXT::iterator o = fc.out();
+
+        t_DERIVED::doCharOutput(&o, x);
+
+        return o;
+    }
+};
+
+}  // close namespace bslfmt
+}  // close enterprise namespace
+
 namespace bsl {
 // FORMATTER SPECIALIZATIONS
 
+template <class t_CHAR>
+struct formatter<t_CHAR, t_CHAR> 
+: public BloombergLP::bslfmt::
+      Formatter_CharacterBase<t_CHAR, t_CHAR, formatter<t_CHAR, t_CHAR> > {
+  private:
+    // FRIENDS
+    template <class t_INNER_VALUE, class t_INNER_CHAR, class t_INNER_DERIVED>
+    friend struct BloombergLP::bslfmt::Formatter_CharacterBase;
+
+    // PRIVATE MANIPULATORS
+    template <class t_ITERATOR>
+    static void doCharOutput(t_ITERATOR *o, t_CHAR x)
+    {
+        *(*o)++ = x;
+    }
+};
+
+template<>
+struct formatter<char, wchar_t>
+: public BloombergLP::bslfmt::
+      Formatter_CharacterBase<char, wchar_t, formatter<char, wchar_t> > {
+  private:
+    // FRIENDS
+    template <class t_INNER_VALUE, class t_INNER_CHAR, class t_INNER_DERIVED>
+    friend struct BloombergLP::bslfmt::Formatter_CharacterBase;
+
+    // PRIVATE MANIPULATORS
+    template <class t_ITERATOR>
+    static void doCharOutput(t_ITERATOR *o, char x)
+    {
+        *(*o)++ = x;
+    }
+};
+
+#if 0
 template <class t_CHAR>
 struct formatter<t_CHAR, t_CHAR> {
   public:
@@ -57,6 +127,7 @@ struct formatter<t_CHAR, t_CHAR> {
         return o;
     }
 };
+#endif
 
 
 }

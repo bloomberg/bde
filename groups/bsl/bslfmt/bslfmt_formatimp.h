@@ -36,11 +36,13 @@
 #include <bslfmt_formatstring.h>
 
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formatterbool.h>
 #include <bslfmt_formattercharacter.h>
 #include <bslfmt_formatterintegral.h>
 #include <bslfmt_formatterfloating.h>
 #include <bslfmt_formatterpointer.h>
 #include <bslfmt_formatterstring.h>
+#include <bslfmt_formatterutils.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
