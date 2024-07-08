@@ -16072,6 +16072,54 @@ int main(int argc, char *argv[])
             LOOP3_ASSERT(LINE, LEN, numBytesConsumed,
                          LEN == numBytesConsumed);
         }
+
+        if (verbose) { cout << "\nDecode truncated string" << endl; }
+        {
+            const int length = 1024;  // the claimed length
+            bdlsb::MemOutStreamBuf osb;
+            ASSERT(SUCCESS == Util::putLength(&osb, length));
+            // Write 'length - 10' bytes
+            ASSERT(length > 10);
+            for (int n = length - 10; n > 0; --n) {
+                ASSERT(osb.sputc('X') == 'X');
+            }
+
+            int numBytesConsumed = 0;
+            bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+            bsl::string val;
+            ASSERT(SUCCESS != Util::getValue(&isb, &val, &numBytesConsumed));
+        }
+
+        static const int notHugeStringMax = 16 * 1024 * 1024;  // 16 MB
+
+        if (verbose) { cout << "\nDecode huge string" << endl; }
+        {
+            const bsl::string hugeStr(notHugeStringMax + 256, 'X');
+            bdlsb::MemOutStreamBuf osb;
+            ASSERT(0 == Util::putValue(&osb, hugeStr));
+
+            int numBytesConsumed = 0;
+            bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+            bsl::string val;
+            ASSERT(SUCCESS == Util::getValue(&isb, &val, &numBytesConsumed));
+            ASSERT(val.length() == hugeStr.length());
+            ASSERT(val == hugeStr);
+        }
+
+        if (verbose) { cout << "\nDecode truncated huge string" << endl; }
+        {
+            bdlsb::MemOutStreamBuf osb;
+            ASSERT(SUCCESS == Util::putLength(&osb, notHugeStringMax + 20));
+            // Write 10 bytes less than claimed
+            for (int n = notHugeStringMax + 10; n > 0; --n) {
+                ASSERT(osb.sputc('X') == 'X');
+            }
+
+            int numBytesConsumed = 0;
+            bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+            bsl::string val;
+            ASSERT(SUCCESS != Util::getValue(&isb, &val, &numBytesConsumed));
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------

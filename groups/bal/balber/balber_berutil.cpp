@@ -84,6 +84,45 @@ const u::Uint64 BerUtil_64BitFloatingPointMasks::
 const u::Uint64 BerUtil_64BitFloatingPointMasks::k_DOUBLE_SIGN_MASK =
                                                          0x8000000000000000ULL;
 
+                   // =====================
+                   // class ReadRestFunctor
+                   // =====================
+
+class ReadRestFunctor {
+    // A functor for 'string::resize_and_overwrite'.  Appends read bytes to the
+    // buffer.
+
+    // DATA
+    bsl::streambuf  *d_streamBuf;
+    int              d_oldSize;
+  public:
+    // CREATORS
+    ReadRestFunctor(bsl::streambuf *streamBuf, int oldSize);
+
+    // MODIFIERS
+    size_t operator()(char *buf, size_t newSize);
+};
+
+                   // ---------------------
+                   // class ReadRestFunctor
+                   // ---------------------
+
+// CREATORS
+ReadRestFunctor::ReadRestFunctor(bsl::streambuf *streamBuf, int oldSize)
+: d_streamBuf(streamBuf)
+, d_oldSize(oldSize)
+{
+}
+
+// MODIFIERS
+size_t ReadRestFunctor::operator()(char *buf, size_t newSize)
+{
+    bsl::streamsize nRead = d_streamBuf->sgetn(
+                                        buf + d_oldSize,
+                                        static_cast<int>(newSize) - d_oldSize);
+    return static_cast<size_t>(d_oldSize + nRead);
+}
+
 // FREE FUNCTIONS
 void warnOnce()
     // The first time this is called, issue an explanatory warning.
@@ -1084,12 +1123,29 @@ int BerUtil_StringImpUtil::getStringValue(bsl::string              *value,
         return -1;                                                    // RETURN
     }
 
-    value->resize_and_overwrite(
-        length,
-        bdlf::MemFnUtil::memFn(&bsl::streambuf::sgetn, streamBuf));
+    static const int maxInitialAllocation = 16 * 1024 * 1024;  // 16 MB
 
-    if (static_cast<bsl::string::size_type>(length) != value->size()) {
+    // 'length' could be corrupt or invalid, so we limit the initial buffer.
+    // On success the remaining bytes are read via a second pass.
+    int initialLength = length < maxInitialAllocation ? length
+                                                      : maxInitialAllocation;
+
+    // Read no more than 'maxInitialAllocation'
+    value->resize_and_overwrite(initialLength,
+                                bdlf::MemFnUtil::memFn(&bsl::streambuf::sgetn,
+                                                       streamBuf));
+    if (static_cast<size_t>(initialLength) != value->size()) {
         return -1;                                                    // RETURN
+    }
+
+    if (length > initialLength) {
+        // 'length' > 'maxInitialAllocation'.  Read the rest.
+        value->resize_and_overwrite(length,
+                                    u::ReadRestFunctor(streamBuf,
+                                                       initialLength));
+        if (static_cast<size_t>(length) != value->size()) {
+            return -1;                                                // RETURN
+        }
     }
 
     return 0;
