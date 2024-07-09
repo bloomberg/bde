@@ -1363,7 +1363,7 @@ typename TimeQueue<DATA>::Node *TimeQueue<DATA>::getNodeFromHandle(
                                                               Key    key) const
 {
     unsigned int uhandle = static_cast<unsigned int>(handle) & d_indexMask;
-    if (0 == uhandle) {
+    if (0 == uhandle || uhandle > d_nodeArray.size()) {
         return 0;                                                     // RETURN
     }
     Node *node = d_nodeArray[uhandle - 1];
