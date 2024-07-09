@@ -319,9 +319,9 @@ wstring vformat(allocator<wchar_t> alloc,
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
-void format_to(                               t_STRING                 *out,
-                                              format_string<t_ARGS...>  fmtstr,
-                                              t_ARGS&&...               args);
+void format_to(t_STRING                 *out,
+               format_string<t_ARGS...>  fmtstr,
+               t_ARGS&&...               args);
     // Format the specified `args` according to the specification given by the
     // specified `fmtstr` in the locale of the specified `loc`, and write the
     // result of this operation into the string addressed by the specified
@@ -331,9 +331,9 @@ void format_to(                               t_STRING                 *out,
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
-void format_to(                              t_STRING                  *out,
-                                             wformat_string<t_ARGS...>  fmtstr,
-                                             t_ARGS&&...                args);
+void format_to(t_STRING                  *out,
+               wformat_string<t_ARGS...>  fmtstr,
+               t_ARGS&&...                args);
     // Format the specified `args` according to the specification given by the
     // specified `fmtstr` in the locale of the specified `loc`, and write the
     // result of this operation into the string addressed by the specified
@@ -367,6 +367,21 @@ void format_to(t_STRING                  *out,
     // `out` parameter. In the event of an error the exception `format_error`
     // is thrown. Behavior is undefined if `out` does not point to a valid
     // `bsl::string` object.
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+ptrdiff_t format_to_n(t_STRING                 *out,
+                      ptrdiff_t                 n,
+                      format_string<t_ARGS...>  fmt,
+                      t_ARGS&&...               args);
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+ptrdiff_t format_to_n(t_STRING                 *out,
+                      ptrdiff_t                 n,
+                      const std::locale&        loc,
+                      format_string<t_ARGS...>  fmt,
+                      t_ARGS&&...               args);
 
 void vformat_to(string *out, std::string_view fmtstr, format_args args);
     // Format the specified `args` according to the specification given by the
@@ -410,13 +425,15 @@ void vformat_to(wstring            *out,
 template <class... t_ARGS>
 string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args)
 {
-    return bsl::vformat(fmtstr.get(), make_format_args(args...));
+    return bsl::vformat(fmtstr.get(),
+                        make_format_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class... t_ARGS>
 wstring format(wformat_string<t_ARGS...> fmtstr, t_ARGS&&... args)
 {
-    return bsl::vformat(fmtstr.get(), make_wformat_args(args...));
+    return bsl::vformat(fmtstr.get(),
+                        make_wformat_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class... t_ARGS>
@@ -424,7 +441,9 @@ string format(const std::locale&       loc,
               format_string<t_ARGS...> fmtstr,
               t_ARGS&&...              args)
 {
-    return bsl::vformat(loc, fmtstr.get(), make_format_args(args...));
+    return bsl::vformat(loc,
+                        fmtstr.get(),
+                        make_format_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class... t_ARGS>
@@ -432,7 +451,9 @@ wstring format(const std::locale&        loc,
                wformat_string<t_ARGS...> fmtstr,
                t_ARGS&&...               args)
 {
-    return bsl::vformat(loc, fmtstr.get(), make_wformat_args(args...));
+    return bsl::vformat(loc,
+                        fmtstr.get(),
+                        make_wformat_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class... t_ARGS>
@@ -440,7 +461,9 @@ string format(allocator<char>          alloc,
               format_string<t_ARGS...> fmtstr,
               t_ARGS&&...              args)
 {
-    return bsl::vformat(alloc, fmtstr.get(), make_format_args(args...));
+    return bsl::vformat(alloc,
+                        fmtstr.get(),
+                        make_format_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class... t_ARGS>
@@ -448,7 +471,9 @@ wstring format(allocator<wchar_t>        alloc,
                wformat_string<t_ARGS...> fmtstr,
                t_ARGS&&...               args)
 {
-    return bsl::vformat(alloc, fmtstr.get(), make_wformat_args(args...));
+    return bsl::vformat(alloc,
+                        fmtstr.get(),
+                        make_wformat_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class... t_ARGS>
@@ -457,7 +482,10 @@ string format(allocator<char>          alloc,
               format_string<t_ARGS...> fmtstr,
               t_ARGS&&...              args)
 {
-    return bsl::vformat(alloc, loc, fmtstr.get(), make_format_args(args...));
+    return bsl::vformat(alloc,
+                        loc,
+                        fmtstr.get(),
+                        make_format_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class... t_ARGS>
@@ -466,7 +494,10 @@ wstring format(allocator<char>           alloc,
                wformat_string<t_ARGS...> fmtstr,
                t_ARGS&&...               args)
 {
-    return bsl::vformat(alloc, loc, fmtstr.get(), make_wformat_args(args...));
+    return bsl::vformat(alloc,
+                        loc,
+                        fmtstr.get(),
+                        make_wformat_args(std::forward<t_ARGS>(args)...));
 }
 
 inline
@@ -544,10 +575,14 @@ wstring vformat(allocator<wchar_t> alloc,
 }
 
 template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>)
-void format_to(t_STRING *out, format_string<t_ARGS...> fmtstr, t_ARGS&&...args)
+requires(bsl::is_same_v<t_STRING, bsl::string>) void format_to(
+                                              t_STRING                 *out,
+                                              format_string<t_ARGS...>  fmtstr,
+                                              t_ARGS&&...               args)
 {
-    bsl::vformat_to(out, fmtstr.get(), make_format_args(args...));
+    bsl::vformat_to(out,
+                    fmtstr.get(),
+                    make_format_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class t_STRING, class... t_ARGS>
@@ -556,7 +591,9 @@ void format_to(t_STRING                  *out,
                wformat_string<t_ARGS...>  fmtstr,
                t_ARGS&&...                args)
 {
-    bsl::vformat_to(out, fmtstr.get(), make_wformat_args(args...));
+    bsl::vformat_to(out,
+                    fmtstr.get(),
+                    make_wformat_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class t_STRING, class... t_ARGS>
@@ -566,7 +603,10 @@ void format_to(t_STRING                 *out,
                format_string<t_ARGS...>  fmtstr,
                t_ARGS&&...               args)
 {
-    bsl::vformat_to(out, loc, fmtstr.get(), make_format_args(args...));
+    bsl::vformat_to(out,
+                    loc,
+                    fmtstr.get(),
+                    make_format_args(std::forward<t_ARGS>(args)...));
 }
 
 template <class t_STRING, class... t_ARGS>
@@ -576,7 +616,42 @@ void format_to(t_STRING                  *out,
                wformat_string<t_ARGS...>  fmtstr,
                t_ARGS&&...                args)
 {
-    bsl::vformat_to(out, loc, fmtstr.get(), make_wformat_args(args...));
+    bsl::vformat_to(out,
+                    loc,
+                    fmtstr.get(),
+                    make_wformat_args(std::forward<t_ARGS>(args)...));
+}
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>) ptrdiff_t
+    format_to_n(t_STRING                 *out,
+                ptrdiff_t                 n,
+                format_string<t_ARGS...>  fmt,
+                t_ARGS&&...               args)
+{
+    out->clear();
+    auto res = format_to_n(back_inserter(*out),
+                           n,
+                           fmt,
+                           std::forward<t_ARGS>(args)...);
+    return res.size;
+}
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+ptrdiff_t format_to_n(t_STRING                 *out,
+                      ptrdiff_t                 n,
+                      const std::locale&        loc,
+                      format_string<t_ARGS...>  fmt,
+                      t_ARGS&&...               args)
+{
+    out->clear();
+    auto res = format_to_n(back_inserter(*out),
+                           n,
+                           loc,
+                           fmt,
+                           std::forward<t_ARGS>(args)...);
+    return res.size;
 }
 
 inline

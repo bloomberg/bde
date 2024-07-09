@@ -300,13 +300,37 @@ int main(int argc, char **argv)
               "Here is a simple equation: 1 + 2 = 3");
         check(bsl::format(L"{}", L"Hello World"),
               L"Hello World");
-        bsl::string temp;
-        int         count = 5;
-        bsl::format_to(&temp, "{}", "Hello World");
-        ASSERT(5 == count);
-        check(temp, "Hello");
-        char temp2[64];
-        bsl::format_to(temp2, "{}", "Hello World");
+        {
+            bsl::string temp;
+            int         count = 11;
+            bsl::format_to(&temp, "{}", "Hello World");
+            ASSERT(11 == count);
+            check(temp, "Hello World");
+            count = bsl::format_to_n(&temp, 5, "{}", "Hello World");
+            const char *test = temp.c_str();
+            ASSERT(11 == count);
+            check(temp, "Hello");
+            char temp2[64];
+            char *it = bsl::format_to(temp2, "{}", "Hello World");
+            *it      = 0;
+            check(bsl::string(temp2), "Hello World");
+            auto result = bsl::format_to_n(temp2, 5, "{}", "Hello World");
+            *result.out = 0;
+            ASSERT(11 == result.size);
+            check(bsl::string(temp2), "Hello");
+        }
+        {
+            bsl::string temp;
+            int         count = 11;
+            bsl::vformat_to(&temp, "{}", make_format_args("Hello World"));
+            ASSERT(11 == count);
+            check(temp, "Hello World");
+            ASSERT(11 == count);
+            char temp2[64];
+            char * it = bsl::vformat_to(temp2, "{}", make_format_args("Hello World"));
+            *it      = 0;
+            check(bsl::string(temp2), "Hello World");
+        }
         //std::formatter<bsl::string, char> dummy;
         DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
                     "{}: {} + {} = {}",
