@@ -20,6 +20,7 @@ bdlma_guardingallocator
 bdlma_heapbypassallocator
 bdlma_infrequentdeleteblocklist
 bdlma_localbufferedobject
+bdlma_localbufferedobject_cpp03
 bdlma_localsequentialallocator
 bdlma_managedallocator
 bdlma_memoryblockdescriptor
