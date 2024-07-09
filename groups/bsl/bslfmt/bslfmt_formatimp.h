@@ -44,6 +44,10 @@
 #include <bslfmt_formatterstring.h>
 #include <bslfmt_formatterutils.h>
 
+#include <iterator>             // 'back_insert_iterator'
+
+#include <stddef.h>             // 'size_t', 'ptrdiff_t'
+
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
 // Generated on Tue Jun 18 08:08:38 2024
@@ -67,27 +71,27 @@
 namespace BloombergLP {
 namespace bslfmt {
 
-template <class t_ITERATOR>
+template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
 class Format_TruncatingIterator {
   private:
     // TYPES
     typedef typename bsl::iterator_traits<t_ITERATOR>::difference_type DT;
 
     // DATA
-    t_ITERATOR d_iterator;
-    DT         d_limit;
-    DT         d_count;
+    t_ITERATOR  d_iterator;
+    t_DIFF_TYPE d_limit;
+    t_DIFF_TYPE d_count;
 
   public:
     // TYPES
     typedef bsl::output_iterator_tag iterator_category;
-    typedef void                     difference_type;
-    typedef void                     value_type;
+    typedef t_DIFF_TYPE              difference_type;
+    typedef t_VALUE_TYPE             value_type;
     typedef void                     reference;
     typedef void                     pointer;
 
     // CREATORS
-    Format_TruncatingIterator(t_ITERATOR iterator, DT limit)
+    Format_TruncatingIterator(t_ITERATOR iterator, t_DIFF_TYPE limit)
     : d_iterator(iterator)
     , d_limit(limit)
     , d_count(0)
@@ -100,7 +104,7 @@ class Format_TruncatingIterator {
         return *this;
     }
 
-    void operator=(typename bsl::iterator_traits<t_ITERATOR>::value_type x)
+    void operator=(t_VALUE_TYPE x)
     {
         if (d_count++ < d_limit) {
             *d_iterator++ = x;
@@ -118,7 +122,7 @@ class Format_TruncatingIterator {
     }
 
     // ACCESSORS
-    DT count() const
+    t_DIFF_TYPE count() const
     {
         return d_count;
     }
@@ -129,11 +133,15 @@ class Format_TruncatingIterator {
     }
 };
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+using std::format_to_n_result;
+#else
 template <class t_OUT>
 struct format_to_n_result {
     t_OUT                                                 out;
     typename bsl::iterator_traits<t_OUT>::difference_type size;
 };
+#endif
 
 template <class t_OUT, class t_CHAR>
 struct Format_FormatVisitor {
@@ -473,6 +481,39 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
     return it.count();
 }
 
+template <class... t_ARGS>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS&...                args)
+{
+    if (n < 0)
+        n = 0;
+    typedef std::back_insert_iterator<bsl::string> underlying_iterator;
+    underlying_iterator bit = std::back_inserter(*out);
+    Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t> it(out, n);
+    //Format_TruncatingIterator<underlying_iterator> it(out, n);
+    format_to(it, fmtstr, args...);
+    return it.count();
+}
+
+template <class... t_ARGS>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS&...                 args)
+{
+    if (n < 0)
+        n = 0;
+    typedef std::back_insert_iterator<bsl::wstring> underlying_iterator;
+    underlying_iterator bit = std::back_inserter(*out);
+    Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                                                                  it(out, n);
+    //Format_TruncatingIterator<underlying_iterator> it(out, n);
+    format_to(it, fmtstr, args...);
+    return it.count();
+}
+
 template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT> format_to_n(
                   t_OUT                                                 out,
@@ -482,7 +523,11 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
+    Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        it(out, n);
     format_to(it, fmtstr, args...);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();
@@ -499,7 +544,11 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
+    Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        it(out, n);
     format_to(it, fmtstr, args...);
     format_to_n_result<t_OUT> result;
     result.out  = it.underlying();

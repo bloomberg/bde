@@ -211,12 +211,13 @@ struct formatter<FormattableType, char> {
 #if 1
 template <>
 struct formatter<FormattableType, char> {
-    bsl::formatter<int, char> d_formatter;
+    bsl::formatter<int, char> d_formatter_bsl;
+    std::formatter<int, char> d_formatter_std;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
                                                       bslfmt::format_parse_context& pc)
     {
-        return d_formatter.parse(pc);
+        return d_formatter_bsl.parse(pc);
     }
 
     template <class t_OUT>
@@ -228,7 +229,7 @@ struct formatter<FormattableType, char> {
         out = std::copy(name, name + strlen(name), out);
         *out++ = '{';
         fc.advance_to(out);
-        out = d_formatter.format(value.x, fc);
+        out    = d_formatter_bsl.format(value.x, fc);
         *out++ = '}';
         return out;
     }
@@ -237,7 +238,7 @@ struct formatter<FormattableType, char> {
     BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
                                                       std::format_parse_context& pc)
     {
-        return d_formatter.parse(pc);
+        return d_formatter_std.parse(pc);
     }
 
     template <class t_OUT>
@@ -249,7 +250,7 @@ struct formatter<FormattableType, char> {
         out               = std::copy(name, name + strlen(name), out);
         *out++            = '{';
         fc.advance_to(out);
-        out    = d_formatter.format(value.x, fc);
+        out    = d_formatter_std.format(value.x, fc);
         *out++ = '}';
         return out;
     }
@@ -299,6 +300,13 @@ int main(int argc, char **argv)
               "Here is a simple equation: 1 + 2 = 3");
         check(bsl::format(L"{}", L"Hello World"),
               L"Hello World");
+        bsl::string temp;
+        int         count = 5;
+        bsl::format_to(&temp, "{}", "Hello World");
+        ASSERT(5 == count);
+        check(temp, "Hello");
+        char temp2[64];
+        bsl::format_to(temp2, "{}", "Hello World");
         //std::formatter<bsl::string, char> dummy;
         DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
                     "{}: {} + {} = {}",

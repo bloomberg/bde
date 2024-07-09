@@ -37,6 +37,8 @@ struct Formatter_CharUtils {
     // CLASS METHODS
 };
 
+struct Dummy {
+};
 
 template <>
 struct Formatter_CharUtils<char> {

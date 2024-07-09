@@ -42,9 +42,6 @@ class Format_OutputIteratorBase {
     virtual void put(t_VALUE) = 0;
 };
 
-struct Dummy {
-};
-
 template <class t_VALUE, class t_ITER>
 class Format_OutputIteratorImpl
 : public Format_OutputIteratorBase<t_VALUE> {
