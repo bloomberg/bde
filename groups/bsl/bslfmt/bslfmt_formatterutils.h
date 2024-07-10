@@ -45,9 +45,9 @@ struct Formatter_CharUtils<char> {
   public:
     // CLASS METHODS
     template <class t_ITERATOR>
-    static typename t_ITERATOR outputFromChar(const char  *begin,
-                                              const char  *end,
-                                              t_ITERATOR   out)
+    static t_ITERATOR outputFromChar(const char *begin,
+                                     const char *end,
+                                     t_ITERATOR  out)
     {
         typedef typename bsl::iterator_traits<t_ITERATOR>::value_type
             valuetype;
@@ -57,7 +57,7 @@ struct Formatter_CharUtils<char> {
     }
 
     template <class t_ITERATOR>
-    static typename t_ITERATOR outputFromChar(const char v, t_ITERATOR out)
+    static t_ITERATOR outputFromChar(const char v, t_ITERATOR out)
     {
         typedef typename bsl::iterator_traits<t_ITERATOR>::value_type
             valuetype;
@@ -75,9 +75,9 @@ struct Formatter_CharUtils<wchar_t> {
   public:
     // CLASS METHODS
     template <class t_ITERATOR>
-    static typename t_ITERATOR outputFromChar(const char  *begin,
-                                              const char  *end,
-                                              t_ITERATOR   out)
+    static t_ITERATOR outputFromChar(const char *begin,
+                                     const char *end,
+                                     t_ITERATOR  out)
     {
         typedef typename bsl::iterator_traits<t_ITERATOR>::value_type
             valuetype;
@@ -94,7 +94,7 @@ struct Formatter_CharUtils<wchar_t> {
     }
 
     template <class t_ITERATOR>
-    static typename t_ITERATOR outputFromChar(const char v, t_ITERATOR out)
+    static t_ITERATOR outputFromChar(const char v, t_ITERATOR out)
     {
         typedef typename bsl::iterator_traits<t_ITERATOR>::value_type
             valuetype;

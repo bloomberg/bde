@@ -65,7 +65,9 @@ class Format_OutputIteratorImpl
     // MANIPULATORS
     void put(t_VALUE x) BSLS_KEYWORD_OVERRIDE
     {
-        *d_iter++ = x;
+        // We cannot use postfix increment in case `d_iter` holds state.
+        *d_iter = x;
+        ++d_iter;
     }
 };
 

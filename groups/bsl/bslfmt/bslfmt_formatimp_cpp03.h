@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jun 20 11:32:58 2024
+// Generated on Wed Jul 10 14:56:11 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 
 #ifdef COMPILING_BSLFMT_FORMATIMP_H
@@ -40,27 +40,27 @@
 namespace BloombergLP {
 namespace bslfmt {
 
-template <class t_ITERATOR>
+template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
 class Format_TruncatingIterator {
   private:
     // TYPES
     typedef typename bsl::iterator_traits<t_ITERATOR>::difference_type DT;
 
     // DATA
-    t_ITERATOR d_iterator;
-    DT         d_limit;
-    DT         d_count;
+    t_ITERATOR  d_iterator;
+    t_DIFF_TYPE d_limit;
+    t_DIFF_TYPE d_count;
 
   public:
     // TYPES
     typedef bsl::output_iterator_tag iterator_category;
-    typedef void                     difference_type;
-    typedef void                     value_type;
+    typedef t_DIFF_TYPE              difference_type;
+    typedef t_VALUE_TYPE             value_type;
     typedef void                     reference;
     typedef void                     pointer;
 
     // CREATORS
-    Format_TruncatingIterator(t_ITERATOR iterator, DT limit)
+    Format_TruncatingIterator(t_ITERATOR iterator, t_DIFF_TYPE limit)
     : d_iterator(iterator)
     , d_limit(limit)
     , d_count(0)
@@ -73,10 +73,14 @@ class Format_TruncatingIterator {
         return *this;
     }
 
-    void operator=(typename bsl::iterator_traits<t_ITERATOR>::value_type x)
+    void operator=(t_VALUE_TYPE x)
     {
         if (d_count++ < d_limit) {
-            *d_iterator++ = x;
+            *d_iterator = x;
+            // We deliberately use prefix not postfix increment, as the postfix
+            // increment operator returns by value which could cause issues
+            // with counting or other stateful iterators.
+            ++d_iterator;
         }
     }
 
@@ -85,13 +89,8 @@ class Format_TruncatingIterator {
         return *this;
     }
 
-    Format_TruncatingIterator operator++(int)
-    {
-        return *this;
-    }
-
     // ACCESSORS
-    DT count() const
+    t_DIFF_TYPE count() const
     {
         return d_count;
     }
@@ -100,13 +99,22 @@ class Format_TruncatingIterator {
     {
         return d_iterator;
     }
+  private:
+    // NOT IMPLEMENTED
+    Format_TruncatingIterator operator++(int) BSLS_KEYWORD_DELETED;
+        // The postfix operator must be deleted because, as a counting
+        // iterator, return by value can cause data inconsistency.
 };
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+using std::format_to_n_result;
+#else
 template <class t_OUT>
 struct format_to_n_result {
     t_OUT                                                 out;
     typename bsl::iterator_traits<t_OUT>::difference_type size;
 };
+#endif
 
 template <class t_OUT, class t_CHAR>
 struct Format_FormatVisitor {
@@ -2426,6 +2434,14 @@ bsl::string vformat(bsl::string_view fmt, format_args args)
 }
 
 inline
+bsl::wstring vformat(bsl::wstring_view fmt, wformat_args args)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmt, args);
+    return result;
+}
+
+inline
 bsl::string vformat(bsl::allocator<char> alloc,
                     bsl::string_view     fmt,
                     format_args          args)
@@ -2435,12 +2451,25 @@ bsl::string vformat(bsl::allocator<char> alloc,
     return result;
 }
 
+inline
+bsl::wstring vformat(bsl::allocator<wchar_t> alloc,
+                     bsl::wstring_view       fmt,
+                     wformat_args            args)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmt, args);
+    return result;
+}
+
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
@@ -2449,9 +2478,12 @@ template <class t_ARGS_01>
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_01& args_01)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
@@ -2462,10 +2494,13 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
@@ -2478,11 +2513,14 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_02& args_02,
                            const t_ARGS_03& args_03)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
 
@@ -2497,12 +2535,15 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_03& args_03,
                            const t_ARGS_04& args_04)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
 
@@ -2519,13 +2560,16 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_04& args_04,
                            const t_ARGS_05& args_05)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
 
@@ -2544,14 +2588,17 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_05& args_05,
                            const t_ARGS_06& args_06)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
 
@@ -2572,15 +2619,18 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_06& args_06,
                            const t_ARGS_07& args_07)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
 
@@ -2603,16 +2653,19 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_07& args_07,
                            const t_ARGS_08& args_08)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
 
@@ -2637,17 +2690,20 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_08& args_08,
                            const t_ARGS_09& args_09)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
 
@@ -2674,18 +2730,21 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS_09& args_09,
                            const t_ARGS_10& args_10)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09,
-                          args_10);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09,
+                                                    args_10);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
@@ -2694,9 +2753,12 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 
@@ -2705,9 +2767,12 @@ template <class t_ARGS_01>
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_01& args_01)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 
@@ -2718,10 +2783,13 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 
@@ -2734,11 +2802,14 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_02& args_02,
                            const t_ARGS_03& args_03)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
 
@@ -2753,12 +2824,15 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_03& args_03,
                            const t_ARGS_04& args_04)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
 
@@ -2775,13 +2849,16 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_04& args_04,
                            const t_ARGS_05& args_05)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
 
@@ -2800,14 +2877,17 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_05& args_05,
                            const t_ARGS_06& args_06)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
 
@@ -2828,15 +2908,18 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_06& args_06,
                            const t_ARGS_07& args_07)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
 
@@ -2859,16 +2942,19 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_07& args_07,
                            const t_ARGS_08& args_08)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
 
@@ -2893,17 +2979,20 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_08& args_08,
                            const t_ARGS_09& args_09)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
 
@@ -2930,18 +3019,817 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS_09& args_09,
                            const t_ARGS_10& args_10)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09,
-                          args_10);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09,
+                                                    args_10);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
+template <class t_ARGS_01>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
+template <class t_ARGS_01,
+          class t_ARGS_02>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06,
+                      const t_ARGS_07& args_07)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06,
+                      const t_ARGS_07& args_07,
+                      const t_ARGS_08& args_08)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06,
+                      const t_ARGS_07& args_07,
+                      const t_ARGS_08& args_08,
+                      const t_ARGS_09& args_09)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06,
+                      const t_ARGS_07& args_07,
+                      const t_ARGS_08& args_08,
+                      const t_ARGS_09& args_09,
+                      const t_ARGS_10& args_10)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09,
+                                                    args_10);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
+template <class t_ARGS_01>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
+template <class t_ARGS_01,
+          class t_ARGS_02>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06,
+                      const t_ARGS_07& args_07)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06,
+                      const t_ARGS_07& args_07,
+                      const t_ARGS_08& args_08)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06,
+                      const t_ARGS_07& args_07,
+                      const t_ARGS_08& args_08,
+                      const t_ARGS_09& args_09)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09);
+    return end.count();
+}
+#endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
+
+#if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS_01& args_01,
+                      const t_ARGS_02& args_02,
+                      const t_ARGS_03& args_03,
+                      const t_ARGS_04& args_04,
+                      const t_ARGS_05& args_05,
+                      const t_ARGS_06& args_06,
+                      const t_ARGS_07& args_07,
+                      const t_ARGS_08& args_08,
+                      const t_ARGS_09& args_09,
+                      const t_ARGS_10& args_10)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09,
+                                                    args_10);
+    return end.count();
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
 
@@ -2955,11 +3843,20 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
@@ -2974,11 +3871,20 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
@@ -2995,12 +3901,21 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
@@ -3019,13 +3934,22 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
@@ -3046,14 +3970,23 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
@@ -3076,15 +4009,24 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
@@ -3109,16 +4051,25 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
@@ -3145,17 +4096,26 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
@@ -3184,18 +4144,27 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
@@ -3226,19 +4195,28 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
@@ -3271,20 +4249,29 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09,
-                          args_10);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09,
+                                                    args_10);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
@@ -3299,11 +4286,20 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
@@ -3318,11 +4314,20 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
@@ -3339,12 +4344,21 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
@@ -3363,13 +4377,22 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 3
@@ -3390,14 +4413,23 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 4
@@ -3420,15 +4452,24 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 5
@@ -3453,16 +4494,25 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 6
@@ -3489,17 +4539,26 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 7
@@ -3528,18 +4587,27 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 8
@@ -3570,19 +4638,28 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 9
@@ -3615,20 +4692,29 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09,
-                          args_10);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09,
+                                                    args_10);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 #endif  // BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 10
@@ -3728,6 +4814,14 @@ bsl::string vformat(bsl::string_view fmt, format_args args)
 }
 
 inline
+bsl::wstring vformat(bsl::wstring_view fmt, wformat_args args)
+{
+    bsl::wstring result;
+    vformat_to(&result, fmt, args);
+    return result;
+}
+
+inline
 bsl::string vformat(bsl::allocator<char> alloc,
                     bsl::string_view     fmt,
                     format_args          args)
@@ -3737,13 +4831,26 @@ bsl::string vformat(bsl::allocator<char> alloc,
     return result;
 }
 
+inline
+bsl::wstring vformat(bsl::allocator<wchar_t> alloc,
+                     bsl::wstring_view       fmt,
+                     wformat_args            args)
+{
+    bsl::wstring result(alloc);
+    vformat_to(&result, fmt, args);
+    return result;
+}
+
 template <class... t_ARGS>
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
                            const t_ARGS&...                 args)
 {
-    Format_TruncatingIterator<char *> it(0, 0);
-    format_to(it, fmtstr, args...);
-    return it.count();
+    typedef Format_TruncatingIterator<char*, char, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args...);
+    return end.count();
 }
 
 
@@ -3751,9 +4858,56 @@ template <class... t_ARGS>
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER   fmtstr,
                            const t_ARGS&...                  args)
 {
-    Format_TruncatingIterator<wchar_t *> it(0, 0);
-    format_to(it, fmtstr, args...);
-    return it.count();
+    typedef Format_TruncatingIterator<wchar_t*, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    truncating_iterator it(0, 0);
+    truncating_iterator end = format_to(it, fmtstr, args...);
+    return end.count();
+}
+
+template <class... t_ARGS>
+ptrdiff_t format_to_n(bsl::string                    *out,
+                      ptrdiff_t                       n,
+                      BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
+                      const t_ARGS&...                args)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::string>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args...);
+    return end.count();
+}
+
+template <class... t_ARGS>
+ptrdiff_t format_to_n(bsl::wstring                    *out,
+                      ptrdiff_t                        n,
+                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
+                      const t_ARGS&...                 args)
+{
+    if (n < 0)
+        n = 0;
+    out->clear();
+
+    typedef std::back_insert_iterator<bsl::wstring>
+                        underlying_iterator;
+    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+                        truncating_iterator;
+
+    underlying_iterator bit = std::back_inserter(*out);
+    truncating_iterator it(bit, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args...);
+    return end.count();
 }
 
 template <class t_OUT, class... t_ARGS>
@@ -3765,11 +4919,20 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args...);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args...);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 
@@ -3782,11 +4945,20 @@ format_to_n_result<t_OUT> format_to_n(
 {
     if (n < 0)
         n = 0;
-    Format_TruncatingIterator<t_OUT> it(out, n);
-    format_to(it, fmtstr, args...);
+
+    typedef Format_TruncatingIterator<
+        t_OUT,
+        typename bsl::iterator_traits<t_OUT>::value_type,
+        typename bsl::iterator_traits<t_OUT>::difference_type>
+        truncating_iterator;
+
+    truncating_iterator it(out, n);
+
+    truncating_iterator end = format_to(it, fmtstr, args...);
+
     format_to_n_result<t_OUT> result;
-    result.out  = it.underlying();
-    result.size = it.count();
+    result.out  = end.underlying();
+    result.size = end.count();
     return result;
 }
 // }}} END GENERATED CODE
