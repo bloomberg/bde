@@ -2536,7 +2536,7 @@ int main(int argc, char *argv[])
                             // Silence "sometimes-uninitialized" warnings.
                             objPtr = 0;
                             objAllocatorPtr = 0;
-                            LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                            LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
                           } break;
                         }
                         LOOP2_ASSERT(LINE, CONFIG,
@@ -4592,7 +4592,7 @@ int main(int argc, char *argv[])
                       // Silence "sometimes-uninitialized" warnings.
                       objPtr = 0;
                       objAllocatorPtr = 0;
-                      LOOP_ASSERT(CONFIG, !"Bad allocator Config.");
+                      LOOP_ASSERT(CONFIG, 0 == "Bad allocator Config.");
                   } break;
                 }
 

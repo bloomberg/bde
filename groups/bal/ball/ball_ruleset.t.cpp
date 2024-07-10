@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
             "R4R5R6",
 
             "R0R1R2R3",
-            "R0R1R2R3R4"
+            "R0R1R2R3R4",
             "R0R1R2R3R4R5",
             "R0R1R2R3R4R5R6",
             "R0R1R2R3R4R5R6R7",

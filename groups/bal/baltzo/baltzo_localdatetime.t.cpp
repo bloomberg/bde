@@ -685,6 +685,9 @@ int main(int argc, char *argv[])
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                             ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
                         }
+#else
+                        (void)MEMDST2;
+                        (void)MEMSRC1;
 #endif
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -1123,6 +1126,8 @@ int main(int argc, char *argv[])
                     if ('Y' == MEM) {
                         ASSERTV(LINE, 0 < EXCEPTION_COUNT);
                     }
+#else
+                    (void)MEM;
 #endif
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -2901,7 +2906,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -3939,7 +3944,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                        ASSERTV(LINE, CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -4246,7 +4251,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 

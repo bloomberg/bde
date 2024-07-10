@@ -1185,7 +1185,7 @@ int main(int argc, char *argv[])
                             done = true;
                           } break;
                           default: {
-                            ASSERTV(CONFIG, !"second switch failed");
+                            ASSERTV(CONFIG, 0 == "second switch failed");
                           }
                         }
 

@@ -446,7 +446,7 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
         if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON && !pastMain) {
             ASSERT(frame.lineNumber() > 0);
         }
-        else if (FORMAT_XCOFF && DEBUG_ON) {
+        else if (FORMAT_XCOFF && !!DEBUG_ON) {
             ASSERT(frame.isSourceFileNameKnown());
 
             // There may be one stack frame that had inlined code in it.

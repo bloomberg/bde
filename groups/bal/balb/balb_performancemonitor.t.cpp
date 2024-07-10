@@ -800,8 +800,7 @@ int main(int argc, char *argv[])
                                   "))))", "((((", "!@#$%^&*()",
                                   "()()()()()()()()", "0123456789abcdef",
                                   "((((((((((((((((", "))))))))))))))))",
-                                  "very very very very very very very very"
-                                          " very very very very long string" };
+   "very very very very very very very very very very very very long string" };
         enum { k_NUM_STRINGS = sizeof strings / sizeof *strings };
         enum { k_LONG_STR_IDX = k_NUM_STRINGS - 1 };
 

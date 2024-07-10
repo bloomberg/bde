@@ -1350,7 +1350,8 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
     // Note that there will be a separate instance of 'holderA' for every
     // distinct value of 'KK'.
 
-    static CatHolder holderA = defaultHolder;
+    static CatHolder holderA =
+                     { { CatHolder::e_UNINITIALIZED_CATEGORY }, { 0 }, { 0 } };
     ASSERTV(pos, repeat || !bsl::memcmp(&holderA,
                                         &defaultHolder,
                                         sizeof(holderA)));
@@ -1410,7 +1411,8 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
         // a different category holder.  Like 'holderA', we will get a separate
         // copy of 'holderB' for every distinct value of 'KK'.
 
-        static CatHolder holderB = defaultHolder;
+        static CatHolder holderB = 
+                     { { CatHolder::e_UNINITIALIZED_CATEGORY }, { 0 }, { 0 } };
         ASSERTV(pos, repeat || !bsl::memcmp(&holderB,
                                             &defaultHolder,
                                             sizeof(holderB)));
