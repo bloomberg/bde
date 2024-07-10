@@ -473,7 +473,8 @@ int main(int argc, char **argv)
             char *it = bsl::format_to(temp2, "{}", "Hello World");
             *it      = 0;
             check(bsl::string(temp2), "Hello World");
-            auto result = bsl::format_to_n(temp2, 5, "{}", "Hello World");
+            format_to_n_result<char *> result =
+                               bsl::format_to_n(temp2, 5, "{}", "Hello World");
             *result.out = 0;
             ASSERT(11 == result.size);
             check(bsl::string(temp2), "Hello");
@@ -483,7 +484,8 @@ int main(int argc, char **argv)
             wchar_t *it = bsl::format_to(temp2, L"{}", L"Hello World");
             *it      = 0;
             check(bsl::wstring(temp2), L"Hello World");
-            auto result = bsl::format_to_n(temp2, 5, L"{}", L"Hello World");
+            format_to_n_result<wchar_t *> result =
+                             bsl::format_to_n(temp2, 5, L"{}", L"Hello World");
             *result.out = 0;
             ASSERT(11 == result.size);
             check(bsl::wstring(temp2), L"Hello");
