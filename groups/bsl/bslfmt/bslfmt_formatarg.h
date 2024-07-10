@@ -162,6 +162,8 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     explicit basic_format_arg(
                t_TYPE value,
                typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+                                       !bsl::is_same<t_TYPE, char>::value &&
+                                       !bsl::is_same<t_TYPE, wchar_t>::value &&
                                        (sizeof(t_TYPE) <= sizeof(long long)),
                                        int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
@@ -377,6 +379,8 @@ template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                t_TYPE value,
                typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+                                       !bsl::is_same<t_TYPE, char>::value &&
+                                       !bsl::is_same<t_TYPE, wchar_t>::value &&
                                        (sizeof(t_TYPE) <= sizeof(long long)),
                                        int>::type) BSLS_KEYWORD_NOEXCEPT
 {

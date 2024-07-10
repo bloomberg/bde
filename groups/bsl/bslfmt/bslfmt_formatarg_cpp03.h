@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jul  4 12:11:55 2024
+// Generated on Wed Jul 10 17:30:17 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -337,6 +337,8 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     explicit basic_format_arg(
                t_TYPE value,
                typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+                                       !bsl::is_same<t_TYPE, char>::value &&
+                                       !bsl::is_same<t_TYPE, wchar_t>::value &&
                                        (sizeof(t_TYPE) <= sizeof(long long)),
                                        int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
@@ -730,6 +732,8 @@ template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                t_TYPE value,
                typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+                                       !bsl::is_same<t_TYPE, char>::value &&
+                                       !bsl::is_same<t_TYPE, wchar_t>::value &&
                                        (sizeof(t_TYPE) <= sizeof(long long)),
                                        int>::type) BSLS_KEYWORD_NOEXCEPT
 {
