@@ -637,13 +637,46 @@ requires(bsl::is_same_v<t_STRING, bsl::string>) ptrdiff_t
     return res.size;
 }
 
+
 template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>)
-ptrdiff_t format_to_n(t_STRING                 *out,
-                      ptrdiff_t                 n,
-                      const std::locale&        loc,
-                      format_string<t_ARGS...>  fmt,
-                      t_ARGS&&...               args)
+requires(bsl::is_same_v<t_STRING, bsl::wstring>) ptrdiff_t
+    format_to_n(t_STRING                  *out,
+                ptrdiff_t                  n,
+                wformat_string<t_ARGS...>  fmt,
+                t_ARGS&&...                args)
+{
+    out->clear();
+    auto res = format_to_n(back_inserter(*out),
+                           n,
+                           fmt,
+                           std::forward<t_ARGS>(args)...);
+    return res.size;
+}
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>) ptrdiff_t
+    format_to_n(t_STRING                 *out,
+                ptrdiff_t                 n,
+                const std::locale&        loc,
+                format_string<t_ARGS...>  fmt,
+                t_ARGS&&...               args)
+{
+    out->clear();
+    auto res = format_to_n(back_inserter(*out),
+                           n,
+                           loc,
+                           fmt,
+                           std::forward<t_ARGS>(args)...);
+    return res.size;
+}
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::wstring>)
+ptrdiff_t format_to_n(t_STRING                  *out,
+                      ptrdiff_t                  n,
+                      const std::locale&         loc,
+                      wformat_string<t_ARGS...>  fmt,
+                      t_ARGS&&...                args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),

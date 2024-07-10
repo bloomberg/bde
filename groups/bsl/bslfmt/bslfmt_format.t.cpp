@@ -361,7 +361,7 @@ int main(int argc, char **argv)
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         std::formatter<int, char>              dummy1a;
         std::formatter<bsl::string, char>      dummy1b;
-        std::formatter<bsl::wstring, wchar_t>  dummy1b;
+        std::formatter<bsl::wstring, wchar_t>  dummy1c;
         (void) dummy1a;
         (void) dummy1b;
         (void) dummy1c;
