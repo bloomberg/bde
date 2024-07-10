@@ -106,6 +106,19 @@ int veryVeryVeryVerbose = 0; // For test allocators
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+// If using the native C++17 pmr::memory_resource, the default alignment for
+// memory blocks when not otherwise specified is 'alignof(std::max_align_t)';
+// otherwise, it's 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.  On most
+// platforms, these values are the same, but on 32-bit Linux using libc++, the
+// former is larger than the latter, even though 'malloc' and 'operator new' do
+// not honor the stronger alignment of 'std::max_align_t'.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+const std::size_t k_DEFAULT_ALIGNMENT = alignof(std::max_align_t);
+#else
+const std::size_t k_DEFAULT_ALIGNMENT =
+                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
+
 class MemoryResourceProtocolTest
     : public bsls::ProtocolTestImp<bsl::memory_resource> {
     // This class is used with 'bsls::ProtocolTest' to test the
@@ -590,7 +603,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 A call to 'deallocate' passes its arguments to the
         //:   'do_deallocate' virtual function.
-        //: 2 If the 'alignment' argument is omitted, the the maximum platform
+        //: 2 If the 'alignment' argument is omitted, the the default platform
         //:   alignment is used.
         //
         // Plan:
@@ -600,7 +613,7 @@ int main(int argc, char *argv[])
         //:   three arguments passed to 'deallocate'.  (C-1)
         //: 2 Repeat step 1 but omit the 'alignment' argument to 'deallocate'.
         //:   Verify that the alignment passed to 'do_deallocate' is the
-        //:   maximum alignment for the platform.  (C-2)
+        //:   default alignment for the platform.  (C-2)
         //
         // Testing:
         //    void deallocate(void *p, size_t bytes, size_t alignment);
@@ -621,8 +634,7 @@ int main(int argc, char *argv[])
         p = block + 1;
         obj.deallocate(p, 4);
         ASSERT(obj.lastBytesArg()     == 4);
-        ASSERT(obj.lastAlignmentArg() ==
-                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        ASSERT(obj.lastAlignmentArg() == k_DEFAULT_ALIGNMENT);
         ASSERT(obj.lastBlock()        == p);
 
       } break;
@@ -663,8 +675,7 @@ int main(int argc, char *argv[])
 
         p = obj.allocate(4);
         ASSERT(obj.lastBytesArg()     == 4);
-        ASSERT(obj.lastAlignmentArg() ==
-                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        ASSERT(obj.lastAlignmentArg() == k_DEFAULT_ALIGNMENT);
         ASSERT(obj.lastBlock()        == p);
 
       } break;
