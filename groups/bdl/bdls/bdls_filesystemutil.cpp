@@ -17,6 +17,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 #include <bdlt_epochutil.h>
 #include <bdlf_placeholder.h>
 #include <bdlma_bufferedsequentialallocator.h>
+#include <bdlma_localsequentialallocator.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_managedptr.h>
@@ -27,6 +28,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 
 #include <bsla_maybeunused.h>
 #include <bsls_alignedbuffer.h>
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
@@ -34,8 +36,10 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 #include <bsls_timeutil.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cctype.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
 #include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h> // for memcpy
 #include <bsl_limits.h>
 #include <bsl_string.h>
@@ -150,6 +154,18 @@ enum {
 namespace BloombergLP {
 namespace {
 namespace u {
+
+// 'substr' on a 'string_view', which yields a 'string_view', is more efficient
+// than 'substr' on a 'string', which yields a 'string'.
+
+bsl::string_view substr(const bsl::string& str,
+                        const size_t       idx,
+                        const size_t       len = bsl::string::npos)
+    // Convert the specified 'str' to a string view, and then return the result
+    // of 'substr' on that passing the specified 'idx' and 'len'.
+{
+    return bsl::string_view(str).substr(idx, len);
+}
 
 #if defined(BSLS_PLATFORM_OS_UNIX) \
  && defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
@@ -789,6 +805,19 @@ void invokeCloseDir(void *dir, void *)
     BSLS_ASSERT(0 == rc);
 }
 
+static
+void invokeCloseFD(void *fd_p, void *)
+    // Close the file descriptor pointed to by the specified 'fd_p'.  This is
+    // to be used in conjunction with 'bslma::ManagedPtr' to create RAII guards
+    // for file descriptors.
+{
+    typedef bdls::FilesystemUtil Util;
+    typedef Util::FileDescriptor FileDescriptor;
+
+    int rc = ::close(*static_cast<FileDescriptor *>(fd_p));
+    BSLS_ASSERT(0 == rc);    (void) rc;
+}
+
 static inline
 bool isDotOrDots(const char *path)
     // Return 'true' if the specified 'path' is "." or ".." or ends in
@@ -865,24 +894,190 @@ int makeDirectory(const char *path, bool isPrivate)
     }
 }
 
-static inline
-int removeDirectory(const char *path)
-    // Remove the specified directory 'path'.  Return 0 on success and a
-    // non-zero value otherwise.
+static
+int u_removeContentsOfTree(
+                 const BloombergLP::bdls::FilesystemUtil::FileDescriptor dirFD)
+    // Delete everything in the tree whose root directory is specified by the
+    // specified open file descriptor 'dirFD', not including the root.  Close
+    // 'dirFd'.  The behavior is undefined unless 'dirFD' refers to a directory
+    // and not a symlink.  Return 0 on success and a non-zero value otherwise.
 {
-    BSLS_ASSERT(path);
+    typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
 
-    return rmdir(path);
+    DIR *dir = ::fdopendir(dirFD);    // 'dir' assumes ownership of 'dirFd'
+                                      // and will close it when 'dir' is
+                                      // closed.
+    if (0 == dir) {
+        return -2;                                                    // RETURN
+    }
+    bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
+
+#if defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+    // There is no constant 'NAME_MAX' upper limit on file name lengths on
+    // Solaris, so we have to query the directory with '::fpathconf' to
+    // determine it and potentially allocate our 'dirent' object.
+
+    // Watching the value returned to 'nameMax' from '::fpathconf' below, we
+    // get '255', but on some other type of device the value could be greater.
+    // Nonetheless, we'll set 'k_MIN_NAME_MAX' to 255, which as long as
+    // '::fpathconf' returns the same value, will mean that no memory is ever
+    // allocated from the default allocator for 'entry' or 'prevName' below.
+    // To test that the allocating code works, we temporarily set
+    // 'k_MIN_NAME_MAX' to 0.
+
+    enum { k_MIN_NAME_MAX = 255,
+           k_DIRENT_STACK_SPACE_SIZE = sizeof(::dirent) + k_MIN_NAME_MAX + 1 };
+
+    static const bsl::size_t direntAlign =
+             bsls::AlignmentUtil::calculateAlignmentFromSize(sizeof(::dirent));
+    const bsl::size_t nameMax   = ::fpathconf(dirFD, _PC_NAME_MAX);
+    const bsl::size_t direntLen =
+              (((offsetof(::dirent, d_name) + nameMax + 1) + direntAlign - 1) /
+                                                    direntAlign) * direntAlign;
+
+    // No guard is needed to release '&entry' -- if 'direntAlloc' had to
+    // allocate from the default allocator, it will be released by
+    // 'direntAlloc's d'tor.
+
+    bdlma::LocalSequentialAllocator<k_DIRENT_STACK_SPACE_SIZE> direntAlloc;
+
+    // 'static_cast<::dirent *>' confuses the lex parser for Solaris CC, hence
+    // we say '< ::dirent>' here.
+
+    ::dirent& entry = *static_cast< ::dirent *>(direntAlloc.allocate(
+                                                                   direntLen));
+#else
+# if defined(BSLS_PLATFORM_OS_AIX) && !defined(NAME_MAX)
+    // 'fpathconf' is supported on AIX, 'NAME_MAX' is undefined, and the
+    // 'fpathconf'-based imp works there, but on AIX, 'man fpathconf' documents
+    // that the largest value for '_PC_NAME_MAX' returned is 255, so we opt for
+    // the simpler imp below with a fixed 'k_MIN_NAME_MAX'.
+
+    enum { k_MIN_NAME_MAX = 255 };
+# else
+    enum { k_MIN_NAME_MAX = NAME_MAX };
+# endif
+
+    union {
+        ::dirent d_entry;
+        char     d_overflow[sizeof(::dirent) + k_MIN_NAME_MAX + 1];
+    } entryHolder;
+    ::dirent& entry = entryHolder.d_entry;
+    new (&entry) ::dirent();
+#endif
+
+    bdlma::LocalSequentialAllocator<k_MIN_NAME_MAX + 1> prevNameAlloc;
+    bsl::string prevName(&prevNameAlloc);
+    prevName.reserve(k_MIN_NAME_MAX);
+
+    ::dirent *entry_p = 0;
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+    int rc;
+    while (errno = 0, rc = ::readdir_r(dir, &entry, &entry_p),
+                                       0 == rc && 0 != entry_p && 0 == errno) {
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
+        const bsl::string_view name = entry.d_name;
+        if (name.length() <= 2 && shortIsDotOrDots(entry.d_name)) {
+            continue;
+        }
+
+        // Sometimes, after deleting the last file in the directory,
+        // 'readdir_r' returns the same file name again, in which case we just
+        // skip and go around again.
+
+        if (name == prevName) {
+            continue;
+        }
+
+        bool isDir = false;
+        FileDescriptor entryFD = ::openat(dirFD,
+                                          entry.d_name,
+                                          O_RDONLY | O_NOFOLLOW,
+                                          0);
+        if (-1 == entryFD) {
+            if (ENOENT == errno) {
+                // Another thread or process has deleted the file.
+
+                return -3;                                            // RETURN
+            }
+            if (ELOOP != errno) {
+                // not a symlink -- error
+
+                return -4;                                            // RETURN
+            }
+
+            // it's a symlink -- we'll just delete it like a plain file
+        }
+        else {
+            StatResult statResult;
+            if (0 != ::performFStat(entryFD, &statResult)) {
+                return 0 == ::close(entryFD) ? -5 : -6;               // RETURN
+            }
+            isDir = S_ISDIR(statResult.st_mode);
+            if (isDir) {
+                // 'u_removeContentsOfTree' will close 'entryFD'.
+
+                const int rc = u_removeContentsOfTree(entryFD);
+                if (0 != rc) {
+                    return -7;                                        // RETURN
+                }
+            } else if (0 != ::close(entryFD)) {
+                return -8;                                            // RETURN
+            }
+        }
+
+        if (0 != ::unlinkat(dirFD, entry.d_name, isDir ? AT_REMOVEDIR : 0)) {
+            return -9;                                                // RETURN
+        }
+
+        // update 'prevName'
+
+#if defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+        if (prevName.capacity() < name.length()) {
+            BSLS_ASSERT(prevName.capacity() == k_MIN_NAME_MAX);
+            BSLS_ASSERT(name.length() <= nameMax);
+
+            // This will allocate from the default allocator, but will occur
+            // at most once per call of this function.
+
+            prevName.reserve(nameMax);
+        }
+#endif
+        BSLS_ASSERT(name.length() <= prevName.capacity());
+        prevName = name;
+    }
+
+#if defined(BSLS_PLATFORM_OS_AIX)
+    if (9 == rc) {
+        // '9 == rc' just means 'readdir_r' reached the end of the directory on
+        // AIX.
+
+        rc = 0;
+    }
+#endif
+
+    // The 'while' condition was '0 == rc && 0 != entry_p && 0 == errno' and
+    // and on success we expect that to be true except '0 == entry_p'.  If
+    // '0 != rc' or '0 != errno' it means some sort of error happened.
+
+    if (0 != rc) {
+        return -10;                                                   // RETURN
+    }
+    else if (0 != errno) {
+        return -11;                                                   // RETURN
+    }
+    BSLS_ASSERT(0 == entry_p);
+
+    return 0;
 }
-
-static inline
-int removeFile(const char *path)
-{
-    BSLS_ASSERT(path);
-
-    return unlink(path);
-}
-
 #endif
 
 namespace {
@@ -1293,13 +1488,49 @@ int FilesystemUtil::close(FileDescriptor descriptor)
                                             : int(k_UNKNOWN_ERROR);
 }
 
-int FilesystemUtil::remove(const char *fileToRemove, bool recursive)
+int FilesystemUtil::remove(const char *path, bool recursive)
 {
-    BSLS_ASSERT(fileToRemove);
+    BSLS_ASSERT(path);
 
-    if (isDirectory(fileToRemove)) {
+    if (!*path) {
+        return -2;                                                    // RETURN
+    }
+
+    static const size_t    npos          = bsl::string::npos;
+    static const char      PS            = '\\';
+    bsl::string            sPath         = path;
+    const bsl::string_view slashDot      = "\\.";
+
+    // replace all '/'s with '\'s
+
+    bsl::replace(sPath.begin(), sPath.end(), '/', PS);
+
+    // Detect and eliminate trailing '\\'s and "\\."s and, if any were found,
+    // indicate that the deleted entity must be a directory.
+
+    bool isErrorIfNotDir = false;
+    for (;;) {
+        if (2 <= sPath.length() && PS == sPath.back()) {
+            // trim trailing '/'s
+
+            sPath.pop_back();
+            isErrorIfNotDir = true;
+        }
+        else if (3 <= sPath.length() &&
+                            slashDot == u::substr(sPath, sPath.length() - 2)) {
+            sPath.resize(sPath.length() - 2);
+            isErrorIfNotDir = true;
+        }
+        else {
+            break;
+        }
+    }
+
+    // transform all occurrences of '\.\' in the path with '\'
+
+    if (isDirectory(sPath.c_str())) {
         if (recursive) {
-            bsl::string pattern(fileToRemove);
+            bsl::string pattern(sPath);
             PathUtil::appendRaw(&pattern, "*");
             bsl::vector<bsl::string> children;
             findMatchingPaths(&children, pattern.c_str());
@@ -1307,14 +1538,17 @@ int FilesystemUtil::remove(const char *fileToRemove, bool recursive)
                  i < children.size();
                  ++i) {
                 if (0 != remove(children[i].c_str(), true)) {
-                    return -1;                                        // RETURN
+                    return -5;                                        // RETURN
                 }
             }
         }
-        return removeDirectory(fileToRemove);                         // RETURN
+        return removeDirectory(sPath.c_str()) ? -6 : 0;               // RETURN
+    }
+    else if (isErrorIfNotDir) {
+        return -7;                                                    // RETURN
     }
     else {
-        return removeFile(fileToRemove);                              // RETURN
+        return removeFile(sPath.c_str()) ? -8 : 0;                    // RETURN
     }
 }
 
@@ -2194,76 +2428,176 @@ int FilesystemUtil::remove(const char *path, bool recursiveFlag)
 {
     BSLS_ASSERT(path);
 
-    if (isDirectory(path)) {
-        if (recursiveFlag) {
-            // What we'd LIKE to do here is findMatchingPaths("path/*") and
-            // delete each one.  But glob(), on which findMatchingPaths() is
-            // built, will not include the name of a symbolic link if there is
-            // no file attached.  Thus a bad link would prevent a directory
-            // from being removed.  So instead we must open and read the
-            // directory ourselves and remove everything that's not "." or
-            // "..", checking for directories (*without* following links) and
-            // recursing as necessary.
+    typedef FilesystemUtil ThisUtil;
 
-            DIR *dir = opendir(path);
-            if (0 == dir) {
-                return -1;                                            // RETURN
-            }
-            bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
+    if (!*path) {
+        return -2;                                                    // RETURN
+    }
 
-            bsl::string workingPath = path;
+    static const size_t    npos               = bsl::string_view::npos;
+    static const char      PS                 = '/';
+    bsl::string            sPath              = path;
+    bsl::string            parent;
+    bsl::string            leaf;
+    bool                   foundParentAndLeaf = false;
+    bool                   isErrorIfNotDir    = false;
+    const bsl::string_view slashSlash         = "//";
+    const bsl::string_view slashDot           = "/.";
+    const bsl::string_view slashDotDot        = "/..";
 
-            // The amount of space available in the 'd_name' member of the
-            // dirent struct is apparently "implementation-defined" and in
-            // particular is allowed to be less than the maximum path length
-            // (!).  The very C-style way to fix this is to make sure that
-            // there's lots of extra space available at the end of the struct
-            // (d_name is always the last member) so that strcpy can happily
-            // copy into it without instigating a buffer overrun attack against
-            // us =)
+    // replace all instances of "//" in the path with "/"
 
-            enum { OVERFLOW_SIZE = 2048 };    // probably excessive, but it's
-                                              // just stack
-            union {
-                struct dirent d_entry;
-                char d_overflow[OVERFLOW_SIZE];
-            } entryHolder;
+    for (size_t idx = 0; npos != (idx = sPath.find(slashSlash, idx)); ) {
+        sPath.erase(sPath.begin() + idx);
+    }
+    BSLS_ASSERT_OPT(npos == sPath.find(slashSlash));
 
-            struct dirent& entry = entryHolder.d_entry;
-            struct dirent *entry_p;
-            StatResult dummy;
-            int rc;
-            do {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-                rc = readdir_r(dir, &entry, &entry_p);
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-                if (0 != rc) {
-                    break;
-                }
+    // trim meaningless stuff off the end to help us identify paths ending with
+    // "/..".
 
-                if (shortIsDotOrDots(entry.d_name)) {
-                    continue;
-                }
+    for (;;) {
+        if (2 <= sPath.length() && PS == sPath.back()) {
+            // trim trailing '/'s
 
-                PathUtil::appendRaw(&workingPath, entry.d_name);
-                if (0 == ::performStat(workingPath.c_str(), &dummy, false)
-                   && 0 != remove(workingPath.c_str(), true)) {
-                    return -1;                                        // RETURN
-                }
-                PathUtil::popLeaf(&workingPath);
-            } while (&entry == entry_p);
+            sPath.pop_back();
+            isErrorIfNotDir = true;
+        }
+        else if (3 <= sPath.length() &&
+                            slashDot == u::substr(sPath, sPath.length() - 2)) {
+            sPath.resize(sPath.length() - 2);
+            isErrorIfNotDir = true;
+        }
+        else {
+            break;
+        }
+    }
+
+    if (3 < sPath.length() &&
+                         slashDotDot == u::substr(sPath, sPath.length() - 3)) {
+        // The path ends with "/..".  If the directory before that is a
+        // symlink, we have to resolve that symlink to see where the ".." then
+        // leads to and eventually find its parent.
+
+        // '::realpath' will do the following:
+        //: o If 'sPath' is relative, turn it to absolute.
+        //:
+        //: o Resolve the "/.." at the end (which may be tricky if the element
+        //:   before it is a symlink) and all "/./"s and "/../"s in the path.
+        //:
+        //: o Resolve all symlinks.
+
+        // Removing the symlinks is a potential security hole, since any of
+        // them may have been manipulated (or put there in the first place) by
+        // an attacker, but it's necessary in order to resolve a path that is
+        // or ends with "..".
+
+        char resolved[PATH_MAX + 1];    // large, but non-recursive stack
+        char *pc = ::realpath(sPath.c_str(), resolved);
+        if (!pc) {
+            return -3;                                                // RETURN
+        }
+        sPath           = resolved;
+        isErrorIfNotDir = true;
+    }
+    else if (npos == sPath.find(PS)) {
+        // 'sPath' is just a leaf.
+
+        parent             = ".";
+        leaf               = sPath;
+        foundParentAndLeaf = true;
+    }
+
+    if (!foundParentAndLeaf) {
+        if (  0 != PathUtil::getDirname(&parent, sPath.c_str())
+           || 0 != PathUtil::getLeaf(   &leaf,   sPath.c_str())) {
+            return -4;                                                // RETURN
+        }
+    }
+
+    // Note that 'parent' might be a symlink, and if so, we want to follow the
+    // symlink and open the directory it points to.  So we don't pass
+    // 'O_NOFOLLOW' to this 'open'.
+    //
+    // For example, if 'path' is '/home/wilbur/tmp.txt' where '/home/wilbur' is
+    // a symlink to '/home9/wilbur', we still want to wind up deleting
+    // '/home9/wilbur/tmp.txt'.
+    //
+    // Following this link is potentially another security hole, but it's
+    // unavoidable.
+
+    FileDescriptor parentFD = ::open(parent.c_str(),
+                                     O_RDONLY | O_DIRECTORY,
+                                     0);
+    if (-1 == parentFD) {
+        return -5;                                                    // RETURN
+    }
+    bslma::ManagedPtr<FileDescriptor> parentFDGuard(&parentFD,
+                                                    0,
+                                                    &invokeCloseFD);
+
+    bool isDir        = false;
+    bool leafFDIsOpen = false;
+    bool isError      = false;
+
+    // If 'leaf' is a symlink, we just want to delete the symlink, not what it
+    // points to, hence 'O_NOFOLLOW'.
+
+    FileDescriptor leafFD = ::openat(parentFD,
+                                     leaf.c_str(),
+                                     O_RDONLY | O_NOFOLLOW,
+                                     0);
+    if (-1 == leafFD) {
+        if (ELOOP != errno) {
+            // not a symlink -- error
+
+            return -6;                                                // RETURN
         }
 
-        return removeDirectory(path);                                 // RETURN
+        // it's a symlink -- we'll just delete it like a plain file
+
+        if (isErrorIfNotDir) {
+            // Symlinks are never considered directories.  If they meant to
+            // remove a directory, it's an error.
+
+            return -7;                                                // RETURN
+        }
     }
     else {
-        return removeFile(path);                                      // RETURN
+        leafFDIsOpen = true;
+
+        StatResult statResult;
+        if (0 != ::performFStat(leafFD, &statResult)) {
+            return 0 != ThisUtil::close(leafFD) ? -8 : -9;            // RETURN
+        }
+        isDir = S_ISDIR(statResult.st_mode);
+        if (!isDir) {
+            isError = isErrorIfNotDir;
+        }
+        else if (recursiveFlag) {
+            const int rc = u_removeContentsOfTree(leafFD);
+            if (0 != rc) {
+                return -10;                                           // RETURN
+            }
+
+            // 'u_removeContentsOfTree' has closed 'leafFD'.  Note that it
+            // removed files in the directory 'leaf', but not the directory
+            // 'leaf' itself.
+
+            leafFDIsOpen = false;
+        }
     }
+
+    if (leafFDIsOpen && 0 != ThisUtil::close(leafFD)) {
+        return -11;                                                   // RETURN
+    }
+
+    if (isError) {
+        return -12;                                                   // RETURN
+    }
+
+    return ::unlinkat(parentFD, leaf.c_str(), isDir ? AT_REMOVEDIR : 0)
+           ? -13
+           : 0;
 }
 
 int FilesystemUtil::read(FileDescriptor descriptor, void *buffer, int numBytes)

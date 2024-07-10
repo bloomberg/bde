@@ -1025,8 +1025,9 @@ struct FilesystemUtil {
         // not empty, and recursive is 'false', this method will fail.  Also
         // note that if the function fails when 'recursive' is 'true', it may
         // or may not have removed *some* files or directories before failing.
-        // The parameterized 'STRING_TYPE' must be one of 'bsl::string',
-        // 'std::string', 'std::pmr::string' (if supported), or
+        // Also note that if 'remove' is called on "." or "..", it will fail
+        // with no effect.  The parameterized 'STRING_TYPE' must be one of
+        // 'bsl::string', 'std::string', 'std::pmr::string' (if supported), or
         // 'bslstl::StringRef'.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
@@ -1136,6 +1137,10 @@ struct FilesystemUtil_CStringUtil {
     static const char *flatten(const std::pmr::string& string);
 #endif
         // Return the result of invoking 'c_str()' on the specified 'string'.
+
+    static bsl::string flatten(const bsl::string_view& stringView);
+        // Return a temporary 'bsl::string' constructed from the specified
+        // 'stringView'.
 
     static bsl::string flatten(const bslstl::StringRef& stringRef);
         // Return a temporary 'bsl::string' constructed from the specified
@@ -1380,6 +1385,14 @@ const char *FilesystemUtil_CStringUtil::flatten(const std::pmr::string& string)
     return string.c_str();
 }
 #endif
+
+inline
+bsl::string FilesystemUtil_CStringUtil::flatten(
+                                            const bsl::string_view& stringView)
+{
+    bsl::string ret(stringView);
+    return ret;
+}
 
 inline
 bsl::string FilesystemUtil_CStringUtil::flatten(

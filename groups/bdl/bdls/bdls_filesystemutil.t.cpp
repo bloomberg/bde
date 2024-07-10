@@ -3,6 +3,7 @@
 
 #include <bdlb_guid.h>
 #include <bdlb_guidutil.h>
+#include <bdlb_random.h>
 
 #include <bdlb_bitutil.h>
 #include <bdls_memoryutil.h>
@@ -14,11 +15,14 @@
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 
+#include <bslmt_threadutil.h>
+
 #include <bslim_testutil.h>
 
 #include <bsla_maybeunused.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -30,8 +34,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_isconvertible.h>
-
-#include <bslmt_threadutil.h>
+#include <bslmf_issame.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_c_errno.h>
@@ -130,6 +133,9 @@ using bsls::NameOf;
 // [30] createTemporarySubdirectory(bsl::string*, const bsl::string_view&)
 // [30] createTemporarySubdirectory(std::string*, const bsl::string_view&)
 // [30] createTemporarySubdirectory(pmr::string*, const bsl::string_view&)
+// [31] int remove(const char *);
+// [31] int remove(STRING_TYPE);
+// [32] int remove(STRING_TYPE);
 //
 // FREE OPERATORS
 // [27] ostream& operator<<(ostream&, Whence);
@@ -148,8 +154,8 @@ using bsls::NameOf;
 // [20] CONCERN: directory permissions
 // [21] CONCERN: error codes for 'createDirectories'
 // [21] CONCERN: error codes for 'createPrivateDirectory'
-// [32] TESTING USAGE EXAMPLE 2
-// [31] TESTING USAGE EXAMPLE 1
+// [34] TESTING USAGE EXAMPLE 2
+// [33] TESTING USAGE EXAMPLE 1
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -209,6 +215,20 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+// 'ASSERT_FOR_CERTAIN' is necessary because there is no type of assert in
+// 'bsls_assert.h' that is present in all built modes.  In the test of
+// 'Obj::remove' it is important to abort the test under some circumstances,
+// particularly if we have trouble changing the working directory as desired,
+// as we may wind up deleting massive source trees by accident if a failed
+// assert does not bomb out the program.
+
+#define ASSERT_FOR_CERTAIN(expr) do {                                         \
+    if (!(expr)) {                                                            \
+        aSsErT(1, #expr, __LINE__);                                           \
+        ::abort();                                                            \
+    }                                                                         \
+} while(false)
+
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -223,6 +243,10 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                          GLOBAL DATA FOR TESTING
 // ----------------------------------------------------------------------------
+
+bool verbose;
+bool veryVerbose;
+bool veryVeryVerbose;
 
 #define Q_(str)    (cout << #str << '\t' << flush);
 
@@ -1930,6 +1954,1007 @@ namespace UsageExample2 {
 //                            TEMPLATED TEST CASES
 // ----------------------------------------------------------------------------
 
+namespace TestCase31_Remove {
+
+namespace TC = TestCase31_Remove;
+
+// ----------------------------------------------------------------------------
+// TESTING REMOVE
+//
+// Concerns:
+//: 1 If called on a plain file, symlink, or empty directory, 'remove' results
+//:   in the target being removed, regardless of the value of 'recursiveFlag'.
+//:
+//: 2 If "/" or "/." is appended to the path, it results in 'remove' failing,
+//:   unless the target is a directory, in which case it has no effect.
+//:
+//: 3 If called on a non-empty directory, 'remove' fails unless 'recursiveFlag'
+//:   is 'true', in which case it succeeds.
+//:
+//: 4 If called on a symlink, the symlink itself is always deleted, never the
+//:   destination of the symlink.  The type of file the symlink is pointing to,
+//:   or whether it is a dangling symlink, makes no difference.
+//:
+//: 5 It makes no difference whether an absolute or relative path is passed.
+//:
+//: 6 Unused.
+//:
+//: 7 If the parent of the leaf of the path (or any other directory in the path
+//:   other than the leaf) passed to 'remove' is a symlink, the leaf is still
+//:   deleted.
+//:
+//: 8 Remove "" fails with no effect.
+//:
+//: 9 Unused.
+//:
+//: 10 Removing a non-existent file fails with no effect.
+//:
+//: 11 Remove of a path ending with "/.."
+//:
+//: 12 Remove a plain file or directory whose parent is a symlink
+//:
+//: 13 Remove of path beginning with "./" prefixed to it (the "./" should have
+//:    no effect.
+//:
+//: 14 Remove of a path with random '/'s in the path transformed to "//", the
+//:    transformation having no effect.
+//:
+//: 15 Remove of a path with "/../" in the middle of the path
+//:
+//: 16 Remove of a plain file and directory where path begins with "../"
+//
+// Plan:
+//: 1 Framework:
+//:   o Create a template mechanism, 'TestObject<STRING_TYPE>', where the main
+//:     test is the 'operator()' function, and 'STRING_TYPE' is one of
+//:     'const char *', 'bsl::string', 'std::string', and 'bsl::string_view',
+//:     'bslstl::StringRef', or 'std::pmr::string'.  This way we can run the
+//:     test with each type of possible 'STRING_TYPE' being passed to
+//:     'Obj::remove'.
+//:
+//:   o Create a function 'TC::translate' that will translate any path from
+//:     unix-style path to a host-style path.  This way, all the paths in the
+//:     'operator()' function are unix-style paths, translated to host-style
+//:     paths before being passed to 'Obj::remove'.
+//:
+//:   o Create a function 'TestObject::kill' which is passed a unix-style
+//:     relative path, which is converted to a host-style path, transformed as
+//:     listed blow, on Windows randomly change some of the back slashes to
+//:     forward slashes, then assigns it to a 'STRING_TYPE' object, then passes
+//:     it, along with 'd_recurse', to 'Obj::remove'. variable
+//:     'TestObject::d_exp' is compared to the return value of 'remove', if
+//:     success is expected, 'd_exp == 0', otherwise, 'd_exp != 0'.  The
+//:     transformations that take place before the string is passed to
+//:     'Obj::remove' are:
+//:     1 sometimes is converted from a relative path to an absolute path
+//:       according to 'TestObject::d_abs'.  (C-5)
+//:
+//:     2 sometimes has "./" prepended to it (only in the case of relative
+//:       path) according to 'TestObject::d_prefix'.  (C-12)
+//:
+//:     3 sometimes has "/." appended to it (meaning that 'Obj::remove' will
+//:       fail if the file being deleted is not a directory), possibly multiple
+//:       times, according to 'TestObject::d_dots'.  (C-2)
+//:
+//:     4 sometimes has '/' appended to it (meaning that 'Obj::remove' will
+//:       fail if the file being deleted is not a directory) according to
+//:       'TestObject::d_endSlash'.  (C-2)
+//:
+//:     5 sometimes has random '/'s in the path translated to "//"s or "/./"s
+//:       if 'TestObject::d_extraSlashes' is set.  (C-14)
+//:
+//:     6 removing files is extremely slow on Windows, so on that platform,
+//:       only do transformations 2-5 on the first string type ('const char *'
+//:       -- 'bdls::FilesystemUtil::flatten' will translate all other string
+//:       types to that type anyway, so testing all transformations on each
+//:       string type is a waste of cpu time).
+//:
+//:   o Create a c'tor of 'TestObject' that creates a subdirectory, 'cd's into
+//:     it, and builds a test framework of directories, plain files, and
+//:     symlinks to test 'Obj::remove' on.  The d'tor 'cd's back to the
+//:     original directory and deletes the subdirectory that the c'tor created.
+//:
+//:   o Create a function 'TC::exists' which, passed a unix-style relative
+//:     path, translates it to a host-style relative path, and checks for the
+//:     existence of the file, with an additional 'followLinks' argument which
+//:     determines whether symbolic links are to be followed.  If 'followLinks'
+//:     is 'false' and the file is a dangling link, 'TC::exists' returns
+//:     'true'.  Symbolic links that are not the leaf of the path are always
+//:     followed, regardless of the state of 'followLinks'.
+//:
+//: 2 Define a function 'TestObject::operator()' which serves as the main body
+//:   of the test, outside of the c'tor and d'tor.  It verifies that removing
+//:   "" fails (C-8) then goes into a loop varying the values of 'd_prefix',
+//:   'd_abs', 'd_dots', 'd_endSlash', and 'd_recurse', and calls 'kill' on
+//:   various unix-style relative paths.  Within the body of the loop, 'd_exp'
+//:   is constantly updated to match the expected return value of 'Obj::remove'
+//:   on the next call(s), and 'TC::exists' is called to check existence of
+//:   files that are expected to have either been deleted or survived.  To save
+//:   test time, 'TestObject::operator()' does not iterate through all possible
+//:   combinations of 'd_abs', 'd_dots', 'd_endSlash', and 'd_recurse', just
+//:   interesting combinations of them.  Every time we delete a file or files,
+//:   afterward we reconstruct the removed part of the file tree, and call
+//:   'TC::assertAllThere', which tests that the entire tree of directories
+//:   and files is intact.
+//:
+//: 3 Test 'remove' called on paths with the following qualities, in all cases
+//:   resulting in the removal of the file or directory unless otherwise
+//:   stated.
+//:   o a non-existent file (results in error) (C-10)
+//:
+//:   o a plain file in the current directory (C-1)
+//:
+//:   o a plain file in a subdirectory (C-1)
+//:
+//:   o an empty directory in a subdirectory (always succeeds) (C-1)
+//:
+//:   o a non-empty directory (succeeds only if 'recursiveFlag == true')  (C-3)
+//:
+//:   o a path ending with "/.." (C-11)
+//:
+//:   o a path ending with "<symlink>/.."  (C-11)
+//:
+//:   o various symlinks (should always delete the symlink, never what it
+//:     points to)  (C-4)
+//:
+//:   o a plain file where the parent in the path is a symlink  (C-12)
+//:
+//:   o a directory where the parent in the path is a symlink  (C-12)
+//:
+//:   o a path containing "/../" in the middle  (C-15)
+//:
+//:   o plain file and non-empty directory where path begins with "../"  (C-16)
+//
+// Testing:
+//   int remove(const char *);
+//   int remove(STRING_TYPE);
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT(bsl::string::npos == bsl::string_view::npos);
+const bsl::size_t npos = bsl::string_view::npos;
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+const char longBaseName[] = {
+    "plainFileWithVeryLongName_789_123456789_123456789_123456789_"
+    "123456789_123456789_123456789_123456789_123456789_123456789_"
+    "123456789_123456789_123456789_123456789_123456789_123456789_"
+    "123456789_123456789_123456789_123456789_123456789_123456789_"
+    "123456789_12345" };
+BSLMF_ASSERT(sizeof(longBaseName) == 256);
+
+const char longFullName[] = {
+    "b/bb/bbb/"
+    "plainFileWithVeryLongName_789_123456789_123456789_123456789_"
+    "123456789_123456789_123456789_123456789_123456789_123456789_"
+    "123456789_123456789_123456789_123456789_123456789_123456789_"
+    "123456789_123456789_123456789_123456789_123456789_123456789_"
+    "123456789_12345" };
+#else
+// Windows has a documented 260 char limit on path length, and on relative
+// paths, this limit applies after the relative path has been transformed to an
+// absolute path.  On a Windows matrix build, 'd_homeDir' is about 205 chars
+// long, so we have to make sure that the absolute path to 'longFullName' is
+// less than 260 characters long.
+
+const char longBaseName[] = {
+    "plainFileWithVeryLongName_789_1234" };
+BSLMF_ASSERT(sizeof(longBaseName) == 35);
+
+const char longFullName[] = {
+    "b/bb/bbb/"
+    "plainFileWithVeryLongName_789_1234" };
+BSLMF_ASSERT(sizeof(longFullName) + 205 < 260);
+#endif
+BSLMF_ASSERT(sizeof(longBaseName) + 9 == sizeof(longFullName));
+
+bool exists(bsl::string_view unixRelPath, bool followLinks = false);
+    // Determine if the file specified by 'unixRelPath' exists.  'unixRelPath'
+    // must be relative and not absolute.  If the optionally specified
+    // 'followLinks' is 'false' and the file is a symlink, it is not
+    // dereferenced and the query is interpreted as determining whether the
+    // symlink exists or not.
+
+bsl::string translate(bsl::string_view mostlyUnixPath);
+    // Return the specified 'mostlyUnixPath' translated to the path format of
+    // the current platform.
+    //
+    // On Unix, this simply means return 'mostlyUnixPath' cast to a 'string'.
+    //
+    // On Windows, this means translate '/'s to '\\'s.  Note that on Windows,
+    // if the path is absolute, the beginning of the path will be in Windows
+    // format while the end will be in Unix format.  This is not problematic.
+
+struct NonLinkRecord {
+    const char *d_relName_p;      // path to target from 'd_homeDir'
+    bool        d_isDirectory;    // whether it's a directory
+} nonLinkRecords[] = {
+    { "b/bb/bbb/bbbb",  1 },
+    { TC::longFullName, 0 },
+    { "b/cc/ccc/f",     0 },
+    { "b/cc/ccc/ff",    0 },
+    { "b/cc/ddd",       0 },
+    { "a",              0 },
+    { "c",              0 },
+    { "d",              0 } };
+enum { k_NUM_NON_LINK_RECORDS = sizeof nonLinkRecords /
+                                                      sizeof *nonLinkRecords };
+
+const struct LinkRecord {
+    const char *d_linkRelName_p;  // path to link from 'd_homeDir'.
+    const char *d_linkTarget_p;   // target of link
+    bool        d_isAbsolute;     // whether target is relative or absolute
+                                  // (absolute targets should have 'd_homeDir'
+                                  // prepended).  Note that always
+                                  // "d_isAbsolute == ('/' == *d_linkTarget_p)"
+    bool        d_isDangling;     // whether the link is dangling
+    bool        d_isBbbLink;      // whether the link is to non-empty
+                                  // directory "b/bb/bbb"
+    bool        d_isDirectory;    // whether the link points to a directory
+} linkRecords[] = {
+    { "b/bb/bbb/ccLink",            "../../cc",          0, 0, 0, 1 },
+    { "b/cc/ccc/myAbsPlainLink",    "/b/cc/ddd",         1, 0, 0, 0 },
+    { "b/cc/ccc/myRelPlainLink",    "../ddd",            0, 0, 0, 0 },
+    { "b/cc/ccc/myAbsDirLink",      "/b/bb/bbb/bbbb",    1, 0, 0, 1 },
+    { "b/cc/ccc/myRelDirLink",      "../../bb/bbb/bbbb", 0, 0, 0, 1 },
+    { "b/cc/ccc/myAbsBbbLink",      "/b/bb/bbb",         1, 0, 1, 1 },
+    { "b/cc/ccc/myRelBbbLink",      "../../bb/bbb",      0, 0, 1, 1 },
+    { "b/cc/ccc/myAbsDangLink",     "/b/bb/arf",         1, 1, 0, 0 },
+    { "b/cc/ccc/myRelDangLink",     "../../bb/arf",      0, 1, 0, 0 } };
+enum { k_NUM_LINK_RECORDS = sizeof linkRecords / sizeof *linkRecords };
+
+void assertAllThere(const char *stringTypeName, int line)
+    // Check that the whole test tree of directories, plain files, and symlinks
+    // exists as expected.  Since this function is frequently called during the
+    // test and if it fails we expect an avalanche of errors to follow, we bomb
+    // out if anything is wrong.  The specified 'stringTypeName' is a
+    // description of the 'STRING_TYPE' argument of 'TestObject' below, and the
+    // specified 'line' is the source line number from which this function was
+    // called.  Both parameters are used only in error messages if we bomb out.
+{
+    const int saveTestStatus = testStatus;
+
+    for (int nli = 0; nli < k_NUM_NON_LINK_RECORDS; ++nli) {
+        const NonLinkRecord& record   = nonLinkRecords[nli];
+        const bsl::string&   hostPath = TC::translate(record.d_relName_p);
+        const bool           isDir    = record.d_isDirectory;
+
+        ASSERTV(hostPath, Obj::exists(hostPath));
+        ASSERTV(hostPath, ! Obj::isSymbolicLink(hostPath));
+        ASSERTV(hostPath, isDir, isDir == Obj::isDirectory(hostPath));
+    }
+
+    if (e_UNIX) {
+        for (int li = 0; li < k_NUM_LINK_RECORDS; ++li) {
+            const LinkRecord&  record   = linkRecords[li];
+            const bsl::string& hostPath = TC::translate(
+                                                       record.d_linkRelName_p);
+            const bool         isDang   = record.d_isDangling;
+            const bool         isDir    = record.d_isDirectory;
+
+            ASSERTV(hostPath, Obj::isSymbolicLink(hostPath));
+            ASSERTV(hostPath, isDang, ! isDang == TC::exists(hostPath, true));
+            ASSERTV(hostPath, isDir,
+                                    isDir == Obj::isDirectory(hostPath, true));
+        }
+    }
+
+    ASSERTV(stringTypeName, line, saveTestStatus == testStatus);
+    ASSERT_FOR_CERTAIN(saveTestStatus == testStatus);
+}
+
+int createDirectories(bsl::string_view unixRelPath)
+    // Create directories of the specified 'unixRelPath' where the leaf is
+    // always a directory, and 'unixRelPath' is first translated to a
+    // host-style path.
+{
+    const bsl::string& hostPath = TC::translate(unixRelPath);
+    return Obj::createDirectories(hostPath, true);
+}
+
+bool exists(bsl::string_view unixRelPath, bool followLinks)
+    // (forward declared)
+{
+    const bsl::string& hostRelPath = TC::translate(unixRelPath);
+    ASSERT_FOR_CERTAIN(bdls::PathUtil::isRelative(hostRelPath));
+
+    return Obj::exists(hostRelPath) ||
+                            (!followLinks && Obj::isSymbolicLink(hostRelPath));
+}
+
+void linkIfNeeded(bsl::string_view unixDest,
+                  bsl::string_view unixRelLink)
+    // Test if the specified 'unixRelLink' exists, and if not, create a symlink
+    // from 'unixRelLink' to the specified 'unixDest', translating both paths
+    // to host-style first.
+{
+    if (e_WINDOWS || TC::exists(unixRelLink, false)) {
+        return;                                                       // RETURN
+    }
+
+    const bsl::string& hostDest = TC::translate(unixDest);
+    const bsl::string& hostLink = TC::translate(unixRelLink);
+
+    ASSERTV(u_errno(), hostDest, hostLink, createSymlink(hostDest, hostLink));
+}
+
+void touch(bsl::string_view unixRelPath)
+    // Create the file at the specified 'unixRelPath' if it doesn't exist,
+    // translating the path to host-style first.
+{
+    const bsl::string& hostRelPath = translate(unixRelPath);
+    ASSERT_FOR_CERTAIN(bdls::PathUtil::isRelative(hostRelPath));
+
+    Obj::FileDescriptor fd = Obj::open(hostRelPath,
+                                       Obj::e_OPEN_OR_CREATE,
+                                       Obj::e_READ_WRITE);
+    ASSERTV(u_errno(), unixRelPath, hostRelPath, Obj::k_INVALID_FD != fd);
+
+    Obj::close(fd);
+}
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+inline
+bsl::string translate(bsl::string_view unixPath)
+    // (forward declared)
+{
+    return bsl::string(unixPath);
+}
+#else
+bsl::string translate(bsl::string_view mostlyUnixPath)
+{
+    // (forward declared)
+    bsl::string ret(mostlyUnixPath);
+    bsl::replace(ret.begin(), ret.end(), '/', '\\');
+    return ret;
+}
+#endif
+
+template <class STRING_TYPE>
+class TestObject {
+    // DATA
+    bool         d_abs;         // whether the relative path passed to 'kill'
+                                // is to be converted to an absolute path
+                                // before calling 'Obj::remove'
+
+    bool         d_prefix;      // prefix path with "./" (only done on
+                                // relative paths)
+
+    int          d_dots;        // how many instances of "/." are to be
+                                // appended to file name
+
+    bool         d_endSlash;    // whether '/' is to be appended to file name
+                                // (after the 'd_dots' appended)
+
+    bool         d_recurse;     // to be passed to the 'recursiveFlag' argument
+                                // of 'Obj::remove' by 'kill'
+
+    bool         d_extraSlashes;// Add a random number of extra "/"s and/or
+                                // "/."s to the path adjacent to other slashes.
+
+    bsl::string  d_startDir;    // The current directory at the beginning of
+                                // of the call to the c'tor, restored as the
+                                // current directory by the d'tor (absolute
+                                // host path)
+
+    bsl::string  d_homeDir;     // The current directory at the end of the call
+                                // to the c'tor (a subdirectory of 'd_startDir'
+                                // created by the c'tor and erased by the
+                                // d'tor) (absolute host path).  Note that this
+                                // never ends with '/'.
+
+    int          d_randomSeed;  // Random number seed.
+
+    int          d_exp;         // Expected return value of 'Obj::remove' and
+                                // 'kill' on the next test, always 0 or -1.
+
+    // PRIVATE MANIPULATORS
+    void buildLinks();
+        // Create all the symlinks in our tree for our test.
+
+    void buildFiles(int line);
+        // Build the whole tree of directories, plain files, and symlinks for
+        // our test, using the specified 'line', which is the line number of
+        // the call to this function, in error messages if anything goes wrong.
+
+    void kill(bsl::string_view path);
+        // Take the specified 'path' as a string view, modify it according to
+        // 'd_abs', 'd_dots', 'd_endSlash', and translate it to host format
+        // (Windows or Unix), then, on Windows, randomly change some of the
+        // '\\'s to '/'s, assign it to type 'STRING_TYPE' (some form of
+        // 'string' or 'const char *'), and then call 'Obj::remove' with it,
+        // along with the value of 'd_recurse'.  If 'd_exp == 0', it is an
+        // error if 'remove' returns non-negative, if 'd_exp != 0', it is an
+        // error if 'remove' returns 0.  The behavior is undefined if 'path' is
+        // not relative.
+
+    unsigned rand();
+        // Return a 15-bit random number based on 'd_randomSeed'.
+
+    // PRIVATE ACCESSORS
+    int exp() const;
+        // Return the value of 'd_exp'.  This is a way of examining the
+        // variable 'd_exp' on the LHS of a comparison with no risk of
+        // accidentally assigning to it.
+
+  public:
+    // CREATORS
+    explicit
+    TestObject(const char *subDir);
+        // Save the cwd, create a subdirectory whose name is specified by
+        // 'subDir', cd into the subdirectory, save the absolute path to that
+        // subdirectory, and create the tree of directories, plain files and
+        // symlinks for our test.
+
+    ~TestObject();
+        // cd back to the directory we were in when the c'tor began and remove
+        // the subdirectory created by the c'tor.
+
+    void operator()();
+        // Iterate through different values of 'd_abs', 'd_dots', 'd_endSlash',
+        // 'd_extraSlashes', 'd_prefix' and 'd_recurse', calling 'kill' in
+        // different instances, described in detail in the test doc at the
+        // beginning of this namespace.
+};
+
+template <class STRING_TYPE>
+void TestObject<STRING_TYPE>::buildLinks()
+{
+    if (e_WINDOWS) {
+        return;                                                       // RETURN
+    }
+
+    const bsl::string nullString;
+
+    for (int ti = 0; ti < TC::k_NUM_LINK_RECORDS; ++ti) {
+        const TC::LinkRecord& rec    = TC::linkRecords[ti];
+        const bsl::string     target = rec.d_linkTarget_p;
+
+        ASSERT(rec.d_isAbsolute == ('/' == target[0]));
+        ASSERT(rec.d_isBbbLink  == ("/bbb" == target.substr(
+                                                        target.length() - 4)));
+
+        const bsl::string& prefix = rec.d_isAbsolute ? d_homeDir : nullString;
+
+        // the path 'prefix + target' always works, because if it's an absolute
+        // path, prefix never ends with '/' and 'target' always begins with
+        // '/', and otherwise 'prefix == ""' and target is a relative path.
+
+        TC::linkIfNeeded(prefix + target, rec.d_linkRelName_p);
+
+        BSLS_ASSERT_SAFE(TC::exists(rec.d_linkRelName_p, false));
+        BSLS_ASSERT_SAFE(TC::exists(rec.d_linkRelName_p, true) ==
+                                                            !rec.d_isDangling);
+    }
+}
+
+template <class STRING_TYPE>
+void TestObject<STRING_TYPE>::buildFiles(int line)
+    // Build directory / file / link tree.  Assumes 'd_homeDir' is the current
+    // directory.
+    //..
+    // - a
+    // - b/
+    //   - bb/
+    //     - bbb/
+    //       - bbbb/ (empty dir)
+    //       - ccLink -> ../../cc/
+    //       - <TC::longBaseName>
+    //   - cc/
+    //     - ccc/
+    //       - f
+    //       - ff
+    //       - myAbsPlainLink -> d_homeDir + /b/cc/ddd
+    //       - myRelPlainLink -> ../ddd
+    //       - myAbsDirLink -> d_homeDir + /b/bb/bbb/bbbb/
+    //       - myRelDirLink -> ../../bb/bbb/bbbb/
+    //       - myAbsBbbLink -> d_homeDir + /b/bb/bbb/
+    //       - myRelBbbLink ->  ../../bb/bbb/
+    //       - myAbsDangLink -> d_homeDir + /b/bb/arf (dangling)
+    //       - myRelDangLink -> ../../bb/arf (dangling)
+    //     - ddd
+    // - c
+    // - d
+    //..
+{
+    const char *name = bsls::NameOf<STRING_TYPE>();
+
+    ASSERT(0 == TC::createDirectories("b/bb/bbb/bbbb"));
+    ASSERT(0 == TC::createDirectories("b/cc/ccc"));
+
+    TC::touch("a");
+    TC::touch("c");
+    TC::touch("d");
+
+    TC::touch("b/cc/ddd");
+
+    TC::touch("b/cc/ccc/f");
+    TC::touch("b/cc/ccc/ff");
+
+    TC::touch(TC::longFullName);
+
+    if (e_UNIX) {
+        buildLinks();
+    }
+
+    TC::assertAllThere(name, line);
+}
+
+template <class STRING_TYPE>
+void TestObject<STRING_TYPE>::kill(bsl::string_view path)
+{
+    ASSERT_FOR_CERTAIN(bdls::PathUtil::isRelative(TC::translate(path)));
+
+    bsl::string mixedPath;
+    if (d_abs) {
+        mixedPath = d_homeDir;              // Note that 'd_homeDir' is a host
+                                            // absolute path to cwd.
+        mixedPath += '/';
+    }
+    if (d_prefix) {
+        ASSERT_FOR_CERTAIN(!d_abs);
+        mixedPath = "./";
+    }
+    mixedPath += path;
+    ASSERT_FOR_CERTAIN(
+               bdls::PathUtil::isRelative(TC::translate(mixedPath)) == !d_abs);
+    for (int ii = 0; ii < d_dots; ++ii) {
+        mixedPath += "/.";
+    }
+    if (d_endSlash) {
+        mixedPath += '/';
+    }
+    if (d_extraSlashes) {
+        // Randomly turn some of the existing slashes in 'mixedPath' to "//" or
+        // "/./".
+
+        IntPtr existingSlashes = bsl::count(mixedPath.begin(),
+                                            mixedPath.end(),
+                                            '/');
+        if (0 < existingSlashes) {
+            const IntPtr numNewSlashes = 1 + this->rand() % existingSlashes;
+            for (int ii = 0; ii < numNewSlashes; ++ii, ++existingSlashes) {
+                // 'whichSlash' is the 1-based index of the slash among the
+                // existing slashes in the path to be changed, which can
+                // otherwise be thought of as the number of 'find('/', ...)'s
+                // proceeding along the path required to locate the character
+                // index of that '/'.
+
+                const IntPtr whichSlash = 1 + this->rand() % existingSlashes;
+                bsl::size_t whichCharIdx = 0;      // must be able to hold npos
+                for (int jj = 0; jj < whichSlash; ++jj) {
+                    whichCharIdx = mixedPath.find('/', whichCharIdx + !!jj);
+                    ASSERT_FOR_CERTAIN(TC::npos != whichCharIdx);
+                }
+                const char *insertStr = (this->rand() & 1) ? "/" : "/.";
+                mixedPath.insert(whichCharIdx, insertStr);
+            }
+        }
+    }
+
+    bsl::string hostPath = TC::translate(mixedPath);
+    ASSERT_FOR_CERTAIN(bdls::PathUtil::isRelative(hostPath) == !d_abs);
+
+   if (e_WINDOWS) {
+        // randomly change 25% of the '\\'s to '/'s, should make no difference
+
+        for (unsigned uu = 0; uu < hostPath.length(); ++uu) {
+            if ('\\' == hostPath[uu] && 0 == (this->rand() & 3)) {
+                hostPath[uu] = '/';
+            }
+        }
+    }
+
+    if (veryVeryVerbose) cout << "Obj::remove(" << hostPath <<
+                                           (d_recurse ? ", true);\n" : ");\n");
+
+    // Note that 'STRING_TYPE' may be 'const char *' or
+    // '{bsl, std, std::pmr}::string'.
+
+    STRING_TYPE stringTypePath = hostPath.c_str();
+    int rc = d_recurse ? Obj::remove(stringTypePath, true)
+                       : Obj::remove(stringTypePath);    // 'recursiveFlag'
+                                                         // defaults to 'false'
+    ASSERTV(hostPath, exp(), rc, d_recurse, errno,
+                                                  ((0 == exp()) == (0 == rc)));
+}
+
+template <class STRING_TYPE>
+inline
+unsigned TestObject<STRING_TYPE>::rand()
+{
+    return bdlb::Random::generate15(&d_randomSeed);
+}
+
+// PRIVATE ACCESSORS
+template <class STRING_TYPE>
+inline
+int TestObject<STRING_TYPE>::exp() const
+{
+    return d_exp;
+}
+
+// CREATORS
+template <class STRING_TYPE>
+TestObject<STRING_TYPE>::TestObject(const char *subDir)
+: d_abs(false)
+, d_prefix(false)
+, d_dots(0)
+, d_endSlash(false)
+, d_recurse(false)
+, d_extraSlashes(false)
+, d_randomSeed(0x0be5ef0e)
+{
+    ASSERT_FOR_CERTAIN(0 == Obj::getWorkingDirectory(&d_startDir));
+    ASSERT_FOR_CERTAIN(!bdls::PathUtil::isRelative(d_startDir));
+
+    if (verbose) cout << "Testing +++++++++++++++ " << subDir << endl;
+
+    ASSERT(0 == TC::createDirectories(subDir));
+    ASSERT_FOR_CERTAIN(0 == Obj::setWorkingDirectory(subDir));
+
+    ASSERT_FOR_CERTAIN(0 == Obj::getWorkingDirectory(&d_homeDir));
+    ASSERT_FOR_CERTAIN(!bdls::PathUtil::isRelative(d_homeDir));
+    if (veryVerbose) P(d_homeDir);
+
+    ASSERT_FOR_CERTAIN(TC::npos != d_homeDir.find(d_startDir));
+
+    buildFiles(__LINE__);
+}
+
+template <class STRING_TYPE>
+TestObject<STRING_TYPE>::~TestObject()
+{
+    // On some operating systems, being in a directory constitutes an open file
+    // descriptor in that directory, so we cannot 'remove(d_homeDir)' before we
+    // have changed the working directory out of 'd_homeDir'.
+
+    ASSERT_FOR_CERTAIN(0 == Obj::setWorkingDirectory(d_startDir));
+    ASSERT(0 == Obj::remove(d_homeDir, true));    // absolute host path
+}
+
+// MANIPULATORS
+template <class STRING_TYPE>
+void TestObject<STRING_TYPE>::operator()()
+{
+    const char *name = bsls::NameOf<STRING_TYPE>();
+
+    if (veryVerbose) {
+        ASSERT(0 == ::system(e_UNIX ? "ls -aCFR" : "DIR /W/O/S"));
+    }
+
+    ASSERT_FOR_CERTAIN(0 != Obj::remove(""));
+
+    static const struct Data {
+        bool d_prefix;
+        bool d_recurse;
+        bool d_endSlash;
+        int  d_dots;
+        bool d_extraSlashes;
+    } DATA[] = {
+    //    V - prefix
+    //    |  V - recurse
+    //    |  |  V - endSlash
+    //    |  |  |  V - dots
+    //    |  |  |  |  V - extraSlashes
+    //    V  V  V  V  V
+        { 0, 0, 0, 0, 0 },
+        { 0, 1, 1, 0, 1 },
+        { 0, 0, 1, 0, 0 },
+        { 1, 1, 0, 0, 0 },
+        { 0, 0, 0, 1, 0 },
+#if defined(BSLS_PLATFORM_OS_UNIX)
+        { 1, 0, 0, 0, 0 },
+        { 0, 1, 0, 2, 0 },
+#endif
+        { 0, 0, 0, 0, 1 } };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    // 'remove' on Windows is multiple orders of magnitude slower than on Unix,
+    // so we skip the testing to a bare minimum on that platform.
+
+    const bool isConstChar = bsl::is_same<STRING_TYPE, const char *>::value;
+    const int  numTaIterations = (e_UNIX || isConstChar) ? 2 : 1;
+    for (int ta = 0; ta < numTaIterations; ++ta) {
+        d_abs = ta;
+
+        const int numTiIterations = (e_UNIX || (isConstChar && !d_abs))
+                                  ? k_NUM_DATA
+                                  : 2;
+        for (int ti = 0; ti < numTiIterations; ++ti) {
+            const Data& data = DATA[ti];
+            d_prefix         = data.d_prefix;
+            d_endSlash       = data.d_endSlash;
+            d_dots           = data.d_dots;
+            d_recurse        = data.d_recurse;
+            d_extraSlashes   = data.d_extraSlashes;
+
+            if (veryVerbose) {
+                P_(d_prefix);    P_(d_abs);   P_(d_endSlash);    P(d_dots);
+                P_(d_recurse);   P(d_extraSlashes);
+            }
+
+            if (d_abs && d_prefix) {
+                continue;
+            }
+
+            d_exp = -1;
+
+            // kill file that doesn't exist
+
+            kill("x");
+            TC::assertAllThere(name, __LINE__);
+
+            d_exp = (0 == d_dots && !d_endSlash) ? 0 : -1;
+
+            // kill plain file in current dir
+
+            kill("a");
+            ASSERTV(exp(), !!exp() == TC::exists("a"));
+
+            if (0 == exp()) {
+                TC::touch("a");
+            }
+            TC::assertAllThere(name, __LINE__);
+
+            // klll plain relative file
+
+            kill("b/cc/ccc/f");
+            ASSERT(!!exp() == TC::exists("b/cc/ccc/f"));
+
+            if (0 == exp()) {
+                TC::touch("b/cc/ccc/f");
+            }
+            TC::assertAllThere(name, __LINE__);
+
+            d_exp = 0;
+
+            // kill empty dir
+
+            kill("b/bb/bbb/bbbb");
+            ASSERT(! TC::exists("b/bb/bbb/bbbb"));
+
+            ASSERT(0 == TC::createDirectories("b/bb/bbb/bbbb"));
+            TC::assertAllThere(name, __LINE__);
+
+            // kill non-empty dir
+
+            d_exp = d_recurse ? 0 : -1;
+
+            kill("b/bb");
+            ASSERT(!!exp() == TC::exists("b/bb"));
+
+            if (0 == exp()) {
+                ASSERT(0 == TC::createDirectories("b/bb/bbb/bbbb"));
+                TC::touch(TC::longFullName);
+                TC::linkIfNeeded("../../cc",
+                                 "b/bb/bbb/ccLink");
+            }
+            TC::assertAllThere(name, __LINE__);
+
+            // kill remote parent
+
+            kill("b/bb/bbb/bbbb/..");
+
+            ASSERT(!!exp() == TC::exists("b/bb/bbb"));
+
+            if (0 == exp()) {
+                ASSERT(0 == TC::createDirectories("b/bb/bbb/bbbb"));
+                TC::touch(TC::longFullName);
+                TC::linkIfNeeded("../../cc",
+                                 "b/bb/bbb/ccLink");
+            }
+            TC::assertAllThere(name, __LINE__);
+
+            // kill file with '/../' in path
+
+            d_exp = (0 == d_dots && !d_endSlash) ? 0 : -1;
+
+            kill("b/../a");
+
+            ASSERT(!!exp() == TC::exists("a"));
+
+            if (0 == exp()) {
+                TC::touch("a");
+            }
+            TC::assertAllThere(name, __LINE__);
+
+            // kill paths beginning with "../"
+
+            if (!d_abs) {
+                d_exp = (0 == d_dots && !d_endSlash) ? 0 : -1;
+
+                bsl::string relDir("b/bb");
+                relDir = TC::translate(relDir);
+
+                ASSERT_FOR_CERTAIN(0 == Obj::setWorkingDirectory(relDir));
+
+                kill("../cc/ccc/f");
+
+                ASSERT_FOR_CERTAIN(0 == Obj::setWorkingDirectory(d_homeDir));
+
+                ASSERT(!!exp() == TC::exists("b/cc/ccc/f"));
+
+                if (0 == exp()) {
+                    TC::touch("b/cc/ccc/f");
+                }
+                TC::assertAllThere(name, __LINE__);
+
+                d_exp = d_recurse ? 0 : -1;
+
+                ASSERT_FOR_CERTAIN(0 == Obj::setWorkingDirectory(relDir));
+
+                kill("../cc/ccc");
+
+                ASSERT_FOR_CERTAIN(0 == Obj::setWorkingDirectory(d_homeDir));
+
+                ASSERT(!!exp() == TC::exists("b/cc/ccc"));
+
+                if (0 == exp()) {
+                    ASSERT(0 == TC::createDirectories("b/cc/ccc"));
+                    TC::touch("b/cc/ccc/f");
+                    TC::touch("b/cc/ccc/ff");
+                    buildLinks();
+                }
+                TC::assertAllThere(name, __LINE__);
+            }
+
+            if (e_WINDOWS) {
+                // Don't do symlinks
+
+                continue;
+            }
+
+            for (int tl = 0; tl < TC::k_NUM_LINK_RECORDS; ++tl) {
+                const TC::LinkRecord& rec = TC::linkRecords[tl];
+
+                if (!rec.d_isBbbLink) {
+                    continue;
+                }
+
+                const bsl::string bbbLink(rec.d_linkRelName_p);
+
+                ASSERT(TC::exists(bbbLink, true));
+
+                d_exp = 0;
+
+                // kill empty directory whose parent is link
+
+                kill(bbbLink + "/bbbb");
+
+                ASSERT(! TC::exists("b/bb/bbb/bbbb"));
+                ASSERT(0 == TC::createDirectories("b/bb/bbb/bbbb"));
+                TC::assertAllThere(name, __LINE__);
+
+                d_exp = (0 == d_dots && !d_endSlash) ? 0 : -1;
+
+                // kill plain file whose parent is link
+
+                kill(bbbLink + '/' + TC::longBaseName);
+
+                ASSERT(!!exp() == TC::exists(TC::longFullName));
+
+                if (0 == exp()) {
+                    TC::touch(TC::longFullName);
+                }
+                TC::assertAllThere(name, __LINE__);
+            }
+
+            // kill non-empty directory whose parent is link
+
+            d_exp = d_recurse ? 0 : -1;
+
+            kill("b/bb/bbb/ccLink/ccc");
+
+            ASSERT(!!exp() == TC::exists("b/cc/ccc"));
+            ASSERT(TC::exists("b/bb/bbb/ccLink", true));
+
+            if (0 == exp()) {
+                ASSERT(0 == TC::createDirectories("b/cc/ccc"));
+                TC::touch("b/cc/ccc/f");
+                TC::touch("b/cc/ccc/ff");
+                buildLinks();
+            }
+            TC::assertAllThere(name, __LINE__);
+
+            d_exp = d_recurse ? 0 : -1;
+
+            // kill parent through link
+
+            kill("b/cc/ccc/myRelDirLink/..");
+
+            ASSERT(!!exp() == TC::exists("b/bb/bbb"));
+            ASSERT(TC::exists(           "b/cc/ccc/myRelDirLink", false));
+            ASSERT(!!exp() == TC::exists("b/cc/ccc/myRelDirLink", true));
+
+            if (0 == exp()) {
+                ASSERT(0 == TC::createDirectories("b/bb/bbb/bbbb"));
+                TC::touch(TC::longFullName);
+                TC::linkIfNeeded("../../cc",
+                                 "b/bb/bbb/ccLink");
+            }
+            TC::assertAllThere(name, __LINE__);
+
+            // removing links
+
+            d_exp = (0 == d_dots && !d_endSlash) ? 0 : -1;
+
+            for (int tl = 0; tl < TC::k_NUM_LINK_RECORDS; ++tl) {
+                const TC::LinkRecord& rec = TC::linkRecords[tl];
+
+                kill(rec.d_linkRelName_p);
+
+                ASSERT(!!exp() == TC::exists(rec.d_linkRelName_p, false));
+                if (0 == exp()) {
+                    static const bsl::string nullString("");
+                    ASSERT(rec.d_isAbsolute == ('/' == rec.d_linkTarget_p[0]));
+                    const bsl::string& prefix = rec.d_isAbsolute ? d_homeDir
+                                                                 : nullString;
+                    TC::linkIfNeeded(prefix + rec.d_linkTarget_p,
+                                     rec.d_linkRelName_p);
+                }
+                TC::assertAllThere(name, __LINE__);
+            }
+
+            // removing files where the directory 'bbb' is linked to
+
+            for (int tl = 0; tl < TC::k_NUM_LINK_RECORDS; ++tl) {
+                const TC::LinkRecord& rec = TC::linkRecords[tl];
+
+                if (!rec.d_isBbbLink) {
+                    continue;
+                }
+
+                const bsl::string linkBbb(rec.d_linkRelName_p);
+
+                // removing plain file where parent is symlink
+
+                d_exp = (0 == d_dots && !d_endSlash) ? 0 : -1;
+
+                kill(linkBbb + '/' + TC::longBaseName);
+
+                ASSERT(!!exp() == TC::exists(TC::longFullName));
+
+                if (0 == exp()) {
+                    TC::touch(TC::longFullName);
+                }
+                TC::assertAllThere(name, __LINE__);
+
+                // removing empty dir where parent is symlink
+
+                d_exp = 0;
+
+                kill(linkBbb + "/bbbb");
+
+                ASSERT(!!exp() == TC::exists("b/bb/bbb/bbbb"));
+                ASSERT(TC::exists("b/bb/bbb"));
+
+                if (0 == exp()) {
+                    ASSERT(0 == TC::createDirectories("b/bb/bbb/bbbb"));
+                }
+                TC::assertAllThere(name, __LINE__);
+            }
+
+            // removing non-empty dir whose parent is a link
+
+            d_exp = d_recurse ? 0 : -1;
+
+            kill("b/bb/bbb/ccLink/ccc");
+            ASSERT(!!exp() == TC::exists("b/cc/ccc"));
+            ASSERT(TC::exists("b/bb/bbb/ccLink", true));
+
+            if (0 == exp()) {
+                ASSERT(0 == TC::createDirectories("b/cc/ccc"));
+                TC::touch("b/cc/ccc/f");
+                TC::touch("b/cc/ccc/ff");
+                buildLinks();
+            }
+            TC::assertAllThere(name, __LINE__);
+        }
+    }
+}
+
+}  // close namespace TestCase31_Remove
+
 template <class STRING_TYPE>
 void testCase30_createTemporarySubdirectory(int verbose, int veryVerbose)
 {
@@ -2456,7 +3481,7 @@ void testCase10_getFileSize(const char         *typeName,
 
         bsl::string cmd = "ln -s " + bsl::string(fileName) + " testLink";
         if (veryVerbose) P(cmd);
-        system(cmd.c_str());
+        ASSERT(0 == system(cmd.c_str()));
 
         STRING_TYPE fileName("testLink");
         Obj::Offset off = Obj::getFileSize(fileName);
@@ -2721,19 +3746,36 @@ void testCase9_createSystemTemporaryDirectory(
                                            int                 veryVerbose,
                                            int                 veryVeryVerbose)
 {
-    (void) verbose; (void) veryVerbose; (void) veryVeryVerbose;
-    (void) tmpWorkingDir;
+    (void) verbose; (void) veryVeryVerbose;
 
-    if (verbose) cout << "\n\t+++++++++++++++ Testing " << typeName << endl;
+#if BSLS_PLATFORM_OS_UNIX
+    static const char slash = '/';
+#else
+    static const char slash = '\\';
+#endif
 
-    STRING_TYPE tempFileName = "tmp.getSystemTemporaryDirectoryTest.7";
+    bsl::string fileTypeName(typeName);
+    bsl::replace(fileTypeName.begin(), fileTypeName.end(), ':', '_');
+
+    if (verbose) cout << "\n\t+++++++++++++++ Testing " << fileTypeName <<
+                                                                          endl;
 
     STRING_TYPE tempDirectoryName;
     ASSERT(0 == Obj::getSystemTemporaryDirectory(&tempDirectoryName));
     ASSERT(true == Obj::exists(tempDirectoryName));
+    {
+        const bsl::size_t len = tempDirectoryName.length();
+        if (slash == tempDirectoryName[len - 1]) {
+            tempDirectoryName.resize(len - 1);
+        }
+    }
 
+    if (veryVerbose) P(tempDirectoryName);
+
+    const bsl::string& leafName = tmpWorkingDir + "." + fileTypeName + ".txt";
     STRING_TYPE absoluteFileName = tempDirectoryName;
-    bdls::PathUtil::appendRaw(&absoluteFileName, tempFileName.c_str());
+    bdls::PathUtil::appendRaw(&absoluteFileName, leafName.c_str());
+    if (veryVerbose) P(absoluteFileName);
 
     ASSERT(false == Obj::exists(absoluteFileName));
 
@@ -3272,10 +4314,10 @@ void testCase2_CStringUtil_StringRef(const char               *stringTypeName,
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-//  bool veryVeryVeryVerbose = argc > 5;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+//  veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -3301,6 +4343,13 @@ int main(int argc, char *argv[])
         // create a plain file with the result name, and the attempt to create
         // the directory would fail.
 
+        // On nfs, 'gremlin' files beginning with '.nfs...' sometimes appear
+        // in the created directory, and they won't allow themselves to be
+        // removed until some period of time after creation.  So it is possible
+        // that there will be leftover directories here with the same hostname
+        // and pid.  For that reason, we include the time of creation in the
+        // paths.
+
 #ifdef BSLS_PLATFORM_OS_UNIX
         char host[80];
         ASSERT(0 == ::gethostname(host, sizeof(host)));
@@ -3310,9 +4359,11 @@ int main(int argc, char *argv[])
                                       // nfs there anyway.
 #endif
 
+        const bsls::TimeInterval now = bsls::SystemTime::now(
+                                            bsls::SystemClockType::e_REALTIME);
         bsl::ostringstream oss;
-        oss << "tmp.filesystemutil.case_" << test << '.' << host << '.' <<
-                                                               ::localGetPId();
+        oss << "tmp.buildDir.bdls_filesystemutil.case_" << test << '.' <<
+                   host << '.' << ::localGetPId() << '.' << now.totalSeconds();
         tmpWorkingDir = oss.str();
     }
     if (veryVerbose) P(tmpWorkingDir);
@@ -3331,7 +4382,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 32: {
+      case 34: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -3416,7 +4467,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 31: {
+      case 33: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -3534,6 +4585,43 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
+      } break;
+      case 32: {
+        // --------------------------------------------------------------------
+        // Test case 31 is split into cases 31 & 32 to speed things up.  The
+        // tests run very fast on Linux & Sun, slower on Aix, and orders of
+        // magnitude slower on Windows.  We want to make sure the tests don't
+        // take long enough to time out on nightly builds.
+
+        if (verbose) cout << "TESTING REMOVE: TC 32\n"
+                             "=====================\n";
+
+        namespace TC = TestCase31_Remove;
+
+        TC::TestObject<bsl::string_view >("string_view")();
+        TC::TestObject<bslstl::StringRef>("StringRef")();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+        TC::TestObject<std::pmr::string >("std_pmr_string")();
+#endif
+      } break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // Test case 31 is split into cases 31 & 32 to speed things up.  The
+        // tests run very fast on Linux & Sun, slower on Aix, and orders of
+        // magnitude slower on Windows.  We want to make sure the tests don't
+        // take long enough to time out on nightly builds.
+
+        if (verbose) cout << "TESTING REMOVE: TC 31\n"
+                             "=====================\n";
+
+        namespace TC = TestCase31_Remove;
+
+        ASSERT("b/bb/bbb/" + bsl::string(TC::longBaseName) ==
+                                                             TC::longFullName);
+
+        TC::TestObject<const char *>("const_char")();
+        TC::TestObject<bsl::string >("bsl_string")();
+        TC::TestObject<std::string >("std_string")();
       } break;
       case 30: {
         // --------------------------------------------------------------------
@@ -5265,7 +6353,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bsl::string dir = "bdls_filesystemutil.temp.18";
+        bsl::string dir = "bdls_filesystemutil.temp.20";
         bsl::string logPath = dir;
 
         Obj::remove(dir, true);
@@ -5363,7 +6451,7 @@ int main(int argc, char *argv[])
             WIN32_FIND_DATAW   findDataW;
             const bsl::wstring name = bsl::wstring(filenames[i]) + L".log";
             const bsl::wstring path =
-                            L"bdls_filesystemutil.temp.18\\logs20\\" + name;
+                            L"bdls_filesystemutil.temp.20\\logs20\\" + name;
 
             if (veryVerbose) {
                 int mode = _setmode(_fileno(stdout), _O_U16TEXT);
@@ -5387,7 +6475,7 @@ int main(int argc, char *argv[])
             WIN32_FIND_DATAA findDataA;
             const bsl::string name = bsl::string(NAMES[i]) + ".log";
             const bsl::string path =
-                           "bdls_filesystemutil.temp.18" PS "logs20" PS + name;
+                           "bdls_filesystemutil.temp.20" PS "logs20" PS + name;
 
             if (veryVerbose) { T_; P_(i); P(name); }
 
@@ -7491,7 +8579,7 @@ int main(int argc, char *argv[])
                 // Establish a consistent baseline: 'fileName' does not exist.
 
                 if (Obj::exists(fileName)) {
-                    Obj::remove(fileName);
+                    ASSERT(0 == Obj::remove(fileName));
                 }
 
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
@@ -9652,12 +10740,11 @@ int main(int argc, char *argv[])
         cout << "'" << tmpWorkingDir << "' left behind.\n";
         const bsl::string& lsCmd = (e_UNIX ? "/bin/ls -laF " : "dir /o ") +
                                                                  tmpWorkingDir;
-        bsl::system(lsCmd.c_str());
+        ASSERT(0 == bsl::system(lsCmd.c_str()));
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "."
-             << endl;
+        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
     return testStatus;
 }
