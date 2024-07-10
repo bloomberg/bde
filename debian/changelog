@@ -1,5 +1,42 @@
-bsl-internal (4.10.0.0) unstable; urgency=low
+bsl-internal (4.11.0.0) unstable; urgency=low
 
+  * 2859770fd correct nb td warnings (#4821)
+  * 954b1dcc3 Bumped version to 4.11.0.0
+  * 5cb401022 Remove gendered terms (#4813)
+  * 193d72cb1 bdlcc_timequeue fix (#4809)
+  * f4e42d232 BER decoding crash on bogus string length (DRQS 175292043) (#4815)
+  * b662fc9c0 reduce warnings (#4817)
+  * 8587aa238 balber_berdecoder: Fuzz test crash 2 (DRQS 175741365) (#4810)
+  * a3cb19ffe Fix Baltzo::TimeZoneUtil::convertLocalToUtc DRQS 174142713 (#4795)
+  * 102b05c36 Cleanup bdl (#4814)
+  * f57b55fba XLC bug workaround (#4805)
+  * aba8bec9f Remove gendered pronouns in describing threads (#4812)
+  * 8c8df3ed6 Cleanup bdlf and bdlb (#4811)
+  * 196c09cf9 Fuzz test bug (DRQS 175594554) (#4808)
+  * 472c99054 copy_n: return canonical iterator instead of pair (#4633)
+  * 049cdff11 Cleanup bdls (#4807)
+  * 76eb63a30 Cleanup bdlde (#4806)
+  * a03da49c2 Fix types of some type-trait variables (invokable_r, etc). {DRQS 175369109} (#4760)
+  * 8cd74434f Start Feature (#4802)
+  * 93dd439a2 Fix bdlsu namespace typo to bdlsu (#4803)
+  * f67a403da Add MSVC ARM support (DRQS 175608460) (#4788)
+  * ebe6ef358 remove warnings (#4798)
+  * f469b74c9 bsl,bdl,bal: correct 'unknown warning group' warnings in clang (#4791)
+  * 2b42b44ea bdlmt_signaler-TC-4-extend AIX stubout to 64 bit builds (#4796)
+  * 45c229d2c reduce warnings (#4794)
+  * 3409f8f05 Replace !"" with 0!="" in ASSERTs (#4793)
+  * 0098f67d4 complete bdlm_metricsregistry test driver (DRQS 174321673) (#4775)
+  * 1ffa3b4b5 Additional usage example has been added to the 'bslmf_movableref'. DRQS 175402590 (#4781)
+  * 6ede9b543 Cleanup balm (#4792)
+  * 650b64d4b reduce number of race conditions in TC 1 (#4790)
+  * 0adf7706b Fix bsl::variant SFINAE issue on Solaris (DRQS 175366735) (#4776)
+  * 37497851a Bslstl stringview constexpr drqs 174944686 (#4770)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 10 Jul 2024 12:35:04 -0400
+
+bsl-internal (4.10.0.0) git; urgency=low
+
+  * 20ebc4c1e Changelog for version 4.10.0.0
   * 985a293d8 Bumped version to 4.10.0.0
   * d86110fa8 bdlt_iso8601util: doc tweak (#4784)
   * f9169d06b Change default ufid for amd64 (#4716)
@@ -21,7 +58,7 @@ bsl-internal (4.10.0.0) unstable; urgency=low
   * a28cb6f9a Drqs 175400868/teom metric names (#4764)
   * 0d0d1a5b1 Revert "Include guid in BSLS_REVIEW (via cheapstack) (#4725)" (#4765)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 12 Jun 2024 13:08:55 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 12 Jun 2024 13:13:30 -0400
 
 bsl-internal (4.9.0.0) git; urgency=low
 
