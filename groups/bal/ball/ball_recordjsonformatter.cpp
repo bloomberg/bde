@@ -61,8 +61,8 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 //                         },
 //                         "format": {
 //                             "description":
-//                                 "Display the time in either in he 'bdePrint'
-//                                  or ISO 8601 format.",
+//                                 "Display the time in either in the
+//                                  'bdePrint' or ISO 8601 format.",
 //                             "type": "string",
 //                             "enum": ["bdePrint", "iso8601"]
 //                         }

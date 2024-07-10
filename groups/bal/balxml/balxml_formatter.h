@@ -117,7 +117,7 @@ BSLS_IDENT("$Id: $")
 //  formatter.closeElement("Fruits");
 //..
 // Indentation is correctly taken care of and the user need only concern
-// her/himself with the correct ordering of the XML elements s/he's trying to
+// themselves with the correct ordering of the XML elements they're trying to
 // write.  The output of the above example is:
 //..
 //  +--bsl::cout--------------------------------------------------------------+

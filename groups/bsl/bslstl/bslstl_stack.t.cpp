@@ -2076,14 +2076,14 @@ bool isCalledMethodCheckPassed(CalledMethod flag)
 //                                   USAGE EXAMPLE
 //=============================================================================
 
-// Suppose a husband wants to keep track of chores his wife has asked him to
-// do.  Over the years of being married, he has noticed that his wife generally
-// wants the most recently requested task done first.  If she has a new task in
-// mind that is low-priority, she will avoid asking for it until higher
-// priority tasks are finished.  When he has finished all tasks, he is to
-// report to his wife that he is ready for more.
-
-// First, we define the class implementing the 'to-do' list.
+// Suppose someone wants to keep track of chores their partner has asked them
+// to do.  Over the years, they have noticed that their partner generally wants
+// the most recently requested task done first.  If the partner has a new task
+// in mind that is low-priority, they will avoid asking for it until higher
+// priority tasks are finished.  When they have finished all tasks, they report
+// to their partner that they are ready for more.
+//
+// First, we define the class implementing the to-do list.
 
 class ToDoList {
     // DATA
@@ -6880,41 +6880,41 @@ int main(int argc, char *argv[])
         toDoList.enqueueTask("Change the car's oil.");
         toDoList.enqueueTask("Pay the bills.");
 
-        // Then, the husband watches the Yankee's game on TV.  Upon returning
-        // to the list he consults the list to see what task is up next:
+        // Then, they watch the Yankee's game on TV.  Upon returning to the
+        // list they consult the list to see what task is up next:
 
         ASSERT(!strcmp("Pay the bills.", toDoList.currentTask()));
 
-        // Next, he sees that he has to pay the bills.  When the bills are
-        // finished, he flushes that task from the list:
+        // Next, they see that they have to pay the bills.  When the bills are
+        // finished, they flush that task from the list:
 
         ASSERT(false == toDoList.finishTask());
 
-        // Then, he consults the list for the next task.
+        // Then, they consult the list for the next task.
 
         ASSERT(!strcmp("Change the car's oil.", toDoList.currentTask()));
 
-        // Next, he sees he has to change the car's oil.  Before he can get
-        // started, another request comes:
+        // Next, they see that they have to change the car's oil.  Before they
+        // can get started, another request comes in:
 
         toDoList.enqueueTask("Get some hot dogs.");
         ASSERT(!strcmp("Get some hot dogs.", toDoList.currentTask()));
 
-        // Then, he drives the car to the convenience store and picks up some
-        // hot dogs and buns.  Upon returning home, he gives the hot dogs to
-        // his wife, updates the list, and consults it for the next task.
+        // Then, they drive the car to the convenience store and picks up some
+        // hot dogs and buns.  Upon returning home, they give the hot dogs to
+        // their partner, update the list, and consult it for the next task.
 
         ASSERT(false == toDoList.finishTask());
         ASSERT(!strcmp("Change the car's oil.", toDoList.currentTask()));
 
-        // Next, he finishes the oil change, updates the list, and consults it
+        // Next, they finish the oil change, update the list, and consult it
         // for the next task.
 
         ASSERT(true == toDoList.finishTask());
         ASSERT(!strcmp("<EMPTY>", toDoList.currentTask()));
 
-        // Finally, the wife has been informed that everything is done, and she
-        // makes another request:
+        // Finally, their partner has now been informed that everything is
+        // done, and they make another request:
 
         toDoList.enqueueTask("Clean the rain gutters.");
       } break;

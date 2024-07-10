@@ -1205,7 +1205,7 @@ int main(int argc, char *argv[])
         formatter.closeElement("Fruits");
 //..
 // Indentation is correctly taken care of and the user only needs to concern
-// her/himself with the correct ordering of XML elements s/he's trying
+// themselves with the correct ordering of XML elements they're trying
 // to write.  The output of the above example is:
 //..
         const char EXPECTED1[] =
