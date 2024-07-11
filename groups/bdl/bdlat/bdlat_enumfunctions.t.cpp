@@ -1,26 +1,13 @@
 // bdlat_enumfunctions.t.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlat_enumfunctions.h>
-
-#include <bslim_testutil.h>
 
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_typetraits.h>
 #include <bdlb_string.h>
-
 #include <bslalg_typetraits.h>
-
+#include <bslim_testutil.h>
 #include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>   // for testing only
-
 #include <bsls_assert.h>
 
 #include <bsl_cctype.h>
@@ -32,8 +19,7 @@
 #include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
-
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

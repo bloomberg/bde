@@ -1,22 +1,14 @@
 // bdlat_customizedtypefunctions.t.cpp                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlat_customizedtypefunctions.h>
 
-#include <bslim_testutil.h>
-
 #include <bdlat_typetraits.h>
-#include <bslalg_typetraits.h>
-#include <bslma_allocator.h>
 
+#include <bdlb_printmethods.h>
+#include <bslalg_typetraits.h>
+#include <bslim_testutil.h>
+#include <bslma_allocator.h>
 #include <bslmf_integralconstant.h>   // for testing only
+#include <bsls_assert.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -25,11 +17,6 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-
-#include <bsls_assert.h>
-
-#include <bdlb_printmethods.h>
-
 
 using namespace BloombergLP;
 using namespace bsl;

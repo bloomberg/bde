@@ -1,12 +1,4 @@
 // bdlat_enumfunctions.h                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
 #define INCLUDED_BDLAT_ENUMFUNCTIONS
 
@@ -52,27 +44,29 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following section illustrates intended use of this component.
+// This section illustrates intended use of this component.
 //
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose you have a C++ 'enum' type called 'ImageType' whose enumerators
 // represent supported formats for image files:
 //..
-// #include <bdlat_enumfunctions.h>
-// #include <bdlb_string.h>
-// #include <bsl_iostream.h>
-// #include <bsl_sstream.h>
-// #include <bsl_string.h>
+//  #include <bdlat_enumfunctions.h>
+//  #include <bdlb_string.h>
+//  #include <bsl_iostream.h>
+//  #include <bsl_sstream.h>
+//  #include <bsl_string.h>
 //
-// namespace BloombergLP {
+//  namespace BloombergLP {
 //
-// namespace mine {
+//  namespace mine {
 //
-// enum ImageType {
-//     JPG     = 0,
-//     PNG     = 1,
-//     GIF     = 2,
-//     UNKNOWN = 100
-// };
+//  enum ImageType {
+//      JPG     = 0,
+//      PNG     = 1,
+//      GIF     = 2,
+//      UNKNOWN = 100
+//  };
 //..
 // We can now make 'ImageType' expose "enumeration" behavior by implementing
 // all the necessary 'bdlat_enum*' functions for 'ImageType' inside the 'mine'
@@ -80,43 +74,43 @@ BSLS_IDENT("$Id: $")
 // the 'bdlat_EnumFunctions' namespace).  First we should forward declare all
 // the functions that we will implement inside the 'mine' namespace:
 //..
-// // MANIPULATORS
+//  // MANIPULATORS
 //
-// int bdlat_enumFromInt(ImageType* result, int number);
-//     // Load into the specified 'result' the enumerator matching the
-//     // specified 'number'.  Return 0 on success, and a non-zero value
-//     // with no effect on 'result' if 'number' does not match any
-//     // enumerator.
+//  int bdlat_enumFromInt(ImageType* result, int number);
+//      // Load into the specified 'result' the enumerator matching the
+//      // specified 'number'.  Return 0 on success, and a non-zero value
+//      // with no effect on 'result' if 'number' does not match any
+//      // enumerator.
 //
-// int bdlat_enumFromString(ImageType  *result,
-//                          const char *string,
-//                          int         stringLength);
-//     // Load into the specified 'result' the enumerator matching the
-//     // specified 'string' of the specified 'stringLength'.  Return 0 on
-//     // success, and a non-zero value with no effect on 'result' if
-//     // 'string' and 'stringLength' do not match any enumerator.
+//  int bdlat_enumFromString(ImageType  *result,
+//                           const char *string,
+//                           int         stringLength);
+//      // Load into the specified 'result' the enumerator matching the
+//      // specified 'string' of the specified 'stringLength'.  Return 0 on
+//      // success, and a non-zero value with no effect on 'result' if
+//      // 'string' and 'stringLength' do not match any enumerator.
 //
-// int bdlat_enumMakeFallback(ImageType *result);
-//     // Load into the specified 'result' the fallback enumerator value and
-//     // return 0 to indicate success.
+//  int bdlat_enumMakeFallback(ImageType *result);
+//      // Load into the specified 'result' the fallback enumerator value and
+//      // return 0 to indicate success.
 //
-// // ACCESSORS
+//  // ACCESSORS
 //
-// void bdlat_enumToInt(int *result, const ImageType& value);
-//     // Load into the specified 'result' the integer representation of the
-//     // enumerator value held by the specified 'value'.
+//  void bdlat_enumToInt(int *result, const ImageType& value);
+//      // Load into the specified 'result' the integer representation of the
+//      // enumerator value held by the specified 'value'.
 //
-// void bdlat_enumToString(bsl::string *result, const ImageType& value);
-//     // Load into the specified 'result' the string representation of the
-//     // enumerator value held by the specified 'value'.
+//  void bdlat_enumToString(bsl::string *result, const ImageType& value);
+//      // Load into the specified 'result' the string representation of the
+//      // enumerator value held by the specified 'value'.
 //
-// bool bdlat_enumHasFallback(const ImageType&);
-//     // Return 'true' to indicate that this type supports a fallback
-//     // enumerator.
+//  bool bdlat_enumHasFallback(const ImageType&);
+//      // Return 'true' to indicate that this type supports a fallback
+//      // enumerator.
 //
-// bool bdlat_enumIsFallback(const ImageType& value);
-//     // Return 'true' if the specified 'value' equals the fallback
-//     // enumerator, and 'false' otherwise.
+//  bool bdlat_enumIsFallback(const ImageType& value);
+//      // Return 'true' if the specified 'value' equals the fallback
+//      // enumerator, and 'false' otherwise.
 //
 //  }  // close namespace mine
 //..

@@ -1,12 +1,4 @@
 // bdls_fdstreambuf.t.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdls_fdstreambuf.h>
 
 #include <bslim_testutil.h>
@@ -21,14 +13,13 @@
 #include <bsls_review.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-
-#include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

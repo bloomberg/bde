@@ -1,13 +1,4 @@
 // bdlat_attributeinfo.t.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlat_attributeinfo.h>
 
 #include <bslim_testutil.h>
@@ -27,7 +18,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//                                  TBD doc
+// TBD doc
 //-----------------------------------------------------------------------------
 // [ 2]
 //-----------------------------------------------------------------------------

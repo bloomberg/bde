@@ -1,12 +1,4 @@
 // bdlat_customizedtypefunctions.h                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #define INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 
@@ -67,7 +59,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate the usage of this component.
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose we have a customized type called 'Cusip', holding an object of type
 // 'bsl::string' with a restriction that the length of the string cannot be
 // longer than nine characters.  We can obtain the value of the string using

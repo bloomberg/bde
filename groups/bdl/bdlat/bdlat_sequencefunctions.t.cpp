@@ -1,21 +1,14 @@
 // bdlat_sequencefunctions.t.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlat_sequencefunctions.h>
-
-#include <bslim_testutil.h>
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_formattingmode.h>
 #include <bdlat_typetraits.h>
 
+#include <bdlb_string.h>
+
 #include <bslalg_typetraits.h>
+#include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -23,8 +16,6 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-
-#include <bdlb_string.h>
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic ignored "-Wpragmas"
@@ -34,7 +25,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

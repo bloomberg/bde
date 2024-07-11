@@ -1,12 +1,4 @@
 // bdls_pipeutil.t.cpp                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdls_pipeutil.h>
 
 #include <bslim_testutil.h>
@@ -34,8 +26,14 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
+//=============================================================================
+//                             TEST PLAN
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// TBD doc
 // ----------------------------------------------------------------------------
 // [ 1] int makeCanonicalName(string *pipeName, const string_view& baseName);
 // [ 2] bool isOpenForReading(const string_view& pipeName);

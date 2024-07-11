@@ -1,27 +1,18 @@
 // bdlat_typecategory.t.cpp                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlat_typecategory.h>
 
-#include <bslim_testutil.h>
+#include <bdlb_nullablevalue.h>
 
+#include <bslim_testutil.h>
 #include <bslmf_issame.h>
 #include <bslmf_nil.h>
 
-#include <bsl_string.h>
-#include <bsl_vector.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-
-#include <bdlb_nullablevalue.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic ignored "-Wpragmas"
@@ -38,7 +29,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//                                  TBD doc
+// TBD doc
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 

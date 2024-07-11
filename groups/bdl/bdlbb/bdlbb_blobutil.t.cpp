@@ -1,13 +1,5 @@
 // bdlbb_blobutil.t.cpp                                               -*-C++-*-
-
 #include <bdlbb_blobutil.h>
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
 
 #include <bdlbb_blob.h>
 #include <bdlbb_simpleblobbufferfactory.h>
@@ -38,7 +30,7 @@
 #include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                  TEST PLAN

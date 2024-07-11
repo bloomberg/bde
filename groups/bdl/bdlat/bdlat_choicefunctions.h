@@ -1,12 +1,4 @@
 // bdlat_choicefunctions.h                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
 #define INCLUDED_BDLAT_CHOICEFUNCTIONS
 
@@ -95,6 +87,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose you had a 'union' embedded inside a 'struct'.  The 'struct' also
 // contains a 'd_selectionId' member that specifies which member of the 'union'
 // is selected.  The default constructor of the 'struct' makes the selection

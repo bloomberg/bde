@@ -1,16 +1,5 @@
 // bdlat_symbolicconverter.t.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlat_symbolicconverter.h>
-
-#include <bslim_testutil.h>
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_enumeratorinfo.h>
@@ -23,6 +12,15 @@
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 
+#include <bslalg_typetraits.h>
+#include <bslim_testutil.h>
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslmf_assert.h>
+#include <bsls_assert.h>
+#include <bsls_objectbuffer.h>
+#include <bsls_review.h>
+
 #include <bsl_cctype.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -32,17 +30,6 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <bslalg_typetraits.h>
-
-#include <bslma_allocator.h>
-#include <bslma_default.h>
-
-#include <bslmf_assert.h>
-
-#include <bsls_assert.h>
-#include <bsls_objectbuffer.h>
-#include <bsls_review.h>
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -51,7 +38,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//                                  TBD doc
+// TBD doc
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 

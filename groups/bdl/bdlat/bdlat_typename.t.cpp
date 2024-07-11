@@ -1,13 +1,4 @@
 // bdlat_typename.t.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlat_typename.h>
 
 #include <bslim_testutil.h>
@@ -30,14 +21,6 @@
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
-#include <bsl_cctype.h>
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
-#include <bsl_iosfwd.h>
-#include <bsl_iostream.h>
-#include <bsl_ostream.h>
-#include <bsl_string.h>
-
 #include <bslalg_typetraits.h>
 
 #include <bslma_allocator.h>
@@ -47,6 +30,14 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
+
+#include <bsl_cctype.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_iosfwd.h>
+#include <bsl_iostream.h>
+#include <bsl_ostream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;

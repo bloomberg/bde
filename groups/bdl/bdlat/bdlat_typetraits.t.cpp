@@ -1,26 +1,13 @@
 // bdlat_typetraits.t.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bdlat_typetraits.h>
 
-#include <bslim_testutil.h>
-
 #include <bslalg_hastrait.h>
-
+#include <bslim_testutil.h>
 #include <bslma_usesbslmaallocator.h>
-
 #include <bslmf_isbitwisemoveable.h>
 
-#include <bsl_iostream.h>
-
 #include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -28,8 +15,10 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-//
-//
+//                              Overview
+//                              --------
+// TBD doc
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 // ============================================================================

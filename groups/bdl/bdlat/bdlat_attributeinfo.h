@@ -1,12 +1,4 @@
 // bdlat_attributeinfo.h                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #define INCLUDED_BDLAT_ATTRIBUTEINFO
 
@@ -36,7 +28,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate the usage of this component.
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose you create an accessor for sequence attributes that prints each
 // attribute to an output stream:
 //..
