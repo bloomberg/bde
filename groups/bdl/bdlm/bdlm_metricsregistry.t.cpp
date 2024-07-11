@@ -18,6 +18,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -27,6 +28,12 @@
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::endl;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
 
 // ============================================================================
 //                                 TEST PLAN

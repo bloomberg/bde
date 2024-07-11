@@ -841,8 +841,8 @@ if (veryVerbose)
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -858,7 +858,7 @@ if (veryVerbose)
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
             LOOP_ASSERT(CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -1310,8 +1310,8 @@ if (veryVerbose)
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -1327,7 +1327,7 @@ if (veryVerbose)
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
             LOOP_ASSERT(CONFIG, sizeof(Obj) == fa.numBytesInUse());

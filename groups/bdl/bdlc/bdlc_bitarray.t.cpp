@@ -242,7 +242,6 @@ typedef bool                          Element;
 
 static const uint64_t zero     =     0;
 static const uint64_t minusOne = ~zero;
-static const uint64_t one      =     1;
 
 static const size_t   k_INVALID_INDEX = Obj::k_INVALID_INDEX;
 

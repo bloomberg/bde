@@ -2874,7 +2874,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
                     for (bsl::size_t v = 0; v < tj; ++v) {
                         eraseKeysBsl.push_back(VALUES[v].first);
                     }
-                    bsl::size_t count;
+                    bsl::size_t count = 0;
 
                     switch (eraseBy) {
                       case e_ERASE_BY_VECTOR: {
@@ -3910,7 +3910,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, 0 == "Bad allocator config.");
               } return;                                               // RETURN
             }
 

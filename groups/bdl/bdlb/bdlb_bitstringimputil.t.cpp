@@ -330,29 +330,29 @@ static uint64_t g(const char *spec)
           } break;
           case '.': {
             if (-1 != rangeStartIndex) {
-                LOOP2_ASSERT(i, spec[i], G_OFF || !"Multiple Ranges");
+                LOOP2_ASSERT(i, spec[i], G_OFF || 0 == "Multiple Ranges");
                 return G_MULTIPLE_RANGES;                             // RETURN
             }
             if (0 == bitCount) {
-                LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Range Start");
+                LOOP2_ASSERT(i, spec[i], G_OFF || 0 == "Missing Range Start");
                 return G_MISSING_RANGE_START;                         // RETURN
             }
             while (isspace(spec[++i])) {
                 // skip whitespace
             }
             if ('.' != spec[i]) {
-                LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Second Dot");
+                LOOP2_ASSERT(i, spec[i], G_OFF || 0 == "Missing Second Dot");
                 return G_MISSING_SECOND_DOT;                          // RETURN
             }
             while (isspace(spec[++i])) {
                 // skip whitespace
             }
             if ('0' != spec[i] && '1' != spec[i]) {
-                LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Range End");
+                LOOP2_ASSERT(i, spec[i], G_OFF || 0 == "Missing Range End");
                 return G_MISSING_RANGE_END;                           // RETURN
             }
             if (spec[i] != spec[lastBitIndex]) {
-                LOOP2_ASSERT(i, spec[i], G_OFF || !"Nonmatching Range");
+                LOOP2_ASSERT(i, spec[i], G_OFF || 0 == "Nonmatching Range");
                 return G_MISMATCHED_RANGE;                            // RETURN
             }
 
@@ -363,7 +363,7 @@ static uint64_t g(const char *spec)
           } break;
           default: {
             if (!isspace(spec[i])) {
-                LOOP2_ASSERT(i, spec[i], G_OFF || !"Illegal Character");
+                LOOP2_ASSERT(i, spec[i], G_OFF || 0 == "Illegal Character");
                 return G_ILLEGAL_CHARACTER;                           // RETURN
             }
           } break;
@@ -371,7 +371,7 @@ static uint64_t g(const char *spec)
     }
 
     if (bitCount > BITS_PER_UINT64) {
-        LOOP2_ASSERT(bitCount, BITS_PER_UINT64, G_OFF || !"Too Many Bits");
+        LOOP2_ASSERT(bitCount, BITS_PER_UINT64, G_OFF || 0 == "Too Many Bits");
         return G_TOO_MANY_BITS;                                       // RETURN
     }
 

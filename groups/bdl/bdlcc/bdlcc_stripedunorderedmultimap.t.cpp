@@ -7217,7 +7217,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 bslma::TestAllocator         da("default", *vvvV);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                int loopCount = 0;
+                int loopCount = 0;  (void)loopCount;
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     ++loopCount;
@@ -7328,7 +7328,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 bslma::TestAllocator         da("da", *vvvV);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                int loopCount = 0;
+                int loopCount = 0;  (void)loopCount;
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     ++loopCount;
@@ -7566,7 +7566,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 bslma::TestAllocator         da("da", *vvvV);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                int loopCount = 0;
+                int loopCount = 0;  (void)loopCount;
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     ++loopCount;
@@ -7862,7 +7862,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase2()
               } break;
 
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, 0 == "Bad allocator config.");
               } return;                                               // RETURN
             }
 

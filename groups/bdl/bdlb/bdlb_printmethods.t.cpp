@@ -919,7 +919,7 @@ int main(int argc, char *argv[])
                     EXPECTED_VALUE = "45";
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Reachable");
+                    ASSERTV(CONFIG, 0 == "Reachable");
                   } break;
                 }
 
@@ -1076,7 +1076,7 @@ int main(int argc, char *argv[])
                     EXPECTED_VALUE = "Six";
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Reachable");
+                    ASSERTV(CONFIG, 0 == "Reachable");
                   } break;
                 }
 
@@ -1196,7 +1196,7 @@ int main(int argc, char *argv[])
                                                   DFT));
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Reachable");
+                        ASSERTV(CONFIG, 0 == "Reachable");
                       } break;
                     }
                 }

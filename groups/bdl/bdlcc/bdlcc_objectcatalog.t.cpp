@@ -13,6 +13,7 @@
 
 #include <bdlt_currenttime.h>
 
+#include <bsla_maybeunused.h>
 #include <bsla_unused.h>
 
 #include <bslma_default.h>
@@ -55,6 +56,12 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
 
 //=============================================================================
 //                             TEST PLAN
@@ -959,6 +966,7 @@ bool operator==(const WellBehavedMoveOnlyAllocTestType& lhs,
     return lhs.data() == rhs.data();
 }
 
+BSLA_MAYBE_UNUSED
 inline
 bool operator!=(const WellBehavedMoveOnlyAllocTestType& lhs,
                 const WellBehavedMoveOnlyAllocTestType& rhs)

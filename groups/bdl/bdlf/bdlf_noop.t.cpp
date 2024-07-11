@@ -455,8 +455,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nMake a copy." << endl;
 
-        const Obj X;
-        Obj       mY(X);
+        const             Obj X;
+        BSLA_MAYBE_UNUSED Obj mY(X);
 
         if (verbose) cout << "\nEnsure no memory was allocated." << endl;
 

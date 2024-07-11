@@ -10,9 +10,16 @@
 #include <bslmf_issame.h> // for testing only
 
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 
 using namespace BloombergLP;
 using namespace bsl;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+#endif
+#endif
 
 // ============================================================================
 //                             TEST PLAN

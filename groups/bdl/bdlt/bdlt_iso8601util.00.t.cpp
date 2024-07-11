@@ -93,6 +93,8 @@ Sun_Studio_only_gives_a_warning_for_pound_error;
 
 #include <bdlb_chartype.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
@@ -7098,8 +7100,9 @@ int main(int argc, char *argv[])
 // For comparison with the ISO 8601 string generated below, note that streaming
 // the value of 'sourceDatetimeTz' to 'stdout':
 //..
-if (veryVerbose)
+if (veryVerbose) {
     bsl::cout << sourceDatetimeTz << bsl::endl;
+}
 //..
 // produces:
 //..
@@ -7164,8 +7167,9 @@ if (veryVerbose)
 // For comparison with the ISO 8601 string generated below, note that streaming
 // the value of 'sourceTimeTz' to 'stdout':
 //..
-if (veryVerbose)
+if (veryVerbose) {
     bsl::cout << sourceTimeTz << bsl::endl;
+}
 //..
 // produces:
 //..
@@ -12814,8 +12818,8 @@ if (veryVerbose)
             const char      *INPUT  = "20131023T012345";
             const ptrdiff_t  LENGTH = bsl::strlen(INPUT);
 
-            const StrView stringRef(INPUT, LENGTH);
-            const StrView nullRef;
+            const StrView                   stringRef(INPUT, LENGTH);
+            BSLA_MAYBE_UNUSED const StrView nullRef;
 
             bdlt::Datetime   result;
             bdlt::DatetimeTz resultTz;

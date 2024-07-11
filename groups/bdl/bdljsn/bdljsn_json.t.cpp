@@ -870,7 +870,7 @@ class ReorderExpectedJsonObjectString {
         for (int i = 0; i < 4; ++i) {
             pos = input.find('\"', prev = pos);
             if (bsl::string::npos == pos) {
-                ASSERTV(i, input, "Quote character number i not found");
+                ASSERTV(i, input, 0 != "Quote character number i not found");
                 return "";                                            // RETURN
             }
             format[i] = input.substr(prev, pos - prev);
@@ -878,20 +878,22 @@ class ReorderExpectedJsonObjectString {
             const char delim = (i == 3 ? ']' : ',');
             pos = input.find(delim, prev = pos);
             if (bsl::string::npos == pos) {
-                ASSERTV(delim, i, input, "delimiter not found");
+                ASSERTV(delim, i, input, 0 != "delimiter not found");
                 return "";                                            // RETURN
             }
             if (delim == ']') {
                 ++pos;
                 if (pos == input.size()) {
-                    ASSERTV(i, input, "\']\' character was last in string");
+                    ASSERTV(i,
+                            input,
+                            0 != "\']\' character was last in string");
                     return "";                                        // RETURN
                 }
             }
             const bsl::string::size_type secondQuote = input.find('\"',
                                                                   prev + 1);
             if (secondQuote == bsl::string::npos) {
-                ASSERTV(i, input, "second quote not found");
+                ASSERTV(i, input, 0 != "second quote not found");
                 return "";                                            // RETURN
             }
             data[input.substr(prev + 1, secondQuote - (prev + 1))] =
@@ -5801,6 +5803,9 @@ int main(int argc, char *argv[])
                                     VALUE_CONFIG2,
                                     0 < EXCEPTION_COUNT);
                         }
+#else
+                        (void)MEMDST2;
+                        (void)MEMSRC1;
 #endif
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -7256,8 +7261,8 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
 
                 Obj        mZ(&scratch);
-                const bool allocated = JsonValueEnumeration::setValue(
-                                                                 &mZ,
+                BSLA_MAYBE_UNUSED const bool allocated =
+                                  JsonValueEnumeration::setValue(&mZ,
                                                                  VALUE_CONFIG);
                 const Obj& Z = mZ;
 
@@ -9658,6 +9663,9 @@ int main(int argc, char *argv[])
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                             ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
                         }
+#else
+                        (void)MEMDST2;
+                        (void)MEMSRC1;
 #endif
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -9962,6 +9970,9 @@ int main(int argc, char *argv[])
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                             ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
                         }
+#else
+                        (void)MEMDST2;
+                        (void)MEMSRC1;
 #endif
 
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -11065,6 +11076,8 @@ int main(int argc, char *argv[])
                     if ('Y' == MEM) {
                         ASSERTV(LINE, 0 < EXCEPTION_COUNT);
                     }
+#else
+                        (void)MEM;
 #endif
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -13038,6 +13051,9 @@ int main(int argc, char *argv[])
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                             ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
                         }
+#else
+                        (void)MEMDST2;
+                        (void)MEMSRC1;
 #endif
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -13333,6 +13349,9 @@ int main(int argc, char *argv[])
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                             ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
                         }
+#else
+                        (void)MEMDST2;
+                        (void)MEMSRC1;
 #endif
 
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -14403,6 +14422,8 @@ int main(int argc, char *argv[])
                     if ('Y' == MEM) {
                         ASSERTV(LINE, 0 < EXCEPTION_COUNT);
                     }
+#else
+                        (void)MEM;
 #endif
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 

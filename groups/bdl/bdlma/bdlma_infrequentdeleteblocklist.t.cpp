@@ -773,7 +773,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
             LOOP_ASSERT(CONFIG, sizeof(Obj) == fa.numBytesInUse());

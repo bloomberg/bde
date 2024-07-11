@@ -430,7 +430,6 @@ enum ElementState {
 
 static const unsigned int k_ELEMENT_STATE_MASK     = 0x3;
 static const unsigned int k_GENERATION_COUNT_SHIFT = 0x2;
-static const unsigned int k_DISABLED_STATE_MASK = 1 << ((sizeof(int) * 8) - 1);
 
 BSLMF_ASSERT(sizeof(FixedQueueIndexManagerDataMembers) ==
              sizeof(bdlcc::FixedQueueIndexManager));

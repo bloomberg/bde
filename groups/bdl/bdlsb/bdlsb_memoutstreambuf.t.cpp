@@ -169,13 +169,9 @@ typedef bdlsb::MemOutStreamBuf Obj;
 
 const size_t INIT_BUFSIZE           = 256;
 const size_t TWICE_INIT_BUFSIZE     = INIT_BUFSIZE * 2;
-const size_t INIT_BUFSIZE_PLUS_44   = INIT_BUFSIZE + 44;
-                                               // arbitrary number in [1 .. 2k]
 
 const size_t INIT_BUFSIZE_MINUS_ONE = INIT_BUFSIZE - 1;
 const size_t INIT_BUFSIZE_PLUS_ONE  = INIT_BUFSIZE + 1;
-const size_t TRIPLE_CAPACITY        = INIT_BUFSIZE * 3;
-const size_t QUADRUPLE_CAPACITY     = INIT_BUFSIZE * 4;
 
 BSLMF_ASSERT(sizeof(int) <= sizeof(size_t));
 

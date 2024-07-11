@@ -1195,7 +1195,7 @@ int main(int argc, char *argv[])
                     areSameCaseStrSubstr = true;
                   } break;
                   default: {
-                      LOOP_ASSERT(cfg, !"Unknown 'cfg'");
+                      LOOP_ASSERT(cfg, 0 == "Unknown 'cfg'");
                   } break;
                 };
 

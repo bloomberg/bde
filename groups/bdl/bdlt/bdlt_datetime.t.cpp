@@ -2214,8 +2214,9 @@ int main(int argc, char *argv[])
 //..
 // Finally, we stream the value of 'dt2' to 'stdout':
 //..
-if (veryVerbose)
+if (veryVerbose) {
     bsl::cout << dt2 << bsl::endl;
+}
 //..
 // The streaming operator produces the following output on 'stdout':
 //..

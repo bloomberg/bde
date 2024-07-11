@@ -1238,8 +1238,9 @@ int main(int argc, char *argv[])
 // For comparison with the FIX string generated below, note that streaming the
 // value of 'sourceDatetimeTz' to 'stdout':
 //..
-if (veryVerbose)
+if (veryVerbose) {
     bsl::cout << sourceDatetimeTz << bsl::endl;
+}
 //..
 // produces:
 //..

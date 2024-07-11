@@ -6,6 +6,8 @@
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -35,6 +37,12 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
 
 //=============================================================================
 //                                   TEST PLAN
@@ -1732,7 +1740,7 @@ int main(int argc, char *argv[])
             bdlcc::ObjectPool<B> mX;
 
             createBThrow = 0;
-            B *b1Ptr = mX.getObject();  // should not throw
+            BSLA_MAYBE_UNUSED B *b1Ptr = mX.getObject();  // should not throw
             ++b1Ptr; // satisfy gcc that b1Ptr is used
             ASSERT(mX.numObjects() == 1);
             ASSERT(mX.numAvailableObjects() == 0);
@@ -1779,7 +1787,7 @@ int main(int argc, char *argv[])
             bdlcc::ObjectPool<B> mX;
 
             createBThrow = 0;
-            B *b1Ptr = mX.getObject();  // should not throw
+            BSLA_MAYBE_UNUSED B *b1Ptr = mX.getObject();  // should not throw
             ++b1Ptr; // satisfy gcc that b1Ptr is used
             ASSERT(mX.numObjects() == 1);
             ASSERT(mX.numAvailableObjects() == 0);
@@ -1825,7 +1833,7 @@ int main(int argc, char *argv[])
             bdlcc::ObjectPool<B> mX;
 
             createBThrow = 0;
-            B *b1Ptr = mX.getObject();  // should not throw
+            BSLA_MAYBE_UNUSED B *b1Ptr = mX.getObject();  // should not throw
             ++b1Ptr; // satisfy gcc that b1Ptr is used
             ASSERT(mX.numObjects() == 1);
             ASSERT(mX.numAvailableObjects() == 0);
@@ -2323,7 +2331,7 @@ int main(int argc, char *argv[])
 
                 numLastCreated = pool->numObjects();
                 my_CheckingClass *lastP =
-                    (my_CheckingClass*) ((char *)p - k_OBJECT_FRAME_SIZE);
+                  (my_CheckingClass*)(void *)((char *)p - k_OBJECT_FRAME_SIZE);
                 for (int k = 1; k <= DATA[i][j]; ++k) {
                     my_CheckingClass *currP = pool->getObject();
 
@@ -2336,7 +2344,7 @@ int main(int argc, char *argv[])
                     // verify that successive objects are separated by
                     // 'k_OBJECT_FRAME_SIZE' bytes.
                     my_CheckingClass *temp =
-                     (my_CheckingClass *)((char *)lastP + k_OBJECT_FRAME_SIZE);
+             (my_CheckingClass *)(void *)((char *)lastP + k_OBJECT_FRAME_SIZE);
                     LOOP5_ASSERT(i, j, k, (char*)lastP, (char*)currP,
                                                                   temp==currP);
 

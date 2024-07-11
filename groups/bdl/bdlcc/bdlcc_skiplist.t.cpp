@@ -8001,21 +8001,21 @@ if (veryVerbose) cout << "Elapsed: " << elapsed << " seconds\n";
 
         cout << ",,,\n";
         cout << "Stdev/Minimum %:,";
-        if (userTimes[0]) {
+        if (0.0 != userTimes[0]) {
             cout << 100.0 * stddevs[0] / userTimes[0];
         }
         else {
             cout << '*';
         }
         cout << ',';
-        if (systemTimes[0]) {
+        if (0.0 != systemTimes[0]) {
             cout << 100.0 * stddevs[1] / systemTimes[0];
         }
         else {
             cout << '*';
         }
         cout << ',';
-        if (wallTimes[0]) {
+        if (0.0 != wallTimes[0]) {
             cout << 100.0 * stddevs[2] / wallTimes[0];
         }
         else {

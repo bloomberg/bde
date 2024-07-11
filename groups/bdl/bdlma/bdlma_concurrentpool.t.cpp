@@ -29,6 +29,12 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
+
 //=============================================================================
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
@@ -1543,7 +1549,7 @@ int main(int argc, char *argv[]) {
 
         for (int di = 0; di < NUM_DATA; ++di) {
             bslma::TestAllocator ta;    const bslma::TestAllocator& TA = ta;
-            bslma::TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;  (void)testAllocator;
 
             const int CURRENT_MAX_BLOCKS_PER_CHUNK = DATA[di];
             if (veryVerbose) cout << "\t[Starting 'numObjects' : "
@@ -1624,7 +1630,7 @@ int main(int argc, char *argv[]) {
         const int NUM_REPLENISH = 3;
 
         bslma::TestAllocator ta;    const bslma::TestAllocator& TA = ta;
-        bslma::TestAllocator& testAllocator = ta;
+        bslma::TestAllocator& testAllocator = ta;  (void)testAllocator;
 
         for (int di = 0; di < NUM_DATA; ++di) {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {

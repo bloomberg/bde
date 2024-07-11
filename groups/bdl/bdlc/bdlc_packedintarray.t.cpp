@@ -6411,6 +6411,8 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
+                        objPtr = 0;
+                        objAllocatorPtr = 0;
                         LOOP2_ASSERT(CONFIG, "Bad allocator config.", false);
                       } break;
                     }
@@ -6584,6 +6586,8 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
+                        objPtr = 0;
+                        objAllocatorPtr = 0;
                         LOOP2_ASSERT(CONFIG, "Bad allocator config.", false);
                       } break;
                     }

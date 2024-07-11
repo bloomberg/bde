@@ -1104,7 +1104,7 @@ int main(int argc, char *argv[])
         {
             typedef int Type;
 
-            Type          object;
+            Type          object = 0;
             MyAccessor    accessor;
 
             ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
@@ -1115,7 +1115,7 @@ int main(int argc, char *argv[])
         {
             typedef char Type;
 
-            Type          object;
+            Type          object = ' ';
             MyAccessor    accessor;
 
             ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-            Type          object;
+            Type          object = 0.0;
             MyAccessor    accessor;
 
             ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
@@ -1554,7 +1554,7 @@ int main(int argc, char *argv[])
         {
             typedef int Type;
 
-            Type          object;
+            Type          object = 0;
             MyAccessor    accessor;
 
             ASSERT(-1 == bdlat_TypeCategoryFunctions::
@@ -1583,7 +1583,7 @@ int main(int argc, char *argv[])
         {
             typedef char Type;
 
-            Type          object;
+            Type          object = ' ';
             MyAccessor    accessor;
 
             ASSERT(-1 == bdlat_TypeCategoryFunctions::
@@ -1612,7 +1612,7 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-            Type          object;
+            Type          object = 0.0;
             MyAccessor    accessor;
 
             ASSERT(-1 == bdlat_TypeCategoryFunctions::
@@ -2104,7 +2104,7 @@ int main(int argc, char *argv[])
         {
             typedef int Type;
 
-            Type object;
+            Type object = 0;
 
             ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
                                == bdlat_TypeCategoryFunctions::select(object));
@@ -2113,7 +2113,7 @@ int main(int argc, char *argv[])
         {
             typedef char Type;
 
-            Type object;
+            Type object = ' ';
 
             ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
                                == bdlat_TypeCategoryFunctions::select(object));
@@ -2122,7 +2122,7 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-            Type object;
+            Type object = 0.0;
 
             ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
                                == bdlat_TypeCategoryFunctions::select(object));

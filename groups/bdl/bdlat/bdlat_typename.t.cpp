@@ -45,10 +45,18 @@
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 using namespace BloombergLP;
 using namespace bsl;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wuninitialized-const-reference"
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
 
 // ============================================================================
 //                                 TEST PLAN
@@ -258,7 +266,7 @@ bool streq(const char* s1, const char* s2)
 
 #define CLASSNAME_TST(Type, exp) {                                            \
         Type object;                                                          \
-        const char *expected = exp ? exp : "<null>";                          \
+        const char *expected = 0 != exp ? exp : "<null>";                     \
         const char *result = Obj::className(object);                          \
         if (0 == result) result = "<null>";                                   \
         LOOP2_ASSERT(result, expected, streq(result, expected));              \
@@ -266,7 +274,7 @@ bool streq(const char* s1, const char* s2)
 
 #define NAME_TST(Type, exp) {                                                 \
         Type object;                                                          \
-        const char *expected = exp ? exp : "<null>";                          \
+        const char *expected = 0 != exp ? exp : "<null>";                     \
         const char *result = Obj::name(object);                               \
         if (0 == result) result = "<null>";                                   \
         LOOP2_ASSERT(result, expected, streq(result, expected));              \
@@ -274,7 +282,7 @@ bool streq(const char* s1, const char* s2)
 
 #define XSDNAME_TST(Type, fmt, exp) {                                         \
         Type object;                                                          \
-        const char *expected = exp ? exp : "<null>";                          \
+        const char *expected = 0 != exp ? exp : "<null>";                     \
         const char *result = Obj::xsdName(object, fmt);                       \
         if (0 == result) result = "<null>";                                   \
         LOOP2_ASSERT(result, expected, streq(result, expected));              \

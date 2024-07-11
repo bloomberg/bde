@@ -158,7 +158,7 @@ int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object) const
 
 template <class LVALUE_TYPE>
 template <class RVALUE_TYPE>
-int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object) const
+int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& /* object */) const
 {
     return -1;
 }
@@ -186,7 +186,7 @@ int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object) const
 
 template <class RVALUE_TYPE>
 template <class LVALUE_TYPE>
-int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object) const
+int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE * /* object */) const
 {
     return -1;
 }

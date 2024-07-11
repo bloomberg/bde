@@ -3415,7 +3415,7 @@ void TestDriver<TEST_TYPE>::testCase23_withAllocator()
                         srcAllocatorPtr = &oa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, 0 == "Bad allocator config.");
                       } return;                                       // RETURN
                     }
 
@@ -3521,7 +3521,7 @@ void TestDriver<TEST_TYPE>::testCase23_withAllocator()
                             srcAllocatorPtr = &oa;
                           } break;
                           default: {
-                            ASSERTV(CONFIG, !"Bad allocator config.");
+                            ASSERTV(CONFIG, 0 == "Bad allocator config.");
                           } return;                                   // RETURN
                         }
                         bslma::TestAllocator& sa = *srcAllocatorPtr;
@@ -3851,7 +3851,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
                     othAllocatorPtr = &da;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, 0 == "Bad allocator config.");
                   } return;                                           // RETURN
                 }
 
@@ -4210,7 +4210,7 @@ void TestDriver<TEST_TYPE>::testCase21_withAllocator()
                         srcAllocatorPtr = &oa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, 0 == "Bad allocator config.");
                       } return;                                       // RETURN
                     }
                     bslma::TestAllocator& sa = *srcAllocatorPtr;
@@ -4344,7 +4344,7 @@ void TestDriver<TEST_TYPE>::testCase21_withAllocator()
                             srcAllocatorPtr = &oa;
                           } break;
                           default: {
-                            ASSERTV(CONFIG, !"Bad allocator config.");
+                            ASSERTV(CONFIG, 0 == "Bad allocator config.");
                           } return;                                   // RETURN
                         }
                         bslma::TestAllocator& sa = *srcAllocatorPtr;
@@ -4658,7 +4658,7 @@ void TestDriver<TEST_TYPE>::testCase20_withAllocator()
                     othAllocatorPtr = &da;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    ASSERTV(CONFIG, 0 == "Bad allocator config.");
                   } return;                                           // RETURN
                 }
 

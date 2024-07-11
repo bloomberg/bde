@@ -9,6 +9,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_nameof.h>
+#include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
@@ -22,6 +23,12 @@
 using namespace BloombergLP;
 using namespace bdlb;
 using namespace bsl;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+#endif
+#endif
 
 // ============================================================================
 //                             TEST PLAN

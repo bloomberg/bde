@@ -18,13 +18,19 @@
 
 #include <string>       // for 'std::string'
 
+using namespace BloombergLP;
+using namespace bsl;
+
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable:4553)
 #pragma warning(disable:4834)
 #endif
 
-using namespace BloombergLP;
-using namespace bsl;
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+#endif
+#endif
 
 // ============================================================================
 //                                 TEST PLAN

@@ -2539,8 +2539,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                  *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -2556,7 +2556,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     LOOP2_ASSERT(ti, CONFIG,

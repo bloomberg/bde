@@ -4,6 +4,8 @@
 #include <bdlde_charconvertstatus.h>
 #include <bdlde_utf8util.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_constructorproxy.h>
 
 #include <bslim_testutil.h>
@@ -2400,6 +2402,7 @@ unsigned char u8FourByteHdrCases[] ={ '\x0', '\x1', '\x2', '\x3', '\x4' };
     // value is four, and at that maximum the first continuation octet's
     // content must be less than 0x10.
 
+BSLA_MAYBE_UNUSED
 const
 unsigned char u8InvalidFourByteHdrCases[] ={ '\x5', '\x6', '\x7', };
 
@@ -2411,19 +2414,23 @@ enum { FOUR_BYTE_FOUR_MAX = 0xf };
     // If the first continuation is no greater than this, the content part of
     // the four-byte header may be two.
 
+BSLA_MAYBE_UNUSED
 const
 unsigned char u8ContinByteCases[] ={ '\x0',  '\x1',  '\x3',
                                      '\x7',  '\xf',  '\x1e',
                                      '\x3a', '\x3c', '\x3f', };
 
+BSLA_MAYBE_UNUSED
 const
 unsigned char u8ContinValidFourByteMaxCases[] ={ '\x0',  '\x1',  '\x3',
                                                  '\x7',  '\xf', };
 
+BSLA_MAYBE_UNUSED
 const
 unsigned char u8ContinInvalidFourByteMaxCases[] ={ '\x10', '\x1e', '\x3c',
                                                    '\x3a', '\x3f', };
 
+BSLA_MAYBE_UNUSED
 const
 unsigned char u8ReservedRangeLowerContin[] ={ '\x20', '\x21', '\x22', '\x23',
                                               '\x24', '\x25', '\x26', '\x27',
@@ -2434,6 +2441,7 @@ unsigned char u8ReservedRangeLowerContin[] ={ '\x20', '\x21', '\x22', '\x23',
     // octet header, these will produce code points in the (forbidden) lower
     // reserved range.
 
+BSLA_MAYBE_UNUSED
 const
 unsigned char u8ReservedRangeUpperContin[] ={ '\x30', '\x31', '\x32', '\x33',
                                               '\x34', '\x35', '\x36', '\x37',
@@ -2444,6 +2452,7 @@ unsigned char u8ReservedRangeUpperContin[] ={ '\x30', '\x31', '\x32', '\x33',
     // octet header, these will produce code points in the (forbidden) upper
     // reserved range.
 
+BSLA_MAYBE_UNUSED
 const
 unsigned short u16UpperAndLower[] ={ 0x00, 0x01, 0x02, 0x03, 0x04, 0x06,
                                      0x07, 0x08, 0x0c, 0x0d, 0x10, 0x18,
@@ -5491,7 +5500,7 @@ void TestDriver::randomUtf8String(bsl::string *result,
                 // incorrect strings are accurate.
 
                 int  prevErrorIdx   = -1;
-                bool adjacentErrors = false;
+                bool adjacentErrors = false;  (void)adjacentErrors;
 
                 for (unsigned uu = 0; uu < numSequences; ++uu) {
                     if (s_randGen.bits(1)) {

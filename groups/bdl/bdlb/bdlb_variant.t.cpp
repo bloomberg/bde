@@ -28,6 +28,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsltf_movablealloctesttype.h>
@@ -72,6 +73,12 @@ using bsls::NameOf;
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 #pragma error_messages(off, reftoref)
+#endif
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
 #endif
 
 // ============================================================================
@@ -421,7 +428,7 @@ class TestAllocObj {
 
     // ACCESSORS
     template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const
+    STREAM& bdexStreamOut(STREAM& stream, int /* version */) const
         // Stream bdex out to the specified 'stream'.
     {
         return stream;

@@ -256,10 +256,8 @@ static const float fInf = bsl::numeric_limits<float>::infinity();
 static const float fNegInf = -fInf;
 
 static const double dInf = bsl::numeric_limits<double>::infinity();
-static const double dNegInf = -dInf;
 
 static const long double lInf = bsl::numeric_limits<long double>::infinity();
-static const long double lNegInf = -lInf;
 
 static const DecBinTestCase DEC2BIN_DATA[] = {
 

@@ -4989,7 +4989,7 @@ DEFINE_TEST_CASE(9)
                 // **  Prepare to process first 'convert' or 'endConvert'.  **
 
                 int   totalOut = 0;
-                int   totalIn = 0;
+                int   totalIn = 0;  (void)totalIn;
                 char *b = outputBuffer;
 
                 int result1;

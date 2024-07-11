@@ -152,8 +152,9 @@ if (verbose) bsl::cout << "\nUsage Example 1" << endl;
 
     bdlt::Time result = bdlt::TimeUtil::convertFromHHMMSSmmm(timeValue);
 
-if (veryVerbose)
+if (veryVerbose) {
     bsl::cout << result << bsl::endl;
+}
 //..
 // The code above produces the following on 'stdout':
 //..

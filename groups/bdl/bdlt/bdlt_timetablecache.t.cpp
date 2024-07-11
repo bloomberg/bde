@@ -8,6 +8,8 @@
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_timetable.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -722,11 +724,11 @@ int MyTimetableLoader::load(bdlt::Timetable *result, const char *timetableName)
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    BSLA_MAYBE_UNUSED int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    BSLA_MAYBE_UNUSED bool             verbose = argc > 2;
+    BSLA_MAYBE_UNUSED bool         veryVerbose = argc > 3;
+    BSLA_MAYBE_UNUSED bool     veryVeryVerbose = argc > 4;
+    BSLA_MAYBE_UNUSED bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -1849,8 +1851,8 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -1866,7 +1868,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 
@@ -1942,8 +1944,8 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -1959,7 +1961,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
               } break;
             }
 

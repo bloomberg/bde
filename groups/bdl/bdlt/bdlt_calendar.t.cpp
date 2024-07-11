@@ -19,6 +19,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_fuzztest.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bslx_byteinstream.h>
@@ -40,6 +41,12 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
 
 // ============================================================================
 //                             TEST PLAN
@@ -5469,7 +5476,7 @@ int main(int argc, char *argv[])
             int LENGTH = 0;
             int NUM_NONBUSINESSDAY = 0;
             int NUM_WEEKENDDAY = 0;
-            int NUM_HOLIDAYCODES = 0;
+            int NUM_HOLIDAYCODES = 0;  (void)NUM_HOLIDAYCODES;
 
             bdlt::Date date;
             bool       notDone;
@@ -7224,8 +7231,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                  *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -7241,7 +7248,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     LOOP2_ASSERT(ti, CONFIG,

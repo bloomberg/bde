@@ -1417,7 +1417,7 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj *objPtr;
+            Obj *objPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -1430,7 +1430,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(Obj::e_BEFORE_USER_BLOCK);
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad guard config.");
+                LOOP_ASSERT(CONFIG, 0 == "Bad guard config.");
               } break;
             }
             LOOP_ASSERT(CONFIG, sizeof(Obj) == fa.numBytesInUse());
