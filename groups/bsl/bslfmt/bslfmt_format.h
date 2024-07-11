@@ -196,8 +196,8 @@ using std::wformat_string;
 template <class... t_ARGS>
 string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args);
     // Format the specified `args` according to the specification given by the
-    // specified `fmtstr` and return the result as a `bsl::string`. In the event of an error the
-    // exception `format_error` is thrown.
+    // specified `fmtstr` and return the result as a `bsl::string`. In the
+    // event of an error the exception `format_error` is thrown.
 
 template <class... t_ARGS>
 wstring format(wformat_string<t_ARGS...> fmtstr, t_ARGS&&... args);
@@ -259,6 +259,116 @@ wstring format(allocator<wchar_t>        alloc,
     // specified `allocator` to supply memory (if required), and return the
     // result. In the event of an error the exception `format_error` is thrown.
 
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+void format_to(t_STRING                 *out,
+               format_string<t_ARGS...>  fmtstr,
+               t_ARGS&&...               args);
+    // Format the specified `args` according to the specification given by the
+    // specified `fmtstr` in the locale of the specified `loc`, and write the
+    // result of this operation into the string addressed by the specified
+    // `out` parameter. In the event of an error the exception `format_error`
+    // is thrown. Behavior is undefined if `out` does not point to a valid
+    // `bsl::string` object.
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::wstring>)
+void format_to(t_STRING                  *out,
+               wformat_string<t_ARGS...>  fmtstr,
+               t_ARGS&&...                args);
+    // Format the specified `args` according to the specification given by the
+    // specified `fmtstr` in the locale of the specified `loc`, and write the
+    // result of this operation into the string addressed by the specified
+    // `out` parameter. In the event of an error the exception `format_error`
+    // is thrown. Behavior is undefined if `out` does not point to a valid
+    // `bsl::string` object.
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+void format_to(t_STRING                 *out,
+               const std::locale&        loc,
+               format_string<t_ARGS...>  fmtstr,
+               t_ARGS&&...               args);
+    // Format the specified `args` according to the specification given by the
+    // specified `fmtstr` in the locale of the specified `loc`, and write the
+    // result of this operation into the string addressed by the specified
+    // `out` parameter. In the event of an error the exception `format_error`
+    // is thrown. Behavior is undefined if `out` does not point to a valid
+    // `bsl::string` object.
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::wstring>)
+void format_to(t_STRING                  *out,
+               const std::locale&         loc,
+               wformat_string<t_ARGS...>  fmtstr,
+               t_ARGS&&...                args);
+    // Format the specified `args` according to the specification given by the
+    // specified `fmtstr` in the locale of the specified `loc`, and write the
+    // result of this operation into the string addressed by the specified
+    // `out` parameter. In the event of an error the exception `format_error`
+    // is thrown. Behavior is undefined if `out` does not point to a valid
+    // `bsl::string` object.
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+ptrdiff_t format_to_n(t_STRING                 *out,
+                      ptrdiff_t                 n,
+                      format_string<t_ARGS...>  fmtstr,
+                      t_ARGS&&...               args);
+    // Format the specified `args` according to the specification given by the
+    // specified `fmtstr`, and write at most the specified `n` characters of
+    // the result of this operation into the string addressed by the specified
+    // `out` parameter. Return the number of characters that would have been
+    // written to `out` were such writing not truncated. In the event of an
+    // error the exception `format_error` is thrown. Behavior is undefined if
+    // `out` does not point to a valid `bsl::string` object.
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::wstring>)
+ptrdiff_t format_to_n(t_STRING                  *out,
+                      ptrdiff_t                  n,
+                      wformat_string<t_ARGS...>  fmtstr,
+                      t_ARGS&&...                args);
+    // Format the specified `args` according to the specification given by the
+    // specified `fmtstr`, and write at most the specified `n` characters of
+    // the result of this operation into the string addressed by the specified
+    // `out` parameter. Return the number of characters that would have been
+    // written to `out` were such writing not truncated. In the event of an
+    // error the exception `format_error` is thrown. Behavior is undefined if
+    // `out` does not point to a valid `bsl::string` object.
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+ptrdiff_t format_to_n(t_STRING                 *out,
+                      ptrdiff_t                 n,
+                      const std::locale&        loc,
+                      format_string<t_ARGS...>  fmtstr,
+                      t_ARGS&&...               args);
+    // Format the specified `args` according to the specification given by the
+    // specified `fmtstr` in the locale of the specified `loc`, and write at
+    // most the specified `n` characters of the result of this operation into
+    // the string addressed by the specified `out` parameter. Return the number
+    // of characters that would have been written to `out` were such writing
+    // not truncated. In the event of an error the exception `format_error` is
+    // thrown. Behavior is undefined if `out` does not point to a valid
+    // `bsl::string` object.
+
+template <class t_STRING, class... t_ARGS>
+requires(bsl::is_same_v<t_STRING, bsl::wstring>)
+ptrdiff_t format_to_n(t_STRING                  *out,
+                      ptrdiff_t                  n,
+                      const std::locale &        loc,
+                      wformat_string<t_ARGS...>  fmtstr,
+                      t_ARGS&&...                args);
+    // Format the specified `args` according to the specification given by the
+    // specified `fmtstr` in the locale of the specified `loc`, and write at
+    // most the specified `n` characters of the result of this operation into
+    // the string addressed by the specified `out` parameter. Return the number
+    // of characters that would have been written to `out` were such writing
+    // not truncated. In the event of an error the exception `format_error` is
+    // thrown. Behavior is undefined if `out` does not point to a valid
+    // `bsl::string` object.
+
 string vformat(std::string_view fmtstr, format_args args);
     // Format the specified `args` according to the specification given by the
     // specified `fmtstr` and return the result. In the event of an error the
@@ -316,72 +426,6 @@ wstring vformat(allocator<wchar_t> alloc,
     // specified `fmtstr` in the locale of the specified `loc`, using the
     // specified `allocator` to supply memory (if required), and return the
     // result. In the event of an error the exception `format_error` is thrown.
-
-template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>)
-void format_to(t_STRING                 *out,
-               format_string<t_ARGS...>  fmtstr,
-               t_ARGS&&...               args);
-    // Format the specified `args` according to the specification given by the
-    // specified `fmtstr` in the locale of the specified `loc`, and write the
-    // result of this operation into the string addressed by the specified
-    // `out` parameter. In the event of an error the exception `format_error`
-    // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
-
-template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::wstring>)
-void format_to(t_STRING                  *out,
-               wformat_string<t_ARGS...>  fmtstr,
-               t_ARGS&&...                args);
-    // Format the specified `args` according to the specification given by the
-    // specified `fmtstr` in the locale of the specified `loc`, and write the
-    // result of this operation into the string addressed by the specified
-    // `out` parameter. In the event of an error the exception `format_error`
-    // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
-
-
-template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>)
-void format_to(t_STRING                 *out,
-               const std::locale&        loc,
-               format_string<t_ARGS...>  fmtstr,
-               t_ARGS&&...               args);
-    // Format the specified `args` according to the specification given by the
-    // specified `fmtstr` in the locale of the specified `loc`, and write the
-    // result of this operation into the string addressed by the specified
-    // `out` parameter. In the event of an error the exception `format_error`
-    // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
-
-template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::wstring>)
-void format_to(t_STRING                  *out,
-               const std::locale&         loc,
-               wformat_string<t_ARGS...>  fmtstr,
-               t_ARGS&&...                args);
-    // Format the specified `args` according to the specification given by the
-    // specified `fmtstr` in the locale of the specified `loc`, and write the
-    // result of this operation into the string addressed by the specified
-    // `out` parameter. In the event of an error the exception `format_error`
-    // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
-
-template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>)
-ptrdiff_t format_to_n(t_STRING                 *out,
-                      ptrdiff_t                 n,
-                      format_string<t_ARGS...>  fmt,
-                      t_ARGS&&...               args);
-
-template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>)
-ptrdiff_t format_to_n(t_STRING                 *out,
-                      ptrdiff_t                 n,
-                      const std::locale&        loc,
-                      format_string<t_ARGS...>  fmt,
-                      t_ARGS&&...               args);
 
 void vformat_to(string *out, std::string_view fmtstr, format_args args);
     // Format the specified `args` according to the specification given by the
@@ -623,49 +667,49 @@ void format_to(t_STRING                  *out,
 }
 
 template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>) ptrdiff_t
-    format_to_n(t_STRING                 *out,
-                ptrdiff_t                 n,
-                format_string<t_ARGS...>  fmt,
-                t_ARGS&&...               args)
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+ptrdiff_t format_to_n(t_STRING                 *out,
+                      ptrdiff_t                 n,
+                      format_string<t_ARGS...>  fmtstr,
+                      t_ARGS&&...               args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),
                            n,
-                           fmt,
+                           fmtstr,
                            std::forward<t_ARGS>(args)...);
     return res.size;
 }
 
 
 template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::wstring>) ptrdiff_t
-    format_to_n(t_STRING                  *out,
-                ptrdiff_t                  n,
-                wformat_string<t_ARGS...>  fmt,
-                t_ARGS&&...                args)
+requires(bsl::is_same_v<t_STRING, bsl::wstring>)
+ptrdiff_t format_to_n(t_STRING                  *out,
+                      ptrdiff_t                  n,
+                      wformat_string<t_ARGS...>  fmtstr,
+                      t_ARGS&&...                args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),
                            n,
-                           fmt,
+                           fmtstr,
                            std::forward<t_ARGS>(args)...);
     return res.size;
 }
 
 template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>) ptrdiff_t
-    format_to_n(t_STRING                 *out,
-                ptrdiff_t                 n,
-                const std::locale&        loc,
-                format_string<t_ARGS...>  fmt,
-                t_ARGS&&...               args)
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+ptrdiff_t format_to_n(t_STRING                 *out,
+                      ptrdiff_t                 n,
+                      const std::locale&        loc,
+                      format_string<t_ARGS...>  fmtstr,
+                      t_ARGS&&...               args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),
                            n,
                            loc,
-                           fmt,
+                           fmtstr,
                            std::forward<t_ARGS>(args)...);
     return res.size;
 }
@@ -675,14 +719,14 @@ requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 ptrdiff_t format_to_n(t_STRING                  *out,
                       ptrdiff_t                  n,
                       const std::locale&         loc,
-                      wformat_string<t_ARGS...>  fmt,
+                      wformat_string<t_ARGS...>  fmtstr,
                       t_ARGS&&...                args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),
                            n,
                            loc,
-                           fmt,
+                           fmtstr,
                            std::forward<t_ARGS>(args)...);
     return res.size;
 }
