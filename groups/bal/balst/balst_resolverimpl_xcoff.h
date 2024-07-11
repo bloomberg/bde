@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_xcoff.h                               -*-C++-*-
+// balst_resolverimpl_xcoff.h                                         -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_XCOFF
-#define INCLUDED_BALST_STACKTRACERESOLVERIMPL_XCOFF
+#ifndef INCLUDED_BALST_RESOLVERIMPL_XCOFF
+#define INCLUDED_BALST_RESOLVERIMPL_XCOFF
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -16,13 +16,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a mechanism to resolve xcoff symbols in a stack trace.
 //
 //@CLASSES:
-//   balst::StackTraceResolverImpl<Xcoff>: symbol resolution for Xcoff objects
+//   balst::ResolverImpl<Xcoff>: symbol resolution for Xcoff objects
 //
-//@SEE_ALSO: balst_stacktraceresolverimpl_elf,
-//           balst_stacktraceresolverimpl_windows
+//@SEE_ALSO: balst_resolverimpl_elf,
+//           balst_resolverimpl_windows
 //
 //@DESCRIPTION: This component provides a class,
-// balst::StackTraceResolver<Xcoff>, that, given a vector of
+// balst::Resolver<Xcoff>, that, given a vector of
 // 'balst::StackTraceFrame's that have only their 'address' fields set,
 // resolves all other fields in those frames.  Xcoff objects are used on AIX
 // platforms.
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 #include <balst_stacktrace.h>
 #include <balst_stacktraceframe.h>
-#include <balst_stacktraceresolver_filehelper.h>
+#include <balst_resolver_filehelper.h>
 
 #include <bslmt_qlock.h>
 
@@ -67,14 +67,14 @@ namespace BloombergLP {
 namespace balst {
 
 template <typename RESOLVER_POLICY>
-class StackTraceResolverImpl;
+class ResolverImpl;
 
-           // =====================================================
-           // class StackTraceResolverImpl<ObjectFileFormat::Xcoff>
-           // =====================================================
+                   // ===========================================
+                   // class ResolverImpl<ObjectFileFormat::Xcoff>
+                   // ===========================================
 
 template <>
-class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
+class ResolverImpl<ObjectFileFormat::Xcoff> {
     // This class is for resolving symbols in Xcoff executables.  Given a
     // vector of 'StackTraceFrame's that have only their 'address' fields
     // set, it resolves all other fields in those frames.  Xcoff objects are
@@ -110,8 +110,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
     };
 
     // DATA
-    StackTraceResolver_FileHelper
-                          *d_helper;          // helper for reading files
+    Resolver_FileHelper   *d_helper;          // helper for reading files
 
     StackTrace            *d_stackTrace_p;    // pointer to stack trace object
                                               // to be populated by resolution.
@@ -193,12 +192,12 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
 
   private:
     // NOT IMPLEMENTED
-    StackTraceResolverImpl(const StackTraceResolverImpl&);
-    StackTraceResolverImpl& operator=(const StackTraceResolverImpl&);
+    ResolverImpl(const ResolverImpl&);
+    ResolverImpl& operator=(const ResolverImpl&);
 
     // PRIVATE CREATORS
-    StackTraceResolverImpl(StackTrace *stackTrace,
-                           bool        demangle);
+    ResolverImpl(StackTrace *stackTrace,
+                 bool        demangle);
         // Create an stack trace reolver that can populate other fields of the
         // specified 'stackFrames' object given previously populated 'address'
         // fields.  Specify 'demangle', which indicates whether demangling of
@@ -207,7 +206,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
         // 'basicAllocator' is 0 or unspecified, the intention is that it
         // should be of type 'bdema::HeapByPassAllocator'.
 
-    ~StackTraceResolverImpl();
+    ~ResolverImpl();
         // Destroy this stack trace resolver object.
 
     // PRIVATE MANIPULATORS
@@ -332,20 +331,20 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------
-                        // class StackTraceResolverImpl
-                        // ----------------------------
+                              // ------------------
+                              // class ResolverImpl
+                              // ------------------
 
 // PRIVATE MANIPULATORS
 inline
-bslma::Allocator *StackTraceResolverImpl<ObjectFileFormat::Xcoff>::allocator()
+bslma::Allocator *ResolverImpl<ObjectFileFormat::Xcoff>::allocator()
 {
     return &d_hbpAlloc;
 }
 
 // CLASS METHODS
 inline
-int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::testFunc()
+int ResolverImpl<ObjectFileFormat::Xcoff>::testFunc()
 {
     // Do some random garbage to generate some code, then return a line number
     // within this routine

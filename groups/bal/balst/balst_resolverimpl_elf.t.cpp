@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_elf.t.cpp                             -*-C++-*-
+// balst_resolverimpl_elf.t.cpp                                       -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,7 +7,7 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolverimpl_elf.h>
+#include <balst_resolverimpl_elf.h>
 
 #include <balst_stacktrace.h>
 
@@ -105,20 +105,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                 GLOBAL HELPER TYPES & CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf> Obj;
-typedef balst::StackTraceFrame                                      Frame;
-typedef bsls::Types::UintPtr                                        UintPtr;
-typedef bsls::Types::Int64                                          Int64;
-
-#if defined(BSLS_PLATFORM_CMP_GNU) && 110000 <= BSLS_PLATFORM_CMP_VERSION     \
-                                   && BSLS_PLATFORM_CMP_VERSION <  130000
-    // The DWARF resolving doesn't work for the moment on gcc-11 and gcc-12,
-    // (it does work on gcc-10 and gcc-13).  It will take a few weeks to get
-    // the resolver fixed, during that time, temporarily disable DWARF testing
-    // until the DWARF resolver is fixed.
-
-# undef BALST_OBJECTFILEFORMAT_RESOLVER_DWARF
-#endif
+typedef balst::ResolverImpl<balst::ObjectFileFormat::Elf> Obj;
+typedef balst::StackTraceFrame                            Frame;
+typedef bsls::Types::UintPtr                              UintPtr;
+typedef bsls::Types::Int64                                Int64;
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
 enum { e_IS_LINUX = 1 };
@@ -338,16 +328,15 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // balst::StackTraceResolverImp<Elf> BREATHING TEST
+        // balst::ResolverImp<Elf> BREATHING TEST
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //
         // Plan: Call 'printStackTrace()' to print a stack trace.
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-                          "balst::StackTraceResolverImpl<Elf> breathing test\n"
-                          "================================================\n";
+        if (verbose) cout << "balst::ResolverImpl<Elf> breathing test\n"
+                             "=======================================\n";
 
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  We'll leave the testing of symbols in shared
@@ -509,9 +498,9 @@ int main(int argc, char *argv[])
 
                     ASSERTV(i, pc, !bsl::strcmp(
                          pc,
-                           3 == i ? "balst_stacktraceresolverimpl_elf.cpp"
-                         : 4 == i ? "balst_stacktraceresolverimpl_elf.h"
-                         :          "balst_stacktraceresolverimpl_elf.t.cpp"));
+                           3 == i ? "balst_resolverimpl_elf.cpp"
+                         : 4 == i ? "balst_resolverimpl_elf.h"
+                         :          "balst_resolverimpl_elf.t.cpp"));
                 }
             }
 
@@ -551,13 +540,13 @@ int main(int argc, char *argv[])
 
                     SM(1, "funcStaticOne(int)");
                     SM(2, "funcStaticInlineOne(int)");
-                    SM(4, "BloombergLP::balst::StackTraceResolverImpl"
+                    SM(4, "BloombergLP::balst::ResolverImpl"
                           "<BloombergLP::balst::ObjectFileFormat::Elf>::"
                           "test()");
                 }
 #undef  SM
                 const char resName[] = { "BloombergLP::"
-                                         "balst::StackTraceResolverImpl"
+                                         "balst::ResolverImpl"
                                          "<BloombergLP::"
                                          "balst::ObjectFileFormat::Elf>::"
                                          "resolve("

@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_dladdr.cpp                            -*-C++-*-
+// balst_resolverimpl_dladdr.cpp                                      -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,10 +7,10 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolverimpl_dladdr.h>
+#include <balst_resolverimpl_dladdr.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balst_resolverimpl_dladdr,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
@@ -111,25 +111,24 @@ class FreeGuard {
     }
 };
 
-typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Dladdr>
-                                                            StackTraceResolver;
+typedef balst::ResolverImpl<balst::ObjectFileFormat::Dladdr>
+                                                            Resolver;
 
 }  // close namespace u
 }  // close unnamed namespace
 
 // CREATORS
-u::StackTraceResolver::StackTraceResolverImpl(
-                                     balst::StackTrace *stackTrace,
-                                     bool              demanglingPreferredFlag)
+u::Resolver::ResolverImpl(balst::StackTrace *stackTrace,
+                          bool              demanglingPreferredFlag)
 : d_stackTrace_p(stackTrace)
 , d_demangleFlag(demanglingPreferredFlag)
 {}
 
-u::StackTraceResolver::~StackTraceResolverImpl()
+u::Resolver::~ResolverImpl()
 {}
 
 // PRIVATE MANIPULATORS
-int u::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
+int u::Resolver::resolveFrame(balst::StackTraceFrame *frame)
 {
     Dl_info info;
     bsl::memset(&info, 0, sizeof(info));
@@ -178,15 +177,15 @@ int u::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
 }
 
 // CLASS METHODS
-int u::StackTraceResolver::resolve(balst::StackTrace *stackTrace,
-                                   bool               demanglingPreferredFlag)
+int u::Resolver::resolve(balst::StackTrace *stackTrace,
+                         bool               demanglingPreferredFlag)
 {
     if (balst::StackTraceConfigurationUtil::isResolutionDisabled()) {
         return 0;                                                     // RETURN
     }
 
     int retRc = 0;
-    u::StackTraceResolver resolver(stackTrace,
+    u::Resolver resolver(stackTrace,
                                    demanglingPreferredFlag);
 
     for (int i = 0; i < stackTrace->length(); ++i) {

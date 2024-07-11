@@ -1,4 +1,4 @@
-// balst_stacktraceresolver_filehelper.h                              -*-C++-*-
+// balst_resolver_filehelper.h                                        -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
-#define INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
+#ifndef INCLUDED_BALST_RESOLVER_FILEHELPER
+#define INCLUDED_BALST_RESOLVER_FILEHELPER
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide platform-independent file input for stack trace resolvers.
 //
 //@CLASSES:
-//   balst::StackTraceResolver_FileHelper: file input for stack trace resolvers
+//   balst::Resolver_FileHelper: file input for stack trace resolvers
 //
-//@SEE_ALSO: balst_stacktraceresolverimpl_elf,
-//           balst_stacktraceresolverimpl_xcoff
+//@SEE_ALSO: balst_resolverimpl_elf,
+//           balst_resolverimpl_xcoff
 //
 //@DESCRIPTION: The one class in this component opens a file in readonly mode
 // and then owns the file descriptor, and provides 3 utility functions for
@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 //
 //  char fileNameBuffer[100];
 //  sprintf(fileNameBuffer,
-//          "/tmp/balst_StackTraceResolver_FileHelper.usage.%d.txt",
+//          "/tmp/balst_Resolver_FileHelper.usage.%d.txt",
 //          getProcessId());
 //..
 // Make sure file does not already exist.
@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == rc);
 //
 //  {
-//      balst::StackTraceResolver_FileHelper helper(fileNameBuffer);
+//      balst::Resolver_FileHelper helper(fileNameBuffer);
 //
 //      char buf[100];
 //      memset(buf, 0, sizeof(buf));
@@ -134,17 +134,16 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balst {
-                    // ===================================
-                    // class StackTraceResolver_FileHelper
-                    // ===================================
+                            // =========================
+                            // class Resolver_FileHelper
+                            // =========================
 
-class StackTraceResolver_FileHelper {
+class Resolver_FileHelper {
     // This class provides a low-level file utility functions for
-    // 'StackTraceResolver<Elf>' and 'StackTraceResolver<Xcoff>'.
-    // This class contains the file descriptor of current object file.  Note
-    // that the file is opened readonly, and all reads specify the offset, so
-    // the offset of the file descriptor is not considered part of the state of
-    // this object.
+    // 'Resolver<Elf>' and 'Resolver<Xcoff>'.  This class contains the file
+    // descriptor of current object file.  Note that the file is opened
+    // readonly, and all reads specify the offset, so the offset of the file
+    // descriptor is not considered part of the state of this object.
 
     // PRIVATE TYPES
     typedef bdls::FilesystemUtil    FilesystemUtil;
@@ -157,16 +156,16 @@ class StackTraceResolver_FileHelper {
 
   private:
     // NOT IMPLEMENTED
-    StackTraceResolver_FileHelper(const StackTraceResolver_FileHelper&);
-    StackTraceResolver_FileHelper& operator=(
-                                         const StackTraceResolver_FileHelper&);
+    Resolver_FileHelper(const Resolver_FileHelper&);
+    Resolver_FileHelper& operator=(
+                                         const Resolver_FileHelper&);
   public:
     // CREATORS
     explicit
-    StackTraceResolver_FileHelper();
+    Resolver_FileHelper();
         // Create a file helper object in an invalid state.
 
-    ~StackTraceResolver_FileHelper();
+    ~Resolver_FileHelper();
         // Close any file currently opened by this object and destroy it.
 
     // MANIPULATOR
@@ -209,14 +208,14 @@ class StackTraceResolver_FileHelper {
 // ============================================================================
 
                      // -----------------------------------
-                     // StackTraceResolver_FileHelper
+                     // Resolver_FileHelper
                      // -----------------------------------
 
 // ACCESSORS
 inline
-int StackTraceResolver_FileHelper::readExact(void    *buf,
-                                             UintPtr  numBytes,
-                                             Offset   offset) const
+int Resolver_FileHelper::readExact(void    *buf,
+                                   UintPtr  numBytes,
+                                   Offset   offset) const
 {
     BSLS_ASSERT(buf);
     BSLS_ASSERT(offset >= 0);

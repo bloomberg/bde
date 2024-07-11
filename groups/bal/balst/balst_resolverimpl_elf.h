@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_elf.h                                 -*-C++-*-
+// balst_resolverimpl_elf.h                                           -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
-#define INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
+#ifndef INCLUDED_BALST_RESOLVERIMPL_ELF
+#define INCLUDED_BALST_RESOLVERIMPL_ELF
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -16,14 +16,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a utility to resolve ELF symbols in a stack trace.
 //
 //@CLASSES:
-//   balst::StackTraceResolverImpl<Elf>: symbol resolution for ELF objects
+//   balst::ResolverImpl<Elf>: symbol resolution for ELF objects
 //
-//@SEE_ALSO: balst_stacktraceresolver_dwarfreader,
-//           balst_stacktraceresolverimpl_windows,
-//           balst_stacktraceresolverimpl_xcoff
+//@SEE_ALSO: balst_resolver_dwarfreader,
+//           balst_resolverimpl_windows,
+//           balst_resolverimpl_xcoff
 //
 //@DESCRIPTION: This component provides a class,
-// 'balst::StackTraceResolver<Elf>', that, given a vector of
+// 'balst::Resolver<Elf>', that, given a vector of
 // 'balst::StackTraceFrame's that have only their 'address' fields set,
 // resolves all other fields in those frames.  The Elf object file format is
 // used on Linux and Solaris platforms.  The Elf format is described by
@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
 #include <balst_stacktrace.h>
 #include <balst_stacktraceframe.h>
-#include <balst_stacktraceresolver_filehelper.h>
+#include <balst_resolver_filehelper.h>
 
 #include <bdlma_heapbypassallocator.h>
 
@@ -59,14 +59,14 @@ namespace BloombergLP {
 namespace balst {
 
 template <class RESOLVER_POLICY>
-class StackTraceResolverImpl;
+class ResolverImpl;
 
-            // ===================================================
-            // class StackTraceResolverImpl<ObjectFileFormat::Elf>
-            // ===================================================
+                    // =========================================
+                    // class ResolverImpl<ObjectFileFormat::Elf>
+                    // =========================================
 
 template <>
-class StackTraceResolverImpl<ObjectFileFormat::Elf> {
+class ResolverImpl<ObjectFileFormat::Elf> {
     // This class provides a public static 'resolve' method that, given a
     // vector of 'StackTraceFrame's that have only their 'address' fields set,
     // resolves as many other fields in those frames as possible.  The Elf
@@ -108,25 +108,27 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
 
     char              *d_scratchBufD_p;     // scratch buffer D
 
+    char              *d_scratchBufE_p;     // scratch buffer E
+
     HiddenRec&         d_hidden;            // reference to the 'HiddenRec'.
 
     bool               d_demangle;          // whether we demangle names
 
   private:
     // NOT IMPLEMENTED
-    StackTraceResolverImpl(const StackTraceResolverImpl&);
-    StackTraceResolverImpl& operator=(const StackTraceResolverImpl&);
+    ResolverImpl(const ResolverImpl&);
+    ResolverImpl& operator=(const ResolverImpl&);
 
   private:
     // PRIVATE CREATORS
-    StackTraceResolverImpl(StackTrace *stackTrace,
-                           bool        demanglingPreferredFlag);
+    ResolverImpl(StackTrace *stackTrace,
+                 bool        demanglingPreferredFlag);
         // Create an stack trace reolver that can populate other fields of the
         // specified '*stackTrace' object given previously populated 'address'
         // fields.  Specify 'demangle', which indicates whether demangling of
         // symbols is to occur.
 
-    // ~StackTraceResolverImpl() = default;
+    // ~ResolverImpl() = default;
         // Destroy this object.
 
     // PRIVATE MANIPULATORS
@@ -203,13 +205,13 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
 };
 
 inline
-int StackTraceResolverImpl<ObjectFileFormat::Elf>::test()
+int ResolverImpl<ObjectFileFormat::Elf>::test()
 {
 
     StackTrace st;
 
     int ret = __LINE__;
-    StackTraceResolverImpl<ObjectFileFormat::Elf> resolver(&st, true);
+    ResolverImpl<ObjectFileFormat::Elf> resolver(&st, true);
 
     return (resolver.numUnmatchedFrames() << 14) | ret;
 }

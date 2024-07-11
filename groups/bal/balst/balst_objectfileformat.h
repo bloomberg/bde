@@ -54,8 +54,8 @@ BSLS_IDENT("$Id: $")
 // support for dwarf formats is disabled.
 //
 // DWARF support on Clang is problematic and not currrently implemented, see
-// the long comment in balst_stacktraceresolverimpl_elf.cpp, which explains
-// exactly how it could be implemented when that becomes a priority.
+// the long comment in balst_resolverimpl_elf.cpp, which explains exactly how
+// it could be implemented when that becomes a priority.
 //
 // We have not yet investigated implementing DWARF for Dladdr (Darwin).
 //

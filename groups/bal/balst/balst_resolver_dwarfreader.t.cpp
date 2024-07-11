@@ -1,11 +1,11 @@
-// balst_stacktraceresolver_dwarfreader.t.cpp                         -*-C++-*-
+// balst_resolver_dwarfreader.t.cpp                                   -*-C++-*-
 
-#include <balst_stacktraceresolver_dwarfreader.h>
+#include <balst_resolver_dwarfreader.h>
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DWARF
 
 #include <balst_objectfileformat.h>
-#include <balst_stacktraceresolver_filehelper.h>
+#include <balst_resolver_filehelper.h>
 
 #include <bdls_filesystemutil.h>
 
@@ -136,6 +136,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+#define PH_(value)    (cout << #value << ": ", u::printHex(value),            \
+                                                          cout << "    ", true)
+#define PH( value)    (cout << #value << ": ", u::printHex(value),            \
+                                                            cout << endl, true)
+
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -152,15 +157,15 @@ void aSsErT(bool condition, const char *message, int line)
 //                 GLOBAL HELPER TYPES & CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef balst::StackTraceResolver_DwarfReader Obj;
-typedef balst::StackTraceResolver_FileHelper  FH;
-typedef Obj::Section                          Section;
-typedef Obj::Offset                           Offset;
-typedef Obj::UintPtr                          UintPtr;
-typedef bsls::Types::Uint64                   Uint64;
-typedef bsls::Types::Int64                    Int64;
-typedef bdls::FilesystemUtil                  FU;
-typedef FU::FileDescriptor                    FD;
+typedef balst::Resolver_DwarfReader Obj;
+typedef balst::Resolver_FileHelper  FH;
+typedef Obj::Section                Section;
+typedef Obj::Offset                 Offset;
+typedef Obj::UintPtr                UintPtr;
+typedef bsls::Types::Uint64         Uint64;
+typedef bsls::Types::Int64          Int64;
+typedef bdls::FilesystemUtil        FU;
+typedef FU::FileDescriptor          FD;
 
 // ============================================================================
 //                    GLOBAL HELPER VARIABLES FOR TESTING
@@ -172,6 +177,13 @@ typedef FU::FileDescriptor                    FD;
 
 namespace {
 namespace u {
+
+void printHex(Uint64 value)
+{
+    bsl::ios_base::fmtflags flags = cout.flags(bsl::ios_base::hex);
+    cout << value;
+    cout.flags(flags);
+}
 
 template <class TYPE>
 int sz(const TYPE&)
@@ -220,7 +232,7 @@ void writeUnsigned(FD fd, unsigned u)
     // 'fd'.
 {
     int rc = FU::write(fd, &u, sz(u));
-    ASSERT(sz(u) == rc);
+    ASSERTV(rc, sz(u) == rc);
 }
 
 static
@@ -333,13 +345,16 @@ int main(int argc, char *argv[])
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
-    // Remove any leftover temporary directories created by this test driver
-    // over 24 hours ago.  Note that we try to clean up the temporary directory
-    // at the end of this test driver, but about 10% of the time we can't, due
-    // to stubborn nfs 'gremlin' files that appear in the directory.
+    if (1 == test) {
+        // Remove any leftover temporary directories created by this test
+        // driver over 24 hours ago.  Note that we try to clean up the
+        // temporary directory at the end of this test driver, but about 10% of
+        // the time we can't, due to stubborn nfs 'gremlin' files that appear
+        // in the directory.
 
-    bsl::system("rm -rf `find . -mtime +0 -a"
-                        " -name 'tmp.stacktraceresolver_dwarfreader.case_*'`");
+        bsl::system("rm -rf `find . -mtime +1 -a"
+                                  " -name 'tmp.resolver_dwarfreader.case_*'`");
+    }
 
     bsl::string origWorkingDirectory;
     ASSERT(0 == FU::getWorkingDirectory(&origWorkingDirectory));
@@ -354,7 +369,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ::gethostname(host, sizeof(host)));
 
         bsl::ostringstream oss;
-        oss << "tmp.stacktraceresolver_dwarfreader.case_" << test << '.' <<
+        oss << "tmp.resolver_dwarfreader.case_" << test << '.' <<
                                                      host << '.' << ::getpid();
         tmpWorkingDir = oss.str();
     }
@@ -561,6 +576,7 @@ int main(int argc, char *argv[])
         u_CHECK(Obj::e_DW_FORM_ref8, Form);
         u_CHECK(Obj::e_DW_FORM_ref_udata, Form);
         u_CHECK(Obj::e_DW_FORM_indirect, Form);
+        u_CHECK(Obj::e_DW_FORM_line_strp, Form);
 
         u_CHECK(Obj::e_DW_FORM_sec_offset, Form);
         u_CHECK(Obj::e_DW_FORM_exprloc, Form);
@@ -1974,6 +1990,7 @@ int main(int argc, char *argv[])
         //: 3 'readStringFromForm' works.
         //:   A When 'form' is 'e_DW_FORM_string'.
         //:   B When 'form' is 'e_DW_FORM_strp'.
+        //:   C When 'form' is 'e_DW_FORM_line_strp'.
         //: 4 'skipString' works.
         //
         // Plan:
@@ -2017,7 +2034,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   readString(bsl::string *);
         //   readStringAt(bsl::string *, Offset);
-        //   readStringFromForm(bsl::string *, Obj *, unsigned);
+        //   readStringFromForm(bsl::string *, Obj *, Obj *, unsigned);
         //   skipString();
         // --------------------------------------------------------------------
 
@@ -2027,6 +2044,7 @@ int main(int argc, char *argv[])
         const char *fn = "readstring.bin";
         const char str[] = { "Always debate to the best interpretation of"
                                                 " your opponent's argument." };
+        const char lineStr[] { "The rain in Spain falls mainly in the plain."};
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -2048,9 +2066,29 @@ int main(int argc, char *argv[])
 
         u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset initLengthOff = u::getOffset(fd);
+        const Offset lineStrOff = u::getOffset(fd);
+
+        {
+            int rc = FU::write(fd, lineStr, u::sz(lineStr));
+            ASSERT(u::sz(lineStr) == rc);
+        }
+
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
+
+        const Offset endLineStrSec = u::getOffset(fd);
+
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
+
+        const Offset shortInitLengthOff = u::getOffset(fd);
 
         u::writeUnsigned(fd, 0);
+
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
+
+        const Offset longInitLengthOff = u::getOffset(fd);
+
+        u::writeUnsigned(fd, 0);
+        u::writeInt64(fd, 0);
 
         u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
@@ -2066,16 +2104,43 @@ int main(int argc, char *argv[])
 
         u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
+        const Offset shortLineOffOff = u::getOffset(fd);
+
+        u::writeUnsigned(fd, static_cast<unsigned>(lineStrOff - endStrSec));
+
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
+
+        const Offset longLineOffOff = u::getOffset(fd);
+
+        u::writeInt64(fd, lineStrOff - endStrSec);
+
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
+
         const Offset endFile = u::getOffset(fd);
 
-        (void) FU::seek(fd, initLengthOff, FU::e_SEEK_FROM_BEGINNING);
+        if (veryVerbose) {
+            PH_(strOff);    PH_(endStrSec);    PH_(lineStrOff);
+            PH(endLineStrSec);
+            PH_(shortInitLengthOff);    PH_(longInitLengthOff);
+            PH_(shortOffOff);           PH(longOffOff);
+            PH_(shortLineOffOff);       PH_(longLineOffOff);
+            PH(endFile);
+        }
+
+        (void) FU::seek(fd, shortInitLengthOff, FU::e_SEEK_FROM_BEGINNING);
 
         u::writeUnsigned(fd,
-                           static_cast<unsigned>(endFile - initLengthOff - 4));
+                      static_cast<unsigned>(endFile - shortInitLengthOff - 4));
 
-        Section strSec, infoSec;
-        strSec. reset(0, endStrSec);
-        infoSec.reset(   endStrSec, endFile - endStrSec);
+        (void) FU::seek(fd, longInitLengthOff, FU::e_SEEK_FROM_BEGINNING);
+
+        u::writeUnsigned(fd, 0xffffffff);
+        u::writeInt64(fd, endFile - longInitLengthOff - 12);
+
+        Section strSec, lineStrSec, infoSec;
+        strSec.    reset(0,             endStrSec);
+        lineStrSec.reset(endStrSec,     endLineStrSec - endStrSec);
+        infoSec.   reset(endLineStrSec, endFile - endLineStrSec);
 
         FH helper;
         int rc = helper.initialize(fn);
@@ -2084,6 +2149,11 @@ int main(int argc, char *argv[])
         Obj strReader;
         char strBuffer[Obj::k_SCRATCH_BUF_LEN];
         rc = strReader.init(&helper, strBuffer, strSec, endFile);
+        ASSERT(0 == rc);
+
+        Obj lineStrReader;
+        char lineStrBuffer[Obj::k_SCRATCH_BUF_LEN];
+        rc = lineStrReader.init(&helper, lineStrBuffer, lineStrSec, endFile);
         ASSERT(0 == rc);
 
         Obj infoReader;
@@ -2121,7 +2191,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         rc = strReader.readStringFromForm(&result,
-                                          &infoReader,
+                                          &infoReader,    // ignored
+                                          &lineStrReader, // ignored
                                           Obj::e_DW_FORM_string);
         ASSERT(0 == rc);
         ASSERT(str == result);
@@ -2131,7 +2202,7 @@ int main(int argc, char *argv[])
 
         result = "woof";
 
-        rc = infoReader.skipTo(initLengthOff);
+        rc = infoReader.skipTo(shortInitLengthOff);
         ASSERT(0 == rc);
 
         Offset initLen;
@@ -2145,26 +2216,19 @@ int main(int argc, char *argv[])
 
         rc = infoReader.readStringFromForm(&result,
                                            &strReader,
+                                           &lineStrReader,  // ignored
                                            Obj::e_DW_FORM_strp);
         ASSERT(0 == rc);
         ASSERT(str == result);
 
         if (verbose) cout << "Test 'readStringFromForm' long e_DW_FORM_strp\n";
 
-        (void) FU::seek(fd, initLengthOff, FU::e_SEEK_FROM_BEGINNING);
-
-        u::writeUnsigned(fd, 0xffffffff);
-        u::writeInt64(fd, endFile - initLengthOff - 12);
-
-        rc = FU::close(fd);
-        ASSERT(0 == rc);
-
         result = "woof";
 
         rc = infoReader.init(&helper, infoBuffer, infoSec, endFile);
         ASSERT(0 == rc);
 
-        rc = infoReader.skipTo(initLengthOff);
+        rc = infoReader.skipTo(longInitLengthOff);
         ASSERT(0 == rc);
 
         rc = infoReader.readInitialLength(&initLen);
@@ -2176,6 +2240,7 @@ int main(int argc, char *argv[])
 
         rc = infoReader.readStringFromForm(&result,
                                            &strReader,
+                                           &lineStrReader, // ignored
                                            Obj::e_DW_FORM_strp);
         ASSERT(0 == rc);
         ASSERT(str == result);
@@ -2189,6 +2254,53 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         ASSERT(strReader.offset() == strOff + u::sz(str));
+
+        if (verbose) cout <<
+                       "Test 'readStringFromForm' short e_DW_FORM_line_strp\n";
+
+        result = "woof";
+
+        rc = infoReader.skipTo(shortInitLengthOff);
+        ASSERT(0 == rc);
+
+        rc = infoReader.readInitialLength(&initLen);
+        ASSERT(0 == rc);
+        ASSERTV(infoReader.offsetSize(), 4 == infoReader.offsetSize());
+
+        rc = infoReader.skipTo(shortLineOffOff);
+        ASSERT(0 == rc);
+
+        rc = infoReader.readStringFromForm(&result,
+                                           &strReader,  // ignored
+                                           &lineStrReader,
+                                           Obj::e_DW_FORM_line_strp);
+        ASSERT(0 == rc);
+        ASSERT(lineStr == result);
+
+        if (verbose) cout <<
+                        "Test 'readStringFromForm' long e_DW_FORM_line_strp\n";
+
+        result = "woof";
+
+        rc = infoReader.skipTo(longInitLengthOff);
+        ASSERT(0 == rc);
+
+        rc = infoReader.readInitialLength(&initLen);
+        ASSERT(0 == rc);
+        ASSERTV(infoReader.offsetSize(), 8 == infoReader.offsetSize());
+
+        rc = infoReader.skipTo(longLineOffOff);
+        ASSERT(0 == rc);
+
+        rc = infoReader.readStringFromForm(&result,
+                                           &strReader,  // ignored
+                                           &lineStrReader,
+                                           Obj::e_DW_FORM_line_strp);
+        ASSERT(0 == rc);
+        ASSERT(lineStr == result);
+
+        rc = FU::close(fd);
+        ASSERT(0 == rc);
       } break;
       case 4: {
         // --------------------------------------------------------------------

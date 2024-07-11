@@ -1,7 +1,7 @@
-// balst_stacktraceresolver_dwarfreader.h                             -*-C++-*-
+// balst_resolver_dwarfreader.h                                       -*-C++-*-
 
-#ifndef INCLUDED_BALST_STACKTRACERESOLVER_DWARFREADER
-#define INCLUDED_BALST_STACKTRACERESOLVER_DWARFREADER
+#ifndef INCLUDED_BALST_RESOLVER_DWARFREADER
+#define INCLUDED_BALST_RESOLVER_DWARFREADER
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -9,13 +9,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide mechanism for reading DWARF information from object files.
 //
 //@CLASSES:
-//   balst::StackTraceResolver_DwarfReader: reading mechanism
+//   balst::Resolver_DwarfReader: reading mechanism
 //
-//@SEE_ALSO: balst_stacktraceresolverimpl_elf
-//           balst_stacktraceresolver_filehelper
+//@SEE_ALSO: balst_resolverimpl_elf
+//           balst_resolver_filehelper
 //
 //@DESCRIPTION: This component provides a class,
-// 'balst::StackTraceResolver_DwarfReader', that is optimized for reading
+// 'balst::Resolver_DwarfReader', that is optimized for reading
 // information from object files that are in the DWARF format.  The Elf object
 // file format is used on Linux and Solaris platforms, and the DWARF file
 // format is used within ELF files to encode source file name and line number
@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 //
 // Note that this file does not include everything necessary to resolve DWARF
 // information.  Most of that functionality is in
-// 'balst_stacktraceresolverimpl_elf', and this component only describe a tool
+// 'balst_resolverimpl_elf', and this component only describe a tool
 // used within that effort.
 //
 ///Usage
@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 
 #include <balst_objectfileformat.h>
-#include <balst_stacktraceresolver_filehelper.h>
+#include <balst_resolver_filehelper.h>
 
 #include <bdlb_bitutil.h>
 
@@ -62,11 +62,11 @@ namespace balst {
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF)
 
-                    // ====================================
-                    // class StackTraceResolver_DwarfReader
-                    // ====================================
+                            // ==========================
+                            // class Resolver_DwarfReader
+                            // ==========================
 
-class StackTraceResolver_DwarfReader {
+class Resolver_DwarfReader {
   public:
     // PUBLIC TYPES
     typedef bdls::FilesystemUtil::Offset Offset;
@@ -230,8 +230,17 @@ class StackTraceResolver_DwarfReader {
         e_DW_FORM_ref8 = 0x14,
         e_DW_FORM_ref_udata = 0x15,
         e_DW_FORM_indirect = 0x16,
+        e_DW_FORM_line_strp = 0x1f,
 
         e_DW_INL_declared_inlined = 0x03,
+
+        e_DW_LNCT_path = 0x01,
+        e_DW_LNCT_directory_index = 0x02,
+        e_DW_LNCT_timestamp = 0x03,
+        e_DW_LNCT_size = 0x04,
+        e_DW_LNCT_MD5 = 0x05,
+        e_DW_LNCT_lo_user = 0x2000,
+        e_DW_LNCT_hi_user = 0x3fff,
 
         e_DW_LNE_end_sequence = 0x01,
         e_DW_LNE_set_address = 0x02,
@@ -349,8 +358,7 @@ class StackTraceResolver_DwarfReader {
 
   private:
     // DATA
-    balst::StackTraceResolver_FileHelper
-                                   *d_helper_p;      // filehelper for current
+    balst::Resolver_FileHelper     *d_helper_p;      // filehelper for current
                                                      // segment
 
     char                           *d_buffer_p;      // buffer.
@@ -376,9 +384,8 @@ class StackTraceResolver_DwarfReader {
 
   private:
     // NOT IMPLEMENTED
-    StackTraceResolver_DwarfReader(const StackTraceResolver_DwarfReader&);
-    StackTraceResolver_DwarfReader& operator=(
-                                   const StackTraceResolver_DwarfReader&);
+    Resolver_DwarfReader(const Resolver_DwarfReader&);
+    Resolver_DwarfReader& operator=(const Resolver_DwarfReader&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -411,6 +418,10 @@ class StackTraceResolver_DwarfReader {
         // 'inlineState'.
 
     static
+    const char *stringForLNCT(unsigned id);
+        // Return the string equivalent of the specified 'e_DW_LNCT_*' 'id'.
+
+    static
     const char *stringForLNE(unsigned id);
         // Return the string equivalent of the specified 'e_DW_LNE_*' 'id'.
 
@@ -423,19 +434,19 @@ class StackTraceResolver_DwarfReader {
         // Return the string equivalent of the specified 'e_DW_TAG_*' 'tag'.
 
     // CREATORS
-    StackTraceResolver_DwarfReader();
+    Resolver_DwarfReader();
         // Create a 'Reader' object in a null state.
 
-    // ~StackTraceResolver_DwarfReader() = default;
+    // ~Resolver_DwarfReader() = default;
 
     // MANIPULATORS
     void disable();
         // Disable this object for further use.
 
-    int init(balst::StackTraceResolver_FileHelper *fileHelper,
-             char                                 *buffer,
-             const Section&                        section,
-             Offset                                libraryFileSize);
+    int init(balst::Resolver_FileHelper *fileHelper,
+             char                       *buffer,
+             const Section&              section,
+             Offset                      libraryFileSize);
         // Initialize this 'Reader' object using the specified 'fileHelper' and
         // the specified 'buffer', to operate on the specified 'section', where
         // the specified 'libraryFileSize' is the size of the library or
@@ -516,14 +527,16 @@ class StackTraceResolver_DwarfReader {
         // so does not read a full buffer ahead, instead reading a fairly
         // minimal amount of data near the specified location.
 
-    int readStringFromForm(bsl::string                    *dst,
-                           StackTraceResolver_DwarfReader *stringReader,
-                           unsigned                        form);
+    int readStringFromForm(bsl::string          *dst,
+                           Resolver_DwarfReader *strReader,
+                           Resolver_DwarfReader *lineStrReader,
+                           unsigned              form);
         // Read to the specified string either from the current reader (if the
         // specified 'form' is 'e_DW_FORM_string') or read an offset from the
-        // current reader, then use that to read the string from the specified
-        // '*stringReader' (if 'form' is 'e_DW_FORM_strp').  Return 0 on
-        // success and a non-zero value otherwise.
+        // current reader, then use that to read the string either from the
+        // specified '*strReader' (if 'form' is 'e_DW_FORM_strp') or from the
+        // specified '*lineStrReader' (if 'form' is 'e_DW_FORM_line_strp').
+        // Return 0 on success and a non-zero value otherwise.
 
     template <class TYPE>
     int readValue(TYPE *dst);
@@ -572,11 +585,14 @@ class StackTraceResolver_DwarfReader {
     Offset offsetSize() const;
         // Return the offset length that was set by the 'readInitialLength'
         // function.
+
+    bool isEnabled() const;
+        // Return 'false' if this reader is disabled and 'true' otherwise.
 };
 
 // PRIVATE MANIPULATORS
 inline
-int StackTraceResolver_DwarfReader::needBytes(bsl::size_t numBytes)
+int Resolver_DwarfReader::needBytes(bsl::size_t numBytes)
 {
     IntPtr diff = d_endPtr - d_readPtr;
 
@@ -590,7 +606,7 @@ int StackTraceResolver_DwarfReader::needBytes(bsl::size_t numBytes)
 }
 
 template <class TYPE>
-int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
+int Resolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 {
     BSLMF_ASSERT(static_cast<TYPE>(-1) < 0);    // 'TYPE' must be signed
 
@@ -633,7 +649,7 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 }
 
 template <class TYPE>
-int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
+int Resolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
 {
     Uint64 tmpDst = 0;
 
@@ -670,7 +686,7 @@ int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
 
 template <class TYPE>
 inline
-int StackTraceResolver_DwarfReader::readValue(TYPE *dst)
+int Resolver_DwarfReader::readValue(TYPE *dst)
 {
     int rc = needBytes(sizeof(*dst));
     if (rc) {
@@ -688,7 +704,7 @@ int StackTraceResolver_DwarfReader::readValue(TYPE *dst)
 }
 
 inline
-int StackTraceResolver_DwarfReader::skipBytes(Offset bytes)
+int Resolver_DwarfReader::skipBytes(Offset bytes)
 {
     BSLS_ASSERT(bytes >= 0);
 
@@ -717,7 +733,7 @@ int StackTraceResolver_DwarfReader::skipBytes(Offset bytes)
 }
 
 inline
-int StackTraceResolver_DwarfReader::skipString()
+int Resolver_DwarfReader::skipString()
 {
     do {
         int rc = needBytes(1);
@@ -731,30 +747,36 @@ int StackTraceResolver_DwarfReader::skipString()
 
 // ACCESSORS
 inline
-int StackTraceResolver_DwarfReader::addressSize() const
+int Resolver_DwarfReader::addressSize() const
 {
     return d_addressSize;
 }
 
 inline
-bool StackTraceResolver_DwarfReader::atEndOfSection() const
+bool Resolver_DwarfReader::atEndOfSection() const
 {
     return d_readPtr == d_endPtr &&
                               d_endOffset - d_offset == d_readPtr - d_buffer_p;
 }
 
 inline
-StackTraceResolver_DwarfReader::Offset
-StackTraceResolver_DwarfReader::offset() const
+Resolver_DwarfReader::Offset
+Resolver_DwarfReader::offset() const
 {
     return d_offset + (d_readPtr - d_buffer_p);
 }
 
 inline
-StackTraceResolver_DwarfReader::Offset
-StackTraceResolver_DwarfReader::offsetSize() const
+Resolver_DwarfReader::Offset
+Resolver_DwarfReader::offsetSize() const
 {
     return d_offsetSize;
+}
+
+inline
+bool Resolver_DwarfReader::isEnabled() const
+{
+    return 0 != d_buffer_p;
 }
 
 #endif

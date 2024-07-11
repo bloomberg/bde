@@ -1,9 +1,9 @@
-// balst_stacktraceresolver_dwarfreader.cpp                           -*-C++-*-
+// balst_resolver_dwarfreader.cpp                                     -*-C++-*-
 
-#include <balst_stacktraceresolver_dwarfreader.h>
+#include <balst_resolver_dwarfreader.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balst_stacktraceresolver_dwarfreader_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balst_resolver_dwarfreader_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
@@ -172,20 +172,20 @@ int u_zprintf(const char *, ...)
 namespace BloombergLP {
 namespace balst {
 
-                // ---------------------------------------
-                // StackTraceResolver_DwarfReader::Section
-                // ---------------------------------------
+                        // -----------------------------
+                        // Resolver_DwarfReader::Section
+                        // -----------------------------
 
 // CREATOR
-StackTraceResolver_DwarfReader::Section::Section()
+Resolver_DwarfReader::Section::Section()
 : d_offset(0)
 , d_size(0)
 {
 }
 
 // MANIPULATOR
-void StackTraceResolver_DwarfReader::Section::reset(Offset offset,
-                                                    Offset size)
+void Resolver_DwarfReader::Section::reset(Offset offset,
+                                          Offset size)
 {
     if (offset < 0 || size < 0) {
         u_TRACES && u_eprintf("reset: negative offset or size\n");
@@ -198,12 +198,12 @@ void StackTraceResolver_DwarfReader::Section::reset(Offset offset,
     }
 }
 
-                    // ------------------------------
-                    // StackTraceResolver_DwarfReader
-                    // ------------------------------
+                            // --------------------
+                            // Resolver_DwarfReader
+                            // --------------------
 
 // PRIVATE MANIPULATORS
-int StackTraceResolver_DwarfReader::reload(bsl::size_t numBytes)
+int Resolver_DwarfReader::reload(bsl::size_t numBytes)
 {
     static const char rn[] = { "Reader::reload:" };    (void) rn;
 
@@ -229,9 +229,10 @@ int StackTraceResolver_DwarfReader::reload(bsl::size_t numBytes)
 }
 
 // CLASS METHODS
-const char *StackTraceResolver_DwarfReader::stringForAt(unsigned id)
+const char *Resolver_DwarfReader::stringForAt(unsigned id)
 {
     static const char rn[] = { "dwarfStringForAt:" };
+    (void) rn;
 
     const char *pc = 0;
 
@@ -340,7 +341,9 @@ const char *StackTraceResolver_DwarfReader::stringForAt(unsigned id)
       CASE(e_DW_AT_hi_user);
 
       default: {
+#if 2 == u_TRACES
         u_eprintf("%s unrecognized 'DW_AT_? value = 0x%x\n", rn, id);
+#endif
 
         return "DW_AT_????";                                          // RETURN
       }
@@ -352,10 +355,11 @@ const char *StackTraceResolver_DwarfReader::stringForAt(unsigned id)
     return pc + 2;
 }
 
-const char *StackTraceResolver_DwarfReader::stringForForm(
+const char *Resolver_DwarfReader::stringForForm(
                                                                    unsigned id)
 {
     static const char rn[] = { "dwarfStringForForm:" };
+    (void) rn;
 
     const char *pc = 0;
 
@@ -386,6 +390,7 @@ const char *StackTraceResolver_DwarfReader::stringForForm(
       CASE(e_DW_FORM_ref8);
       CASE(e_DW_FORM_ref_udata);
       CASE(e_DW_FORM_indirect);
+      CASE(e_DW_FORM_line_strp);
 
       // DWARF version 4
 
@@ -394,7 +399,9 @@ const char *StackTraceResolver_DwarfReader::stringForForm(
       CASE(e_DW_FORM_flag_present);
       CASE(e_DW_FORM_ref_sig8);
       default: {
+#if 2 == u_TRACES
         u_eprintf("%s unrecognized 'DW_FORM_?' value = 0x%x\n", rn, id);
+#endif
 
         return "DW_FORM_????";                                        // RETURN
       }
@@ -405,10 +412,10 @@ const char *StackTraceResolver_DwarfReader::stringForForm(
     return pc + 2;
 }
 
-const char *StackTraceResolver_DwarfReader::stringForInlineState(
-                                                          unsigned inlineState)
+const char *Resolver_DwarfReader::stringForInlineState(unsigned inlineState)
 {
     static const char rn[] = { "dwarfStringForInlineState:" };
+    (void) rn;
 
     const char *pc = 0;
 
@@ -418,8 +425,10 @@ const char *StackTraceResolver_DwarfReader::stringForInlineState(
     switch (inlineState) {
       CASE(e_DW_INL_declared_inlined);
       default: {
+#if 2 == u_TRACES
         u_eprintf("%s unrecognized 'DW_INL_?' value = 0x%x\n", rn,
                                                                   inlineState);
+#endif
 
         return "DW_INL_????";                                         // RETURN
       }
@@ -430,9 +439,42 @@ const char *StackTraceResolver_DwarfReader::stringForInlineState(
     return pc + 2;
 }
 
-const char *StackTraceResolver_DwarfReader::stringForLNE(unsigned id)
+const char *Resolver_DwarfReader::stringForLNCT(unsigned id)
+{
+    static const char rn[] = { "dwarfStringForLNCT:" };
+    (void) rn;
+
+    const char *pc = 0;
+
+#undef CASE
+#define CASE(x)    case x: pc = #x; break
+
+    switch (id) {
+      CASE(e_DW_LNCT_path);
+      CASE(e_DW_LNCT_directory_index);
+      CASE(e_DW_LNCT_timestamp);
+      CASE(e_DW_LNCT_size);
+      CASE(e_DW_LNCT_MD5);
+      CASE(e_DW_LNCT_lo_user);
+      CASE(e_DW_LNCT_hi_user);
+      default: {
+#if 2 == u_TRACES
+        u_eprintf("%s unrecognized 'DW_LNCT_?' value = %u\n", rn, id);
+#endif
+
+        return "DW_LNCT_????";                                        // RETURN
+      }
+    }
+#undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
+}
+
+const char *Resolver_DwarfReader::stringForLNE(unsigned id)
 {
     static const char rn[] = { "dwarfStringForLNE:" };
+    (void) rn;
 
     const char *pc = 0;
 
@@ -450,7 +492,9 @@ const char *StackTraceResolver_DwarfReader::stringForLNE(unsigned id)
 
       CASE(e_DW_LNE_set_discriminator);
       default: {
+#if 2 == u_TRACES
         u_eprintf("%s unrecognized 'DW_LNE_?' value = %u\n", rn, id);
+#endif
 
         return "DW_LNE_????";                                         // RETURN
       }
@@ -461,9 +505,10 @@ const char *StackTraceResolver_DwarfReader::stringForLNE(unsigned id)
     return pc + 2;
 }
 
-const char *StackTraceResolver_DwarfReader::stringForLNS(unsigned id)
+const char *Resolver_DwarfReader::stringForLNS(unsigned id)
 {
     static const char rn[] = { "dwarfStringForLNS:" };
+    (void) rn;
 
     const char *pc = 0;
 
@@ -484,7 +529,9 @@ const char *StackTraceResolver_DwarfReader::stringForLNS(unsigned id)
       CASE(e_DW_LNS_set_epilogue_begin);
       CASE(e_DW_LNS_set_isa);
       default: {
+#if 2 == u_TRACES
         u_eprintf("%s unrecognized 'DW_LNS_?' value = %u\n", rn, id);
+#endif
 
         return "DW_LNS_????";                                         // RETURN
       }
@@ -495,9 +542,10 @@ const char *StackTraceResolver_DwarfReader::stringForLNS(unsigned id)
     return pc + 2;
 }
 
-const char *StackTraceResolver_DwarfReader::stringForTag(unsigned tag)
+const char *Resolver_DwarfReader::stringForTag(unsigned tag)
 {
     static const char rn[] = { "dwarfStringForTag:" };
+    (void) rn;
 
     const char *pc = 0;
 
@@ -575,6 +623,7 @@ const char *StackTraceResolver_DwarfReader::stringForTag(unsigned tag)
       CASE(e_DW_TAG_template_alias);
 
       default: {
+#if 2 == u_TRACES
         if (e_DW_TAG_lo_user <= tag && tag <= e_DW_TAG_hi_user) {
             u_eprintf("%s unrecognized user-defined 'e_DW_TAG_?'"
                                                    " value = 0x%x\n", rn, tag);
@@ -582,6 +631,7 @@ const char *StackTraceResolver_DwarfReader::stringForTag(unsigned tag)
         else {
             u_eprintf("%s unrecognized 'DW_TAG_?' value = 0x%x\n", rn, tag);
         }
+#endif
 
         return "DW_TAG_????";                                         // RETURN
       }
@@ -593,7 +643,7 @@ const char *StackTraceResolver_DwarfReader::stringForTag(unsigned tag)
 }
 
 // CREATORS
-StackTraceResolver_DwarfReader::StackTraceResolver_DwarfReader()
+Resolver_DwarfReader::Resolver_DwarfReader()
 {
     typedef bsls::Types::Uint64 Uint64;
 
@@ -605,7 +655,7 @@ StackTraceResolver_DwarfReader::StackTraceResolver_DwarfReader()
 }
 
 // MANIPULATORS
-void StackTraceResolver_DwarfReader::disable()
+void Resolver_DwarfReader::disable()
 {
     d_helper_p    = 0;
     d_buffer_p    = 0;
@@ -618,11 +668,10 @@ void StackTraceResolver_DwarfReader::disable()
     d_addressSize = -1;
 }
 
-int StackTraceResolver_DwarfReader::init(
-                                StackTraceResolver_FileHelper *fileHelper,
-                                char                          *buffer,
-                                const Section&                 section,
-                                Offset                         libraryFileSize)
+int Resolver_DwarfReader::init(Resolver_FileHelper *fileHelper,
+                               char                *buffer,
+                               const Section&       section,
+                               Offset               libraryFileSize)
 {
     static const char rn[] = { "Reader::init:" };    (void) rn;
 
@@ -645,7 +694,7 @@ int StackTraceResolver_DwarfReader::init(
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readAddress(UintPtr *dst)
+int Resolver_DwarfReader::readAddress(UintPtr *dst)
 {
     static const char rn[] = { "Reader::readAddress:" };    (void) rn;
 
@@ -667,7 +716,7 @@ int StackTraceResolver_DwarfReader::readAddress(UintPtr *dst)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readAddress(UintPtr *dst, unsigned form)
+int Resolver_DwarfReader::readAddress(UintPtr *dst, unsigned form)
 {
     static const char rn[] = { "Reader::readAddress:" };    (void) rn;
 
@@ -705,7 +754,7 @@ int StackTraceResolver_DwarfReader::readAddress(UintPtr *dst, unsigned form)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readAddressSize()
+int Resolver_DwarfReader::readAddressSize()
 {
     static const char rn[] = { "Reader::readAddressSize:" };    (void) rn;
 
@@ -724,7 +773,7 @@ int StackTraceResolver_DwarfReader::readAddressSize()
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readInitialLength(Offset *dst)
+int Resolver_DwarfReader::readInitialLength(Offset *dst)
 {
     static const char rn[] = { "Reader::readIniitialLength:" };    (void) rn;
 
@@ -747,8 +796,8 @@ int StackTraceResolver_DwarfReader::readInitialLength(Offset *dst)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readOffset(Offset      *dst,
-                                               bsl::size_t  offsetSize)
+int Resolver_DwarfReader::readOffset(Offset      *dst,
+                                     bsl::size_t  offsetSize)
 {
     static const char rn[] = { "Reader::readOffset:" };    (void) rn;
 
@@ -774,8 +823,8 @@ int StackTraceResolver_DwarfReader::readOffset(Offset      *dst,
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readOffsetFromForm(Offset   *dst,
-                                                       unsigned  form)
+int Resolver_DwarfReader::readOffsetFromForm(Offset   *dst,
+                                             unsigned  form)
 {
     static const char rn[] = { "Reader::readOffsetFromForm:" };    (void) rn;
 
@@ -839,7 +888,7 @@ int StackTraceResolver_DwarfReader::readOffsetFromForm(Offset   *dst,
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readSectionOffset(Offset *dst)
+int Resolver_DwarfReader::readSectionOffset(Offset *dst)
 {
     static const char rn[] = { "Reader::readSectionOffset:" };    (void) rn;
 
@@ -877,7 +926,7 @@ int StackTraceResolver_DwarfReader::readSectionOffset(Offset *dst)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readString(bsl::string *dst)
+int Resolver_DwarfReader::readString(bsl::string *dst)
 {
     static const char rn[] = { "Reader::readString:" };    (void) rn;
     int rc;
@@ -920,8 +969,8 @@ int StackTraceResolver_DwarfReader::readString(bsl::string *dst)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readStringAt(bsl::string *dst,
-                                                 Offset       offset)
+int Resolver_DwarfReader::readStringAt(bsl::string *dst,
+                                       Offset       offset)
 {
     static const char rn[] = { "Reader::readStringAt:" };    (void) rn;
 
@@ -958,34 +1007,52 @@ int StackTraceResolver_DwarfReader::readStringAt(bsl::string *dst,
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::readStringFromForm(
-                                  bsl::string                    *dst,
-                                  StackTraceResolver_DwarfReader *stringReader,
-                                  unsigned                        form)
+int Resolver_DwarfReader::readStringFromForm(
+                                          bsl::string          *dst,
+                                          Resolver_DwarfReader *strReader,
+                                          Resolver_DwarfReader *lineStrReader,
+                                          unsigned              form)
 {
     static const char rn[] = { "Reader::readString:" };    (void) rn;
 
     int rc;
 
-    if      (e_DW_FORM_string == form) {
+    Resolver_DwarfReader *reader_p = 0;
+
+    switch (form) {
+      case e_DW_FORM_string: {
         rc = readString(dst);
         u_ASSERT_BAIL(0 == rc);
+
+        return 0;                                                     // RETURN
+      } break;
+      case e_DW_FORM_strp: {
+        reader_p = strReader;
+      } break;
+      case e_DW_FORM_line_strp: {
+        // If there is no .debug_line_str section, this form is illegal and
+        // this reader won't be enabled.
+
+        u_ASSERT_BAIL(lineStrReader->isEnabled());
+        reader_p = lineStrReader;
+      } break;
+      default: {
+        u_ASSERT_BAIL((0 && "unrecognized string form") || u_PH(form));
+
+        return -1;                                                    // RETURN
+      } break;
     }
-    else if (e_DW_FORM_strp   == form) {
-        Offset offset;
-        rc = readSectionOffset(&offset);
-        u_ASSERT_BAIL(0 == rc);
-        rc = stringReader->readStringAt(dst, offset);
-        u_ASSERT_BAIL(0 == rc);
-    }
-    else {
-        u_ASSERT_BAIL((0 && "unrecognized baseName form") || u_PH(form));
-    }
+
+    Offset offset;
+    rc = readSectionOffset(&offset);
+    u_ASSERT_BAIL(0 == rc);
+    rc = reader_p->readStringAt(dst, offset);
+    u_ASSERT_BAIL(0 == rc);
 
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::setAddressSize(unsigned size)
+int Resolver_DwarfReader::setAddressSize(unsigned size)
 {
     static const char rn[] = { "Reader::setAddressSize:" };    (void) rn;
 
@@ -996,7 +1063,7 @@ int StackTraceResolver_DwarfReader::setAddressSize(unsigned size)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::setEndOffset(Offset newOffset)
+int Resolver_DwarfReader::setEndOffset(Offset newOffset)
 {
     static const char rn[] = { "Reader::setEndOffset:" };    (void) rn;
 
@@ -1013,7 +1080,7 @@ int StackTraceResolver_DwarfReader::setEndOffset(Offset newOffset)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::skipForm(unsigned form)
+int Resolver_DwarfReader::skipForm(unsigned form)
 {
     // The values of the 'e_DW_FORM_*' identifiers are described in Figure 21
     // of the DWARF version 4 document.  The meanings of the different values
@@ -1121,7 +1188,7 @@ int StackTraceResolver_DwarfReader::skipForm(unsigned form)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::skipTo(Offset dstOffset)
+int Resolver_DwarfReader::skipTo(Offset dstOffset)
 {
     static const char rn[] = { "Reader::skipTo:" };    (void) rn;
 
@@ -1148,7 +1215,7 @@ int StackTraceResolver_DwarfReader::skipTo(Offset dstOffset)
     return 0;
 }
 
-int StackTraceResolver_DwarfReader::skipULEB128()
+int Resolver_DwarfReader::skipULEB128()
 {
     static const char rn[] = { "Reader::skipULEB128:" };    (void) rn;
 

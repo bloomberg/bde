@@ -13,11 +13,11 @@
 BSLS_IDENT_RCSID(balst_stacktraceutil_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
+#include <balst_resolverimpl_dladdr.h>
+#include <balst_resolverimpl_elf.h>
+#include <balst_resolverimpl_xcoff.h>
+#include <balst_resolverimpl_windows.h>
 #include <balst_stacktraceframe.h>
-#include <balst_stacktraceresolverimpl_dladdr.h>
-#include <balst_stacktraceresolverimpl_elf.h>
-#include <balst_stacktraceresolverimpl_xcoff.h>
-#include <balst_stacktraceresolverimpl_windows.h>
 
 #include <bdlma_heapbypassallocator.h>
 
@@ -67,10 +67,10 @@ namespace BloombergLP {
 namespace balst {
 
 template <class RESOLVER_POLICY>
-class StackTraceResolverImpl;
+class ResolverImpl;
 
 template <>
-class StackTraceResolverImpl<ObjectFileFormat::Dummy>
+class ResolverImpl<ObjectFileFormat::Dummy>
 {
   public:
     // PUBLIC CLASS METHODS
@@ -124,7 +124,7 @@ int StackTraceUtil::loadStackTraceFromAddressArray(
     BSLS_ASSERT(0 == numAddresses || 0 != addresses);
 
     typedef ObjectFileFormat::Policy Policy;
-    typedef StackTraceResolverImpl<Policy> Resolver;
+    typedef ResolverImpl<Policy>     Resolver;
 
     result->removeAll();
     result->resize(numAddresses);

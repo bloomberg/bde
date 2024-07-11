@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_windows.h                             -*-C++-*-
+// balst_resolverimpl_windows.h                                       -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_WINDOWS
-#define INCLUDED_BALST_STACKTRACERESOLVERIMPL_WINDOWS
+#ifndef INCLUDED_BALST_RESOLVERIMPL_WINDOWS
+#define INCLUDED_BALST_RESOLVERIMPL_WINDOWS
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide resolution of symbols in stack trace for Windows objects.
 //
 //@CLASSES:
-//   balst::StackTraceResolverImpl<Windows>: symbol resolution for Windows objs
+//   balst::ResolverImpl<Windows>: symbol resolution for Windows objs
 //
 //@SEE_ALSO:
 //
@@ -48,14 +48,14 @@ namespace BloombergLP {
 namespace balst {
 
 template <typename RESOLVER_POLICY>
-class StackTraceResolverImpl;
+class ResolverImpl;
 
-          // =======================================================
-          // class StackTraceResolverImpl<ObjectFileFormat::Windows>
-          // =======================================================
+              // =============================================
+              // class ResolverImpl<ObjectFileFormat::Windows>
+              // =============================================
 
 template <>
-class StackTraceResolverImpl<ObjectFileFormat::Windows> {
+class ResolverImpl<ObjectFileFormat::Windows> {
     // This type is for resolving symbols in Windows executables.  Resolving
     // symbols on Windows is straightforward using the dbghelp.dll library,
     // described at
@@ -63,10 +63,10 @@ class StackTraceResolverImpl<ObjectFileFormat::Windows> {
 
   private:
     // NOT IMPLEMENTED
-    StackTraceResolverImpl();
-    StackTraceResolverImpl(const StackTraceResolverImpl&);
-    StackTraceResolverImpl& operator=(const StackTraceResolverImpl&);
-    ~StackTraceResolverImpl();
+    ResolverImpl();
+    ResolverImpl(const ResolverImpl&);
+    ResolverImpl& operator=(const ResolverImpl&);
+    ~ResolverImpl();
 
   public:
     // CLASS METHODS
@@ -85,11 +85,11 @@ class StackTraceResolverImpl<ObjectFileFormat::Windows> {
 };
 
                         // ----------------------------
-                        // class StackTraceResolverImpl
+                        // class ResolverImpl
                         // ----------------------------
 
 inline
-int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
+int ResolverImpl<ObjectFileFormat::Windows>::testFunc()
 {
     // Do some random garbage to generate some code, then return a line number
     // within this routine

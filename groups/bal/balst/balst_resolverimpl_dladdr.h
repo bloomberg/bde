@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_dladdr.h                              -*-C++-*-
+// balst_resolverimpl_dladdr.h                                        -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_DLADDR
-#define INCLUDED_BALST_STACKTRACERESOLVERIMPL_DLADDR
+#ifndef INCLUDED_BALST_RESOLVERIMPL_DLADDR
+#define INCLUDED_BALST_RESOLVERIMPL_DLADDR
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -16,14 +16,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide functions for resolving a stack trace using 'dladdr'.
 //
 //@CLASSES:
-//   balst::StackTraceResolverImpl<Dladdr>: symbol resolution using 'dladdr'
+//   balst::ResolverImpl<Dladdr>: symbol resolution using 'dladdr'
 //
-//@SEE_ALSO: balst_stacktraceresolverimpl_elf,
-//           balst_stacktraceresolverimpl_windows,
-//           balst_stacktraceresolverimpl_xcoff
+//@SEE_ALSO: balst_resolverimpl_elf,
+//           balst_resolverimpl_windows,
+//           balst_resolverimpl_xcoff
 //
 //@DESCRIPTION: This component provides a class,
-// 'balst::StackTraceResolver<Dladdr>', that, given a vector of
+// 'balst::Resolver<Dladdr>', that, given a vector of
 // 'balst::StackTraceFrame' objects that have only their 'address' fields set,
 // resolves some of the other fields in those frames.  This resolver will work
 // for any platform that supports the 'dladdr' function (e.g., Darwin and
@@ -64,20 +64,20 @@ namespace BloombergLP {
 namespace balst {
 
 template <typename RESOLVER_POLICY>
-class StackTraceResolverImpl;
+class ResolverImpl;
 
-           // ======================================================
-           // class StackTraceResolverImpl<ObjectFileFormat::Dladdr>
-           // ======================================================
+                // ============================================
+                // class ResolverImpl<ObjectFileFormat::Dladdr>
+                // ============================================
 
 template <>
-class StackTraceResolverImpl<ObjectFileFormat::Dladdr> {
+class ResolverImpl<ObjectFileFormat::Dladdr> {
     // This class provides a public static 'resolve' method that, given a
     // vector of 'StackTraceFrame' objects that have only their 'address'
     // fields set, resolves all other fields in those frames.
 
     // DATA
-    StackTrace  *d_stackTrace_p;      // pointer to stack trace object.
+    StackTrace        *d_stackTrace_p;      // pointer to stack trace object.
                                             // The frames contained in this
                                             // have their 'address' fields and
                                             // nothing else initialized upon
@@ -89,20 +89,20 @@ class StackTraceResolverImpl<ObjectFileFormat::Dladdr> {
 
   private:
     // NOT IMPLEMENTED
-    StackTraceResolverImpl(const StackTraceResolverImpl&);
-    StackTraceResolverImpl& operator=(
-                                          const StackTraceResolverImpl&);
+    ResolverImpl(const ResolverImpl&);
+    ResolverImpl& operator=(
+                                          const ResolverImpl&);
 
   private:
     // PRIVATE CREATORS
-    StackTraceResolverImpl(StackTrace *stackTrace,
-                                 bool              demanglingPreferredFlag);
+    ResolverImpl(StackTrace *stackTrace,
+                 bool              demanglingPreferredFlag);
         // Create an stack trace reolver that can populate other fields of the
         // specified 'stackTrace' object given previously populated 'address'
         // fields, and if the specified 'demanglingPreferredFlag' is 'true',
         // attempt to demangle symbol names.
 
-    ~StackTraceResolverImpl();
+    ~ResolverImpl();
         // Destroy this object.
 
     // PRIVATE MANIPULATORS

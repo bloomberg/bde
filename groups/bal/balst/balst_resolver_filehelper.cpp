@@ -1,4 +1,4 @@
-// balst_stacktraceresolver_filehelper.cpp                            -*-C++-*-
+// balst_resolver_filehelper.cpp                                      -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,10 +7,10 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolver_filehelper.h>
+#include <balst_resolver_filehelper.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balst_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balst_resolver_filehelper_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
@@ -28,16 +28,16 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace balst {
-                        // -----------------------------
-                        // StackTraceResolver_FileHelper
-                        // -----------------------------
+                                // -------------------
+                                // Resolver_FileHelper
+                                // -------------------
 
 // CREATORS
-StackTraceResolver_FileHelper::StackTraceResolver_FileHelper()
+Resolver_FileHelper::Resolver_FileHelper()
 : d_fd(FilesystemUtil::k_INVALID_FD)
 {}
 
-StackTraceResolver_FileHelper::~StackTraceResolver_FileHelper()
+Resolver_FileHelper::~Resolver_FileHelper()
 {
     if (FilesystemUtil::k_INVALID_FD != d_fd) {
         FilesystemUtil::close(d_fd);
@@ -46,7 +46,7 @@ StackTraceResolver_FileHelper::~StackTraceResolver_FileHelper()
 }
 
 // MANIPULATOR
-int StackTraceResolver_FileHelper::initialize(const char *fileName)
+int Resolver_FileHelper::initialize(const char *fileName)
 {
     if (!fileName) {
         return -1;                                                    // RETURN
@@ -64,7 +64,7 @@ int StackTraceResolver_FileHelper::initialize(const char *fileName)
 }
 
 // ACCESSORS
-char *StackTraceResolver_FileHelper::loadString(
+char *Resolver_FileHelper::loadString(
                                     Offset                offset,
                                     char                 *scratchBuf,
                                     bsls::Types::UintPtr  scratchBufLength,
@@ -115,10 +115,9 @@ char *StackTraceResolver_FileHelper::loadString(
                               basicAllocator);
 }
 
-bsls::Types::UintPtr StackTraceResolver_FileHelper::readBytes(
-                                                         void    *buf,
-                                                         UintPtr  numBytes,
-                                                         Offset   offset) const
+bsls::Types::UintPtr Resolver_FileHelper::readBytes(void    *buf,
+                                                    UintPtr  numBytes,
+                                                    Offset   offset) const
 {
     BSLS_ASSERT(buf);
     BSLS_ASSERT(offset >= 0);

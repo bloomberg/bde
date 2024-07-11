@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_xcoff.cpp                             -*-C++-*-
+// balst_resolverimpl_xcoff.cpp                                       -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,10 +7,10 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolverimpl_xcoff.h>
+#include <balst_resolverimpl_xcoff.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balst_resolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
@@ -18,7 +18,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #include <balst_stacktraceconfigurationutil.h>
 #include <balst_stacktrace.h>
-#include <balst_stacktraceresolver_filehelper.h>
+#include <balst_resolver_filehelper.h>
 
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
@@ -689,18 +689,17 @@ class FreeGuard {
 namespace BloombergLP {
 namespace balst {
 
- // ===========================================================================
- // struct balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>::
- //                                                                     AuxInfo
- //               == struct local::StackTraceResolver::AuxInfo
- // ===========================================================================
+     // ===================================================================
+     // struct balst::ResolverImpl<balst::ObjectFileFormat::Xcoff>::AuxInfo
+     //               == struct local::Resolver::AuxInfo
+     // ===================================================================
 
-bslmt::QLock StackTraceResolverImpl<ObjectFileFormat::Xcoff>::
+bslmt::QLock ResolverImpl<ObjectFileFormat::Xcoff>::
                                      s_demangleQLock = BSLMT_QLOCK_INITIALIZER;
 
-struct StackTraceResolverImpl<ObjectFileFormat::Xcoff>::AuxInfo {
+struct ResolverImpl<ObjectFileFormat::Xcoff>::AuxInfo {
     // Objects of this type exist in the array 'd_auxInfo' in class
-    // StackTraceResolver in a 1-1 correspondence with the elements of the
+    // Resolver in a 1-1 correspondence with the elements of the
     // 'd_segFramePtrs_p' and 'd_segAddresses_p' arrays in that class.  Note
     // that 'SYMENT' and 'AUXENT' are types defined as part of the Xcoff
     // standard.
@@ -739,7 +738,7 @@ struct StackTraceResolverImpl<ObjectFileFormat::Xcoff>::AuxInfo {
     bool    d_sourceSymEntValid;   // whether 'd_sourceSymEnt' is valid
 };
 
-struct StackTraceResolverImpl<ObjectFileFormat::Xcoff>::LoadAuxInfosInfo {
+struct ResolverImpl<ObjectFileFormat::Xcoff>::LoadAuxInfosInfo {
     // This 'struct' contains pointers to variables in the routine
     // 'loadSymbols' with the same names (minus the 'd_' prefix.  This struct
     // is only used for communicating between 'loadSymbols' and 'loadAuxInfos'.
@@ -763,12 +762,12 @@ struct StackTraceResolverImpl<ObjectFileFormat::Xcoff>::LoadAuxInfosInfo {
     AUXENT  *d_savedSourceAuxEnt;   // pointer to 'savedSourceAuxEnt'
 };
 
-     // -------------------------------------------------------------------
-     // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>
-     // -------------------------------------------------------------------
+         // ---------------------------------------------------------
+         // class balst::ResolverImpl<balst::ObjectFileFormat::Xcoff>
+         // ---------------------------------------------------------
 
 // PRIVATE CREATORS
-StackTraceResolverImpl<ObjectFileFormat::Xcoff>::StackTraceResolverImpl(
+ResolverImpl<ObjectFileFormat::Xcoff>::ResolverImpl(
                                               balst::StackTrace *stackTrace,
                                               bool               demangle)
 : d_helper(0)
@@ -803,12 +802,12 @@ StackTraceResolverImpl<ObjectFileFormat::Xcoff>::StackTraceResolverImpl(
     d_symbolBuf_p  = (char *) allocator()->allocate(u::k_SYMBOL_BUF_LEN);
 }
 
-StackTraceResolverImpl<ObjectFileFormat::Xcoff>::~StackTraceResolverImpl()
+ResolverImpl<ObjectFileFormat::Xcoff>::~ResolverImpl()
 {
 }
 
 // PRIVATE MANIPULATORS
-int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findArchiveMember(
+int ResolverImpl<ObjectFileFormat::Xcoff>::findArchiveMember(
                                                         const char *memberName)
 {
     fl_hdr archiveHeader;
@@ -879,7 +878,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findArchiveMember(
     return -1;
 }
 
-u::Offset StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findCsectIndex(
+u::Offset ResolverImpl<ObjectFileFormat::Xcoff>::findCsectIndex(
                                                    const char *symbolAddress,
                                                    const char *csectEndAddress,
                                                    u::Offset   primarySymIndex)
@@ -910,7 +909,7 @@ u::Offset StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findCsectIndex(
     return -1;
 }
 
-int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findIncludeFile(
+int ResolverImpl<ObjectFileFormat::Xcoff>::findIncludeFile(
                                            syment    *includeSymEnt,
                                            u::Offset  firstLineNumberOffset,
                                            u::Offset  lineNumberOffset,
@@ -1056,7 +1055,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findIncludeFile(
                               : 0;
 }
 
-int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findLineNumber(
+int ResolverImpl<ObjectFileFormat::Xcoff>::findLineNumber(
                                               int         *outLineNumber,
                                               u::Offset   *outLineNumberOffset,
                                               u::Offset    lineBufStartOffset,
@@ -1165,7 +1164,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findLineNumber(
     return 0;
 }
 
-void StackTraceResolverImpl<ObjectFileFormat::Xcoff>::loadAuxInfos(
+void ResolverImpl<ObjectFileFormat::Xcoff>::loadAuxInfos(
                                   const LoadAuxInfosInfo *info,
                                   const char             *functionBeginAddress,
                                   const char             *functionEndAddress)
@@ -1212,7 +1211,7 @@ void StackTraceResolverImpl<ObjectFileFormat::Xcoff>::loadAuxInfos(
     }
 }
 
-int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::loadSymbols(
+int ResolverImpl<ObjectFileFormat::Xcoff>::loadSymbols(
                                                       u::Offset numSyms,
                                                       int       textSectionNum)
 {
@@ -1507,7 +1506,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::loadSymbols(
     return 0;
 }
 
-const char *StackTraceResolverImpl<ObjectFileFormat::Xcoff>::getSourceName(
+const char *ResolverImpl<ObjectFileFormat::Xcoff>::getSourceName(
                                                     const auxent *sourceAuxEnt)
 {
     return 0 == sourceAuxEnt->x_file._x.x_zeroes
@@ -1521,7 +1520,7 @@ const char *StackTraceResolverImpl<ObjectFileFormat::Xcoff>::getSourceName(
                                 allocator());
 }
 
-const char *StackTraceResolverImpl<ObjectFileFormat::Xcoff>::getSymbolName(
+const char *ResolverImpl<ObjectFileFormat::Xcoff>::getSymbolName(
                                                     const syment *sourceSymEnt)
 {
     const char *srcName = 0;
@@ -1545,7 +1544,7 @@ const char *StackTraceResolverImpl<ObjectFileFormat::Xcoff>::getSymbolName(
     return srcName;
 }
 
-int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolveSegment(
+int ResolverImpl<ObjectFileFormat::Xcoff>::resolveSegment(
                                                  void       *segmentPtr,
                                                  u::UintPtr  segmentSize,
                                                  const char *libraryFileName,
@@ -1593,7 +1592,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolveSegment(
         d_segFramePtrs_p[i]->setLibraryFileName(displayFileName);
     }
 
-    balst::StackTraceResolver_FileHelper helper;
+    balst::Resolver_FileHelper helper;
     rc = helper.initialize(libraryFileName);
     if (0 != rc) {
         return -1;                                                    // RETURN
@@ -1847,7 +1846,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolveSegment(
 }
 
 // PUBLIC CLASS METHODS
-int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolve(
+int ResolverImpl<ObjectFileFormat::Xcoff>::resolve(
                                                  balst::StackTrace *stackTrace,
                                                  bool               demangle)
 {
@@ -1855,7 +1854,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolve(
         return 0;                                                     // RETURN
     }
 
-    StackTraceResolverImpl<ObjectFileFormat::Xcoff> resolver(stackTrace,
+    ResolverImpl<ObjectFileFormat::Xcoff> resolver(stackTrace,
                                                              demangle);
 
     enum { BUF_SIZE = (8 << 10) - 64 };

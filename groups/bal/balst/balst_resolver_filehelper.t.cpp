@@ -1,4 +1,4 @@
-// balst_stacktraceresolver_filehelper.t.cpp                          -*-C++-*-
+// balst_resolver_filehelper.t.cpp                                    -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,7 +7,7 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolver_filehelper.h>
+#include <balst_resolver_filehelper.h>
 
 #include <bdls_filesystemutil.h>
 #include <balst_objectfileformat.h>
@@ -27,6 +27,7 @@
 // The following is added so that this component does not need a dependency
 // on bdls_processutil, since 'getProcessId' is only used to create unique
 // file names.
+
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #include <unistd.h>
 #endif
@@ -38,8 +39,8 @@ using namespace bsl;  // automatically added by script
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] balst::StackTraceResolver_FileHelper
-// [ 2] ~balst::StackTraceResolver_FileHelper
+// [ 2] balst::Resolver_FileHelper
+// [ 2] ~balst::Resolver_FileHelper
 //
 // ACCESSORS
 // [ 3] readExact
@@ -105,11 +106,11 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdls::FilesystemUtil                 FilesystemUtil;
-typedef FilesystemUtil::FileDescriptor       FdType;    // shorthand for file
-                                                        // descriptor
-typedef balst::StackTraceResolver_FileHelper Obj;
-typedef bsls::Types::Int64                   Int64;
+typedef bdls::FilesystemUtil            FilesystemUtil;
+typedef FilesystemUtil::FileDescriptor  FdType;           // shorthand for file
+                                                          // descriptor
+typedef balst::Resolver_FileHelper      Obj;
+typedef bsls::Types::Int64              Int64;
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -172,8 +173,7 @@ int main(int argc, char *argv[])
 #if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) \
    || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     const char *tmpDirName       = "/tmp";
-    const char *fileNameTemplate =
-                          "/tmp/balst_StackTraceResolver_FileHelper.%d.%d.txt";
+    const char *fileNameTemplate = "/tmp/balst_Resolver_FileHelper.%d.%d.txt";
 
     ASSERT(FilesystemUtil::exists(tmpDirName) &&
                                       FilesystemUtil::isDirectory(tmpDirName));
@@ -201,16 +201,15 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-                         "balst::StackTraceResolver_FileHelper usage example\n"
-                         "=================================================\n";
+        if (verbose) cout << "balst::Resolver_FileHelper usage example\n"
+                             "========================================\n";
 
 //..
     bslma::TestAllocator ta;
 
     char fileNameBuffer[100];
     sprintf(fileNameBuffer,
-            "/tmp/balst_StackTraceResolver_FileHelper.usage.%d.txt",
+            "/tmp/balst_Resolver_FileHelper.usage.%d.txt",
             getProcessId());
 //..
 // Make sure file does not already exist.
@@ -255,7 +254,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
 
     {
-        balst::StackTraceResolver_FileHelper helper;
+        balst::Resolver_FileHelper helper;
         rc = helper.initialize(fileNameBuffer);
         ASSERT(0 == rc);
 
@@ -760,8 +759,8 @@ int main(int argc, char *argv[])
         //:   arguments.
         //
         // Testing:
-        //   balst::StackTraceResolver_FileHelper(const char *fileName);
-        //   ~balst::StackTraceResolver_FileHelper();
+        //   balst::Resolver_FileHelper(const char *fileName);
+        //   ~balst::Resolver_FileHelper();
         // --------------------------------------------------------------------
 
         if (verbose) cout << "CTOR & DTOR\n"

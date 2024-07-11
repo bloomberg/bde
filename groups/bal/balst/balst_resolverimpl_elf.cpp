@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_elf.cpp                               -*-C++-*-
+// balst_resolverimpl_elf.cpp                                         -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,17 +7,17 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolverimpl_elf.h>
+#include <balst_resolverimpl_elf.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_ELF
 
 #include <balst_stacktraceconfigurationutil.h>
-#include <balst_stacktraceresolver_filehelper.h>
+#include <balst_resolver_filehelper.h>
 
 #include <bdlb_string.h>
 #include <bdls_filesystemutil.h>
@@ -40,6 +40,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsl_deque.h>
 #include <bsl_vector.h>
 
+#include <ctype.h>
 #include <elf.h>
 #include <sys/types.h>    // lstat
 #include <sys/stat.h>     // lstat
@@ -47,7 +48,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #undef u_DWARF
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF)
-#include <balst_stacktraceresolver_dwarfreader.h>
+#include <balst_resolver_dwarfreader.h>
 # define u_DWARF 1
 #endif
 
@@ -430,7 +431,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // will just return -1 without printing any error messages or exiting.
 //..
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The DWARF information is in 6 sections:
+// The DWARF information is in 7 sections:
 //
 // .debug_abbrev:      Contains sequences of enum's dictating how the
 //                     information in the .debug_info section is to be
@@ -447,12 +448,15 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // .debug_ranges:      When one compilation unit (described in the .debug_info
 //                     and .debug_abbrev sections) applies to multiple address
 //                     ranges, they refer to a sequence of ranges in the
-//                     .debug_ranges section.  This section is not traversed
-//                     unless 'u_DWARF_CHECK_ADDRESSES' is set.
+//                     .debug_ranges section.  This section is not always
+//                     present and not traversed unless
+//                     'u_DWARF_CHECK_ADDRESSES' is set.
 // .debug_str          Section where null-terminated strings are stored,
 //                     referred to by offsets that reside in the .debug_info
 //                     section that are the offset of the beginning of a
 //                     string from the beginning of the .debug_str section.
+// .debug_line_str     Not always present, contains some strings in addition
+//                     to the .debug_str section.
 //..
 //
 //                              // .debug_aranges
@@ -671,10 +675,10 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
                     // 1 == debugging traces on, eprintf is like zprintf
                     // 2 == debugging traces on, eprintf exits
 
-// Note that the local variables 'compileTraces', 'debugInfoTraces', and
-// 'lineTraces' are driven by 'u_TRACES' to enable/disable traces in specific
-// parts of resolving.  Search for '= u_TRACES ' to find all instances of
-// variables like this.
+// Note that the local variables 'compileTraces', 'debugInfoTraces',
+// 'fileTraces', and 'lineTraces' are driven by 'u_TRACES' to enable/disable
+// traces in specific parts of resolving.  Search for '= u_TRACES ' to find all
+// instances of variables like this.
 
 // If the .debug_aranges section is present, the code guarded by
 // '#ifdef u_DWARF_CHECK_ADDRESSES' is not necessary.  But plan to eventually
@@ -853,6 +857,9 @@ int u_zprintf(const char *, ...)
     // Do nothing.
 #endif
 
+using bsl::size_t;
+using bsl::ssize;
+
 namespace BloombergLP {
 
 namespace {
@@ -888,28 +895,32 @@ static TYPE approxAbs(TYPE x)
 }
 
 typedef bsls::Types::UintPtr          UintPtr;
+typedef bsls::Types::IntPtr           IntPtr;
 typedef bsls::Types::Uint64           Uint64;
+typedef bsls::Types::Int64            Int64;
 typedef bdls::FilesystemUtil::Offset  Offset;
 
 #ifdef u_DWARF
-typedef balst::StackTraceResolver_DwarfReader Reader;
-typedef u::Reader::Section                    Section;
+typedef balst::Resolver_DwarfReader   Reader;
+typedef u::Reader::Section            Section;
 
 static const u::UintPtr minusOne  = ~static_cast<u::UintPtr>(0);
 #endif
 
 static const u::Offset  maxOffset = LLONG_MAX;
 
-BSLMF_ASSERT(sizeof(u::Uint64) == sizeof(u::Offset));
+BSLMF_ASSERT(sizeof(u::Uint64)  == sizeof(u::Offset));
+BSLMF_ASSERT(sizeof(u::Int64)   == sizeof(u::Offset));
 BSLMF_ASSERT(sizeof(u::UintPtr) == sizeof(void *));
+BSLMF_ASSERT(sizeof(u::IntPtr)  == sizeof(void *));
+BSLMF_ASSERT(sizeof(size_t)     == sizeof(void *));
 BSLMF_ASSERT(static_cast<u::Offset>(-1) < 0);
 BSLMF_ASSERT(u::maxOffset > 0);
 BSLMF_ASSERT(u::maxOffset > INT_MAX);
 BSLMF_ASSERT(static_cast<u::Offset>(static_cast<u::Uint64>(u::maxOffset) + 1) <
                                                                             0);
 
-typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
-                                                            StackTraceResolver;
+typedef balst::ResolverImpl<balst::ObjectFileFormat::Elf>   Resolver;
 
                             // --------------------------
                             // Run-Time Platform Switches
@@ -1337,7 +1348,7 @@ static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
 {
     static const char rn[] = { "u::cleanupString:" };
 
-    const bsl::size_t npos = bsl::string::npos;
+    const size_t npos = bsl::string::npos;
 
     if (str->empty() || '/' != (*str)[0] ||
                                          !bdls::FilesystemUtil::exists(*str)) {
@@ -1346,7 +1357,7 @@ static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
 
     // First eliminate all "/./" sequences.
 
-    bsl::size_t pos;
+    size_t pos;
     while (npos != (pos = str->find("/./"))) {
         str->erase(pos, 2);
     }
@@ -1383,7 +1394,7 @@ static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
             return 0;                                                 // RETURN
         }
 
-        bsl::size_t rpos = str->rfind('/', pos - 1);
+        size_t rpos = str->rfind('/', pos - 1);
         u_ASSERT_BAIL(npos != rpos && ".. below root directory");
         u_ASSERT_BAIL(rpos < pos - 1 && '/' == (*str)[rpos]);
 
@@ -1396,7 +1407,7 @@ static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
 }
 
 static
-void bruteMemset(void *start, char fill, bsl::size_t length)
+void bruteMemset(void *start, char fill, size_t length)
     // This function is identical in result to calling 'memset' in theory, but
     // it turns out that 'memset' has a show-stopper bug in clang-5.0 if called
     // on a 'struct' with badly-aligned fields.  Fill the specified 'length'
@@ -1481,14 +1492,14 @@ int checkElfHeader(u::ElfHeader *elfHeader)
 }  // close namespace u
 }  // close unnamed namespace
 
-                      // --------------------------------
-                      // u::StackTraceResolver::HiddenRec
-                      // --------------------------------
+                              // ----------------------
+                              // u::Resolver::HiddenRec
+                              // ----------------------
 
-struct u::StackTraceResolver::HiddenRec {
+struct u::Resolver::HiddenRec {
     // This 'struct' contains information for the stack trace resolver that is
     // hidden from the .h file.  Thus, we avoid having to expose
-    // balst_stacktraceresolver_dwarfreader.h' in the .h, and we can use types
+    // balst_resolver_dwarfreader.h' in the .h, and we can use types
     // that are locally defined in this imp file.
 
 #ifdef u_DWARF
@@ -1613,6 +1624,15 @@ struct u::StackTraceResolver::HiddenRec {
         e_DW_FORM_ref8                  = Reader::e_DW_FORM_ref8,
         e_DW_FORM_ref_udata             = Reader::e_DW_FORM_ref_udata,
         e_DW_FORM_indirect              = Reader::e_DW_FORM_indirect,
+        e_DW_FORM_line_strp             = Reader::e_DW_FORM_line_strp,
+
+        e_DW_LNCT_path                  = Reader::e_DW_LNCT_path,
+        e_DW_LNCT_directory_index       = Reader::e_DW_LNCT_directory_index,
+        e_DW_LNCT_timestamp             = Reader::e_DW_LNCT_timestamp,
+        e_DW_LNCT_size                  = Reader::e_DW_LNCT_size,
+        e_DW_LNCT_MD5                   = Reader::e_DW_LNCT_MD5,
+        e_DW_LNCT_lo_user               = Reader::e_DW_LNCT_lo_user,
+        e_DW_LNCT_hi_user               = Reader::e_DW_LNCT_hi_user,
 
         e_DW_LNE_end_sequence           = Reader::e_DW_LNE_end_sequence,
         e_DW_LNE_set_address            = Reader::e_DW_LNE_set_address,
@@ -1729,8 +1749,8 @@ struct u::StackTraceResolver::HiddenRec {
 #endif
 
     // PUBLIC DATA
-    StackTraceResolver_FileHelper
-                    *d_helper_p;           // file helper associated with
+    Resolver_FileHelper
+                     *d_helper_p;          // file helper associated with
                                            // current segment
 
     StackTrace       *d_stackTrace_p;      // the stack trace we are resolving
@@ -1786,6 +1806,9 @@ struct u::StackTraceResolver::HiddenRec {
 
     Section            d_strSec;           // .debug_str section
     Reader             d_strReader;        // reader for that section
+
+    Section            d_lineStrSec;       // .debug_line_str section
+    Reader             d_lineStrReader;    // reader for that section
 #endif
 
     u::Offset          d_libraryFileSize;  // size of the current library or
@@ -1798,6 +1821,8 @@ struct u::StackTraceResolver::HiddenRec {
     char              *d_scratchBufC_p;    // scratch buffer C (from resolver)
 
     char              *d_scratchBufD_p;    // scratch buffer D (from resolver)
+
+    char              *d_scratchBufE_p;    // scratch buffer E (from resolver)
 #endif
     int                d_numTotalUnmatched;// Total number of unmatched frames
                                            // remaining in this resolve.
@@ -1817,7 +1842,7 @@ struct u::StackTraceResolver::HiddenRec {
   public:
     // CREATORS
     explicit
-    HiddenRec(u::StackTraceResolver *resolver);
+    HiddenRec(u::Resolver *resolver);
         // Create this 'Seg' object, initialize 'd_numFrames' to 'numFrames',
         // and initialize all other fields to 0.
 
@@ -1867,6 +1892,18 @@ struct u::StackTraceResolver::HiddenRec {
         // Read the .debug_line section pertaining to the specified
         // '*frameRec', and populate the source file name and line number
         // information.
+
+    int dwarfReadFileNames(bsl::vector<bsl::string> *dirPaths,
+                           bsl::vector<bsl::string> *fileNames,
+                           bsl::vector<int>         *dirIndexes,
+                           const u::FrameRec&        frameRec,
+                           int                       lineDwarfVersion);
+        // Read the specified 'frameRec' and 'lineDwarfVersion' to populate the
+        // specified 'dirPaths' (directory paths), 'fileNames' (base file
+        // names), and 'dirIndexes' (indexes into 'dirPaths') for the
+        // corresponding entries in 'fileNames'.  This is called by
+        // 'dwarfReadDebugLineFrameRec' while reading the .debug_line section,
+        // but it also reads from the .debug_str and .debug_line_str sections.
 #endif
 
     void reset();
@@ -1874,7 +1911,7 @@ struct u::StackTraceResolver::HiddenRec {
 };
 
 // CREATORS
-u::StackTraceResolver::HiddenRec::HiddenRec(u::StackTraceResolver *resolver)
+u::Resolver::HiddenRec::HiddenRec(u::Resolver *resolver)
 : d_helper_p(0)
 , d_stackTrace_p(resolver->d_stackTrace_p)
 , d_frameRecs(&resolver->d_hbpAlloc)
@@ -1891,12 +1928,15 @@ u::StackTraceResolver::HiddenRec::HiddenRec(u::StackTraceResolver *resolver)
 , d_infoSec()
 , d_lineSec()
 , d_rangesSec()
+, d_strSec()
+, d_lineStrSec()
 #endif
 , d_scratchBufA_p(resolver->d_scratchBufA_p)
 , d_scratchBufB_p(resolver->d_scratchBufB_p)
 #ifdef u_DWARF
 , d_scratchBufC_p(resolver->d_scratchBufC_p)
 , d_scratchBufD_p(resolver->d_scratchBufD_p)
+, d_scratchBufE_p(resolver->d_scratchBufE_p)
 #endif
 , d_numTotalUnmatched(resolver->d_stackTrace_p->length())
 , d_isMainExecutable(0)
@@ -1922,11 +1962,10 @@ u::StackTraceResolver::HiddenRec::HiddenRec(u::StackTraceResolver *resolver)
 // to scan all the compile units and use this code to find which one
 // matches on that platform.
 
-int u::StackTraceResolver::HiddenRec::dwarfCheckRanges(
-                                                    bool       *isMatch,
-                                                    u::UintPtr  addressToMatch,
-                                                    u::UintPtr  baseAddress,
-                                                    u::Offset   offset)
+int u::Resolver::HiddenRec::dwarfCheckRanges(bool       *isMatch,
+                                             u::UintPtr  addressToMatch,
+                                             u::UintPtr  baseAddress,
+                                             u::Offset   offset)
 {
     static const char rn[] = { "HR::dwCheckRanges:" };
     int rc;
@@ -1999,7 +2038,7 @@ int u::StackTraceResolver::HiddenRec::dwarfCheckRanges(
 }
 #endif
 
-int u::StackTraceResolver::HiddenRec::dwarfReadAll()
+int u::Resolver::HiddenRec::dwarfReadAll()
 {
     static const char rn[] = { "HR::dwReadAll:" };    (void) rn;
 
@@ -2035,7 +2074,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadAll()
     return 0;
 }
 
-int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
+int u::Resolver::HiddenRec::dwarfReadAranges()
 {
     static const char rn[] = { "HR::dwReadAranges:" };    (void) rn;
 
@@ -2207,7 +2246,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
     return matched;
 }
 
-int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
+int u::Resolver::HiddenRec::dwarfReadCompileOrPartialUnit(
                                                    u::FrameRec *frameRec,
                                                    bool        *addressMatched)
 {
@@ -2342,8 +2381,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
             u_ASSERT_BAIL(baseName.empty());
 
             rc = d_infoReader.readStringFromForm(
-                                                &baseName, &d_strReader, form);
-            u_ASSERT_BAIL(0 == rc);
+                              &baseName, &d_strReader, &d_lineStrReader, form);
+            u_ASSERT_BAIL(0 == rc || u_PH(form));
 
             if (!baseName.empty()) {
                 compileTraces && u_zprintf("%s baseName \"%s\" found\n",
@@ -2365,7 +2404,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
             obtained |= k_OBTAINED_LINE_OFFSET;
           } break;
           case e_DW_AT_comp_dir: {                         // DWARF doc 3.1.1.6
-            rc = d_infoReader.readStringFromForm(&dirName, &d_strReader, form);
+            rc = d_infoReader.readStringFromForm(
+                               &dirName, &d_strReader, &d_lineStrReader, form);
             u_ASSERT_BAIL(0 == rc);
 
             if (!dirName.empty()) {
@@ -2451,7 +2491,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     return 0;
 }
 
-int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfo()
+int u::Resolver::HiddenRec::dwarfReadDebugInfo()
 {
     static const char rn[] = { "HR::dwDebugInfo:" };    (void) rn;
 
@@ -2494,8 +2534,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfo()
     return 0;
 }
 
-int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
-                                                         u::FrameRec *frameRec)
+int u::Resolver::HiddenRec::dwarfReadDebugInfoFrameRec(u::FrameRec *frameRec)
 {
     static const char rn[] = { "HR::dwDebugInfoFrameRec:" };
     (void) rn;
@@ -2531,6 +2570,14 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
     rc = d_strReader.init(   d_helper_p, d_scratchBufD_p, d_strSec,
                                                             d_libraryFileSize);
     u_ASSERT_BAIL(0 == rc);
+
+    if (0 < d_lineStrSec.d_size) {
+        u_ASSERT_BAIL(0 != d_scratchBufE_p);
+        rc = d_lineStrReader.init(
+                             d_helper_p, d_scratchBufE_p, d_lineStrSec,
+                                                            d_libraryFileSize);
+        u_ASSERT_BAIL(0 == rc);
+    }
 
     bool addressMatched;
 
@@ -2692,8 +2739,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
             // Scan for the next 2 consequetive 0's to terminate the tag.
 
-            for (unsigned int numZeroes = 0, wantZero; numZeroes < 2;
-                               numZeroes = 0 != wantZero ? 0 : numZeroes + 1) {
+            for (unsigned int numZeroes = 0, wantZero;  numZeroes < 2;
+                             numZeroes = (0 != wantZero) ? 0 : numZeroes + 1) {
                 rc = d_abbrevReader.readULEB128(&wantZero);
                 u_ASSERT_BAIL(0 == rc);
             }
@@ -2710,7 +2757,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
         rc = false;
 #else
         rc = !d_arangesSec.d_size && !addressMatched &&
-                nextCompileUnitOffset < d_infoSec.d_offset + d_infoSec.d_size);
+                 nextCompileUnitOffset < d_infoSec.d_offset + d_infoSec.d_size;
 #endif
     } while (rc);
 
@@ -2732,7 +2779,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
     return 0;
 }
 
-int u::StackTraceResolver::HiddenRec::dwarfReadDebugLine()
+int u::Resolver::HiddenRec::dwarfReadDebugLine()
 {
     static const char rn[] = { "HR::dwDebugLine:" };    (void) rn;
 
@@ -2768,13 +2815,12 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLine()
     return 0;
 }
 
-int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
-                                                         u::FrameRec *frameRec)
+int u::Resolver::HiddenRec::dwarfReadDebugLineFrameRec(u::FrameRec *frameRec)
 {
     static const char rn[] = { "HR::dwfDebugLineFrameRec:" };
     (void) rn;
 
-    static const int lineTraces = u_TRACES ? 0 : 0;
+    static const int lineTraces = u_TRACES;
         // A value of 1 means do most traces, a value of 2 means dump out all
         // the directories and filenames.
 
@@ -2805,53 +2851,58 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     rc = d_lineReader.readInitialLength(&debugLineLength);
     u_ASSERT_BAIL(0 == rc);
 
+    lineTraces && u_zprintf("%s debugLineLength: %llu\n", rn,
+                                                       u::ll(debugLineLength));
+
     rc = d_lineReader.setEndOffset(d_lineReader.offset() + debugLineLength);
     u_ASSERT_BAIL(0 == rc);
 
-    u::Offset endOfHeader;
-    {
-        unsigned short version;
-        d_lineReader.readValue(&version);
-        u_ASSERT_BAIL(version >= 2 || u_P(version));
+    unsigned short lineDwarfVersion;
+    d_lineReader.readValue(&lineDwarfVersion);
+    u_ASSERT_BAIL(lineDwarfVersion >= 2 || u_P(lineDwarfVersion));
 
-        rc = d_lineReader.readSectionOffset(&endOfHeader);
-        u_ASSERT_BAIL(0 == rc);
+    if (5 <= lineDwarfVersion) {
+        // there are two fields here, the "address size" and the "segment
+        // selector size", both 'ubyte's.  We don't use either.
 
-        lineTraces && u_zprintf("%s line version: %u, header len: %llu\n",
-                                              rn, version, u::ll(endOfHeader));
-
-        endOfHeader += d_lineReader.offset();
+        d_lineReader.skipBytes(2);
     }
+
+    u::Offset      endOfHeader;
+    rc = d_lineReader.readSectionOffset(&endOfHeader);
+    u_ASSERT_BAIL(0 == rc);
+
+    lineTraces && u_zprintf("%s line dwarf version: %u, header len: %llu\n",
+                                     rn, lineDwarfVersion, u::ll(endOfHeader));
+
+    endOfHeader += d_lineReader.offset();
 
     unsigned char minInstructionLength;
     rc = d_lineReader.readValue(&minInstructionLength);
     u_ASSERT_BAIL(0 == rc);
+    u_ASSERT_BAIL(0 < minInstructionLength);
 
-    unsigned char maxOperationsPerInsruction;
-    rc = d_lineReader.readValue(&maxOperationsPerInsruction);
-    u_ASSERT_BAIL(0 == rc);
+    unsigned char maxOperationsPerInsruction = 1;
+    if (4 <= lineDwarfVersion) {
+        rc = d_lineReader.readValue(&maxOperationsPerInsruction);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(0 < maxOperationsPerInsruction);
+    }
+
+    bool isStatement;
+    {
+        unsigned char readIsStmt;
+        rc = d_lineReader.readValue(&readIsStmt);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(readIsStmt <= 1 || u_P(readIsStmt));
+        isStatement = readIsStmt;
+    }
 
     lineTraces && u_zprintf("%s debugLineLength: %lld minInst: %u maxOp: %u\n",
                                                     rn, u::ll(debugLineLength),
                              minInstructionLength, maxOperationsPerInsruction);
 
     0 && u::dumpBinary(&d_lineReader, 8);
-
-    bool defaultIsStatement;
-#if 0
-    // In section 6.2.4.5, the DWARF docs (versions 2, 3 and 4) say this field
-    // should be there, but it's not in the binary.
-
-    {
-        unsigned char isStmt;
-        rc = d_lineReader.readValue(&isStmt);
-        u_ASSERT_BAIL(0 == rc);
-        u_ASSERT_BAIL(isStmt <= 1 || u_P(isStmt));
-        defaultIsStatement = false;
-    }
-#else
-    defaultIsStatement = false;
-#endif
 
     int lineBase;
     {
@@ -2875,7 +2926,10 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     rc = d_lineReader.readValue(&opcodeBase);
     u_ASSERT_BAIL(0 == rc);
     u_ASSERT_BAIL(opcodeBase < 64);    // Should be 10 or 13, maybe plus a few.
-                                     // 64 would be absurd.
+                                       // 64 would be absurd.
+
+    lineTraces && u_zprintf("%s lineBase: %d, lineRange: %u, opcodeBase: %u\n",
+                                          rn, lineBase, lineRange, opcodeBase);
 
     bsl::vector<unsigned char> opcodeLengths(d_allocator_p);    // # of ULEB128
                                                                 // args for std
@@ -2884,7 +2938,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     for (unsigned int ii = 1; ii < opcodeBase; ++ii) {
         rc = d_lineReader.readValue(&opcodeLengths[ii]);
         u_ASSERT_BAIL(0 == rc);
-        u_ASSERT_BAIL(opcodeLengths[ii] <= 10 || u_P(opcodeLengths[ii]));
+        u_ASSERT_BAIL(opcodeLengths[ii] <= 10 || u_P(ii) ||
+                                                       u_P(opcodeLengths[ii]));
     }
 
     {
@@ -2911,90 +2966,28 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 #undef CHECK_ARG_COUNT
     }
 
-    const bsl::string nullString(d_allocator_p);
+    bsl::vector<bsl::string>  dirPaths(  d_allocator_p);
+    bsl::vector<bsl::string>  fileNames( d_allocator_p);
+    bsl::vector<int>          dirIndexes(d_allocator_p);
 
-    bsl::deque<bsl::string> dirPaths(d_allocator_p);
-    dirPaths.push_back(frameRec->compileUnitDir());
-    {
-        bsl::string dir(d_allocator_p);
-        for (;;) {
-            rc = d_lineReader.readString(&dir);
-            u_ASSERT_BAIL(0 == rc);
-
-            if (dir.empty()) {
-                break;
-            }
-
-            if ('/' != dir[dir.length() - 1]) {
-                dir += '/';
-            }
-
-            dirPaths.push_back(dir);
-        }
-
-        if (lineTraces) {
-            for (unsigned int ii = 0; ii < dirPaths.size(); ++ii) {
-                u_zprintf("%s dirPaths[%u]: %s\n",
-                                                 rn, ii, dirPaths[ii].c_str());
-                if (1 == lineTraces) {
-                    break;    // only print out first directory for now
-                }
-            }
-        }
-    }
-
-    bsl::deque<bsl::string>  fileNames(d_allocator_p);
-    fileNames.push_back(frameRec->compileUnitFileName());
-    bsl::deque<unsigned int> dirIndexes(d_allocator_p);
-    dirIndexes.push_back(0);
-
-    for (unsigned int ii = 0;; ++ii) {
-        if (ii) {
-            fileNames.push_back(nullString);
-
-            BSLS_ASSERT(ii + 1 == fileNames.size());
-
-            rc = d_lineReader.readString(&fileNames[ii]);
-            u_ASSERT_BAIL(0 == rc);
-
-            if (fileNames[ii].empty()) {
-                break;
-            }
-
-            dirIndexes.push_back(-1);
-
-            BSLS_ASSERT(dirIndexes.size() == fileNames.size());
-
-            rc = d_lineReader.readULEB128(&dirIndexes[ii]);
-            u_ASSERT_BAIL(0 == rc);
-            u_ASSERT_BAIL(dirIndexes[ii] < dirPaths.size());
-
-            rc = d_lineReader.skipULEB128();    // mod time, ignored
-            u_ASSERT_BAIL(0 == rc);
-
-            rc = d_lineReader.skipULEB128();    // file length, ignored
-            u_ASSERT_BAIL(0 == rc);
-        }
-
-        if (lineTraces && (1 < lineTraces || 0 == ii)) {
-            u_zprintf("%s fileNames[%u]: %s dirIdx %lld:\n", rn, ii,
-                                 fileNames[ii].c_str(), u::ll(dirIndexes[ii]));
-        }
-    }
-    u_ASSERT_BAIL(2 <= fileNames.size());
-    fileNames.resize(fileNames.size() - 1);    // chomp empty entry
-    BSLS_ASSERT(dirIndexes.size() == fileNames.size());
+    rc = this->dwarfReadFileNames(&dirPaths,
+                                  &fileNames,
+                                  &dirIndexes,
+                                  *frameRec,
+                                  lineDwarfVersion);
+    u_ASSERT_BAIL(0 == rc);
 
     bsl::string  definedFile(d_allocator_p);     // in case a file is defined
     unsigned int definedDirIndex;                // by the e_DW_LNE_define_file
                                                  // cmd, in which case
                                                  // 'fileIdx' will be -1.
 
-    u::UintPtr    addressToMatch =
+    u::UintPtr   addressToMatch =
                      reinterpret_cast<u::UintPtr>(frameRec->frame().address());
-    u::UintPtr    address = 0, prevAddress = 0;
+    u::UintPtr   address = 0, prevAddress = 0;
     unsigned int opIndex = 0;
     int          fileIdx = 0;
+
     int line = 1, prevLine = 1;                 // The spec says to begin line
                                                 // numbers at 0, but they come
                                                 // out right this way.
@@ -3057,10 +3050,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
             if (lineTraces) {
                 if (opcode <= e_DW_LNS_set_isa) {
-                    if (e_DW_LNS_negate_stmt != opcode) {
-                        u_zprintf("%s standard opcode %s\n", rn,
+                    u_zprintf("%s standard opcode %s\n", rn,
                                                  Reader::stringForLNS(opcode));
-                    }
                 }
                 else {
                     u_eprintf("%s unrecognized standard opcode %u\n", rn,
@@ -3127,10 +3118,13 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 --statementsSinceEndSeq;
               } break;
               case e_DW_LNS_negate_stmt: {    // 6
-                defaultIsStatement = !defaultIsStatement;
+                // 'isStatement' has no impact on determining line numbers,
+                // it's just useful for determining where to set breakpoints.
+
+                isStatement = !isStatement;
                 lineTraces && u_zprintf(
                                      "%s e_DW_LNS_negate_stmt: default = %s\n",
-                                  rn, (defaultIsStatement ? "true" : "false"));
+                                  rn, (isStatement ? "true" : "false"));
               } break;
               case e_DW_LNS_set_basic_block: {    // 7
                 ;    // no args, ignored
@@ -3357,7 +3351,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 fileIdx = 0;
                 line = 1, prevLine = 1;
                 nullPrevStatement = true;
-                defaultIsStatement = false;
+                isStatement = false;
                 statementsSinceEndSeq = 0;
             }
             else {
@@ -3373,9 +3367,277 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     return -1;    // 'addressToMatch' not matched
 }
 
+int u::Resolver::HiddenRec::dwarfReadFileNames(
+                                    bsl::vector<bsl::string> *dirPaths,
+                                    bsl::vector<bsl::string> *fileNames,
+                                    bsl::vector<int>         *dirIndexes,
+                                    const u::FrameRec&        frameRec,
+                                    int                       lineDwarfVersion)
+{
+    static const char rn[] = { "HR::dwReadFileNames:" };
+    (void) rn;
+
+    static const int fileTraces = u_TRACES ? 2 : 0;
+        // A value of 1 means do most traces but show only the first filename
+        // and directory, a value of 2 means dump out all the directories and
+        // filenames.
+
+    int rc;
+
+    // Note that the format varies wildly depending on whether the DWARF format
+    // of the .debug_line is less than 5 or not.
+
+    if (lineDwarfVersion < 5) {
+        bsl::string str(d_allocator_p);
+
+        dirPaths->push_back(frameRec.compileUnitDir());
+        for (int ii = 0; true; ++ii) {
+            if (ii) {
+                rc = d_lineReader.readString(&str);
+                u_ASSERT_BAIL(0 == rc);
+                if (str.empty()) {
+                    break;
+                }
+
+                if ('/' != str.back()) {
+                    str += '/';
+                }
+
+                dirPaths->push_back(str);
+
+                if (fileTraces && (0 == ii || 1 < fileTraces)) {
+                    u_zprintf("%s dirPaths[%d]: %s\n",
+                                               rn, ii,(*dirPaths)[ii].c_str());
+                }
+            }
+        }
+
+        fileNames->push_back(frameRec.compileUnitFileName());
+        dirIndexes->push_back(0);
+
+        for (int ii = 0; true; ++ii) {
+            if (ii) {
+                rc = d_lineReader.readString(&str);
+                u_ASSERT_BAIL(0 == rc);
+                if (str.empty()) {
+                    break;
+                }
+                fileNames->push_back(str);
+
+                u::Offset offset;
+                rc = d_lineReader.readULEB128(&offset);
+                u_ASSERT_BAIL(0 == rc);
+                u_ASSERT_BAIL(offset < ssize(*dirPaths));
+                dirIndexes->push_back(static_cast<int>(offset));
+
+                rc = d_lineReader.skipULEB128();    // mod time, ignored
+                u_ASSERT_BAIL(0 == rc);
+
+                rc = d_lineReader.skipULEB128();    // file length, ignored
+                u_ASSERT_BAIL(0 == rc);
+            }
+
+            if (fileTraces && (0 == ii || 1 < fileTraces)) {
+                u_zprintf("%s fileNames[%d]: %s dirIdx[%d] %d:\n", rn, ii,
+                          (*fileNames)[ii].c_str(), ii, (*dirIndexes)[ii]);
+            }
+        }
+        BSLS_ASSERT(dirIndexes->size() == fileNames->size());
+
+        return 0;                                                     // RETURN
+    }
+    BSLS_ASSERT_OPT(5 <= lineDwarfVersion);
+
+    // This is DWARF version 5, see 6.2.4 of the DWARF Version 5 doc and the
+    // diagram at D.5.1 for reference.
+
+    {
+        unsigned char numDirEntryFormats;
+        rc = d_lineReader.readValue(&numDirEntryFormats);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(1 == numDirEntryFormats || u_P(numDirEntryFormats));
+
+        unsigned pathExpected;
+        rc = d_lineReader.readULEB128(&pathExpected);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(e_DW_LNCT_path == pathExpected || u_PH(pathExpected));
+    }
+
+    unsigned dirStrForm = e_DW_FORM_string;
+    rc = d_lineReader.readULEB128(&dirStrForm);
+    u_ASSERT_BAIL(0 == rc);
+    u_ASSERT_BAIL(e_DW_FORM_string == dirStrForm ||
+                    e_DW_FORM_line_strp == dirStrForm || u_PH(dirStrForm));
+
+    int numDirs = -1;
+    {
+        u::Uint64 u;
+        rc = d_lineReader.readULEB128(&u);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(u < (1u << 20));
+        numDirs = static_cast<int>(u);
+    }
+    dirPaths->resize(numDirs);
+
+    for (int ii = 0; ii < numDirs; ++ii) {
+        bsl::string& newDir = (*dirPaths)[ii];
+
+        rc = d_lineReader.readStringFromForm(&newDir,
+                                             &d_strReader,
+                                             &d_lineStrReader,
+                                             dirStrForm);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(!newDir.empty());
+
+        if ('/' != newDir.back()) {
+            newDir += '/';
+        }
+    }
+
+    const u::IntPtr numDirPathsToShow = 1 < fileTraces
+                                      ? ssize(*dirPaths)
+                                      : fileTraces;
+    for (int ii = 0; ii < numDirPathsToShow; ++ii) {
+        u_zprintf("%s dirPaths[%d]: %s\n", rn, ii, (*dirPaths)[ii].c_str());
+    }
+
+    unsigned char numFileEntryFormats;
+    rc = d_lineReader.readValue(&numFileEntryFormats);
+    u_ASSERT_BAIL(0 == rc);
+    u_ASSERT_BAIL((2 <= numFileEntryFormats &&
+                        numFileEntryFormats <= 4) || u_P(numFileEntryFormats));
+
+    int fileStrForm   = -1;
+    int dirIdxForm    = -1;
+    int timeStampForm = -1;
+    int fileSizeForm  = -1;
+    for (unsigned uu = 0; uu < numFileEntryFormats; ++uu) {
+        unsigned lnct;
+        rc = d_lineReader.readULEB128(&lnct);
+        u_ASSERT_BAIL(0 == rc);
+
+        unsigned form;
+        rc = d_lineReader.readULEB128(&form);
+        u_ASSERT_BAIL(0 == rc);
+
+        const char *formStr = fileTraces ? Reader::stringForForm(form) : 0;
+
+        switch (lnct) {
+          case e_DW_LNCT_path: {
+            u_ASSERT_BAIL(-1 == fileStrForm);
+            u_ASSERT_BAIL(e_DW_FORM_string == form ||
+                                e_DW_FORM_line_strp == form || u_PH(form));
+            fileStrForm = form;
+            fileTraces && u_zprintf("%s: file path form: %s\n", rn, formStr);
+          } break;
+          case e_DW_LNCT_directory_index: {
+            u_ASSERT_BAIL(-1 == dirIdxForm);
+            u_ASSERT_BAIL(e_DW_FORM_data1 == form ||
+                                                 e_DW_FORM_data2 == form ||
+                                    e_DW_FORM_udata == form || u_PH(form));
+            dirIdxForm = form;
+            fileTraces && u_zprintf("%s: dir idx form: %s\n", rn, formStr);
+          } break;
+          case e_DW_LNCT_timestamp: {
+            u_ASSERT_BAIL(-1 == timeStampForm);
+            switch (form) {
+              case e_DW_FORM_udata:
+              case e_DW_FORM_data4:
+              case e_DW_FORM_data8:
+              case e_DW_FORM_block: {
+                timeStampForm = form;
+                fileTraces && u_zprintf("%s: time stamp form: %s\n", rn,
+                                                                      formStr);
+              } break;
+              default: {
+                u_ASSERT_BAIL(0 || u_PH(form) || u_P(formStr));
+              }
+            }
+          } break;
+          case e_DW_LNCT_size: {
+            u_ASSERT_BAIL(-1 == fileSizeForm);
+            switch (form) {
+              case e_DW_FORM_udata:
+              case e_DW_FORM_data1:
+              case e_DW_FORM_data2:
+              case e_DW_FORM_data4:
+              case e_DW_FORM_data8: {
+                fileSizeForm = form;
+                fileTraces && u_zprintf("%s: file size form: %s\n", rn,
+                                                                      formStr);
+              } break;
+              default: {
+                u_ASSERT_BAIL(0 || u_PH(form) || u_P(formStr));
+              }
+            }
+          } break;
+          default: {
+            u_ASSERT_BAIL(0 || u_PH(lnct) ||
+                                         u_P(Reader::stringForLNCT(lnct)));
+          } break;
+        }
+    }
+    u_ASSERT_BAIL(-1 != fileStrForm);
+    u_ASSERT_BAIL(-1 != dirIdxForm);
+
+    int numFiles = -1;
+    {
+        u::Uint64 uNumFiles;
+        rc = d_lineReader.readULEB128(&uNumFiles);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(uNumFiles < (1u << 20));
+        numFiles = static_cast<int>(uNumFiles);
+        u_ASSERT_BAIL(0 < numFiles);
+    }
+    fileTraces && u_zprintf("%s: uNumFiles: %d\n", rn, numFiles);
+
+    fileNames->resize( numFiles);
+    dirIndexes->resize(numFiles);
+
+    for (int ii = 0; ii < numFiles; ++ii) {
+        bsl::string& newFileName = (*fileNames)[ ii];
+        int&         newDirIndex = (*dirIndexes)[ii];
+
+        rc = d_lineReader.readStringFromForm(&newFileName,
+                                             &d_strReader,
+                                             &d_lineStrReader,
+                                             fileStrForm);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(! newFileName.empty());
+
+        u::Offset offset;
+
+        rc = d_lineReader.readOffsetFromForm(&offset, dirIdxForm);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL((0 <= offset && offset < numDirs) || u_P(offset));
+        newDirIndex = static_cast<int>(offset);
+
+        if (-1 != timeStampForm) {
+            // mod time, ignored
+
+            rc = d_lineReader.readOffsetFromForm(&offset, timeStampForm);
+            u_ASSERT_BAIL(0 == rc);
+        }
+
+        if (-1 != fileSizeForm) {
+            // file length, ignored
+
+            rc = d_lineReader.readOffsetFromForm(&offset, fileSizeForm);
+            u_ASSERT_BAIL(0 == rc);
+        }
+
+        if (0 < fileTraces && (0 == ii || 1 < fileTraces)) {
+            u_zprintf("%s fileNames[%d]: %s dirIdx[%d]: %d:\n", rn, ii,
+                                         newFileName.c_str(), ii, newDirIndex);
+        }
+    }
+
+    return 0;
+}
+
 #endif // u_DWARF
 
-void u::StackTraceResolver::HiddenRec::reset()
+void u::Resolver::HiddenRec::reset()
 {
     // Note that 'd_frameRecs' and 'd_numTotalUnmatched' are not to be cleared
     // or reinitialized, they have a lifetime of the length of the resolve.
@@ -3395,6 +3657,7 @@ void u::StackTraceResolver::HiddenRec::reset()
     d_lineSec.   reset();
     d_rangesSec. reset();
     d_strSec.    reset();
+    d_lineStrSec.reset();
 
     d_abbrevReader. disable();
     d_arangesReader.disable();
@@ -3402,18 +3665,18 @@ void u::StackTraceResolver::HiddenRec::reset()
     d_lineReader.   disable();
     d_rangesReader. disable();
     d_strReader.    disable();
+    d_lineStrReader.disable();
 #endif
 }
 
-     // -----------------------------------------------------------------
-     // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
-     //                 == class u::StackTraceResolver
-     // -----------------------------------------------------------------
+             // -------------------------------------------------------
+             // class balst::ResolverImpl<balst::ObjectFileFormat::Elf>
+             //                 == class u::Resolver
+             // -------------------------------------------------------
 
 // PRIVATE CREATORS
-u::StackTraceResolver::StackTraceResolverImpl(
-                                    balst::StackTrace *stackTrace,
-                                    bool               demanglingPreferredFlag)
+u::Resolver::ResolverImpl(balst::StackTrace *stackTrace,
+                          bool               demanglingPreferredFlag)
 : d_hbpAlloc()
 , d_stackTrace_p(stackTrace)
 , d_scratchBufA_p(static_cast<char *>(
@@ -3425,6 +3688,8 @@ u::StackTraceResolver::StackTraceResolverImpl(
                                     d_hbpAlloc.allocate(u::k_SCRATCH_BUF_LEN)))
 , d_scratchBufD_p(static_cast<char *>(
                                     d_hbpAlloc.allocate(u::k_SCRATCH_BUF_LEN)))
+, d_scratchBufE_p(static_cast<char *>(
+                                    d_hbpAlloc.allocate(u::k_SCRATCH_BUF_LEN)))
 #endif
 , d_hidden(*(new (d_hbpAlloc) HiddenRec(this)))    // must be after scratch
                                                    // buffers
@@ -3433,7 +3698,7 @@ u::StackTraceResolver::StackTraceResolverImpl(
 }
 
 // PRIVATE MANIPULATORS
-int u::StackTraceResolver::loadSymbols(int matched)
+int u::Resolver::loadSymbols(int matched)
 {
     const int k_SYM_SIZE = static_cast<int>(sizeof(u::ElfSymbol));
 
@@ -3562,11 +3827,11 @@ int u::StackTraceResolver::loadSymbols(int matched)
     return 0;
 }
 
-int u::StackTraceResolver::processLoadedImage(const char *fileName,
-                                              const void *programHeaders,
-                                              int         numProgramHeaders,
-                                              void       *textSegPtr,
-                                              void       *baseAddress)
+int u::Resolver::processLoadedImage(const char *fileName,
+                                    const void *programHeaders,
+                                    int         numProgramHeaders,
+                                    void       *textSegPtr,
+                                    void       *baseAddress)
     // Note this must be public so 'linkMapCallBack' can call it on Solaris.
     // Also note that it assumes that both scratch buffers are available for
     // writing.
@@ -3624,7 +3889,7 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
                                  static_cast<int>(d_hidden.d_isMainExecutable),
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
 
-    balst::StackTraceResolver_FileHelper helper;
+    balst::Resolver_FileHelper helper;
     int rc = helper.initialize(name);
     if (rc) {
         return -1;                                                    // RETURN
@@ -3676,10 +3941,10 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
     return 0 < numResolved ? 0 : -1;
 }
 
-int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
-                                          void       *segmentPtr,
-                                          u::UintPtr  segmentSize,
-                                          const char *libraryFileName)
+int u::Resolver::resolveSegment(void       *segmentBaseAddress,
+                                void       *segmentPtr,
+                                u::UintPtr  segmentSize,
+                                const char *libraryFileName)
 {
     int rc;
 
@@ -3801,7 +4066,7 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
             return -1;                                                // RETURN
         }
 
-        u_zprintf("Section: type:%d name:%s\n", sec->sh_type, sectionName);
+        u_zprintf("Section: type:%d name:%s", sec->sh_type, sectionName);
 
         switch (sec->sh_type) {
           case SHT_STRTAB: {
@@ -3824,8 +4089,9 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
           } break;
 #ifdef u_DWARF
           case SHT_PROGBITS: {
+            bool matched = true;
             if ('d' != sectionName[1]) {
-                ; // do nothing
+                matched = false;
             }
             else if (!bsl::strcmp(sectionName, ".debug_abbrev")) {
                 d_hidden.d_abbrevSec. reset(sec->sh_offset, sec->sh_size);
@@ -3845,9 +4111,19 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
             else if (!bsl::strcmp(sectionName, ".debug_str")) {
                 d_hidden.d_strSec.    reset(sec->sh_offset, sec->sh_size);
             }
+            else if (!bsl::strcmp(sectionName, ".debug_line_str")) {
+                d_hidden.d_lineStrSec.reset(sec->sh_offset, sec->sh_size);
+            }
+            else {
+                matched = false;
+            }
+            if (matched) {
+                u_zprintf(" -- matched");
+            }
           } break;
 #endif
         }
+        u_zprintf("\n");
     }
 
     u_TRACES && u_zprintf("symtab:(0x%llx, 0x%llx), strtab:(0x%llx, 0x%llx)\n",
@@ -3889,7 +4165,8 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 #ifdef u_DWARF
     u_TRACES && u_zprintf("abbrev:(0x%llx, 0x%llx) aranges:(0x%llx, 0x%llx)"
             " info:(0x%llx 0x%llx) line::(0x%llx 0x%llx)"
-            " ranges:(0x%llx, 0x%llx) str:(0x%llx, 0x%llx)\n",
+            " ranges:(0x%llx, 0x%llx) str:(0x%llx, 0x%llx)"
+            " line_str:(0x%llx, 0x%llx)\n",
             u::ll(d_hidden.d_abbrevSec.d_offset),
             u::ll(d_hidden.d_abbrevSec.d_size),
             u::ll(d_hidden.d_arangesSec.d_offset),
@@ -3901,7 +4178,9 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
             u::ll(d_hidden.d_rangesSec.d_offset),
             u::ll(d_hidden.d_rangesSec.d_size),
             u::ll(d_hidden.d_strSec.d_offset),
-            u::ll(d_hidden.d_strSec.d_size));
+            u::ll(d_hidden.d_strSec.d_size),
+            u::ll(d_hidden.d_lineStrSec.d_offset),
+            u::ll(d_hidden.d_lineStrSec.d_size));
 #endif
 
     // Note that 'loadSymbols' trashes scratchBufA and scratchBufB.
@@ -3915,7 +4194,7 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     // we return 'rc' at the end.
 
 #ifdef u_DWARF
-    // Note that 'readDwarfAll' trashes scratchBufs A, B, C, and D
+    // Note that 'readDwarfAll' trashes scratchBufs A, B, C, D, and E
 
     rc = d_hidden.dwarfReadAll();
     if (rc) {
@@ -3931,10 +4210,9 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 }
 
 // PRIVATE ACCESSORS
-void u::StackTraceResolver::setFrameSymbolName(
-                                       balst::StackTraceFrame *frame,
-                                       char                   *buffer,
-                                       bsl::size_t             bufferLen) const
+void u::Resolver::setFrameSymbolName(balst::StackTraceFrame *frame,
+                                     char                   *buffer,
+                                     size_t                  bufferLen) const
 {
 #if !defined(BSLS_PLATFORM_OS_SOLARIS)                                        \
  || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
@@ -3968,7 +4246,7 @@ void u::StackTraceResolver::setFrameSymbolName(
     int status = -1;
 
     if (d_demangle) {
-        typedef int (*FuncPtr)(const char *, char *, bsl::size_t);
+        typedef int (*FuncPtr)(const char *, char *, size_t);
         static FuncPtr funcPtr = 0;
         static bool    dlopenAttempted = false;
 
@@ -4027,7 +4305,7 @@ extern "C" {
 
 static
 int linkmapCallback(struct dl_phdr_info *info,
-                    bsl::size_t          size,
+                    size_t               size,
                     void                *data)
     // This routine is called once for the executable file, and once for every
     // shared library that is loaded.  The specified 'info' contains a pointer
@@ -4037,8 +4315,7 @@ int linkmapCallback(struct dl_phdr_info *info,
 {
     (void) size;
 
-    u::StackTraceResolver *resolver =
-                               reinterpret_cast<u::StackTraceResolver *>(data);
+    u::Resolver *resolver = reinterpret_cast<u::Resolver *>(data);
 
     // If we have completed resolving, there is no way to signal the caller to
     // stop iterating through the shared libs, but we aren't allowed to throw
@@ -4078,9 +4355,8 @@ extern "C" void *_DYNAMIC;    // global pointer that leads to the link map
 #endif
 
 // CLASS METHODS
-int u::StackTraceResolver::resolve(
-                                    balst::StackTrace *stackTrace,
-                                    bool               demanglingPreferredFlag)
+int u::Resolver::resolve(balst::StackTrace *stackTrace,
+                         bool               demanglingPreferredFlag)
 {
     static const char rn[] = { "Resolver::resolve" };    (void) rn;
 
@@ -4090,7 +4366,7 @@ int u::StackTraceResolver::resolve(
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
 
-    u::StackTraceResolver resolver(stackTrace,
+    u::Resolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
     // 'dl_iterate_phdr' will iterate over all loaded files, the executable and
@@ -4101,7 +4377,7 @@ int u::StackTraceResolver::resolve(
 
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
-    u::StackTraceResolver resolver(stackTrace,
+    u::Resolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
     struct link_map *linkMap = 0;
@@ -4175,7 +4451,7 @@ int u::StackTraceResolver::resolve(
 }
 
 // PUBLIC ACCESSOR
-int u::StackTraceResolver::numUnmatchedFrames() const
+int u::Resolver::numUnmatchedFrames() const
 {
     return static_cast<int>(d_hidden.d_numTotalUnmatched);
 }

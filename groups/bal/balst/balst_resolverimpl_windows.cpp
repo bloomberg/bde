@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_windows.cpp                           -*-C++-*-
+// balst_resolverimpl_windows.cpp                                     -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,10 +7,10 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolverimpl_windows.h>
+#include <balst_resolverimpl_windows.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balst_resolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
@@ -443,7 +443,7 @@ void reportError(const char *string)
         firstTime = false;
 
         const char *nrString =
-              bsl::getenv("BALST_STACKTRACERESOLVERIMPL_WINDOWS_REPORT_TIMES");
+              bsl::getenv("BALST_RESOLVERIMPL_WINDOWS_REPORT_TIMES");
         if (nrString) {
             reportTimes = bsl::atoi(nrString);
         }
@@ -462,13 +462,12 @@ void reportError(const char *string)
 namespace BloombergLP {
 namespace balst {
 
-           // =================================================
-           // StackTraceResolverImpl<ObjectFileFormat::Windows>
-           // =================================================
+                   // =======================================
+                   // ResolverImpl<ObjectFileFormat::Windows>
+                   // =======================================
 
-int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
-                                                        StackTrace *stackTrace,
-                                                        bool        demangle)
+int ResolverImpl<ObjectFileFormat::Windows>::resolve(StackTrace *stackTrace,
+                                                     bool        demangle)
     // Given a specified stack trace object 'stackTrace' of stack trace frames
     // with only their 'address' fields valid, set as many other fields of the
     // frames as possible.  The 'demangle' argument is ignored, demangling

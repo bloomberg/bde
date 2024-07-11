@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_dladdr.t.cpp                          -*-C++-*-
+// balst_resolverimpl_dladdr.t.cpp                                    -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,7 +7,7 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolverimpl_dladdr.h>
+#include <balst_resolverimpl_dladdr.h>
 
 #include <balst_stacktrace.h>
 
@@ -105,9 +105,9 @@ static void aSsErT(int c, const char *s, int i)
 //                 GLOBAL HELPER TYPES & CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Dladdr> Obj;
-typedef balst::StackTraceFrame                                        Frame;
-typedef bsls::Types::UintPtr                                         UintPtr;
+typedef balst::ResolverImpl<balst::ObjectFileFormat::Dladdr> Obj;
+typedef balst::StackTraceFrame                               Frame;
+typedef bsls::Types::UintPtr                                 UintPtr;
 
 // ============================================================================
 //                    GLOBAL HELPER VARIABLES FOR TESTING
@@ -523,7 +523,7 @@ int main(int argc, char *argv[])
 
             const char *libName = stackTrace[0].libraryFileName().c_str();
             libName = safeBaseName(libName);
-            const char *thisLib = "balst_stacktraceresolverimpl_dladdr.t";
+            const char *thisLib = "balst_resolverimpl_dladdr.t";
             const char *qsLib = "libsystem_c";
 #undef  GOOD_LIBNAME
 #define GOOD_LIBNAME(func, exp, match)                                        \
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
                     }
 
                     LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
-                                 "balst_stacktraceresolverimpl_dladdr.t.cpp"));
+                                 "balst_resolverimpl_dladdr.t.cpp"));
                 }
             }
 #endif
@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
                                                       // demangle statics
                 SM(3, "qsort");
                 const char *resName = "BloombergLP::"
-                                      "balst::StackTraceResolverImpl"
+                                      "balst::ResolverImpl"
                                       "<BloombergLP::"
                                       "balst::ObjectFileFormat::Dladdr>::"
                                       "resolve(";
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
         ASSERT(bsl::string::npos != stackTrace[0].symbolName().find(
                                                             "funcGlobalOne"));
         ASSERT(bsl::string::npos != stackTrace[0].libraryFileName().find(
-                                    "balst_stacktraceresolverimpl_dladdr.t"));
+                                    "balst_resolverimpl_dladdr.t"));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

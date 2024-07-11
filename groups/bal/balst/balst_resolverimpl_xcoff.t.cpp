@@ -1,4 +1,4 @@
-// balst_stacktraceresolverimpl_xcoff.t.cpp                           -*-C++-*-
+// balst_resolverimpl_xcoff.t.cpp                                     -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,7 +7,7 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stacktraceresolverimpl_xcoff.h>
+#include <balst_resolverimpl_xcoff.h>
 
 #include <balst_objectfileformat.h>
 
@@ -89,9 +89,9 @@ static void aSsErT(int c, const char *s, int i)
 //                 GLOBAL HELPER TYPES & CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff> Obj;
-typedef balst::StackTraceFrame                                        Frame;
-typedef bsls::Types::UintPtr                                          UintPtr;
+typedef balst::ResolverImpl<balst::ObjectFileFormat::Xcoff> Obj;
+typedef balst::StackTraceFrame                              Frame;
+typedef bsls::Types::UintPtr                                UintPtr;
 
 // ============================================================================
 //                    GLOBAL HELPER VARIABLES FOR TESTING
@@ -314,16 +314,15 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // balst::StackTraceResolverImp<Xcoff> BREATHING TEST
+        // balst::ResolverImp<Xcoff> BREATHING TEST
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //
         // Plan: Call 'printStackTrace()' to print a stack trace.
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-                       "balst::StackTraceResolverImpl<Xcoff> breathing test\n"
-                       "===================================================\n";
+        if (verbose) cout << "balst::ResolverImpl<Xcoff> breathing test\n"
+                             "=========================================\n";
 
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  We'll leave the testing of symbols in shared
@@ -415,7 +414,7 @@ int main(int argc, char *argv[])
             if (verbose) P(frame0);
             if (!safeCmp("test", frame0, 4)) {
                 ASSERT(safeCmp(frame0,
-                               "balst_stacktraceresolverimpl_xcoff.t.",
+                               "balst_resolverimpl_xcoff.t.",
                                32));
             }
             for (int i = 1; i < frames.length(); ++i) {
@@ -445,18 +444,18 @@ int main(int argc, char *argv[])
                         switch (i) {
                           case 2: {
                             LOOP_ASSERT(pc, !bsl::strcmp(pc,
-                                  "balst_stacktraceresolverimpl_xcoff.h"));
+                                                "balst_resolverimpl_xcoff.h"));
                           }  break;
                           case 3: {
                             LOOP_ASSERT(pc, !bsl::strcmp(pc,
-                                  "balst_stacktraceresolverimpl_xcoff.cpp"));
+                                              "balst_resolverimpl_xcoff.cpp"));
                           }  break;
                           case 4: {
                              ; // so nothing
                           }  break;
                           default: {
                             LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
-                                  "balst_stacktraceresolverimpl_xcoff.t.cpp"));
+                                            "balst_resolverimpl_xcoff.t.cpp"));
                           }  break;
                         }
                     }
@@ -464,35 +463,35 @@ int main(int argc, char *argv[])
             }
 
             LOOP_ASSERT(frames[0].symbolName(),
-                      npos != frames[0].symbolName().find("funcGlobalOne"));
-            LOOP_ASSERT(frames[1].symbolName(),
-                      npos != frames[1].symbolName().find("funcStaticOne"));
+                         npos != frames[0].symbolName().find("funcGlobalOne"));
+           LOOP_ASSERT(frames[1].symbolName(),
+                         npos != frames[1].symbolName().find("funcStaticOne"));
             LOOP_ASSERT(frames[0].mangledSymbolName(),
-               npos != frames[0].mangledSymbolName().find("funcGlobalOne"));
+                  npos != frames[0].mangledSymbolName().find("funcGlobalOne"));
             LOOP_ASSERT(frames[1].mangledSymbolName(),
-               npos != frames[1].mangledSymbolName().find("funcStaticOne"));
+                  npos != frames[1].mangledSymbolName().find("funcStaticOne"));
             LOOP_ASSERT(frames[2].symbolName(),
-                           npos != frames[2].symbolName().find("testFunc"));
+                              npos != frames[2].symbolName().find("testFunc"));
             LOOP_ASSERT(frames[2].mangledSymbolName(),
-                    npos != frames[2].mangledSymbolName().find("testFunc"));
+                       npos != frames[2].mangledSymbolName().find("testFunc"));
             LOOP_ASSERT(frames[3].mangledSymbolName(),
-                     npos != frames[3].mangledSymbolName().find("resolve"));
+                        npos != frames[3].mangledSymbolName().find("resolve"));
             LOOP_ASSERT(frames[4].mangledSymbolName(),
-                       npos != frames[4].mangledSymbolName().find("qsort"));
+                          npos != frames[4].mangledSymbolName().find("qsort"));
 
             if (demangle) {
                 LOOP_ASSERT(frames[0].symbolName(),
-                           frames[0].symbolName() == ".funcGlobalOne(int)");
+                              frames[0].symbolName() == ".funcGlobalOne(int)");
                 LOOP_ASSERT(frames[1].symbolName(),
-                           frames[1].symbolName() == ".funcStaticOne(int)");
+                              frames[1].symbolName() == ".funcStaticOne(int)");
                 LOOP_ASSERT(frames[2].symbolName(),
                              frames[2].symbolName() == "BloombergLP::"
-                                  "balst::StackTraceResolverImpl<BloombergLP::"
+                                            "balst::ResolverImpl<BloombergLP::"
                                "balst::ObjectFileFormat::Xcoff>::.testFunc()");
                 {
                     const char *match =
                                   "BloombergLP::"
-                                  "balst::StackTraceResolverImpl<BloombergLP::"
+                                  "balst::ResolverImpl<BloombergLP::"
                                   "balst::ObjectFileFormat::Xcoff>::.resolve(";
                     int matchLen = bsl::strlen(match);
                     LOOP_ASSERT(frames[3].symbolName(),
@@ -501,7 +500,7 @@ int main(int argc, char *argv[])
                                              matchLen));
                 }
                 LOOP_ASSERT(frames[4].symbolName(),
-                                        frames[4].symbolName() == ".qsort");
+                                           frames[4].symbolName() == ".qsort");
 
                 break;
             }

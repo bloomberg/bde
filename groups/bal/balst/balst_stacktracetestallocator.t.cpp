@@ -500,6 +500,9 @@ ShipsCrew::~ShipsCrew()
 {
     free(&d_captain);
     free(&d_firstMate);
+if (!verbose) {
+free(&d_cook);
+}
 
     // Note that deallocating the strings will invalidate 'd_sailors' -- any
     // manipulation of 'd_sailors' other than destruction after this would lead
