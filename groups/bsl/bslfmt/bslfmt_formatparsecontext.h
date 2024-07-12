@@ -34,6 +34,21 @@
 namespace BloombergLP {
 namespace bslfmt {
 
+// FORWARD DECLARATIONS
+
+template <class t_CHAR>
+class basic_format_parse_context;
+
+// TYPEDEFS
+
+typedef basic_format_parse_context<char> format_parse_context;
+
+typedef basic_format_parse_context<wchar_t> wformat_parse_context;
+
+                 // ----------------------------------------
+                 // class basic_format_parse_context<t_CHAR>
+                 // ----------------------------------------
+
 template <class t_CHAR>
 class basic_format_parse_context {
   public:
@@ -57,76 +72,27 @@ class basic_format_parse_context {
   public:
     // CREATORS
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
-                      bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT
-    : d_begin(fmt.begin())
-    , d_end(fmt.end())
-    , d_indexing(e_UNKNOWN)
-    , d_next_arg_id(0)
-    , d_num_args(0)
-    {
-    }
+                     bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
-                  bsl::basic_string_view<t_CHAR> fmt,
-                  size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT
-    : d_begin(fmt.begin())
-    , d_end(fmt.end())
-    , d_indexing(e_UNKNOWN)
-    , d_next_arg_id(0)
-    , d_num_args(numArgs)
-    {
-    }
+                 bsl::basic_string_view<t_CHAR> fmt,
+                 size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT;
 
   public:
 
     // MANIPULATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it)
-    {
-        d_begin = it;
-    }
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it);
 
-    BSLS_KEYWORD_CONSTEXPR_CPP20 size_t next_arg_id()
-    {
-        if (d_indexing == e_MANUAL) {
-            BSLS_THROW(
-                      format_error("mixing of automatic and manual indexing"));
-        }
-        if (d_next_arg_id >= d_num_args) {
-            BSLS_THROW(format_error("number of conversion specifiers exceeds "
-            "number of arguments"));
-        }
-        if (d_indexing == e_UNKNOWN) {
-            d_indexing = e_AUTOMATIC;
-        }
-        return d_next_arg_id++;
-    }
+    BSLS_KEYWORD_CONSTEXPR_CPP20 size_t next_arg_id();
 
-    BSLS_KEYWORD_CONSTEXPR_CPP20 void check_arg_id(size_t id)
-    {
-        if (d_indexing == e_AUTOMATIC) {
-            BSLS_THROW(
-                      format_error("mixing of automatic and manual indexing"));
-        }
-        if (id >= d_num_args) {
-            BSLS_THROW(format_error("invalid argument index"));
-        }
-        if (d_indexing == e_UNKNOWN) {
-            d_indexing = e_MANUAL;
-        }
-    }
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void check_arg_id(size_t id);
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR_CPP20 const_iterator
-    begin() const BSLS_KEYWORD_NOEXCEPT
-    {
-        return d_begin;
-    }
+    begin() const BSLS_KEYWORD_NOEXCEPT;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 const_iterator
-    end() const BSLS_KEYWORD_NOEXCEPT
-    {
-        return d_end;
-    }
+    end() const BSLS_KEYWORD_NOEXCEPT;
 
   private:
     // NOT IMPLEMENTED
@@ -136,9 +102,99 @@ class basic_format_parse_context {
                        const basic_format_parse_context&) BSLS_KEYWORD_DELETED;
 };
 
-typedef basic_format_parse_context<char> format_parse_context;
 
-typedef basic_format_parse_context<wchar_t> wformat_parse_context;
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                 // ----------------------------------------
+                  // class basic_format_parse_context<t_CHAR>
+                  // ----------------------------------------
+
+
+// CREATORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+basic_format_parse_context<t_CHAR>::basic_format_parse_context(
+                      bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT
+: d_begin(fmt.begin())
+, d_end(fmt.end())
+, d_indexing(e_UNKNOWN)
+, d_next_arg_id(0)
+, d_num_args(0)
+{
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+basic_format_parse_context<t_CHAR>::basic_format_parse_context(
+                  bsl::basic_string_view<t_CHAR> fmt,
+                  size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT
+: d_begin(fmt.begin())
+, d_end(fmt.end())
+, d_indexing(e_UNKNOWN)
+, d_next_arg_id(0)
+, d_num_args(numArgs)
+{
+}
+
+// MANIPULATORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void basic_format_parse_context<t_CHAR>::advance_to(const_iterator it)
+{
+    d_begin = it;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+size_t basic_format_parse_context<t_CHAR>::next_arg_id()
+{
+    if (d_indexing == e_MANUAL) {
+        BSLS_THROW(format_error("mixing of automatic and manual indexing"));
+    }
+    if (d_next_arg_id >= d_num_args) {
+        BSLS_THROW(format_error("number of conversion specifiers exceeds "
+        "number of arguments"));
+    }
+    if (d_indexing == e_UNKNOWN) {
+        d_indexing = e_AUTOMATIC;
+    }
+    return d_next_arg_id++;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void basic_format_parse_context<t_CHAR>::check_arg_id(size_t id)
+{
+    if (d_indexing == e_AUTOMATIC) {
+        BSLS_THROW(format_error("mixing of automatic and manual indexing"));
+    }
+    if (id >= d_num_args) {
+        BSLS_THROW(format_error("invalid argument index"));
+    }
+    if (d_indexing == e_UNKNOWN) {
+        d_indexing = e_MANUAL;
+    }
+}
+
+// ACCESSORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+basic_format_parse_context<t_CHAR>::const_iterator
+basic_format_parse_context<t_CHAR>::begin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_begin;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+basic_format_parse_context<t_CHAR>::const_iterator
+basic_format_parse_context<t_CHAR>::end() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_end;
+}
+
 
 }  // close namespace bslfmt
 } // close enterprise namespace

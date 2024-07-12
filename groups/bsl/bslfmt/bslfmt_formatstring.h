@@ -29,16 +29,28 @@
 namespace BloombergLP {
 namespace bslfmt {
 
+// FORWARD DECLARATIONS
+
 template <class t_CHAR>
-struct FormatString_Test_Updater;
+struct Format_FormatString_Test_Updater;
+
+
+
+                // --------------------------------------------
+                // class basic_format_string<t_CHAR, t_ARGS...>
+                // --------------------------------------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
 
 template <class t_CHAR, class... t_ARGS>
-struct basic_format_string {
-  public:
+class basic_format_string {
+  private:
     // DATA
     bsl::basic_string_view<t_CHAR> d_formatString;
+
+    // FRIENDS
+    template <class t_INNER_CHAR>
+    friend struct Format_FormatString_Test_Updater;
 
   public:
     // CREATORS
@@ -46,106 +58,176 @@ struct basic_format_string {
               class = typename bsl::enable_if<bsl::is_convertible<
                   t_STR,
                   bsl::basic_string_view<t_CHAR> >::value>::type>
-    consteval basic_format_string(t_STR&& s)
-    {
-        d_formatString = std::forward<t_STR>(s);
-    }
+    consteval basic_format_string(t_STR&& s);
 
     // ACCESSORS
-    BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get()
-    {
-        return d_formatString;
-    }
-
-  private:
-    // FRIENDS
-    template <class t_INNER_CHAR>
-    friend struct FormatString_Test_Updater;
+    BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get();
 };
-
-template <class... t_ARGS>
-using format_string =
-                 basic_format_string<char, bsl::type_identity_t<t_ARGS>...>;
-
-template <class... t_ARGS>
-using wformat_string =
-                 basic_format_string<wchar_t, bsl::type_identity_t<t_ARGS>...>;
 
 #elif defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
 template <class t_CHAR, class... t_ARGS>
-struct basic_format_string {
+class basic_format_string {
+  private:
+    // DATA
     bsl::basic_string_view<t_CHAR> d_formatString;
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 basic_format_string(const t_CHAR *s)
-    {
-        d_formatString = s;
-    }
-
-    BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get()
-    {
-        return d_formatString;
-    }
-
-  private:
     // FRIENDS
     template <class t_INNER_CHAR>
-    friend struct FormatString_Test_Updater;
+    friend struct Format_FormatString_Test_Updater;
+
+  public:
+    // CREATORS
+    BSLS_KEYWORD_CONSTEXPR_CPP14 basic_format_string(const t_CHAR *s);
+
+     // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get();
 };
+
+#else // C++03
+
+template <class t_CHAR>
+class basic_format_string {
+  private:
+    // DATA
+    bsl::basic_string_view<t_CHAR> d_formatString;
+
+    // FRIENDS
+    template <class t_INNER_CHAR>
+    friend struct Format_FormatString_Test_Updater;
+
+  public:
+    // CREATORS
+    BSLS_KEYWORD_CONSTEXPR_CPP14 basic_format_string(const t_CHAR *s);
+
+    // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get();
+};
+
+#endif
+
+// ALIAS TEMPLATES AND TYPEDEFS
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
 template <class... t_ARGS>
 using format_string =
-                 basic_format_string<char, bsl::type_identity_t<t_ARGS>...>;
+                    basic_format_string<char, bsl::type_identity_t<t_ARGS>...>;
 
 template <class... t_ARGS>
 using wformat_string =
                  basic_format_string<wchar_t, bsl::type_identity_t<t_ARGS>...>;
 
-#else
-
-template <class t_CHAR>
-struct basic_format_string {
-    bsl::basic_string_view<t_CHAR> d_formatString;
-
-    BSLS_KEYWORD_CONSTEXPR_CPP14 basic_format_string(const t_CHAR *s)
-    {
-        d_formatString = s;
-    }
-
-    BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get()
-    {
-        return d_formatString;
-    }
-
-  private:
-    // FRIENDS
-    template <class t_INNER_CHAR>
-    friend struct FormatString_Test_Updater;
-};
+#else // C++03
 
 typedef basic_format_string<char>    format_string;
 typedef basic_format_string<wchar_t> wformat_string;
 
-#endif // Support for Alias and Variadic templates
+#endif  // Support for Alias and Variadic templates
+
+               // ----------------------------------------------
+               // class Format_FormatString_Test_Updater<t_CHAR>
+               // ----------------------------------------------
+
 
 template <class t_CHAR>
-struct FormatString_Test_Updater
+struct Format_FormatString_Test_Updater
 {
     template <class t_FORMATSTRING>
-    static void
-    update(t_FORMATSTRING *out, const t_CHAR *v)
-    {
-        out->d_formatString = v;
-    }
+    static void update(t_FORMATSTRING *out, const t_CHAR *v);
 
     template <class t_FORMATSTRING>
-    static void
-    update(t_FORMATSTRING *out, bsl::basic_string_view<t_CHAR> v)
-    {
-        out->d_formatString = v;
-    }
+    static void update(t_FORMATSTRING *out, bsl::basic_string_view<t_CHAR> v);
 };
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                // --------------------------------------------
+                // class basic_format_string<t_CHAR, t_ARGS...>
+                // --------------------------------------------
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+
+// CREATORS
+template <class t_CHAR, class... t_ARGS>
+template <class t_STR, class>
+consteval basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(
+                                                                     t_STR&& s)
+{
+    d_formatString = std::forward<t_STR>(s);
+}
+
+// ACCESSORS
+template <class t_CHAR, class... t_ARGS>
+BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
+basic_format_string<t_CHAR, t_ARGS...>::get()
+{
+    return d_formatString;
+}
+
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+
+template <class t_CHAR, class... t_ARGS>
+BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(const t_CHAR *s)
+{
+    d_formatString = s;
+}
+
+template <class t_CHAR, class... t_ARGS>
+BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
+basic_format_string<t_CHAR, t_ARGS...>::get()
+{
+    return d_formatString;
+}
+
+#else // C++03
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(const t_CHAR *s)
+{
+    d_formatString = s;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
+basic_format_string<t_CHAR, t_ARGS...>::get()
+{
+    return d_formatString;
+}
+
+#endif
+
+
+
+               // ----------------------------------------------
+               // class Format_FormatString_Test_Updater<t_CHAR>
+               // ----------------------------------------------
+
+template <class t_CHAR>
+template <class t_FORMATSTRING>
+static void Format_FormatString_Test_Updater<t_CHAR>::update(
+                                           t_FORMATSTRING *out,
+                                           const t_CHAR   *v)
+{
+    out->d_formatString = v;
+}
+
+template <class t_CHAR>
+template <class t_FORMATSTRING>
+static void Format_FormatString_Test_Updater<t_CHAR>::update(
+                                           t_FORMATSTRING                 *out,
+                                           bsl::basic_string_view<t_CHAR>  v)
+{
+    out->d_formatString = v;
+}
+
 
 } // close namespace bslfmt
 } // close enterprise namespace

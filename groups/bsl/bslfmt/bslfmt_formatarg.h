@@ -20,11 +20,11 @@
 #include <bsls_unspecifiedbool.h>
 #include <bsls_util.h>
 
+#include <bslstl_array.h>
 #include <bslstl_iterator.h>
+#include <bslstl_monostate.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
-#include <bslstl_array.h>
-#include <bslstl_monostate.h>
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
 
@@ -32,12 +32,11 @@
 #include <bslfmt_formatterbase.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03
-// Generated on Tue Jun 18 08:19:54 2024
-// Command line: sim_cpp11_features.pl bslfmt_formatarg.h
-# define COMPILING_BSLFMT_FORMATARG_H
-# include <bslfmt_formatarg_cpp03.h>
-# undef COMPILING_BSLFMT_FORMATARG_H
+// Include version that can be compiled with C++03 Generated on Tue Jun 18
+// 08:19:54 2024 Command line: sim_cpp11_features.pl bslfmt_formatarg.h
+#define COMPILING_BSLFMT_FORMATARG_H
+#include <bslfmt_formatarg_cpp03.h>
+#undef COMPILING_BSLFMT_FORMATARG_H
 #else
 
 namespace BloombergLP {
@@ -119,32 +118,26 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     typedef t_CHAR char_type;
 
     typedef bsl::variant<bsl::monostate,
-                 bool,
-                 char_type,
-                 int,
-                 unsigned,
-                 long long,
-                 unsigned long long,
-                 float,
-                 double,
-                 long double,
-                 const char_type *,
-                 bsl::basic_string_view<char_type>,
-                 const void *,
-                 handle>
+                         bool,
+                         char_type,
+                         int,
+                         unsigned,
+                         long long,
+                         unsigned long long,
+                         float,
+                         double,
+                         long double,
+                         const char_type *,
+                         bsl::basic_string_view<char_type>,
+                         const void *,
+                         handle>
         variant_type;
 
     // DATA
-    variant_type    d_value;
+    variant_type d_value;
 
     // FRIENDS
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class t_CONTEXT, class... t_FMTARGS>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
-                 t_FMTARGS&... fmt_args);
-#endif
+    friend class Format_FormatArg_ImpUtils;
 
     // PRIVATE CREATORS
     explicit basic_format_arg(bool value) BSLS_KEYWORD_NOEXCEPT;
@@ -155,23 +148,23 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     explicit basic_format_arg(
            t_TYPE value,
            typename bsl::enable_if<bsl::is_same<t_TYPE, char>::value &&
-                                   bsl::is_same<char_type, wchar_t>::value,
+                                       bsl::is_same<char_type, wchar_t>::value,
                                    int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
     template <class t_TYPE>
     explicit basic_format_arg(
-               t_TYPE value,
-               typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+           t_TYPE value,
+           typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
                                        !bsl::is_same<t_TYPE, char>::value &&
                                        !bsl::is_same<t_TYPE, wchar_t>::value &&
                                        (sizeof(t_TYPE) <= sizeof(long long)),
-                                       int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
+                                   int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
     template <class t_TYPE>
     explicit basic_format_arg(
               const t_TYPE& value,
               typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
-                                      (sizeof(t_TYPE) > sizeof(long long)),
+                                          (sizeof(t_TYPE) > sizeof(long long)),
                                       int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
     explicit basic_format_arg(float value) BSLS_KEYWORD_NOEXCEPT;
@@ -242,24 +235,44 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 #endif
 };
 
-
-// FREE FUNCTIONS
+                      // -------------------------------
+                      // class Format_FormatArg_ImpUtils
+                      // -------------------------------
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class t_CONTEXT, class... t_FMTARGS>
-void Format_MakeFormatArgArray(
+/// This class provides utility functions to enable manipulation of types
+/// declared by this component. It is solely for private use by other components
+/// of the `bslfmt` package and should not be used directly.
+struct Format_FormatArg_ImpUtils {
+  public:
+    // CLASS METHODS
+
+    /// Replace the members of the specified `out` parameter by
+    // `basic_format_arg` objects constructed from the members of the specified
+    // `fmt_args` parameter.
+    template <class t_CONTEXT, class... t_FMTARGS>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
       t_FMTARGS&...                                                  fmt_args);
+};
+
 #endif
+
+                               // --------------
+                               // FREE FUNCTIONS
+                               // --------------
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 // BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
 // BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
 // bslstl_variant.h
+
+/// Apply the specified `visitor` callable to the specified `arg`.
 template <class t_VISITOR, class t_CONTEXT>
-decltype(auto)
-visit_format_arg(t_VISITOR&& visitor, basic_format_arg<t_CONTEXT> arg);
+decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
+                                basic_format_arg<t_CONTEXT> arg);
 #else
+/// Apply the specified `visitor` callable to the specified `arg`.
 template <class t_VISITOR, class t_CONTEXT>
 typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
 visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg);
@@ -304,7 +317,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
                            bslmf::MovableRef<handle> rhs) BSLS_KEYWORD_NOEXCEPT
 {
     d_value_p = bslmf::MovableRefUtil::move(
-                           bslmf::MovableRefUtil::access(rhs).d_value_p);
+                                 bslmf::MovableRefUtil::access(rhs).d_value_p);
     d_format_impl_p = bslmf::MovableRefUtil::move(
                            bslmf::MovableRefUtil::access(rhs).d_format_impl_p);
 }
@@ -366,7 +379,7 @@ template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
            t_TYPE value,
            typename bsl::enable_if<bsl::is_same<t_TYPE, char>::value &&
-                                   bsl::is_same<char_type, wchar_t>::value,
+                                       bsl::is_same<char_type, wchar_t>::value,
                                    int>::type) BSLS_KEYWORD_NOEXCEPT
 {
     static const std::ctype<wchar_t>& ct =
@@ -377,12 +390,12 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
-               t_TYPE value,
-               typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+           t_TYPE value,
+           typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
                                        !bsl::is_same<t_TYPE, char>::value &&
                                        !bsl::is_same<t_TYPE, wchar_t>::value &&
                                        (sizeof(t_TYPE) <= sizeof(long long)),
-                                       int>::type) BSLS_KEYWORD_NOEXCEPT
+                                   int>::type) BSLS_KEYWORD_NOEXCEPT
 {
     if (static_cast<t_TYPE>(-1) < static_cast<t_TYPE>(0)) {
         // 't_TYPE' is signed
@@ -409,7 +422,7 @@ template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
               const t_TYPE& value,
               typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
-                                      (sizeof(t_TYPE) > sizeof(long long)),
+                                          (sizeof(t_TYPE) > sizeof(long long)),
                                       int>::type) BSLS_KEYWORD_NOEXCEPT
 : d_value(handle(value))
 {
@@ -531,11 +544,16 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
                              !bsl::holds_alternative<bsl::monostate>(d_value));
 }
 
-// FREE FUNCTIONS
+
+                      // -------------------------------
+                      // class Format_FormatArg_ImpUtils
+                      // -------------------------------
+
+// CLASS METHODS
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_CONTEXT, class... t_FMTARGS>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
        t_FMTARGS&...                                                  fmt_args)
 {
@@ -545,6 +563,12 @@ void Format_MakeFormatArgArray(
     out->swap(tmp);
 }
 #endif
+
+                               // --------------
+                               // FREE FUNCTIONS
+                               // --------------
+
+// FREE FUNCTIONS
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 // BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
@@ -566,9 +590,9 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
 #endif
 
 }  // close namespace bslfmt
-} // close enterprise namespace
+}  // close enterprise namespace
 
-#endif // End C++11 code
+#endif  // End C++11 code
 
 #endif  // INCLUDED_BSLFMT_FORMATARG
 

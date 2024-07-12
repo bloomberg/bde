@@ -134,7 +134,7 @@ bool doTestWithOracle(string_view              result,
     // Work around for the fact we cannot construct a bslfmt::format_string
     // from non-consteval fmtstr.
     BSLFMT_FORMAT_STRING_PARAMETER          bslfmt("");
-    bslfmt::FormatString_Test_Updater<char> tu;
+    bslfmt::Format_FormatString_Test_Updater<char> tu;
 
     tu.update(&bslfmt, fmtstr.get());
 
@@ -153,7 +153,7 @@ bool doTestWithOracle(wstring_view              result,
     // Work around for the fact we cannot construct a bslfmt::format_string
     // from non-consteval fmtstr.
     BSLFMT_FORMAT_WSTRING_PARAMETER             bslfmt(L"");
-    bslfmt::FormatString_Test_Updater<wchar_t>  tu;
+    bslfmt::Format_FormatString_Test_Updater<wchar_t>  tu;
 
     tu.update(&bslfmt, fmtstr.get());
 
@@ -301,11 +301,13 @@ struct formatter<FormattableType, t_CHAR> {
     {
         const char name[] = "FormattableType";
         t_OUT out = fc.out();
-        out = std::copy(name, name + strlen(name), out);
-        *out++ = '{';
+        out  = std::copy(name, name + strlen(name), out);
+        *out = '{';
+        ++out;
         fc.advance_to(out);
         out    = d_formatter_bsl.format(value.x, fc);
-        *out++ = '}';
+        *out   = '}';
+        ++out;
         return out;
     }
 
@@ -324,10 +326,12 @@ struct formatter<FormattableType, t_CHAR> {
         const char name[] = "FormattableType";
         t_OUT      out    = fc.out();
         out               = std::copy(name, name + strlen(name), out);
-        *out++            = '{';
+        *out              = '{';
+        ++out;
         fc.advance_to(out);
         out    = d_formatter_std.format(value.x, fc);
-        *out++ = '}';
+        *out   = '}';
+        ++out;
         return out;
     }
 #endif

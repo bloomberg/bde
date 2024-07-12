@@ -78,7 +78,8 @@ struct formatter<t_CHAR, t_CHAR>
     template <class t_ITERATOR>
     static void doCharOutput(t_ITERATOR *o, t_CHAR x)
     {
-        *(*o)++ = x;
+        *(*o) = x;
+        ++(*o);
     }
 };
 
@@ -95,7 +96,8 @@ struct formatter<char, wchar_t>
     template <class t_ITERATOR>
     static void doCharOutput(t_ITERATOR *o, char x)
     {
-        *(*o)++ = x;
+        *(*o) = x;
+        ++(*o);
     }
 };
 

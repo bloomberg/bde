@@ -132,6 +132,7 @@ class Format_TruncatingIterator {
     }
   private:
     // NOT IMPLEMENTED
+
     Format_TruncatingIterator operator++(int) BSLS_KEYWORD_DELETED;
         // The postfix operator must be deleted because, as a counting
         // iterator, return by value can cause data inconsistency.
@@ -254,11 +255,11 @@ t_OUT Format_VFormatProcess(
          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
     // The actual meat of the implementation.
 {
-    const size_t argssize = Format_FormatArgsSize(args);
+    const size_t argssize = Format_FormatArgs_ImpUtils::formatArgsSize(args);
 
     basic_format_parse_context<t_CHAR>  pc(fmtstr, argssize);
     basic_format_context<t_OUT, t_CHAR> fc(
-                                       Format_FormatContextFactory(out, args));
+                            Format_FormatContextFactory::construct(out, args));
     Format_FormatVisitor<t_OUT, t_CHAR> visitor(pc, fc);
 
     typename bsl::basic_string_view<t_CHAR>::iterator it = pc.begin();
@@ -273,7 +274,8 @@ t_OUT Format_VFormatProcess(
                 // literal {
                 ++it;
                 out    = fc.out();
-                *out++ = '{';
+                *out   = '{';
+                ++out; // prefer prefix increment
                 fc.advance_to(out);
                 continue;
             }
@@ -282,7 +284,8 @@ t_OUT Format_VFormatProcess(
                 // numeric ID
                 id = 0;
                 while (it != pc.end() && *it >= '0' && *it <= '9') {
-                    id = 10 * id + (*it++ - '0');
+                    id = 10 * id + (*it - '0');
+                    ++it;
                     if (id >= argssize) {
                         BSLS_THROW(format_error("arg id too large"));
                     }
@@ -307,6 +310,7 @@ t_OUT Format_VFormatProcess(
                 // advance past the terminating }
                 ++it;
             }
+            out = fc.out();
         }
         else if (*it == '}') {
             // must be escaped
@@ -316,13 +320,16 @@ t_OUT Format_VFormatProcess(
             }
             ++it;
             out    = fc.out();
-            *out++ = '}';
+            *out   = '}';
+            ++out; // prefer prefix increment
             fc.advance_to(out);
         }
         else {
             // just copy it
             out    = fc.out();
-            *out++ = *it++;
+            *out   = *it;
+            ++out;
+            ++it;
             fc.advance_to(out);
         }
     }
@@ -366,17 +373,23 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_OUT, class... t_ARGS>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS&...                 args)
+bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS&...               args)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args...));
 }
 
 template <class t_OUT, class... t_ARGS>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS&...                  args)
+bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS&...                args)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args...));
 }
@@ -554,11 +567,13 @@ ptrdiff_t format_to_n(bsl::wstring                    *out,
 }
 
 template <class t_OUT, class... t_ARGS>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS&...                                      args)
+bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS&...                                      args)
 {
     if (n < 0)
         n = 0;
@@ -580,11 +595,13 @@ format_to_n_result<t_OUT> format_to_n(
 }
 
 template <class t_OUT, class... t_ARGS>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS&...                                      args)
+bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS&...                                      args)
 {
     if (n < 0)
         n = 0;

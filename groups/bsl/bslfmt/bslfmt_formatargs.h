@@ -84,9 +84,7 @@ class Format_FormatArgStore {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class... t_INNER_ARGS>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS...>
-        Format_MakeFormatArgs(t_INNER_ARGS&... fmt_args);
+    friend class Format_FormatArgs_ImpUtils;
 
     // PRIVATE CREATORS
     explicit Format_FormatArgStore(
@@ -94,11 +92,14 @@ class Format_FormatArgStore {
         BSLS_KEYWORD_NOEXCEPT;
 };
 
-// FREE FUNCTIONS
+#endif
 
-template <class t_CONTEXT, class... t_ARGS>
-Format_FormatArgStore<t_CONTEXT, t_ARGS...> Format_MakeFormatArgs(
-                                                          t_ARGS&... fmt_args);
+
+                               // --------------
+                               // FREE FUNCTIONS
+                               // --------------
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 template <class... t_ARGS>
 Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
@@ -126,9 +127,7 @@ class basic_format_args {
     size_t size() const;
 
     // FRIENDS
-    template <class t_INNER_CONTEXT>
-    friend size_t Format_FormatArgsSize(
-                               const basic_format_args<t_INNER_CONTEXT>& args);
+    friend class Format_FormatArgs_ImpUtils;
 
   public:
     // CREATORS
@@ -144,15 +143,30 @@ class basic_format_args {
     basic_format_arg<t_CONTEXT> get(size_t i) const BSLS_KEYWORD_NOEXCEPT;
 };
 
-// FREE FUNCTIONS
+                      // --------------------------------
+                      // class Format_FormatArgs_ImpUtils
+                      // --------------------------------
 
-template<class t_CONTEXT>
-size_t Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args);
-    // This component-private function returns the result of calling 'size()'
-    // on the specified 'args' parameter. This is to permit access to the
-    // private 'size' accessor of 'basic_format_args' without requiring long
-    // distance friendship.
+/// This class provides utility functions to enable manipulation of types
+/// declared by this component. It is solely for private use by other components
+/// of the `bslfmt` package and should not be used directly.
+struct Format_FormatArgs_ImpUtils {
+  public:
+    // CLASS METHODS
 
+    /// Construct a `Format_FormatArgStore` object containing
+    /// `basic_format_arg` objects constructed from the specified `fmt_args`
+    /// values.
+    template <class t_CONTEXT, class... t_ARGS>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS...> makeFormatArgs(
+                                                          t_ARGS&... fmt_args);
+
+    /// Call 'size()' on the specified 'args' parameter and return the result.
+    /// This is to permit access to the private 'size' accessor of
+    /// 'basic_format_args' without requiring long distance friendship.
+    template <class t_CONTEXT>
+    static size_t formatArgsSize(const basic_format_args<t_CONTEXT>& args);
+};
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -172,32 +186,8 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
 {
 }
 
-// FREE FUNCTIONS
-
-template <class t_CONTEXT, class... t_ARGS>
-Format_FormatArgStore<t_CONTEXT, t_ARGS...> Format_MakeFormatArgs(
-                                                           t_ARGS&... fmt_args)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS...>(&arg_array, fmt_args...);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
-}
-
-template <class... t_ARGS>
-Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
-                                                           t_ARGS&... fmt_args)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args...);
-}
-
-template <class... t_ARGS>
-Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
-                                                           t_ARGS&... fmt_args)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args...);
-}
-
 #endif
+
 
                      // ----------------------------------
                      // class basic_format_args<t_CONTEXT>
@@ -238,13 +228,61 @@ size_t basic_format_args<t_CONTEXT>::size() const
     return d_size;
 }
 
-// FREE FUNCTIONS
+
+                      // --------------------------------
+                      // class Format_FormatArgs_ImpUtils
+                      // --------------------------------
+
+// CLASS METHODS
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+
+template <class t_CONTEXT, class... t_ARGS>
+Format_FormatArgStore<t_CONTEXT, t_ARGS...>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS&... fmt_args)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
+                                                                  &arg_array,
+                                                                  fmt_args...);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
+}
+
+#endif
 
 template <class t_CONTEXT>
-size_t Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args)
+size_t Format_FormatArgs_ImpUtils::formatArgsSize(
+                                      const basic_format_args<t_CONTEXT>& args)
 {
     return args.size();
 }
+
+
+                               // --------------
+                               // FREE FUNCTIONS
+                               // --------------
+
+// FREE FUNCTIONS
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+
+template <class... t_ARGS>
+Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
+                                                           t_ARGS&... fmt_args)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args...);
+}
+
+template <class... t_ARGS>
+Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
+                                                           t_ARGS&... fmt_args)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args...);
+}
+
+#endif
 
 }  // close namespace bslfmt
 } // close enterprise namespace

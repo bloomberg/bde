@@ -16,35 +16,28 @@
 namespace BloombergLP {
 namespace bslfmt {
 
+                             // ------------------
+                             // class format_error
+                             // ------------------
+
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 using std::format_error;
 #else
 class format_error : public std::runtime_error {
   public:
     // CREATORS
-    BSLS_KEYWORD_EXPLICIT format_error(const std::string& what_arg)
-    : runtime_error(what_arg)
-    {
-    }
+    BSLS_KEYWORD_EXPLICIT format_error(const std::string& what_arg);
 
-    BSLS_KEYWORD_EXPLICIT format_error(const char *what_arg)
-    : runtime_error(what_arg)
-    {
-    }
+    BSLS_KEYWORD_EXPLICIT format_error(const char *what_arg);
 
     // If a 'bsl::string' is passed to the 'std::string' constructor, two
     // copies occur (one to initialize 'what_arg', and one to initialize the
     // internal reference-counted string).  This constructor ensures that only
     // a single copy needs to be performed.
-    BSLS_KEYWORD_EXPLICIT format_error(const bsl::string& what_arg)
-    : runtime_error(what_arg.c_str())
-    {
-    }
+    BSLS_KEYWORD_EXPLICIT format_error(const bsl::string& what_arg);
 
-    format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT
-    : runtime_error(other)
-    {
-    }
+    format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT;
 };
 #endif
 
@@ -53,6 +46,12 @@ class format_error : public std::runtime_error {
 
 namespace bsl {
 
+// Unlike other format-related types and free functions, `format_error`
+// specifically needs to be promoted into the `bsl` namespace here rather than
+// in `bslfmt_format.h` so that `formatter` partial specializations can be
+// written to reference `bsl::format_error` and thus be written compatibly with
+// both the BSL implementation and the standard library implementation.
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
     using std::format_error;
 #else
@@ -60,6 +59,52 @@ namespace bsl {
 #endif
 
 }  // close namespace bsl
+
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
+namespace BloombergLP {
+namespace bslfmt {
+
+                             // ------------------
+                             // class format_error
+                             // ------------------
+
+    // CREATORS
+format_error::format_error(const std::string& what_arg)
+: runtime_error(what_arg)
+{
+}
+
+format_error::format_error(const char *what_arg)
+: runtime_error(what_arg)
+{
+}
+
+// If a 'bsl::string' is passed to the 'std::string' constructor, two copies
+// occur (one to initialize 'what_arg', and one to initialize the internal
+// reference-counted string).  This constructor ensures that only a single copy
+// needs to be performed.
+format_error::format_error(const bsl::string& what_arg)
+: runtime_error(what_arg.c_str())
+{
+}
+
+format_error::format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT
+: runtime_error(other)
+{
+}
+
+
+}  // close namespace bslfmt
+}  // close enterprise namespace
+
+#endif
+
 
 
 #endif  // INCLUDED_BSLFMT_FORMATERROR
