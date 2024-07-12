@@ -164,12 +164,6 @@ struct Format_FormatVisitor {
         typename basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle
             handle;
 
-    //template <class t_TYPE>
-    //void operator()(t_TYPE) const
-    //{
-    //    BSLS_THROW(format_error("this argument type isn't supported yet"));
-    //}
-
     void operator()(bsl::monostate) const
     {
         BSLMF_ASSERT(false);
