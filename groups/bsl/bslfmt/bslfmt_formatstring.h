@@ -190,14 +190,14 @@ basic_format_string<t_CHAR, t_ARGS...>::get()
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP14
-basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(const t_CHAR *s)
+basic_format_string<t_CHAR>::basic_format_string(const t_CHAR *s)
 {
     d_formatString = s;
 }
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
-basic_format_string<t_CHAR, t_ARGS...>::get()
+basic_format_string<t_CHAR>::get()
 {
     return d_formatString;
 }
@@ -212,7 +212,7 @@ basic_format_string<t_CHAR, t_ARGS...>::get()
 
 template <class t_CHAR>
 template <class t_FORMATSTRING>
-static void Format_FormatString_Test_Updater<t_CHAR>::update(
+void Format_FormatString_Test_Updater<t_CHAR>::update(
                                            t_FORMATSTRING *out,
                                            const t_CHAR   *v)
 {
@@ -221,7 +221,7 @@ static void Format_FormatString_Test_Updater<t_CHAR>::update(
 
 template <class t_CHAR>
 template <class t_FORMATSTRING>
-static void Format_FormatString_Test_Updater<t_CHAR>::update(
+void Format_FormatString_Test_Updater<t_CHAR>::update(
                                            t_FORMATSTRING                 *out,
                                            bsl::basic_string_view<t_CHAR>  v)
 {

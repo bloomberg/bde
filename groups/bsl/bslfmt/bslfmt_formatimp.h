@@ -367,7 +367,7 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_OUT, class... t_ARGS>
-bsl::enable_if<
+typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
 format_to(t_OUT                          out,
@@ -378,7 +378,7 @@ format_to(t_OUT                          out,
 }
 
 template <class t_OUT, class... t_ARGS>
-bsl::enable_if<
+typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
 format_to(t_OUT                           out,
@@ -561,7 +561,7 @@ ptrdiff_t format_to_n(bsl::wstring                    *out,
 }
 
 template <class t_OUT, class... t_ARGS>
-bsl::enable_if<
+typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     format_to_n_result<t_OUT> >::type
 format_to_n(t_OUT                                                 out,
@@ -589,7 +589,7 @@ format_to_n(t_OUT                                                 out,
 }
 
 template <class t_OUT, class... t_ARGS>
-bsl::enable_if<
+typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     format_to_n_result<t_OUT> >::type
 format_to_n(t_OUT                                                 out,

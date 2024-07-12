@@ -32,11 +32,12 @@
 #include <bslfmt_formatterbase.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03 Generated on Tue Jun 18
-// 08:19:54 2024 Command line: sim_cpp11_features.pl bslfmt_formatarg.h
-#define COMPILING_BSLFMT_FORMATARG_H
-#include <bslfmt_formatarg_cpp03.h>
-#undef COMPILING_BSLFMT_FORMATARG_H
+// Include version that can be compiled with C++03
+// Generated on Fri Jul 12 17:38:43 2024
+// Command line: sim_cpp11_features.pl bslfmt_formatarg.h
+# define COMPILING_BSLFMT_FORMATARG_H
+# include <bslfmt_formatarg_cpp03.h>
+# undef COMPILING_BSLFMT_FORMATARG_H
 #else
 
 namespace BloombergLP {
@@ -592,7 +593,7 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
 }  // close namespace bslfmt
 }  // close enterprise namespace
 
-#endif  // End C++11 code
+#endif // End C++11 code
 
 #endif  // INCLUDED_BSLFMT_FORMATARG
 

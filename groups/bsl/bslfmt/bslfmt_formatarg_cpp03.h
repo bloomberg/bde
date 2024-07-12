@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jul 10 17:30:17 2024
+// Generated on Fri Jul 12 17:38:43 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -105,221 +105,26 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     typedef t_CHAR char_type;
 
     typedef bsl::variant<bsl::monostate,
-                 bool,
-                 char_type,
-                 int,
-                 unsigned,
-                 long long,
-                 unsigned long long,
-                 float,
-                 double,
-                 long double,
-                 const char_type *,
-                 bsl::basic_string_view<char_type>,
-                 const void *,
-                 handle>
+                         bool,
+                         char_type,
+                         int,
+                         unsigned,
+                         long long,
+                         unsigned long long,
+                         float,
+                         double,
+                         long double,
+                         const char_type *,
+                         bsl::basic_string_view<char_type>,
+                         const void *,
+                         handle>
         variant_type;
 
     // DATA
-    variant_type    d_value;
+    variant_type d_value;
 
     // FRIENDS
-#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslfmt_formatarg.h
-#ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT
-#define BSLFMT_FORMATARG_VARIADIC_LIMIT 10
-#endif
-#ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT_A
-#define BSLFMT_FORMATARG_VARIADIC_LIMIT_A BSLFMT_FORMATARG_VARIADIC_LIMIT
-#endif
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 0
-    template <class t_CONTEXT>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  0u> *out);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 0
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 1
-    template <class t_CONTEXT, class t_FMTARGS_01>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  1u> *out,
-                 t_FMTARGS_01& fmt_args_01);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 1
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 2
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  2u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 2
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 3
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02,
-                               class t_FMTARGS_03>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  3u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02,
-                 t_FMTARGS_03& fmt_args_03);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 3
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 4
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02,
-                               class t_FMTARGS_03,
-                               class t_FMTARGS_04>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  4u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02,
-                 t_FMTARGS_03& fmt_args_03,
-                 t_FMTARGS_04& fmt_args_04);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 4
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 5
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02,
-                               class t_FMTARGS_03,
-                               class t_FMTARGS_04,
-                               class t_FMTARGS_05>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  5u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02,
-                 t_FMTARGS_03& fmt_args_03,
-                 t_FMTARGS_04& fmt_args_04,
-                 t_FMTARGS_05& fmt_args_05);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 5
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 6
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02,
-                               class t_FMTARGS_03,
-                               class t_FMTARGS_04,
-                               class t_FMTARGS_05,
-                               class t_FMTARGS_06>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  6u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02,
-                 t_FMTARGS_03& fmt_args_03,
-                 t_FMTARGS_04& fmt_args_04,
-                 t_FMTARGS_05& fmt_args_05,
-                 t_FMTARGS_06& fmt_args_06);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 6
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 7
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02,
-                               class t_FMTARGS_03,
-                               class t_FMTARGS_04,
-                               class t_FMTARGS_05,
-                               class t_FMTARGS_06,
-                               class t_FMTARGS_07>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  7u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02,
-                 t_FMTARGS_03& fmt_args_03,
-                 t_FMTARGS_04& fmt_args_04,
-                 t_FMTARGS_05& fmt_args_05,
-                 t_FMTARGS_06& fmt_args_06,
-                 t_FMTARGS_07& fmt_args_07);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 7
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 8
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02,
-                               class t_FMTARGS_03,
-                               class t_FMTARGS_04,
-                               class t_FMTARGS_05,
-                               class t_FMTARGS_06,
-                               class t_FMTARGS_07,
-                               class t_FMTARGS_08>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  8u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02,
-                 t_FMTARGS_03& fmt_args_03,
-                 t_FMTARGS_04& fmt_args_04,
-                 t_FMTARGS_05& fmt_args_05,
-                 t_FMTARGS_06& fmt_args_06,
-                 t_FMTARGS_07& fmt_args_07,
-                 t_FMTARGS_08& fmt_args_08);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 8
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 9
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02,
-                               class t_FMTARGS_03,
-                               class t_FMTARGS_04,
-                               class t_FMTARGS_05,
-                               class t_FMTARGS_06,
-                               class t_FMTARGS_07,
-                               class t_FMTARGS_08,
-                               class t_FMTARGS_09>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>,  9u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02,
-                 t_FMTARGS_03& fmt_args_03,
-                 t_FMTARGS_04& fmt_args_04,
-                 t_FMTARGS_05& fmt_args_05,
-                 t_FMTARGS_06& fmt_args_06,
-                 t_FMTARGS_07& fmt_args_07,
-                 t_FMTARGS_08& fmt_args_08,
-                 t_FMTARGS_09& fmt_args_09);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 9
-
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 10
-    template <class t_CONTEXT, class t_FMTARGS_01,
-                               class t_FMTARGS_02,
-                               class t_FMTARGS_03,
-                               class t_FMTARGS_04,
-                               class t_FMTARGS_05,
-                               class t_FMTARGS_06,
-                               class t_FMTARGS_07,
-                               class t_FMTARGS_08,
-                               class t_FMTARGS_09,
-                               class t_FMTARGS_10>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>, 10u> *out,
-                 t_FMTARGS_01& fmt_args_01,
-                 t_FMTARGS_02& fmt_args_02,
-                 t_FMTARGS_03& fmt_args_03,
-                 t_FMTARGS_04& fmt_args_04,
-                 t_FMTARGS_05& fmt_args_05,
-                 t_FMTARGS_06& fmt_args_06,
-                 t_FMTARGS_07& fmt_args_07,
-                 t_FMTARGS_08& fmt_args_08,
-                 t_FMTARGS_09& fmt_args_09,
-                 t_FMTARGS_10& fmt_args_10);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 10
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class t_CONTEXT, class... t_FMTARGS>
-    friend void
-    Format_MakeFormatArgArray(
-             bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
-                 t_FMTARGS&... fmt_args);
-// }}} END GENERATED CODE
-#endif
+    friend class Format_FormatArg_ImpUtils;
 
     // PRIVATE CREATORS
     explicit basic_format_arg(bool value) BSLS_KEYWORD_NOEXCEPT;
@@ -330,23 +135,23 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     explicit basic_format_arg(
            t_TYPE value,
            typename bsl::enable_if<bsl::is_same<t_TYPE, char>::value &&
-                                   bsl::is_same<char_type, wchar_t>::value,
+                                       bsl::is_same<char_type, wchar_t>::value,
                                    int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
     template <class t_TYPE>
     explicit basic_format_arg(
-               t_TYPE value,
-               typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+           t_TYPE value,
+           typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
                                        !bsl::is_same<t_TYPE, char>::value &&
                                        !bsl::is_same<t_TYPE, wchar_t>::value &&
                                        (sizeof(t_TYPE) <= sizeof(long long)),
-                                       int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
+                                   int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
     template <class t_TYPE>
     explicit basic_format_arg(
               const t_TYPE& value,
               typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
-                                      (sizeof(t_TYPE) > sizeof(long long)),
+                                          (sizeof(t_TYPE) > sizeof(long long)),
                                       int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
     explicit basic_format_arg(float value) BSLS_KEYWORD_NOEXCEPT;
@@ -417,8 +222,9 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 #endif
 };
 
-
-// FREE FUNCTIONS
+                      // -------------------------------
+                      // class Format_FormatArg_ImpUtils
+                      // -------------------------------
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -426,78 +232,81 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 #ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT
 #define BSLFMT_FORMATARG_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT_B
-#define BSLFMT_FORMATARG_VARIADIC_LIMIT_B BSLFMT_FORMATARG_VARIADIC_LIMIT
+#ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT_A
+#define BSLFMT_FORMATARG_VARIADIC_LIMIT_A BSLFMT_FORMATARG_VARIADIC_LIMIT
 #endif
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 0
-template <class t_CONTEXT>
-void Format_MakeFormatArgArray(
-      bsl::array<basic_format_arg<t_CONTEXT>,  0u> *out);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 0
+struct Format_FormatArg_ImpUtils {
+  public:
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 1
-template <class t_CONTEXT, class t_FMTARGS_01>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 0
+    template <class t_CONTEXT>
+    static void makeFormatArgArray(
+      bsl::array<basic_format_arg<t_CONTEXT>,  0u> *out);
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 0
+
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 1
+    template <class t_CONTEXT, class t_FMTARGS_01>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  1u> *out,
       t_FMTARGS_01& fmt_args_01);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 1
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 1
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 2
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 2
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  2u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 2
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 2
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 3
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02,
-                           class t_FMTARGS_03>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 3
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02,
+                               class t_FMTARGS_03>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  3u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02,
       t_FMTARGS_03& fmt_args_03);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 3
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 3
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 4
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02,
-                           class t_FMTARGS_03,
-                           class t_FMTARGS_04>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 4
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02,
+                               class t_FMTARGS_03,
+                               class t_FMTARGS_04>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  4u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02,
       t_FMTARGS_03& fmt_args_03,
       t_FMTARGS_04& fmt_args_04);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 4
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 4
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 5
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02,
-                           class t_FMTARGS_03,
-                           class t_FMTARGS_04,
-                           class t_FMTARGS_05>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 5
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02,
+                               class t_FMTARGS_03,
+                               class t_FMTARGS_04,
+                               class t_FMTARGS_05>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  5u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02,
       t_FMTARGS_03& fmt_args_03,
       t_FMTARGS_04& fmt_args_04,
       t_FMTARGS_05& fmt_args_05);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 5
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 5
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 6
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02,
-                           class t_FMTARGS_03,
-                           class t_FMTARGS_04,
-                           class t_FMTARGS_05,
-                           class t_FMTARGS_06>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 6
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02,
+                               class t_FMTARGS_03,
+                               class t_FMTARGS_04,
+                               class t_FMTARGS_05,
+                               class t_FMTARGS_06>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  6u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02,
@@ -505,17 +314,17 @@ void Format_MakeFormatArgArray(
       t_FMTARGS_04& fmt_args_04,
       t_FMTARGS_05& fmt_args_05,
       t_FMTARGS_06& fmt_args_06);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 6
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 6
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 7
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02,
-                           class t_FMTARGS_03,
-                           class t_FMTARGS_04,
-                           class t_FMTARGS_05,
-                           class t_FMTARGS_06,
-                           class t_FMTARGS_07>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 7
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02,
+                               class t_FMTARGS_03,
+                               class t_FMTARGS_04,
+                               class t_FMTARGS_05,
+                               class t_FMTARGS_06,
+                               class t_FMTARGS_07>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  7u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02,
@@ -524,18 +333,18 @@ void Format_MakeFormatArgArray(
       t_FMTARGS_05& fmt_args_05,
       t_FMTARGS_06& fmt_args_06,
       t_FMTARGS_07& fmt_args_07);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 7
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 7
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 8
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02,
-                           class t_FMTARGS_03,
-                           class t_FMTARGS_04,
-                           class t_FMTARGS_05,
-                           class t_FMTARGS_06,
-                           class t_FMTARGS_07,
-                           class t_FMTARGS_08>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 8
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02,
+                               class t_FMTARGS_03,
+                               class t_FMTARGS_04,
+                               class t_FMTARGS_05,
+                               class t_FMTARGS_06,
+                               class t_FMTARGS_07,
+                               class t_FMTARGS_08>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  8u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02,
@@ -545,19 +354,19 @@ void Format_MakeFormatArgArray(
       t_FMTARGS_06& fmt_args_06,
       t_FMTARGS_07& fmt_args_07,
       t_FMTARGS_08& fmt_args_08);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 8
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 8
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 9
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02,
-                           class t_FMTARGS_03,
-                           class t_FMTARGS_04,
-                           class t_FMTARGS_05,
-                           class t_FMTARGS_06,
-                           class t_FMTARGS_07,
-                           class t_FMTARGS_08,
-                           class t_FMTARGS_09>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 9
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02,
+                               class t_FMTARGS_03,
+                               class t_FMTARGS_04,
+                               class t_FMTARGS_05,
+                               class t_FMTARGS_06,
+                               class t_FMTARGS_07,
+                               class t_FMTARGS_08,
+                               class t_FMTARGS_09>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>,  9u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02,
@@ -568,20 +377,20 @@ void Format_MakeFormatArgArray(
       t_FMTARGS_07& fmt_args_07,
       t_FMTARGS_08& fmt_args_08,
       t_FMTARGS_09& fmt_args_09);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 9
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 9
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 10
-template <class t_CONTEXT, class t_FMTARGS_01,
-                           class t_FMTARGS_02,
-                           class t_FMTARGS_03,
-                           class t_FMTARGS_04,
-                           class t_FMTARGS_05,
-                           class t_FMTARGS_06,
-                           class t_FMTARGS_07,
-                           class t_FMTARGS_08,
-                           class t_FMTARGS_09,
-                           class t_FMTARGS_10>
-void Format_MakeFormatArgArray(
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 10
+    template <class t_CONTEXT, class t_FMTARGS_01,
+                               class t_FMTARGS_02,
+                               class t_FMTARGS_03,
+                               class t_FMTARGS_04,
+                               class t_FMTARGS_05,
+                               class t_FMTARGS_06,
+                               class t_FMTARGS_07,
+                               class t_FMTARGS_08,
+                               class t_FMTARGS_09,
+                               class t_FMTARGS_10>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>, 10u> *out,
       t_FMTARGS_01& fmt_args_01,
       t_FMTARGS_02& fmt_args_02,
@@ -593,26 +402,39 @@ void Format_MakeFormatArgArray(
       t_FMTARGS_08& fmt_args_08,
       t_FMTARGS_09& fmt_args_09,
       t_FMTARGS_10& fmt_args_10);
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 10
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 10
 
+};
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-template <class t_CONTEXT, class... t_FMTARGS>
-void Format_MakeFormatArgArray(
+struct Format_FormatArg_ImpUtils {
+  public:
+
+    template <class t_CONTEXT, class... t_FMTARGS>
+    static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
       t_FMTARGS&...                                                  fmt_args);
+};
+
 // }}} END GENERATED CODE
 #endif
+
+                               // --------------
+                               // FREE FUNCTIONS
+                               // --------------
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 // BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
 // BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
 // bslstl_variant.h
+
+/// Apply the specified `visitor` callable to the specified `arg`.
 template <class t_VISITOR, class t_CONTEXT>
-decltype(auto)
-visit_format_arg(t_VISITOR&& visitor, basic_format_arg<t_CONTEXT> arg);
+decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
+                                basic_format_arg<t_CONTEXT> arg);
 #else
+/// Apply the specified `visitor` callable to the specified `arg`.
 template <class t_VISITOR, class t_CONTEXT>
 typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
 visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg);
@@ -657,7 +479,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
                            bslmf::MovableRef<handle> rhs) BSLS_KEYWORD_NOEXCEPT
 {
     d_value_p = bslmf::MovableRefUtil::move(
-                           bslmf::MovableRefUtil::access(rhs).d_value_p);
+                                 bslmf::MovableRefUtil::access(rhs).d_value_p);
     d_format_impl_p = bslmf::MovableRefUtil::move(
                            bslmf::MovableRefUtil::access(rhs).d_format_impl_p);
 }
@@ -719,7 +541,7 @@ template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
            t_TYPE value,
            typename bsl::enable_if<bsl::is_same<t_TYPE, char>::value &&
-                                   bsl::is_same<char_type, wchar_t>::value,
+                                       bsl::is_same<char_type, wchar_t>::value,
                                    int>::type) BSLS_KEYWORD_NOEXCEPT
 {
     static const std::ctype<wchar_t>& ct =
@@ -730,12 +552,12 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
-               t_TYPE value,
-               typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
+           t_TYPE value,
+           typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
                                        !bsl::is_same<t_TYPE, char>::value &&
                                        !bsl::is_same<t_TYPE, wchar_t>::value &&
                                        (sizeof(t_TYPE) <= sizeof(long long)),
-                                       int>::type) BSLS_KEYWORD_NOEXCEPT
+                                   int>::type) BSLS_KEYWORD_NOEXCEPT
 {
     if (static_cast<t_TYPE>(-1) < static_cast<t_TYPE>(0)) {
         // 't_TYPE' is signed
@@ -762,7 +584,7 @@ template <class t_TYPE>
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
               const t_TYPE& value,
               typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
-                                      (sizeof(t_TYPE) > sizeof(long long)),
+                                          (sizeof(t_TYPE) > sizeof(long long)),
                                       int>::type) BSLS_KEYWORD_NOEXCEPT
 : d_value(handle(value))
 {
@@ -884,7 +706,12 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
                              !bsl::holds_alternative<bsl::monostate>(d_value));
 }
 
-// FREE FUNCTIONS
+
+                      // -------------------------------
+                      // class Format_FormatArg_ImpUtils
+                      // -------------------------------
+
+// CLASS METHODS
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -892,23 +719,23 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
 #ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT
 #define BSLFMT_FORMATARG_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT_C
-#define BSLFMT_FORMATARG_VARIADIC_LIMIT_C BSLFMT_FORMATARG_VARIADIC_LIMIT
+#ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT_B
+#define BSLFMT_FORMATARG_VARIADIC_LIMIT_B BSLFMT_FORMATARG_VARIADIC_LIMIT
 #endif
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 0
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 0
 template <class t_CONTEXT>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  0u> *out)
 {
     bsl::array<basic_format_arg<t_CONTEXT>,  0u> tmp = {
         {}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 0
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 0
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 1
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 1
 template <class t_CONTEXT, class t_FMTARGS_01>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  1u> *out,
        t_FMTARGS_01& fmt_args_01)
 {
@@ -916,12 +743,12 @@ void Format_MakeFormatArgArray(
         {basic_format_arg<t_CONTEXT>(fmt_args_01)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 1
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 1
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 2
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 2
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  2u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02)
@@ -931,13 +758,13 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_02)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 2
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 2
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 3
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 3
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  3u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02,
@@ -949,14 +776,14 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_03)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 3
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 3
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 4
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 4
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03,
                            class t_FMTARGS_04>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  4u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02,
@@ -970,15 +797,15 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_04)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 4
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 4
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 5
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 5
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03,
                            class t_FMTARGS_04,
                            class t_FMTARGS_05>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  5u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02,
@@ -994,16 +821,16 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_05)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 5
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 5
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 6
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 6
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03,
                            class t_FMTARGS_04,
                            class t_FMTARGS_05,
                            class t_FMTARGS_06>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  6u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02,
@@ -1021,9 +848,9 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_06)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 6
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 6
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 7
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 7
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03,
@@ -1031,7 +858,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_05,
                            class t_FMTARGS_06,
                            class t_FMTARGS_07>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  7u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02,
@@ -1051,9 +878,9 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_07)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 7
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 7
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 8
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 8
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03,
@@ -1062,7 +889,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_06,
                            class t_FMTARGS_07,
                            class t_FMTARGS_08>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  8u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02,
@@ -1084,9 +911,9 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_08)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 8
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 8
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 9
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 9
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03,
@@ -1096,7 +923,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_07,
                            class t_FMTARGS_08,
                            class t_FMTARGS_09>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  9u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02,
@@ -1120,9 +947,9 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_09)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 9
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 9
 
-#if BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 10
+#if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 10
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03,
@@ -1133,7 +960,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_08,
                            class t_FMTARGS_09,
                            class t_FMTARGS_10>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>, 10u> *out,
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02,
@@ -1159,13 +986,13 @@ void Format_MakeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_10)}};
     out->swap(tmp);
 }
-#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_C >= 10
+#endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class t_CONTEXT, class... t_FMTARGS>
-void Format_MakeFormatArgArray(
+void Format_FormatArg_ImpUtils::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
        t_FMTARGS&...                                                  fmt_args)
 {
@@ -1175,6 +1002,12 @@ void Format_MakeFormatArgArray(
 }
 // }}} END GENERATED CODE
 #endif
+
+                               // --------------
+                               // FREE FUNCTIONS
+                               // --------------
+
+// FREE FUNCTIONS
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 // BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
@@ -1196,7 +1029,7 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
 #endif
 
 }  // close namespace bslfmt
-} // close enterprise namespace
+}  // close enterprise namespace
 
 #else // if ! defined(DEFINED_BSLFMT_FORMATARG_H)
 # error Not valid except when included from bslfmt_formatarg.h

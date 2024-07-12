@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jul 10 14:56:11 2024
+// Generated on Fri Jul 12 17:43:03 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 
 #ifdef COMPILING_BSLFMT_FORMATIMP_H
@@ -101,6 +101,7 @@ class Format_TruncatingIterator {
     }
   private:
     // NOT IMPLEMENTED
+
     Format_TruncatingIterator operator++(int) BSLS_KEYWORD_DELETED;
         // The postfix operator must be deleted because, as a counting
         // iterator, return by value can cause data inconsistency.
@@ -131,12 +132,6 @@ struct Format_FormatVisitor {
     typedef
         typename basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle
             handle;
-
-    //template <class t_TYPE>
-    //void operator()(t_TYPE) const
-    //{
-    //    BSLS_THROW(format_error("this argument type isn't supported yet"));
-    //}
 
     void operator()(bsl::monostate) const
     {
@@ -253,11 +248,11 @@ t_OUT Format_VFormatProcess(
          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
     // The actual meat of the implementation.
 {
-    const size_t argssize = Format_FormatArgsSize(args);
+    const size_t argssize = Format_FormatArgs_ImpUtils::formatArgsSize(args);
 
     basic_format_parse_context<t_CHAR>  pc(fmtstr, argssize);
     basic_format_context<t_OUT, t_CHAR> fc(
-                                       Format_FormatContextFactory(out, args));
+                            Format_FormatContextFactory::construct(out, args));
     Format_FormatVisitor<t_OUT, t_CHAR> visitor(pc, fc);
 
     typename bsl::basic_string_view<t_CHAR>::iterator it = pc.begin();
@@ -272,7 +267,8 @@ t_OUT Format_VFormatProcess(
                 // literal {
                 ++it;
                 out    = fc.out();
-                *out++ = '{';
+                *out   = '{';
+                ++out; // prefer prefix increment
                 fc.advance_to(out);
                 continue;
             }
@@ -281,7 +277,8 @@ t_OUT Format_VFormatProcess(
                 // numeric ID
                 id = 0;
                 while (it != pc.end() && *it >= '0' && *it <= '9') {
-                    id = 10 * id + (*it++ - '0');
+                    id = 10 * id + (*it - '0');
+                    ++it;
                     if (id >= argssize) {
                         BSLS_THROW(format_error("arg id too large"));
                     }
@@ -306,6 +303,7 @@ t_OUT Format_VFormatProcess(
                 // advance past the terminating }
                 ++it;
             }
+            out = fc.out();
         }
         else if (*it == '}') {
             // must be escaped
@@ -315,13 +313,16 @@ t_OUT Format_VFormatProcess(
             }
             ++it;
             out    = fc.out();
-            *out++ = '}';
+            *out   = '}';
+            ++out; // prefer prefix increment
             fc.advance_to(out);
         }
         else {
             // just copy it
             out    = fc.out();
-            *out++ = *it++;
+            *out   = *it;
+            ++out;
+            ++it;
             fc.advance_to(out);
         }
     }
@@ -374,8 +375,11 @@ t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 #endif
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr)
 {
     return vformat_to(out, fmtstr.get(), make_format_args());
 }
@@ -383,9 +387,12 @@ t_OUT format_to(t_OUT                            out,
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01));
 }
@@ -394,10 +401,13 @@ t_OUT format_to(t_OUT                            out,
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02));
@@ -408,11 +418,14 @@ t_OUT format_to(t_OUT                            out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02,
@@ -425,12 +438,15 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02,
@@ -445,13 +461,16 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02,
@@ -468,14 +487,17 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02,
@@ -494,15 +516,18 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06,
-                const t_ARGS_07& args_07)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06,
+          const t_ARGS_07& args_07)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02,
@@ -523,16 +548,19 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06,
-                const t_ARGS_07& args_07,
-                const t_ARGS_08& args_08)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06,
+          const t_ARGS_07& args_07,
+          const t_ARGS_08& args_08)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02,
@@ -555,17 +583,20 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06,
-                const t_ARGS_07& args_07,
-                const t_ARGS_08& args_08,
-                const t_ARGS_09& args_09)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06,
+          const t_ARGS_07& args_07,
+          const t_ARGS_08& args_08,
+          const t_ARGS_09& args_09)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02,
@@ -590,18 +621,21 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06,
-                const t_ARGS_07& args_07,
-                const t_ARGS_08& args_08,
-                const t_ARGS_09& args_09,
-                const t_ARGS_10& args_10)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06,
+          const t_ARGS_07& args_07,
+          const t_ARGS_08& args_08,
+          const t_ARGS_09& args_09,
+          const t_ARGS_10& args_10)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args_01,
                                                           args_02,
@@ -619,8 +653,11 @@ t_OUT format_to(t_OUT                            out,
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args());
 }
@@ -628,9 +665,12 @@ t_OUT format_to(t_OUT                             out,
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01));
 }
@@ -639,10 +679,13 @@ t_OUT format_to(t_OUT                             out,
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02));
@@ -653,11 +696,14 @@ t_OUT format_to(t_OUT                             out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02,
@@ -670,12 +716,15 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02,
@@ -690,13 +739,16 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02,
@@ -713,14 +765,17 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02,
@@ -739,15 +794,18 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06,
-                const t_ARGS_07& args_07)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06,
+          const t_ARGS_07& args_07)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02,
@@ -768,16 +826,19 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06,
-                const t_ARGS_07& args_07,
-                const t_ARGS_08& args_08)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06,
+          const t_ARGS_07& args_07,
+          const t_ARGS_08& args_08)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02,
@@ -800,17 +861,20 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06,
-                const t_ARGS_07& args_07,
-                const t_ARGS_08& args_08,
-                const t_ARGS_09& args_09)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06,
+          const t_ARGS_07& args_07,
+          const t_ARGS_08& args_08,
+          const t_ARGS_09& args_09)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02,
@@ -835,18 +899,21 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS_01& args_01,
-                const t_ARGS_02& args_02,
-                const t_ARGS_03& args_03,
-                const t_ARGS_04& args_04,
-                const t_ARGS_05& args_05,
-                const t_ARGS_06& args_06,
-                const t_ARGS_07& args_07,
-                const t_ARGS_08& args_08,
-                const t_ARGS_09& args_09,
-                const t_ARGS_10& args_10)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS_01& args_01,
+          const t_ARGS_02& args_02,
+          const t_ARGS_03& args_03,
+          const t_ARGS_04& args_04,
+          const t_ARGS_05& args_05,
+          const t_ARGS_06& args_06,
+          const t_ARGS_07& args_07,
+          const t_ARGS_08& args_08,
+          const t_ARGS_09& args_09,
+          const t_ARGS_10& args_10)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args_01,
                                                            args_02,
@@ -3836,10 +3903,12 @@ ptrdiff_t format_to_n(bsl::wstring                    *out,
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr)
 {
     if (n < 0)
         n = 0;
@@ -3863,11 +3932,13 @@ format_to_n_result<t_OUT> format_to_n(
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01)
 {
     if (n < 0)
         n = 0;
@@ -3892,12 +3963,14 @@ format_to_n_result<t_OUT> format_to_n(
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02)
 {
     if (n < 0)
         n = 0;
@@ -3924,13 +3997,15 @@ format_to_n_result<t_OUT> format_to_n(
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03)
 {
     if (n < 0)
         n = 0;
@@ -3959,14 +4034,16 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04)
 {
     if (n < 0)
         n = 0;
@@ -3997,15 +4074,17 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05)
 {
     if (n < 0)
         n = 0;
@@ -4038,16 +4117,18 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06)
 {
     if (n < 0)
         n = 0;
@@ -4082,17 +4163,19 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06,
-                  const t_ARGS_07& args_07)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06,
+            const t_ARGS_07& args_07)
 {
     if (n < 0)
         n = 0;
@@ -4129,18 +4212,20 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06,
-                  const t_ARGS_07& args_07,
-                  const t_ARGS_08& args_08)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06,
+            const t_ARGS_07& args_07,
+            const t_ARGS_08& args_08)
 {
     if (n < 0)
         n = 0;
@@ -4179,19 +4264,21 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06,
-                  const t_ARGS_07& args_07,
-                  const t_ARGS_08& args_08,
-                  const t_ARGS_09& args_09)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06,
+            const t_ARGS_07& args_07,
+            const t_ARGS_08& args_08,
+            const t_ARGS_09& args_09)
 {
     if (n < 0)
         n = 0;
@@ -4232,20 +4319,22 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06,
-                  const t_ARGS_07& args_07,
-                  const t_ARGS_08& args_08,
-                  const t_ARGS_09& args_09,
-                  const t_ARGS_10& args_10)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06,
+            const t_ARGS_07& args_07,
+            const t_ARGS_08& args_08,
+            const t_ARGS_09& args_09,
+            const t_ARGS_10& args_10)
 {
     if (n < 0)
         n = 0;
@@ -4279,10 +4368,12 @@ format_to_n_result<t_OUT> format_to_n(
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr)
 {
     if (n < 0)
         n = 0;
@@ -4306,11 +4397,13 @@ format_to_n_result<t_OUT> format_to_n(
 
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01)
 {
     if (n < 0)
         n = 0;
@@ -4335,12 +4428,14 @@ format_to_n_result<t_OUT> format_to_n(
 #if BSLFMT_FORMATIMP_VARIADIC_LIMIT_A >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02)
 {
     if (n < 0)
         n = 0;
@@ -4367,13 +4462,15 @@ format_to_n_result<t_OUT> format_to_n(
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03)
 {
     if (n < 0)
         n = 0;
@@ -4402,14 +4499,16 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04)
 {
     if (n < 0)
         n = 0;
@@ -4440,15 +4539,17 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05)
 {
     if (n < 0)
         n = 0;
@@ -4481,16 +4582,18 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06)
 {
     if (n < 0)
         n = 0;
@@ -4525,17 +4628,19 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06,
-                  const t_ARGS_07& args_07)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06,
+            const t_ARGS_07& args_07)
 {
     if (n < 0)
         n = 0;
@@ -4572,18 +4677,20 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06,
-                  const t_ARGS_07& args_07,
-                  const t_ARGS_08& args_08)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06,
+            const t_ARGS_07& args_07,
+            const t_ARGS_08& args_08)
 {
     if (n < 0)
         n = 0;
@@ -4622,19 +4729,21 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06,
-                  const t_ARGS_07& args_07,
-                  const t_ARGS_08& args_08,
-                  const t_ARGS_09& args_09)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06,
+            const t_ARGS_07& args_07,
+            const t_ARGS_08& args_08,
+            const t_ARGS_09& args_09)
 {
     if (n < 0)
         n = 0;
@@ -4675,20 +4784,22 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS_01& args_01,
-                  const t_ARGS_02& args_02,
-                  const t_ARGS_03& args_03,
-                  const t_ARGS_04& args_04,
-                  const t_ARGS_05& args_05,
-                  const t_ARGS_06& args_06,
-                  const t_ARGS_07& args_07,
-                  const t_ARGS_08& args_08,
-                  const t_ARGS_09& args_09,
-                  const t_ARGS_10& args_10)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS_01& args_01,
+            const t_ARGS_02& args_02,
+            const t_ARGS_03& args_03,
+            const t_ARGS_04& args_04,
+            const t_ARGS_05& args_05,
+            const t_ARGS_06& args_06,
+            const t_ARGS_07& args_07,
+            const t_ARGS_08& args_08,
+            const t_ARGS_09& args_09,
+            const t_ARGS_10& args_10)
 {
     if (n < 0)
         n = 0;
@@ -4723,17 +4834,23 @@ format_to_n_result<t_OUT> format_to_n(
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class t_OUT, class... t_ARGS>
-t_OUT format_to(t_OUT                            out,
-                BSLFMT_FORMAT_STRING_PARAMETER   fmtstr,
-                const t_ARGS&...                 args)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    t_OUT>::type
+format_to(t_OUT                          out,
+          BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
+          const t_ARGS&...               args)
 {
     return vformat_to(out, fmtstr.get(), make_format_args(args...));
 }
 
 template <class t_OUT, class... t_ARGS>
-t_OUT format_to(t_OUT                             out,
-                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
-                const t_ARGS&...                  args)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    t_OUT>::type
+format_to(t_OUT                           out,
+          BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
+          const t_ARGS&...                args)
 {
     return vformat_to(out, fmtstr.get(), make_wformat_args(args...));
 }
@@ -4911,11 +5028,13 @@ ptrdiff_t format_to_n(bsl::wstring                    *out,
 }
 
 template <class t_OUT, class... t_ARGS>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
-                  const t_ARGS&...                                      args)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
+            const t_ARGS&...                                      args)
 {
     if (n < 0)
         n = 0;
@@ -4937,11 +5056,13 @@ format_to_n_result<t_OUT> format_to_n(
 }
 
 template <class t_OUT, class... t_ARGS>
-format_to_n_result<t_OUT> format_to_n(
-                  t_OUT                                                 out,
-                  typename bsl::iterator_traits<t_OUT>::difference_type n,
-                  BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
-                  const t_ARGS&...                                      args)
+typename bsl::enable_if<
+    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
+    format_to_n_result<t_OUT> >::type
+format_to_n(t_OUT                                                 out,
+            typename bsl::iterator_traits<t_OUT>::difference_type n,
+            BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtstr,
+            const t_ARGS&...                                      args)
 {
     if (n < 0)
         n = 0;

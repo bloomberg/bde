@@ -147,6 +147,8 @@ class basic_format_args {
                       // class Format_FormatArgs_ImpUtils
                       // --------------------------------
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+
 /// This class provides utility functions to enable manipulation of types
 /// declared by this component. It is solely for private use by other components
 /// of the `bslfmt` package and should not be used directly.
@@ -167,6 +169,8 @@ struct Format_FormatArgs_ImpUtils {
     template <class t_CONTEXT>
     static size_t formatArgsSize(const basic_format_args<t_CONTEXT>& args);
 };
+
+#endif
 
 // ============================================================================
 //                           INLINE DEFINITIONS

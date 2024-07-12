@@ -276,7 +276,7 @@ basic_format_context<t_OUT, t_CHAR>::basic_format_context(
 // MANIPULATORS
 
 template <class t_OUT, class t_CHAR>
-basic_format_context<t_OUT, t_CHAR>::iterator
+typename basic_format_context<t_OUT, t_CHAR>::iterator
 basic_format_context<t_OUT, t_CHAR>::out()
 {
     return BloombergLP::bslmf::MovableRefUtil::move(d_out);
@@ -291,7 +291,7 @@ void basic_format_context<t_OUT, t_CHAR>::advance_to(iterator it)
 // ACCESSORS
 
 template <class t_OUT, class t_CHAR>
-basic_format_context<t_OUT, t_CHAR>::Arg
+typename basic_format_context<t_OUT, t_CHAR>::Arg
 basic_format_context<t_OUT, t_CHAR>::arg(size_t id) const BSLS_KEYWORD_NOEXCEPT
 {
     return d_args.get(id);

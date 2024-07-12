@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jul  4 12:17:34 2024
+// Generated on Fri Jul 12 17:45:50 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatargs.h
 
 #ifdef COMPILING_BSLFMT_FORMATARGS_H
@@ -119,9 +119,7 @@ class Format_FormatArgStore<t_CONTEXT> {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT>
-    friend Format_FormatArgStore<t_INNER_CONTEXT>
-        Format_MakeFormatArgs();
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  0u>& args)
@@ -139,9 +137,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01> {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  1u>& args)
@@ -161,12 +157,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  2u>& args)
@@ -188,15 +179,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02,
-                                     class t_INNER_ARGS_03>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02,
-                                                  t_INNER_ARGS_03>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02,
-                              t_INNER_ARGS_03& fmt_args_03);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  3u>& args)
@@ -220,18 +203,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02,
-                                     class t_INNER_ARGS_03,
-                                     class t_INNER_ARGS_04>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02,
-                                                  t_INNER_ARGS_03,
-                                                  t_INNER_ARGS_04>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02,
-                              t_INNER_ARGS_03& fmt_args_03,
-                              t_INNER_ARGS_04& fmt_args_04);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  4u>& args)
@@ -257,21 +229,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02,
-                                     class t_INNER_ARGS_03,
-                                     class t_INNER_ARGS_04,
-                                     class t_INNER_ARGS_05>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02,
-                                                  t_INNER_ARGS_03,
-                                                  t_INNER_ARGS_04,
-                                                  t_INNER_ARGS_05>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02,
-                              t_INNER_ARGS_03& fmt_args_03,
-                              t_INNER_ARGS_04& fmt_args_04,
-                              t_INNER_ARGS_05& fmt_args_05);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  5u>& args)
@@ -299,24 +257,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02,
-                                     class t_INNER_ARGS_03,
-                                     class t_INNER_ARGS_04,
-                                     class t_INNER_ARGS_05,
-                                     class t_INNER_ARGS_06>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02,
-                                                  t_INNER_ARGS_03,
-                                                  t_INNER_ARGS_04,
-                                                  t_INNER_ARGS_05,
-                                                  t_INNER_ARGS_06>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02,
-                              t_INNER_ARGS_03& fmt_args_03,
-                              t_INNER_ARGS_04& fmt_args_04,
-                              t_INNER_ARGS_05& fmt_args_05,
-                              t_INNER_ARGS_06& fmt_args_06);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  6u>& args)
@@ -346,27 +287,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02,
-                                     class t_INNER_ARGS_03,
-                                     class t_INNER_ARGS_04,
-                                     class t_INNER_ARGS_05,
-                                     class t_INNER_ARGS_06,
-                                     class t_INNER_ARGS_07>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02,
-                                                  t_INNER_ARGS_03,
-                                                  t_INNER_ARGS_04,
-                                                  t_INNER_ARGS_05,
-                                                  t_INNER_ARGS_06,
-                                                  t_INNER_ARGS_07>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02,
-                              t_INNER_ARGS_03& fmt_args_03,
-                              t_INNER_ARGS_04& fmt_args_04,
-                              t_INNER_ARGS_05& fmt_args_05,
-                              t_INNER_ARGS_06& fmt_args_06,
-                              t_INNER_ARGS_07& fmt_args_07);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  7u>& args)
@@ -398,30 +319,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02,
-                                     class t_INNER_ARGS_03,
-                                     class t_INNER_ARGS_04,
-                                     class t_INNER_ARGS_05,
-                                     class t_INNER_ARGS_06,
-                                     class t_INNER_ARGS_07,
-                                     class t_INNER_ARGS_08>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02,
-                                                  t_INNER_ARGS_03,
-                                                  t_INNER_ARGS_04,
-                                                  t_INNER_ARGS_05,
-                                                  t_INNER_ARGS_06,
-                                                  t_INNER_ARGS_07,
-                                                  t_INNER_ARGS_08>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02,
-                              t_INNER_ARGS_03& fmt_args_03,
-                              t_INNER_ARGS_04& fmt_args_04,
-                              t_INNER_ARGS_05& fmt_args_05,
-                              t_INNER_ARGS_06& fmt_args_06,
-                              t_INNER_ARGS_07& fmt_args_07,
-                              t_INNER_ARGS_08& fmt_args_08);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  8u>& args)
@@ -455,33 +353,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02,
-                                     class t_INNER_ARGS_03,
-                                     class t_INNER_ARGS_04,
-                                     class t_INNER_ARGS_05,
-                                     class t_INNER_ARGS_06,
-                                     class t_INNER_ARGS_07,
-                                     class t_INNER_ARGS_08,
-                                     class t_INNER_ARGS_09>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02,
-                                                  t_INNER_ARGS_03,
-                                                  t_INNER_ARGS_04,
-                                                  t_INNER_ARGS_05,
-                                                  t_INNER_ARGS_06,
-                                                  t_INNER_ARGS_07,
-                                                  t_INNER_ARGS_08,
-                                                  t_INNER_ARGS_09>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02,
-                              t_INNER_ARGS_03& fmt_args_03,
-                              t_INNER_ARGS_04& fmt_args_04,
-                              t_INNER_ARGS_05& fmt_args_05,
-                              t_INNER_ARGS_06& fmt_args_06,
-                              t_INNER_ARGS_07& fmt_args_07,
-                              t_INNER_ARGS_08& fmt_args_08,
-                              t_INNER_ARGS_09& fmt_args_09);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  9u>& args)
@@ -517,36 +389,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    template <class t_INNER_CONTEXT, class t_INNER_ARGS_01,
-                                     class t_INNER_ARGS_02,
-                                     class t_INNER_ARGS_03,
-                                     class t_INNER_ARGS_04,
-                                     class t_INNER_ARGS_05,
-                                     class t_INNER_ARGS_06,
-                                     class t_INNER_ARGS_07,
-                                     class t_INNER_ARGS_08,
-                                     class t_INNER_ARGS_09,
-                                     class t_INNER_ARGS_10>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS_01,
-                                                  t_INNER_ARGS_02,
-                                                  t_INNER_ARGS_03,
-                                                  t_INNER_ARGS_04,
-                                                  t_INNER_ARGS_05,
-                                                  t_INNER_ARGS_06,
-                                                  t_INNER_ARGS_07,
-                                                  t_INNER_ARGS_08,
-                                                  t_INNER_ARGS_09,
-                                                  t_INNER_ARGS_10>
-        Format_MakeFormatArgs(t_INNER_ARGS_01& fmt_args_01,
-                              t_INNER_ARGS_02& fmt_args_02,
-                              t_INNER_ARGS_03& fmt_args_03,
-                              t_INNER_ARGS_04& fmt_args_04,
-                              t_INNER_ARGS_05& fmt_args_05,
-                              t_INNER_ARGS_06& fmt_args_06,
-                              t_INNER_ARGS_07& fmt_args_07,
-                              t_INNER_ARGS_08& fmt_args_08,
-                              t_INNER_ARGS_09& fmt_args_09,
-                              t_INNER_ARGS_10& fmt_args_10);
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, 10u>& args)
@@ -554,231 +397,64 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 10
 
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class t_CONTEXT, class... t_ARGS>
+class Format_FormatArgStore {
+
+  private:
+    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> d_args;
+
+    template <class t_INNER_CONTEXT>
+    friend class basic_format_args;
+
+    friend class Format_FormatArgs_ImpUtils;
+
+    explicit Format_FormatArgStore(
+        const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+};
+
+// }}} END GENERATED CODE
+#endif
 
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 0
-template <class t_CONTEXT>
-Format_FormatArgStore<t_CONTEXT> Format_MakeFormatArgs(
-                                                          );
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 0
+                               // --------------
+                               // FREE FUNCTIONS
+                               // --------------
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 1
-template <class t_CONTEXT, class t_ARGS_01>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 1
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslfmt_formatargs.h
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_B
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_B BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#endif
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 2
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 2
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 3
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02,
-                                                       t_ARGS_03& fmt_args_03);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 3
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 4
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02,
-                                                       t_ARGS_03& fmt_args_03,
-                                                       t_ARGS_04& fmt_args_04);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 4
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 5
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02,
-                                                       t_ARGS_03& fmt_args_03,
-                                                       t_ARGS_04& fmt_args_04,
-                                                       t_ARGS_05& fmt_args_05);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 5
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 6
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02,
-                                                       t_ARGS_03& fmt_args_03,
-                                                       t_ARGS_04& fmt_args_04,
-                                                       t_ARGS_05& fmt_args_05,
-                                                       t_ARGS_06& fmt_args_06);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 6
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 7
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06,
-                           class t_ARGS_07>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06,
-                                 t_ARGS_07> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02,
-                                                       t_ARGS_03& fmt_args_03,
-                                                       t_ARGS_04& fmt_args_04,
-                                                       t_ARGS_05& fmt_args_05,
-                                                       t_ARGS_06& fmt_args_06,
-                                                       t_ARGS_07& fmt_args_07);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 7
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 8
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06,
-                           class t_ARGS_07,
-                           class t_ARGS_08>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06,
-                                 t_ARGS_07,
-                                 t_ARGS_08> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02,
-                                                       t_ARGS_03& fmt_args_03,
-                                                       t_ARGS_04& fmt_args_04,
-                                                       t_ARGS_05& fmt_args_05,
-                                                       t_ARGS_06& fmt_args_06,
-                                                       t_ARGS_07& fmt_args_07,
-                                                       t_ARGS_08& fmt_args_08);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 8
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 9
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06,
-                           class t_ARGS_07,
-                           class t_ARGS_08,
-                           class t_ARGS_09>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06,
-                                 t_ARGS_07,
-                                 t_ARGS_08,
-                                 t_ARGS_09> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02,
-                                                       t_ARGS_03& fmt_args_03,
-                                                       t_ARGS_04& fmt_args_04,
-                                                       t_ARGS_05& fmt_args_05,
-                                                       t_ARGS_06& fmt_args_06,
-                                                       t_ARGS_07& fmt_args_07,
-                                                       t_ARGS_08& fmt_args_08,
-                                                       t_ARGS_09& fmt_args_09);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 9
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 10
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06,
-                           class t_ARGS_07,
-                           class t_ARGS_08,
-                           class t_ARGS_09,
-                           class t_ARGS_10>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06,
-                                 t_ARGS_07,
-                                 t_ARGS_08,
-                                 t_ARGS_09,
-                                 t_ARGS_10> Format_MakeFormatArgs(
-                                                       t_ARGS_01& fmt_args_01,
-                                                       t_ARGS_02& fmt_args_02,
-                                                       t_ARGS_03& fmt_args_03,
-                                                       t_ARGS_04& fmt_args_04,
-                                                       t_ARGS_05& fmt_args_05,
-                                                       t_ARGS_06& fmt_args_06,
-                                                       t_ARGS_07& fmt_args_07,
-                                                       t_ARGS_08& fmt_args_08,
-                                                       t_ARGS_09& fmt_args_09,
-                                                       t_ARGS_10& fmt_args_10);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 10
-
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 0
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 0
 Format_FormatArgStore<format_context> make_format_args(
                                                           );
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 0
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 0
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 1
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 1
 template <class t_ARGS_01>
 Format_FormatArgStore<format_context, t_ARGS_01> make_format_args(
                                                        t_ARGS_01& fmt_args_01);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 1
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 1
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 2
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02> make_format_args(
                                                        t_ARGS_01& fmt_args_01,
                                                        t_ARGS_02& fmt_args_02);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 2
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 2
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 3
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 3
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
@@ -788,9 +464,9 @@ Format_FormatArgStore<format_context, t_ARGS_01,
                                                        t_ARGS_01& fmt_args_01,
                                                        t_ARGS_02& fmt_args_02,
                                                        t_ARGS_03& fmt_args_03);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 3
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 3
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 4
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 4
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -803,9 +479,9 @@ Format_FormatArgStore<format_context, t_ARGS_01,
                                                        t_ARGS_02& fmt_args_02,
                                                        t_ARGS_03& fmt_args_03,
                                                        t_ARGS_04& fmt_args_04);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 4
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 4
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 5
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 5
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -821,9 +497,9 @@ Format_FormatArgStore<format_context, t_ARGS_01,
                                                        t_ARGS_03& fmt_args_03,
                                                        t_ARGS_04& fmt_args_04,
                                                        t_ARGS_05& fmt_args_05);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 5
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 5
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 6
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 6
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -842,9 +518,9 @@ Format_FormatArgStore<format_context, t_ARGS_01,
                                                        t_ARGS_04& fmt_args_04,
                                                        t_ARGS_05& fmt_args_05,
                                                        t_ARGS_06& fmt_args_06);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 6
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 6
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 7
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 7
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -866,9 +542,9 @@ Format_FormatArgStore<format_context, t_ARGS_01,
                                                        t_ARGS_05& fmt_args_05,
                                                        t_ARGS_06& fmt_args_06,
                                                        t_ARGS_07& fmt_args_07);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 7
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 7
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 8
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 8
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -893,9 +569,9 @@ Format_FormatArgStore<format_context, t_ARGS_01,
                                                        t_ARGS_06& fmt_args_06,
                                                        t_ARGS_07& fmt_args_07,
                                                        t_ARGS_08& fmt_args_08);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 8
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 8
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 9
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 9
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -923,9 +599,9 @@ Format_FormatArgStore<format_context, t_ARGS_01,
                                                        t_ARGS_07& fmt_args_07,
                                                        t_ARGS_08& fmt_args_08,
                                                        t_ARGS_09& fmt_args_09);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 9
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 9
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 10
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 10
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -956,30 +632,30 @@ Format_FormatArgStore<format_context, t_ARGS_01,
                                                        t_ARGS_08& fmt_args_08,
                                                        t_ARGS_09& fmt_args_09,
                                                        t_ARGS_10& fmt_args_10);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 10
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 10
 
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 0
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 0
 Format_FormatArgStore<wformat_context> make_wformat_args(
                                                           );
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 0
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 0
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 1
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 1
 template <class t_ARGS_01>
 Format_FormatArgStore<wformat_context, t_ARGS_01> make_wformat_args(
                                                        t_ARGS_01& fmt_args_01);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 1
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 1
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 2
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02> make_wformat_args(
                                                        t_ARGS_01& fmt_args_01,
                                                        t_ARGS_02& fmt_args_02);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 2
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 2
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 3
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 3
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
@@ -989,9 +665,9 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
                                                        t_ARGS_01& fmt_args_01,
                                                        t_ARGS_02& fmt_args_02,
                                                        t_ARGS_03& fmt_args_03);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 3
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 3
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 4
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 4
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -1004,9 +680,9 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
                                                        t_ARGS_02& fmt_args_02,
                                                        t_ARGS_03& fmt_args_03,
                                                        t_ARGS_04& fmt_args_04);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 4
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 4
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 5
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 5
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -1022,9 +698,9 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
                                                        t_ARGS_03& fmt_args_03,
                                                        t_ARGS_04& fmt_args_04,
                                                        t_ARGS_05& fmt_args_05);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 5
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 5
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 6
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 6
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -1043,9 +719,9 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
                                                        t_ARGS_04& fmt_args_04,
                                                        t_ARGS_05& fmt_args_05,
                                                        t_ARGS_06& fmt_args_06);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 6
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 6
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 7
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 7
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -1067,9 +743,9 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
                                                        t_ARGS_05& fmt_args_05,
                                                        t_ARGS_06& fmt_args_06,
                                                        t_ARGS_07& fmt_args_07);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 7
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 7
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 8
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 8
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -1094,9 +770,9 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
                                                        t_ARGS_06& fmt_args_06,
                                                        t_ARGS_07& fmt_args_07,
                                                        t_ARGS_08& fmt_args_08);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 8
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 8
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 9
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 9
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -1124,9 +800,9 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
                                                        t_ARGS_07& fmt_args_07,
                                                        t_ARGS_08& fmt_args_08,
                                                        t_ARGS_09& fmt_args_09);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 9
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 9
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 10
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 10
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
@@ -1157,33 +833,11 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
                                                        t_ARGS_08& fmt_args_08,
                                                        t_ARGS_09& fmt_args_09,
                                                        t_ARGS_10& fmt_args_10);
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 10
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-template <class t_CONTEXT, class... t_ARGS>
-class Format_FormatArgStore {
-
-  private:
-    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> d_args;
-
-    template <class t_INNER_CONTEXT>
-    friend class basic_format_args;
-
-    template <class t_INNER_CONTEXT, class... t_INNER_ARGS>
-    friend Format_FormatArgStore<t_INNER_CONTEXT, t_INNER_ARGS...>
-        Format_MakeFormatArgs(t_INNER_ARGS&... fmt_args);
-
-    explicit Format_FormatArgStore(
-        const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
-        BSLS_KEYWORD_NOEXCEPT;
-};
-
-
-template <class t_CONTEXT, class... t_ARGS>
-Format_FormatArgStore<t_CONTEXT, t_ARGS...> Format_MakeFormatArgs(
-                                                          t_ARGS&... fmt_args);
 
 template <class... t_ARGS>
 Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
@@ -1212,9 +866,7 @@ class basic_format_args {
     size_t size() const;
 
     // FRIENDS
-    template <class t_INNER_CONTEXT>
-    friend size_t Format_FormatArgsSize(
-                               const basic_format_args<t_INNER_CONTEXT>& args);
+    friend class Format_FormatArgs_ImpUtils;
 
   public:
     // CREATORS
@@ -1226,29 +878,29 @@ class basic_format_args {
 #ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT
 #define BSLFMT_FORMATARGS_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_B
-#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_B BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_C
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_C BSLFMT_FORMATARGS_VARIADIC_LIMIT
 #endif
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 0
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
     basic_format_args(const Format_FormatArgStore<t_CONTEXT>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 0
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 1
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
     template <class t_ARGS_01>
     basic_format_args(const Format_FormatArgStore<t_CONTEXT, t_ARGS_01>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 1
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 2
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
     template <class t_ARGS_01,
               class t_ARGS_02>
     basic_format_args(const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 2
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 3
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
     template <class t_ARGS_01,
               class t_ARGS_02,
               class t_ARGS_03>
@@ -1256,9 +908,9 @@ class basic_format_args {
                                                              t_ARGS_02,
                                                              t_ARGS_03>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 3
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 4
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
     template <class t_ARGS_01,
               class t_ARGS_02,
               class t_ARGS_03,
@@ -1268,9 +920,9 @@ class basic_format_args {
                                                              t_ARGS_03,
                                                              t_ARGS_04>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 4
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 5
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
     template <class t_ARGS_01,
               class t_ARGS_02,
               class t_ARGS_03,
@@ -1282,9 +934,9 @@ class basic_format_args {
                                                              t_ARGS_04,
                                                              t_ARGS_05>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 5
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 6
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
     template <class t_ARGS_01,
               class t_ARGS_02,
               class t_ARGS_03,
@@ -1298,9 +950,9 @@ class basic_format_args {
                                                              t_ARGS_05,
                                                              t_ARGS_06>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 6
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 7
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
     template <class t_ARGS_01,
               class t_ARGS_02,
               class t_ARGS_03,
@@ -1316,9 +968,9 @@ class basic_format_args {
                                                              t_ARGS_06,
                                                              t_ARGS_07>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 7
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 8
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
     template <class t_ARGS_01,
               class t_ARGS_02,
               class t_ARGS_03,
@@ -1336,9 +988,9 @@ class basic_format_args {
                                                              t_ARGS_07,
                                                              t_ARGS_08>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 8
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 9
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
     template <class t_ARGS_01,
               class t_ARGS_02,
               class t_ARGS_03,
@@ -1358,9 +1010,9 @@ class basic_format_args {
                                                              t_ARGS_08,
                                                              t_ARGS_09>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 9
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 10
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
     template <class t_ARGS_01,
               class t_ARGS_02,
               class t_ARGS_03,
@@ -1382,7 +1034,7 @@ class basic_format_args {
                                                              t_ARGS_09,
                                                              t_ARGS_10>& store)
         BSLS_KEYWORD_NOEXCEPT;
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 10
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -1397,15 +1049,245 @@ class basic_format_args {
     basic_format_arg<t_CONTEXT> get(size_t i) const BSLS_KEYWORD_NOEXCEPT;
 };
 
-// FREE FUNCTIONS
+                      // --------------------------------
+                      // class Format_FormatArgs_ImpUtils
+                      // --------------------------------
 
-template<class t_CONTEXT>
-size_t Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args);
-    // This component-private function returns the result of calling 'size()'
-    // on the specified 'args' parameter. This is to permit access to the
-    // private 'size' accessor of 'basic_format_args' without requiring long
-    // distance friendship.
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslfmt_formatargs.h
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_D
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_D BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#endif
 
+struct Format_FormatArgs_ImpUtils {
+  public:
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 0
+    template <class t_CONTEXT>
+    static Format_FormatArgStore<t_CONTEXT> makeFormatArgs(
+                                                          );
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 0
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 1
+    template <class t_CONTEXT, class t_ARGS_01>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 1
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 2
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 2
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 3
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02,
+                               class t_ARGS_03>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02,
+                                                       t_ARGS_03& fmt_args_03);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 3
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 4
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02,
+                               class t_ARGS_03,
+                               class t_ARGS_04>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02,
+                                                       t_ARGS_03& fmt_args_03,
+                                                       t_ARGS_04& fmt_args_04);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 4
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 5
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02,
+                               class t_ARGS_03,
+                               class t_ARGS_04,
+                               class t_ARGS_05>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02,
+                                                       t_ARGS_03& fmt_args_03,
+                                                       t_ARGS_04& fmt_args_04,
+                                                       t_ARGS_05& fmt_args_05);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 5
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 6
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02,
+                               class t_ARGS_03,
+                               class t_ARGS_04,
+                               class t_ARGS_05,
+                               class t_ARGS_06>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02,
+                                                       t_ARGS_03& fmt_args_03,
+                                                       t_ARGS_04& fmt_args_04,
+                                                       t_ARGS_05& fmt_args_05,
+                                                       t_ARGS_06& fmt_args_06);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 6
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 7
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02,
+                               class t_ARGS_03,
+                               class t_ARGS_04,
+                               class t_ARGS_05,
+                               class t_ARGS_06,
+                               class t_ARGS_07>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06,
+                                            t_ARGS_07> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02,
+                                                       t_ARGS_03& fmt_args_03,
+                                                       t_ARGS_04& fmt_args_04,
+                                                       t_ARGS_05& fmt_args_05,
+                                                       t_ARGS_06& fmt_args_06,
+                                                       t_ARGS_07& fmt_args_07);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 7
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 8
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02,
+                               class t_ARGS_03,
+                               class t_ARGS_04,
+                               class t_ARGS_05,
+                               class t_ARGS_06,
+                               class t_ARGS_07,
+                               class t_ARGS_08>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06,
+                                            t_ARGS_07,
+                                            t_ARGS_08> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02,
+                                                       t_ARGS_03& fmt_args_03,
+                                                       t_ARGS_04& fmt_args_04,
+                                                       t_ARGS_05& fmt_args_05,
+                                                       t_ARGS_06& fmt_args_06,
+                                                       t_ARGS_07& fmt_args_07,
+                                                       t_ARGS_08& fmt_args_08);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 8
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 9
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02,
+                               class t_ARGS_03,
+                               class t_ARGS_04,
+                               class t_ARGS_05,
+                               class t_ARGS_06,
+                               class t_ARGS_07,
+                               class t_ARGS_08,
+                               class t_ARGS_09>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06,
+                                            t_ARGS_07,
+                                            t_ARGS_08,
+                                            t_ARGS_09> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02,
+                                                       t_ARGS_03& fmt_args_03,
+                                                       t_ARGS_04& fmt_args_04,
+                                                       t_ARGS_05& fmt_args_05,
+                                                       t_ARGS_06& fmt_args_06,
+                                                       t_ARGS_07& fmt_args_07,
+                                                       t_ARGS_08& fmt_args_08,
+                                                       t_ARGS_09& fmt_args_09);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 9
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 10
+    template <class t_CONTEXT, class t_ARGS_01,
+                               class t_ARGS_02,
+                               class t_ARGS_03,
+                               class t_ARGS_04,
+                               class t_ARGS_05,
+                               class t_ARGS_06,
+                               class t_ARGS_07,
+                               class t_ARGS_08,
+                               class t_ARGS_09,
+                               class t_ARGS_10>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06,
+                                            t_ARGS_07,
+                                            t_ARGS_08,
+                                            t_ARGS_09,
+                                            t_ARGS_10> makeFormatArgs(
+                                                       t_ARGS_01& fmt_args_01,
+                                                       t_ARGS_02& fmt_args_02,
+                                                       t_ARGS_03& fmt_args_03,
+                                                       t_ARGS_04& fmt_args_04,
+                                                       t_ARGS_05& fmt_args_05,
+                                                       t_ARGS_06& fmt_args_06,
+                                                       t_ARGS_07& fmt_args_07,
+                                                       t_ARGS_08& fmt_args_08,
+                                                       t_ARGS_09& fmt_args_09,
+                                                       t_ARGS_10& fmt_args_10);
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 10
+
+
+    template <class t_CONTEXT>
+    static size_t formatArgsSize(const basic_format_args<t_CONTEXT>& args);
+};
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+struct Format_FormatArgs_ImpUtils {
+  public:
+
+    template <class t_CONTEXT, class... t_ARGS>
+    static Format_FormatArgStore<t_CONTEXT, t_ARGS...> makeFormatArgs(
+                                                          t_ARGS&... fmt_args);
+
+    template <class t_CONTEXT>
+    static size_t formatArgsSize(const basic_format_args<t_CONTEXT>& args);
+};
+
+// }}} END GENERATED CODE
+#endif
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -1421,11 +1303,11 @@ size_t Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args);
 #ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT
 #define BSLFMT_FORMATARGS_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_C
-#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_C BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_E
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_E BSLFMT_FORMATARGS_VARIADIC_LIMIT
 #endif
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 0
 template <class t_CONTEXT>
 Format_FormatArgStore<t_CONTEXT, BSLS_COMPILERFEATURES_FILLT(10)
                                  >::Format_FormatArgStore(
@@ -1433,9 +1315,9 @@ Format_FormatArgStore<t_CONTEXT, BSLS_COMPILERFEATURES_FILLT(10)
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 0
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 1
 template <class t_CONTEXT, class t_ARGS_01>
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  BSLS_COMPILERFEATURES_FILLT( 9)
@@ -1444,9 +1326,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 1
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 2
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02>
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
@@ -1457,9 +1339,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 2
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 3
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03>
@@ -1472,9 +1354,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 3
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 4
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
@@ -1489,9 +1371,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 4
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 5
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
@@ -1508,9 +1390,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 5
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 6
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
@@ -1529,9 +1411,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 6
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 7
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
@@ -1552,9 +1434,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 7
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 8
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
@@ -1577,9 +1459,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 8
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 9
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
@@ -1604,9 +1486,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 9
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 10
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
@@ -1633,958 +1515,7 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
-
-
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
-template <class t_CONTEXT>
-Format_FormatArgStore<t_CONTEXT> Format_MakeFormatArgs(
-                                                           )
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  0u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT>(&arg_array);
-    return Format_FormatArgStore<t_CONTEXT>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
-template <class t_CONTEXT, class t_ARGS_01>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  1u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01>(&arg_array, fmt_args_01);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  2u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02>(&arg_array, fmt_args_01,
-                                                                fmt_args_02);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  3u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02,
-                                         t_ARGS_03>(&arg_array, fmt_args_01,
-                                                                fmt_args_02,
-                                                                fmt_args_03);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02,
-                                            t_ARGS_03>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  4u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02,
-                                         t_ARGS_03,
-                                         t_ARGS_04>(&arg_array, fmt_args_01,
-                                                                fmt_args_02,
-                                                                fmt_args_03,
-                                                                fmt_args_04);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02,
-                                            t_ARGS_03,
-                                            t_ARGS_04>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  5u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02,
-                                         t_ARGS_03,
-                                         t_ARGS_04,
-                                         t_ARGS_05>(&arg_array, fmt_args_01,
-                                                                fmt_args_02,
-                                                                fmt_args_03,
-                                                                fmt_args_04,
-                                                                fmt_args_05);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02,
-                                            t_ARGS_03,
-                                            t_ARGS_04,
-                                            t_ARGS_05>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  6u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02,
-                                         t_ARGS_03,
-                                         t_ARGS_04,
-                                         t_ARGS_05,
-                                         t_ARGS_06>(&arg_array, fmt_args_01,
-                                                                fmt_args_02,
-                                                                fmt_args_03,
-                                                                fmt_args_04,
-                                                                fmt_args_05,
-                                                                fmt_args_06);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02,
-                                            t_ARGS_03,
-                                            t_ARGS_04,
-                                            t_ARGS_05,
-                                            t_ARGS_06>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06,
-                           class t_ARGS_07>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06,
-                                 t_ARGS_07> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  7u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02,
-                                         t_ARGS_03,
-                                         t_ARGS_04,
-                                         t_ARGS_05,
-                                         t_ARGS_06,
-                                         t_ARGS_07>(&arg_array, fmt_args_01,
-                                                                fmt_args_02,
-                                                                fmt_args_03,
-                                                                fmt_args_04,
-                                                                fmt_args_05,
-                                                                fmt_args_06,
-                                                                fmt_args_07);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02,
-                                            t_ARGS_03,
-                                            t_ARGS_04,
-                                            t_ARGS_05,
-                                            t_ARGS_06,
-                                            t_ARGS_07>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06,
-                           class t_ARGS_07,
-                           class t_ARGS_08>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06,
-                                 t_ARGS_07,
-                                 t_ARGS_08> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  8u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02,
-                                         t_ARGS_03,
-                                         t_ARGS_04,
-                                         t_ARGS_05,
-                                         t_ARGS_06,
-                                         t_ARGS_07,
-                                         t_ARGS_08>(&arg_array, fmt_args_01,
-                                                                fmt_args_02,
-                                                                fmt_args_03,
-                                                                fmt_args_04,
-                                                                fmt_args_05,
-                                                                fmt_args_06,
-                                                                fmt_args_07,
-                                                                fmt_args_08);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02,
-                                            t_ARGS_03,
-                                            t_ARGS_04,
-                                            t_ARGS_05,
-                                            t_ARGS_06,
-                                            t_ARGS_07,
-                                            t_ARGS_08>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06,
-                           class t_ARGS_07,
-                           class t_ARGS_08,
-                           class t_ARGS_09>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06,
-                                 t_ARGS_07,
-                                 t_ARGS_08,
-                                 t_ARGS_09> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08,
-                                                        t_ARGS_09& fmt_args_09)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>,  9u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02,
-                                         t_ARGS_03,
-                                         t_ARGS_04,
-                                         t_ARGS_05,
-                                         t_ARGS_06,
-                                         t_ARGS_07,
-                                         t_ARGS_08,
-                                         t_ARGS_09>(&arg_array, fmt_args_01,
-                                                                fmt_args_02,
-                                                                fmt_args_03,
-                                                                fmt_args_04,
-                                                                fmt_args_05,
-                                                                fmt_args_06,
-                                                                fmt_args_07,
-                                                                fmt_args_08,
-                                                                fmt_args_09);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02,
-                                            t_ARGS_03,
-                                            t_ARGS_04,
-                                            t_ARGS_05,
-                                            t_ARGS_06,
-                                            t_ARGS_07,
-                                            t_ARGS_08,
-                                            t_ARGS_09>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
-template <class t_CONTEXT, class t_ARGS_01,
-                           class t_ARGS_02,
-                           class t_ARGS_03,
-                           class t_ARGS_04,
-                           class t_ARGS_05,
-                           class t_ARGS_06,
-                           class t_ARGS_07,
-                           class t_ARGS_08,
-                           class t_ARGS_09,
-                           class t_ARGS_10>
-Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                 t_ARGS_02,
-                                 t_ARGS_03,
-                                 t_ARGS_04,
-                                 t_ARGS_05,
-                                 t_ARGS_06,
-                                 t_ARGS_07,
-                                 t_ARGS_08,
-                                 t_ARGS_09,
-                                 t_ARGS_10> Format_MakeFormatArgs(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08,
-                                                        t_ARGS_09& fmt_args_09,
-                                                        t_ARGS_10& fmt_args_10)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>, 10u> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                         t_ARGS_02,
-                                         t_ARGS_03,
-                                         t_ARGS_04,
-                                         t_ARGS_05,
-                                         t_ARGS_06,
-                                         t_ARGS_07,
-                                         t_ARGS_08,
-                                         t_ARGS_09,
-                                         t_ARGS_10>(&arg_array, fmt_args_01,
-                                                                fmt_args_02,
-                                                                fmt_args_03,
-                                                                fmt_args_04,
-                                                                fmt_args_05,
-                                                                fmt_args_06,
-                                                                fmt_args_07,
-                                                                fmt_args_08,
-                                                                fmt_args_09,
-                                                                fmt_args_10);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02,
-                                            t_ARGS_03,
-                                            t_ARGS_04,
-                                            t_ARGS_05,
-                                            t_ARGS_06,
-                                            t_ARGS_07,
-                                            t_ARGS_08,
-                                            t_ARGS_09,
-                                            t_ARGS_10>(arg_array);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
-
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
-Format_FormatArgStore<format_context> make_format_args(
-                                                           )
-{
-    return Format_MakeFormatArgs<format_context>();
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
-template <class t_ARGS_01>
-Format_FormatArgStore<format_context, t_ARGS_01> make_format_args(
-                                                        t_ARGS_01& fmt_args_01)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
-template <class t_ARGS_01,
-          class t_ARGS_02>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02,
-                                      t_ARGS_03> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02,
-                                                 fmt_args_03);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02,
-                                      t_ARGS_03,
-                                      t_ARGS_04> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02,
-                                                 fmt_args_03,
-                                                 fmt_args_04);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02,
-                                      t_ARGS_03,
-                                      t_ARGS_04,
-                                      t_ARGS_05> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02,
-                                                 fmt_args_03,
-                                                 fmt_args_04,
-                                                 fmt_args_05);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02,
-                                      t_ARGS_03,
-                                      t_ARGS_04,
-                                      t_ARGS_05,
-                                      t_ARGS_06> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02,
-                                                 fmt_args_03,
-                                                 fmt_args_04,
-                                                 fmt_args_05,
-                                                 fmt_args_06);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02,
-                                      t_ARGS_03,
-                                      t_ARGS_04,
-                                      t_ARGS_05,
-                                      t_ARGS_06,
-                                      t_ARGS_07> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02,
-                                                 fmt_args_03,
-                                                 fmt_args_04,
-                                                 fmt_args_05,
-                                                 fmt_args_06,
-                                                 fmt_args_07);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02,
-                                      t_ARGS_03,
-                                      t_ARGS_04,
-                                      t_ARGS_05,
-                                      t_ARGS_06,
-                                      t_ARGS_07,
-                                      t_ARGS_08> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02,
-                                                 fmt_args_03,
-                                                 fmt_args_04,
-                                                 fmt_args_05,
-                                                 fmt_args_06,
-                                                 fmt_args_07,
-                                                 fmt_args_08);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02,
-                                      t_ARGS_03,
-                                      t_ARGS_04,
-                                      t_ARGS_05,
-                                      t_ARGS_06,
-                                      t_ARGS_07,
-                                      t_ARGS_08,
-                                      t_ARGS_09> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08,
-                                                        t_ARGS_09& fmt_args_09)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02,
-                                                 fmt_args_03,
-                                                 fmt_args_04,
-                                                 fmt_args_05,
-                                                 fmt_args_06,
-                                                 fmt_args_07,
-                                                 fmt_args_08,
-                                                 fmt_args_09);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09,
-          class t_ARGS_10>
-Format_FormatArgStore<format_context, t_ARGS_01,
-                                      t_ARGS_02,
-                                      t_ARGS_03,
-                                      t_ARGS_04,
-                                      t_ARGS_05,
-                                      t_ARGS_06,
-                                      t_ARGS_07,
-                                      t_ARGS_08,
-                                      t_ARGS_09,
-                                      t_ARGS_10> make_format_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08,
-                                                        t_ARGS_09& fmt_args_09,
-                                                        t_ARGS_10& fmt_args_10)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args_01,
-                                                 fmt_args_02,
-                                                 fmt_args_03,
-                                                 fmt_args_04,
-                                                 fmt_args_05,
-                                                 fmt_args_06,
-                                                 fmt_args_07,
-                                                 fmt_args_08,
-                                                 fmt_args_09,
-                                                 fmt_args_10);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
-
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
-Format_FormatArgStore<wformat_context> make_wformat_args(
-                                                           )
-{
-    return Format_MakeFormatArgs<wformat_context>();
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 0
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
-template <class t_ARGS_01>
-Format_FormatArgStore<wformat_context, t_ARGS_01> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 1
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
-template <class t_ARGS_01,
-          class t_ARGS_02>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 2
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02,
-                                       t_ARGS_03> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02,
-                                                  fmt_args_03);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 3
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02,
-                                       t_ARGS_03,
-                                       t_ARGS_04> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02,
-                                                  fmt_args_03,
-                                                  fmt_args_04);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 4
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02,
-                                       t_ARGS_03,
-                                       t_ARGS_04,
-                                       t_ARGS_05> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02,
-                                                  fmt_args_03,
-                                                  fmt_args_04,
-                                                  fmt_args_05);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 5
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02,
-                                       t_ARGS_03,
-                                       t_ARGS_04,
-                                       t_ARGS_05,
-                                       t_ARGS_06> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02,
-                                                  fmt_args_03,
-                                                  fmt_args_04,
-                                                  fmt_args_05,
-                                                  fmt_args_06);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 6
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02,
-                                       t_ARGS_03,
-                                       t_ARGS_04,
-                                       t_ARGS_05,
-                                       t_ARGS_06,
-                                       t_ARGS_07> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02,
-                                                  fmt_args_03,
-                                                  fmt_args_04,
-                                                  fmt_args_05,
-                                                  fmt_args_06,
-                                                  fmt_args_07);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 7
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02,
-                                       t_ARGS_03,
-                                       t_ARGS_04,
-                                       t_ARGS_05,
-                                       t_ARGS_06,
-                                       t_ARGS_07,
-                                       t_ARGS_08> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02,
-                                                  fmt_args_03,
-                                                  fmt_args_04,
-                                                  fmt_args_05,
-                                                  fmt_args_06,
-                                                  fmt_args_07,
-                                                  fmt_args_08);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 8
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02,
-                                       t_ARGS_03,
-                                       t_ARGS_04,
-                                       t_ARGS_05,
-                                       t_ARGS_06,
-                                       t_ARGS_07,
-                                       t_ARGS_08,
-                                       t_ARGS_09> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08,
-                                                        t_ARGS_09& fmt_args_09)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02,
-                                                  fmt_args_03,
-                                                  fmt_args_04,
-                                                  fmt_args_05,
-                                                  fmt_args_06,
-                                                  fmt_args_07,
-                                                  fmt_args_08,
-                                                  fmt_args_09);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 9
-
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09,
-          class t_ARGS_10>
-Format_FormatArgStore<wformat_context, t_ARGS_01,
-                                       t_ARGS_02,
-                                       t_ARGS_03,
-                                       t_ARGS_04,
-                                       t_ARGS_05,
-                                       t_ARGS_06,
-                                       t_ARGS_07,
-                                       t_ARGS_08,
-                                       t_ARGS_09,
-                                       t_ARGS_10> make_wformat_args(
-                                                        t_ARGS_01& fmt_args_01,
-                                                        t_ARGS_02& fmt_args_02,
-                                                        t_ARGS_03& fmt_args_03,
-                                                        t_ARGS_04& fmt_args_04,
-                                                        t_ARGS_05& fmt_args_05,
-                                                        t_ARGS_06& fmt_args_06,
-                                                        t_ARGS_07& fmt_args_07,
-                                                        t_ARGS_08& fmt_args_08,
-                                                        t_ARGS_09& fmt_args_09,
-                                                        t_ARGS_10& fmt_args_10)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args_01,
-                                                  fmt_args_02,
-                                                  fmt_args_03,
-                                                  fmt_args_04,
-                                                  fmt_args_05,
-                                                  fmt_args_06,
-                                                  fmt_args_07,
-                                                  fmt_args_08,
-                                                  fmt_args_09,
-                                                  fmt_args_10);
-}
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_C >= 10
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2597,32 +1528,9 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
 {
 }
 
-
-template <class t_CONTEXT, class... t_ARGS>
-Format_FormatArgStore<t_CONTEXT, t_ARGS...> Format_MakeFormatArgs(
-                                                           t_ARGS&... fmt_args)
-{
-    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
-    Format_MakeFormatArgArray<t_CONTEXT, t_ARGS...>(&arg_array, fmt_args...);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
-}
-
-template <class... t_ARGS>
-Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
-                                                           t_ARGS&... fmt_args)
-{
-    return Format_MakeFormatArgs<format_context>(fmt_args...);
-}
-
-template <class... t_ARGS>
-Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
-                                                           t_ARGS&... fmt_args)
-{
-    return Format_MakeFormatArgs<wformat_context>(fmt_args...);
-}
-
 // }}} END GENERATED CODE
 #endif
+
 
                      // ----------------------------------
                      // class basic_format_args<t_CONTEXT>
@@ -2641,10 +1549,10 @@ basic_format_args<t_CONTEXT>::basic_format_args() BSLS_KEYWORD_NOEXCEPT
 #ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT
 #define BSLFMT_FORMATARGS_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_D
-#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_D BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_F
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_F BSLFMT_FORMATARGS_VARIADIC_LIMIT
 #endif
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 0
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 0
 template <class t_CONTEXT>
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT>& store)
@@ -2653,9 +1561,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 0
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 0
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 1
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 1
 template <class t_CONTEXT>
 template <class t_ARGS_01>
 basic_format_args<t_CONTEXT>::basic_format_args(
@@ -2665,9 +1573,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 1
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 1
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 2
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 2
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02>
@@ -2679,9 +1587,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 2
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 2
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 3
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 3
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
@@ -2695,9 +1603,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 3
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 3
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 4
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 4
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
@@ -2713,9 +1621,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 4
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 4
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 5
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 5
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
@@ -2733,9 +1641,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 5
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 5
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 6
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 6
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
@@ -2755,9 +1663,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 6
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 6
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 7
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 7
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
@@ -2779,9 +1687,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 7
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 7
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 8
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 8
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
@@ -2805,9 +1713,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 8
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 8
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 9
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 9
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
@@ -2833,9 +1741,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 9
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 9
 
-#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 10
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 10
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
@@ -2863,7 +1771,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
   d_data(store.d_args.data())
 {
 }
-#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_D >= 10
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2896,13 +1804,1078 @@ size_t basic_format_args<t_CONTEXT>::size() const
     return d_size;
 }
 
-// FREE FUNCTIONS
+
+                      // --------------------------------
+                      // class Format_FormatArgs_ImpUtils
+                      // --------------------------------
+
+// CLASS METHODS
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslfmt_formatargs.h
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_G
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_G BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#endif
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 0
+template <class t_CONTEXT>
+Format_FormatArgStore<t_CONTEXT>
+Format_FormatArgs_ImpUtils::makeFormatArgs()
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  0u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT>(
+                                                                  &arg_array);
+    return Format_FormatArgStore<t_CONTEXT>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 0
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 1
+template <class t_CONTEXT, class t_ARGS_01>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  1u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01>(
+                                                                  &arg_array,
+                                                                  fmt_args_01);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 1
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 2
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  2u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 2
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 3
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02,
+                                           t_ARGS_03& fmt_args_03)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  3u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02,
+                                                             t_ARGS_03>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 3
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 4
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02,
+                                           t_ARGS_03& fmt_args_03,
+                                           t_ARGS_04& fmt_args_04)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  4u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02,
+                                                             t_ARGS_03,
+                                                             t_ARGS_04>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 4
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 5
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02,
+                                           t_ARGS_03& fmt_args_03,
+                                           t_ARGS_04& fmt_args_04,
+                                           t_ARGS_05& fmt_args_05)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  5u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02,
+                                                             t_ARGS_03,
+                                                             t_ARGS_04,
+                                                             t_ARGS_05>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 5
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 6
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02,
+                                           t_ARGS_03& fmt_args_03,
+                                           t_ARGS_04& fmt_args_04,
+                                           t_ARGS_05& fmt_args_05,
+                                           t_ARGS_06& fmt_args_06)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  6u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02,
+                                                             t_ARGS_03,
+                                                             t_ARGS_04,
+                                                             t_ARGS_05,
+                                                             t_ARGS_06>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 6
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 7
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06,
+                           class t_ARGS_07>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 t_ARGS_07>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02,
+                                           t_ARGS_03& fmt_args_03,
+                                           t_ARGS_04& fmt_args_04,
+                                           t_ARGS_05& fmt_args_05,
+                                           t_ARGS_06& fmt_args_06,
+                                           t_ARGS_07& fmt_args_07)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  7u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02,
+                                                             t_ARGS_03,
+                                                             t_ARGS_04,
+                                                             t_ARGS_05,
+                                                             t_ARGS_06,
+                                                             t_ARGS_07>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06,
+                                            t_ARGS_07>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 7
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 8
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06,
+                           class t_ARGS_07,
+                           class t_ARGS_08>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 t_ARGS_07,
+                                 t_ARGS_08>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02,
+                                           t_ARGS_03& fmt_args_03,
+                                           t_ARGS_04& fmt_args_04,
+                                           t_ARGS_05& fmt_args_05,
+                                           t_ARGS_06& fmt_args_06,
+                                           t_ARGS_07& fmt_args_07,
+                                           t_ARGS_08& fmt_args_08)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  8u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02,
+                                                             t_ARGS_03,
+                                                             t_ARGS_04,
+                                                             t_ARGS_05,
+                                                             t_ARGS_06,
+                                                             t_ARGS_07,
+                                                             t_ARGS_08>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06,
+                                            t_ARGS_07,
+                                            t_ARGS_08>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 8
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 9
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06,
+                           class t_ARGS_07,
+                           class t_ARGS_08,
+                           class t_ARGS_09>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 t_ARGS_07,
+                                 t_ARGS_08,
+                                 t_ARGS_09>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02,
+                                           t_ARGS_03& fmt_args_03,
+                                           t_ARGS_04& fmt_args_04,
+                                           t_ARGS_05& fmt_args_05,
+                                           t_ARGS_06& fmt_args_06,
+                                           t_ARGS_07& fmt_args_07,
+                                           t_ARGS_08& fmt_args_08,
+                                           t_ARGS_09& fmt_args_09)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>,  9u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02,
+                                                             t_ARGS_03,
+                                                             t_ARGS_04,
+                                                             t_ARGS_05,
+                                                             t_ARGS_06,
+                                                             t_ARGS_07,
+                                                             t_ARGS_08,
+                                                             t_ARGS_09>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08,
+                                                                  fmt_args_09);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06,
+                                            t_ARGS_07,
+                                            t_ARGS_08,
+                                            t_ARGS_09>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 9
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 10
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06,
+                           class t_ARGS_07,
+                           class t_ARGS_08,
+                           class t_ARGS_09,
+                           class t_ARGS_10>
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 t_ARGS_07,
+                                 t_ARGS_08,
+                                 t_ARGS_09,
+                                 t_ARGS_10>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS_01& fmt_args_01,
+                                           t_ARGS_02& fmt_args_02,
+                                           t_ARGS_03& fmt_args_03,
+                                           t_ARGS_04& fmt_args_04,
+                                           t_ARGS_05& fmt_args_05,
+                                           t_ARGS_06& fmt_args_06,
+                                           t_ARGS_07& fmt_args_07,
+                                           t_ARGS_08& fmt_args_08,
+                                           t_ARGS_09& fmt_args_09,
+                                           t_ARGS_10& fmt_args_10)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>, 10u> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
+                                                             t_ARGS_02,
+                                                             t_ARGS_03,
+                                                             t_ARGS_04,
+                                                             t_ARGS_05,
+                                                             t_ARGS_06,
+                                                             t_ARGS_07,
+                                                             t_ARGS_08,
+                                                             t_ARGS_09,
+                                                             t_ARGS_10>(
+                                                                  &arg_array,
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08,
+                                                                  fmt_args_09,
+                                                                  fmt_args_10);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                            t_ARGS_02,
+                                            t_ARGS_03,
+                                            t_ARGS_04,
+                                            t_ARGS_05,
+                                            t_ARGS_06,
+                                            t_ARGS_07,
+                                            t_ARGS_08,
+                                            t_ARGS_09,
+                                            t_ARGS_10>(arg_array);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+template <class t_CONTEXT, class... t_ARGS>
+Format_FormatArgStore<t_CONTEXT, t_ARGS...>
+Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS&... fmt_args)
+{
+    bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
+    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
+                                                                  &arg_array,
+                                                                  fmt_args...);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
+}
+
+// }}} END GENERATED CODE
+#endif
 
 template <class t_CONTEXT>
-size_t Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args)
+size_t Format_FormatArgs_ImpUtils::formatArgsSize(
+                                      const basic_format_args<t_CONTEXT>& args)
 {
     return args.size();
 }
+
+
+                               // --------------
+                               // FREE FUNCTIONS
+                               // --------------
+
+// FREE FUNCTIONS
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslfmt_formatargs.h
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_H
+#define BSLFMT_FORMATARGS_VARIADIC_LIMIT_H BSLFMT_FORMATARGS_VARIADIC_LIMIT
+#endif
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 0
+Format_FormatArgStore<format_context> make_format_args(
+                                                           )
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  );
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 0
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 1
+template <class t_ARGS_01>
+Format_FormatArgStore<format_context, t_ARGS_01> make_format_args(
+                                                        t_ARGS_01& fmt_args_01)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 1
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 2
+template <class t_ARGS_01,
+          class t_ARGS_02>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 2
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 3
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02,
+                                      t_ARGS_03> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 3
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02,
+                                      t_ARGS_03,
+                                      t_ARGS_04> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 4
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02,
+                                      t_ARGS_03,
+                                      t_ARGS_04,
+                                      t_ARGS_05> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 5
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02,
+                                      t_ARGS_03,
+                                      t_ARGS_04,
+                                      t_ARGS_05,
+                                      t_ARGS_06> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 6
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02,
+                                      t_ARGS_03,
+                                      t_ARGS_04,
+                                      t_ARGS_05,
+                                      t_ARGS_06,
+                                      t_ARGS_07> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06,
+                                                        t_ARGS_07& fmt_args_07)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 7
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02,
+                                      t_ARGS_03,
+                                      t_ARGS_04,
+                                      t_ARGS_05,
+                                      t_ARGS_06,
+                                      t_ARGS_07,
+                                      t_ARGS_08> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06,
+                                                        t_ARGS_07& fmt_args_07,
+                                                        t_ARGS_08& fmt_args_08)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 8
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02,
+                                      t_ARGS_03,
+                                      t_ARGS_04,
+                                      t_ARGS_05,
+                                      t_ARGS_06,
+                                      t_ARGS_07,
+                                      t_ARGS_08,
+                                      t_ARGS_09> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06,
+                                                        t_ARGS_07& fmt_args_07,
+                                                        t_ARGS_08& fmt_args_08,
+                                                        t_ARGS_09& fmt_args_09)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08,
+                                                                  fmt_args_09);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 9
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+Format_FormatArgStore<format_context, t_ARGS_01,
+                                      t_ARGS_02,
+                                      t_ARGS_03,
+                                      t_ARGS_04,
+                                      t_ARGS_05,
+                                      t_ARGS_06,
+                                      t_ARGS_07,
+                                      t_ARGS_08,
+                                      t_ARGS_09,
+                                      t_ARGS_10> make_format_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06,
+                                                        t_ARGS_07& fmt_args_07,
+                                                        t_ARGS_08& fmt_args_08,
+                                                        t_ARGS_09& fmt_args_09,
+                                                        t_ARGS_10& fmt_args_10)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08,
+                                                                  fmt_args_09,
+                                                                  fmt_args_10);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 10
+
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 0
+Format_FormatArgStore<wformat_context> make_wformat_args(
+                                                           )
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  );
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 0
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 1
+template <class t_ARGS_01>
+Format_FormatArgStore<wformat_context, t_ARGS_01> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 1
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 2
+template <class t_ARGS_01,
+          class t_ARGS_02>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 2
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 3
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02,
+                                       t_ARGS_03> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 3
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 4
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02,
+                                       t_ARGS_03,
+                                       t_ARGS_04> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 4
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 5
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02,
+                                       t_ARGS_03,
+                                       t_ARGS_04,
+                                       t_ARGS_05> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 5
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 6
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02,
+                                       t_ARGS_03,
+                                       t_ARGS_04,
+                                       t_ARGS_05,
+                                       t_ARGS_06> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 6
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 7
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02,
+                                       t_ARGS_03,
+                                       t_ARGS_04,
+                                       t_ARGS_05,
+                                       t_ARGS_06,
+                                       t_ARGS_07> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06,
+                                                        t_ARGS_07& fmt_args_07)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 7
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 8
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02,
+                                       t_ARGS_03,
+                                       t_ARGS_04,
+                                       t_ARGS_05,
+                                       t_ARGS_06,
+                                       t_ARGS_07,
+                                       t_ARGS_08> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06,
+                                                        t_ARGS_07& fmt_args_07,
+                                                        t_ARGS_08& fmt_args_08)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 8
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 9
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02,
+                                       t_ARGS_03,
+                                       t_ARGS_04,
+                                       t_ARGS_05,
+                                       t_ARGS_06,
+                                       t_ARGS_07,
+                                       t_ARGS_08,
+                                       t_ARGS_09> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06,
+                                                        t_ARGS_07& fmt_args_07,
+                                                        t_ARGS_08& fmt_args_08,
+                                                        t_ARGS_09& fmt_args_09)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08,
+                                                                  fmt_args_09);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 9
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 10
+template <class t_ARGS_01,
+          class t_ARGS_02,
+          class t_ARGS_03,
+          class t_ARGS_04,
+          class t_ARGS_05,
+          class t_ARGS_06,
+          class t_ARGS_07,
+          class t_ARGS_08,
+          class t_ARGS_09,
+          class t_ARGS_10>
+Format_FormatArgStore<wformat_context, t_ARGS_01,
+                                       t_ARGS_02,
+                                       t_ARGS_03,
+                                       t_ARGS_04,
+                                       t_ARGS_05,
+                                       t_ARGS_06,
+                                       t_ARGS_07,
+                                       t_ARGS_08,
+                                       t_ARGS_09,
+                                       t_ARGS_10> make_wformat_args(
+                                                        t_ARGS_01& fmt_args_01,
+                                                        t_ARGS_02& fmt_args_02,
+                                                        t_ARGS_03& fmt_args_03,
+                                                        t_ARGS_04& fmt_args_04,
+                                                        t_ARGS_05& fmt_args_05,
+                                                        t_ARGS_06& fmt_args_06,
+                                                        t_ARGS_07& fmt_args_07,
+                                                        t_ARGS_08& fmt_args_08,
+                                                        t_ARGS_09& fmt_args_09,
+                                                        t_ARGS_10& fmt_args_10)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args_01,
+                                                                  fmt_args_02,
+                                                                  fmt_args_03,
+                                                                  fmt_args_04,
+                                                                  fmt_args_05,
+                                                                  fmt_args_06,
+                                                                  fmt_args_07,
+                                                                  fmt_args_08,
+                                                                  fmt_args_09,
+                                                                  fmt_args_10);
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+template <class... t_ARGS>
+Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
+                                                           t_ARGS&... fmt_args)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+                                                                  fmt_args...);
+}
+
+template <class... t_ARGS>
+Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
+                                                           t_ARGS&... fmt_args)
+{
+    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+                                                                  fmt_args...);
+}
+
+// }}} END GENERATED CODE
+#endif
 
 }  // close namespace bslfmt
 } // close enterprise namespace
@@ -2914,7 +2887,7 @@ size_t Format_FormatArgsSize(const basic_format_args<t_CONTEXT>& args)
 #endif // ! defined(INCLUDED_BSLFMT_FORMATARGS_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -181,7 +181,7 @@ void basic_format_parse_context<t_CHAR>::check_arg_id(size_t id)
 // ACCESSORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-basic_format_parse_context<t_CHAR>::const_iterator
+typename basic_format_parse_context<t_CHAR>::const_iterator
 basic_format_parse_context<t_CHAR>::begin() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_begin;
@@ -189,7 +189,7 @@ basic_format_parse_context<t_CHAR>::begin() const BSLS_KEYWORD_NOEXCEPT
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-basic_format_parse_context<t_CHAR>::const_iterator
+typename basic_format_parse_context<t_CHAR>::const_iterator
 basic_format_parse_context<t_CHAR>::end() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_end;
