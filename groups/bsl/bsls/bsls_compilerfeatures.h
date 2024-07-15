@@ -1127,6 +1127,15 @@ BSLS_IDENT("$Id: $")
                                     __cpp_impl_three_way_comparison >= 201907L
   #if defined(__cpp_lib_three_way_comparison) &&                             \
                                       __cpp_lib_three_way_comparison >= 201907L
+    #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                     1
+  #endif
+#endif
+
+
+#if defined(__cpp_constexpr) &&                              \
+                                    __cpp_constexpr >= 201907L
+  #if defined(__cpp_constexpr_dynamic_alloc) &&                             \
+                                      __cpp_constexpr_dynamic_alloc >= 201907L
     #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                1
   #endif
 #endif
@@ -1143,6 +1152,16 @@ BSLS_IDENT("$Id: $")
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20                   1
   #endif
 #endif
+
+  // Some level of C++20 is enabled, let's verify the compiler is supported
+#if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 110100
+      static_assert(
+                  0,
+                  "At least version 11.1 is required for C++20 support "
+                  "in GNU CC g++.  This check can be disabled by defining the "
+                  "'BDE_BUILD_SKIP_VERSION_CHECKS' build flag.");
+#endif  // Too old gcc for C++20
 
 // ============================================================================
 //                           ATTRIBUTE DETECTION
@@ -1549,11 +1568,11 @@ BSLS_IDENT("$Id: $")
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17                   1
     #endif  // at least C++17
   #endif  // at least Microsoft Visual Studio 2017
-  #if BSLS_PLATFORM_CMP_VERSION >= 1928  // Microsoft Visual Studio 2019 v 16.9
-    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-      #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                   1
-    #endif  // at least C++20
-  #endif  // at least Microsoft Visual Studio 2019 v 16.9
+  //#if BSLS_PLATFORM_CMP_VERSION >= 1928  // Microsoft Visual Studio 2019 v 16.9
+  //  #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+  //    #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                   1
+  //  #endif  // at least C++20
+  //#endif  // at least Microsoft Visual Studio 2019 v 16.9
 
   // MSVC does not support the non-standard '#include_next' directive
   //#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
