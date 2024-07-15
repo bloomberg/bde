@@ -84,7 +84,7 @@ class Format_FormatArgStore {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     // PRIVATE CREATORS
     explicit Format_FormatArgStore(
