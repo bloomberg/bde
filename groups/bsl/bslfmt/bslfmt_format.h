@@ -168,9 +168,38 @@ BSLS_IDENT("$Id: $")
 
 
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
 namespace bsl {
+using BloombergLP::bslfmt::basic_format_arg;
+using BloombergLP::bslfmt::basic_format_args;
+using BloombergLP::bslfmt::basic_format_context;
+using BloombergLP::bslfmt::basic_format_parse_context;
+using BloombergLP::bslfmt::basic_format_string;
+using BloombergLP::bslfmt::format;
+using BloombergLP::bslfmt::format_args;
+using BloombergLP::bslfmt::format_error;
+using BloombergLP::bslfmt::format_parse_context;
+using BloombergLP::bslfmt::format_string;
+using BloombergLP::bslfmt::format_to;
+using BloombergLP::bslfmt::format_to_n;
+using BloombergLP::bslfmt::format_to_n_result;
+using BloombergLP::bslfmt::formatted_size;
+using BloombergLP::bslfmt::make_format_args;
+using BloombergLP::bslfmt::make_wformat_args;
+using BloombergLP::bslfmt::vformat;
+using BloombergLP::bslfmt::vformat_to;
+using BloombergLP::bslfmt::visit_format_arg;
+using BloombergLP::bslfmt::wformat_args;
+using BloombergLP::bslfmt::wformat_parse_context;
+using BloombergLP::bslfmt::wformat_string;
+}  // close namespace bsl
+
+#else
+
+namespace bsl {
+
+// TYPE ALIASES
 
 using std::basic_format_arg;
 using std::basic_format_args;
@@ -192,6 +221,8 @@ using std::visit_format_arg;
 using std::wformat_args;
 using std::wformat_parse_context;
 using std::wformat_string;
+
+// FREE FUNCTIONS
 
 template <class... t_ARGS>
 string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args);
@@ -265,11 +296,12 @@ void format_to(t_STRING                 *out,
                format_string<t_ARGS...>  fmtstr,
                t_ARGS&&...               args);
     // Format the specified `args` according to the specification given by the
-    // specified `fmtstr` in the locale of the specified `loc`, and write the
-    // result of this operation into the string addressed by the specified
-    // `out` parameter. In the event of an error the exception `format_error`
-    // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // specified `fmtstr`, and write the result of this operation into the
+    // string addressed by the specified `out` parameter. In the event of an
+    // error the exception `format_error` is thrown. Behavior is undefined if
+    // `out` does not point to a valid `bsl::string` object. Note that this
+    // overload is provided in addition to the overloads in the standard
+    // library, and the requires clause is necessary to avoid ambiguity.
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
@@ -277,11 +309,12 @@ void format_to(t_STRING                  *out,
                wformat_string<t_ARGS...>  fmtstr,
                t_ARGS&&...                args);
     // Format the specified `args` according to the specification given by the
-    // specified `fmtstr` in the locale of the specified `loc`, and write the
-    // result of this operation into the string addressed by the specified
-    // `out` parameter. In the event of an error the exception `format_error`
-    // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // specified `fmtstr`, and write the result of this operation into the
+    // string addressed by the specified `out` parameter. In the event of an
+    // error the exception `format_error` is thrown. Behavior is undefined if
+    // `out` does not point to a valid `bsl::string` object. Note that this
+    // overload is provided in addition to the overloads in the standard
+    // library, and the requires clause is necessary to avoid ambiguity.
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
@@ -294,7 +327,9 @@ void format_to(t_STRING                 *out,
     // result of this operation into the string addressed by the specified
     // `out` parameter. In the event of an error the exception `format_error`
     // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // `bsl::string` object. Note that this overload is provided in addition to
+    // the overloads in the standard library, and the requires clause is
+    // necessary to avoid ambiguity.
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
@@ -307,7 +342,9 @@ void format_to(t_STRING                  *out,
     // result of this operation into the string addressed by the specified
     // `out` parameter. In the event of an error the exception `format_error`
     // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // `bsl::string` object. Note that this overload is provided in addition to
+    // the overloads in the standard library, and the requires clause is
+    // necessary to avoid ambiguity.
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
@@ -321,7 +358,9 @@ ptrdiff_t format_to_n(t_STRING                 *out,
     // `out` parameter. Return the number of characters that would have been
     // written to `out` were such writing not truncated. In the event of an
     // error the exception `format_error` is thrown. Behavior is undefined if
-    // `out` does not point to a valid `bsl::string` object.
+    // `out` does not point to a valid `bsl::string` object. Note that this
+    // overload is provided in addition to the overloads in the standard
+    // library, and the requires clause is necessary to avoid ambiguity.
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
@@ -335,7 +374,9 @@ ptrdiff_t format_to_n(t_STRING                  *out,
     // `out` parameter. Return the number of characters that would have been
     // written to `out` were such writing not truncated. In the event of an
     // error the exception `format_error` is thrown. Behavior is undefined if
-    // `out` does not point to a valid `bsl::string` object.
+    // `out` does not point to a valid `bsl::string` object. Note that this
+    // overload is provided in addition to the overloads in the standard
+    // library, and the requires clause is necessary to avoid ambiguity.
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
@@ -351,7 +392,9 @@ ptrdiff_t format_to_n(t_STRING                 *out,
     // of characters that would have been written to `out` were such writing
     // not truncated. In the event of an error the exception `format_error` is
     // thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // `bsl::string` object. Note that this overload is provided in addition to
+    // the overloads in the standard library, and the requires clause is
+    // necessary to avoid ambiguity.
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
@@ -367,7 +410,9 @@ ptrdiff_t format_to_n(t_STRING                  *out,
     // of characters that would have been written to `out` were such writing
     // not truncated. In the event of an error the exception `format_error` is
     // thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // `bsl::string` object. Note that this overload is provided in addition to
+    // the overloads in the standard library, and the requires clause is
+    // necessary to avoid ambiguity.
 
 string vformat(std::string_view fmtstr, format_args args);
     // Format the specified `args` according to the specification given by the
@@ -433,7 +478,8 @@ void vformat_to(string *out, std::string_view fmtstr, format_args args);
     // result of this operation into the string addressed by the specified
     // `out` parameter. In the event of an error the exception `format_error`
     // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // `bsl::string` object. Note that this overload is provided in addition to
+    // the overloads in the standard library.
 
 void vformat_to(wstring *out, std::wstring_view fmtstr, wformat_args args);
     // Format the specified `args` according to the specification given by the
@@ -441,7 +487,8 @@ void vformat_to(wstring *out, std::wstring_view fmtstr, wformat_args args);
     // result of this operation into the string addressed by the specified
     // `out` parameter. In the event of an error the exception `format_error`
     // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // `bsl::string` object. Note that this overload is provided in addition to
+    // the overloads in the standard library.
 
 void vformat_to(string             *out,
                 const std::locale&  loc,
@@ -452,7 +499,8 @@ void vformat_to(string             *out,
     // result of this operation into the string addressed by the specified
     // `out` parameter. In the event of an error the exception `format_error`
     // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // `bsl::string` object. Note that this overload is provided in addition to
+    // the overloads in the standard library.
 
 void vformat_to(wstring            *out,
                 const std::locale&  loc,
@@ -463,9 +511,17 @@ void vformat_to(wstring            *out,
     // result of this operation into the string addressed by the specified
     // `out` parameter. In the event of an error the exception `format_error`
     // is thrown. Behavior is undefined if `out` does not point to a valid
-    // `bsl::string` object.
+    // `bsl::string` object. Note that this overload is provided in addition to
+    // the overloads in the standard library.
 
-// INLINE DEFINITIONS
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+
+// FREE FUNCTIONS 
+
 template <class... t_ARGS>
 string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args)
 {
@@ -768,34 +824,7 @@ void vformat_to(wstring            *out,
 
 }  // close namespace bsl
 
-#else
-
-namespace bsl {
-using BloombergLP::bslfmt::basic_format_arg;
-using BloombergLP::bslfmt::basic_format_args;
-using BloombergLP::bslfmt::basic_format_context;
-using BloombergLP::bslfmt::basic_format_parse_context;
-using BloombergLP::bslfmt::basic_format_string;
-using BloombergLP::bslfmt::format_args;
-using BloombergLP::bslfmt::format_error;
-using BloombergLP::bslfmt::format_parse_context;
-using BloombergLP::bslfmt::format_string;
-using BloombergLP::bslfmt::format;
-using BloombergLP::bslfmt::format_to;
-using BloombergLP::bslfmt::format_to_n;
-using BloombergLP::bslfmt::format_to_n_result;
-using BloombergLP::bslfmt::formatted_size;
-using BloombergLP::bslfmt::make_format_args;
-using BloombergLP::bslfmt::make_wformat_args;
-using BloombergLP::bslfmt::vformat;
-using BloombergLP::bslfmt::vformat_to;
-using BloombergLP::bslfmt::visit_format_arg;
-using BloombergLP::bslfmt::wformat_args;
-using BloombergLP::bslfmt::wformat_parse_context;
-using BloombergLP::bslfmt::wformat_string;
-}  // close namespace bsl
-
-#endif  // defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#endif  // !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
 #endif  // INCLUDED_BSLFMT_FORMAT
 
