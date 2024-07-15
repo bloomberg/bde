@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Jul 12 17:43:03 2024
+// Generated on Mon Jul 15 12:30:14 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 
 #ifdef COMPILING_BSLFMT_FORMATIMP_H
@@ -39,6 +39,10 @@
 
 namespace BloombergLP {
 namespace bslfmt {
+
+   // ----------------------------------------------------------------------
+   // class Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>
+   // ----------------------------------------------------------------------
 
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
 class Format_TruncatingIterator {
@@ -107,6 +111,12 @@ class Format_TruncatingIterator {
         // iterator, return by value can cause data inconsistency.
 };
 
+
+   // ----------------------------------------------------------------------
+   // class Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>
+   // ----------------------------------------------------------------------
+
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 using std::format_to_n_result;
 #else
@@ -116,6 +126,13 @@ struct format_to_n_result {
     typename bsl::iterator_traits<t_OUT>::difference_type size;
 };
 #endif
+
+
+   // ----------------------------------------------------------------------
+   // class Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>
+   // ----------------------------------------------------------------------
+
+
 
 template <class t_OUT, class t_CHAR>
 struct Format_FormatVisitor {
@@ -241,8 +258,39 @@ struct Format_FormatVisitor {
     }
 };
 
-template <class t_OUT, class t_CHAR>
-t_OUT Format_VFormatProcess(
+template <class t_CHAR>
+struct Format_FormatImp {
+  public:
+    template <class t_OUT>
+    static t_OUT Format_VFormatProcess(
+         t_OUT&                                                         out,
+         bsl::basic_string_view<t_CHAR>                                 fmtstr,
+         const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args);
+
+    static Format_OutputIteratorRef<t_CHAR> Format_VFormatImpl(
+          Format_OutputIteratorRef<t_CHAR> out,
+          bsl::basic_string_view<t_CHAR>   fmtstr,
+          const basic_format_args<
+              basic_format_context<Format_OutputIteratorRef<t_CHAR>, t_CHAR> >&
+              args);
+
+    template <class t_OUT, class t_CONTEXT>
+    static t_OUT Format_VFormatImpl(t_OUT                               out,
+                                    bsl::basic_string_view<t_CHAR>      fmtstr,
+                                    const basic_format_args<t_CONTEXT>& args);
+};
+
+
+//template <class t_OUT, class t_CHAR>
+//t_OUT Format_VFormatProcess(
+//         t_OUT&                                                         out,
+//         bsl::basic_string_view<t_CHAR>                                 fmtstr,
+//         const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
+//    // The actual meat of the implementation.
+
+template <class t_CHAR>
+template <class t_OUT>
+t_OUT Format_FormatImp<t_CHAR>::Format_VFormatProcess(
          t_OUT&                                                         out,
          bsl::basic_string_view<t_CHAR>                                 fmtstr,
          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
@@ -330,7 +378,8 @@ t_OUT Format_VFormatProcess(
 }
 
 template <class t_CHAR>
-Format_OutputIteratorRef<t_CHAR> Format_VFormatImpl(
+Format_OutputIteratorRef<t_CHAR>
+Format_FormatImp<t_CHAR>::Format_VFormatImpl(
     Format_OutputIteratorRef<t_CHAR> out,
     bsl::basic_string_view<t_CHAR>   fmtstr,
     const basic_format_args<
@@ -340,10 +389,12 @@ Format_OutputIteratorRef<t_CHAR> Format_VFormatImpl(
     return out;
 }
 
-template <class t_OUT, class t_CHAR, class t_CONTEXT>
-t_OUT Format_VFormatImpl(t_OUT                               out,
-                         bsl::basic_string_view<t_CHAR>      fmtstr,
-                         const basic_format_args<t_CONTEXT>& args)
+template <class t_CHAR>
+template <class t_OUT, class t_CONTEXT>
+t_OUT Format_FormatImp<t_CHAR>::Format_VFormatImpl(
+                                    t_OUT                               out,
+                                    bsl::basic_string_view<t_CHAR>      fmtstr,
+                                    const basic_format_args<t_CONTEXT>& args)
 {
     Format_OutputIteratorImpl<t_CHAR, t_OUT> wrappedOut(out);
     Format_OutputIteratorRef<t_CHAR>         wrappedOutRef(&wrappedOut);
@@ -354,14 +405,14 @@ t_OUT Format_VFormatImpl(t_OUT                               out,
 template <class t_OUT>
 t_OUT vformat_to(t_OUT out, bsl::string_view fmtstr, format_args args)
 {
-    return Format_VFormatImpl(out, fmtstr, args);
+    return Format_FormatImp<char>::Format_VFormatImpl(out, fmtstr, args);
 }
 
 
 template <class t_OUT>
 t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 {
-    return Format_VFormatImpl(out, fmtstr, args);
+    return Format_FormatImp<wchar_t>::Format_VFormatImpl(out, fmtstr, args);
 }
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
