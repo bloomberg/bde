@@ -274,6 +274,9 @@ int main(int argc, char **argv)
     int        aaa     = sizeof(char);
     int        bbb     = sizeof(wchar_t);
 
+    (void)aaa;
+    (void)bbb;
+
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
     // const bool veryVerbose = argc > 3;
@@ -288,14 +291,17 @@ int main(int argc, char **argv)
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         std::formatter<int, char>              dummy1;
+        (void)dummy1;
 #endif
         bsl::formatter<bsl::string_view, char> dummy2;
+        (void)dummy2;
 
 
         const bsl::string intro = "Here is a simple equation";
         const int         x   = 1;
         const int          y   = 2;
         const int         sum = x + y;
+        (void)sum;
 
         //bslfmt::format_string<int> test("{}");
 

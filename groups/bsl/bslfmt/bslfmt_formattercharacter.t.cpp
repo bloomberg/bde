@@ -92,8 +92,12 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        bsl::formatter<char, char>                  dummy1;
-        bsl::formatter<wchar_t, wchar_t>     dummy2;
+        bsl::formatter<char, char>       dummy1;
+        bsl::formatter<wchar_t, wchar_t> dummy2;
+        (void)dummy1;
+        (void)dummy2;
+
+        ASSERT(true);  // placeholder
 
       } break;
       default: {

@@ -94,6 +94,9 @@ int main(int argc, char **argv)
 
         bsl::formatter<int, char>    dummy1;
         bsl::formatter<int, wchar_t> dummy2;
+        (void)dummy1;
+        (void)dummy2;
+        ASSERT(true);  // placeholder
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

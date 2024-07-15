@@ -84,7 +84,7 @@ class Format_FormatArgStore {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend class Format_FormatArgs_ImpUtils;
+    friend struct Format_FormatArgs_ImpUtils;
 
     // PRIVATE CREATORS
     explicit Format_FormatArgStore(
@@ -152,7 +152,7 @@ class basic_format_args {
 /// This class provides utility functions to enable manipulation of types
 /// declared by this component. It is solely for private use by other components
 /// of the `bslfmt` package and should not be used directly.
-struct Format_FormatArgs_ImpUtils {
+class Format_FormatArgs_ImpUtils {
   public:
     // CLASS METHODS
 

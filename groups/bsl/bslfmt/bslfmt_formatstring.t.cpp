@@ -94,6 +94,7 @@ int main(int argc, char **argv)
 
         //bslfmt::format_string<int>  dummy1("Testing {}");
         //bslfmt::wformat_string<int> dummy2(L"Testing {}");
+        ASSERT(true);  // placeholder
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

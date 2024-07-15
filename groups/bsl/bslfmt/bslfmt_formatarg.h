@@ -244,7 +244,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 /// This class provides utility functions to enable manipulation of types
 /// declared by this component. It is solely for private use by other components
 /// of the `bslfmt` package and should not be used directly.
-struct Format_FormatArg_ImpUtils {
+class Format_FormatArg_ImpUtils {
   public:
     // CLASS METHODS
 

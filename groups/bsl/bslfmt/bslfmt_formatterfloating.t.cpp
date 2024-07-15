@@ -93,6 +93,9 @@ int main(int argc, char **argv)
                    "\n==============\n");
 
         bsl::formatter<double, char>                  dummy1;
+        (void)dummy1;
+
+        ASSERT(true);  // placeholder
 
       } break;
       default: {

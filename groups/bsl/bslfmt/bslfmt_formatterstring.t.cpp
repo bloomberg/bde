@@ -95,10 +95,16 @@ int main(int argc, char **argv)
         bsl::formatter<const char *, char>                  dummy1;
         bsl::formatter<bsl::string_view, char>     dummy2;
         bsl::formatter<bsl::wstring_view, wchar_t> dummy3;
+        (void)dummy1;
+        (void)dummy2;
+        (void)dummy3;
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         std::formatter<bsl::string, char>          dummy4;
         std::formatter<bsl::wstring, wchar_t>      dummy5;
+        (void)dummy4;
+        (void)dummy5;
 #endif
+        ASSERT(true);  // placeholder
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
