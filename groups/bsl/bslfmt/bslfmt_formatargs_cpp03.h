@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Jul 15 17:47:39 2024
+// Generated on Mon Jul 15 18:38:03 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatargs.h
 
 #ifdef COMPILING_BSLFMT_FORMATARGS_H
@@ -119,7 +119,7 @@ class Format_FormatArgStore<t_CONTEXT> {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  0u>& args)
@@ -137,7 +137,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01> {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  1u>& args)
@@ -157,7 +157,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  2u>& args)
@@ -179,7 +179,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  3u>& args)
@@ -203,7 +203,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  4u>& args)
@@ -229,7 +229,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  5u>& args)
@@ -257,7 +257,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  6u>& args)
@@ -287,7 +287,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  7u>& args)
@@ -319,7 +319,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  8u>& args)
@@ -353,7 +353,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  9u>& args)
@@ -389,7 +389,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, 10u>& args)
@@ -409,7 +409,7 @@ class Format_FormatArgStore {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend struct Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtils;
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
