@@ -134,7 +134,7 @@ bool doTestWithOracle(string_view              result,
     // Work around for the fact we cannot construct a bslfmt::format_string
     // from non-consteval fmtstr.
     BSLFMT_FORMAT_STRING_PARAMETER                 bslfmt("");
-    bslfmt::FormatString_Test_Updater<char>        tu;
+    bslfmt::Format_FormatString_Test_Updater<char> tu;
 
     tu.update(&bslfmt, fmtstr.get());
 
