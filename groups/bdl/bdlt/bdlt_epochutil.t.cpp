@@ -150,6 +150,9 @@ EarlyEpochCopier::EarlyEpochCopier()
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Waddress"
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wtautological-undefined-compare"
+#endif
 #endif
 
     if (0 != &epoch) {

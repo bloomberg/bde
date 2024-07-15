@@ -15,6 +15,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -30,6 +31,12 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
 
 //=============================================================================
 //                                  TEST PLAN
@@ -176,7 +183,7 @@ int recPool(char *address)
 {
     ASSERT(address);
 
-    Header *h = (Header *)address - 1;
+    Header *h = (Header *)(void *)address - 1;
 
     return h->d_header.d_pool;
 }

@@ -208,7 +208,7 @@ void executeInParallel(int                               numThreads,
         bslmt::ThreadUtil::create(&threads[i],
                                   attributes,
                                   function,
-                                  static_cast<char *>(0) + i);
+                                  static_cast<void *>(&i));
     }
     for (int i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::join(threads[i]);
@@ -801,8 +801,7 @@ extern "C"
     void *workerThread6(void *arg)
     {
         my_Class *arr[k_NUM_OBJECTS];
-        int remainder = static_cast<int>(
-                              reinterpret_cast<bsls::Types::UintPtr>(arg) % 4);
+        int remainder = static_cast<int>(*static_cast<int *>(arg) % 4);
 
         // 0-order threads
         if (remainder == 0) {
@@ -934,8 +933,7 @@ extern "C"
     void *workerThread4(void *arg)
     {
         my_Class *arr[k_NUM_OBJECTS];
-        int remainder = static_cast<int>(
-                              reinterpret_cast<bsls::Types::UintPtr>(arg) % 2);
+        int remainder = static_cast<int>(*static_cast<int *>(arg) % 2);
 
         // even numbered threads
         if (remainder == 0) {
@@ -945,7 +943,7 @@ extern "C"
             }
 
             barrier0.wait();
-            if ((bsls::Types::IntPtr)arg == 0) {
+            if (*static_cast<int *>(arg) == 0) {
                 int nC; // number of created objects
                 int nA; // number of available objects
                 nC = pool->numObjects();
@@ -1003,7 +1001,7 @@ extern "C"
       }
 
       barrier.wait();
-      if ((bsls::Types::IntPtr)arg == 0) {
+      if (*static_cast<int *>(arg) == 0) {
         int nC; // number of created objects
         int nA; // number of available objects
         nC = pool->numObjects();

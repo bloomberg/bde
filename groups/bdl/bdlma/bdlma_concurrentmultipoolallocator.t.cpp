@@ -13,6 +13,7 @@
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -26,6 +27,12 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
 
 //=============================================================================
 //                                  TEST PLAN
@@ -111,8 +118,6 @@ void aSsErT(int c, const char *s, int i)
 
 typedef bdlma::ConcurrentMultipoolAllocator Obj;
 
-const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-
 // Warning: keep this in sync with bdema_Multipool.h!
 struct Header {
     // Stores pool number of this item.
@@ -155,7 +160,7 @@ inline static int recPool(char *address)
 {
     ASSERT(address);
 
-    Header *h = (Header *)address - 1;
+    Header *h = (Header *)(void *)address - 1;
 
     return h->d_header.d_pool;
 }
@@ -167,13 +172,6 @@ inline int delta(char *address1, char *address2)
     return static_cast<int>(address1 < address2
                           ? address2 - address1
                           : address1 - address2);
-}
-
-inline static void scribble(char *address, int size)
-    // Assign a non-zero value to each of the specified 'size' bytes starting
-    // at the specified 'address'.
-{
-    memset(address, 0xff, size);
 }
 
 void stretchRemoveAll(Obj *object, int numElements, int objSize)

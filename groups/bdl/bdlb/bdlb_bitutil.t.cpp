@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
             unsigned int value32 = 1U << 31;
             unsigned long long value64 = 1ULL << 63;
             unsigned long value32or64 =
-                               1ULL << (Util::sizeInBits<unsigned long>() - 1);
+                                1UL << (Util::sizeInBits<unsigned long>() - 1);
 
             ASSERT(     31 == Util::log2(value32 - 1U));
             ASSERT(     63 == Util::log2(value64 - 1U));
@@ -1273,7 +1273,7 @@ int main(int argc, char *argv[])
                 }
             }
             for (int i = 0; i < Util::sizeInBits<unsigned long>(); ++i) {
-                unsigned long value32or64 = 1ULL << i;
+                unsigned long value32or64 = 1UL << i;
                 for (int index = 0;
                          index < Util::sizeInBits<unsigned long>();
                        ++index) {

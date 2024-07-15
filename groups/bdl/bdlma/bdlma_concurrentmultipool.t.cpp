@@ -183,7 +183,7 @@ static int recPool(char *address)
 {
     ASSERT(address);
 
-    Header *h = (Header *)address - 1;
+    Header *h = (Header *)(void *)address - 1;
 
     return h->d_header.d_pool;
 }
@@ -316,6 +316,10 @@ extern "C" void *workerThread(void *arg) {
         // 'getMessage' method for clients to retrieve the underlying message.
 
       public:
+        // CREATORS
+        virtual ~my_Message() {}
+            // Destroy this object.
+
         // ACCESSORS
         virtual const char *getMessage() = 0;
             // Return the null-terminated message string.
@@ -342,6 +346,9 @@ extern "C" void *workerThread(void *arg) {
             bsl::memcpy(d_buffer, msg, length);
             d_buffer[length] = '\0';
         }
+
+        virtual ~my_SmallMessage() {}
+            // Destroy this object.
 
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
@@ -373,6 +380,9 @@ extern "C" void *workerThread(void *arg) {
             d_buffer[length] = '\0';
         }
 
+        virtual ~my_MediumMessage() {}
+            // Destroy this object.
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
@@ -403,6 +413,9 @@ extern "C" void *workerThread(void *arg) {
             d_buffer[length] = '\0';
         }
 
+        virtual ~my_LargeMessage() {}
+            // Destroy this object.
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
@@ -427,6 +440,9 @@ extern "C" void *workerThread(void *arg) {
         my_GenericMessage(char *msg) : d_buffer(msg)
         {
         }
+
+        virtual ~my_GenericMessage() {}
+            // Destroy this object.
 
         // PRIVATE ACCESSORS
         virtual const char *getMessage()

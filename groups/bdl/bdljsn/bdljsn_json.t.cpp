@@ -6839,7 +6839,7 @@ int main(int argc, char *argv[])
                     else if (X.isNumber()) {
                         ASSERTV(VALUE_CONFIG,
                                 CONFIG,
-                                &oa == X.theNumber().allocator());
+                                &oa == X.theNumber().get_allocator());
                     }
                     else if (X.isObject()) {
                         ASSERTV(VALUE_CONFIG,
@@ -7175,7 +7175,7 @@ int main(int argc, char *argv[])
                     else if (X.isNumber()) {
                         ASSERTV(VALUE_CONFIG,
                                 CONFIG,
-                                &oa == X.theNumber().allocator());
+                                &oa == X.theNumber().get_allocator());
                     }
                     else if (X.isObject()) {
                         ASSERTV(VALUE_CONFIG,
@@ -8723,8 +8723,8 @@ int main(int argc, char *argv[])
                             JsonType::e_NUMBER == X.type());
                     ASSERTV(CONFIG,
                             &oa,
-                            number.allocator(),
-                            &oa == number.allocator());
+                            number.get_allocator().mechanism(),
+                            &oa == number.get_allocator());
                 }
 
                 {

@@ -6226,14 +6226,14 @@ void runTestCase18()
                     default: { ASSERT(0 == "Unexpected argument count"); } break;
                 }
 
-                ASSERTV(numParams, !"expected exception missing");
+                ASSERTV(numParams, 0 == "expected exception missing");
 
             } catch (const bsl::exception&) {
                 if (veryVeryVerbose) {
                     P_(numParams) Q(Caught expected exception)
                 }
             } catch (...) {
-                ASSERTV(numParams, !"unexpected exception type");
+                ASSERTV(numParams, 0 == "unexpected exception type");
             }
 
             ASSERTV(numParams, numParams == ThrowingHelper::ctorCalled());
@@ -6322,14 +6322,14 @@ void runTestCase18()
                         ASSERT(0 == "Too many parameters.");
                     }
 
-                    ASSERTV(numParams, !"Expected exception missing");
+                    ASSERTV(numParams, 0 == "Expected exception missing");
 
                 } catch (const bsl::exception&) {
                     if (veryVeryVerbose) {
                         P_(numParams) Q(Caught expected exception)
                     }
                 } catch (...) {
-                    ASSERTV(numParams, !"Unexpected exception type");
+                    ASSERTV(numParams, 0 == "Unexpected exception type");
                 }
 
                 ASSERTV(numParams, true      == obj.isNull());

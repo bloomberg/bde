@@ -8,6 +8,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_deque.h>
 
 #include <bsl_cstdlib.h>
@@ -798,9 +800,22 @@ int main(int argc, char *argv[])
                     bdlt::Datetime     TIME        = DATA[i].d_time;
               const int                RESULT      = DATA[i].d_result;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
+#endif
+
               if (ST_MTIME64 < MIN_TIME || ST_MTIME64 > MAX_TIME) {
                   continue;
               }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
+#endif
 
               const u::time_t ST_MTIME = static_cast<u::time_t>(ST_MTIME64);
 

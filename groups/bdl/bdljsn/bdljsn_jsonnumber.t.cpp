@@ -21,6 +21,7 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_log.h>
 #include <bsls_nameof.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_cassert.h>
@@ -218,7 +219,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 // For use in 'ASSERTV' macro invocations to print allocator.
-#define ALLOC_OF(EXPR) (EXPR).allocator()
+#define ALLOC_OF(EXPR) (EXPR).get_allocator().mechanism()
 
 // ============================================================================
 //                    EXCEPTION TEST MACRO ABBREVIATIONS
@@ -2346,6 +2347,9 @@ int main(int argc, char *argv[])
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                             ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
                         }
+#else
+                        (void)MEMDST2;
+                        (void)MEMSRC1;
 #endif
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -4536,8 +4540,21 @@ int main(int argc, char *argv[])
                 // Also invoke the object's 'get_allocator' and 'allocator'
                 // accessors.
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+#endif
+
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.allocator());
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
+#endif
 
                 ASSERTV(CONFIG,  oa.numBlocksTotal(),
                         0 ==  oa.numBlocksTotal());
@@ -4632,8 +4649,21 @@ int main(int argc, char *argv[])
                 // Also invoke the object's 'get_allocator' and 'allocator'
                 // accessors.
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+#endif
+
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.allocator());
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
+#endif
 
                 switch (MEM) {
                   case 'Y': {

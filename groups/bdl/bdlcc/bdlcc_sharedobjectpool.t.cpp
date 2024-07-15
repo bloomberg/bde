@@ -613,29 +613,8 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
 // ============================================================================
 //         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
 bslmt::ThreadAttributes attributes;
-void executeInParallel(int                               numThreads,
-                       bslmt::ThreadUtil::ThreadFunction function)
-    // Create the specified 'numThreads', each executing the specified
-    // 'function'.  Number each thread (sequentially from 0 to 'numThreads-1')
-    // by passing i to i'th thread.  Finally join all the threads.
-{
-    bslmt::ThreadUtil::Handle *threads =
-                               new bslmt::ThreadUtil::Handle[numThreads];
-    ASSERT(threads);
-
-    for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::create(&threads[i],
-                                  attributes,
-                                  function,
-                                  static_cast<char *>(0) + i);
-    }
-    for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::join(threads[i]);
-    }
-
-    delete [] threads;
-}
 
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS FOR TESTING
