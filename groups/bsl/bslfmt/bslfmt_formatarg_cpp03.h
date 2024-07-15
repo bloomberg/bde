@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Jul 12 17:38:43 2024
+// Generated on Mon Jul 15 17:47:39 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -235,7 +235,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 #ifndef BSLFMT_FORMATARG_VARIADIC_LIMIT_A
 #define BSLFMT_FORMATARG_VARIADIC_LIMIT_A BSLFMT_FORMATARG_VARIADIC_LIMIT
 #endif
-struct Format_FormatArg_ImpUtils {
+class Format_FormatArg_ImpUtils {
   public:
 
 #if BSLFMT_FORMATARG_VARIADIC_LIMIT_A >= 0
@@ -408,7 +408,7 @@ struct Format_FormatArg_ImpUtils {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-struct Format_FormatArg_ImpUtils {
+class Format_FormatArg_ImpUtils {
   public:
 
     template <class t_CONTEXT, class... t_FMTARGS>
@@ -1038,7 +1038,7 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
 #endif // ! defined(INCLUDED_BSLFMT_FORMATARG_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
