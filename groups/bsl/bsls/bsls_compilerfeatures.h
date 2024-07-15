@@ -1127,7 +1127,7 @@ BSLS_IDENT("$Id: $")
                                     __cpp_impl_three_way_comparison >= 201907L
   #if defined(__cpp_lib_three_way_comparison) &&                             \
                                       __cpp_lib_three_way_comparison >= 201907L
-    #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                     1
+    #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                1
   #endif
 #endif
 
@@ -1136,7 +1136,7 @@ BSLS_IDENT("$Id: $")
   #if defined(__cpp_constexpr) && __cpp_constexpr >= 201907L
     #if defined(__cpp_constexpr_dynamic_alloc) &&                             \
                                         __cpp_constexpr_dynamic_alloc >= 201907L
-      #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON              1
+      #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20N                  1
   #endif
 #endif
 
