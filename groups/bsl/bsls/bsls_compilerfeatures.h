@@ -1131,12 +1131,12 @@ BSLS_IDENT("$Id: $")
   #endif
 #endif
 
-
-#if defined(__cpp_constexpr) &&                              \
-                                    __cpp_constexpr >= 201907L
-  #if defined(__cpp_constexpr_dynamic_alloc) &&                             \
-                                      __cpp_constexpr_dynamic_alloc >= 201907L
-    #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                1
+#if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
+  // We test against 201907L instead of the published 202002L.
+  #if defined(__cpp_constexpr) && __cpp_constexpr >= 201907L
+    #if defined(__cpp_constexpr_dynamic_alloc) &&                             \
+                                        __cpp_constexpr_dynamic_alloc >= 201907L
+      #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON              1
   #endif
 #endif
 
@@ -1150,18 +1150,9 @@ BSLS_IDENT("$Id: $")
   #endif
   #if defined(__cpp_consteval) && __cpp_consteval >= 201811L
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20                   1
+    #endif
   #endif
 #endif
-
-  // Some level of C++20 is enabled, let's verify the compiler is supported
-#if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 110100
-      static_assert(
-                  0,
-                  "At least version 11.1 is required for C++20 support "
-                  "in GNU CC g++.  This check can be disabled by defining the "
-                  "'BDE_BUILD_SKIP_VERSION_CHECKS' build flag.");
-#endif  // Too old gcc for C++20
 
 // ============================================================================
 //                           ATTRIBUTE DETECTION
