@@ -101,37 +101,6 @@ struct formatter<char, wchar_t>
     }
 };
 
-#if 0
-template <class t_CHAR>
-struct formatter<t_CHAR, t_CHAR> {
-  public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
-    // MANIPULATORS
-    template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                           t_PARSE_CONTEXT& pc)
-    {
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bsl::format_error("not implemented"));
-        }
-        return pc.begin();
-    }
-
-    template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(t_CHAR            c,
-                                               t_FORMAT_CONTEXT& fc) const
-    {
-        typename t_FORMAT_CONTEXT::iterator o = fc.out();
-
-        *o++ = c;
-        return o;
-    }
-};
-#endif
-
-
 }
 
 #endif  // INCLUDED_BSLFMT_FORMATTERBASE

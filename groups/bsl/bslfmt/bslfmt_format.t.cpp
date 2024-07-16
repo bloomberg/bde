@@ -373,6 +373,28 @@ int main(int argc, char **argv)
         bsl::formatter<bsl::string_view, char> dummy2a;
         (void) dummy2a;
 
+        { // simple test to see if we can pass in string and string_view
+
+            const std::string v1("Test 1");
+            const bsl::string v2("Test 2");
+
+            const std::string_view v3("Test 3");
+            const bsl::string_view v4("Test 4");
+
+            check(bsl::format("{}", v1), "Test 1");
+            check(bsl::format("{}", v2), "Test 2");
+
+            check(bsl::format("{}", v3), "Test 3");
+            check(bsl::format("{}", v4), "Test 4");
+
+            check(std::format("{}", v1), "Test 1");
+            check(std::format("{}", v2), "Test 2");
+
+            check(std::format("{}", v3), "Test 3");
+            check(std::format("{}", v4), "Test 4");
+
+        }
+
         { // simple test of format with char
             const bsl::string  intro  =  "Here is a simple equation";
             const int          x      = 1;
