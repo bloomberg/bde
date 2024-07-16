@@ -378,20 +378,26 @@ int main(int argc, char **argv)
             const std::string v1("Test 1");
             const bsl::string v2("Test 2");
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             const std::string_view v3("Test 3");
+#endif
             const bsl::string_view v4("Test 4");
 
             check(bsl::format("{}", v1), "Test 1");
             check(bsl::format("{}", v2), "Test 2");
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             check(bsl::format("{}", v3), "Test 3");
+#endif
             check(bsl::format("{}", v4), "Test 4");
 
-            check(std::format("{}", v1), "Test 1");
-            check(std::format("{}", v2), "Test 2");
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+            ASSERT(std::format("{}", v1) == bsl::string("Test 1"));
+            ASSERT(std::format("{}", v2) == bsl::string("Test 2"));
 
-            check(std::format("{}", v3), "Test 3");
-            check(std::format("{}", v4), "Test 4");
+            ASSERT(std::format("{}", v3) == bsl::string("Test 3"));
+            ASSERT(std::format("{}", v4) == bsl::string("Test 4"));
+#endif
 
         }
 

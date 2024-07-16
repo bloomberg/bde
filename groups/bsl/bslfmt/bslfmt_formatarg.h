@@ -223,10 +223,10 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     operator BoolType() const BSLS_KEYWORD_NOEXCEPT;
 
     // MANIPULATORS
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
-    // BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
-    // BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
-    // bslstl_variant.h
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) &&               \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
+    // This check is a proxy for BSL_VARIANT_FULL_IMPLEMENTATION which is unset
+    // at the end of bslstl_variant.h
     template <class t_VISITOR>
     decltype(auto) visit(t_VISITOR&& visitor);
 #else
@@ -263,10 +263,10 @@ class Format_FormatArg_ImpUtils {
                                // FREE FUNCTIONS
                                // --------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
-// BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
-// BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
-// bslstl_variant.h
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) &&               \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
+    // This check is a proxy for BSL_VARIANT_FULL_IMPLEMENTATION which is unset
+    // at the end of bslstl_variant.h
 
 /// Apply the specified `visitor` callable to the specified `arg`.
 template <class t_VISITOR, class t_CONTEXT>
@@ -339,15 +339,50 @@ void basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format(
 
 // MANIPULATORS
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
-// BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
-// BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
-// bslstl_variant.h
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) &&               \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
+    // This check is a proxy for BSL_VARIANT_FULL_IMPLEMENTATION which is unset
+    // at the end of bslstl_variant.h
 template <class t_OUT, class t_CHAR>
 template <class t_VISITOR>
 decltype(auto) basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(
                                                                  t_VISITOR&& v)
 {
+    // The possible return types need to all match exactly, on the basis that
+    // the standard library enforces, on penalty of program ill-formedness, so
+    // we should do the same.
+    typedef typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type t1;
+    typedef typename bsl::invoke_result<t_VISITOR&, bool&>::type           t2;
+    typedef typename bsl::invoke_result<t_VISITOR&, char_type&>::type      t3;
+    typedef typename bsl::invoke_result<t_VISITOR&, int&>::type            t4;
+    typedef typename bsl::invoke_result<t_VISITOR&, unsigned&>::type       t5;
+    typedef typename bsl::invoke_result<t_VISITOR&, long long&>::type      t6;
+    typedef
+        typename bsl::invoke_result<t_VISITOR&, unsigned long long&>::type t7;
+    typedef typename bsl::invoke_result<t_VISITOR&, float&>::type          t8;
+    typedef typename bsl::invoke_result<t_VISITOR&, double&>::type         t9;
+    typedef typename bsl::invoke_result<t_VISITOR&, long double&>::type    t10;
+    typedef
+        typename bsl::invoke_result<t_VISITOR&, const char_type *&>::type  t11;
+    typedef typename bsl::invoke_result<t_VISITOR&, const void *&>::type   t12;
+    typedef typename bsl::invoke_result<t_VISITOR&,
+                               bsl::basic_string_view<char_type>&>::type   t13;
+    typedef typename bsl::invoke_result<t_VISITOR&, handle&>::type         t14;
+
+    BSLMF_ASSERT((bsl::is_same<t1, t2 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t3 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t4 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t5 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t6 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t7 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t8 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t9 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t10>::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t11>::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t12>::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t13>::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t14>::value));
+
     return bsl::visit(std::forward<t_VISITOR>(v), d_value);
 }
 #else
@@ -356,6 +391,41 @@ template <class t_VISITOR>
 typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(t_VISITOR& v)
 {
+    // The possible return types need to all match exactly, on the basis that
+    // the standard library enforces, on penalty of program ill-formedness, so
+    // we should do the same.
+    typedef typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type t1;
+    typedef typename bsl::invoke_result<t_VISITOR&, bool&>::type           t2;
+    typedef typename bsl::invoke_result<t_VISITOR&, char_type&>::type      t3;
+    typedef typename bsl::invoke_result<t_VISITOR&, int&>::type            t4;
+    typedef typename bsl::invoke_result<t_VISITOR&, unsigned&>::type       t5;
+    typedef typename bsl::invoke_result<t_VISITOR&, long long&>::type      t6;
+    typedef
+        typename bsl::invoke_result<t_VISITOR&, unsigned long long&>::type t7;
+    typedef typename bsl::invoke_result<t_VISITOR&, float&>::type          t8;
+    typedef typename bsl::invoke_result<t_VISITOR&, double&>::type         t9;
+    typedef typename bsl::invoke_result<t_VISITOR&, long double&>::type    t10;
+    typedef
+        typename bsl::invoke_result<t_VISITOR&, const char_type *&>::type  t11;
+    typedef typename bsl::invoke_result<t_VISITOR&, const void *&>::type   t12;
+    typedef typename bsl::invoke_result<t_VISITOR&,
+                               bsl::basic_string_view<char_type>&>::type   t13;
+    typedef typename bsl::invoke_result<t_VISITOR&, handle&>::type         t14;
+
+    BSLMF_ASSERT((bsl::is_same<t1, t2 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t3 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t4 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t5 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t6 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t7 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t8 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t9 >::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t10>::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t11>::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t12>::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t13>::value));
+    BSLMF_ASSERT((bsl::is_same<t1, t14>::value));
+
     return bsl::visit(v, d_value);
 }
 #endif
@@ -571,10 +641,10 @@ void Format_FormatArg_ImpUtils::makeFormatArgArray(
 
 // FREE FUNCTIONS
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
-// BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE is a proxy for
-// BSL_VARIANT_FULL_IMPLEMENTATION which is unset at the end of
-// bslstl_variant.h
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) &&               \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
+    // This check is a proxy for BSL_VARIANT_FULL_IMPLEMENTATION which is unset
+    // at the end of bslstl_variant.h
 template <class t_VISITOR, class t_CONTEXT>
 decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
                                 basic_format_arg<t_CONTEXT> arg)

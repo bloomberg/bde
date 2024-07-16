@@ -29,22 +29,22 @@
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatImp_PreventStdPromotion
+    typedef void Formatter_PreventStdPromotion
 #else
 // On earlier C++ compilers we use a dummy typedef to avoid the compiler
 // warning about extra semicolons.
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatImp_DoNotPreventStdPromotion_DummyTypedef
+    typedef void Formatter_DoNotPreventStdPromotion_DummyTypedef
 #endif
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP23                      \
-    typedef void FormatImp_PreventStdPromotion
+    typedef void Formatter_PreventStdPromotion
 #else
 // On earlier C++ compilers we use a dummy typedef to avoid the compiler
 // warning about extra semicolons.
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP23                      \
-    typedef void FormatImp_DoNotPreventStdPromotion_DummyTypedef
+    typedef void Formatter_DoNotPreventStdPromotion_DummyTypedef
 #endif
 
 

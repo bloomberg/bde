@@ -88,6 +88,11 @@ struct formatter<basic_string_view<t_CHAR>, t_CHAR> {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 namespace std {
 // FORMATTER SPECIALIZATIONS
+
+/// This is a customisation of `std::formatter` for `bsl::string` and
+/// `bsl::wstring`. We cannot rely on the automatic promotion mechanism because
+/// we do not define bsl formatters for `bsl::string` or `bsl::wstring` (on the
+/// basis that the `string_view` formatter is used instead).
 template <class t_CHAR>
 struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
 : bsl::formatter<bsl::basic_string_view<t_CHAR>, t_CHAR> {
