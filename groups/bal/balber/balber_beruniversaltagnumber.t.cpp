@@ -1,13 +1,5 @@
 // balber_beruniversaltagnumber.t.cpp                                 -*-C++-*-
-
 #include <balber_beruniversaltagnumber.h>
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
 
 #include <s_baltst_customizedstring.h>
 #include <s_baltst_enumerated.h>
@@ -42,13 +34,12 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstring.h>     // strlen()
 #include <bsl_iosfwd.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
-
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strlen()
 
 using namespace BloombergLP;
 using bsl::cout;

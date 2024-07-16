@@ -1,12 +1,4 @@
 // balber_berdecoder.t.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balber_berdecoder.h>
 
 #include <balber_berencoder.h>        // for testing only
@@ -39,31 +31,28 @@
 #include <bdlsb_memoutstreambuf.h>      // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>  // for testing only
 
-#include <bslim_fuzzdataview.h>
-#include <bslim_fuzzutil.h>
-#include <bslim_printer.h>
-#include <bslim_testutil.h>
-
-#include <bslma_allocator.h>
-
-#include <bsls_objectbuffer.h>
-#include <bsls_review.h>
-#include <bsls_stopwatch.h>
-#include <bsls_types.h>
+#include <bdlb_chartype.h>
+#include <bdlb_print.h>
+#include <bdlb_printmethods.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_prolepticdateimputil.h>
 #include <bdlt_time.h>
 
-#include <bdlb_chartype.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
+#include <bslim_fuzzdataview.h>
+#include <bslim_fuzzutil.h>
+#include <bslim_printer.h>
 #include <bslim_testutil.h>
 
+#include <bslma_allocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+
+#include <bsls_objectbuffer.h>
+#include <bsls_review.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -73,7 +62,7 @@
 #include <bsl_iterator.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 namespace test = BloombergLP::s_baltst;
 
 // ============================================================================

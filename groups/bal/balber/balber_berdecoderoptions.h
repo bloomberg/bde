@@ -1,12 +1,4 @@
 // balber_berdecoderoptions.h                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALBER_BERDECODEROPTIONS
 #define INCLUDED_BALBER_BERDECODEROPTIONS
 
@@ -26,12 +18,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
 
+#include <bdlb_printmethods.h>
+
 #include <bsls_assert.h>
 
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>
-
-#include <bdlb_printmethods.h>
 
 #include <bsl_iosfwd.h>
 

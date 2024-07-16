@@ -1,38 +1,23 @@
 // balber_berutil.cpp                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balber_berutil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balber_berutil_cpp, "$Id$ $CSID$")
 
-#include <bdlf_memfn.h>
-
-#include <bdlt_prolepticdateimputil.h>
-
-#include <bdlt_iso8601util.h>
-
 #include <bdlb_bitutil.h>
-
+#include <bdldfp_decimalconvertutil.h>
+#include <bdlf_memfn.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
-
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
 #include <bdlt_datetz.h>
+#include <bdlt_iso8601util.h>
+#include <bdlt_prolepticdateimputil.h>
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
-#include <bdldfp_decimalconvertutil.h>
-
 #include <bslmt_once.h>
-
 #include <bsls_assert.h>
 #include <bsls_log.h>
 #include <bsls_platform.h>

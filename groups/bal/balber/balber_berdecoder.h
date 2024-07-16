@@ -1,12 +1,4 @@
 // balber_berdecoder.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALBER_BERDECODER
 #define INCLUDED_BALBER_BERDECODER
 
@@ -105,13 +97,11 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typecategory.h>
 #include <bdlat_valuetypefunctions.h>
 
-#include <bslma_allocator.h>
-
-#include <bsl_string.h>
-
 #include <bdlb_variant.h>
 
 #include <bdlsb_memoutstreambuf.h>
+
+#include <bslma_allocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
@@ -120,6 +110,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_istream.h>
 #include <bsl_ostream.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {

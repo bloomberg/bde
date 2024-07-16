@@ -1,19 +1,7 @@
 // balber_berutil.t.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balber_berutil.h>
 
 #include <balber_berconstants.h>
-
-#include <bsla_maybeunused.h>
-
-#include <bslalg_typetraits.h>
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_selectioninfo.h>
@@ -21,37 +9,36 @@
 #include <bdlat_valuetypefunctions.h>
 
 #include <bdlb_float.h>
+#include <bdlb_print.h>
+#include <bdlb_printmethods.h>
 #include <bdlb_random.h>
-
-#include <bsls_keyword.h>
-#include <bsls_objectbuffer.h>
-#include <bsls_review.h>
-#include <bsls_stopwatch.h>
-#include <bsls_types.h>
-
-#include <bslim_testutil.h>
 
 #include <bdldfp_decimalutil.h>
 
-#include <bdlsb_memoutstreambuf.h>
-#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlsb_fixedmeminstreambuf.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
+#include <bdlsb_memoutstreambuf.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
-#include <bdlt_time.h>
-#include <bdlt_datetz.h>
 #include <bdlt_datetimetz.h>
+#include <bdlt_datetz.h>
 #include <bdlt_prolepticdateimputil.h>
+#include <bdlt_time.h>
 #include <bdlt_timetz.h>
-
-#include <bdlb_float.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
 
 #include <bsla_maybeunused.h>
 
+#include <bslalg_typetraits.h>
+
+#include <bslim_testutil.h>
+
+#include <bsls_keyword.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>

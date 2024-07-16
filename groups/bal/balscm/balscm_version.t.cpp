@@ -1,25 +1,15 @@
 // balscm_version.t.cpp                                               -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <balscm_version.h>
+
+#include <bslim_testutil.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strncmp()
 #include <bsl_iostream.h>
 
-#include <bslim_testutil.h>
-
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
-
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN

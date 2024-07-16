@@ -1,16 +1,9 @@
 // balst_resolver_filehelper.t.cpp                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balst_resolver_filehelper.h>
 
-#include <bdls_filesystemutil.h>
 #include <balst_objectfileformat.h>
+
+#include <bdls_filesystemutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>

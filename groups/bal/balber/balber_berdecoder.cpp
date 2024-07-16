@@ -1,12 +1,4 @@
 // balber_berdecoder.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balber_berdecoder.h>
 
 #include <bsls_ident.h>

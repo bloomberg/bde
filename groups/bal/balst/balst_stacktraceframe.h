@@ -1,12 +1,4 @@
 // balst_stacktraceframe.h                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALST_STACKTRACEFRAME
 #define INCLUDED_BALST_STACKTRACEFRAME
 
@@ -76,9 +68,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In this example, we create two 'balst::StackTraceFrame' objects, modify
-// their properties, and compare them.  First, we create the objects 'a' and
-// 'b':
+// their properties, and compare them.
+//
+// First, we create the objects 'a' and 'b':
 //..
 //  balst::StackTraceFrame a, b;
 //  assert(a == b);

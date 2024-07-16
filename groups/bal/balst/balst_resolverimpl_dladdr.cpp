@@ -1,12 +1,4 @@
 // balst_resolverimpl_dladdr.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balst_resolverimpl_dladdr.h>
 
 #include <bsls_ident.h>
@@ -18,12 +10,12 @@ BSLS_IDENT_RCSID(balst_resolverimpl_dladdr,"$Id$ $CSID$")
 
 #include <balst_stacktraceconfigurationutil.h>
 
-#include <bsl_cstring.h>
-
 #include <bdlb_string.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+
+#include <bsl_cstring.h>
 
 #include <dlfcn.h>
 

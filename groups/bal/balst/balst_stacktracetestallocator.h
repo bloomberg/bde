@@ -1,12 +1,4 @@
 // balst_stacktracetestallocator.h                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALST_STACKTRACETESTALLOCATOR
 #define INCLUDED_BALST_STACKTRACETESTALLOCATOR
 
@@ -97,6 +89,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In this example, we will define a class 'ShipsCrew' that does something,
 // but leaks memory, and then we will demonstrate the use of the stack trace
 // test allocator to locate the leak.

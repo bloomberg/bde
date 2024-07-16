@@ -1,12 +1,4 @@
 // balst_resolverimpl_xcoff.h                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALST_RESOLVERIMPL_XCOFF
 #define INCLUDED_BALST_RESOLVERIMPL_XCOFF
 
@@ -22,10 +14,9 @@ BSLS_IDENT("$Id: $")
 //           balst_resolverimpl_windows
 //
 //@DESCRIPTION: This component provides a class,
-// balst::Resolver<Xcoff>, that, given a vector of
-// 'balst::StackTraceFrame's that have only their 'address' fields set,
-// resolves all other fields in those frames.  Xcoff objects are used on AIX
-// platforms.
+// 'balst::Resolver<Xcoff>', that, given a vector of 'balst::StackTraceFrame's
+// that have only their 'address' fields set, resolves all other fields in
+// those frames.  Xcoff objects are used on AIX platforms.
 //
 ///Inline Functions
 ///----------------
@@ -49,16 +40,17 @@ BSLS_IDENT("$Id: $")
 #include <balst_stacktraceframe.h>
 #include <balst_resolver_filehelper.h>
 
-#include <bslmt_qlock.h>
-
 #include <bdlma_heapbypassallocator.h>
 
 #include <bdls_filesystemutil.h>
 
+#include <bslma_allocator.h>
+
+#include <bslmt_qlock.h>
+
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
-#include <bslma_allocator.h>
 
 struct syment;    // defined in imp by included file '<syms.h>'
 union  auxent;    // defined in imp by included file '<syms.h>'

@@ -1,13 +1,5 @@
 // balber_berencoder.t.cpp                                            -*-C++-*-
-
 #include <balber_berencoder.h>
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
 
 #include <balber_berconstants.h>
 #include <balber_berutil.h>

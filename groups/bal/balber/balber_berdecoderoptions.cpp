@@ -1,12 +1,4 @@
 // balber_berdecoderoptions.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balber_berdecoderoptions.h>
 
 #include <bsls_ident.h>
@@ -14,14 +6,15 @@ BSLS_IDENT_RCSID(balber_berdecoderoptions_cpp,"$Id$ $CSID$")
 
 #include <bdlat_formattingmode.h>
 
-#include <bsls_assert.h>
 #include <bdlb_chartype.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 #include <bdlb_string.h>
 
-#include <bsl_ostream.h>
+#include <bsls_assert.h>
+
 #include <bsl_iomanip.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
@@ -45,28 +38,28 @@ const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         "MaxDepth",                        // name
         sizeof("MaxDepth") - 1,            // name length
         "maximum recursion depth",         // annotation
-        bdlat_FormattingMode::e_DEC    // formatting mode
+        bdlat_FormattingMode::e_DEC        // formatting mode
     },
     {
         e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS,
         "SkipUnknownElements",             // name
         sizeof("SkipUnknownElements") - 1, // name length
         "Option to skip unknown elements", // annotation
-        bdlat_FormattingMode::e_TEXT   // formatting mode
+        bdlat_FormattingMode::e_TEXT       // formatting mode
     },
     {
         e_ATTRIBUTE_ID_TRACE_LEVEL,
         "TraceLevel",                      // name
         sizeof("TraceLevel") - 1,          // name length
         "trace (verbosity) level",         // annotation
-        bdlat_FormattingMode::e_DEC    // formatting mode
+        bdlat_FormattingMode::e_DEC        // formatting mode
     },
     {
         e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE,
         "MaxSequenceSize",                 // name
         sizeof("MaxSequenceSize") - 1,     // name length
         "maximum sequence size",           // annotation
-        bdlat_FormattingMode::e_DEC    // formatting mode
+        bdlat_FormattingMode::e_DEC        // formatting mode
     },
     {
         e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS,
@@ -74,7 +67,7 @@ const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         sizeof("DefaultEmptyStrings") - 1, // name length
         "Option to decode empty strings as their default values",
                                            // annotation
-        bdlat_FormattingMode::e_TEXT   // formatting mode
+        bdlat_FormattingMode::e_TEXT       // formatting mode
     }
 };
 

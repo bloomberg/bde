@@ -1,17 +1,8 @@
 // balst_resolverimpl_dladdr.t.cpp                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balst_resolverimpl_dladdr.h>
 
-#include <balst_stacktrace.h>
-
 #include <balst_objectfileformat.h>
+#include <balst_stacktrace.h>
 
 #include <bdlt_dateutil.h>
 

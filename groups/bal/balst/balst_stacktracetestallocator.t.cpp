@@ -1,25 +1,13 @@
 // balst_stacktracetestallocator.t.cpp                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balst_stacktracetestallocator.h>
 
 #include <balst_stacktrace.h>
 #include <balst_stacktraceutil.h>
 
-#include <bslma_testallocator.h>
-#include <bslmt_barrier.h>
-#include <bslmt_threadutil.h>
-
-#include <bdlma_bufferedsequentialallocator.h>
-#include <bdls_filesystemutil.h>
 #include <bdlb_random.h>
 #include <bdlb_string.h>
+#include <bdlma_bufferedsequentialallocator.h>
+#include <bdls_filesystemutil.h>
 
 #include <bslim_testutil.h>
 
@@ -27,10 +15,13 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_mallocfreeallocator.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocatormonitor.h>
 #include <bslma_newdeleteallocator.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>  // for testing only
+#include <bslma_testallocatormonitor.h>
+
+#include <bslmt_barrier.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>

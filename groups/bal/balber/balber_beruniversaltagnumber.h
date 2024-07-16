@@ -1,12 +1,4 @@
 // balber_beruniversaltagnumber.h                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 #define INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 
@@ -19,12 +11,12 @@ BSLS_IDENT("$Id: $")
 //  balber::BerUniversalTagNumber: namespace universal tag number enumeration
 //
 //@SEE_ALSO: balber_berencoder, balber_berdecoder
-//          http://www.itu.int/ITU-T/studygroups/com17/languages/X.680-0207.pdf
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'balber::BerUniversalTagNumber::Value'.  'Value' enumerates the set of BER
 // universal tag numbers used by the BER encoder and decoder.  The universal
-// tag numbers are defined in the X.680 standard, in section 8.
+// tag numbers are defined in the X.680 standard, in section 8 (See
+// http://www.itu.int/ITU-T/studygroups/com17/languages/X.680-0207.pdf).
 //
 // In addition, this component supports functions that convert the 'Value'
 // enumerations to a well-defined ASCII representation.
@@ -91,8 +83,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Exercise 1: Basic Syntax
-/// - - - - - - - - - - - -
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
 // 'balber::BerUniversalTagNumber' operation.
 //

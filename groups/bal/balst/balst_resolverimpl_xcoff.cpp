@@ -1,12 +1,4 @@
 // balst_resolverimpl_xcoff.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balst_resolverimpl_xcoff.h>
 
 #include <bsls_ident.h>
@@ -16,18 +8,18 @@ BSLS_IDENT_RCSID(balst_resolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
-#include <balst_stacktraceconfigurationutil.h>
-#include <balst_stacktrace.h>
 #include <balst_resolver_filehelper.h>
-
-#include <bslmt_lockguard.h>
-#include <bslmt_mutex.h>
+#include <balst_stacktrace.h>
+#include <balst_stacktraceconfigurationutil.h>
 
 #include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>
 #include <bdlb_string.h>
 
 #include <bslma_default.h>
+
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>

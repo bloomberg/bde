@@ -1,12 +1,4 @@
 // balber_berconstants.h                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALBER_BERCONSTANTS
 #define INCLUDED_BALBER_BERCONSTANTS
 
@@ -27,6 +19,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // TBD
 
 #include <balscm_version.h>

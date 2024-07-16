@@ -1,12 +1,4 @@
 // balst_resolver_filehelper.h                                        -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALST_RESOLVER_FILEHELPER
 #define INCLUDED_BALST_RESOLVER_FILEHELPER
 
@@ -18,8 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balst::Resolver_FileHelper: file input for stack trace resolvers
 //
-//@SEE_ALSO: balst_resolverimpl_elf,
-//           balst_resolverimpl_xcoff
+//@SEE_ALSO: balst_resolverimpl_elf, balst_resolverimpl_xcoff
 //
 //@DESCRIPTION: The one class in this component opens a file in readonly mode
 // and then owns the file descriptor, and provides 3 utility functions for
@@ -31,6 +22,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// First, we prepare the file to be used by this usage example:
 //..
 //  bslma::TestAllocator ta;
 //
@@ -43,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdls::FilesystemUtil::remove(fileNameBuffer);
 //..
-// Next, Create the file and open a file descriptor to it.  The boolean
+// Next, create the file and open a file descriptor to it.  The boolean
 // flags indicate that the file is writable, and not previously existing
 // (and therefore must be created).
 //..

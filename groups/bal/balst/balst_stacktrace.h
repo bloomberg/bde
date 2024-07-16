@@ -1,12 +1,4 @@
 // balst_stacktrace.h                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALST_STACKTRACE
 #define INCLUDED_BALST_STACKTRACE
 
@@ -30,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show the intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Configuring a Stack-Trace Value
 /// - - - - - - - - - - - - - - - - - - - - -

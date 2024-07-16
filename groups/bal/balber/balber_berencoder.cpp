@@ -1,18 +1,11 @@
 // balber_berencoder.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balber_berencoder.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balber_berencoder_cpp,"$Id$ $CSID$")
 
 #include <bdlat_formattingmode.h>
+
 #include <bslma_default.h>
 
 namespace BloombergLP {

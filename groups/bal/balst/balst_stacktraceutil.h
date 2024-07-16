@@ -1,12 +1,4 @@
 // balst_stacktraceutil.h                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALST_STACKTRACEUTIL
 #define INCLUDED_BALST_STACKTRACEUTIL
 
@@ -27,10 +19,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended usage for this component.  The following
-// examples demonstrate two distinct ways to load and print a stack-trace with
-// 'balst::StackTraceUtil' using (1) 'loadStackTraceFromStack' and
-// (2) 'loadStackTraceFromAddresses'.
+// This section illustrates intended usage for this component.
+//
+// The following examples demonstrate two distinct ways to load and print a
+// stack-trace with 'balst::StackTraceUtil' using (1) 'loadStackTraceFromStack'
+// and (2) 'loadStackTraceFromAddresses'.
 //
 ///Example 1: Loading Stack-Trace Directly from the Stack
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
