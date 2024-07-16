@@ -278,15 +278,16 @@ bsl::streamsize FixedMemOutput::sputn(const char      *s,
                                       bsl::streamsize  length)
 {
     BSLS_ASSERT(s);
-    BSLS_ASSERT(0 <= length);
 
-    pos_type current = d_pos;
-    d_pos += length;
-    if (d_pos > d_capacity) {
-        d_pos  = d_capacity;
-        length = static_cast<bsl::streamsize>(d_capacity - current);
+    length = bsl::min<bsl::streamsize>(length, d_capacity - d_pos);
+    if (0 < length) {
+        bsl::memcpy(d_buffer_p + static_cast<IntPtr>(d_pos), s, length);
+        d_pos += length;
     }
-    bsl::memcpy(d_buffer_p + static_cast<IntPtr>(current), s, length);
+    else {
+        BSLS_ASSERT(0 == length);
+    }
+
     return length;
 }
 

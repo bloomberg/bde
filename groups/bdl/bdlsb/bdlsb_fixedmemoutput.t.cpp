@@ -723,10 +723,18 @@ int main(int argc, char **argv)
             // This segment verifies correct behavior across different initial
             // buffer states (buffer length x buffer contents.)
             for(size_t i = 0; i < DATA_LEN; ++i ) {
-                const int LINE      = DATA[i].d_line;
+                const TestData& data = DATA[i];
+                const int       LINE = data.d_line;
+                const int       CAP  = data.d_strCap;
+                const int       LEN  = data.d_length;
+                const int       RET  = data.d_returnVal;
 
-                char       *bytes = new char[DATA[i].d_strCap];
-                Obj         mSB(bytes, DATA[i].d_strCap);
+                if (veryVerbose) {
+                    P_(LINE);    P_(CAP);    P_(LEN);    P(RET);
+                }
+
+                char       *bytes = new char[CAP];
+                Obj         mSB(bytes, CAP);
                 const Obj&  SB = mSB;
 
                 for(unsigned j = 0; j < strlen(DATA[i].d_initCont); ++j ) {
@@ -739,8 +747,8 @@ int main(int argc, char **argv)
                 ASSERTV(LINE, 0 == strncmp(bytes,
                                            DATA[i].d_result,
                                            strlen(DATA[i].d_result )) );
-                ASSERTV(LINE, DATA[i].d_returnVal == retResult );
-                ASSERTV(LINE, DATA[i].d_length    == SB.length());
+                ASSERTV(LINE, RET == retResult );
+                ASSERTV(LINE, LEN == SB.length());
                 delete [] bytes;
             }
         }
