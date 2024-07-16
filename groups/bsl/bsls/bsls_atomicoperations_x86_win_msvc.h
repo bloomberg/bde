@@ -193,10 +193,11 @@ inline
 int AtomicOperations_X86_WIN_MSVC::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-    return _InterlockedExchangeAdd(
-            reinterpret_cast<long volatile *>(&atomicInt->d_value),
-            value)
-        + value;
+    return static_cast<unsigned>(_InterlockedExchangeAdd(
+                                 reinterpret_cast<long volatile *>(
+                                                          &atomicInt->d_value),
+                                 value))
+           + value;
 }
 
     // *** atomic functions for Int64 ***

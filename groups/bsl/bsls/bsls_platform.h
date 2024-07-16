@@ -419,14 +419,14 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_CPU_ARM                                         1
         #define BSLS_PLATFORM_CPU_32_BIT                                      1
 
-        // MSVC doesn't provide macros for differentiating version, but the 
+        // MSVC doesn't provide macros for differentiating version, but the
         // minimum supported one is ARMv7
         #define BSLS_PLATFORM_CPU_ARM_V7                                      1
     #elif defined(_M_ARM64)
         #define BSLS_PLATFORM_CPU_ARM                                         1
         #define BSLS_PLATFORM_CPU_64_BIT                                      1
 
-        // MSVC doesn't provide macros for differentiating version, but the 
+        // MSVC doesn't provide macros for differentiating version, but the
         // minimum supported one is ARMv7
         #define BSLS_PLATFORM_CPU_ARM_V7                                      1
     #else

@@ -827,7 +827,7 @@ void TradingSystem::executeTrade(int scalingFactor)
     BSLS_ASSERT_OPT(0 == scalingFactor % 100);
 
     (void)scalingFactor;
-    
+
     // ...
 }
 //..

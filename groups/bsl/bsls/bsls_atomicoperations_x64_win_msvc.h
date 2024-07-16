@@ -199,10 +199,11 @@ inline
 int AtomicOperations_X64_WIN_MSVC::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-    return _InterlockedExchangeAdd(
-            reinterpret_cast<long volatile *>(&atomicInt->d_value),
-            value)
-        + value;
+    return static_cast<unsigned>(_InterlockedExchangeAdd(
+                                 reinterpret_cast<long volatile *>(
+                                                          &atomicInt->d_value),
+                                 value))
+           + value;
 }
 
 inline
@@ -261,10 +262,10 @@ Types::Int64 AtomicOperations_X64_WIN_MSVC::
     addInt64Nv(AtomicTypes::Int64 *atomicInt,
                Types::Int64 value)
 {
-    return _InterlockedExchangeAdd64(
-            &atomicInt->d_value,
-            value)
-        + value;
+    return static_cast<Types::Uint64>(_InterlockedExchangeAdd64(
+                                      &atomicInt->d_value,
+                                      value))
+           + value;
 }
 
 #undef BSLS_ATOMIC_FENCE
