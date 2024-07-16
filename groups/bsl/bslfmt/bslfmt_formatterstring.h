@@ -27,61 +27,78 @@
 
 #include <stdio.h>    // for 'snprintf'
 
+namespace BloombergLP {
+namespace bslfmt {
+
+template <class t_VALUE, class t_CHAR>
+struct Formatter_StringBase {
+  public:
+    // MANIPULATORS
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                           t_PARSE_CONTEXT& pc)
+    {
+        if (pc.begin() != pc.end() && *pc.begin() != '}') {
+            BSLS_THROW(bsl::format_error("not implemented"));
+        }
+        return pc.begin();
+    }
+
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(t_VALUE           v,
+                                               t_FORMAT_CONTEXT& fc) const
+    {
+        bsl::basic_string_view<t_CHAR> sv(v);
+        return bsl::copy(sv.begin(), sv.end(), fc.out());
+    }
+};
+
+}  // close namespace bslfmt
+}  // close enterprise namespace
+
 namespace bsl {
 // FORMATTER SPECIALIZATIONS
 
 template <class t_CHAR>
-struct formatter<const t_CHAR *, t_CHAR> {
+struct formatter<const t_CHAR *, t_CHAR>
+: BloombergLP::bslfmt::Formatter_StringBase<const t_CHAR *, t_CHAR> {
   public:
     // TRAITS
+
+    // There will already be a standard library formatter taking a raw
+    // character pointer, so do not alias this into `std`.
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
-    // MANIPULATORS
-    template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                           t_PARSE_CONTEXT& pc)
-    {
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bsl::format_error("not implemented"));
-        }
-        return pc.begin();
-    }
-
-    template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(const t_CHAR      *c,
-                                               t_FORMAT_CONTEXT&  fc) const
-    {
-        basic_string_view<t_CHAR> sv(c);
-        return bsl::copy(sv.begin(), sv.end(), fc.out());
-    }
 };
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_CHAR>
+struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
+: BloombergLP::bslfmt::Formatter_StringBase<std::basic_string_view<t_CHAR>,
+                                            t_CHAR> {
+  public:
+    // TRAITS
+
+    // There will already be a standard library formatter taking a `std`
+    // string view, so do not alias this into `std`.
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+};
+#endif
+
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
 template <class t_CHAR>
-struct formatter<basic_string_view<t_CHAR>, t_CHAR> {
+struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
+: BloombergLP::bslfmt::Formatter_StringBase<bsl::basic_string_view<t_CHAR>,
+                                            t_CHAR> {
   public:
     // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
 
-    // MANIPULATORS
-    template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                           t_PARSE_CONTEXT& pc)
-    {
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bsl::format_error("not implemented"));
-        }
-        return pc.begin();
-    }
-
-    template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(
-                                            basic_string_view<t_CHAR> sv,
-                                            t_FORMAT_CONTEXT&         fc) const
-    {
-        return bsl::copy(sv.begin(), sv.end(), fc.out());
-    }
+    // If we do not alias string view then we should alias its formatter from
+    // the `std` namespace, so DO NOT DEFINE the trait
+    // BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20.
 };
+
+#endif
 
 }
 

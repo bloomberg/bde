@@ -14,12 +14,30 @@ BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
               bsl::formatter<const wchar_t *, wchar_t> >::value));
 
 BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+              bsl::formatter<std::string_view, char> >::value));
+
+BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+              bsl::formatter<std::wstring_view, wchar_t> >::value));
+
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+
+BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
               bsl::formatter<bsl::string_view, char> >::value));
 
 BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
               bsl::formatter<bsl::wstring_view, wchar_t> >::value));
 
-#endif
+#else // not aliased
+
+BSLMF_ASSERT(!(BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+              bsl::formatter<bsl::string_view, char> >::value));
+
+BSLMF_ASSERT(!(BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+              bsl::formatter<bsl::wstring_view, wchar_t> >::value));
+
+#endif // BSLSTL_STRING_VIEW_IS_ALIASED
+
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
