@@ -814,6 +814,11 @@ struct HashTableDefaultTraits {
     static const char REMOVED_KEYWORD[];  // Keyword to be used for removed
                                           // objects for 'bsl::string' types.
 
+    // PRIVATE CLASS METHODS
+    template <char t_VALUE>
+    static bool isNot(char c);
+        // Return 'c != t_VALUE'.
+
   public:
     // CLASS METHODS
     template <class BUCKET>
@@ -1285,6 +1290,13 @@ const VALUE& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
                    // private struct HashTableDefaultTraits
                    // -------------------------------------
 
+template <char t_VALUE>
+inline
+bool HashTableDefaultTraits::isNot(char c)
+{
+    return c != t_VALUE;
+}
+
 template <class BUCKET>
 inline
 void HashTableDefaultTraits::load(BUCKET *dstBucket, const BUCKET& srcBucket)
@@ -1325,16 +1337,7 @@ bool HashTableDefaultTraits::isNull(const BUCKET& bucket)
     const char *begin = reinterpret_cast<const char *>(&bucket);
     const char *end   = begin + sizeof bucket;
 
-    return end == bsl::find_if(begin,
-                               end,
-#if defined(BSLS_PLATFORM_CMP_MSVC) || __cplusplus >= 201103L
-    // 'bind2nd' is deprecated and may be removed from C++17 onwards.  Prefer
-    // a lambda expression to playing levelization games with 'bdlf::BindUtil'.
-                               [](char c) { return c != '\0'; }
-#else
-                               bsl::bind2nd(bsl::not_equal_to<char>(), null)
-#endif
-                              );
+    return end == bsl::find_if(begin, end, isNot<null>);
 }
 
 inline
@@ -1414,16 +1417,7 @@ bool HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
     const char *begin   = reinterpret_cast<const char *>(&bucket);
     const char *end     = begin + sizeof bucket;
 
-    return end == bsl::find_if(begin,
-                               end,
-#if defined(BSLS_PLATFORM_CMP_MSVC) || __cplusplus >= 201103L
-    // 'bind2nd' is deprecated and may be removed from C++17 onwards.  Prefer
-    // a lambda expression to playing levelization games with 'bdlf::BindUtil'.
-                               [removed](char c) { return c != removed; }
-#else
-                               bsl::bind2nd(bsl::not_equal_to<char>(), removed)
-#endif
-                              );
+    return end == bsl::find_if(begin, end, isNot<removed>);
 }
 
 inline
