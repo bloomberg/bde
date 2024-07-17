@@ -3948,8 +3948,10 @@ int main(int argc, char *argv[])
                 }
 
                 LOOP_ASSERT(i, VAL == X);
-                LOOP_ASSERT(i, VAL == &(*X));
-                LOOP_ASSERT(i, VAL == X->self());
+                if (X) {
+                    LOOP_ASSERT(i, VAL == &(*X));
+                    LOOP_ASSERT(i, VAL == X->self());
+                }
             }
         }
 
