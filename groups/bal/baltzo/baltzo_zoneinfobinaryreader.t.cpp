@@ -13,6 +13,8 @@
 
 #include <bsla_maybeunused.h>
 
+#include <bslim_testutil.h>
+
 #include <bslmf_assert.h>
 
 #include <bsls_byteorder.h>
@@ -53,20 +55,27 @@ using bsl::strncpy;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'baltzo::ZoneinfoBinaryReader' component contains a 'read' function to
-// read the Zoneinfo binary data format from a byte stream.  A test apparatus
-// is created for testing this component.
+// The 'baltzo::ZoneinfoBinaryReader' component contains a 'read' and 'readRaw'
+// functions to read the Zoneinfo binary data format from a byte stream.  A
+// test apparatus is created for testing this component.
 //
 // The test apparatus contains functions to create an arbitrary Zoneinfo binary
 // data.  A byte stream can be created from this data and the 'read' function
 // can be called on the byte stream to produce a 'baltzo::Zoneinfo' object.
-// The test apparatus contains the 'verifyTimeZone' function to verify the
-// resulting 'baltzo::Zoneinfo' object matches the data in the byte stream.
-// Both version '\0' and version '2' of the Zoneinfo binary data are tested.
+// However 'read' is free to interpret the original data to suit its purposes
+// (e.g. replace ZIC sentinel transition with its own that has different
+// timestamp).  Therefore, another option is to use 'readRaw' function that
+// completely reproduces the original data.
+// The test apparatus contains the 'verifyTimeZone' and
+// 'verifyTimeZoneVersion2Or3Format' functions to verify the resulting
+// 'baltzo::Zoneinfo' object matches the data in the byte stream.  All three
+// versions of the Zoneinfo binary data are tested.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 8] read(baltzo::Zoneinfo *, bsl::istream&, bA=0);
-// [ 7] read(baltzo::Zoneinfo *, FileDescription *, bsl::istream&, bA=0);
+// [ 8] int read(Zoneinfo *, bsl::istream&);
+// [ 7] int read(Zoneinfo *, ZoneinfoBinaryHeader *, bsl::istream&);
+// [ 8] int readRaw(Zoneinfo *, bsl::istream&);
+// [ 7] int readRaw(Zoneinfo *, ZoneinfoBinaryHeader *, bsl::istream&);
 //
 // ----------------------------------------------------------------------------
 // TEST APPARATUS
@@ -75,77 +84,85 @@ using bsl::strncpy;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
-// [ 3] CONCERN: 'read' properly process the abbreviation strings
-// [ 4] CONCERN: 'read' properly process local time types data
-// [ 5] CONCERN: 'read' properly process transition data
-// [ 6] CONCERN: 'read' retrieve data with multiple transitions
-// [ 9] CONCERN: 'read' properly process the time zone string
-// [10] CONCERN: 'read' retrieve a real-life Zoneinfo data
-// [11] CONCERN: 'read' retrieve a real-life Zoneinfo data of version '3'
+// [ 3] CONCERN: 'read' properly processes the abbreviation strings
+// [ 4] CONCERN: 'read' properly processes local time types data
+// [ 5] CONCERN: 'read' properly processes transition data
+// [ 6] CONCERN: 'read' retrieves data with multiple transitions
+// [ 9] CONCERN: 'read' properly processes the time zone string
+// [10] CONCERN: 'read' retrieves a real-life Zoneinfo data
+// [11] CONCERN: 'read' retrieves a real-life Zoneinfo data of version '3'
 // [12] CONCERN: 'read' fails when header information is invalid
-// ----------------------------------------------------------------------------
+//
+// [-1] DUMP TIMEZONE FILE
+// [-2] DUMP RAW TIMEZONE FILE
+// [-3] TEST TIMEZONE FILE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\t" \
-                         << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_ cout << '\t' << flush;
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+// TYPEDEFS
+typedef baltzo::ZoneinfoBinaryReader Obj;
+typedef baltzo::ZoneinfoBinaryHeader BinHeader;
+typedef baltzo::LocalTimeDescriptor  Desc;
+
+// CONSTANTS
 static const bsls::Types::Int64 FIRST_TRANSITION =
               bdlt::EpochUtil::convertToTimeT64(bdlt::Datetime(1, 1, 1));
 
 static const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488LL;
+
+static const bool               EXPECTED_TO_FAIL = true;
+
+// Enumeration defining a set of the 'Zoneinfo' binary data versions.
+enum TimeZoneVersion {
+    k_VERSION_0,
+    k_VERSION_2_OR_3
+};
 
 // DATA
 const char unsigned NEW_YORK_DATA[] = {
@@ -1227,46 +1244,311 @@ const unsigned char TEST_DATA_VERSION2[] = {
     0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x0a
 };
 
-// TYPEDEFS
-typedef baltzo::ZoneinfoBinaryReader Obj;
-typedef baltzo::ZoneinfoBinaryHeader BinHeader;
-typedef baltzo::LocalTimeDescriptor  Desc;
+const char unsigned NEW_YORK_DATA_WITH_INITIAL_TRANSITION[] = {
+    // Data from America/New_York, containing sentinel transition with the
+    // timestamp equal to -2^59 (-576460752303423488).
+    0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06,
+    0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xec,
+    0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x14, 0x80, 0x00, 0x00, 0x00,
+    0x9e, 0xa6, 0x1e, 0x70, 0x9f, 0xba, 0xeb, 0x60, 0xa0, 0x86, 0x00, 0x70,
+    0xa1, 0x9a, 0xcd, 0x60, 0xa2, 0x65, 0xe2, 0x70, 0xa3, 0x83, 0xe9, 0xe0,
+    0xa4, 0x6a, 0xae, 0x70, 0xa5, 0x35, 0xa7, 0x60, 0xa6, 0x53, 0xca, 0xf0,
+    0xa7, 0x15, 0x89, 0x60, 0xa8, 0x33, 0xac, 0xf0, 0xa8, 0xfe, 0xa5, 0xe0,
+    0xaa, 0x13, 0x8e, 0xf0, 0xaa, 0xde, 0x87, 0xe0, 0xab, 0xf3, 0x70, 0xf0,
+    0xac, 0xbe, 0x69, 0xe0, 0xad, 0xd3, 0x52, 0xf0, 0xae, 0x9e, 0x4b, 0xe0,
+    0xaf, 0xb3, 0x34, 0xf0, 0xb0, 0x7e, 0x2d, 0xe0, 0xb1, 0x9c, 0x51, 0x70,
+    0xb2, 0x67, 0x4a, 0x60, 0xb3, 0x7c, 0x33, 0x70, 0xb4, 0x47, 0x2c, 0x60,
+    0xb5, 0x5c, 0x15, 0x70, 0xb6, 0x27, 0x0e, 0x60, 0xb7, 0x3b, 0xf7, 0x70,
+    0xb8, 0x06, 0xf0, 0x60, 0xb9, 0x1b, 0xd9, 0x70, 0xb9, 0xe6, 0xd2, 0x60,
+    0xbb, 0x04, 0xf5, 0xf0, 0xbb, 0xc6, 0xb4, 0x60, 0xbc, 0xe4, 0xd7, 0xf0,
+    0xbd, 0xaf, 0xd0, 0xe0, 0xbe, 0xc4, 0xb9, 0xf0, 0xbf, 0x8f, 0xb2, 0xe0,
+    0xc0, 0xa4, 0x9b, 0xf0, 0xc1, 0x6f, 0x94, 0xe0, 0xc2, 0x84, 0x7d, 0xf0,
+    0xc3, 0x4f, 0x76, 0xe0, 0xc4, 0x64, 0x5f, 0xf0, 0xc5, 0x2f, 0x58, 0xe0,
+    0xc6, 0x4d, 0x7c, 0x70, 0xc7, 0x0f, 0x3a, 0xe0, 0xc8, 0x2d, 0x5e, 0x70,
+    0xc8, 0xf8, 0x57, 0x60, 0xca, 0x0d, 0x40, 0x70, 0xca, 0xd8, 0x39, 0x60,
+    0xcb, 0x88, 0xf0, 0x70, 0xd2, 0x23, 0xf4, 0x70, 0xd2, 0x60, 0xfb, 0xe0,
+    0xd3, 0x75, 0xe4, 0xf0, 0xd4, 0x40, 0xdd, 0xe0, 0xd5, 0x55, 0xc6, 0xf0,
+    0xd6, 0x20, 0xbf, 0xe0, 0xd7, 0x35, 0xa8, 0xf0, 0xd8, 0x00, 0xa1, 0xe0,
+    0xd9, 0x15, 0x8a, 0xf0, 0xd9, 0xe0, 0x83, 0xe0, 0xda, 0xfe, 0xa7, 0x70,
+    0xdb, 0xc0, 0x65, 0xe0, 0xdc, 0xde, 0x89, 0x70, 0xdd, 0xa9, 0x82, 0x60,
+    0xde, 0xbe, 0x6b, 0x70, 0xdf, 0x89, 0x64, 0x60, 0xe0, 0x9e, 0x4d, 0x70,
+    0xe1, 0x69, 0x46, 0x60, 0xe2, 0x7e, 0x2f, 0x70, 0xe3, 0x49, 0x28, 0x60,
+    0xe4, 0x5e, 0x11, 0x70, 0xe5, 0x57, 0x2e, 0xe0, 0xe6, 0x47, 0x2d, 0xf0,
+    0xe7, 0x37, 0x10, 0xe0, 0xe8, 0x27, 0x0f, 0xf0, 0xe9, 0x16, 0xf2, 0xe0,
+    0xea, 0x06, 0xf1, 0xf0, 0xea, 0xf6, 0xd4, 0xe0, 0xeb, 0xe6, 0xd3, 0xf0,
+    0xec, 0xd6, 0xb6, 0xe0, 0xed, 0xc6, 0xb5, 0xf0, 0xee, 0xbf, 0xd3, 0x60,
+    0xef, 0xaf, 0xd2, 0x70, 0xf0, 0x9f, 0xb5, 0x60, 0xf1, 0x8f, 0xb4, 0x70,
+    0xf2, 0x7f, 0x97, 0x60, 0xf3, 0x6f, 0x96, 0x70, 0xf4, 0x5f, 0x79, 0x60,
+    0xf5, 0x4f, 0x78, 0x70, 0xf6, 0x3f, 0x5b, 0x60, 0xf7, 0x2f, 0x5a, 0x70,
+    0xf8, 0x28, 0x77, 0xe0, 0xf9, 0x0f, 0x3c, 0x70, 0xfa, 0x08, 0x59, 0xe0,
+    0xfa, 0xf8, 0x58, 0xf0, 0xfb, 0xe8, 0x3b, 0xe0, 0xfc, 0xd8, 0x3a, 0xf0,
+    0xfd, 0xc8, 0x1d, 0xe0, 0xfe, 0xb8, 0x1c, 0xf0, 0xff, 0xa7, 0xff, 0xe0,
+    0x00, 0x97, 0xfe, 0xf0, 0x01, 0x87, 0xe1, 0xe0, 0x02, 0x77, 0xe0, 0xf0,
+    0x03, 0x70, 0xfe, 0x60, 0x04, 0x60, 0xfd, 0x70, 0x05, 0x50, 0xe0, 0x60,
+    0x06, 0x40, 0xdf, 0x70, 0x07, 0x30, 0xc2, 0x60, 0x07, 0x8d, 0x19, 0x70,
+    0x09, 0x10, 0xa4, 0x60, 0x09, 0xad, 0x94, 0xf0, 0x0a, 0xf0, 0x86, 0x60,
+    0x0b, 0xe0, 0x85, 0x70, 0x0c, 0xd9, 0xa2, 0xe0, 0x0d, 0xc0, 0x67, 0x70,
+    0x0e, 0xb9, 0x84, 0xe0, 0x0f, 0xa9, 0x83, 0xf0, 0x10, 0x99, 0x66, 0xe0,
+    0x11, 0x89, 0x65, 0xf0, 0x12, 0x79, 0x48, 0xe0, 0x13, 0x69, 0x47, 0xf0,
+    0x14, 0x59, 0x2a, 0xe0, 0x15, 0x49, 0x29, 0xf0, 0x16, 0x39, 0x0c, 0xe0,
+    0x17, 0x29, 0x0b, 0xf0, 0x18, 0x22, 0x29, 0x60, 0x19, 0x08, 0xed, 0xf0,
+    0x1a, 0x02, 0x0b, 0x60, 0x1a, 0xf2, 0x0a, 0x70, 0x1b, 0xe1, 0xed, 0x60,
+    0x1c, 0xd1, 0xec, 0x70, 0x1d, 0xc1, 0xcf, 0x60, 0x1e, 0xb1, 0xce, 0x70,
+    0x1f, 0xa1, 0xb1, 0x60, 0x20, 0x76, 0x00, 0xf0, 0x21, 0x81, 0x93, 0x60,
+    0x22, 0x55, 0xe2, 0xf0, 0x23, 0x6a, 0xaf, 0xe0, 0x24, 0x35, 0xc4, 0xf0,
+    0x25, 0x4a, 0x91, 0xe0, 0x26, 0x15, 0xa6, 0xf0, 0x27, 0x2a, 0x73, 0xe0,
+    0x27, 0xfe, 0xc3, 0x70, 0x29, 0x0a, 0x55, 0xe0, 0x29, 0xde, 0xa5, 0x70,
+    0x2a, 0xea, 0x37, 0xe0, 0x2b, 0xbe, 0x87, 0x70, 0x2c, 0xd3, 0x54, 0x60,
+    0x2d, 0x9e, 0x69, 0x70, 0x2e, 0xb3, 0x36, 0x60, 0x2f, 0x7e, 0x4b, 0x70,
+    0x30, 0x93, 0x18, 0x60, 0x31, 0x67, 0x67, 0xf0, 0x32, 0x72, 0xfa, 0x60,
+    0x33, 0x47, 0x49, 0xf0, 0x34, 0x52, 0xdc, 0x60, 0x35, 0x27, 0x2b, 0xf0,
+    0x36, 0x32, 0xbe, 0x60, 0x37, 0x07, 0x0d, 0xf0, 0x38, 0x1b, 0xda, 0xe0,
+    0x38, 0xe6, 0xef, 0xf0, 0x39, 0xfb, 0xbc, 0xe0, 0x3a, 0xc6, 0xd1, 0xf0,
+    0x3b, 0xdb, 0x9e, 0xe0, 0x3c, 0xaf, 0xee, 0x70, 0x3d, 0xbb, 0x80, 0xe0,
+    0x3e, 0x8f, 0xd0, 0x70, 0x3f, 0x9b, 0x62, 0xe0, 0x40, 0x6f, 0xb2, 0x70,
+    0x41, 0x84, 0x7f, 0x60, 0x42, 0x4f, 0x94, 0x70, 0x43, 0x64, 0x61, 0x60,
+    0x44, 0x2f, 0x76, 0x70, 0x45, 0x44, 0x43, 0x60, 0x45, 0xf3, 0xa8, 0xf0,
+    0x47, 0x2d, 0x5f, 0xe0, 0x47, 0xd3, 0x8a, 0xf0, 0x49, 0x0d, 0x41, 0xe0,
+    0x49, 0xb3, 0x6c, 0xf0, 0x4a, 0xed, 0x23, 0xe0, 0x4b, 0x9c, 0x89, 0x70,
+    0x4c, 0xd6, 0x40, 0x60, 0x4d, 0x7c, 0x6b, 0x70, 0x4e, 0xb6, 0x22, 0x60,
+    0x4f, 0x5c, 0x4d, 0x70, 0x50, 0x96, 0x04, 0x60, 0x51, 0x3c, 0x2f, 0x70,
+    0x52, 0x75, 0xe6, 0x60, 0x53, 0x1c, 0x11, 0x70, 0x54, 0x55, 0xc8, 0x60,
+    0x54, 0xfb, 0xf3, 0x70, 0x56, 0x35, 0xaa, 0x60, 0x56, 0xe5, 0x0f, 0xf0,
+    0x58, 0x1e, 0xc6, 0xe0, 0x58, 0xc4, 0xf1, 0xf0, 0x59, 0xfe, 0xa8, 0xe0,
+    0x5a, 0xa4, 0xd3, 0xf0, 0x5b, 0xde, 0x8a, 0xe0, 0x5c, 0x84, 0xb5, 0xf0,
+    0x5d, 0xbe, 0x6c, 0xe0, 0x5e, 0x64, 0x97, 0xf0, 0x5f, 0x9e, 0x4e, 0xe0,
+    0x60, 0x4d, 0xb4, 0x70, 0x61, 0x87, 0x6b, 0x60, 0x62, 0x2d, 0x96, 0x70,
+    0x63, 0x67, 0x4d, 0x60, 0x64, 0x0d, 0x78, 0x70, 0x65, 0x47, 0x2f, 0x60,
+    0x65, 0xed, 0x5a, 0x70, 0x67, 0x27, 0x11, 0x60, 0x67, 0xcd, 0x3c, 0x70,
+    0x69, 0x06, 0xf3, 0x60, 0x69, 0xad, 0x1e, 0x70, 0x6a, 0xe6, 0xd5, 0x60,
+    0x6b, 0x96, 0x3a, 0xf0, 0x6c, 0xcf, 0xf1, 0xe0, 0x6d, 0x76, 0x1c, 0xf0,
+    0x6e, 0xaf, 0xd3, 0xe0, 0x6f, 0x55, 0xfe, 0xf0, 0x70, 0x8f, 0xb5, 0xe0,
+    0x71, 0x35, 0xe0, 0xf0, 0x72, 0x6f, 0x97, 0xe0, 0x73, 0x15, 0xc2, 0xf0,
+    0x74, 0x4f, 0x79, 0xe0, 0x74, 0xfe, 0xdf, 0x70, 0x76, 0x38, 0x96, 0x60,
+    0x76, 0xde, 0xc1, 0x70, 0x78, 0x18, 0x78, 0x60, 0x78, 0xbe, 0xa3, 0x70,
+    0x79, 0xf8, 0x5a, 0x60, 0x7a, 0x9e, 0x85, 0x70, 0x7b, 0xd8, 0x3c, 0x60,
+    0x7c, 0x7e, 0x67, 0x70, 0x7d, 0xb8, 0x1e, 0x60, 0x7e, 0x5e, 0x49, 0x70,
+    0x7f, 0x98, 0x00, 0x60, 0x03, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x04, 0x05, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0xff, 0xff, 0xba, 0x9e, 0x00, 0x00, 0xff, 0xff, 0xc7, 0xc0, 0x01, 0x04,
+    0xff, 0xff, 0xb9, 0xb0, 0x00, 0x08, 0xff, 0xff, 0xb9, 0xb0, 0x00, 0x08,
+    0xff, 0xff, 0xc7, 0xc0, 0x01, 0x0c, 0xff, 0xff, 0xc7, 0xc0, 0x01, 0x10,
+    0x4c, 0x4d, 0x54, 0x00, 0x45, 0x44, 0x54, 0x00, 0x45, 0x53, 0x54, 0x00,
+    0x45, 0x57, 0x54, 0x00, 0x45, 0x50, 0x54, 0x00, 0x00, 0x00, 0x00, 0x01,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x54, 0x5a, 0x69, 0x66,
+    0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x06,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xed, 0x00, 0x00, 0x00, 0x06,
+    0x00, 0x00, 0x00, 0x14, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xff, 0xff, 0xff, 0xff, 0x5e, 0x03, 0xf0, 0x90, 0xff, 0xff, 0xff, 0xff,
+    0x9e, 0xa6, 0x1e, 0x70, 0xff, 0xff, 0xff, 0xff, 0x9f, 0xba, 0xeb, 0x60,
+    0xff, 0xff, 0xff, 0xff, 0xa0, 0x86, 0x00, 0x70, 0xff, 0xff, 0xff, 0xff,
+    0xa1, 0x9a, 0xcd, 0x60, 0xff, 0xff, 0xff, 0xff, 0xa2, 0x65, 0xe2, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xa3, 0x83, 0xe9, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xa4, 0x6a, 0xae, 0x70, 0xff, 0xff, 0xff, 0xff, 0xa5, 0x35, 0xa7, 0x60,
+    0xff, 0xff, 0xff, 0xff, 0xa6, 0x53, 0xca, 0xf0, 0xff, 0xff, 0xff, 0xff,
+    0xa7, 0x15, 0x89, 0x60, 0xff, 0xff, 0xff, 0xff, 0xa8, 0x33, 0xac, 0xf0,
+    0xff, 0xff, 0xff, 0xff, 0xa8, 0xfe, 0xa5, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xaa, 0x13, 0x8e, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xaa, 0xde, 0x87, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xab, 0xf3, 0x70, 0xf0, 0xff, 0xff, 0xff, 0xff,
+    0xac, 0xbe, 0x69, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xad, 0xd3, 0x52, 0xf0,
+    0xff, 0xff, 0xff, 0xff, 0xae, 0x9e, 0x4b, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xaf, 0xb3, 0x34, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xb0, 0x7e, 0x2d, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xb1, 0x9c, 0x51, 0x70, 0xff, 0xff, 0xff, 0xff,
+    0xb2, 0x67, 0x4a, 0x60, 0xff, 0xff, 0xff, 0xff, 0xb3, 0x7c, 0x33, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xb4, 0x47, 0x2c, 0x60, 0xff, 0xff, 0xff, 0xff,
+    0xb5, 0x5c, 0x15, 0x70, 0xff, 0xff, 0xff, 0xff, 0xb6, 0x27, 0x0e, 0x60,
+    0xff, 0xff, 0xff, 0xff, 0xb7, 0x3b, 0xf7, 0x70, 0xff, 0xff, 0xff, 0xff,
+    0xb8, 0x06, 0xf0, 0x60, 0xff, 0xff, 0xff, 0xff, 0xb9, 0x1b, 0xd9, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xb9, 0xe6, 0xd2, 0x60, 0xff, 0xff, 0xff, 0xff,
+    0xbb, 0x04, 0xf5, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xbb, 0xc6, 0xb4, 0x60,
+    0xff, 0xff, 0xff, 0xff, 0xbc, 0xe4, 0xd7, 0xf0, 0xff, 0xff, 0xff, 0xff,
+    0xbd, 0xaf, 0xd0, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xbe, 0xc4, 0xb9, 0xf0,
+    0xff, 0xff, 0xff, 0xff, 0xbf, 0x8f, 0xb2, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xc0, 0xa4, 0x9b, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xc1, 0x6f, 0x94, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xc2, 0x84, 0x7d, 0xf0, 0xff, 0xff, 0xff, 0xff,
+    0xc3, 0x4f, 0x76, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xc4, 0x64, 0x5f, 0xf0,
+    0xff, 0xff, 0xff, 0xff, 0xc5, 0x2f, 0x58, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xc6, 0x4d, 0x7c, 0x70, 0xff, 0xff, 0xff, 0xff, 0xc7, 0x0f, 0x3a, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xc8, 0x2d, 0x5e, 0x70, 0xff, 0xff, 0xff, 0xff,
+    0xc8, 0xf8, 0x57, 0x60, 0xff, 0xff, 0xff, 0xff, 0xca, 0x0d, 0x40, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xca, 0xd8, 0x39, 0x60, 0xff, 0xff, 0xff, 0xff,
+    0xcb, 0x88, 0xf0, 0x70, 0xff, 0xff, 0xff, 0xff, 0xd2, 0x23, 0xf4, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xd2, 0x60, 0xfb, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xd3, 0x75, 0xe4, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xd4, 0x40, 0xdd, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xd5, 0x55, 0xc6, 0xf0, 0xff, 0xff, 0xff, 0xff,
+    0xd6, 0x20, 0xbf, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xd7, 0x35, 0xa8, 0xf0,
+    0xff, 0xff, 0xff, 0xff, 0xd8, 0x00, 0xa1, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xd9, 0x15, 0x8a, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xd9, 0xe0, 0x83, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xda, 0xfe, 0xa7, 0x70, 0xff, 0xff, 0xff, 0xff,
+    0xdb, 0xc0, 0x65, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xdc, 0xde, 0x89, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xdd, 0xa9, 0x82, 0x60, 0xff, 0xff, 0xff, 0xff,
+    0xde, 0xbe, 0x6b, 0x70, 0xff, 0xff, 0xff, 0xff, 0xdf, 0x89, 0x64, 0x60,
+    0xff, 0xff, 0xff, 0xff, 0xe0, 0x9e, 0x4d, 0x70, 0xff, 0xff, 0xff, 0xff,
+    0xe1, 0x69, 0x46, 0x60, 0xff, 0xff, 0xff, 0xff, 0xe2, 0x7e, 0x2f, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xe3, 0x49, 0x28, 0x60, 0xff, 0xff, 0xff, 0xff,
+    0xe4, 0x5e, 0x11, 0x70, 0xff, 0xff, 0xff, 0xff, 0xe5, 0x57, 0x2e, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xe6, 0x47, 0x2d, 0xf0, 0xff, 0xff, 0xff, 0xff,
+    0xe7, 0x37, 0x10, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xe8, 0x27, 0x0f, 0xf0,
+    0xff, 0xff, 0xff, 0xff, 0xe9, 0x16, 0xf2, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xea, 0x06, 0xf1, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xea, 0xf6, 0xd4, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xeb, 0xe6, 0xd3, 0xf0, 0xff, 0xff, 0xff, 0xff,
+    0xec, 0xd6, 0xb6, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xed, 0xc6, 0xb5, 0xf0,
+    0xff, 0xff, 0xff, 0xff, 0xee, 0xbf, 0xd3, 0x60, 0xff, 0xff, 0xff, 0xff,
+    0xef, 0xaf, 0xd2, 0x70, 0xff, 0xff, 0xff, 0xff, 0xf0, 0x9f, 0xb5, 0x60,
+    0xff, 0xff, 0xff, 0xff, 0xf1, 0x8f, 0xb4, 0x70, 0xff, 0xff, 0xff, 0xff,
+    0xf2, 0x7f, 0x97, 0x60, 0xff, 0xff, 0xff, 0xff, 0xf3, 0x6f, 0x96, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xf4, 0x5f, 0x79, 0x60, 0xff, 0xff, 0xff, 0xff,
+    0xf5, 0x4f, 0x78, 0x70, 0xff, 0xff, 0xff, 0xff, 0xf6, 0x3f, 0x5b, 0x60,
+    0xff, 0xff, 0xff, 0xff, 0xf7, 0x2f, 0x5a, 0x70, 0xff, 0xff, 0xff, 0xff,
+    0xf8, 0x28, 0x77, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xf9, 0x0f, 0x3c, 0x70,
+    0xff, 0xff, 0xff, 0xff, 0xfa, 0x08, 0x59, 0xe0, 0xff, 0xff, 0xff, 0xff,
+    0xfa, 0xf8, 0x58, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xfb, 0xe8, 0x3b, 0xe0,
+    0xff, 0xff, 0xff, 0xff, 0xfc, 0xd8, 0x3a, 0xf0, 0xff, 0xff, 0xff, 0xff,
+    0xfd, 0xc8, 0x1d, 0xe0, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xb8, 0x1c, 0xf0,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xa7, 0xff, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x97, 0xfe, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x01, 0x87, 0xe1, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x02, 0x77, 0xe0, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x03, 0x70, 0xfe, 0x60, 0x00, 0x00, 0x00, 0x00, 0x04, 0x60, 0xfd, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x05, 0x50, 0xe0, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x06, 0x40, 0xdf, 0x70, 0x00, 0x00, 0x00, 0x00, 0x07, 0x30, 0xc2, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x07, 0x8d, 0x19, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x09, 0x10, 0xa4, 0x60, 0x00, 0x00, 0x00, 0x00, 0x09, 0xad, 0x94, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x0a, 0xf0, 0x86, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x0b, 0xe0, 0x85, 0x70, 0x00, 0x00, 0x00, 0x00, 0x0c, 0xd9, 0xa2, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x0d, 0xc0, 0x67, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x0e, 0xb9, 0x84, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x0f, 0xa9, 0x83, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x10, 0x99, 0x66, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x11, 0x89, 0x65, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x12, 0x79, 0x48, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x13, 0x69, 0x47, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x14, 0x59, 0x2a, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x15, 0x49, 0x29, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x16, 0x39, 0x0c, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x17, 0x29, 0x0b, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x18, 0x22, 0x29, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x19, 0x08, 0xed, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x1a, 0x02, 0x0b, 0x60, 0x00, 0x00, 0x00, 0x00, 0x1a, 0xf2, 0x0a, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x1b, 0xe1, 0xed, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x1c, 0xd1, 0xec, 0x70, 0x00, 0x00, 0x00, 0x00, 0x1d, 0xc1, 0xcf, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x1e, 0xb1, 0xce, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x1f, 0xa1, 0xb1, 0x60, 0x00, 0x00, 0x00, 0x00, 0x20, 0x76, 0x00, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x21, 0x81, 0x93, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x22, 0x55, 0xe2, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x23, 0x6a, 0xaf, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x24, 0x35, 0xc4, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x25, 0x4a, 0x91, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x26, 0x15, 0xa6, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x27, 0x2a, 0x73, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x27, 0xfe, 0xc3, 0x70, 0x00, 0x00, 0x00, 0x00, 0x29, 0x0a, 0x55, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x29, 0xde, 0xa5, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x2a, 0xea, 0x37, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x2b, 0xbe, 0x87, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x2c, 0xd3, 0x54, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x2d, 0x9e, 0x69, 0x70, 0x00, 0x00, 0x00, 0x00, 0x2e, 0xb3, 0x36, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x2f, 0x7e, 0x4b, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x30, 0x93, 0x18, 0x60, 0x00, 0x00, 0x00, 0x00, 0x31, 0x67, 0x67, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x32, 0x72, 0xfa, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x33, 0x47, 0x49, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x34, 0x52, 0xdc, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x35, 0x27, 0x2b, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x36, 0x32, 0xbe, 0x60, 0x00, 0x00, 0x00, 0x00, 0x37, 0x07, 0x0d, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x38, 0x1b, 0xda, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x38, 0xe6, 0xef, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x39, 0xfb, 0xbc, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x3a, 0xc6, 0xd1, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x3b, 0xdb, 0x9e, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x3c, 0xaf, 0xee, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x3d, 0xbb, 0x80, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x3e, 0x8f, 0xd0, 0x70, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x9b, 0x62, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x40, 0x6f, 0xb2, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x41, 0x84, 0x7f, 0x60, 0x00, 0x00, 0x00, 0x00, 0x42, 0x4f, 0x94, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x43, 0x64, 0x61, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x44, 0x2f, 0x76, 0x70, 0x00, 0x00, 0x00, 0x00, 0x45, 0x44, 0x43, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x45, 0xf3, 0xa8, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x47, 0x2d, 0x5f, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x47, 0xd3, 0x8a, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x49, 0x0d, 0x41, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x49, 0xb3, 0x6c, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x4a, 0xed, 0x23, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x4b, 0x9c, 0x89, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x4c, 0xd6, 0x40, 0x60, 0x00, 0x00, 0x00, 0x00, 0x4d, 0x7c, 0x6b, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x4e, 0xb6, 0x22, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x4f, 0x5c, 0x4d, 0x70, 0x00, 0x00, 0x00, 0x00, 0x50, 0x96, 0x04, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x51, 0x3c, 0x2f, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x52, 0x75, 0xe6, 0x60, 0x00, 0x00, 0x00, 0x00, 0x53, 0x1c, 0x11, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x54, 0x55, 0xc8, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x54, 0xfb, 0xf3, 0x70, 0x00, 0x00, 0x00, 0x00, 0x56, 0x35, 0xaa, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x56, 0xe5, 0x0f, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x58, 0x1e, 0xc6, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x58, 0xc4, 0xf1, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x59, 0xfe, 0xa8, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x5a, 0xa4, 0xd3, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x5b, 0xde, 0x8a, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x5c, 0x84, 0xb5, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x5d, 0xbe, 0x6c, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x5e, 0x64, 0x97, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x5f, 0x9e, 0x4e, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x60, 0x4d, 0xb4, 0x70, 0x00, 0x00, 0x00, 0x00, 0x61, 0x87, 0x6b, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x62, 0x2d, 0x96, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x63, 0x67, 0x4d, 0x60, 0x00, 0x00, 0x00, 0x00, 0x64, 0x0d, 0x78, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x65, 0x47, 0x2f, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x65, 0xed, 0x5a, 0x70, 0x00, 0x00, 0x00, 0x00, 0x67, 0x27, 0x11, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x67, 0xcd, 0x3c, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x69, 0x06, 0xf3, 0x60, 0x00, 0x00, 0x00, 0x00, 0x69, 0xad, 0x1e, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x6a, 0xe6, 0xd5, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x6b, 0x96, 0x3a, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x6c, 0xcf, 0xf1, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x6d, 0x76, 0x1c, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x6e, 0xaf, 0xd3, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x6f, 0x55, 0xfe, 0xf0,
+    0x00, 0x00, 0x00, 0x00, 0x70, 0x8f, 0xb5, 0xe0, 0x00, 0x00, 0x00, 0x00,
+    0x71, 0x35, 0xe0, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x72, 0x6f, 0x97, 0xe0,
+    0x00, 0x00, 0x00, 0x00, 0x73, 0x15, 0xc2, 0xf0, 0x00, 0x00, 0x00, 0x00,
+    0x74, 0x4f, 0x79, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x74, 0xfe, 0xdf, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x76, 0x38, 0x96, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x76, 0xde, 0xc1, 0x70, 0x00, 0x00, 0x00, 0x00, 0x78, 0x18, 0x78, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x78, 0xbe, 0xa3, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x79, 0xf8, 0x5a, 0x60, 0x00, 0x00, 0x00, 0x00, 0x7a, 0x9e, 0x85, 0x70,
+    0x00, 0x00, 0x00, 0x00, 0x7b, 0xd8, 0x3c, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x7c, 0x7e, 0x67, 0x70, 0x00, 0x00, 0x00, 0x00, 0x7d, 0xb8, 0x1e, 0x60,
+    0x00, 0x00, 0x00, 0x00, 0x7e, 0x5e, 0x49, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x7f, 0x98, 0x00, 0x60, 0x00, 0x03, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x04, 0x05, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
+    0x02, 0xff, 0xff, 0xba, 0x9e, 0x00, 0x00, 0xff, 0xff, 0xc7, 0xc0, 0x01,
+    0x04, 0xff, 0xff, 0xb9, 0xb0, 0x00, 0x08, 0xff, 0xff, 0xb9, 0xb0, 0x00,
+    0x08, 0xff, 0xff, 0xc7, 0xc0, 0x01, 0x0c, 0xff, 0xff, 0xc7, 0xc0, 0x01,
+    0x10, 0x4c, 0x4d, 0x54, 0x00, 0x45, 0x44, 0x54, 0x00, 0x45, 0x53, 0x54,
+    0x00, 0x45, 0x57, 0x54, 0x00, 0x45, 0x50, 0x54, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x0a, 0x45, 0x53,
+    0x54, 0x35, 0x45, 0x44, 0x54, 0x2c, 0x4d, 0x33, 0x2e, 0x32, 0x2e, 0x30,
+    0x2c, 0x4d, 0x31, 0x31, 0x2e, 0x31, 0x2e, 0x30, 0x0a
+};
 
 class RawHeader;
 class RawLocalTimeTypes;
 class ZoneinfoData;
-
-static int verifyTimeZone(const ZoneinfoData&     data,
-                          const baltzo::Zoneinfo& timeZone,
-                          int                     line,
-                          bool                    expectToFail = false);
-    // Validate description of a time zone based on the specified 'timeZone' is
-    // the same as the description based on the specified 'data', and output an
-    // error message containing the line number indicated by the specified
-    // 'line' when the validation failed.  Optionally, specified 'expectToFail'
-    // indicating whether there is a difference between 'timeZone' and 'data'.
-    // If 'expectToFail' is 'true', 'verifyTimeZone' will not 'ASSERT',
-    // otherwise, 'verifyTimeZone' will 'ASSERT' at the location that an error
-    // is detected.  The behavior is undefined unless 'data' contains valid
-    // Zoneinfo version '\0' binary data in the buffer.  Return 0 if the
-    // validation succeed, and a non-zero value otherwise.
-
-static int verifyTimeZoneVersion2Or3Format(
-                                 const ZoneinfoData&     data,
-                                 const baltzo::Zoneinfo& timeZone,
-                                 int                     line,
-                                 bool                    expectToFail = false);
-    // Validate description of a time zone based on the specified 'timeZone' is
-    // the same as the description based on the specified 'data', and output an
-    // error message containing the line number indicated by the specified
-    // 'line' when the validation failed.  Optionally, specified 'expectToFail'
-    // indicating whether there is a difference between 'timeZone' and 'data'.
-    // If 'expectToFail' is 'true', 'verifyTimeZoneVersion2Or3Format' will not
-    // 'ASSERT', otherwise, 'verifyTimeZoneVersion2Or3Format' will 'ASSERT' at
-    // the location that an error is detected.  The behavior is undefined
-    // unless 'data' contains valid Zoneinfo version '2'  or '3' binary data in
-    // the buffer.  Return 0 if the validation succeed, and a non-zero value
-    // otherwise.
 
 static void writeBigEndian(char *address, int value);
     // Write the specified 'value' into the memory at the specified 'address in
@@ -2319,44 +2601,66 @@ bsl::size_t ZoneinfoData::timeZoneStringLength() const
 static int verifyTimeZone(const ZoneinfoData&     data,
                           const baltzo::Zoneinfo& timeZone,
                           int                     line,
-                          bool                    expectToFail)
+                          bool                    expectToFail = false,
+                          bool                    rawFormat = false)
+    // Validate description of a time zone based on the specified 'timeZone' is
+    // the same as the description based on the specified 'data', and output an
+    // error message containing the line number indicated by the specified
+    // 'line' when the validation failed.  Optionally specify an 'expectToFail'
+    // flag indicating whether there is an intentional difference between
+    // 'timeZone' and 'data'.  If 'expectToFail' is 'true', 'verifyTimeZone'
+    // will not 'ASSERT', otherwise, 'verifyTimeZone' will 'ASSERT' at the
+    // location that an error is detected.  Also optionally specify a
+    // 'rawFormat' flag indicating whether the 'timeZone' absolutely accurately
+    // displays the original binary data.  The behavior is undefined unless
+    // 'data' contains valid Zoneinfo version '\0' binary data in the buffer.
+    // Return 0 if the validation succeed, and a non-zero value otherwise.
 {
+    const int               LINE = line;
+    const baltzo::Zoneinfo& X    = timeZone;
 
-    const int LINE = line;
-    const baltzo::Zoneinfo& X = timeZone;
-
-    RawHeader *H = data.getRawHeader();
+    RawHeader         *H = data.getRawHeader();
+    const bsl::size_t  RAW_NUM_TRANSITIONS =
+                                 static_cast<bsl::size_t>(H->numTransitions());
 
     char *abbrevDataBuf = data.getAbbrevData();
 
     RawLocalTimeTypes *localTimeTypeBuf = data.getRawLocalTimeTypes();
 
     // An extra transition is created for to handle time earlier than the first
-    // transition.
-
-    if (static_cast<bsl::size_t>(H->numTransitions())
-                                                   != X.numTransitions() - 1) {
-        if (!expectToFail) {
-            LOOP3_ASSERT(LINE,
-                         H->numTransitions(),
-                         X.numTransitions() - 1,
-                         static_cast<bsl::size_t>(H->numTransitions())
-                                                    == X.numTransitions() - 1);
-        }
-        return 1;                                                     // RETURN
-    }
+    // transition.  'Raw' version does not contain this transition.
 
     baltzo::Zoneinfo::TransitionConstIterator XT = X.beginTransitions();
-    if (FIRST_TRANSITION != XT->utcTime()) {
-        if (!expectToFail) {
-            LOOP2_ASSERT(LINE, XT->utcTime(),
-                         FIRST_TRANSITION == XT->utcTime());
+
+    if (rawFormat) {
+        if (RAW_NUM_TRANSITIONS != X.numTransitions()) {
+            if (!expectToFail) {
+                ASSERTV(LINE, RAW_NUM_TRANSITIONS, X.numTransitions(), false);
+            }
+            return 1;                                                 // RETURN
         }
-        return 2;                                                     // RETURN
     }
+    else {  // modified binary data
+        if (RAW_NUM_TRANSITIONS != X.numTransitions() - 1) {
+            if (!expectToFail) {
+                ASSERTV(LINE,
+                        RAW_NUM_TRANSITIONS,
+                        X.numTransitions() - 1,
+                        false);
+            }
+            return 1;                                                 // RETURN
+        }
 
-    ++XT;
-
+        if (FIRST_TRANSITION != XT->utcTime()) {
+            if (!expectToFail) {
+                ASSERTV(LINE,
+                        XT->utcTime(),
+                        FIRST_TRANSITION == XT->utcTime());
+            }
+            return 2;                                                 // RETURN
+        }
+        ++XT;
+    }
 
     unsigned char *transitionIndexBuf = data.getTransitionIndex();
     for (int i = 0; i < H->numTransitions(); ++i) {
@@ -2403,10 +2707,24 @@ static int verifyTimeZone(const ZoneinfoData&     data,
 // ----------------------------------------------------------------------------
 
 static int verifyTimeZoneVersion2Or3Format(
-                                          const ZoneinfoData&     data,
-                                          const baltzo::Zoneinfo& timeZone,
-                                          int                     line,
-                                          bool                    expectToFail)
+                                  const ZoneinfoData&     data,
+                                  const baltzo::Zoneinfo& timeZone,
+                                  int                     line,
+                                  bool                    expectToFail = false,
+                                  bool                    rawFormat = false)
+    // Validate description of a time zone based on the specified 'timeZone' is
+    // the same as the description based on the specified 'data', and output an
+    // error message containing the line number indicated by the specified
+    // 'line' when the validation failed.  Optionally specify an 'expectToFail'
+    // flag indicating whether there is an intentional difference between
+    // 'timeZone' and 'data'.  If 'expectToFail' is 'true',
+    // 'verifyTimeZoneVersion2Or3Format' will not 'ASSERT', otherwise,
+    // 'verifyTimeZoneVersion2Or3Format' will 'ASSERT' at the location that an
+    // error is detected.  Also optionally specify a 'rawFormat' flag
+    // indicating whether the 'timeZone' absolutely accurately displays the
+    // original binary data.  The behavior is undefined unless 'data' contains
+    // valid Zoneinfo version '2'  or '3' binary data in the buffer.  Return 0
+    // if the validation succeed, and a non-zero value otherwise.
 {
     const int                LINE             = line;
     const baltzo::Zoneinfo&  X                = timeZone;
@@ -2414,35 +2732,65 @@ static int verifyTimeZoneVersion2Or3Format(
     char                    *abbrevDataBuf    = data.getAbbrevData64();
     RawLocalTimeTypes       *localTimeTypeBuf = data.getRawLocalTimeTypes64();
 
-    // An extra transition is created for to handle time earlier than the first
-    // transition.
+    // 'ZoneinfoBinaryReader::read' adds default transition dated to the the
+    // first representable 'bdlt::Datetime' value -- 'bdlt::Datetime(1, 1, 1)'.
+    // ZIC compiler can add its own sentinel transition with the timestamp
+    // equal to -2^59 (-576460752303423488).  'ZoneinfoBinaryReader::read'
+    // omits this transition during data file processing.
+    // 'ZoneinfoBinaryReader::readRaw', in turn, does not add BDE sentinel
+    // transition and preserves the ZIC's one.
 
-    if (static_cast<bsl::size_t>(H->numTransitions())
-                                                   != X.numTransitions() - 1) {
-        if (!expectToFail) {
-            LOOP3_ASSERT(LINE,
-                         H->numTransitions(),
-                         X.numTransitions() - 1,
-                         static_cast<bsl::size_t>(H->numTransitions())
-                                                    == X.numTransitions() - 1);
-        }
-        return 1;                                                     // RETURN
-    }
+    bsls::Types::Int64 firstTransitionTimestamp =
+         readBigEndian64(reinterpret_cast<char *>(data.getTransitionTime64()));
+    const bool        SENTINEL_ZIC_TRANSITION_ADDED = MINIMUM_ZIC_TRANSITION ==
+                                                       firstTransitionTimestamp
+                                                          ? true
+                                                          : false;
+    const bsl::size_t RAW_NUM_TRANSITIONS =
+                                 static_cast<bsl::size_t>(H->numTransitions());
 
     baltzo::Zoneinfo::TransitionConstIterator XT = X.beginTransitions();
-    if (FIRST_TRANSITION != XT->utcTime()) {
-        if (!expectToFail) {
-            LOOP2_ASSERT(LINE, XT->utcTime(),
-                         FIRST_TRANSITION == XT->utcTime());
+
+    if (rawFormat) {
+        if (RAW_NUM_TRANSITIONS != X.numTransitions()) {
+            if (!expectToFail) {
+                ASSERTV(LINE, RAW_NUM_TRANSITIONS, X.numTransitions(), false);
+            }
+            return 1;                                                 // RETURN
         }
-        return 2;                                                     // RETURN
+    }
+    else {  // modified binary data
+        // BDE adds its sentinel transition.
+        bsl::size_t expectedNumTransitions = SENTINEL_ZIC_TRANSITION_ADDED
+                                                 ? RAW_NUM_TRANSITIONS
+                                                 : RAW_NUM_TRANSITIONS + 1;
+
+        if (expectedNumTransitions != X.numTransitions()) {
+            if (!expectToFail) {
+                ASSERTV(LINE,
+                        RAW_NUM_TRANSITIONS,
+                        expectedNumTransitions,
+                        X.numTransitions(),
+                        false);
+            }
+            return 1;                                                 // RETURN
+        }
+
+        if (FIRST_TRANSITION != XT->utcTime()) {
+            if (!expectToFail) {
+                ASSERTV(LINE,
+                        XT->utcTime(),
+                        FIRST_TRANSITION == XT->utcTime());
+            }
+            return 2;                                                 // RETURN
+        }
+        ++XT;
     }
 
-    ++XT;
-
-
+    const int      INITIAL_INDEX      =
+                         (!rawFormat && SENTINEL_ZIC_TRANSITION_ADDED) ? 1 : 0;
     unsigned char *transitionIndexBuf = data.getTransitionIndex64();
-    for (int i = 0; i < H->numTransitions(); ++i) {
+    for (int i = INITIAL_INDEX; i < H->numTransitions(); ++i) {
         if (X.endTransitions() == XT) {
             if (!expectToFail) {
                 LOOP_ASSERT(LINE, X.endTransitions() != XT);
@@ -2495,6 +2843,55 @@ static int verifyTimeZoneVersion2Or3Format(
     }
 
     return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+static void readAndVerifyTimeZone(const ZoneinfoData& data,
+                                  TimeZoneVersion     version,
+                                  int                 line,
+                                  bool                expectedToFail = false)
+    // Alternately create two 'Zoneinfo' objects; fill them using 'read' method
+    // in one case and 'readRaw' in the other, based on the specified binary
+    // 'data' having the specified 'version'; validate the correctness of the
+    // obtained results and print out the report using the specified 'line' in
+    // case of an error.  Optionally specify an 'expectToFail' flag indicating
+    // whether an error is expected to occur during the reading.
+{
+    for (char mode = 'a'; mode <= 'b'; ++mode) {
+        const bool RAW_MODE = 'a' == mode ? true : false;
+
+        bdlsb::FixedMemInStreamBuf isb(data.buffer(), data.size());
+        bsl::istream inputStream(&isb);
+
+        baltzo::Zoneinfo TZ;
+        int              rc = 0;
+        if (RAW_MODE) {
+            rc = Obj::readRaw(&TZ, inputStream);
+        }
+        else {
+            rc = Obj::read(&TZ, inputStream);
+        }
+
+        if (expectedToFail) {
+            ASSERTV(line, RAW_MODE, 0 != rc);
+        }
+        else {
+            ASSERTV(line, RAW_MODE, rc, 0 == rc);
+            if (k_VERSION_0 == version) {
+                rc = verifyTimeZone(data, TZ, line, false, RAW_MODE);
+                ASSERTV(line, RAW_MODE, rc, 0 == rc);
+            }
+            else {
+                rc = verifyTimeZoneVersion2Or3Format(data,
+                                                     TZ,
+                                                     line,
+                                                     false,
+                                                     RAW_MODE);
+                ASSERTV(line, RAW_MODE, rc, 0 == rc);
+            }
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -2584,7 +2981,7 @@ static int testVerifyTimeZone(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 == verifyTimeZone(ZI, TZ, L_, false));
+        ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
     }
 
     if (verbose) cout << "\nMissing transition at 'Jan 1, 1'" << endl;
@@ -2596,7 +2993,7 @@ static int testVerifyTimeZone(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nIncorrect first transition" << endl;
@@ -2609,7 +3006,7 @@ static int testVerifyTimeZone(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nMissing one transition" << endl;
@@ -2620,7 +3017,7 @@ static int testVerifyTimeZone(int verbose)
         TZ.addTransition(TRANSITION_TIMES[1], D[1]);
         TZ.addTransition(TRANSITION_TIMES[2], D[2]);
 
-        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nOne extra transition" << endl;
@@ -2634,7 +3031,7 @@ static int testVerifyTimeZone(int verbose)
         TZ.addTransition(TRANSITION_TIMES[4] - 1, D[1]);
         TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nIncorrect transition data" << endl;
@@ -2648,7 +3045,7 @@ static int testVerifyTimeZone(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3],     D[0]);
             TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2657,7 +3054,7 @@ static int testVerifyTimeZone(int verbose)
             TZ.addTransition(TRANSITION_TIMES[1] - 1, D[1]);
             TZ.addTransition(TRANSITION_TIMES[2],     D[2]);
 
-            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2668,7 +3065,7 @@ static int testVerifyTimeZone(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3],     D[0]);
             TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
         }
     }
 
@@ -2682,7 +3079,7 @@ static int testVerifyTimeZone(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[0]);
 
-        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nIncorrect local time descriptor data" << endl;
@@ -2697,7 +3094,7 @@ static int testVerifyTimeZone(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2709,7 +3106,7 @@ static int testVerifyTimeZone(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2721,7 +3118,7 @@ static int testVerifyTimeZone(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], dError);
 
-            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZone(ZI, TZ, L_, EXPECTED_TO_FAIL));
         }
     }
     return 0;
@@ -2814,7 +3211,7 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, false));
+        ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
     }
 
     if (verbose) cout << "\nMissing transition at 'Jan 1, 1'" << endl;
@@ -2826,7 +3223,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                    TZ,
+                                                    L_,
+                                                    EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nIncorrect first transition" << endl;
@@ -2839,7 +3239,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                    TZ,
+                                                    L_,
+                                                    EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nMissing one transition" << endl;
@@ -2850,7 +3253,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[1], D[1]);
         TZ.addTransition(TRANSITION_TIMES[2], D[2]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                    TZ,
+                                                    L_,
+                                                    EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nOne extra transition" << endl;
@@ -2864,7 +3270,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[4] - 1, D[1]);
         TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                    TZ,
+                                                    L_,
+                                                    EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nIncorrect transition data" << endl;
@@ -2878,7 +3287,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3],     D[0]);
             TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                        TZ,
+                                                        L_,
+                                                        EXPECTED_TO_FAIL));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2887,7 +3299,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[1] - 1, D[1]);
             TZ.addTransition(TRANSITION_TIMES[2],     D[2]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                        TZ,
+                                                        L_,
+                                                        EXPECTED_TO_FAIL));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2898,7 +3313,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3],     D[0]);
             TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                        TZ,
+                                                        L_,
+                                                        EXPECTED_TO_FAIL));
         }
     }
 
@@ -2912,7 +3330,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[0]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                    TZ,
+                                                    L_,
+                                                    EXPECTED_TO_FAIL));
     }
 
     if (verbose) cout << "\nIncorrect local time descriptor data" << endl;
@@ -2927,7 +3348,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                        TZ,
+                                                        L_,
+                                                        EXPECTED_TO_FAIL));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2939,7 +3363,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                        TZ,
+                                                        L_,
+                                                        EXPECTED_TO_FAIL));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2951,7 +3378,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], dError);
 
-            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI,
+                                                        TZ,
+                                                        L_,
+                                                        EXPECTED_TO_FAIL));
         }
     }
 
@@ -2969,7 +3399,10 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
 
         TZ.setPosixExtendedRangeDescription("abc\n");
 
-        ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
+        ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI,
+                                                    TZ,
+                                                    L_,
+                                                    EXPECTED_TO_FAIL));
     }
     return 0;
 }
@@ -3117,211 +3550,263 @@ int main(int argc, char *argv[])
                           << "Testing 'read' failure mode" << endl
                           << "===========================" << endl;
 
-        if (verbose) cout << "\nInvalid header identifier." << endl;
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setHeaderId(0, 'S');
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-2 == Obj::read(&TZ, inputStream));
-        }
+        typedef int (*ReadMethodPtr)(baltzo::Zoneinfo *, bsl::istream&);
 
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setHeaderId(3, 'F');
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-2 == Obj::read(&TZ, inputStream));
-        }
+        for (char mode = 'a'; mode <= 'b'; ++mode) {
+            const bool     RAW_MODE   = 'a' == mode ? true : false;
+            const char    *MODE_STR   = RAW_MODE ? "RAW" : "BDE";
+            ReadMethodPtr  readMethod = RAW_MODE
+                                    ? static_cast<ReadMethodPtr>(&Obj::readRaw)
+                                    : static_cast<ReadMethodPtr>(&Obj::read);
 
-        if (verbose) cout << "\nInvalid version." << endl;
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion(1);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-3 == Obj::read(&TZ, inputStream));
-        }
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion('2' - 1);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-3 == Obj::read(&TZ, inputStream));
-        }
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion('3' + 1);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-3 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout << "\nInvalid version '\\0' 'numIsGmt'." << endl;
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setNumIsGmt(-1);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-5 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout << "\nInvalid version '2' 'numIsGmt'." << endl;
-        {
-            RawHeader RH;
-            RH.setVersion('2');
-            RH.setNumIsGmt(-1);
-            ZoneinfoData ZI(RH);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-5 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout << "\nInvalid version '\0' 'numIsStd'." << endl;
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setNumIsStd(-1);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-6 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout << "\nInvalid version '2' 'numIsStd'." << endl;
-        {
-            RawHeader RH;
-            RH.setVersion('2');
-            RH.setNumIsStd(-1);
-            ZoneinfoData ZI(RH);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-6 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout << "\nInvalid version '\0' 'numTransitions'.\n";
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setNumTransitions(-1);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-8 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout << "\nInvalid version '2' 'numTransitions'." << endl;
-        {
-            RawHeader RH;
-            RH.setVersion('2');
-            RH.setNumTransitions(-1);
-            ZoneinfoData ZI(RH);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-8 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout <<
-                        "\nInvalid version '\\0' 'numLocalTimeTypes'." << endl;
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setNumLocalTimeTypes(0);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-4 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout <<
-                          "\nInvalid version '2' 'numLocalTimeTypes'." << endl;
-        {
-            RawHeader RH;
-            RH.setVersion('2');
-            RH.setNumLocalTimeTypes(0);
-            ZoneinfoData ZI(RH);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-4 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout <<
-                            "\nInvalid version '\\0' 'abbrevDataSize'" << endl;
-        {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setAbbrevDataSize(0);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-9 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout << "\nInvalid version '2' 'abbrevDataSize'" << endl;
-        {
-            RawHeader RH;
-            RH.setVersion('2');
-            RH.setAbbrevDataSize(0);
-            ZoneinfoData ZI(RH);
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-            baltzo::Zoneinfo TZ;
-            ASSERT(-9 == Obj::read(&TZ, inputStream));
-        }
-
-        if (verbose) cout << "\nInvalid version '2' 'abbrevDataSize'" << endl;
-        {
-            RawHeader RH;
-            RH.setNumIsGmt(0);
-            RH.setNumIsStd(0);
-            RH.setNumTransitions(0);
-            RH.setNumLocalTimeTypes(1);
-            RH.setAbbrevDataSize(1);
-
-            RH.setVersion('2');
-            ZoneinfoData ZI2(RH);
-
-            RH.setVersion('3');
-            ZoneinfoData ZI3(RH);
-
-            // Testing scenario, when there aren't any symbols, except data in
-            // the stream.
+            if (verbose) cout << "\tInvalid header identifier ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
             {
-                // Don't add last two characters ("\n\n" to the stream).
-
-                bdlsb::FixedMemInStreamBuf isb2(ZI2.buffer(), ZI2.size() - 2);
-                bdlsb::FixedMemInStreamBuf isb3(ZI3.buffer(), ZI3.size() - 2);
-                bsl::istream               inputStream2(&isb2);
-                bsl::istream               inputStream3(&isb3);
-                baltzo::Zoneinfo           TZ2;
-                baltzo::Zoneinfo           TZ3;
-
-                ASSERT(-33 == Obj::read(&TZ2, inputStream2));
-                ASSERT(-33 == Obj::read(&TZ3, inputStream3));
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setHeaderId(0, 'S');
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-2 == readMethod(&TZ, inputStream));
             }
 
-            // Data part isn't newline-enclosed scenario.
             {
-                // Change newline symbols, enclosing data part.
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setHeaderId(3, 'F');
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-2 == readMethod(&TZ, inputStream));
+            }
 
-                ZI2.buffer()[ZI2.size() - 1] = 'a';
-                ZI3.buffer()[ZI3.size() - 1] = 'a';
+            if (verbose) cout << "\tInvalid version ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setVersion(1);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-3 == readMethod(&TZ, inputStream));
+            }
+            {
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setVersion('2' - 1);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-3 == readMethod(&TZ, inputStream));
+            }
+            {
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setVersion('3' + 1);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-3 == readMethod(&TZ, inputStream));
+            }
 
-                bdlsb::FixedMemInStreamBuf isb2(ZI2.buffer(), ZI2.size() - 2);
-                bdlsb::FixedMemInStreamBuf isb3(ZI3.buffer(), ZI3.size() - 2);
-                bsl::istream               inputStream2(&isb2);
-                bsl::istream               inputStream3(&isb3);
-                baltzo::Zoneinfo           TZ2;
-                baltzo::Zoneinfo           TZ3;
+            if (verbose) cout << "\tInvalid version '\\0' 'numIsGmt' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setNumIsGmt(-1);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-5 == readMethod(&TZ, inputStream));
+            }
 
-                ASSERT(-33 == Obj::read(&TZ2, inputStream2));
-                ASSERT(-33 == Obj::read(&TZ3, inputStream3));
+            if (verbose) cout << "\tInvalid version '2' 'numIsGmt' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                RawHeader RH;
+                RH.setVersion('2');
+                RH.setNumIsGmt(-1);
+                ZoneinfoData ZI(RH);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-5 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout << "\tInvalid version '\0' 'numIsStd' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setNumIsStd(-1);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-6 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout << "\tInvalid version '2' 'numIsStd' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                RawHeader RH;
+                RH.setVersion('2');
+                RH.setNumIsStd(-1);
+                ZoneinfoData ZI(RH);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-6 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout << "\tInvalid version '\0' 'numTransitions' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setNumTransitions(-1);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-8 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout << "\tInvalid version '2' 'numTransitions' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                RawHeader RH;
+                RH.setVersion('2');
+                RH.setNumTransitions(-1);
+                ZoneinfoData ZI(RH);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-8 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout <<
+                            "\nInvalid version '\\0' 'numLocalTimeTypes' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setNumLocalTimeTypes(0);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-4 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout <<
+                              "\nInvalid version '2' 'numLocalTimeTypes' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                RawHeader RH;
+                RH.setVersion('2');
+                RH.setNumLocalTimeTypes(0);
+                ZoneinfoData ZI(RH);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-4 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout << "\tInvalid version '\\0' 'abbrevDataSize' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                ZoneinfoData ZI;
+                ZI.getRawHeader()->setAbbrevDataSize(0);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-9 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout << "\tInvalid version '2' 'abbrevDataSize' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                RawHeader RH;
+                RH.setVersion('2');
+                RH.setAbbrevDataSize(0);
+                ZoneinfoData ZI(RH);
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
+                baltzo::Zoneinfo TZ;
+                ASSERT(-9 == readMethod(&TZ, inputStream));
+            }
+
+            if (verbose) cout << "\tInvalid version '2' 'abbrevDataSize' ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                RawHeader RH;
+                RH.setNumIsGmt(0);
+                RH.setNumIsStd(0);
+                RH.setNumTransitions(0);
+                RH.setNumLocalTimeTypes(1);
+                RH.setAbbrevDataSize(1);
+
+                RH.setVersion('2');
+                ZoneinfoData ZI2(RH);
+
+                RH.setVersion('3');
+                ZoneinfoData ZI3(RH);
+
+                // Testing scenario, when there aren't any symbols, except data
+                // in the stream.
+                {
+                    // Don't add last two characters ("\n\n" to the stream).
+
+                    bdlsb::FixedMemInStreamBuf isb2(ZI2.buffer(),
+                                                    ZI2.size() - 2);
+                    bdlsb::FixedMemInStreamBuf isb3(ZI3.buffer(),
+                                                    ZI3.size() - 2);
+                    bsl::istream               inputStream2(&isb2);
+                    bsl::istream               inputStream3(&isb3);
+                    baltzo::Zoneinfo           TZ2;
+                    baltzo::Zoneinfo           TZ3;
+
+                    ASSERT(-33 == readMethod(&TZ2, inputStream2));
+                    ASSERT(-33 == readMethod(&TZ3, inputStream3));
+                }
+
+                // Data part isn't newline-enclosed scenario.
+                {
+                    // Change newline symbols, enclosing data part.
+
+                    ZI2.buffer()[ZI2.size() - 1] = 'a';
+                    ZI3.buffer()[ZI3.size() - 1] = 'a';
+
+                    bdlsb::FixedMemInStreamBuf isb2(ZI2.buffer(),
+                                                    ZI2.size() - 2);
+                    bdlsb::FixedMemInStreamBuf isb3(ZI3.buffer(),
+                                                    ZI3.size() - 2);
+                    bsl::istream               inputStream2(&isb2);
+                    bsl::istream               inputStream3(&isb3);
+                    baltzo::Zoneinfo           TZ2;
+                    baltzo::Zoneinfo           TZ3;
+
+                    ASSERT(-33 == readMethod(&TZ2, inputStream2));
+                    ASSERT(-33 == readMethod(&TZ3, inputStream3));
+                }
             }
         }
       } break;
@@ -3330,15 +3815,18 @@ int main(int argc, char *argv[])
         // TESTING VERSION '3' REAL LIFE DATA
         //
         // Concerns:
-        //: 1 'read' function works for real-life zoneinfo binary file of
-        //:   version '3'.
+        //: 1 'read' and 'readRaw' functions work for real-life zoneinfo binary
+        //:   file of version '3'.
         //
         // Plan:
         //: 1 Call the 'read' function on the real-life Zoneinfo data from
         //:   Pacific/Easter.  Verify the retrieved data.
+        //:
+        //: 2 Call the 'readRaw' function on the real-life Zoneinfo data from
+        //:   Pacific/Easter.  Verify the retrieved data.  (C-1)
         //
         // Testing:
-        //   CONCERN: 'read' retrieve a real-life Zoneinfo data version '3'
+        //   CONCERN: 'read' retrieves a real-life Zoneinfo data version '3'
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3353,48 +3841,93 @@ int main(int argc, char *argv[])
                 0x00  // null character is added for bsl::string creation
             };
 
-            bdlsb::FixedMemInStreamBuf inStreamBuf(
+            // Testing 'read'.
+            {
+                bdlsb::FixedMemInStreamBuf inStreamBuf(
                            reinterpret_cast<const char *>(PACIFIC_EASTER_DATA),
                            sizeof(PACIFIC_EASTER_DATA));
-            bsl::istream               inputStream(&inStreamBuf);
+                bsl::istream               inputStream(&inStreamBuf);
 
-            baltzo::Zoneinfo TZ;
-            BinHeader        HD;
-            ASSERT(0 == Obj::read(&TZ, &HD, inputStream));
+                baltzo::Zoneinfo TZ;
+                BinHeader        HD;
+                ASSERT(0 == Obj::read(&TZ, &HD, inputStream));
 
-            if (verbose) { T_ P(HD) }
+                if (verbose) { T_ P(HD) }
 
-            LOOP_ASSERT(HD.version(),           '3' == HD.version());
-            LOOP_ASSERT(HD.numLocalTimeTypes(), 7   == HD.numLocalTimeTypes());
-            LOOP_ASSERT(HD.numIsGmt(),          7   == HD.numIsGmt());
-            LOOP_ASSERT(HD.numIsStd(),          7   == HD.numIsStd());
-            LOOP_ASSERT(HD.numLeaps(),          0   == HD.numLeaps());
-            LOOP_ASSERT(HD.numTransitions(),    140 == HD.numTransitions());
-            LOOP_ASSERT(HD.abbrevDataSize(),    19  == HD.abbrevDataSize());
+                ASSERTV(HD.version(),           '3' == HD.version());
+                ASSERTV(HD.numLocalTimeTypes(), 7   == HD.numLocalTimeTypes());
+                ASSERTV(HD.numIsGmt(),          7   == HD.numIsGmt());
+                ASSERTV(HD.numIsStd(),          7   == HD.numIsStd());
+                ASSERTV(HD.numLeaps(),          0   == HD.numLeaps());
+                ASSERTV(HD.numTransitions(),    140 == HD.numTransitions());
+                ASSERTV(HD.abbrevDataSize(),    19  == HD.abbrevDataSize());
 
-            if (verbose) { T_ P(TZ) }
+                if (verbose) { T_ P(TZ) }
 
-            // 'baltzo::ZoneinfoBinaryReader' adds fake transition with value
-            // equal to Date(1, 1, 1), so the number increased by one in
-            // comparison with 'baltzo::ZoneinfoBinaryHeader' value.
+                // 'ZoneinfoBinaryReader::read()' adds a default transition
+                // dated to the the first representable 'bdlt::Datetime' value
+                // -- 'bdlt::Datetime(1, 1, 1)'.   ZIC compiler also added its
+                // own sentinel transition with the timestamp equal to -2^59
+                // (-576460752303423488).  'ZoneinfoBinaryReader::read()' omits
+                // this transition during data file processing.  In that case
+                // the number of transitions in raw and processed data will be
+                // the same.
 
-            ASSERT(141 == TZ.numTransitions());
+                ASSERTV(TZ.numTransitions(), 140 == TZ.numTransitions());
 
-            baltzo::Zoneinfo::TransitionConstIterator iter =
+                baltzo::Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
 
-            // Another fake transition is added to binary file by database
-            // creators:
-            LOOP_ASSERT(iter->utcTime(),
-                        MINIMUM_ZIC_TRANSITION == iter->utcTime());
-            iter++;
+                // Checking 'baltzo::ZoneinfoBinaryReader' sentinel transition.
 
-            // 'baltzo::ZoneinfoBinaryReader' fake transition.
+                ASSERTV(iter->utcTime(), FIRST_TRANSITION == iter->utcTime());
 
-            LOOP_ASSERT(iter->utcTime(), FIRST_TRANSITION == iter->utcTime());
-
-            LOOP_ASSERT(TZ.posixExtendedRangeDescription(),
+                ASSERTV(TZ.posixExtendedRangeDescription(),
                         EASTER_TZ == TZ.posixExtendedRangeDescription());
+            }
+
+            // Testing 'readRaw'.
+            {
+                bdlsb::FixedMemInStreamBuf inStreamBuf(
+                           reinterpret_cast<const char *>(PACIFIC_EASTER_DATA),
+                           sizeof(PACIFIC_EASTER_DATA));
+                bsl::istream               inputStream(&inStreamBuf);
+
+                baltzo::Zoneinfo TZ;
+                BinHeader        HD;
+                ASSERT(0 == Obj::readRaw(&TZ, &HD, inputStream));
+
+                if (verbose) { T_ P(HD) }
+
+                ASSERTV(HD.version(),           '3' == HD.version());
+                ASSERTV(HD.numLocalTimeTypes(), 7   == HD.numLocalTimeTypes());
+                ASSERTV(HD.numIsGmt(),          7   == HD.numIsGmt());
+                ASSERTV(HD.numIsStd(),          7   == HD.numIsStd());
+                ASSERTV(HD.numLeaps(),          0   == HD.numLeaps());
+                ASSERTV(HD.numTransitions(),    140 == HD.numTransitions());
+                ASSERTV(HD.abbrevDataSize(),    19  == HD.abbrevDataSize());
+
+                if (verbose) { T_ P(TZ) }
+
+                // Unlike 'read', 'readRaw' preserves ZIC compiler sentinel
+                // transition with the timestamp equal to -2^59
+                // (-576460752303423488) and does not add BDE sentinel
+                // transition.  So in that case the number of transitions in
+                // raw and processed data also is the same.
+
+                ASSERT(140 == TZ.numTransitions());
+
+                baltzo::Zoneinfo::TransitionConstIterator iter =
+                                                         TZ.beginTransitions();
+
+                // Checking ZIC sentinel transition.
+
+                ASSERTV(iter->utcTime(),
+                        MINIMUM_ZIC_TRANSITION == iter->utcTime());
+
+                ASSERTV(TZ.posixExtendedRangeDescription(),
+                        EASTER_TZ == TZ.posixExtendedRangeDescription());
+            }
         }
       } break;
       case 10: {
@@ -3402,11 +3935,13 @@ int main(int argc, char *argv[])
         // TESTING REAL LIFE DATA
         //
         // Concerns:
-        //: 1 'read' function works for real-life zoneinfo binary file.
+        //: 1 'read' and 'readRaw' functions correctly process real-life
+        //:   zoneinfo binary files.
         //
         // Plan:
-        //: 1 Call the 'read' function on a number of real-life Zoneinfo data.
-        //:   Verify the retrieved data with 'verifyTimeZoneVersion2Or3Format'.
+        //: 1 Call the 'read' and 'readRaw' functions on a number of real-life
+        //:   Zoneinfo data.  Verify the retrieved data with
+        //:   'verifyTimeZoneVersion2Or3Format'.
         //:   The chosen time zones are:
         //:   o America/New_York -- due to common usage.
         //:   o Europe/London -- due to common usage.
@@ -3418,37 +3953,75 @@ int main(int argc, char *argv[])
         //:     offset.
         //
         // Testing:
-        //   CONCERN: 'read' retrieve a real-life Zoneinfo data
+        //   CONCERN: 'read' retrieves a real-life Zoneinfo data
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING REAL LIFE DATA" << endl
                           << "======================" << endl;
 
+        typedef int (*ReadMethodPtr)(baltzo::Zoneinfo *,
+                                     baltzo::ZoneinfoBinaryHeader *,
+                                     bsl::istream&);
+
+        const unsigned char *ND  = NEW_YORK_DATA;
+        const unsigned char *LD  = LONDON_DATA;
+        const unsigned char *TD  = TOKYO_DATA;
+        const unsigned char *KD  = KIRITIMATI_DATA;
+        const unsigned char *CD  = CHATHAM_DATA;
+        const unsigned char *NID = NEW_YORK_DATA_WITH_INITIAL_TRANSITION;
+
+        int sizeND  = sizeof NEW_YORK_DATA;
+        int sizeLD  = sizeof LONDON_DATA;
+        int sizeTD  = sizeof TOKYO_DATA;
+        int sizeKD  = sizeof KIRITIMATI_DATA;
+        int sizeCD  = sizeof CHATHAM_DATA;
+        int sizeNID = sizeof NEW_YORK_DATA_WITH_INITIAL_TRANSITION;
+
         {
             static const struct {
+                int                  d_line;
+                                         // source line number
+
                 const unsigned char *d_buffer_p;
+                                         // data source
+
                 int                  d_size;
+                                         // size of the data
+
                 int                  d_numLocalTimeTypes;
+                                         // expected number of local-time types
+
                 int                  d_numIsGmt;
+                                         // expected number of encoded
+                                         // UTC/local indicators
+
                 int                  d_numIsStd;
+                                         // expected number of encoded
+                                         // standard/wall indicators
+
                 int                  d_numLeaps;
+                                         // expected number of leap corrections
+
                 int                  d_abbrevDataSize;
+                                         // expected length  of abbreviation
+                                         // data
+
             } DATA [] = {
-
-            //BUFFER           SIZE                  LLT  GMT  STD LEAP  ABB
-            //------           ----                  ---  ---  --- ----  ---
-
-            { NEW_YORK_DATA,   sizeof NEW_YORK_DATA,   5,   5,   5,   0,  20 },
-            { LONDON_DATA,     sizeof LONDON_DATA,     8,   8,   8,   0,  17 },
-            { TOKYO_DATA,      sizeof TOKYO_DATA,      5,   5,   5,   0,  16 },
-            { KIRITIMATI_DATA, sizeof KIRITIMATI_DATA, 4,   4,   4,   0,   9 },
-            { CHATHAM_DATA,    sizeof CHATHAM_DATA,    4,   4,   4,   0,  16 },
+                //LINE BUFFER   SIZE       LLT  GMT  STD LEAP  ABB
+                //---- ------   ------     ---  ---  --- ----  ---
+                {L_,   ND,      sizeND,    5,   5,   5,   0,   20 },
+                {L_,   LD,      sizeLD,    8,   8,   8,   0,   17 },
+                {L_,   TD,      sizeTD,    5,   5,   5,   0,   16 },
+                {L_,   KD,      sizeKD,    4,   4,   4,   0,    9 },
+                {L_,   CD,      sizeCD,    4,   4,   4,   0,   16 },
+                {L_,   NID,     sizeNID,   6,   6,   6,   0,   20 },
             };
 
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int            LINE    = DATA[ti].d_line;
                 const unsigned char *BUFFER  = DATA[ti].d_buffer_p;
                 const int            SIZE    = DATA[ti].d_size;
                 const int            LTT     = DATA[ti].d_numLocalTimeTypes;
@@ -3457,29 +4030,46 @@ int main(int argc, char *argv[])
                 const int            LEAPS   = DATA[ti].d_numLeaps;
                 const int            AB_SIZE = DATA[ti].d_abbrevDataSize;
 
-                bdlsb::FixedMemInStreamBuf inStreamBuf(
+                for (char mode = 'a'; mode <= 'b'; ++mode) {
+                    const bool RAW_MODE = 'a' == mode ? true : false;
+                    ReadMethodPtr  readMethod = RAW_MODE
+                                    ? static_cast<ReadMethodPtr>(&Obj::readRaw)
+                                    : static_cast<ReadMethodPtr>(&Obj::read);
+
+                    bdlsb::FixedMemInStreamBuf inStreamBuf(
                                         reinterpret_cast<const char *>(BUFFER),
                                         SIZE);
-                bsl::istream inputStream(&inStreamBuf);
+                    bsl::istream               inputStream(&inStreamBuf);
 
-                baltzo::Zoneinfo TZ;
-                BinHeader HD;
-                ASSERT(0 == Obj::read(&TZ, &HD, inputStream));
+                    baltzo::Zoneinfo TZ;
+                    BinHeader        HD;
+                    ASSERT(0 == readMethod(&TZ, &HD, inputStream));
 
-                if (verbose) { T_ P(HD) }
+                    if (verbose) { T_ P(HD) }
 
-                ASSERT('2'     == HD.version());
-                ASSERT(LTT     == HD.numLocalTimeTypes());
-                ASSERT(IS_GMT  == HD.numIsGmt());
-                ASSERT(IS_STD  == HD.numIsStd());
-                ASSERT(LEAPS   == HD.numLeaps());
-                ASSERT(AB_SIZE == HD.abbrevDataSize());
+                    ASSERTV(LINE, RAW_MODE, HD.version(), '2' == HD.version());
+                    ASSERTV(LINE, RAW_MODE, LTT, HD.numLocalTimeTypes(),
+                            LTT == HD.numLocalTimeTypes());
+                    ASSERTV(LINE, RAW_MODE, IS_GMT, HD.numIsGmt(),
+                            IS_GMT == HD.numIsGmt());
+                    ASSERTV(LINE, RAW_MODE, IS_STD, HD.numIsStd(),
+                            IS_STD == HD.numIsStd());
+                    ASSERTV(LINE, RAW_MODE, LEAPS, HD.numLeaps(),
+                            LEAPS == HD.numLeaps());
+                    ASSERTV(LINE, RAW_MODE, AB_SIZE, HD.abbrevDataSize(),
+                            AB_SIZE == HD.abbrevDataSize());
 
-                if (verbose) { T_ P(TZ) }
+                    if (verbose) { T_ P(TZ) }
 
-                ZoneinfoData ZI(reinterpret_cast<const char *>(BUFFER),
-                                SIZE);
-                ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
+                    ZoneinfoData ZI(reinterpret_cast<const char *>(BUFFER),
+                                    SIZE);
+                    ASSERTV(LINE,
+                            0 == verifyTimeZoneVersion2Or3Format(ZI,
+                                                                 TZ,
+                                                                 L_,
+                                                                 false,
+                                                                 RAW_MODE));
+                }
             }
         }
       } break;
@@ -3488,23 +4078,23 @@ int main(int argc, char *argv[])
         // TESTING TIME ZONE STRING READING
         //
         // Concerns:
-        //: 1 'read' succeeds in loading version '\0' data into a
-        //:   'baltzo::Zoneinfo' object, but default value of time zone string
-        //:   is stored.
+        //: 1 'read' and 'readRaw' succeed in loading version '\0' data into a
+        //:   'baltzo::Zoneinfo' object, but the default value of time zone
+        //:   string  is stored.
         //:
-        //: 2 'read' succeeds in loading of varios time zone strings from
-        //:   version '2' binary data into a 'baltzo::Zoneinfo' object and
-        //:   correct value of time zone string is stored.
+        //: 2 'read' and 'readRaw' succeed in loading of various time zone
+        //:   strings from version '2' binary data into a 'baltzo::Zoneinfo'
+        //:   object and the correct value of time zone string is stored.
         //:
-        //: 3 'read' succeeds in loading of varios time zone strings from
-        //:   version '3' binary data into a 'baltzo::Zoneinfo' object and
-        //:   correct value of time zone string is stored.
+        //: 3 'read' and 'readRaw' succeed in loading of various time zone
+        //:   strings from version '3' binary data into a 'baltzo::Zoneinfo'
+        //:   object and the correct value of time zone string is stored.
         //
         // Plan:
         //: 1 Using test apparatus, create a stream, containing binary data for
         //:   valid 'baltzo::Zoneinfo' object of version '\0'.  Verify that
-        //:   'read' successfully load data into a 'baltzo::Zoneinfo' object.
-        //:   (C-1)
+        //:   'read' and 'readRaw' successfully load data into a
+        //:   'baltzo::Zoneinfo' object.  (C-1)
         //:
         //: 2 Using the table-driven technique, specify a set of (unique) time
         //:   zone strings.
@@ -3516,11 +4106,11 @@ int main(int argc, char *argv[])
         //:     data for two valid 'baltzo::Zoneinfo' objects of version '2'
         //:     and '3' and having 'V' as a time zone string.
         //:
-        //:   2 Verify that 'read' successfully load data into a
-        //:     'baltzo::Zoneinfo' object.  (C-2..3)
+        //:   2 Call sequentially 'read' and 'readRaw' and verify that data is
+        //:     successfully loaded into a 'baltzo::Zoneinfo' object.  (C-2..3)
         //
         // Testing:
-        //   read(baltzo::Zoneinfo *, bsl::istream&, bA=0);
+        //   CONCERN: 'read' properly processes the time zone string
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3538,12 +4128,7 @@ int main(int argc, char *argv[])
 
             ZoneinfoData ZI(RH);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream               inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_);
         }
 
         if (verbose) cout << "\nTesting version '2' and '3' binary file."
@@ -3591,42 +4176,57 @@ int main(int argc, char *argv[])
                     original.setTimeZoneString(ORIG, strlen(ORIG));
                     result.setTimeZoneString(RESULT, strlen(RESULT));
 
-                    bdlsb::FixedMemInStreamBuf isb(original.buffer(),
-                                                   original.size());
-                    bsl::istream               inputStream(&isb);
+                    for (char mode = 'a'; mode <= 'b'; ++mode) {
+                        const bool RAW_MODE = 'a' == mode ? true : false;
 
-                    baltzo::Zoneinfo TZ;
-                    LOOP2_ASSERT(LINE, version,
-                                 0 == Obj::read(&TZ, inputStream));
-                    LOOP2_ASSERT(LINE, version,
-                                 0 == verifyTimeZoneVersion2Or3Format(result,
-                                                                      TZ,
-                                                                      LINE));
+                        bdlsb::FixedMemInStreamBuf isb(original.buffer(),
+                                                       original.size());
+                        bsl::istream               inputStream(&isb);
+
+                        baltzo::Zoneinfo TZ;
+                        int              rc = 0;
+                        if (RAW_MODE) {
+                            rc = Obj::readRaw(&TZ, inputStream);
+                        }
+                        else {
+                            rc = Obj::read(&TZ, inputStream);
+                        }
+                        ASSERTV(LINE, version, RAW_MODE, 0 == rc);
+                        rc = verifyTimeZoneVersion2Or3Format(result,
+                                                             TZ,
+                                                             LINE,
+                                                             false,
+                                                             RAW_MODE);
+                        ASSERTV(LINE, version, RAW_MODE, rc, 0 == rc);
+                    }
                 }
             }
         }
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'read' without FileDescription
+        // TESTING 'read' with two parameters
         //
         // Concerns:
-        //: 1 'read' succeeds in loading from various configurations of
-        //:   version '\0' data into a 'baltzo::Zoneinfo' object.
+        //: 1 'read' and 'readRaw' succeed in loading from various
+        //:   configurations of version '\0' data into a 'baltzo::Zoneinfo'
+        //:   object.
         //:
-        //: 2 'read' succeeds in loading from various configurations of
-        //:   version '2' binary data into a 'baltzo::Zoneinfo' object.
+        //: 2 'read' and 'readRaw' succeed in loading from various
+        //:   configurations of version '2' binary data into a
+        //:   'baltzo::Zoneinfo' object.
         //
         // Plan:
-        //: 1 Repeat case 7 using read without FileDescription
+        //: 1 Repeat case 7 testing 'read' overload with two parameters.
         //
         // Testing:
-        //   read(baltzo::Zoneinfo *, bsl::istream&, bA=0);
+        //   int read(Zoneinfo *, bsl::istream&);
+        //   int readRaw(Zoneinfo *, bsl::istream&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'read'" << endl
-                          << "==============" << endl;
+                          << "TESTING 'read' with two parameters" << endl
+                          << "==================================" << endl;
 
         if (verbose) cout <<
                          "\nCreate a table of distinct object values." << endl;
@@ -3693,12 +4293,7 @@ int main(int argc, char *argv[])
 
                 ZoneinfoData ZI(RH);
 
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                bsl::istream inputStream(&isb);
-
-                baltzo::Zoneinfo TZ;
-                LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZone(ZI, TZ, LINE));
+                readAndVerifyTimeZone(ZI, k_VERSION_0, LINE);
             }
         }
 
@@ -3722,21 +4317,13 @@ int main(int argc, char *argv[])
 
                 ZoneinfoData ZI(RH);
 
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                bsl::istream stream(&isb);
-
-                baltzo::Zoneinfo TZ;
-
-                LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, stream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZoneVersion2Or3Format(ZI,
-                                                                       TZ,
-                                                                       LINE));
+                readAndVerifyTimeZone(ZI, k_VERSION_2_OR_3, LINE);
             }
         }
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'read' with FileDescription
+        // TESTING 'read' with three parameters
         //
         // Concerns:
         //: 1 'read' succeeds in loading from various configurations of
@@ -3754,12 +4341,13 @@ int main(int argc, char *argv[])
         //:   stream.
         //
         // Testing:
-        //   read(baltzo::Zoneinfo *, FileDescription *, bsl::istream&, bA=0);
+        //   int read(Zoneinfo *, ZoneinfoBinaryHeader *, bsl::istream&);
+        //   int readRaw(Zoneinfo *, ZoneinfoBinaryHeader *, bsl::istream&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'read'" << endl
-                          << "==============" << endl;
+                          << "TESTING 'read' with three parameters" << endl
+                          << "====================================" << endl;
 
         if (verbose) cout <<
                          "\nCreate a table of distinct object values." << endl;
@@ -3827,23 +4415,34 @@ int main(int argc, char *argv[])
 
                 ZoneinfoData ZI(RH);
 
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                bsl::istream inputStream(&isb);
+                for (char mode = 'a'; mode <= 'b'; ++mode) {
+                    const bool RAW_MODE = 'a' == mode ? true : false;
 
-                baltzo::Zoneinfo TZ;
-                BinHeader HD;
+                    bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                    bsl::istream inputStream(&isb);
 
-                ASSERT(0 == Obj::read(&TZ, &HD, inputStream));
+                    baltzo::Zoneinfo TZ;
+                    BinHeader        HD;
+                    int              rc = 0;
+                    if (RAW_MODE) {
+                        rc = Obj::readRaw(&TZ, &HD, inputStream);
+                    }
+                    else {
+                        rc = Obj::read(&TZ, &HD, inputStream);
+                    }
+                    ASSERTV(LINE, rc, 0 == rc);
 
-                ASSERT(0          == HD.version());
-                ASSERT(LCL_T_TYPE == HD.numLocalTimeTypes());
-                ASSERT(IS_GMT     == HD.numIsGmt());
-                ASSERT(IS_STD     == HD.numIsStd());
-                ASSERT(0          == HD.numLeaps());
-                ASSERT(TRANS      == HD.numTransitions());
-                ASSERT(AB_DATA    == HD.abbrevDataSize());
+                    ASSERT(0          == HD.version());
+                    ASSERT(LCL_T_TYPE == HD.numLocalTimeTypes());
+                    ASSERT(IS_GMT     == HD.numIsGmt());
+                    ASSERT(IS_STD     == HD.numIsStd());
+                    ASSERT(0          == HD.numLeaps());
+                    ASSERT(TRANS      == HD.numTransitions());
+                    ASSERT(AB_DATA    == HD.abbrevDataSize());
 
-                LOOP_ASSERT(LINE, 0 == verifyTimeZone(ZI, TZ, LINE));
+                    rc = verifyTimeZone(ZI, TZ, LINE, false, RAW_MODE);
+                    ASSERTV(LINE, rc, 0 == rc);
+                }
             }
         }
 
@@ -3868,25 +4467,38 @@ int main(int argc, char *argv[])
 
                 ZoneinfoData ZI(RH);
 
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                bsl::istream inputStream(&isb);
+                for (char mode = 'a'; mode <= 'b'; ++mode) {
+                    const bool RAW_MODE = 'a' == mode ? true : false;
 
-                baltzo::Zoneinfo TZ;
-                BinHeader HD;
+                    bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                    bsl::istream inputStream(&isb);
 
-                ASSERT(0 == Obj::read(&TZ, &HD, inputStream));
+                    baltzo::Zoneinfo TZ;
+                    BinHeader        HD;
+                    int              rc = 0;
+                    if (RAW_MODE) {
+                        rc = Obj::readRaw(&TZ, &HD, inputStream);
+                    }
+                    else {
+                        rc = Obj::read(&TZ, &HD, inputStream);
+                    }
+                    ASSERTV(LINE, rc, 0 == rc);
 
-                ASSERT('2'        == HD.version());
-                ASSERT(LCL_T_TYPE == HD.numLocalTimeTypes());
-                ASSERT(IS_GMT     == HD.numIsGmt());
-                ASSERT(IS_STD     == HD.numIsStd());
-                ASSERT(0          == HD.numLeaps());
-                ASSERT(TRANS      == HD.numTransitions());
-                ASSERT(AB_DATA    == HD.abbrevDataSize());
+                    ASSERT('2'        == HD.version());
+                    ASSERT(LCL_T_TYPE == HD.numLocalTimeTypes());
+                    ASSERT(IS_GMT     == HD.numIsGmt());
+                    ASSERT(IS_STD     == HD.numIsStd());
+                    ASSERT(0          == HD.numLeaps());
+                    ASSERT(TRANS      == HD.numTransitions());
+                    ASSERT(AB_DATA    == HD.abbrevDataSize());
 
-                LOOP_ASSERT(LINE, 0 == verifyTimeZoneVersion2Or3Format(ZI,
-                                                                       TZ,
-                                                                       LINE));
+                    rc = verifyTimeZoneVersion2Or3Format(ZI,
+                                                         TZ,
+                                                         LINE,
+                                                         false,
+                                                         RAW_MODE);
+                    ASSERTV(LINE, rc, 0 == rc);
+                }
             }
         }
       } break;
@@ -3895,18 +4507,18 @@ int main(int argc, char *argv[])
         // TESTING MULTIPLE TRANSITIONS
         //
         // Concerns:
-        //: 1 'read' succeeds in reading the version '\0' binary data with
-        //:   multiple transitions.
+        //: 1 'read' and 'readRaw' succeed in reading the version '\0' binary
+        //:   data with multiple transitions.
         //:
-        //: 2 'read' succeeds in reading the version '2' binary data with
-        //:   multiple transitions.
+        //: 2 'read' and 'readRaw' succeed in reading the version '2' binary
+        //:   data with multiple transitions.
         //
         // Plan:
         //: 1 Use a table-based approach to create a string stream with
         //:   multiple transitions and local time types.
         //
         // Testing:
-        //   CONCERN: 'read' retrieve data with multiple transitions
+        //   CONCERN: 'read' retrieves data with multiple transitions
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3984,14 +4596,23 @@ int main(int argc, char *argv[])
 
                     ZoneinfoData ZI(RH);
 
-                    bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                    bsl::istream inputStream(&isb);
+                    for (char mode = 'a'; mode <= 'b'; ++mode) {
+                        const bool RAW_MODE = 'a' == mode ? true : false;
+                        bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                        bsl::istream               inputStream(&isb);
 
-                    baltzo::Zoneinfo TZ;
-                    LOOP2_ASSERT(LINE, LLT_LINE,
-                                 0 == Obj::read(&TZ, inputStream));
-                    LOOP2_ASSERT(LINE, LLT_LINE,
-                                 0 == verifyTimeZone(ZI, TZ, LINE));
+                        baltzo::Zoneinfo TZ;
+                        int              rc = 0;
+                        if (RAW_MODE) {
+                            rc = Obj::readRaw(&TZ, inputStream);
+                        }
+                        else {
+                            rc = Obj::read(&TZ, inputStream);
+                        }
+                        ASSERTV(LINE, LLT_LINE, rc, 0 == rc);
+                        rc = verifyTimeZone(ZI, TZ, LINE, false, RAW_MODE);
+                        ASSERTV(LINE, LLT_LINE, rc, 0 == rc);
+                    }
                 }
             }
         }
@@ -4013,16 +4634,27 @@ int main(int argc, char *argv[])
 
                     ZoneinfoData ZI(RH);
 
-                    bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                    bsl::istream inputStream(&isb);
+                    for (char mode = 'a'; mode <= 'b'; ++mode) {
+                        const bool RAW_MODE = 'a' == mode ? true : false;
+                        bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                        bsl::istream               inputStream(&isb);
 
-                    baltzo::Zoneinfo TZ;
-                    LOOP2_ASSERT(LINE, LLT_LINE,
-                                 0 == Obj::read(&TZ, inputStream));
-                    LOOP2_ASSERT(LINE, LLT_LINE,
-                                 0 == verifyTimeZoneVersion2Or3Format(ZI,
-                                                                      TZ,
-                                                                      LINE));
+                        baltzo::Zoneinfo TZ;
+                        int              rc = 0;
+                        if (RAW_MODE) {
+                            rc = Obj::readRaw(&TZ, inputStream);
+                        }
+                        else {
+                            rc = Obj::read(&TZ, inputStream);
+                        }
+                        ASSERTV(LINE, LLT_LINE, rc, 0 == rc);
+                        rc = verifyTimeZoneVersion2Or3Format(ZI,
+                                                             TZ,
+                                                             LINE,
+                                                             false,
+                                                             RAW_MODE);
+                        ASSERTV(LINE, LLT_LINE, rc, 0 == rc);
+                    }
                 }
             }
         }
@@ -4032,55 +4664,59 @@ int main(int argc, char *argv[])
         // TESTING 'read' FOR TRANSITIONS
         //
         // Concerns:
-        //: 1 'read' succeeds in retrieving version '\0' transition data.
+        //: 1 'read' and 'readRaw' succeed in retrieving version '\0'
+        //:   transition data.
         //:
-        //: 2 'read' succeeds in retrieving version '2' transition data.
+        //: 2 'read' and 'readRaw' succeed in retrieving version '2' transition
+        //:   data.
         //:
-        //: 3 'read' fails when there are duplicated version '\0' transition
-        //:   times.
+        //: 3 'read' and 'readRaw' fail when there are duplicated version '\0'
+        //:   transition times.
         //:
-        //: 4 'read' fails when there are duplicated version '2' transition
-        //:   times.
+        //: 4 'read' and 'readRaw' fail when there are duplicated version '2'
+        //:   transition times.
         //:
-        //: 5 'read' fails when version '\0' transitions are not in ascending
-        //:   order of time.
+        //: 5 'read' and 'readRaw' fail when version '\0' transitions are not
+        //:   in ascending order of time.
         //:
-        //: 6 'read' fails when version '2' transitions are not in ascending
-        //:   order of time.
+        //: 6 'read' and 'readRaw' fail when version '2' transitions are not in
+        //:   ascending order of time.
         //:
-        //: 7 'read' fails when a version '\0' index to local time type is out
-        //:   of bound.
+        //: 7 'read' and 'readRaw' fail when a version '\0' index to local time
+        //:   type is out of bound.
         //:
-        //: 8 'read' fails when a version '2' index to local time type is out
-        //:   of bound.
+        //: 8 'read' and 'readRaw' fail when a version '2' index to local time
+        //:   type is out of bound.
         //:
         //
         // Plan:
         //: 1 Use a table driven approach to create a string stream with
         //:   boundary values of version '\0' transition times, and verify that
-        //:   'read' successfully load data into a 'baltzo::Zoneinfo'.
+        //:   'read' and 'readRaw' successfully load data into a
+        //:   'baltzo::Zoneinfo'.
         //:
         //: 2 Use a table driven approach to create a string stream with
         //:   boundary values of version '2' transition times, and verify that
-        //:   'read' successfully load data into a 'baltzo::Zoneinfo'.
+        //:   'read' and 'readRaw' successfully load data into a
+        //:   'baltzo::Zoneinfo'.
         //:
         //: 3 Create a string stream with transition times that are not in
-        //:   ascending out of order, and verify that 'read' returns a non-zero
-        //:   value.
+        //:   ascending out of order, and verify that 'read' and 'readRaw'
+        //:   return a non-zero value.
         //:
         //: 4 Create a string stream with duplicated transition times, and
-        //:   verify that 'read' returns a non-zero value.
+        //:   verify that 'read' and 'readRaw' return a non-zero value.
         //:
         //: 5 Create a string stream with transition that refers to a
-        //:   local-time type that is out of bound, and verify that 'read'
-        //:   returns a non-zero value.
+        //:   local-time type that is out of bound, and verify that 'read' and
+        //:   'readRaw' return a non-zero value.
         //
         // Testing:
-        //   CONCERN: 'read' properly process transition data
+        //   CONCERN: 'read' properly processes transition data
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING TRANSITION" << endl
-                          << "==================" << endl;
+                          << "TESTING 'read' FOR TRANSITIONS" << endl
+                          << "==============================" << endl;
 
         if (verbose) cout <<
                       "\nCreate a table of distinct transition times." << endl;
@@ -4120,19 +4756,33 @@ int main(int argc, char *argv[])
                 ZoneinfoData ZI(RH);
                 ZI.setTransitionTime(0, TRANSITION);
 
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                bsl::istream inputStream(&isb);
+                for (char mode = 'a'; mode <= 'b'; ++mode) {
+                    const bool RAW_MODE = 'a' == mode ? true : false;
+                    bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                    bsl::istream               inputStream(&isb);
 
-                baltzo::Zoneinfo TZ;
-                LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZone(ZI, TZ, LINE));
+                    baltzo::Zoneinfo TZ;
+                    int              rc = 0;
+                    if (RAW_MODE) {
+                        rc = Obj::readRaw(&TZ, inputStream);
+                    }
+                    else {
+                        rc = Obj::read(&TZ, inputStream);
+                    }
+                    ASSERTV(LINE, rc, 0 == rc);
+                    rc = verifyTimeZone(ZI, TZ, LINE, false, RAW_MODE);
+                    ASSERTV(LINE, rc, 0 == rc);
 
-                baltzo::Zoneinfo::TransitionConstIterator iter =
+                    baltzo::Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
-                ++iter;
+                    if (!RAW_MODE) {
+                        ++iter;
+                    }
 
-                LOOP2_ASSERT(LINE, iter->utcTime(),
-                             TRANSITION == iter->utcTime());
+                    ASSERTV(LINE,
+                            iter->utcTime(),
+                            TRANSITION == iter->utcTime());
+                }
             }
         }
 
@@ -4150,21 +4800,36 @@ int main(int argc, char *argv[])
                 ZoneinfoData ZI(RH);
                 ZI.setTransitionTime64(0, TRANSITION);
 
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                bsl::istream inputStream(&isb);
+                for (char mode = 'a'; mode <= 'b'; ++mode) {
+                    const bool RAW_MODE = 'a' == mode ? true : false;
+                    bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                    bsl::istream               inputStream(&isb);
 
-                baltzo::Zoneinfo TZ;
-                LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZoneVersion2Or3Format(ZI,
-                                                                       TZ,
-                                                                       LINE));
+                    baltzo::Zoneinfo TZ;
+                    int              rc = 0;
+                    if (RAW_MODE) {
+                        rc = Obj::readRaw(&TZ, inputStream);
+                    }
+                    else {
+                        rc = Obj::read(&TZ, inputStream);
+                    }
+                    ASSERTV(LINE, rc, 0 == rc);
+                    rc = verifyTimeZoneVersion2Or3Format(ZI,
+                                                         TZ,
+                                                         LINE,
+                                                         false,
+                                                         RAW_MODE);
+                    ASSERTV(LINE, rc, 0 == rc);
 
-                baltzo::Zoneinfo::TransitionConstIterator iter =
+                    baltzo::Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
-                ++iter;
+                    if (!RAW_MODE) {
+                        ++iter;
+                    }
 
-                LOOP2_ASSERT(LINE, iter->utcTime(),
-                             TRANSITION == iter->utcTime());
+                    ASSERTV(LINE, iter->utcTime(),
+                            TRANSITION == iter->utcTime());
+                }
             }
         }
 
@@ -4180,12 +4845,7 @@ int main(int argc, char *argv[])
             indexes[0] = 1;
             indexes[1] = 0;
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_);
         }
 
         if (verbose) cout <<
@@ -4201,12 +4861,7 @@ int main(int argc, char *argv[])
             indexes[0] = 1;
             indexes[1] = 0;
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
+            readAndVerifyTimeZone(ZI, k_VERSION_2_OR_3, L_);
         }
 
         if (verbose) cout <<
@@ -4219,11 +4874,7 @@ int main(int argc, char *argv[])
             ZI.setTransitionTime(0, 0);
             ZI.setTransitionTime(1, 0);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
         if (verbose) cout <<
@@ -4237,11 +4888,7 @@ int main(int argc, char *argv[])
             ZI.setTransitionTime64(0, 0);
             ZI.setTransitionTime64(1, 0);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
         if (verbose) cout <<
@@ -4254,11 +4901,7 @@ int main(int argc, char *argv[])
             ZI.setTransitionTime(0, 1);
             ZI.setTransitionTime(1, 0);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
         if (verbose) cout <<
@@ -4272,11 +4915,7 @@ int main(int argc, char *argv[])
             ZI.setTransitionTime64(0, 1);
             ZI.setTransitionTime64(1, 0);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
         if (verbose) cout <<
@@ -4290,12 +4929,7 @@ int main(int argc, char *argv[])
             index[0] = 0;
             index[1] = 0;
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_);
         }
 
         if (verbose) cout <<
@@ -4310,12 +4944,7 @@ int main(int argc, char *argv[])
             index[0] = 0;
             index[1] = 0;
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
+            readAndVerifyTimeZone(ZI, k_VERSION_2_OR_3, L_);
         }
 
         if (verbose) cout <<
@@ -4329,11 +4958,7 @@ int main(int argc, char *argv[])
             index[0] = static_cast<unsigned char>(
                                        ZI.getRawHeader()->numLocalTimeTypes());
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
         if (verbose) cout <<
@@ -4348,11 +4973,7 @@ int main(int argc, char *argv[])
             index[0] = static_cast<unsigned char>(
                                      ZI.getRawHeader64()->numLocalTimeTypes());
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
       } break;
@@ -4361,36 +4982,43 @@ int main(int argc, char *argv[])
         // TESTING 'read' FOR LOCAL TIME TYPES
         //
         // Concerns:
-        //: 1 'read' succeeds in retrieving version '\0' local time types data.
+        //: 1 'read' and 'readRaw' succeed in retrieving version '\0' local
+        //:   time types data.
         //:
-        //: 2 'read' succeeds in retrieving version '2' local time types data.
+        //: 2 'read' and 'readRaw' succeed in retrieving version '2' local time
+        //:   types data.
         //:
-        //: 3 'read' succeeds with version '\0' duplicated local time types.
+        //: 3 'read' and 'readRaw' succeed with version '\0' duplicated local
+        //:   time types.
         //:
-        //: 4 'read' succeeds with version '2' duplicated local time types.
+        //: 4 'read' and 'readRaw' succeed with version '2' duplicated local
+        //:   time types.
         //:
-        //: 5 'read' fails when a UTC offset is greater than 24 hours.
+        //: 5 'read' and 'readRaw' fail when a UTC offset is greater than 24
+        //:   hours.
         //:
-        //: 6 'read' fails when the abbreviation index is out of bound.
+        //: 6 'read' and 'readRaw' fail when the abbreviation index is out of
+        //:   bound.
         //
         // Plan:
         //: 1 Use a table driven approach to create a string stream with
         //:   boundary values of a local time type, and verify that
-        //:   'read' successfully load data into a 'baltzo::Zoneinfo'.
-        //:
-        //: 2 Create a string stream with duplicated local time types,
-        //:   and verify that 'read' successfully load data into a
+        //:   'read' and 'readRaw' successfully load data into a
         //:   'baltzo::Zoneinfo'.
         //:
+        //: 2 Create a string stream with duplicated local time types,
+        //:   and verify that 'read' and 'readRaw' successfully load data into
+        //:   a 'baltzo::Zoneinfo'.
+        //:
         //: 3 Create a string stream with UTC offset greater than 24 hours, and
-        //:   verify that 'read' returns a non-zero value.
+        //:   verify that 'read' and 'readRaw' return a non-zero value.
         //:
         //: 4 Create a string stream with local-time type that refers to
         //:   an abbreviation string index that is out of bound, and verify
-        //:   that 'read' returns a non-zero value.
+        //:   that 'read' and 'readRaw' return a non-zero value.
         //
         // Testing:
-        //   CONCERN: 'read' properly process local time types data
+        //   CONCERN: 'read' properly processes local time types data
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING LOCAL TIME TYPES" << endl
@@ -4447,14 +5075,7 @@ int main(int argc, char *argv[])
                 LTT.setAbbreviationIndex(DESC_IDX);
                 memcpy(ZI.getAbbrevData(), AB_DATA, AB_DATA_SIZE);
 
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(),
-                                              ZI.size());
-                bsl::istream inputStream(&isb);
-
-                baltzo::Zoneinfo TZ;
-
-                LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZone(ZI, TZ, LINE));
+                readAndVerifyTimeZone(ZI, k_VERSION_0, LINE);
             }
         }
 
@@ -4479,16 +5100,7 @@ int main(int argc, char *argv[])
                 LTT.setAbbreviationIndex(DESC_IDX);
                 memcpy(ZI.getAbbrevData64(), AB_DATA, AB_DATA_SIZE);
 
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(),
-                                              ZI.size());
-                bsl::istream inputStream(&isb);
-
-                baltzo::Zoneinfo TZ;
-
-                LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZoneVersion2Or3Format(ZI,
-                                                                       TZ,
-                                                                       LINE));
+                readAndVerifyTimeZone(ZI, k_VERSION_2_OR_3, LINE);
             }
         }
 
@@ -4510,12 +5122,7 @@ int main(int argc, char *argv[])
             LTT1.setIsDst(0);
             LTT1.setAbbreviationIndex(0);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_);
         }
 
         if (verbose) cout <<
@@ -4537,12 +5144,7 @@ int main(int argc, char *argv[])
             LTT1.setIsDst(0);
             LTT1.setAbbreviationIndex(0);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
+            readAndVerifyTimeZone(ZI, k_VERSION_2_OR_3, L_);
         }
 
         if (verbose) cout << "\nTesting invalid UTC offset." << endl;
@@ -4551,23 +5153,11 @@ int main(int argc, char *argv[])
             RawLocalTimeTypes& LTT = *ZI.getRawLocalTimeTypes();
             LTT.setOffset(-86400);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                bsl::istream inputStream(&isb);
-
-                baltzo::Zoneinfo TZ;
-                ASSERT(0 != Obj::read(&TZ, inputStream));
-            }
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
 
             LTT.setOffset(86400);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-                bsl::istream inputStream(&isb);
-
-                baltzo::Zoneinfo TZ;
-                ASSERT(0 != Obj::read(&TZ, inputStream));
-            }
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
         if (verbose) cout <<
@@ -4578,11 +5168,7 @@ int main(int argc, char *argv[])
             LTT.setAbbreviationIndex(static_cast<unsigned char>(
                                          ZI.getRawHeader()->abbrevDataSize()));
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
       } break;
@@ -4591,42 +5177,42 @@ int main(int argc, char *argv[])
         // TESTING 'read' FOR ABBREVIATION STRINGS
         //
         // Concerns:
-        //: 1 'read' successfully retrieves the version '\0' abbreviation
-        //:   strings.
+        //: 1 'read' and 'readRaw' successfully retrieve the version '\0'
+        //:   abbreviation strings.
         //:
-        //: 2 'read' successfully retrieves the version '2' abbreviation
-        //:   strings.
+        //: 2 'read' and 'readRaw' successfully retrieve the version '2'
+        //:   abbreviation strings.
         //:
-        //: 3 'read' successfully retrieves the version '\0' abbreviation
-        //:   strings when the abbreviation string indexes in the local time
-        //:   descriptors are not in order.
+        //: 3 'read' and 'readRaw' successfully retrieve the version '\0'
+        //:   abbreviation strings when the abbreviation string indexes in the
+        //:   local time descriptors are not in order.
         //:
-        //: 4 'read' successfully retrieves the version '2' abbreviation
-        //:   strings when the abbreviation string indexes in the local time
-        //:   descriptors are not in order.
+        //: 4 'read' and 'readRaw' successfully retrieve the version '2'
+        //:   abbreviation strings when the abbreviation string indexes in the
+        //:   local time descriptors are not in order.
         //:
-        //: 5 'read' fails when the version '\0' abbreviation string is not
-        //:   null terminated.
+        //: 5 'read' and 'readRaw' fail when the version '\0' abbreviation
+        //:   string is not null terminated.
         //:
-        //: 6 'read' fails when the version '2' abbreviation string is not
-        //:   null terminated.
+        //: 6 'read' and 'readRaw' fail when the version '2' abbreviation
+        //:   string is not null terminated.
         //
         // Plan:
         //: 1 Use a table-based approach and test that local time descriptors
-        //:   retrieved using the 'read' function has the expected abbreviation
-        //:   string.
+        //:   retrieved using the 'read' and 'readRaw' functions have the
+        //:   expected abbreviation string.
         //:
         //: 2 Use a table-based approach and create binary data where the
         //:   abbreviation string index of the local time descriptors are in
         //:   reversed order.  Test that descriptors retrieved using the 'read'
-        //:   function has the expected abbreviation string.
+        //:   and 'readRaw' functions have the expected abbreviation string.
         //:
         //: 3 Create a string stream with abbreviation string where the last
         //:   character of the abbreviation string buffer is not null, and
-        //:   verify that 'read' returns a non-zero value.
+        //:   verify that 'read' and 'readRaw' return  a non-zero value.
         //
         // Testing:
-        //   CONCERN: 'read' properly process the abbreviation strings
+        //   CONCERN: 'read' properly processes the abbreviation strings
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING 'read' FOR ABBREVIATION STRINGS"
@@ -4669,28 +5255,44 @@ int main(int argc, char *argv[])
 
             memcpy(ZI.getAbbrevData(), AB_DATA, AB_DATA_SIZE);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
+            for (char mode = 'a'; mode <= 'b'; ++mode) {
+                const bool RAW_MODE = 'a' == mode ? true : false;
 
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
 
-            baltzo::Zoneinfo::TransitionConstIterator iter =
+                baltzo::Zoneinfo TZ;
+                int              rc = 0;
+                if (RAW_MODE) {
+                    rc = Obj::readRaw(&TZ, inputStream);
+                }
+                else {
+                    rc = Obj::read(&TZ, inputStream);
+                }
+                ASSERTV(rc, 0 == rc);
+                rc = verifyTimeZone(ZI, TZ, L_, false, RAW_MODE);
+                ASSERTV(rc, 0 == rc);
+
+                baltzo::Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE      = DATA[ti].d_line;
-                const char *AB_STRING = DATA[ti].d_abbrevString;
-
-                ++iter;
-                if (iter == TZ.endTransitions()) {
-                    LOOP_ASSERT(ti, 0 == "Unexpected number of transitions");
-                    continue;
+                if (!RAW_MODE) {
+                    // Skip sentinel transition.
+                    ++iter;
                 }
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int   LINE      = DATA[ti].d_line;
+                    const char *AB_STRING = DATA[ti].d_abbrevString;
 
-                LOOP_ASSERT(LINE,
-                            AB_STRING == iter->descriptor().description());
+                    if (iter == TZ.endTransitions()) {
+                        ASSERTV(ti, 0 == "Unexpected number of transitions");
+                    }
+                    else {
+                        ASSERTV(LINE,
+                                AB_STRING == iter->descriptor().description());
+                    }
+                    ++iter;
+                }
             }
         }
 
@@ -4707,28 +5309,48 @@ int main(int argc, char *argv[])
 
             memcpy(ZI.getAbbrevData64(), AB_DATA, AB_DATA_SIZE);
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
+            for (char mode = 'a'; mode <= 'b'; ++mode) {
+                const bool RAW_MODE = 'a' == mode ? true : false;
 
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
 
-            baltzo::Zoneinfo::TransitionConstIterator iter =
+                baltzo::Zoneinfo TZ;
+                int              rc = 0;
+                if (RAW_MODE) {
+                    rc = Obj::readRaw(&TZ, inputStream);
+                }
+                else {
+                    rc = Obj::read(&TZ, inputStream);
+                }
+                ASSERTV(rc, 0 == rc);
+                rc = verifyTimeZoneVersion2Or3Format(ZI,
+                                                     TZ,
+                                                     L_,
+                                                     false,
+                                                     RAW_MODE);
+                ASSERTV(rc, 0 == rc);
+
+                baltzo::Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE      = DATA[ti].d_line;
-                const char *AB_STRING = DATA[ti].d_abbrevString;
-
-                ++iter;
-                if (iter == TZ.endTransitions()) {
-                    LOOP_ASSERT(ti, 0 == "Unexpected number of transitions");
-                    continue;
+                if (!RAW_MODE) {
+                    // Skip sentinel transition.
+                    ++iter;
                 }
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int   LINE      = DATA[ti].d_line;
+                    const char *AB_STRING = DATA[ti].d_abbrevString;
 
-                LOOP_ASSERT(LINE,
-                            AB_STRING == iter->descriptor().description());
+                    if (iter == TZ.endTransitions()) {
+                        ASSERTV(ti, 0 == "Unexpected number of transitions");
+                    }
+                    else {
+                        ASSERTV(LINE,
+                                AB_STRING == iter->descriptor().description());
+                    }
+                    ++iter;
+                }
             }
         }
 
@@ -4752,28 +5374,38 @@ int main(int argc, char *argv[])
                              static_cast<unsigned char>(AB_DATA_SIZE - 1 - i));
             }
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
+            for (char mode = 'a'; mode <= 'b'; ++mode) {
+                const bool RAW_MODE = 'a' == mode ? true : false;
 
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
 
-            baltzo::Zoneinfo::TransitionConstIterator iter =
+                baltzo::Zoneinfo TZ;
+                if (RAW_MODE) {
+                    ASSERT(0 == Obj::readRaw(&TZ, inputStream));
+                }
+                else {
+                    ASSERT(0 == Obj::read(&TZ, inputStream));
+                }
+                ASSERT(0 == verifyTimeZone(ZI, TZ, L_, false, RAW_MODE));
+
+                baltzo::Zoneinfo::TransitionConstIterator iter =
                                                            TZ.endTransitions();
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE      = DATA[ti].d_line;
-                const char *AB_STRING = DATA[ti].d_abbrevString;
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int   LINE      = DATA[ti].d_line;
+                    const char *AB_STRING = DATA[ti].d_abbrevString;
 
-                --iter;
-                if (iter == TZ.beginTransitions()) {
-                    LOOP_ASSERT(ti, 0 == "Unexpected number of transitions");
-                    continue;
+                    --iter;
+                    if (iter == TZ.beginTransitions()) {
+                        LOOP_ASSERT(ti,
+                                    0 == "Unexpected number of transitions");
+                        continue;
+                    }
+
+                    LOOP_ASSERT(LINE,
+                                AB_STRING == iter->descriptor().description());
                 }
-
-                LOOP_ASSERT(LINE,
-                            AB_STRING == iter->descriptor().description());
             }
         }
 
@@ -4798,28 +5430,41 @@ int main(int argc, char *argv[])
                              static_cast<unsigned char>(AB_DATA_SIZE - 1 - i));
             }
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
+            for (char mode = 'a'; mode <= 'b'; ++mode) {
+                const bool RAW_MODE = 'a' == mode ? true : false;
+                bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream inputStream(&isb);
 
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
+                baltzo::Zoneinfo TZ;
+                if (RAW_MODE) {
+                    ASSERT(0 == Obj::readRaw(&TZ, inputStream));
+                }
+                else {
+                    ASSERT(0 == Obj::read(&TZ, inputStream));
+                }
+                ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI,
+                                                            TZ,
+                                                            L_,
+                                                            false,
+                                                            RAW_MODE));
 
-            baltzo::Zoneinfo::TransitionConstIterator iter =
+                baltzo::Zoneinfo::TransitionConstIterator iter =
                                                            TZ.endTransitions();
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE      = DATA[ti].d_line;
-                const char *AB_STRING = DATA[ti].d_abbrevString;
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int   LINE      = DATA[ti].d_line;
+                    const char *AB_STRING = DATA[ti].d_abbrevString;
 
-                --iter;
-                if (iter == TZ.beginTransitions()) {
-                    LOOP_ASSERT(ti, 0 == "Unexpected number of transitions");
-                    continue;
+                    --iter;
+                    if (iter == TZ.beginTransitions()) {
+                        LOOP_ASSERT(ti,
+                                    0 == "Unexpected number of transitions");
+                        continue;
+                    }
+
+                    LOOP_ASSERT(LINE,
+                                AB_STRING == iter->descriptor().description());
                 }
-
-                LOOP_ASSERT(LINE,
-                            AB_STRING == iter->descriptor().description());
             }
         }
 
@@ -4831,11 +5476,7 @@ int main(int argc, char *argv[])
             char *abbrevData = ZI.getAbbrevData();
             abbrevData[ZI.getRawHeader()->abbrevDataSize() - 1] = 'A';
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
 
         if (verbose) cout
@@ -4849,11 +5490,7 @@ int main(int argc, char *argv[])
             char *abbrevData = ZI.getAbbrevData64();
             abbrevData[ZI.getRawHeader64()->abbrevDataSize() - 1] = 'A';
 
-            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
-            bsl::istream inputStream(&isb);
-
-            baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            readAndVerifyTimeZone(ZI, k_VERSION_0, L_, EXPECTED_TO_FAIL);
         }
       } break;
       case 2: {
@@ -4861,7 +5498,7 @@ int main(int argc, char *argv[])
         // TESTING APPARATUS
         //
         // Concerns:
-        //: 1 A default constructed 'ZoneinfoData' object have the expected
+        //: 1 A default constructed 'ZoneinfoData' object has the expected
         //:   header values and size.
         //:
         //: 2 A value constructed version '\0' 'ZoneinfoData' object has the
@@ -4881,11 +5518,11 @@ int main(int argc, char *argv[])
         //:   'baltzo::Zoneinfo' matches the version '2' Zoneinfo binary data.
         //
         // Plan:
-        //: 1 Test that a default constructed 'ZoneinfoData' object have the
+        //: 1 Test that a default constructed 'ZoneinfoData' object has the
         //:   expected header values and size
         //:
         //: 2 Use a table-based approach and test that a value constructed
-        //:   'ZoneinfoData' object have the expected header values and size.
+        //:   'ZoneinfoData' object has the expected header values and size.
         //:
         //: 3 Test that the buffer in 'ZoneinfoData' object is created as
         //:   expected.
@@ -5288,7 +5925,7 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // DUMP TIMEZONE FILE:
+        // DUMP TIMEZONE FILE
         //   This loads a TZ Database binary file whose name is provided on
         //   the console, and dumps its contents to stdout.
         //
@@ -5299,7 +5936,12 @@ int main(int argc, char *argv[])
         baltzo::Zoneinfo timeZone;
 
         if (argc != 3) {
-            cout << "Usage " << argv[0] << " -1 [data file path]" << endl;
+            cout << "Usage "
+                 << argv[0]
+                 << " -1 [data file path] (e.g. \""
+                 << argv[0]
+                 << " -1 /opt/bbinfra/share/zoneinfo/America/New_York\""
+                 << endl;
             exit(-1);
         }
 
@@ -5319,7 +5961,45 @@ int main(int argc, char *argv[])
       } break;
       case -2: {
         // --------------------------------------------------------------------
-        // TEST TIMEZONE FILE:
+        // DUMP RAW TIMEZONE FILE
+        //   This loads a TZ Database binary file whose name is provided on
+        //   the console, and dumps its contents to stdout.  Unlike case '-1',
+        //   binary file reading occurs in 'raw' format, so no BDE adjustments
+        //   (e.g. BDE sentinel transition) are applied to the result.
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+        baltzo::Zoneinfo timeZone;
+
+        if (argc != 3) {
+            cout << "Usage "
+                 << argv[0]
+                 << " -2 [data file path] (e.g. \""
+                 << argv[0]
+                 << " -2 /opt/bbinfra/share/zoneinfo/America/New_York\""
+                 << endl;
+            exit(-1);
+        }
+
+        bsl::ifstream istream(argv[2]);
+
+        if (!istream.good()) {
+            cout << "Bad file name: " << argv[2] << endl;
+            exit(-1);
+        }
+
+        if (0 != Obj::readRaw(&timeZone, istream)) {
+            cout << "Failed to read file" << endl;
+            exit(-1);
+        }
+
+        timeZone.print(cout, 1, 3);
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // TEST TIMEZONE FILE
         //   This loads a TZ Database binary file whose name is provided on
         //   the console, and validate its contents.  Its purpose is to test
         //   that a Zoneinfo binary data file is in the correct format rather

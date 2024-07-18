@@ -748,80 +748,146 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'loadTimeZone'
+        // TESTING 'loadTimeZone' and 'loadTimeZoneRaw'
         //
         // Concerns:
-        //: 1 'loadTimeZone' correctly loads time-zone information when a valid
-        //:   time zone identifier is specified.
+        //: 1 'loadTimeZone' and 'loadTimeZoneRaw' correctly load time-zone
+        //:   information when a valid time zone identifier is specified.
         //:
-        //: 2 'loadTimeZone' returns 'k_UNSUPPORTED_ID' if the specified time
-        //:   zone identifier is invalid.
+        //: 2 'loadTimeZone' and 'loadTimeZoneRaw' return 'k_UNSUPPORTED_ID' if
+        //:   the specified time zone identifier is invalid.
         //:
-        //: 3 'loadTimeZone' returns a non-zero value different from
-        //:   'k_UNSUPPORTED_ID' on error reading the specified time-zone file.
+        //: 3 'loadTimeZone' and 'loadTimeZoneRaw' return a non-zero value
+        //:   different from 'k_UNSUPPORTED_ID' on error reading the specified
+        //:   time-zone file.
         //
         // Plan:
-        //: 1 Test that 'loadTimeZone' returns time-zone information when give
-        //:   a valid time zone identifier.
+        //: 1 Test that 'loadTimeZone' and 'loadTimeZoneRaw' return time-zone
+        //:   information when give a valid time zone identifier.
         //:
-        //: 2 Test that 'loadTimeZone' returns 'k_UNSUPPORTED_ID' when
-        //:   'rootPath' is a plausible directory, but the time zone identifier
-        //:   is invalid.
+        //: 2 Test that 'loadTimeZone' and 'loadTimeZoneRaw' return
+        //:   'k_UNSUPPORTED_ID' when 'rootPath' is a plausible directory, but
+        //:   the time zone identifier is invalid.
         //:
-        //: 3 Test that 'loadTimeZone' returns a non-zero return code other
-        //:   than 'k_UNSUPPORTED_ID' if 'rootPath' is not plausible.
+        //: 3 Test that 'loadTimeZone' and 'loadTimeZoneRaw' return a non-zero
+        //:   return code other than 'k_UNSUPPORTED_ID' if 'rootPath' is not
+        //:   plausible.
         //
         // Testing:
         //   int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
+        //   int loadTimeZoneRaw(Zoneinfo *result, const char *timeZoneId);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'loadTimeZone'" << endl
-                          << "======================" << endl;
+        if (verbose) cout
+                     << endl
+                     << "TESTING 'loadTimeZone' and 'loadTimeZoneRaw'" << endl
+                     << "============================================" << endl;
 
         if (verbose) cout << "\nSetup plausible directory" << endl;
 
         ASSERT(true == Obj::isPlausibleZoneinfoRootPath(TEST_DIRECTORY));
 
-        if (verbose) cout << "\nTest non-plausible directory" << endl;
-        {
-            Obj mX;
-            baltzo::Zoneinfo timeZone;
+        typedef int (Obj::*LoadMethodPtr)(baltzo::Zoneinfo *, const char *);
 
-            mX.configureRootPath("NotPlausibleDirectory");
+        for (char mode = 'a'; mode <= 'b'; ++mode) {
+            const bool     RAW_MODE   = 'a' == mode ? true : false;
+            const char    *MODE_STR   = RAW_MODE ? "RAW" : "BDE";
+            LoadMethodPtr  loadMethod = RAW_MODE
+                            ? static_cast<LoadMethodPtr>(&Obj::loadTimeZoneRaw)
+                            : static_cast<LoadMethodPtr>(&Obj::loadTimeZone);
+            if (verbose) cout << "\nTest non-plausible directory ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                Obj mX;
+                baltzo::Zoneinfo timeZone;
 
-            int rc = mX.loadTimeZone(&timeZone, "A");
-            ASSERT(0 != rc);
-            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID != rc);
-        }
+                mX.configureRootPath("NotPlausibleDirectory");
 
-        if (verbose) cout << "\nTest with plausible directory" << endl;
-        {
-            Obj mX;
-            baltzo::Zoneinfo timeZone;
+                int rc = (mX.*loadMethod)(&timeZone, "A");
+                ASSERT(0 != rc);
+                ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID != rc);
+            }
 
-            ASSERT(0 == mX.configureRootPathIfPlausible(TEST_DIRECTORY));
+            if (verbose) cout << "\nTest with plausible directory ("
+                              << MODE_STR
+                              << ")."
+                              << endl;
+            {
+                Obj mX;
+                baltzo::Zoneinfo timeZone;
 
-            if (verbose) cout << "\n\tTest invalid identifier" << endl;
+                ASSERT(0 == mX.configureRootPathIfPlausible(TEST_DIRECTORY));
 
-            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
+                if (verbose) cout << "\n\tTest invalid identifier ("
+                                   << MODE_STR
+                                   << ")."
+                                   << endl;
+
+                ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
                                               mX.loadTimeZone(&timeZone, "/"));
 
-            if (verbose) cout << "\n\tTest non-existent identifier" << endl;
+                if (verbose) cout << "\n\tTest non-existent identifier ("
+                                  << MODE_STR
+                                  << ")."
+                                  << endl;
 
-            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
+                ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
                         mX.loadTimeZone(&timeZone, "Non/Existent/Identifier"));
 
-            ASSERT(0 == mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID));
+                ASSERT(0 == (mX.*loadMethod)(&timeZone, AMERICA_NEW_YORK_ID));
 
-            ASSERT(AMERICA_NEW_YORK_ID == timeZone.identifier());
+                ASSERT(AMERICA_NEW_YORK_ID == timeZone.identifier());
+
+                // 'ZoneinfoBinaryReader::read' adds sentinel transition dated
+                // to the the first representable 'bdlt::Datetime' value --
+                // 'bdlt::Datetime(1, 1, 1)'.
+                // 'ZoneinfoBinaryReader::readRaw()' does not add it.  So we
+                // expect a difference in results.
+
+                const bsl::size_t EXPECTED_NUM_TRANSITIONS = RAW_MODE
+                                                           ? 236   // RAW
+                                                           : 237;  // BDE
+                ASSERTV(timeZone.numTransitions(),
+                        EXPECTED_NUM_TRANSITIONS == timeZone.numTransitions());
+            }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
-               baltzo::ErrorCode::k_UNSUPPORTED_ID);
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
 
+            baltzo::Zoneinfo *NULL_ZI_PTR = 0;
+            const char       *NULL_TZ_PTR = 0;
+
+            // Testing 'loadTimeZone'
+            {
+                Obj mX;
+                baltzo::Zoneinfo timeZone;
+
+                ASSERT(0 == mX.configureRootPathIfPlausible(TEST_DIRECTORY));
+
+                ASSERT_PASS(mX.loadTimeZone(&timeZone,   AMERICA_NEW_YORK_ID));
+                ASSERT_FAIL(mX.loadTimeZone(NULL_ZI_PTR, AMERICA_NEW_YORK_ID));
+                ASSERT_FAIL(mX.loadTimeZone(&timeZone,   NULL_TZ_PTR        ));
+            }
+
+            // Testing 'loadTimeZoneRaw'
+            {
+                Obj mX;
+                baltzo::Zoneinfo timeZone;
+
+                ASSERT(0 == mX.configureRootPathIfPlausible(TEST_DIRECTORY));
+
+                ASSERT_PASS(mX.loadTimeZoneRaw(&timeZone,
+                                               AMERICA_NEW_YORK_ID));
+                ASSERT_FAIL(mX.loadTimeZoneRaw(NULL_ZI_PTR,
+                                               AMERICA_NEW_YORK_ID));
+                ASSERT_FAIL(mX.loadTimeZoneRaw(&timeZone,
+                                               NULL_TZ_PTR ));
+            }
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------

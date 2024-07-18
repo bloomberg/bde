@@ -5,11 +5,9 @@
 #include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
-#include <bdlt_iso8601util.h>
-
-#include <bdlt_dateutil.h>
 #include <bdlt_dateutil.h>
 #include <bdlt_epochutil.h>
+#include <bdlt_iso8601util.h>
 
 #include <bsla_maybeunused.h>
 
@@ -57,10 +55,10 @@ using namespace std;
 // CLASS METHODS
 // [ 3] void convertUtcToLocalTime(DatetimeTz *, Transition *, UTC, Zone);
 // [ 4] void loadRelevantTransitions(TIt *, TIt *, Valid *, localTime, TZ);
-// [ 2] bool isWellFormed(const baltzo::Zoneinfo& timeZone);
+// [ 2] bool isWellFormed(const baltzo::Zoneinfo& zoneinfo);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 // [ 4] CONCERN: parameters are declared 'const'.
 // [ 4] CONCERN: No memory is ever allocated from the global allocator.
 // [ 4] CONCERN: Precondition violations are detected.
@@ -1537,7 +1535,7 @@ int main(int argc, char *argv[])
         //:   'isWellFormed' returns 'false'.
         //
         // Testing:
-        //   int toOffsetInMilliseconds(const char *iso8601Value)
+        //   bool isWellFormed(const baltzo::Zoneinfo& zoneinfo);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

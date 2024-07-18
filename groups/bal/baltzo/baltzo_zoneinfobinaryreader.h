@@ -318,12 +318,35 @@ struct ZoneinfoBinaryReader {
                     ZoneinfoBinaryHeader *headerResult,
                     bsl::istream&         stream);
         // Read time zone information from the specified 'stream', and load the
-        // description into the specified 'zoneinfoResult'.  Return 0 on
+        // description into the specified 'zoneinfoResult'.  The
+        // 'zoneinfoResult' will have a sentinel transition at 01-01-001,
+        // meeting the first two requirements for a "well-formed" object (see
+        // 'baltzo::ZoneinfoUtil::isWellFormed' documentation).  Return 0 on
         // success and a non-zero value if 'stream' does not provide a sequence
         // of bytes consistent with the Zoneinfo binary format.  If an error
         // occurs during the operation, 'zoneinfoResult' is unspecified.
         // Optionally specify a 'headerResult' that, on success, will be
         // populated with a summary of the 'stream' contents.
+
+    static int readRaw(Zoneinfo      *zoneinfoResult,
+                       bsl::istream&  stream);
+    static int readRaw(Zoneinfo             *zoneinfoResult,
+                       ZoneinfoBinaryHeader *headerResult,
+                       bsl::istream&         stream);
+        // Read time zone information from the specified 'stream', and load the
+        // description into the specified 'zoneinfoResult' exactly in
+        // accordance with the original data.   The 'zoneinfoResult' may not be
+        // a "well-formed" object (see 'baltzo::ZoneinfoUtil::isWellFormed'
+        // documentation for details).  Return 0 on success and a non-zero
+        // value if 'stream' does not provide a sequence of bytes consistent
+        // with the Zoneinfo binary format.  If an error occurs during the
+        // operation, 'zoneinfoResult' is unspecified.  Optionally specify a
+        // 'headerResult' that, on success, will be populated with a summary of
+        // the 'stream' contents.  Note that time zone data files created by
+        // certain versions of the 'zic' time zone compiler will have a
+        // sentinel transition prior to 01-01-0001 (the first representable
+        // 'Datetime' value) and the 'zoneinfoResult' will therefore be
+        // non-well formed (use 'read' instead).
 };
 
 }  // close package namespace

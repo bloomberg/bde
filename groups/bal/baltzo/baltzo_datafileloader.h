@@ -275,11 +275,29 @@ class DataFileLoader : public Loader {
 
     virtual int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
         // Load into the specified 'result' the time-zone information for the
-        // time zone identified by the specified 'timeZoneId'.  Return 0 on
+        // time zone identified by the specified 'timeZoneId'.  The 'result'
+        // will have a sentinel transition at 01-01-001, meeting the first two
+        // requirements for a "well-formed" object (see
+        // 'baltzo::ZoneinfoUtil::isWellFormed' documentation).  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
         // 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId' is not
         // recognized.  If an error occurs during this operation, 'result' will
         // be left in a valid, but unspecified state.
+
+    int loadTimeZoneRaw(Zoneinfo *result, const char *timeZoneId);
+        // Load into the specified 'result' the time-zone information for the
+        // time zone identified by the specified 'timeZoneId' exactly in
+        // accordance with the original data.  The 'result' may not be a
+        // "well-formed" object (see 'baltzo::ZoneinfoUtil::isWellFormed'
+        // documentation for details).  Return 0 on success, and a non-zero
+        // value otherwise.  A return status of 'ErrorCode::k_UNSUPPORTED_ID'
+        // indicates that 'timeZoneId' is not recognized.  If an error occurs
+        // during this operation, 'result' will be left in a valid, but
+        // unspecified state.  Note that time zone data files created by
+        // certain versions of the 'zic' time zone compiler will have a
+        // sentinel transition prior to 01-01-0001 (the first representable
+        // 'Datetime' value) and the 'result' will therefore be non-well formed
+        // (use 'loadTimeZone' instead).
 
     // ACCESSORS
     int loadTimeZoneFilePath(bsl::string      *result,

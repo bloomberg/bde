@@ -52,6 +52,24 @@ namespace BloombergLP {
 
 namespace {
 
+enum ReadMode {
+    // Enumerate the set of modes that can be used for reading binary data.
+
+    k_READ_RAW,        // Return an unadjusted raw binary data from the data
+                       // file (this may not be a "well-formed" Zoneinfo (see
+                       // 'baltzo_zoneinfoutil')
+
+    k_READ_NORMALIZED  // Adjust the raw binary data to produce a Zoneinfo
+                       // satisfying the first two requirements for a
+                       // "well-formed" object by inserting a sentinel
+                       // transition at 01-01-001 (see
+                       // 'baltzo::ZoneinfoUtil::isWellFormed' documentation).
+                       // At the moment, this means adding a sentinel
+                       // transition at 01-01-0001 (the raw file format may
+                       // place such a sentinel transition before the first
+                       // representable 'Datetime' object)
+};
+
 struct RawHeader {
     // The byte sequence of the header of the Zoneinfo binary data format.
 
@@ -370,19 +388,21 @@ int loadLocalTimeDescriptors(
     return 0;
 }
 
-static
-int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
-                              baltzo::ZoneinfoBinaryHeader *headerResult,
-                              bsl::istream&                 stream)
+static int readVersion2Or3FormatData(
+                                  baltzo::Zoneinfo             *zoneinfoResult,
+                                  baltzo::ZoneinfoBinaryHeader *headerResult,
+                                  ReadMode                      mode,
+                                  bsl::istream&                 stream)
     // Read time zone information in the version '2' or '3' file format from
     // the specified 'stream', and load the description into the specified
     // 'zoneinfoResult', and the header information into the specified
-    // 'headerResult'.  Return 0 on success and a non-zero value if 'stream'
-    // does not provide a sequence of bytes consistent with version '2' or '3'
-    // Zoneinfo binary format.  The 'stream' must refer to the first byte of
-    // the version '2' or '3' header (which typically follows the version '\0'
-    // format data in a Zoneinfo binary file).  If an error occurs during the
-    // operation, the resulting value of 'zoneinfoResult' is unspecified.
+    // 'headerResult' in accordance with the specified 'mode'.  Return 0 on
+    // success and a non-zero value if 'stream' does not provide a sequence of
+    // bytes consistent with version '2' or '3' Zoneinfo binary format.  The
+    // 'stream' must refer to the first byte of the version '2' or '3' header
+    // (which typically follows the version '\0' format data in a Zoneinfo
+    // binary file).  If an error occurs during the operation, the resulting
+    // value of 'zoneinfoResult' is unspecified.
 {
     int rc = readHeader(headerResult, stream);
     if (0 != rc) {
@@ -458,12 +478,15 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
         return -30;                                                   // RETURN
     }
 
-    // Add default transition.
-
     const bsls::Types::Int64 firstTransitionTime =
                     bdlt::EpochUtil::convertToTimeT64(bdlt::Datetime(1, 1, 1));
 
-    zoneinfoResult->addTransition(firstTransitionTime, descriptors.front());
+    if (k_READ_NORMALIZED == mode) {
+        // Add default transition.
+
+        zoneinfoResult->addTransition(firstTransitionTime,
+                                      descriptors.front());
+    }
 
     // Convert the 'Raw' transitions information into
     // 'zoneinfoResult->transitions()'.
@@ -482,10 +505,20 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
             return -32;                                               // RETURN
         }
 
-        if ((transitions[i] < firstTransitionTime) &&
-            (transitions[i] != MINIMUM_ZIC_TRANSITION)) {
-            BSLS_LOG_WARN("Minimal value, other than ZIC default transition, "
-                          "is presented.");
+        if (k_READ_NORMALIZED == mode) {
+            if (transitions[i] < firstTransitionTime) {
+                if (transitions[i] == MINIMUM_ZIC_TRANSITION) {
+                    // Omit zoneinfo compiler's sentinel transition.  Note that
+                    // this is a ZIC equivalent to the default transition added
+                    // at 'firstTransitionTime' above.
+                    continue;
+                }
+                else {
+                    BSLS_LOG_WARN(
+                           "Minimal value, other than ZIC default transition, "
+                           "is presented.");
+                }
+            }
         }
 
         const int curDescriptorIndex = localTimeIndices[i];
@@ -508,21 +541,10 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     return 0;
 }
 
-namespace baltzo {
-
-                         // --------------------------
-                         // class ZoneinfoBinaryReader
-                         // --------------------------
-
-int ZoneinfoBinaryReader::read(Zoneinfo *zoneinfoResult, bsl::istream& stream)
-{
-    ZoneinfoBinaryHeader description;
-    return read(zoneinfoResult, &description, stream);
-}
-
-int ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
-                               ZoneinfoBinaryHeader *headerResult,
-                               bsl::istream&         stream)
+int readImpl(baltzo::Zoneinfo             *zoneinfoResult,
+             baltzo::ZoneinfoBinaryHeader *headerResult,
+             ReadMode                      mode,
+             bsl::istream&                 stream)
 {
     int rc = readHeader(headerResult, stream);
     if (0 != rc) {
@@ -591,8 +613,10 @@ int ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
         // addition, a POSIX(-like) TZ environment string may be found after
         // the data.
 
-        return readVersion2Or3FormatData(zoneinfoResult, headerResult, stream);
-                                                                      // RETURN
+        return readVersion2Or3FormatData(zoneinfoResult,
+                                         headerResult,
+                                         mode,
+                                         stream);                     // RETURN
     }
 
     // Convert raw type objects into their associated types exposed by
@@ -602,7 +626,7 @@ int ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     // Convert the 'Raw' local-time types into
     // 'zoneinfoResult->localTimeDescriptors()'.
 
-    bsl::vector<LocalTimeDescriptor> descriptors;
+    bsl::vector<baltzo::LocalTimeDescriptor> descriptors;
     if (0 != loadLocalTimeDescriptors(&descriptors,
                                       localTimeDescriptors,
                                       abbreviationBuffer)) {
@@ -611,10 +635,13 @@ int ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
         return -17;                                                   // RETURN
     }
 
-    // Add default transition.
-    const bsls::Types::Int64 firstTransitionTime =
+    if (k_READ_NORMALIZED == mode) {
+        // Add default transition.
+        const bsls::Types::Int64 firstTransitionTime =
                     bdlt::EpochUtil::convertToTimeT64(bdlt::Datetime(1, 1, 1));
-    zoneinfoResult->addTransition(firstTransitionTime, descriptors.front());
+        zoneinfoResult->addTransition(firstTransitionTime,
+                                      descriptors.front());
+    }
 
     // Convert the 'Raw' transitions information into
     // 'zoneinfoResult->transitions()'.
@@ -640,6 +667,40 @@ int ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     }
 
     return 0;
+}
+
+namespace baltzo {
+
+                         // --------------------------
+                         // class ZoneinfoBinaryReader
+                         // --------------------------
+
+// CLASS METHODS
+int ZoneinfoBinaryReader::read(Zoneinfo *zoneinfoResult, bsl::istream& stream)
+{
+    ZoneinfoBinaryHeader description;
+    return readImpl(zoneinfoResult, &description, k_READ_NORMALIZED,  stream);
+}
+
+int ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
+                               ZoneinfoBinaryHeader *headerResult,
+                               bsl::istream&         stream)
+{
+    return readImpl(zoneinfoResult, headerResult, k_READ_NORMALIZED,  stream);
+}
+
+int ZoneinfoBinaryReader::readRaw(Zoneinfo      *zoneinfoResult,
+                                  bsl::istream&  stream)
+{
+    ZoneinfoBinaryHeader description;
+    return readImpl(zoneinfoResult, &description, k_READ_RAW, stream);
+}
+
+int ZoneinfoBinaryReader::readRaw(Zoneinfo             *zoneinfoResult,
+                                  ZoneinfoBinaryHeader *headerResult,
+                                  bsl::istream&         stream)
+{
+    return readImpl(zoneinfoResult, headerResult, k_READ_RAW, stream);
 }
 
 }  // close package namespace
