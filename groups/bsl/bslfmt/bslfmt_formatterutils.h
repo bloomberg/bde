@@ -31,6 +31,52 @@
 namespace BloombergLP {
 namespace bslfmt {
 
+struct Formatter_UnicodeUtils {
+  public:
+    // PUBLIC TYPES
+    struct CodePointExtractionResult {
+      public:
+        // PUBLIC TYPES
+        bool              isValid;
+        int               numSourceBytes;
+        int               sourceEncoding;
+        unsigned long int codePointValue;
+    };
+
+    // CLASS METHODS
+
+    /// Extract a UTF-8 code point from no more than the specified `maxBytes`
+    /// of the byte stream at the specified `bytes` location. Return a `
+    /// Extract a UTF-8 code point from no more than `maxBytes` of the byte
+    /// stream at the specified `bytes` location. Return a
+    /// `CodePointExtractionResult` providing a decode status and, if the
+    /// decode is valid, a count of the source bytes used and the decoded
+    /// Unicode code point value. Byte Order Markers are not supported.
+    static CodePointExtractionResult extractUtf8(void *bytes, int maxBytes);
+
+    /// Extract a UTF-16 code point from no more than the specified `maxBytes`
+    /// of the byte stream at the specified `bytes` location. Return a
+    /// `CodePointExtractionResult` providing a decode status and, if the
+    /// decode is valid, a count of the source bytes used and the decoded
+    /// Unicode code point value. Behavior is undefined if `bytes` is not a
+    /// valid pointer to an array of `numBytes/2` `wchar_t` types in contiguous
+    /// memory. Behaviour is undefined if `16 != sizeof(wchar_t)`. Endianness
+    /// is assumed to be the same as for the `wchar_t` type and Byte Order
+    /// Markers are not supported.
+    static CodePointExtractionResult extractUtf16(void *bytes, int maxBytes);
+
+    /// Extract a UTF-32 code point from no more than the specified `maxBytes`
+    /// of the byte stream at the specified `bytes` location. Return a
+    /// `CodePointExtractionResult` providing a decode status and, if the
+    /// decode is valid, a count of the source bytes used and the decoded
+    /// Unicode code point value. Behavior is undefined if `bytes` is not a
+    /// valid pointer to an array of `numBytes/2` `wchar_t` types in contiguous
+    /// memory. Behaviour is undefined if `32 != sizeof(wchar_t)`. Endianness
+    /// is assumed to be the same as for the `wchar_t` type and Byte Order
+    /// Markers are not supported.
+    static CodePointExtractionResult extractUtf32(void *bytes, int maxBytes);
+};
+
 template <class t_CHAR>
 struct Formatter_CharUtils {
   public:
