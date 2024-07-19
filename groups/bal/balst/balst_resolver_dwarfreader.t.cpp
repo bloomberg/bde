@@ -2044,7 +2044,8 @@ int main(int argc, char *argv[])
         const char *fn = "readstring.bin";
         const char str[] = { "Always debate to the best interpretation of"
                                                 " your opponent's argument." };
-        const char lineStr[] { "The rain in Spain falls mainly in the plain."};
+        const char lineStr[] =
+                            { "The rain in Spain falls mainly in the plain." };
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
