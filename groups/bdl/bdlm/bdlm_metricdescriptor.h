@@ -30,7 +30,7 @@ BSLS_IDENT("$Id$")
 //  objectTypeName         bsl::string  ""
 //  objectTypeAbbreviation bsl::string  ""
 //  objectIdentifier       bsl::string  [2]
-//  
+//..
 // [1] k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION
 // [2] k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION
 //..

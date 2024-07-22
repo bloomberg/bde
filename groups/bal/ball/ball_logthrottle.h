@@ -256,7 +256,7 @@ BSLS_IDENT("$Id: $")
 //
 // We are to write a daemon process, which will loop gathering readings.  A
 // reading of an impossible value of -1.0 will indicate termination.
-//..
+//
 //  First we define a set of useful constants:
 //..
 //  enum {
