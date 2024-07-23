@@ -296,11 +296,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_buildtarget.h>
 #include <bsls_types.h>
 
-#include <cstdio>     // for printing in macros
+#include <cstdio>     // 'std::FILE' and (in macros) 'std::puts'
+
+#ifdef BDE_VERIFY
+# pragma bde_verify -AQK01 // Suppress "Need #include <stdio.h> for 'stdout'"
+#endif
 
 namespace BloombergLP {
 namespace bslma {
 
+// FORWARD REFERENCES
 struct TestAllocator_BlockHeader;
 
                              // ===================
@@ -324,6 +329,21 @@ class TestAllocator : public Allocator {
     // in turn calls the C Standard Library functions 'malloc' and 'free' as
     // needed.  Clients may, however, override this allocator by supplying (at
     // construction) any other allocator implementing the 'Allocator' protocol.
+
+    // CONSTANTS
+    enum {
+        // Compute size of buffer needed to hold ascii-formatted statistics.
+        // The computation is a high estimate and includes the null terminator.
+        k_INT64_MAXDIGITS  = 20, // max digits in `Int64, including sign
+        k_LABLETEXT_LEN    = 51, // max label characters per line, including NL
+        k_NUM_STATLINES    = 11, // Number of nonblank lines in formatted stats
+        k_PRINTED_STATS_SZ =
+            k_NUM_STATLINES * (k_LABLETEXT_LEN + 2 * k_INT64_MAXDIGITS) + 1,
+
+        // Compute size of buffer needed to hold one line of block IDs
+        // separated by tabs (including newline and null terminator).
+        k_BLOCKID_LINE_SZ  = 8 * (k_INT64_MAXDIGITS + 1) + 1 + 1
+    };
 
     // DATA
 
@@ -435,7 +455,34 @@ class TestAllocator : public Allocator {
 
     Allocator  *d_allocator_p;          // upstream allocator (held, not owned)
 
-  private:
+    // PRIVATE ACCESSORS
+    std::size_t
+    formatEightBlockIds(const TestAllocator_BlockHeader** blockList,
+                        char*                             output   ) const;
+        // Traverse up to 8 blocks from the specified '*blockList' and write
+        // their IDs to the specified 'output' buffer, advance '*blockList' to
+        // point to the first block in the list not not traversed (null if the
+        // the last block was traversed), then return the number of characters
+        // written to 'output', excluding the null terminator.  The output
+        // consists of a sequence of decimal-formatted IDs, each proceeded by
+        // a tab character and ending with a newline character and null
+        // terminator.  The behavior is undefined unless 'output' has
+        // sufficient space for at least 'k_BLOCKID_LINE_SZ' characters.
+
+    std::size_t formatStats(char *output) const;
+        // Write the accumulated statistics held in this allocator to the
+        // specified 'output' in a reasonable (multi-line) format and return
+        // the number of characters written, excluding the null terminator.
+        // The behavior is undefined unless 'output' has sufficient space for
+        // at least 'k_PRINTED_STATS_SZ' characters.
+
+    template <class t_OS>
+    t_OS& printToStream(t_OS& stream) const;
+        // Write the accumulated state information held in this allocator to
+        // the specified 'stream' in a reasonable (multi-line) format and
+        // return a reference offering modifiable access to 'stream'.  Output
+        // is performed via calls to 'stream.write(s, count)'.
+
     // NOT IMPLEMENTED
     TestAllocator(const TestAllocator&);             // = delete
     TestAllocator& operator=(const TestAllocator&);  // = delete
@@ -629,9 +676,10 @@ class TestAllocator : public Allocator {
         // *mismatched* if that memory was not allocated directly from this
         // allocator.
 
-    void print() const;
+    void print(std::FILE *f = stdout) const;
         // Write the accumulated state information held in this allocator to
-        // 'stdout' in some reasonable (multi-line) format.
+        // the optionally specified file 'f' (default 'stdout') in a reasonable
+        // (multi-line) format.
 
     int status() const;
         // Return 0 on success, and non-zero otherwise: If there have been any
@@ -683,6 +731,20 @@ class TestAllocator : public Allocator {
         //
         // DEPRECATED: use 'numDeallocations' instead.
 #endif  // BDE_OPENSOURCE_PUBLICATION
+
+    // HIDDEN FRIENDS
+    template <class t_OS>
+    friend t_OS& operator<<(t_OS& stream, const TestAllocator& ta)
+        // Write the accumulated state information held in the specified
+        // allocator 'ta' to the specified 'stream' in a reasonable
+        // (multi-line) format identical to the format produced by 'ta.print()'
+        // and return a reference offering modifiable access to 'stream'.
+        // Output is performed via calls to 'stream.write(s, count)', where
+        // 'write' is a required method of class 't_OS', 's' is a 'const char*'
+        // holding the formatted output, and 'count' is the length of 's'
+        // excluding any null terminator.  Note that 'std::ostream' meets the
+        // requirements for 't_OS'.
+        { return ta.printToStream(stream); }
 };
 
 }  // close package namespace
@@ -840,6 +902,36 @@ namespace bslma {
                         // -------------------
                         // class TestAllocator
                         // -------------------
+
+// PRIVATE ACCESSORS
+template <class t_OS>
+t_OS& TestAllocator::printToStream(t_OS& stream) const
+{
+    bsls::BslLockGuard guard(&d_lock);
+
+    char        buffer[k_PRINTED_STATS_SZ];
+    std::size_t cnt = formatStats(buffer);
+    stream.write(buffer, cnt);
+
+    static const char        k_ID_STR[] =
+                               " Indices of Outstanding Memory Allocations:\n";
+    static const std::size_t k_ID_STR_LEN = sizeof(k_ID_STR) - 1;
+
+    if (d_blockListHead_p) {
+        stream.write(k_ID_STR, k_ID_STR_LEN);
+
+        // Traverse the linked list starting from 'd_blockListHead_p' and print
+        // the ID of each block in the list, 8 to a line
+        const TestAllocator_BlockHeader *next_p = d_blockListHead_p;
+        while (next_p) {
+            cnt = formatEightBlockIds(&next_p, buffer);
+            stream.write(buffer, cnt);
+        }
+    }
+
+    return stream;
+}
+
 
 // MANIPULATORS
 inline

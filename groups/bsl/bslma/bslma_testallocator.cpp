@@ -10,12 +10,23 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>    // 'std::printf'
+#include <cstdio>    // 'std::FILE', 'std::fwrite', 'std::fflush', 'snprintf'
 #include <cstdlib>   // 'std::abort'
 #include <cstring>   // 'std::memset'
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+# ifdef BSLS_PLATFORM_CMP_MSVC
+    // 'snprintf' not available. Use MSVC '_snprintf', which has the same spec.
+#   define snprintf _snprintf
+# else
+    // 'snprintf' not available.  Fall back to less-safe 'sprintf'.
+#   define snprintf(FMT, SZ, ...) sprintf(FMT, __VA_ARGS__)
+# endif
+#endif
 
 namespace BloombergLP {
 namespace bslma {
@@ -26,11 +37,12 @@ namespace bslma {
 
 struct TestAllocator_BlockHeader {
     // This 'struct' holds the attributes for a block of allocated memory and
-    // immediately preceeds the block's *user segment* (i.e., the portion of
+    // immediately precedes the block's *user segment* (i.e., the portion of
     // the block that is returned to the user).  The headers for all currently
     // allocated blocks are linked together into a list; the 'TestAllocator'
     // class holds pointers to the head and tail of that list.
 
+    // DATA
     unsigned int  d_magicNumber;  // allocated/deallocated/other identifier
 
     TestAllocator_BlockHeader
@@ -56,7 +68,7 @@ struct TestAllocator_BlockHeader {
                                   // 'struct'
 };
 
-}  // Close package namespace
+}  // close package namespace
 
 namespace {
 
@@ -90,6 +102,7 @@ const std::size_t k_MAX_ALIGNMENT = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 #define ZU      BSLS_BSLTESTUTIL_FORMAT_ZU  // printf format str for 'size_t'
 #define FMT_I64 BSLS_BSLTESTUTIL_FORMAT_I64 // printf format str for 'Int64'
 
+// LOCAL IMPLEMENTATION FUNCTIONS
 inline bool isAligned(const void *address, std::size_t alignment)
     // Return 'true' if the specified 'address' is aligned on the specified
     // 'alignment' or 'false' otherwise.
@@ -202,23 +215,39 @@ void formatInvalidMemoryBlock(const BlockHeader    *address,
     formatBlock(payload, 64);
 }
 
-void printIdList(const BlockHeader *blockListHead_p)
-    // Traverse the linked list whose head is the specified `blockListHead_p`
-    // and print the ID of each block in the list.
+
+                        // ----------------
+                        // class FILEStream
+                        // ----------------
+
+class FILEStream {
+    // Streaming class that prints to a 'FILE *'.  This class meets the
+    // requirements for the argument to 'printToStream', but is not a
+    // general-purpose 'ostream'-like stream.
+
+    // DATA
+    std::FILE* d_file_p;
+
+  public:
+    // CREATORS
+    explicit FILEStream(std::FILE* f);
+        // Create an object for printing to the specified 'f' file.
+
+    // MANIPULATORS
+    void write(const char *text, std::size_t len);
+        // Write the specified 'text' of specified 'len' to the file held by
+        // this object.
+};
+
+inline
+FILEStream::FILEStream(std::FILE* f) : d_file_p(f)
 {
-    const BlockHeader *currBlock_p = blockListHead_p;
+}
 
-    while (currBlock_p) {
-        // Print up to 8 IDs on one line, separated by tabs.
-        for (int i = 0; i < 8 && currBlock_p; ++i) {
-            std::printf(FMT_I64 "\t", currBlock_p->d_id);
-            currBlock_p = currBlock_p->d_next_p;
-        }
-
-        // Add a newline between every set of 8 IDs.  The space after the '\n'
-        // is needed to align these IDs properly with the current output.
-        std::printf("\n ");
-    }
+inline
+void FILEStream::write(const char *text, std::size_t len)
+{
+    std::fwrite(text, 1, len, d_file_p);
 }
 
 }  // close unnamed namespace
@@ -459,7 +488,7 @@ void *TestAllocator::allocate(size_type size)
 
     void *address = header_p + 1;
 
-    // Update stats. The stats are updated as a group under a mutex lock, but
+    // Update stats.  The stats are updated as a group under a mutex lock, but
     // are atomic so that accessors can retrieve individual stats without
     // acquiring the mutex.
     d_numBlocksInUse.addRelaxed(1);
@@ -671,43 +700,82 @@ void TestAllocator::deallocate(void *address)
     d_allocator_p->deallocate(header_p);
 }
 
-// ACCESSORS
-void TestAllocator::print() const
+// PRIVATE ACCESSORS
+std::size_t
+TestAllocator::formatEightBlockIds(const TestAllocator_BlockHeader** blockList,
+                                   char*                             output)
+                                                                          const
 {
-    bsls::BslLockGuard guard(&d_lock);
+    // Traverse the linked list starting from 'blockList' and print the ID of
+    // each block in the list.
+    const BlockHeader *currBlock_p = *blockList;
 
+    // Print up to 8 IDs on one line, separated by tabs.
+    std::size_t cnt = 0;
+    for (int i = 0; i < 8 && currBlock_p; ++i) {
+        cnt += snprintf(output + cnt, k_PRINTED_STATS_SZ - cnt,
+                        "\t" FMT_I64, currBlock_p->d_id);
+        currBlock_p = currBlock_p->d_next_p;
+    }
+
+    output[cnt++] = '\n';
+    BSLS_ASSERT(0 < cnt && cnt < k_BLOCKID_LINE_SZ);
+    output[cnt] = '\0';
+
+    *blockList = currBlock_p;
+
+    return cnt;
+}
+
+std::size_t TestAllocator::formatStats(char *output) const
+{
+    // Sometimes 'snprintf' is a global-namespace function, other times it is
+    // in namespace 'std', and other times it is a macro.  This 'using'
+    // declaration makes all three usable as just plain 'snprintf'.
+    using namespace std;
+
+    std::size_t cnt = 0;
     if (d_name_p) {
-        std::printf("\n"
-                    "==================================================\n"
-                    "                TEST ALLOCATOR %s STATE\n"
-                    "--------------------------------------------------\n",
-                    d_name_p);
+        cnt = snprintf(output, k_PRINTED_STATS_SZ,
+                       "\n"
+                       "==================================================\n"
+                       "                TEST ALLOCATOR %s STATE\n"
+                       "--------------------------------------------------\n",
+                       d_name_p);
     }
     else {
-        std::printf("\n"
-                    "==================================================\n"
-                    "                TEST ALLOCATOR STATE\n"
-                    "--------------------------------------------------\n");
+        cnt = snprintf(output, k_PRINTED_STATS_SZ,
+                       "\n"
+                       "==================================================\n"
+                       "                TEST ALLOCATOR STATE\n"
+                       "--------------------------------------------------\n");
     }
 
-    std::printf("        Category\tBlocks\tBytes\n"
-                "        --------\t------\t-----\n"
-                "          IN USE\t" FMT_I64 "\t" FMT_I64 "\n"
-                "             MAX\t" FMT_I64 "\t" FMT_I64 "\n"
-                "           TOTAL\t" FMT_I64 "\t" FMT_I64 "\n"
-                "      MISMATCHES\t" FMT_I64 "\n"
-                "   BOUNDS ERRORS\t" FMT_I64 "\n"
-                "--------------------------------------------------\n",
-                numBlocksInUse(), numBytesInUse(),
-                numBlocksMax(),   numBytesMax(),
-                numBlocksTotal(), numBytesTotal(),
-                numMismatches(),  numBoundsErrors());
+    cnt += snprintf(output + cnt, k_PRINTED_STATS_SZ - cnt,
+                    "        Category\tBlocks\tBytes\n"
+                    "        --------\t------\t-----\n"
+                    "          IN USE\t" FMT_I64 "\t" FMT_I64 "\n"
+                    "             MAX\t" FMT_I64 "\t" FMT_I64 "\n"
+                    "           TOTAL\t" FMT_I64 "\t" FMT_I64 "\n"
+                    "      MISMATCHES\t" FMT_I64 "\n"
+                    "   BOUNDS ERRORS\t" FMT_I64 "\n"
+                    "--------------------------------------------------\n",
+                    numBlocksInUse(), numBytesInUse(),
+                    numBlocksMax(),   numBytesMax(),
+                    numBlocksTotal(), numBytesTotal(),
+                    numMismatches(),  numBoundsErrors());
 
-    if (d_blockListHead_p) {
-        std::printf(" Indices of Outstanding Memory Allocations:\n ");
-        printIdList(d_blockListHead_p);
-    }
-    std::fflush(stdout);
+    BSLS_ASSERT(0 < cnt && cnt < k_PRINTED_STATS_SZ);
+
+    return cnt;
+}
+
+// ACCESSORS
+void TestAllocator::print(std::FILE *f) const
+{
+    FILEStream fs(f);
+    printToStream(fs);
+    std::fflush(f);
 }
 
 int TestAllocator::status() const
