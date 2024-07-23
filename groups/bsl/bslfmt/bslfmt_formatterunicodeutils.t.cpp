@@ -1,5 +1,5 @@
-// bslstl_formatterutils.t.cpp                                        -*-C++-*-
-#include <bslfmt_formatterutils.h>
+// bslstl_formatterunicodeutils.t.cpp                                 -*-C++-*-
+#include <bslfmt_formatterunicodeutils.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -93,14 +93,14 @@ int main(int argc, char **argv)
                    "\n==============\n");
         ASSERT(true);  // placeholder
 
-        //unsigned char bytes[4];
-        //bytes[0] = (unsigned char)0xff;
-        //bytes[1] = (unsigned char)0xfe;
-        //bytes[2] = (unsigned char)0x00;
-        //bytes[2] = (unsigned char)0x00;
+        unsigned char bytes[4];
+        bytes[0] = (unsigned char)0xff;
+        bytes[1] = (unsigned char)0xfe;
+        bytes[2] = (unsigned char)0x00;
+        bytes[2] = (unsigned char)0x00;
 
-        //auto result =
-        //    BloombergLP::bslfmt::Formatter_UnicodeUtils::extractUtf16(bytes, 2);
+        auto result =
+            BloombergLP::bslfmt::Formatter_UnicodeUtils::extractUtf16(bytes, 2);
 
       } break;
       default: {

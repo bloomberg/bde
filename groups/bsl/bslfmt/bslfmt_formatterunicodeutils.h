@@ -1,7 +1,7 @@
-// bslfmt_formatterutils.h                                            -*-C++-*-
+// bslfmt_formatterunicodeutils.h                                     -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATTERUTILS
-#define INCLUDED_BSLFMT_FORMATTERUTILS
+#ifndef INCLUDED_BSLFMT_FORMATTERUNICODEUTILS
+#define INCLUDED_BSLFMT_FORMATTERUNICODEUTILS
 
 #include <bslscm_version.h>
 
@@ -30,8 +30,6 @@
 
 namespace BloombergLP {
 namespace bslfmt {
-
-#if 0
 
 struct Formatter_UnicodeUtils {
   public:
@@ -78,7 +76,6 @@ struct Formatter_UnicodeUtils {
     /// Markers are not supported.
     static CodePointExtractionResult extractUtf32(void *bytes, int maxBytes);
 };
-#endif
 
 template <class t_CHAR>
 struct Formatter_CharUtils {

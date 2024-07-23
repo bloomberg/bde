@@ -16,4 +16,6 @@ bslfmt_formatterfloating
 bslfmt_formatterintegral
 bslfmt_formatterpointer
 bslfmt_formatterstring
+bslfmt_formatterunicodedata
+bslfmt_formatterunicodeutils
 bslfmt_formatterutils
