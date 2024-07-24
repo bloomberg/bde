@@ -1760,11 +1760,11 @@ int main(int argc, char *argv[])
           TEST.run<rrcD (     ),    rrB      (     )  >(L_, YES);
           TEST.run<rrcD (     ),   rrcB      (     )  >(L_, YES);
 
-          TEST.run<   DA(     ),      BA     (     )  >(L_, CPP_20);
-          TEST.run<   DA(     ),     rBA     (     )  >(L_, CPP_20);
-          TEST.run<   DA(     ),    rcBA     (     )  >(L_, CPP_20);
-          TEST.run<   DA(     ),    rrBA     (     )  >(L_, CPP_20);
-          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, CPP_20);
+          TEST.run<   DA(     ),      BA     (     )  >(L_, CPP_20 && !CLANG);
+          TEST.run<   DA(     ),     rBA     (     )  >(L_, CPP_20 && !CLANG);
+          TEST.run<   DA(     ),    rcBA     (     )  >(L_, CPP_20 && !CLANG);
+          TEST.run<   DA(     ),    rrBA     (     )  >(L_, CPP_20 && !CLANG);
+          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, CPP_20 && !CLANG);
           TEST.run<  rDA(     ),      BA     (     )  >(L_, MS_REF_BUG);
           TEST.run<  rDA(     ),     rBA     (     )  >(L_, YES);
           TEST.run<  rDA(     ),    rcBA     (     )  >(L_, NO );
