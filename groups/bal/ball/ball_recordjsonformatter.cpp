@@ -1519,12 +1519,12 @@ int FormatUtil::formatAttribute(baljsn::SimpleFormatter *formatter,
                                    attribute.value().the<long long>());
                                                                       // RETURN
     }
-    else if (attribute.value().is<int>()) {
+    else if (attribute.value().is<unsigned int>()) {
         return formatter->addValue(name,
                                    attribute.value().the<unsigned int>());
                                                                       // RETURN
     }
-    else if (attribute.value().is<long>()) {
+    else if (attribute.value().is<unsigned long>()) {
         return formatter->addValue(name,
                                    static_cast<unsigned long long>(
                                       attribute.value().the<unsigned long>()));

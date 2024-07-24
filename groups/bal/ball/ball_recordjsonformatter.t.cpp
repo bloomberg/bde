@@ -1965,6 +1965,9 @@ int main(int argc, char *argv[])
                 // LINE SPEC                   EXPECTED
                 {  L_,  "[\"string\"]",        "{\"string\":\"string\"}" },
                 {  L_,  "[\"int\"]",           "{\"int\":-42}"           },
+                {  L_,  "[\"uint\"]",          "{\"uint\":42}"           },
+                {  L_,  "[\"long\"]",          "{\"long\":-142}"         },
+                {  L_,  "[\"ulong\"]",         "{\"ulong\":142}"         },
                 {  L_,  "[\"llong\"]",         "{\"llong\":-4242}"       },
                 {  L_,  "[\"ullong\"]",        "{\"ullong\":42}"         },
                 {  L_,  "[\"void_ptr\"]",      "{\"void_ptr\":\"0x2a\"}" },
@@ -1995,6 +1998,12 @@ int main(int argc, char *argv[])
                           ball::Attribute("string",   "string",     &scratch));
                 rec.addAttribute(
                           ball::Attribute("int",      -42,          &scratch));
+                rec.addAttribute(
+                          ball::Attribute("uint",     42U,          &scratch));
+                rec.addAttribute(
+                          ball::Attribute("long",     -142L,        &scratch));
+                rec.addAttribute(
+                          ball::Attribute("ulong",    142UL,        &scratch));
                 rec.addAttribute(
                           ball::Attribute("llong",    -4242LL, &scratch));
                 rec.addAttribute(
