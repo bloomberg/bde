@@ -1957,8 +1957,8 @@ void timeEqualAlgorithm(const char *typeName,
     printf("\n\tcompare with '%s'\n", typeName);
     {
         const size_t bufferSize = rawBufferSize / sizeof(TYPE);
-        TYPE *buffer1 = (TYPE*)rawBuffer1;
-        TYPE *buffer2 = (TYPE*)rawBuffer2;
+        TYPE *buffer1 = (TYPE*)static_cast<void *>(rawBuffer1);
+        TYPE *buffer2 = (TYPE*)static_cast<void *>(rawBuffer2);
 
         for (size_t j = 0; j < bufferSize; ++j) {
             buffer1[j] = buffer2[j] = TYPE();
@@ -2031,8 +2031,8 @@ void timeLexicographicalAlgorithm(const char *typeName,
     printf("\n\tcompare with '%s'\n", typeName);
     {
         const size_t bufferSize = rawBufferSize / sizeof(TYPE);
-        TYPE *buffer1 = (TYPE*)rawBuffer1;
-        TYPE *buffer2 = (TYPE*)rawBuffer2;
+        TYPE *buffer1 = (TYPE*)static_cast<void *>(rawBuffer1);
+        TYPE *buffer2 = (TYPE*)static_cast<void *>(rawBuffer2);
 
         for (size_t j = 0; j < bufferSize; ++j) {
             buffer1[j] = buffer2[j] = TYPE();

@@ -310,16 +310,20 @@ class TestDeque : public TestDeque_Type<ALLOCATOR>::AllocatorType
         for (int i = 0; i < d_blockNum; ++i) {
             size_type numMaxAlignedType =
                                    (sizeof(Block) + MAX_ALIGN - 1) / MAX_ALIGN;
-            AllocatorTraits::deallocate(allocator(),
-                         (bsls::AlignmentUtil::MaxAlignedType *) d_blocks_p[i],
-                                        numMaxAlignedType);
+            AllocatorTraits::deallocate(
+                    allocator(),
+                    (bsls::AlignmentUtil::MaxAlignedType *)static_cast<void *>(
+                                                                d_blocks_p[i]),
+                    numMaxAlignedType);
         }
         size_type numBytes = static_cast<size_type>(sizeof(BlockPtr))
                                                                   + d_blockNum;
         size_type numMaxAlignedType = (numBytes + MAX_ALIGN - 1) / MAX_ALIGN;
-        AllocatorTraits::deallocate(allocator(),
-                            (bsls::AlignmentUtil::MaxAlignedType *) d_blocks_p,
-                                    numMaxAlignedType);
+        AllocatorTraits::deallocate(
+                    allocator(),
+                    (bsls::AlignmentUtil::MaxAlignedType *)static_cast<void *>(
+                                                                   d_blocks_p),
+                    numMaxAlignedType);
     }
 
     // MANIPULATORS

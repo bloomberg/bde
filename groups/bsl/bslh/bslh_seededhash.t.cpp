@@ -337,7 +337,7 @@ bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE) {
 
 template<class EXPECTED_TYPE>
 template<class BDE_OTHER_TYPE>
-bool TypeChecker<EXPECTED_TYPE>::isCorrectType(BDE_OTHER_TYPE type) {
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(BDE_OTHER_TYPE /* type */) {
     return false;
 }
 

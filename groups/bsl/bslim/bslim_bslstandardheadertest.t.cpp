@@ -223,6 +223,12 @@
 
 using namespace BloombergLP;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
+
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------

@@ -9,12 +9,16 @@
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 
-#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
-#pragma GCC diagnostic ignored "-Wvolatile"
-#endif
-
 using namespace bsl;
 using namespace BloombergLP;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wdeprecated-volatile"
+#else
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
+#endif
 
 //=============================================================================
 //                                TEST PLAN

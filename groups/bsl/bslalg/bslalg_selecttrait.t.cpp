@@ -9,6 +9,8 @@
 #include <bslalg_typetraitpair.h>                          // for testing only
 #include <bslalg_typetraitusesbslmaallocator.h>            // for testing only
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
@@ -103,9 +105,10 @@ const unsigned TRAIT_HASSTLITERATORS              = 0x0040;
 const unsigned TRAIT_HASPOINTERSEMANTICS          = 0x0080;
 
 // Traits group
-const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
-                            TRAIT_BITWISECOPYABLE |
-                            TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR);
+BSLA_MAYBE_UNUSED const unsigned TRAIT_POD =
+                                          (TRAIT_BITWISEMOVEABLE |
+                                           TRAIT_BITWISECOPYABLE |
+                                           TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR);
 
 template <class TYPE>
 unsigned traitBits()

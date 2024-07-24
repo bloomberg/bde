@@ -630,7 +630,7 @@ char getValue(const Uint64& u64)
 
 void setValue(float *pf, char ch)
 {
-    *pf = static_cast<int>(ch);
+    *pf = static_cast<short>(ch);
 }
 
 void setValue(double *pf, char ch)

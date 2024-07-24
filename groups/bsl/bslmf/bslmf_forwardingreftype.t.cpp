@@ -40,6 +40,12 @@ using namespace BloombergLP;
 #pragma error_messages(off, SEC_UNINITIALIZED_MEM_READ)
 #endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wdeprecated-volatile"
+#endif
+#endif
+
 // Suppress bde_verify messages about all-uppercase type names.  Test drivers
 // are rife with short names like 'F' or 'PF' or 'T' or 'T1'.
 

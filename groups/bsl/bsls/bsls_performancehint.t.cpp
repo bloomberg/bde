@@ -838,7 +838,7 @@ void measureWithWithoutFence(int    argc,
         timer.start();
 
         double elapsedTime = 0;
-        int    iterations  = 0;
+        int    iterations  = 0;  (void)iterations;
         int    numChunks   = 0;
 
         while (elapsedTime <= timeLimit) {
@@ -866,7 +866,7 @@ void measureWithWithoutFence(int    argc,
         timer.start();
 
         double elapsedTime = 0;
-        int    iterations  = 0;
+        int    iterations  = 0;  (void)iterations;
         int    numChunks   = 0;
 
         while (elapsedTime <= timeLimit) {

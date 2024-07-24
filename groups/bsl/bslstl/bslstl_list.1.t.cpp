@@ -607,7 +607,7 @@ void TestDriver1<TYPE,ALLOC>::test09_copyAssignmentOp()
     ALLOC                xoa1(&oa1);
     ALLOC                xoa2(&oa2);
 
-    int numThrows;
+    int numThrows;  (void)numThrows;
 
     // Set 'assignOfTypeAllocates' to indicate whether
     // 'TYPE& operator=(const TYPE&)' allocates.
@@ -2978,13 +2978,13 @@ void TestDriver1<TYPE,ALLOC>::test02_primaryManipulators()
             if (verbose)
                 printf("\t\t\tOn an object of length " ZU ".\n", li);
 
-          int         throws = -1;
+            int         throws = -1;  (void)throws;
           const Int64 beforeInUse = oa.numBlocksInUse();
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
             ++throws;
 
             if (oa.numBlocksInUse() != beforeInUse) {
-                int jj = 0;
+                int jj = 0;  (void)jj;
                 ++jj;    // someplace to break point
             }
 

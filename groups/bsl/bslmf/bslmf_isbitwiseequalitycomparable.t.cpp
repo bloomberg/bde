@@ -32,6 +32,12 @@ using namespace BloombergLP;
 #pragma error_messages(off, functypequal)
 #endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+#endif
+#endif
+
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------

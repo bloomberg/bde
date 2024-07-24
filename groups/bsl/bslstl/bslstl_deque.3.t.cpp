@@ -4051,7 +4051,7 @@ void TestDriver3<TYPE,ALLOC>::testCase24_dispatch()
                 Int64 oaBase;
                 Int64 zaBase;
 
-                int numPasses = 0;
+                int numPasses = 0;  (void)numPasses;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
                     ++numPasses;
 

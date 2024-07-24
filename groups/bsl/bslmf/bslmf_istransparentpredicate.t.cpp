@@ -3,6 +3,8 @@
 
 #include <bslmf_enableif.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
@@ -586,6 +588,7 @@ struct AmbiguousChildOfTransparentType : public TransparentComp
 //-----------------------------------------------------------------------------
 
 template <class TYPE>
+BSLA_MAYBE_UNUSED
 void verifyTransparency()
     // Pass an assertion if the (template parameter) 'TYPE' is transparent and
     // fail otherwise.

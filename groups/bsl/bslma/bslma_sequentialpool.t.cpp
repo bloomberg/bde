@@ -1441,8 +1441,7 @@ int main(int argc, char *argv[])
                             blockSize(INITIAL_SIZE * 2) == tc.numBytesInUse());
                 }
                 else {
-                    int nextSize = calculateNextSize(abs(INITIAL_SIZE),
-                                                     SIZE);
+                    int nextSize = calculateNextSize(INITIAL_SIZE, SIZE);
                     LOOP4_ASSERT(i, SIZE, blockSize(nextSize),
                                  ta.numBytesInUse(),
                                  blockSize(nextSize) == ta.numBytesInUse());

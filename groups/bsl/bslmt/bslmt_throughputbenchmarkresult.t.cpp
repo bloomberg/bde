@@ -1550,7 +1550,7 @@ int main(int argc, char *argv[])
                                      Obj(bslmf::MovableRefUtil::move(mF), &s2);
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     LOOP2_ASSERT(LINE,
@@ -1958,7 +1958,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        LOOP_ASSERT(CONFIG, 0 == "Bad allocator config.");
                       } break;
                     }
                     LOOP2_ASSERT(LINE,
@@ -2294,7 +2294,9 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP2_ASSERT(LINE, CONFIG, !"Bad allocator config.");
+                        LOOP2_ASSERT(LINE,
+                                     CONFIG,
+                                     0 == "Bad allocator config.");
                       } break;
                     }
                     LOOP2_ASSERT(LINE,

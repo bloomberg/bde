@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Fri Jun 21 11:52:18 2024
+// Generated on Wed Jul 24 12:09:30 2024
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.00.t.cpp
 
 // Expanded test driver only when compiling bslmf_invokeresult.cpp
@@ -31,6 +31,11 @@
 # pragma error_messages(off, functypequal)
 #endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wdeprecated-volatile"
+#endif
+#endif
 
 using namespace BloombergLP;
 

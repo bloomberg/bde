@@ -300,7 +300,7 @@ class TestType_Base {
     // ACCESSORS
     allocator_type get_allocator() const { return d_allocator; }
 
-    bool matchAllocator(const AllocArg a) const { return a == d_allocator; }
+    bool matchAllocator(AllocArg a) const { return a == d_allocator; }
     bool matchAllocator(bslma::Allocator *a) const
         // Return 'true' if the specified 'a' matches the allocator.  The
         // second overload relies on the fact that most STL allocators used for

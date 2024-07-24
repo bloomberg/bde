@@ -1,6 +1,8 @@
 // bslalg_containerbase.t.cpp                                         -*-C++-*-
 #include <bslalg_containerbase.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_allocator.h>
 #include <bslma_allocatorutil.h>
 #include <bslma_autodestructor.h>
@@ -198,7 +200,8 @@ class StatelessSTLAllocator {
     }
 
     void deallocate(value_type *p, std::size_t n) {
-        bslma::Allocator *rsrc = bslma::Default::defaultAllocator();
+        BSLA_MAYBE_UNUSED bslma::Allocator *rsrc =
+                                            bslma::Default::defaultAllocator();
         bslma::AllocatorUtil::deallocateObject(&g_StatelessSTLAllocatorRsrc,
                                                p, n);
     }

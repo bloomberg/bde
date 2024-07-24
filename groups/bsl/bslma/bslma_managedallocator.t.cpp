@@ -245,16 +245,16 @@ void * LinkedListMA::allocate(size_type size)
     // If we got here, there were no blocks that could satisfy the requirement.
     // Get truly new memory.
     char *newMem = new char[sizeof(Node) + size];
-    ((Node *)newMem)->d_dataSize = size;
-    ((Node *)newMem)->d_next = d_usedList;
-    d_usedList = (Node *)newMem;
+    ((Node *)static_cast<void *>(newMem))->d_dataSize = size;
+    ((Node *)static_cast<void *>(newMem))->d_next = d_usedList;
+    d_usedList = (Node *)static_cast<void *>(newMem);
 
     return newMem + DATAOFFSET;
 }
 
 void LinkedListMA::deallocate(void *address)
 {
-    changeLists((Node *)((char *)address - DATAOFFSET),
+    changeLists((Node *)static_cast<void *>((char *)address - DATAOFFSET),
                 &d_usedList, &d_freeList);
 }
 
@@ -515,10 +515,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         const char *sampleStrings[] = {
-            "Hello", "How are you?", "Es geht mir gut",
-            "Porque tenemos que trabajar?", "Donde esta el gatito?",
-            "You get a shiver in the dark/it's raining in the "
-            "park/but meantime"
+           "Hello", "How are you?", "Es geht mir gut",
+           "Porque tenemos que trabajar?", "Donde esta el gatito?",
+           "You get a shiver in the dark/it's raining in the park/but meantime"
         };
 
         const int NUMBER_OF_STRINGS =

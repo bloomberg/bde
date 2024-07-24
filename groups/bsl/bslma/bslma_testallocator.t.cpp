@@ -2417,7 +2417,8 @@ int main(int argc, char *argv[])
             if (verbose) printf(
                                "\t[deallocate pointer + sizeof(size_type)]\n");
             if (veryVerbose) puts(LINE);
-            a.deallocate((bslma::Allocator::size_type *)p + 1);
+            a.deallocate((bslma::Allocator::size_type *)
+                                                   static_cast<void *>(p) + 1);
             if (veryVerbose) puts(LINE);
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());
@@ -2428,7 +2429,8 @@ int main(int argc, char *argv[])
             if (verbose) printf(
                                "\t[deallocate pointer - sizeof(size_type)]\n");
             if (veryVerbose) puts(LINE);
-            a.deallocate((bslma::Allocator::size_type *)p - 1);
+            a.deallocate((bslma::Allocator::size_type *)
+                                                   static_cast<void *>(p) - 1);
             if (veryVerbose) puts(LINE);
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());

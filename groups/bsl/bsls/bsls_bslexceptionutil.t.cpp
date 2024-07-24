@@ -237,8 +237,8 @@ int main(int argc, char *argv[])
             }
         }
         catch(...) {
-            ASSERT(
-               !"Threw the wrong exception type, expected std::bad_exception");
+            ASSERT(0 ==
+                "Threw the wrong exception type, expected std::bad_exception");
         }
 
         try {
@@ -252,8 +252,8 @@ int main(int argc, char *argv[])
             }
         }
         catch(...) {
-            ASSERT(
-                  !"Threw the wrong exception type, expected std::bad_typeid");
+            ASSERT(0 ==
+                   "Threw the wrong exception type, expected std::bad_typeid");
         }
 
         try {
