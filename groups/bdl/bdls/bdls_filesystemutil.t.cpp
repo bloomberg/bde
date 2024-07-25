@@ -1954,16 +1954,17 @@ namespace UsageExample2 {
 //                            TEMPLATED TEST CASES
 // ----------------------------------------------------------------------------
 
-namespace TestCase31_Remove {
+namespace TestCase30_Remove {
 
-namespace TC = TestCase31_Remove;
+namespace TC = TestCase30_Remove;
 
 // ----------------------------------------------------------------------------
 // TESTING REMOVE
 //
 // Concerns:
-//: 1 If called on a plain file, symlink, or empty directory, 'remove' results
-//:   in the target being removed, regardless of the value of 'recursiveFlag'.
+//: 1 If called on a plain file, symlink, named pipe, or empty directory,
+//:   'remove' results in the target being removed, regardless of the value of
+//:   'recursiveFlag'.
 //:
 //: 2 If "/" or "/." is appended to the path, it results in 'remove' failing,
 //:   unless the target is a directory, in which case it has no effect.
@@ -2050,9 +2051,10 @@ namespace TC = TestCase31_Remove;
 //:       string type is a waste of cpu time).
 //:
 //:   o Create a c'tor of 'TestObject' that creates a subdirectory, 'cd's into
-//:     it, and builds a test framework of directories, plain files, and
-//:     symlinks to test 'Obj::remove' on.  The d'tor 'cd's back to the
-//:     original directory and deletes the subdirectory that the c'tor created.
+//:     it, and builds a test framework of directories, plain files, named
+//:     pipes, and symlinks to test 'Obj::remove' on.  The d'tor 'cd's back to
+//:     the original directory and deletes the subdirectory that the c'tor
+//:     created.
 //:
 //:   o Create a function 'TC::exists' which, passed a unix-style relative
 //:     path, translates it to a host-style relative path, and checks for the
@@ -2167,15 +2169,19 @@ bsl::string translate(bsl::string_view mostlyUnixPath);
 struct NonLinkRecord {
     const char *d_relName_p;      // path to target from 'd_homeDir'
     bool        d_isDirectory;    // whether it's a directory
+    bool        d_isUnixOnly;     // whether file exists only on Unix
 } nonLinkRecords[] = {
-    { "b/bb/bbb/bbbb",  1 },
-    { TC::longFullName, 0 },
-    { "b/cc/ccc/f",     0 },
-    { "b/cc/ccc/ff",    0 },
-    { "b/cc/ddd",       0 },
-    { "a",              0 },
-    { "c",              0 },
-    { "d",              0 } };
+    { "b/bb/bbb/bbbb",      1, 0 },
+    { "b/bb/bbb/myPipe.1",  0, 1 },
+    { "b/bb/bbb/myPipe.2",  0, 1 },
+    { TC::longFullName,     0, 0 },
+    { "b/cc/ccc/f",         0, 0 },
+    { "b/cc/ccc/ff",        0, 0 },
+    { "b/cc/ddd",           0, 0 },
+    { "a",                  0, 0 },
+    { "c",                  0, 0 },
+    { "d",                  0, 0 },
+    { "myPipe.3",           0, 1 } };
 enum { k_NUM_NON_LINK_RECORDS = sizeof nonLinkRecords /
                                                       sizeof *nonLinkRecords };
 
@@ -2217,6 +2223,11 @@ void assertAllThere(const char *stringTypeName, int line)
         const NonLinkRecord& record   = nonLinkRecords[nli];
         const bsl::string&   hostPath = TC::translate(record.d_relName_p);
         const bool           isDir    = record.d_isDirectory;
+        const bool           unixOnly = record.d_isUnixOnly;
+
+        if (unixOnly && !e_UNIX) {
+            continue;
+        }
 
         ASSERTV(hostPath, Obj::exists(hostPath));
         ASSERTV(hostPath, ! Obj::isSymbolicLink(hostPath));
@@ -2275,6 +2286,16 @@ void linkIfNeeded(bsl::string_view unixDest,
     const bsl::string& hostLink = TC::translate(unixRelLink);
 
     ASSERTV(u_errno(), hostDest, hostLink, createSymlink(hostDest, hostLink));
+}
+
+void makePipe(const char *pipeName)
+    // Create a pipe with the specified 'pipeName'.
+{
+#ifdef BSLS_PLATFORM_OS_UNIX
+    ASSERT(0 == ::mkfifo(pipeName, 0777));
+#else
+    (void) pipeName;
+#endif
 }
 
 void touch(bsl::string_view unixRelPath)
@@ -2349,7 +2370,8 @@ class TestObject {
 
     // PRIVATE MANIPULATORS
     void buildLinks();
-        // Create all the symlinks in our tree for our test.
+        // Create all the symlinks in our tree for our test.  On windows, do
+        // nothing.
 
     void buildFiles(int line);
         // Build the whole tree of directories, plain files, and symlinks for
@@ -2439,6 +2461,8 @@ void TestObject<STRING_TYPE>::buildFiles(int line)
     //       - bbbb/ (empty dir)
     //       - ccLink -> ../../cc/
     //       - <TC::longBaseName>
+    //       - myPipe.1 (pipe)
+    //       - myPipe.2 (pipe)
     //   - cc/
     //     - ccc/
     //       - f
@@ -2454,6 +2478,7 @@ void TestObject<STRING_TYPE>::buildFiles(int line)
     //     - ddd
     // - c
     // - d
+    // - myPipe.3 (pipe)
     //..
 {
     const char *name = bsls::NameOf<STRING_TYPE>();
@@ -2464,17 +2489,19 @@ void TestObject<STRING_TYPE>::buildFiles(int line)
     TC::touch("a");
     TC::touch("c");
     TC::touch("d");
+    TC::makePipe("myPipe.3");
 
     TC::touch("b/cc/ddd");
+
+    TC::makePipe("b/bb/bbb/myPipe.1");
+    TC::makePipe("b/bb/bbb/myPipe.2");
 
     TC::touch("b/cc/ccc/f");
     TC::touch("b/cc/ccc/ff");
 
     TC::touch(TC::longFullName);
 
-    if (e_UNIX) {
-        buildLinks();
-    }
+    buildLinks();
 
     TC::assertAllThere(name, line);
 }
@@ -2696,6 +2723,18 @@ void TestObject<STRING_TYPE>::operator()()
             }
             TC::assertAllThere(name, __LINE__);
 
+            if (e_UNIX) {
+                // kill pipe in current dir
+
+                kill("myPipe.3");
+                ASSERTV(exp(), !!exp() == TC::exists("myPipe.3"));
+
+                if (0 == exp()) {
+                    TC::makePipe("myPipe.3");
+                }
+                TC::assertAllThere(name, __LINE__);
+            }
+
             // klll plain relative file
 
             kill("b/cc/ccc/f");
@@ -2705,6 +2744,18 @@ void TestObject<STRING_TYPE>::operator()()
                 TC::touch("b/cc/ccc/f");
             }
             TC::assertAllThere(name, __LINE__);
+
+            if (e_UNIX) {
+                // kill pipe in relative dir
+
+                kill("b/bb/bbb/myPipe.1");
+                ASSERT(!!exp() == TC::exists("b/bb/bbb/myPipe.1"));
+
+                if (0 == exp()) {
+                    TC::makePipe("b/bb/bbb/myPipe.1");
+                }
+                TC::assertAllThere(name, __LINE__);
+            }
 
             d_exp = 0;
 
@@ -2728,6 +2779,8 @@ void TestObject<STRING_TYPE>::operator()()
                 TC::touch(TC::longFullName);
                 TC::linkIfNeeded("../../cc",
                                  "b/bb/bbb/ccLink");
+                TC::makePipe("b/bb/bbb/myPipe.1");
+                TC::makePipe("b/bb/bbb/myPipe.2");
             }
             TC::assertAllThere(name, __LINE__);
 
@@ -2742,6 +2795,9 @@ void TestObject<STRING_TYPE>::operator()()
                 TC::touch(TC::longFullName);
                 TC::linkIfNeeded("../../cc",
                                  "b/bb/bbb/ccLink");
+
+                TC::makePipe("b/bb/bbb/myPipe.1");
+                TC::makePipe("b/bb/bbb/myPipe.2");
             }
             TC::assertAllThere(name, __LINE__);
 
@@ -2871,6 +2927,8 @@ void TestObject<STRING_TYPE>::operator()()
                 TC::touch(TC::longFullName);
                 TC::linkIfNeeded("../../cc",
                                  "b/bb/bbb/ccLink");
+                TC::makePipe("b/bb/bbb/myPipe.1");
+                TC::makePipe("b/bb/bbb/myPipe.2");
             }
             TC::assertAllThere(name, __LINE__);
 
@@ -2953,10 +3011,10 @@ void TestObject<STRING_TYPE>::operator()()
     }
 }
 
-}  // close namespace TestCase31_Remove
+}  // close namespace TestCase30_Remove
 
 template <class STRING_TYPE>
-void testCase30_createTemporarySubdirectory(int verbose, int veryVerbose)
+void testCase29_createTemporarySubdirectory(int verbose, int veryVerbose)
 {
     const char *TYPE = NameOf<STRING_TYPE>();
 
@@ -4588,109 +4646,6 @@ int main(int argc, char *argv[])
       } break;
       case 32: {
         // --------------------------------------------------------------------
-        // Test case 31 is split into cases 31 & 32 to speed things up.  The
-        // tests run very fast on Linux & Sun, slower on Aix, and orders of
-        // magnitude slower on Windows.  We want to make sure the tests don't
-        // take long enough to time out on nightly builds.
-
-        if (verbose) cout << "TESTING REMOVE: TC 32\n"
-                             "=====================\n";
-
-        namespace TC = TestCase31_Remove;
-
-        TC::TestObject<bsl::string_view >("string_view")();
-        TC::TestObject<bslstl::StringRef>("StringRef")();
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
-        TC::TestObject<std::pmr::string >("std_pmr_string")();
-#endif
-      } break;
-      case 31: {
-        // --------------------------------------------------------------------
-        // Test case 31 is split into cases 31 & 32 to speed things up.  The
-        // tests run very fast on Linux & Sun, slower on Aix, and orders of
-        // magnitude slower on Windows.  We want to make sure the tests don't
-        // take long enough to time out on nightly builds.
-
-        if (verbose) cout << "TESTING REMOVE: TC 31\n"
-                             "=====================\n";
-
-        namespace TC = TestCase31_Remove;
-
-        ASSERT("b/bb/bbb/" + bsl::string(TC::longBaseName) ==
-                                                             TC::longFullName);
-
-        TC::TestObject<const char *>("const_char")();
-        TC::TestObject<bsl::string >("bsl_string")();
-        TC::TestObject<std::string >("std_string")();
-      } break;
-      case 30: {
-        // --------------------------------------------------------------------
-        // TESTING 'createTemporarySubdirectory' METHOD
-        //
-        // Concerns:
-        //: 1 The 'createTemporarySubdirectory' creates a new nested directory.
-        //:
-        //: 2 The directory has a randomly generated suffix in its name.
-        //:
-        //: 3 The created directory has the correct permissions.
-        //:
-        //: 4 The directory is fully functional (e.g. additional nested
-        //:   directories can be created within it).
-        //:
-        //: 5 Composite root paths are correctly handled.
-        //:
-        //: 6 Trailing separator symbol in the passed root path is omitted.
-        //:
-        //: 7 Absolute and relative root paths are correctly handled.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   root paths (including empty, composite, relative, absolute and
-        //:   non-existent ones).
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   directory name prefixes.
-        //:
-        //: 3 For each row 'R1' in the table of P-1
-        //:
-        //:   1 For each row 'R2' in the table of P-2
-        //:
-        //:     1 Create a directory using the 'createTemporarySubdirectory'.
-        //:
-        //:     2 Verify that the name of created directory contains generated
-        //:       suffix.  (C-2)
-        //:
-        //:     3 Verify that the created directory exists and has expected
-        //:       permissions.  (C-1, 3, 5..7)
-        //:
-        //:     4 Create a subdirectory of the directory using the
-        //:       'createTemporarySubdirectory' and verify its presence.
-        //:
-        //:     5 Verify that the subdirectory and directory can be
-        //:       successfully deleted.  (C-4)
-        //
-        // Testing:
-        //   createTemporarySubdirectory(bsl::string*, const bsl::string_view&)
-        //   createTemporarySubdirectory(std::string*, const bsl::string_view&)
-        //   createTemporarySubdirectory(pmr::string*, const bsl::string_view&)
-        // --------------------------------------------------------------------
-
-        if (verbose) {
-            cout << "\nTESTING 'createTemporarySubdirectory' METHOD"
-                    "\n============================================\n";
-        }
-
-        testCase30_createTemporarySubdirectory<bsl::string>(verbose,
-                                                            veryVerbose);
-        testCase30_createTemporarySubdirectory<std::string>(verbose,
-                                                            veryVerbose);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
-        testCase30_createTemporarySubdirectory<std::pmr::string>(verbose,
-                                                                 veryVerbose);
-#endif
-      } break;
-      case 29: {
-        // --------------------------------------------------------------------
         // TESTING SYMLINKS
         //
         // Concerns:
@@ -4765,6 +4720,109 @@ int main(int argc, char *argv[])
         ASSERT(Obj::getSymbolicLinkTarget(&st, dir_junction) == 0);
         bdls::PathUtil::getBasename(&st, st); // cut dirname
         ASSERT(st == dir);
+#endif
+      } break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // Test case 30 is split into cases 30 & 31 to speed things up.  The
+        // tests run very fast on Linux & Sun, slower on Aix, and orders of
+        // magnitude slower on Windows.  We want to make sure the tests don't
+        // take long enough to time out on nightly builds.
+
+        if (verbose) cout << "TESTING REMOVE: TC 32\n"
+                             "=====================\n";
+
+        namespace TC = TestCase30_Remove;
+
+        TC::TestObject<bsl::string_view >("string_view")();
+        TC::TestObject<bslstl::StringRef>("StringRef")();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+        TC::TestObject<std::pmr::string >("std_pmr_string")();
+#endif
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // Test case 30 is split into cases 30 & 31 to speed things up.  The
+        // tests run very fast on Linux & Sun, slower on Aix, and orders of
+        // magnitude slower on Windows.  We want to make sure the tests don't
+        // take long enough to time out on nightly builds.
+
+        if (verbose) cout << "TESTING REMOVE: TC 31\n"
+                             "=====================\n";
+
+        namespace TC = TestCase30_Remove;
+
+        ASSERT("b/bb/bbb/" + bsl::string(TC::longBaseName) ==
+                                                             TC::longFullName);
+
+        TC::TestObject<const char *>("const_char")();
+        TC::TestObject<bsl::string >("bsl_string")();
+        TC::TestObject<std::string >("std_string")();
+      } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING 'createTemporarySubdirectory' METHOD
+        //
+        // Concerns:
+        //: 1 The 'createTemporarySubdirectory' creates a new nested directory.
+        //:
+        //: 2 The directory has a randomly generated suffix in its name.
+        //:
+        //: 3 The created directory has the correct permissions.
+        //:
+        //: 4 The directory is fully functional (e.g. additional nested
+        //:   directories can be created within it).
+        //:
+        //: 5 Composite root paths are correctly handled.
+        //:
+        //: 6 Trailing separator symbol in the passed root path is omitted.
+        //:
+        //: 7 Absolute and relative root paths are correctly handled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   root paths (including empty, composite, relative, absolute and
+        //:   non-existent ones).
+        //:
+        //: 2 Using the table-driven technique, specify a set of distinct
+        //:   directory name prefixes.
+        //:
+        //: 3 For each row 'R1' in the table of P-1
+        //:
+        //:   1 For each row 'R2' in the table of P-2
+        //:
+        //:     1 Create a directory using the 'createTemporarySubdirectory'.
+        //:
+        //:     2 Verify that the name of created directory contains generated
+        //:       suffix.  (C-2)
+        //:
+        //:     3 Verify that the created directory exists and has expected
+        //:       permissions.  (C-1, 3, 5..7)
+        //:
+        //:     4 Create a subdirectory of the directory using the
+        //:       'createTemporarySubdirectory' and verify its presence.
+        //:
+        //:     5 Verify that the subdirectory and directory can be
+        //:       successfully deleted.  (C-4)
+        //
+        // Testing:
+        //   createTemporarySubdirectory(bsl::string*, const bsl::string_view&)
+        //   createTemporarySubdirectory(std::string*, const bsl::string_view&)
+        //   createTemporarySubdirectory(pmr::string*, const bsl::string_view&)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "\nTESTING 'createTemporarySubdirectory' METHOD"
+                    "\n============================================\n";
+        }
+
+        testCase29_createTemporarySubdirectory<bsl::string>(verbose,
+                                                            veryVerbose);
+        testCase29_createTemporarySubdirectory<std::string>(verbose,
+                                                            veryVerbose);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+        testCase29_createTemporarySubdirectory<std::pmr::string>(verbose,
+                                                                 veryVerbose);
 #endif
       } break;
       case 28: {

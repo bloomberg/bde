@@ -904,6 +904,12 @@ int u_removeContentsOfTree(
 {
     typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
 
+    // This function is declared as returing 0 on success and non-zero
+    // otherwise.  In practice, we return different non-zero values for every
+    // error condition.  These values are not part of the declared interface,
+    // intended to aid debugging only and may be changed by maintainers on a
+    // whim.
+
     DIR *dir = ::fdopendir(dirFD);    // 'dir' assumes ownership of 'dirFd'
                                       // and will close it when 'dir' is
                                       // closed.
@@ -1000,7 +1006,7 @@ int u_removeContentsOfTree(
         bool isDir = false;
         FileDescriptor entryFD = ::openat(dirFD,
                                           entry.d_name,
-                                          O_RDONLY | O_NOFOLLOW,
+                                          O_RDONLY | O_NOFOLLOW | O_NONBLOCK,
                                           0);
         if (-1 == entryFD) {
             if (ENOENT == errno) {
@@ -1008,13 +1014,27 @@ int u_removeContentsOfTree(
 
                 return -3;                                            // RETURN
             }
+#ifdef BSLS_PLATFORM_OS_AIX
+            // On AIX, '::openat' fails on pipes, but'::faccessat' is able to
+            // confirm that they exist.
+
+            if (EINVAL == errno && 0 == ::faccessat(dirFD,
+                                                    entry.d_name,
+                                                    F_OK,
+                                                    AT_SYMLINK_NOFOLLOW)) {
+                // It's a pipe -- delete it like a plain file.
+
+                ;
+            }
+            else
+#endif
             if (ELOOP != errno) {
                 // not a symlink -- error
 
                 return -4;                                            // RETURN
             }
 
-            // it's a symlink -- we'll just delete it like a plain file
+            // it's a symlink or pipe -- we'll just delete it like a plain file
         }
         else {
             StatResult statResult;
@@ -2430,6 +2450,12 @@ int FilesystemUtil::remove(const char *path, bool recursiveFlag)
 
     typedef FilesystemUtil ThisUtil;
 
+    // This function is declared as returing 0 on success and non-zero
+    // otherwise.  In practice, we return different non-zero values for every
+    // error condition.  These values are not part of the declared interface,
+    // intended to aid debugging only and may be changed by maintainers on a
+    // whim.
+
     if (!*path) {
         return -2;                                                    // RETURN
     }
@@ -2544,20 +2570,37 @@ int FilesystemUtil::remove(const char *path, bool recursiveFlag)
 
     FileDescriptor leafFD = ::openat(parentFD,
                                      leaf.c_str(),
-                                     O_RDONLY | O_NOFOLLOW,
+                                     O_RDONLY | O_NOFOLLOW | O_NONBLOCK,
                                      0);
     if (-1 == leafFD) {
+#ifdef BSLS_PLATFORM_OS_AIX
+        // On AIX, '::openat' fails on pipes, but'::faccessat' is able to
+        // confirm that they exist.
+
+        if (EINVAL == errno && 0 == ::faccessat(parentFD,
+                                                leaf.c_str(),
+                                                F_OK,
+                                                AT_SYMLINK_NOFOLLOW)) {
+            // It's a pipe -- delete it like a plain file.
+
+            ;
+        }
+        else
+#endif
         if (ELOOP != errno) {
             // not a symlink -- error
 
             return -6;                                                // RETURN
         }
 
-        // it's a symlink -- we'll just delete it like a plain file
+        // it's a symlink or pipe -- we'll just delete it like a plain file
 
         if (isErrorIfNotDir) {
-            // Symlinks are never considered directories.  If they meant to
-            // remove a directory, it's an error.
+            // At this point, the file is either a symlink or (on AIX) maybe a
+            // pipe, and we treat those like plain files.  'isErrorIfNotDir'
+            // indicates that 'path' ended with '/' or "/.", which indicate
+            // that the client thought it was a directory, which is
+            // inconsistent and an error.
 
             return -7;                                                // RETURN
         }
