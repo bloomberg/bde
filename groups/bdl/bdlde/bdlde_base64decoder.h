@@ -988,7 +988,7 @@ int Base64Decoder::convert<char *, const char *>(
                 // as for any 'ff' values loaded from LUT slices themselves.
                 if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                          !_mm_testz_si128(tooSmall | decoded | ~x,
-                                                       _mm_set1_epi8(0x80)))) {
+                                    _mm_set1_epi8(static_cast<char>(0x80))))) {
                     // Unknown char; could be error or could be a character to
                     // ignore; either way fall back to regular decoding
                     break;
@@ -1142,7 +1142,7 @@ int Base64Decoder::convert<char *, const char *>(
         } while (begin != end);
     }
 
-    *numIn = begin - originalBegin;
+    *numIn = static_cast<int>(begin - originalBegin);
     *numOut = numEmitted;
     d_outputLength += numEmitted;
 
