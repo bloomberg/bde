@@ -1,5 +1,31 @@
-bsl-internal (4.11.0.0) unstable; urgency=low
+bsl-internal (4.12.0.0) unstable; urgency=low
 
+  * c88a56b5f Bumped version to 4.12.0.0
+  * c5f63b61d bdls::FilesystemUtil::remove use 'O_NONBLOCK' when opening files (DRQS 176058340) (#4837)
+  * 78efe41cd Fix bslstl_function_invokerutil nightly test failure (#4841)
+  * fe4d1a463 reduce clang-15 warnings (#4840)
+  * 3b41356ec Unsigned attributes in JSON logs (#4839)
+  * cfde66870 Add `operator<<` to `bslma::TestAllocator` - drqs175554891 (#4804)
+  * d9f0b3305 Optimize base64 decoder slightly for 3-7x speedup - {DRQS 175668871} (#4797)
+  * e862d6bce Fix doc formatting issues (#4835)
+  * 31dd0d95c reduce warnings (#4834)
+  * 4a2d0e45f 'ZoneinfoBinaryReader' now omits ZIC sentinel transition. DRQS 175551183 (#4800)
+  * f868a74e1 Prevent null pointer dereference (#4827)
+  * 6a3c2b124 Cleanup bal (#4832)
+  * f36c72c39 bdlsb_fixedmemoutput: fix ubsan problem (#4825)
+  * c676486ed Bsls atomic signed twos compliment drqs 175695137 (#4829)
+  * ed3023ad7 bdlc_hashtable remove unnecessary lambda capture (DRQS 175935568) (#4831)
+  * 29a522611 reduce warnings (#4828)
+  * 7d2e56576 Cleanup bdl (#4824)
+  * 73c22d1cc Balst stacktrace fix dwarf errors drqs 174875406 (#4818)
+  * 9b275104a reduce td warnings (#4822)
+  * d58cb4468 bdls::FilesystemUtil::remove -- fix security vulnerabilty drqs 174781262 (#4720)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 25 Jul 2024 11:26:00 -0400
+
+bsl-internal (4.11.0.0) git; urgency=low
+
+  * cc55934f1 Changelog for version 4.11.0.0
   * 2859770fd correct nb td warnings (#4821)
   * 954b1dcc3 Bumped version to 4.11.0.0
   * 5cb401022 Remove gendered terms (#4813)
@@ -32,7 +58,7 @@ bsl-internal (4.11.0.0) unstable; urgency=low
   * 0adf7706b Fix bsl::variant SFINAE issue on Solaris (DRQS 175366735) (#4776)
   * 37497851a Bslstl stringview constexpr drqs 174944686 (#4770)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 10 Jul 2024 12:35:04 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 10 Jul 2024 12:38:55 -0400
 
 bsl-internal (4.10.0.0) git; urgency=low
 
