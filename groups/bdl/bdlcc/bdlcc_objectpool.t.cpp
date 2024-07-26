@@ -202,18 +202,22 @@ void executeInParallel(int                               numThreads,
 {
     bslmt::ThreadUtil::Handle *threads =
                                new bslmt::ThreadUtil::Handle[numThreads];
+    int *numbers = new int[numThreads];
+
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
+        numbers[i] = i;
         bslmt::ThreadUtil::create(&threads[i],
                                   attributes,
                                   function,
-                                  static_cast<void *>(&i));
+                                  static_cast<void *>(numbers + i));
     }
     for (int i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::join(threads[i]);
     }
 
+    delete [] numbers;
     delete [] threads;
 }
 // ============================================================================
