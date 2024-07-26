@@ -6,6 +6,8 @@
 #include <bslstl_pair.h>
 #include <bslstl_unorderedmultiset.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_rangecompare.h>
 #include <bslalg_swaputil.h>
 
@@ -1481,6 +1483,7 @@ class TransparentlyComparable {
         return lhs.d_value == rhs;
     }
 
+    BSLA_MAYBE_UNUSED
     friend bool operator==(int lhs, const TransparentlyComparable& rhs)
         // Return 'true' if the specified 'lhs' is equal to the value of the
         // specified 'rhs', and 'false' otherwise.

@@ -4,6 +4,8 @@
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_rangecompare.h>
 #include <bslalg_swaputil.h>
 #include <bslstl_unorderedmultimap.h>
@@ -1252,6 +1254,7 @@ class TransparentlyComparable {
         return lhs.d_value == rhs;
     }
 
+    BSLA_MAYBE_UNUSED
     friend bool operator==(int lhs, const TransparentlyComparable& rhs)
         // Return 'true' if the specified 'lhs' is equal to the value of the
         // specified 'rhs', and 'false' otherwise.
@@ -1778,7 +1781,7 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
                                                     bool              keysOnly)
 {
     CIter end = object.cend();
-    size_t sizeObj = 0;
+    BSLA_MAYBE_UNUSED size_t sizeObj = 0;
     for (CIter it = object.cbegin(), itB = it; end != it; it = itB) {
         size_t numInObj = 0;
         do {

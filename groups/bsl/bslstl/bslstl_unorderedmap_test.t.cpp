@@ -1471,6 +1471,7 @@ class TransparentlyComparable {
         return lhs.d_value == rhs;
     }
 
+    BSLA_MAYBE_UNUSED
     friend bool operator==(int lhs, const TransparentlyComparable& rhs)
         // Return 'true' if the specified 'lhs' is equal to the value of the
         // specified 'rhs', and 'false' otherwise.
@@ -5774,7 +5775,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 // about the behavior of memory allocation.
 
                 pair<Iter, bool> RESULT;
-                int numThrows = -1;
+                BSLA_MAYBE_UNUSED int numThrows = -1;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ++numThrows;
 

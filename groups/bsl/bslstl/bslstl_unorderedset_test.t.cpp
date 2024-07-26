@@ -5,6 +5,8 @@
 #include <bslstl_pair.h>
 #include <bslstl_unorderedset.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_rangecompare.h>
 #include <bslalg_swaputil.h>
 
@@ -1485,6 +1487,7 @@ class TransparentlyComparable {
         return lhs.d_value == rhs;
     }
 
+    BSLA_MAYBE_UNUSED
     friend bool operator==(int lhs, const TransparentlyComparable& rhs)
         // Return 'true' if the specified 'lhs' is equal to the value of the
         // specified 'rhs', and 'false' otherwise.
@@ -4056,7 +4059,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase31()
                 KeyAllocator         xscratch(&scratch);
 
                 bsl::pair<Iter, bool> RESULT;
-                int                   numPasses = 0;
+                BSLA_MAYBE_UNUSED int numPasses = 0;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ++numPasses;
                     ExceptionProctor<Obj, ALLOC> proctor(&X, L_, xscratch);

@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING RESULT IS CONST\n"
                             "=======================\n");
 
-        int i;
+        int i = 3;
 
         ASSERT(1 == IsSameType<int>()(i));
 

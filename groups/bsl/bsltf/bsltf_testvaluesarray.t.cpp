@@ -460,11 +460,15 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
                      result,
                      bsltf::TemplateTestFacility::getIdentifier(VALUES[i]),
                      bsltf::TemplateTestFacility::getIdentifier(VALUES[i]) == 0
-                     || !"Parsing redirected output did not consume any text");
+                      || 0 ==
+                         "Parsing redirected output did not consume any text");
                     }
                     else {
-                        ASSERTV(NameOf<VALUE>().name(), result,
-                        !"Parsing redirected output did not consume any text");
+                        ASSERTV(
+                         NameOf<VALUE>().name(),
+                         result,
+                         0 ==
+                         "Parsing redirected output did not consume any text");
                     }
                 }
                 else {

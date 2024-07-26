@@ -210,8 +210,6 @@ const Enum VALID_STATE_LIST[] = {
     Util::e_UNKNOWN
 };
 
-const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
-
 bool isCopiedEnum(Enum e)
     // Return 'true' if the specified 'e' enumerator has a name starting with
     // 'e_COPIED'.

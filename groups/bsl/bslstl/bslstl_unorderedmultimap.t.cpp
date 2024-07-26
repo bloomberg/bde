@@ -4,6 +4,8 @@
 #include <bslstl_iterator.h>  // for testing only
 #include <bslstl_string.h>    // for testing only
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_rangecompare.h>
 #include <bslalg_swaputil.h>
 
@@ -1401,8 +1403,8 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
                                                     const size_t      count,
                                                     bool              keysOnly)
 {
-    CIter end = object.cend();
-    size_t sizeObj = 0;
+    CIter                    end     = object.cend();
+    BSLA_MAYBE_UNUSED size_t sizeObj = 0;
     for (CIter it = object.cbegin(), itB = it; end != it; it = itB) {
         size_t numInObj = 0;
         do {
@@ -5523,9 +5525,9 @@ void testBuckets(CONTAINER& mX)
 
     const CONTAINER &x = mX;
 
-    size_t bucketCount = x.bucket_count();
-    size_t collisions = 0;
-    size_t itemCount  = 0;
+    size_t                   bucketCount = x.bucket_count();
+    BSLA_MAYBE_UNUSED size_t collisions  = 0;
+    size_t                   itemCount   = 0;
 
     for (size_t i = 0; i != bucketCount; ++i ) {
         const size_t count = x.bucket_size(i);
