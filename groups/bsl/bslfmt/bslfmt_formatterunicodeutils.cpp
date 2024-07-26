@@ -6,13 +6,17 @@
 BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
 
 #include <bsla_fallthrough.h>
+#include <bsla_unreachable.h>
 #include <bsla_unused.h>
 
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
+#include <bslstl_algorithm.h>
 #include <bslstl_map.h>
+
+#include <bslfmt_formatterunicodedata.h>
 
 //#include <bsl_cstdlib.h>
 //#include <bsl_cstring.h>
@@ -139,7 +143,7 @@ int get4ByteUtf8Value(const unsigned char *pc)
 }
 
 static inline
-bool isByteOrderMarker(void *bytes, int maxBytes)
+bool isByteOrderMarker(const void *bytes, int maxBytes)
     // Determine whether the start of the specified array `bytes`, up to a
     // maximum length of the specified `maxBytes` contains a UTF Byte Order
     // Marker, and return the result.
@@ -175,25 +179,153 @@ bool isByteOrderMarker(void *bytes, int maxBytes)
     return false;
 }
 
-struct Formatter_UnicodeUtils_FirstPairMemberComparator
-    /// Comparator for a map of pairs of ints that compares only the first
-    /// element of those pairs.
-{
-    bool operator()(const bsl::pair<unsigned int, unsigned int>& p1,
-                    const bsl::pair<unsigned int, unsigned int>& p2) const
+//struct Formatter_UnicodeUtils_FirstPairMemberComparator
+//    /// Comparator for a map of pairs of ints that compares only the first
+//    /// element of those pairs.
+//{
+//    bool operator()(const bsl::pair<unsigned int, unsigned int>& p1,
+//                    const bsl::pair<unsigned int, unsigned int>& p2) const
+//    {
+//        return (p2.first - p1.first);
+//    }
+//};
+//
+//typedef bsl::map<bsl::pair<unsigned int, unsigned int>,
+//                 Formatter_UnicodeUtils_FirstPairMemberComparator>
+//    Formatter_UnicodeUtils_MapOfRanges;
+//
+//Formatter_UnicodeUtils_MapOfRanges makeMapOfZeros()
+//{
+//    Formatter_UnicodeUtils_MapOfRanges result;
+//}
+
+template <class e_RANGE_TYPE>
+struct Formatter_UnicodeData_StartCompare {
+    bool operator()(const e_RANGE_TYPE& range, const unsigned long int value)
     {
-        return (p2.first - p1.first);
+        return range.d_start < value;
     }
 };
 
-typedef bsl::map<bsl::pair<unsigned int, unsigned int>,
-                 Formatter_UnicodeUtils_FirstPairMemberComparator>
-    Formatter_UnicodeUtils_MapOfRanges;
-
-Formatter_UnicodeUtils_MapOfRanges makeMapOfZeros()
+bslfmt::Formatter_UnicodeData::GraphemeBreakCategory
+getGraphemeBreakCategory(unsigned long int codepoint)
 {
-    Formatter_UnicodeUtils_MapOfRanges result;
+    const bslfmt::Formatter_UnicodeData::GraphemeBreakCategoryRange *first =
+                  bslfmt::Formatter_UnicodeData::s_graphemeBreakCategoryRanges;
+    const bslfmt::Formatter_UnicodeData::GraphemeBreakCategoryRange *last =
+              bslfmt::Formatter_UnicodeData::s_graphemeBreakCategoryRanges +
+              bslfmt::Formatter_UnicodeData::s_graphemeBreakCategoryRangeCount;
+
+    Formatter_UnicodeData_StartCompare<
+        bslfmt::Formatter_UnicodeData::GraphemeBreakCategoryRange>
+        comparator;
+
+    const bslfmt::Formatter_UnicodeData::GraphemeBreakCategoryRange *found =
+                          bsl::lower_bound(first, last, codepoint, comparator);
+
+    // Below the first element in the array.
+    if (found == last)
+        return bslfmt::Formatter_UnicodeData::e_UNASSIGNED;           // RETURN
+
+    if (found->d_end < codepoint)
+        return bslfmt::Formatter_UnicodeData::e_UNASSIGNED;           // RETURN
+
+    return found->d_category;
 }
+
+bool getExtendedPictogramValue(unsigned long int codepoint)
+{
+    const bslfmt::Formatter_UnicodeData::BooleanRange *first =
+                  bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges;
+    const bslfmt::Formatter_UnicodeData::BooleanRange *last =
+              bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges +
+              bslfmt::Formatter_UnicodeData::s_extendedPictographicRangeCount;
+
+    Formatter_UnicodeData_StartCompare<
+        bslfmt::Formatter_UnicodeData::BooleanRange>
+        comparator;
+
+    const bslfmt::Formatter_UnicodeData::BooleanRange *found =
+                          bsl::lower_bound(first, last, codepoint, comparator);
+
+    // Below the first element in the array.
+    if (found == last)
+        return false;                                                 // RETURN
+
+    if (found->d_end < codepoint)
+        return false;                                                 // RETURN
+
+    return true;
+}
+
+int getCodepointWidth(unsigned long int codepoint)
+{
+    const bslfmt::Formatter_UnicodeData::BooleanRange *first =
+                   bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges;
+    const bslfmt::Formatter_UnicodeData::BooleanRange *last =
+               bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges +
+                   bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRangeCount;
+
+    Formatter_UnicodeData_StartCompare<
+        bslfmt::Formatter_UnicodeData::BooleanRange>
+        comparator;
+
+    const bslfmt::Formatter_UnicodeData::BooleanRange *found =
+                          bsl::lower_bound(first, last, codepoint, comparator);
+
+    // Below the first element in the array.
+    if (found == last)
+        return 1;                                                 // RETURN
+
+    if (found->d_end < codepoint)
+        return 1;                                                 // RETURN
+
+    return 2;
+}
+
+class Formatter_UnicodeData_StartCompare_GB11_LH_Regex {
+  private:
+    // PRIVATE TYPES
+    enum State : bool { e_START, e_EXT_PIC };
+
+    // DATA
+    State d_state = e_START;
+
+    // NOT IMPLEMENTED
+    bool operator==(
+       const Formatter_UnicodeData_StartCompare_GB11_LH_Regex&)  = delete;
+
+  public:
+
+    // MANIPULATORS
+    bool
+    match(const bslfmt::Formatter_UnicodeData::GraphemeBreakCategory left_gbp,
+          bool left_ExtPic) noexcept
+    {
+        switch (d_state) {
+          case e_START:
+            if (left_ExtPic) {
+                d_state = e_EXT_PIC;
+            }
+            return false;
+          case e_EXT_PIC:
+            if (left_gbp == bslfmt::Formatter_UnicodeData::
+                                GraphemeBreakCategory::e_ZERO_WIDTH_JOINER) {
+                d_state = e_START;
+                return true;
+            }
+            else if (left_gbp != bslfmt::Formatter_UnicodeData::
+                                     GraphemeBreakCategory::e_EXTEND) {
+                d_state = e_START;
+                return false;
+            }
+            return false;
+          default:
+            BSLS_ASSERT(false);
+            return false;
+        }
+    }
+};
 
 }  // close unnamed namespace
 
@@ -201,7 +333,7 @@ namespace BloombergLP {
 namespace bslfmt {
 
 Formatter_UnicodeUtils::CodePointExtractionResult
-Formatter_UnicodeUtils::extractUtf8(void *bytes, int maxBytes)
+Formatter_UnicodeUtils::extractUtf8(const void *bytes, int maxBytes)
 {
     CodePointExtractionResult result;
     memset(&result, 0, sizeof(CodePointExtractionResult));
@@ -226,7 +358,7 @@ Formatter_UnicodeUtils::extractUtf8(void *bytes, int maxBytes)
             result.codePointValue = *start;
             result.numSourceBytes = 1;
             result.isValid        = true;
-            result.sourceEncoding = 8;
+            result.sourceEncoding = e_UTF8;
         } break;
         case 0x8: BSLA_FALLTHROUGH;
         case 0x9: BSLA_FALLTHROUGH;
@@ -265,7 +397,8 @@ Formatter_UnicodeUtils::extractUtf8(void *bytes, int maxBytes)
             result.codePointValue = value;
             result.numSourceBytes = 2;
             result.isValid        = true;
-            result.sourceEncoding = 8;
+            result.sourceEncoding = e_UTF8;
+            result.codePointWidth = getCodepointWidth(value);
         } break;
         case 0xe: {
             if (UNLIKELY(maxBytes < 3)) {
@@ -301,7 +434,8 @@ Formatter_UnicodeUtils::extractUtf8(void *bytes, int maxBytes)
             result.codePointValue = value;
             result.numSourceBytes = 3;
             result.isValid        = true;
-            result.sourceEncoding = 8;
+            result.sourceEncoding = e_UTF8;
+            result.codePointWidth = getCodepointWidth(value);
         } break;
         case 0xf: {
             if (UNLIKELY(maxBytes < 4)) {
@@ -344,7 +478,8 @@ Formatter_UnicodeUtils::extractUtf8(void *bytes, int maxBytes)
             result.codePointValue = value;
             result.numSourceBytes = 4;
             result.isValid        = true;
-            result.sourceEncoding = 8;
+            result.sourceEncoding = e_UTF8;
+            result.codePointWidth = getCodepointWidth(value);
         } break;
         default: {
             BSLS_ASSERT_INVOKE_NORETURN("unreachable");
@@ -355,7 +490,7 @@ Formatter_UnicodeUtils::extractUtf8(void *bytes, int maxBytes)
 }
 
 Formatter_UnicodeUtils::CodePointExtractionResult
-Formatter_UnicodeUtils::extractUtf16(void *bytes, int maxBytes)
+Formatter_UnicodeUtils::extractUtf16(const void *bytes, int maxBytes)
 {
     CodePointExtractionResult result;
     memset(&result, 0, sizeof(CodePointExtractionResult));
@@ -387,7 +522,8 @@ Formatter_UnicodeUtils::extractUtf16(void *bytes, int maxBytes)
         result.codePointValue = first;
         result.numSourceBytes = 2;
         result.isValid        = true;
-        result.sourceEncoding = 16;
+        result.sourceEncoding = e_UTF16;
+        result.codePointWidth = getCodepointWidth(first);
 
         return result;                                                // RETURN
     }
@@ -423,14 +559,15 @@ Formatter_UnicodeUtils::extractUtf16(void *bytes, int maxBytes)
     result.codePointValue = value;
     result.numSourceBytes = 4;
     result.isValid        = true;
-    result.sourceEncoding = 16;
+    result.sourceEncoding = e_UTF16;
+    result.codePointWidth = getCodepointWidth(value);
 
     return result;                                                    // RETURN
 }
 
 
 Formatter_UnicodeUtils::CodePointExtractionResult
-Formatter_UnicodeUtils::extractUtf32(void *bytes, int maxBytes)
+Formatter_UnicodeUtils::extractUtf32(const void *bytes, int maxBytes)
 {
     CodePointExtractionResult result;
     memset(&result, 0, sizeof(CodePointExtractionResult));
@@ -439,7 +576,10 @@ Formatter_UnicodeUtils::extractUtf32(void *bytes, int maxBytes)
     // (such as on Linux) then something went very badly wrong.
     BSLS_ASSERT_OPT(sizeof(wchar_t) == 4);
 
-    if (0 == bytes || maxBytes < 4 || sizeof(wchar_t) != 4)
+    if (sizeof(wchar_t) != 4)
+            return result;                                            // RETURN
+
+    if (0 == bytes || maxBytes < 4)
             return result;                                            // RETURN
 
     if (isByteOrderMarker(bytes, maxBytes))
@@ -466,10 +606,205 @@ Formatter_UnicodeUtils::extractUtf32(void *bytes, int maxBytes)
     result.codePointValue = value;
     result.numSourceBytes = 4;
     result.isValid        = true;
-    result.sourceEncoding = 16;
-
+    result.sourceEncoding = e_UTF32;
+    result.codePointWidth = getCodepointWidth(value);
     return result;                                                    // RETURN
 }
+
+Formatter_UnicodeUtils::CodePointExtractionResult
+Formatter_UnicodeUtils::extractCodePoint(UtfEncoding  encoding,
+                                         const void   *bytes,
+                                         int          maxBytes)
+{
+    switch (encoding) {
+        case e_UTF8: {
+            return extractUtf8(bytes, maxBytes);
+        } break;
+        case e_UTF16: {
+            return extractUtf16(bytes, maxBytes);
+        } break;
+        case e_UTF32: {
+            return extractUtf32(bytes, maxBytes);
+        } break;
+        default: {
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+            BSLA_UNREACHABLE;
+            // Dummy return statment to alleviate compiler warnings.
+            return CodePointExtractionResult();
+        }
+    }
+}
+
+Formatter_UnicodeUtils::GraphemeClusterExtractionResult
+Formatter_UnicodeUtils::extractGraphemeCluster(UtfEncoding  encoding,
+                                               const void   *bytes,
+                                               int          maxBytes)
+{
+    GraphemeClusterExtractionResult result;
+
+    CodePointExtractionResult codepoint = extractCodePoint(encoding,
+                                                           bytes,
+                                                           maxBytes);
+
+    bool              isValid             = codepoint.isValid;
+    int               numBytes            = codepoint.numSourceBytes;
+    int               numCodepoints       = 1;
+
+    // Failed to extract first code point.
+    if (!isValid) {
+        memset(&result, 0, sizeof(GraphemeClusterExtractionResult));
+        return result;                                                // RETURN
+    }
+
+    result.firstCodePointValue = codepoint.codePointValue;
+    result.firstCodePointWidth = codepoint.codePointWidth;
+    result.sourceEncoding      = encoding;
+
+    Formatter_UnicodeData::GraphemeBreakCategory left_gbp =
+                            getGraphemeBreakCategory(codepoint.codePointValue);
+    bool left_epv = getExtendedPictogramValue(codepoint.codePointValue);
+
+    Formatter_UnicodeData::GraphemeBreakCategory right_gbp =
+                    Formatter_UnicodeData::GraphemeBreakCategory::e_UNASSIGNED;
+    bool right_epv = false;
+
+    size_t num_RIs   = 0;
+
+    Formatter_UnicodeData_StartCompare_GB11_LH_Regex gb11_matcher;
+
+    for (;; left_gbp = right_gbp, left_epv = right_epv) {
+
+        result.isValid        = isValid;
+        result.numCodePoints  = numCodepoints;
+        result.numSourceBytes = numBytes;
+
+        if (0 == maxBytes - numBytes) {
+                // GB2 Any % eot
+                return result;                                        // RETURN
+        }
+
+        const void *cp = static_cast<const void *>(
+                                  static_cast<const char *>(bytes) + numBytes);
+        codepoint = extractCodePoint(encoding, cp, maxBytes - numBytes);
+
+        isValid = isValid && codepoint.isValid;
+        numBytes += codepoint.numSourceBytes;
+        numCodepoints++;
+
+        // Failed to extract valid code point.
+        if (!isValid) {
+                memset(&result, 0, sizeof(GraphemeClusterExtractionResult));
+                return result;                                        // RETURN
+        }
+
+        right_gbp  = getGraphemeBreakCategory(codepoint.codePointValue);
+        right_epv = getExtendedPictogramValue(codepoint.codePointValue);
+
+        // match GB11 now, so that we're sure to update it for every character,
+        // not just ones where the GB11 rule is considered
+        const bool is_GB11_Match = gb11_matcher.match(left_gbp, left_epv);
+        // Also update the number of sequential RIs immediately
+        if (left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::
+                            e_REGIONAL_INDICATOR) {
+                ++num_RIs;
+        }
+        else {
+                num_RIs = 0;
+        }
+
+        if (left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_CR &&
+            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_LF) {
+                continue;  // GB3 CR x LF
+        }
+
+        if (left_gbp ==
+                Formatter_UnicodeData::GraphemeBreakCategory::e_CONTROL ||
+            left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_CR ||
+            left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_LF) {
+                // GB4 (Control | CR | LF) % Any
+                return result;                                        // RETURN
+        }
+
+        if (right_gbp ==
+                Formatter_UnicodeData::GraphemeBreakCategory::e_CONTROL ||
+            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_CR ||
+            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_LF) {
+                // GB5 Any % (Control | CR | LF)
+                return result;                                        // RETURN
+        }
+
+        if ((left_gbp ==
+                Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_L) &&
+            (right_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_L ||
+             right_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_V ||
+             right_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_LV ||
+             right_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_LVT)) {
+                continue;  // GB6 L x (L | V | LV | LVT)
+        }
+
+        if ((left_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_LV ||
+             left_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_V) &&
+            (right_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_V ||
+             right_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_T)) {
+                continue;  // GB7 (LV | V) x (V | T)
+        }
+
+        if ((left_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_LVT ||
+             left_gbp ==
+                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_T) &&
+            (right_gbp ==
+                Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_T)) {
+                continue;  // GB8 (LVT | T) x T
+        }
+
+        if (right_gbp ==
+                Formatter_UnicodeData::GraphemeBreakCategory::e_EXTEND ||
+            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::
+                             e_ZERO_WIDTH_JOINER) {
+                continue;  // GB9 x (Extend | ZWJ)
+        }
+
+        if (right_gbp ==
+            Formatter_UnicodeData::GraphemeBreakCategory::e_SPACING_MARK) {
+                continue;  // GB9a x SpacingMark
+        }
+
+        if (left_gbp ==
+            Formatter_UnicodeData::GraphemeBreakCategory::e_PREPEND) {
+                continue;  // GB9b Prepend x
+        }
+
+        if (is_GB11_Match && right_epv) {
+                // GB11 \p{ExtendedPictographic} Extend* ZWJ x
+                // \p{ExtendedPictographic}
+                continue;
+        }
+
+        if (left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::
+                            e_REGIONAL_INDICATOR &&
+            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::
+                             e_REGIONAL_INDICATOR &&
+            num_RIs % 2 != 0) {
+                // GB12 and 13, do not break between RIs if there are an odd
+                // number of RIs before the breakpoint
+                continue;
+        }
+
+        // No rule will cause `right` to extend the cluster, so return what we
+        // have.
+        return result;                                                // RETURN
+    }
+}
+
 
 }  // close namespace bslfmt
 }  // close enterprise namespace

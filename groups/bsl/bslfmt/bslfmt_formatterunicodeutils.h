@@ -34,13 +34,32 @@ namespace bslfmt {
 struct Formatter_UnicodeUtils {
   public:
     // PUBLIC TYPES
+
+    enum UtfEncoding {
+        e_UTF8,
+        e_UTF16,
+        e_UTF32
+    };
+
     struct CodePointExtractionResult {
       public:
         // PUBLIC TYPES
         bool              isValid;
         int               numSourceBytes;
-        int               sourceEncoding;
+        UtfEncoding       sourceEncoding;
         unsigned long int codePointValue;
+        int               codePointWidth;
+    };
+
+    struct GraphemeClusterExtractionResult {
+      public:
+        // PUBLIC TYPES
+        bool              isValid;
+        int               numSourceBytes;
+        int               numCodePoints;
+        UtfEncoding       sourceEncoding;
+        unsigned long int firstCodePointValue;
+        int               firstCodePointWidth;
     };
 
     // CLASS METHODS
@@ -52,7 +71,8 @@ struct Formatter_UnicodeUtils {
     /// `CodePointExtractionResult` providing a decode status and, if the
     /// decode is valid, a count of the source bytes used and the decoded
     /// Unicode code point value. Byte Order Markers are not supported.
-    static CodePointExtractionResult extractUtf8(void *bytes, int maxBytes);
+    static CodePointExtractionResult extractUtf8(const void *bytes,
+                                                 int         maxBytes);
 
     /// Extract a UTF-16 code point from no more than the specified `maxBytes`
     /// of the byte stream at the specified `bytes` location. Return a
@@ -63,7 +83,8 @@ struct Formatter_UnicodeUtils {
     /// memory. Behaviour is undefined if `16 != sizeof(wchar_t)`. Endianness
     /// is assumed to be the same as for the `wchar_t` type and Byte Order
     /// Markers are not supported.
-    static CodePointExtractionResult extractUtf16(void *bytes, int maxBytes);
+    static CodePointExtractionResult extractUtf16(const void *bytes,
+                                                  int         maxBytes);
 
     /// Extract a UTF-32 code point from no more than the specified `maxBytes`
     /// of the byte stream at the specified `bytes` location. Return a
@@ -74,7 +95,41 @@ struct Formatter_UnicodeUtils {
     /// memory. Behaviour is undefined if `32 != sizeof(wchar_t)`. Endianness
     /// is assumed to be the same as for the `wchar_t` type and Byte Order
     /// Markers are not supported.
-    static CodePointExtractionResult extractUtf32(void *bytes, int maxBytes);
+    static CodePointExtractionResult extractUtf32(const void *bytes,
+                                                  int         maxBytes);
+
+    /// Extract a code point from no more than the specified `maxBytes` of the
+    /// byte stream at the specified `bytes` location in the specified
+    /// `encoding`. Return a `CodePointExtractionResult` providing a decode
+    /// status and, if the decode is valid, a count of the source bytes used
+    /// and the decoded Unicode code point value. Behavior is undefined if the
+    /// input bytes are not in the specified encoding. Unicode Byte Order
+    /// Markers are not supported and behavior is undefined if the input data
+    /// contains an embedded BOM. Endianness is assumed to be that of the type
+    /// pointed to by `bytes`.
+    ///
+    /// For UTF-8, behavior is undefined if `bytes` is not a valid pointer to
+    /// an array of `numBytes` `unsigned char` types in contiguous memory.
+    ///
+    /// For UTF-16, behavior is undefined if `bytes` is not a valid pointer to
+    /// an array of `numBytes/2` `wchar_t` types in contiguous memory.
+    /// Behaviour is undefined if `2 != sizeof(wchar_t)`. Endianness is assumed
+    /// to be the same as for the `wchar_t` type and Byte Order Markers are not
+    /// supported.
+    ///
+    /// For UTF-32, behavior is undefined if `bytes` is not a valid pointer to
+    /// an array of `numBytes/4` `wchar_t` types in contiguous memory.
+    /// Behaviour is undefined if `4 != sizeof(wchar_t)`. Endianness is assumed
+    /// to be the same as for the `wchar_t` type and Byte Order Markers are not
+    /// supported.
+    static CodePointExtractionResult extractCodePoint(UtfEncoding  encoding,
+                                                      const void  *bytes,
+                                                      int          maxBytes);
+
+    static GraphemeClusterExtractionResult extractGraphemeCluster(
+                                                        UtfEncoding  encoding,
+                                                        const void  *bytes,
+                                                        int          maxBytes);
 };
 
 template <class t_CHAR>
