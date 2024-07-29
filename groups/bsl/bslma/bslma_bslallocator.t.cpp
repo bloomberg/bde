@@ -463,7 +463,9 @@ struct HasOperatorAmpersand {
             }
 
             // Deallocate old storage
-            Traits::deallocate(d_allocator, d_array, d_length);
+            if (d_array) {
+                Traits::deallocate(d_allocator, d_array, d_length);
+            }
 
             // Set length and allocate new array.  Do not assign the allocator!
             d_length = rhs.d_length;
