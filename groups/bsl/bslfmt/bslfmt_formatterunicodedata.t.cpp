@@ -9,7 +9,7 @@
 #include <string.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using namespace bslfmt;
 
 
 // ============================================================================
@@ -91,7 +91,17 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-        ASSERT(true);  // placeholder
+
+        ASSERT(Formatter_UnicodeData::s_graphemeBreakCategoryRangeCount ==
+               1371);
+        ASSERT(Formatter_UnicodeData::s_extendedPictographicRangeCount ==
+                 78);
+        ASSERT(Formatter_UnicodeData::s_printableRangeCount ==
+                712);
+        ASSERT(Formatter_UnicodeData::s_graphemeExtendRangeCount ==
+                363);
+        ASSERT(Formatter_UnicodeData::s_doubleFieldWidthRangeCount ==
+                100);
 
         //unsigned char bytes[4];
         //bytes[0] = (unsigned char)0xff;

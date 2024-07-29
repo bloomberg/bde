@@ -81,8 +81,8 @@ bool isSurrogateValue(unsigned int value)
     // Return 'true' if the specified 'value' is a surrogate value, and 'false'
     // otherwise.
 {
-    // Mask is      1111 1111 1111 1111 1111 1000 0000 0000 Test against                     1101
-    // 1000 0000 0000
+    // Mask is      1111 1111 1111 1111 1111 1000 0000 0000
+    // Test against                     1101 1000 0000 0000
     return (k_UTF16_SURROGATE_MASK_TESTBOTH & value) ==
            k_UTF16_HIGH_SURROGATE_START;
 }
@@ -92,8 +92,8 @@ bool isHighSurrogateValue(unsigned int value)
     // Return 'true' if the specified 'value' is a high surrogate value, and
     // 'false' otherwise.
 {
-    // Mask is      1111 1111 1111 1111 1111 1100 0000 0000 Test against                     1101
-    // 1000 0000 0000
+    // Mask is      1111 1111 1111 1111 1111 1100 0000 0000
+    // Test against                     1101 1000 0000 0000
     return (k_UTF16_SURROGATE_MASK_TESTONE & value) ==
            k_UTF16_HIGH_SURROGATE_START;
 }
@@ -103,8 +103,8 @@ bool isLowSurrogateValue(unsigned int value)
     // Return 'true' if the specified 'value' is a high surrogate value, and
     // 'false' otherwise.
 {
-    // Mask is      1111 1111 1111 1111 1111 1100 0000 0000 Test against                     1101
-    // 1100 0000 0000
+    // Mask is      1111 1111 1111 1111 1111 1100 0000 0000
+    // Test against                     1101 1100 0000 0000
     return (k_UTF16_SURROGATE_MASK_TESTONE & value) ==
            k_UTF16_LOW_SURROGATE_START;
 }
@@ -200,10 +200,10 @@ bool isByteOrderMarker(const void *bytes, int maxBytes)
 //}
 
 template <class e_RANGE_TYPE>
-struct Formatter_UnicodeData_StartCompare {
+struct Formatter_UnicodeData_EndCompare {
     bool operator()(const e_RANGE_TYPE& range, const unsigned long int value)
     {
-        return range.d_start < value;
+        return range.d_end < value;
     }
 };
 
@@ -216,7 +216,7 @@ getGraphemeBreakCategory(unsigned long int codepoint)
               bslfmt::Formatter_UnicodeData::s_graphemeBreakCategoryRanges +
               bslfmt::Formatter_UnicodeData::s_graphemeBreakCategoryRangeCount;
 
-    Formatter_UnicodeData_StartCompare<
+    Formatter_UnicodeData_EndCompare<
         bslfmt::Formatter_UnicodeData::GraphemeBreakCategoryRange>
         comparator;
 
@@ -225,6 +225,9 @@ getGraphemeBreakCategory(unsigned long int codepoint)
 
     // Below the first element in the array.
     if (found == last)
+        return bslfmt::Formatter_UnicodeData::e_UNASSIGNED;           // RETURN
+
+    if (found->d_start > codepoint)
         return bslfmt::Formatter_UnicodeData::e_UNASSIGNED;           // RETURN
 
     if (found->d_end < codepoint)
@@ -241,7 +244,7 @@ bool getExtendedPictogramValue(unsigned long int codepoint)
               bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges +
               bslfmt::Formatter_UnicodeData::s_extendedPictographicRangeCount;
 
-    Formatter_UnicodeData_StartCompare<
+    Formatter_UnicodeData_EndCompare<
         bslfmt::Formatter_UnicodeData::BooleanRange>
         comparator;
 
@@ -250,6 +253,9 @@ bool getExtendedPictogramValue(unsigned long int codepoint)
 
     // Below the first element in the array.
     if (found == last)
+        return false;                                                 // RETURN
+
+    if (found->d_start > codepoint)
         return false;                                                 // RETURN
 
     if (found->d_end < codepoint)
@@ -266,7 +272,7 @@ int getCodepointWidth(unsigned long int codepoint)
                bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges +
                    bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRangeCount;
 
-    Formatter_UnicodeData_StartCompare<
+    Formatter_UnicodeData_EndCompare<
         bslfmt::Formatter_UnicodeData::BooleanRange>
         comparator;
 
@@ -275,6 +281,9 @@ int getCodepointWidth(unsigned long int codepoint)
 
     // Below the first element in the array.
     if (found == last)
+        return 1;                                                 // RETURN
+
+    if (found->d_start > codepoint)
         return 1;                                                 // RETURN
 
     if (found->d_end < codepoint)
@@ -368,6 +377,7 @@ Formatter_UnicodeUtils::extractUtf8(const void *bytes, int maxBytes)
             result.numSourceBytes = 1;
             result.isValid        = true;
             result.sourceEncoding = e_UTF8;
+            result.codePointWidth = 1; // simple ascii value.
         } break;
         case 0x8: BSLA_FALLTHROUGH;
         case 0x9: BSLA_FALLTHROUGH;

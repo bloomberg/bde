@@ -9,7 +9,7 @@
 #include <string.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using namespace bslfmt;
 
 
 // ============================================================================
@@ -99,16 +99,128 @@ int main(int argc, char **argv)
         bytes[2] = (unsigned char)0x00;
         bytes[2] = (unsigned char)0x00;
 
-        BloombergLP::bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
-            result =
-                BloombergLP::bslfmt::Formatter_UnicodeUtils::extractCodePoint(
-                    sizeof(wchar_t) == 2
-                        ? BloombergLP::bslfmt::Formatter_UnicodeUtils::e_UTF16
-                        : BloombergLP::bslfmt::Formatter_UnicodeUtils::e_UTF32,
-                    bytes,
-                    2);
+        Formatter_UnicodeUtils::CodePointExtractionResult cpresult =
+                                      Formatter_UnicodeUtils::extractCodePoint(
+                                          Formatter_UnicodeUtils::e_UTF8,
+                                          bytes,
+                                          4);
 
-        (void) result;
+        ASSERT(!cpresult.isValid);
+
+        cpresult = Formatter_UnicodeUtils::extractCodePoint(
+                        sizeof(wchar_t) == 2 ? Formatter_UnicodeUtils::e_UTF16
+                                             : Formatter_UnicodeUtils::e_UTF32,
+                        bytes,
+                        4);
+
+        ASSERT(!cpresult.isValid);
+
+        const char *fmt1 = (const char *) u8"\U0001F600";
+        int len1 = (int) strlen(fmt1);
+
+        cpresult = Formatter_UnicodeUtils::extractCodePoint(
+                                                Formatter_UnicodeUtils::e_UTF8,
+                                                (const void *)fmt1,
+                                                len1);
+
+        ASSERT(cpresult.codePointValue == 0x1f600);
+        ASSERT(cpresult.codePointWidth == 2);
+        ASSERT(cpresult.isValid == true);
+        ASSERT(cpresult.numSourceBytes == 4);
+        ASSERT(cpresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF8);
+
+        if (sizeof(wchar_t) == 2) {
+            const wchar_t *fmt2 = (const wchar_t *)u"\U0001F600";
+            int         len2 = (int) wcslen(fmt2);
+
+            cpresult = Formatter_UnicodeUtils::extractCodePoint(
+                                                Formatter_UnicodeUtils::e_UTF16,
+                                                (const void *)fmt2,
+                                                len2 * sizeof(wchar_t));
+            
+            ASSERT(cpresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF16);
+            ASSERT(cpresult.numSourceBytes == 4);
+        }
+        else {
+            const wchar_t *fmt2 = (const wchar_t *)U"\U0001F600";
+            int         len2 = (int) wcslen(fmt2);
+
+            cpresult = Formatter_UnicodeUtils::extractCodePoint(
+                                                Formatter_UnicodeUtils::e_UTF32,
+                                                (const void *)fmt2,
+                                                len2 * sizeof(wchar_t));
+
+            ASSERT(cpresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF32);
+            ASSERT(cpresult.numSourceBytes == 4);
+        }
+
+        ASSERT(cpresult.codePointValue == 0x1f600);
+        ASSERT(cpresult.codePointWidth == 2);
+        ASSERT(cpresult.isValid == true);
+
+        const char *fmt3 = (const char *) u8"\U00000067\U00000308";
+        int len3 = (int) strlen(fmt3);
+
+        Formatter_UnicodeUtils::GraphemeClusterExtractionResult
+        gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
+                                                Formatter_UnicodeUtils::e_UTF8,
+                                                (const void *)fmt3,
+                                                len3);
+
+        ASSERT(gcresult.firstCodePointValue == 0x67);
+        ASSERT(gcresult.firstCodePointWidth == 1);
+        ASSERT(gcresult.isValid == true);
+        ASSERT(gcresult.numCodePoints == 2);
+        ASSERT(gcresult.numSourceBytes == 3);
+        ASSERT(gcresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF8);
+
+        const char *fmt4 = (const char *) u8"\U0001F408\U0000200D\U0001F7E7hello";
+        int len4 = (int) strlen(fmt4);
+
+        gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
+                                                Formatter_UnicodeUtils::e_UTF8,
+                                                (const void *)fmt4,
+                                                len4);
+
+        ASSERT(gcresult.firstCodePointValue == 0x1f408);
+        ASSERT(gcresult.firstCodePointWidth == 2);
+        ASSERT(gcresult.isValid == true);
+        ASSERT(gcresult.numCodePoints == 3);
+        ASSERT(gcresult.numSourceBytes == 11);
+        ASSERT(gcresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF8);
+
+        if (sizeof(wchar_t) == 2) {
+            const wchar_t *fmt5 = (const wchar_t *)
+                u"\U0001F407\U0000200D\U0001F7E7hello";
+            int         len5 = (int) wcslen(fmt5);
+
+            gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
+                                                Formatter_UnicodeUtils::e_UTF16,
+                                                (const void *)fmt5,
+                                                len5 * sizeof(wchar_t));
+            
+            ASSERT(gcresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF16);
+            ASSERT(gcresult.numSourceBytes == 12);
+        }
+        else {
+            const wchar_t *fmt5 = (const wchar_t *)
+                U"\U0001F407\U0000200D\U0001F7E7hello";
+            int         len5 = (int) wcslen(fmt5);
+
+            gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
+                                                Formatter_UnicodeUtils::e_UTF32,
+                                                (const void *)fmt5,
+                                                len5 * sizeof(wchar_t));
+
+            ASSERT(gcresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF32);
+            ASSERT(gcresult.numSourceBytes == 12);
+        }
+
+        ASSERT(gcresult.firstCodePointValue == 0x1f407);
+        ASSERT(gcresult.firstCodePointWidth == 2);
+        ASSERT(gcresult.isValid == true);
+        ASSERT(gcresult.numCodePoints == 3);
+        ASSERT(gcresult.numSourceBytes == 12);
 
       } break;
       default: {
