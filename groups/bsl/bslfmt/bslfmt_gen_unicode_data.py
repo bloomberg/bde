@@ -16,6 +16,7 @@
 
 import re
 import os
+import sys
 
 from io import StringIO
 from pathlib import Path
@@ -229,7 +230,7 @@ def generate_cpp_data(filename: str,
                       prop_name: str,
                       var_name: str,
                       ranges: list[PropertyRange]) -> str:
-    result = StringIO()
+    result = StringIO(newline='\n')
     prop_values = sorted(set(x.prop for x in ranges))
     is_binary_property = len(prop_values) == 1
     result.write("\n")
@@ -250,17 +251,16 @@ def generate_cpp_data(filename: str,
                     prop_name=prop_name,
                     var_name=var_name,
                     values=",\n        ".join(
-                        ["{{{:#8x},{:#8x}, GraphemeBreakCategory::{:s}}}".
-                                                                  format(x.lower,
-                                                                         x.upper,
-                                                                         TYPE_MAP[x.prop])
+                        ["{{{:#8x},{:#8x}, {:s}}}".format(x.lower,
+                                                          x.upper,
+                                                          TYPE_MAP[x.prop])
                              for x in sorted_ranges])))
     return result.getvalue()
 
 def generate_cpp_count(prop_name: str,
                        source_name: str,
                        var_name: str) -> str:
-    result = StringIO()
+    result = StringIO(newline='\n')
     result.write("\n")
     result.write(COUNT_TEMPLATE.lstrip().format(
                 prop_name=prop_name,
@@ -405,7 +405,10 @@ def generate_data_tables() -> str:
 
 
 if __name__ == "__main__":
-    print(OUTER_TEMPLATE.lstrip().format(content=generate_data_tables()))
+    str_data = OUTER_TEMPLATE.lstrip().format(content=generate_data_tables())
+    byte_data = str_data.replace('\r\n', '\n').encode(encoding='ascii')
+    os.write(sys.stdout.fileno(), byte_data)
+
 
 # -----------------------------------------------------------------------------
 #  Adapted for bde use from Microsoft MSVC library code, 2024
