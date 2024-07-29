@@ -99,8 +99,16 @@ int main(int argc, char **argv)
         bytes[2] = (unsigned char)0x00;
         bytes[2] = (unsigned char)0x00;
 
-        auto result =
-            BloombergLP::bslfmt::Formatter_UnicodeUtils::extractUtf16(bytes, 2);
+        BloombergLP::bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
+            result =
+                BloombergLP::bslfmt::Formatter_UnicodeUtils::extractCodePoint(
+                    sizeof(wchar_t) == 2
+                        ? BloombergLP::bslfmt::Formatter_UnicodeUtils::e_UTF16
+                        : BloombergLP::bslfmt::Formatter_UnicodeUtils::e_UTF32,
+                    bytes,
+                    2);
+
+        (void) result;
 
       } break;
       default: {

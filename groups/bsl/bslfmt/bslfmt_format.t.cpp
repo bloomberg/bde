@@ -378,11 +378,15 @@ int main(int argc, char **argv)
             const std::string v1("Test 1");
             const bsl::string v2("Test 2");
 
-            //const char8_t *fmt = u8"{:\U0001F600<6}";
-            const char8_t *fmt = u8"{:\U0000006e\U00000303<6}";
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+            const char8_t *fmt = u8"{:\U0001F600<6}";
+            //const char8_t *fmt = u8"{:\U0000006e\U00000303<6}";
 
             std::string rv1 = std::vformat((const char *)fmt,
                                             std::make_format_args(1));
+            std::string rv2 = std::vformat("{:\U0001F600<6}",
+                                std::make_format_args(1));
+#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             const std::string_view v3("Test 3");

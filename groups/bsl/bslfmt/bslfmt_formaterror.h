@@ -74,12 +74,14 @@ namespace bslfmt {
                              // class format_error
                              // ------------------
 
-    // CREATORS
+// CREATORS
+inline
 format_error::format_error(const std::string& what_arg)
 : runtime_error(what_arg)
 {
 }
 
+inline
 format_error::format_error(const char *what_arg)
 : runtime_error(what_arg)
 {
@@ -89,11 +91,13 @@ format_error::format_error(const char *what_arg)
 // occur (one to initialize 'what_arg', and one to initialize the internal
 // reference-counted string).  This constructor ensures that only a single copy
 // needs to be performed.
+inline
 format_error::format_error(const bsl::string& what_arg)
 : runtime_error(what_arg.c_str())
 {
 }
 
+inline
 format_error::format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT
 : runtime_error(other)
 {

@@ -286,21 +286,24 @@ int getCodepointWidth(unsigned long int codepoint)
 class Formatter_UnicodeData_StartCompare_GB11_LH_Regex {
   private:
     // PRIVATE TYPES
-    enum State : bool { e_START, e_EXT_PIC };
+    enum State { e_START, e_EXT_PIC };
 
     // DATA
-    State d_state = e_START;
+    State d_state;
 
     // NOT IMPLEMENTED
-    bool operator==(
-       const Formatter_UnicodeData_StartCompare_GB11_LH_Regex&)  = delete;
+    bool operator==(const Formatter_UnicodeData_StartCompare_GB11_LH_Regex&)
+        BSLS_KEYWORD_DELETED;
 
   public:
+    // CREATORS
+
+    Formatter_UnicodeData_StartCompare_GB11_LH_Regex();
 
     // MANIPULATORS
     bool
     match(const bslfmt::Formatter_UnicodeData::GraphemeBreakCategory left_gbp,
-          bool left_ExtPic) noexcept
+          bool left_ExtPic)
     {
         switch (d_state) {
           case e_START:
@@ -310,12 +313,12 @@ class Formatter_UnicodeData_StartCompare_GB11_LH_Regex {
             return false;
           case e_EXT_PIC:
             if (left_gbp == bslfmt::Formatter_UnicodeData::
-                                GraphemeBreakCategory::e_ZERO_WIDTH_JOINER) {
+                                e_ZERO_WIDTH_JOINER) {
                 d_state = e_START;
                 return true;
             }
             else if (left_gbp != bslfmt::Formatter_UnicodeData::
-                                     GraphemeBreakCategory::e_EXTEND) {
+                                     e_EXTEND) {
                 d_state = e_START;
                 return false;
             }
@@ -326,6 +329,12 @@ class Formatter_UnicodeData_StartCompare_GB11_LH_Regex {
         }
     }
 };
+
+Formatter_UnicodeData_StartCompare_GB11_LH_Regex::
+    Formatter_UnicodeData_StartCompare_GB11_LH_Regex()
+: d_state(e_START)
+{
+}
 
 }  // close unnamed namespace
 
@@ -507,7 +516,7 @@ Formatter_UnicodeUtils::extractUtf16(const void *bytes, int maxBytes)
 
     const wchar_t *start = static_cast<const wchar_t *>(bytes);
 
-    const unsigned int first = static_cast<const unsigned int>(*start);
+    const unsigned int first = static_cast<unsigned int>(*start);
 
     if (UNLIKELY(isLowSurrogateValue(first))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -535,7 +544,7 @@ Formatter_UnicodeUtils::extractUtf16(const void *bytes, int maxBytes)
         return result;                                                // RETURN
     }
 
-    const unsigned int second = static_cast<const unsigned int>(*(start+1));
+    const unsigned int second = static_cast<unsigned int>(*(start+1));
 
     if (UNLIKELY(!isLowSurrogateValue(second))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -587,7 +596,7 @@ Formatter_UnicodeUtils::extractUtf32(const void *bytes, int maxBytes)
 
     const wchar_t *start = static_cast<const wchar_t *>(bytes);
 
-    const unsigned int value = static_cast<const unsigned int>(*start);
+    const unsigned int value = static_cast<unsigned int>(*start);
 
     if (UNLIKELY(isSurrogateValue(value))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -665,7 +674,7 @@ Formatter_UnicodeUtils::extractGraphemeCluster(UtfEncoding  encoding,
     bool left_epv = getExtendedPictogramValue(codepoint.codePointValue);
 
     Formatter_UnicodeData::GraphemeBreakCategory right_gbp =
-                    Formatter_UnicodeData::GraphemeBreakCategory::e_UNASSIGNED;
+                    Formatter_UnicodeData::e_UNASSIGNED;
     bool right_epv = false;
 
     size_t num_RIs   = 0;
@@ -704,82 +713,80 @@ Formatter_UnicodeUtils::extractGraphemeCluster(UtfEncoding  encoding,
         // not just ones where the GB11 rule is considered
         const bool is_GB11_Match = gb11_matcher.match(left_gbp, left_epv);
         // Also update the number of sequential RIs immediately
-        if (left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::
-                            e_REGIONAL_INDICATOR) {
+        if (left_gbp == Formatter_UnicodeData::e_REGIONAL_INDICATOR) {
                 ++num_RIs;
         }
         else {
                 num_RIs = 0;
         }
 
-        if (left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_CR &&
-            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_LF) {
+        if (left_gbp == Formatter_UnicodeData::e_CR &&
+            right_gbp == Formatter_UnicodeData::e_LF) {
                 continue;  // GB3 CR x LF
         }
 
         if (left_gbp ==
-                Formatter_UnicodeData::GraphemeBreakCategory::e_CONTROL ||
-            left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_CR ||
-            left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_LF) {
+                Formatter_UnicodeData::e_CONTROL ||
+            left_gbp == Formatter_UnicodeData::e_CR ||
+            left_gbp == Formatter_UnicodeData::e_LF) {
                 // GB4 (Control | CR | LF) % Any
                 return result;                                        // RETURN
         }
 
         if (right_gbp ==
-                Formatter_UnicodeData::GraphemeBreakCategory::e_CONTROL ||
-            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_CR ||
-            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::e_LF) {
+                Formatter_UnicodeData::e_CONTROL ||
+            right_gbp == Formatter_UnicodeData::e_CR ||
+            right_gbp == Formatter_UnicodeData::e_LF) {
                 // GB5 Any % (Control | CR | LF)
                 return result;                                        // RETURN
         }
 
         if ((left_gbp ==
-                Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_L) &&
+                Formatter_UnicodeData::e_HANGUL_L) &&
             (right_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_L ||
+                 Formatter_UnicodeData::e_HANGUL_L ||
              right_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_V ||
+                 Formatter_UnicodeData::e_HANGUL_V ||
              right_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_LV ||
+                 Formatter_UnicodeData::e_HANGUL_LV ||
              right_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_LVT)) {
+                 Formatter_UnicodeData::e_HANGUL_LVT)) {
                 continue;  // GB6 L x (L | V | LV | LVT)
         }
 
         if ((left_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_LV ||
+                 Formatter_UnicodeData::e_HANGUL_LV ||
              left_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_V) &&
+                 Formatter_UnicodeData::e_HANGUL_V) &&
             (right_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_V ||
+                 Formatter_UnicodeData::e_HANGUL_V ||
              right_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_T)) {
+                 Formatter_UnicodeData::e_HANGUL_T)) {
                 continue;  // GB7 (LV | V) x (V | T)
         }
 
         if ((left_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_LVT ||
+                 Formatter_UnicodeData::e_HANGUL_LVT ||
              left_gbp ==
-                 Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_T) &&
+                 Formatter_UnicodeData::e_HANGUL_T) &&
             (right_gbp ==
-                Formatter_UnicodeData::GraphemeBreakCategory::e_HANGUL_T)) {
+                Formatter_UnicodeData::e_HANGUL_T)) {
                 continue;  // GB8 (LVT | T) x T
         }
 
         if (right_gbp ==
-                Formatter_UnicodeData::GraphemeBreakCategory::e_EXTEND ||
-            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::
-                             e_ZERO_WIDTH_JOINER) {
+                Formatter_UnicodeData::e_EXTEND ||
+            right_gbp == Formatter_UnicodeData::e_ZERO_WIDTH_JOINER) {
                 continue;  // GB9 x (Extend | ZWJ)
         }
 
         if (right_gbp ==
-            Formatter_UnicodeData::GraphemeBreakCategory::e_SPACING_MARK) {
+            Formatter_UnicodeData::e_SPACING_MARK) {
                 continue;  // GB9a x SpacingMark
         }
 
         if (left_gbp ==
-            Formatter_UnicodeData::GraphemeBreakCategory::e_PREPEND) {
+            Formatter_UnicodeData::e_PREPEND) {
                 continue;  // GB9b Prepend x
         }
 
@@ -789,10 +796,8 @@ Formatter_UnicodeUtils::extractGraphemeCluster(UtfEncoding  encoding,
                 continue;
         }
 
-        if (left_gbp == Formatter_UnicodeData::GraphemeBreakCategory::
-                            e_REGIONAL_INDICATOR &&
-            right_gbp == Formatter_UnicodeData::GraphemeBreakCategory::
-                             e_REGIONAL_INDICATOR &&
+        if (left_gbp == Formatter_UnicodeData::e_REGIONAL_INDICATOR &&
+            right_gbp == Formatter_UnicodeData::e_REGIONAL_INDICATOR &&
             num_RIs % 2 != 0) {
                 // GB12 and 13, do not break between RIs if there are an odd
                 // number of RIs before the breakpoint
