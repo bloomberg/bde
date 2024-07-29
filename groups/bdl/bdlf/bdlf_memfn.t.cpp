@@ -387,6 +387,8 @@ struct ConstructibleFromPointerToSelf {
 struct NotBitwiseMoveable {
     int d_data;
 
+    virtual ~NotBitwiseMoveable() {}
+
     virtual bool memberFunction() const
     {
         return !d_data;

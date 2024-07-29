@@ -1556,12 +1556,6 @@ enum {
     #define U8_10fffe "\xf7\xbf\xbf\xbe"
     #define U8_10ffff "\xf7\xbf\xbf\xbf"
 
-// We will try all combinations of the 'PRECOMPUTED_DATA' code points up to
-// 'exhaustiveSearchDepth' in length.
-
-const int exhaustiveSearchDepth = 4; // 5 works fine on AIX, but our Sun boxes
-                                     // are slower
-
 // Precomputed conversions for state space enumeration.  These will be
 // enumerated by 'buildUpAndTestStringsU8ToU2' and
 // 'buildUpAndTestStringsU2ToU8'.
@@ -10161,10 +10155,12 @@ int main(int argc, char**argv)
                           } break;
                           case 'b': {
                             // Two-byte code point:
-                            *genp++ = static_cast<unsigned short>(
-                                                      0xc0 | twoHdr);
-                            *genp++ = static_cast<unsigned short>(
-                                                      0x80 | twoContin);
+                            *genp++ = static_cast<char>(
+                                      static_cast<unsigned short>(
+                                                      0xc0 | twoHdr));
+                            *genp++ = static_cast<char>(
+                                      static_cast<unsigned short>(
+                                                      0x80 | twoContin));
                             *imgp++ = static_cast<unsigned short>(
                                                       twoHdr << 6 | twoContin);
 
@@ -10174,12 +10170,15 @@ int main(int argc, char**argv)
                           case 'c': {
 
                             // Three-byte code point:
-                            *genp++ = static_cast<unsigned short>(
-                                                          0xe0 | threeHdr);
-                            *genp++ = static_cast<unsigned short>(
-                                                          0x80 | threeContin1);
-                            *genp++ = static_cast<unsigned short>(
-                                                          0x80 | threeContin2);
+                            *genp++ = static_cast<char>(
+                                      static_cast<unsigned short>(
+                                                         0xe0 | threeHdr));
+                            *genp++ = static_cast<char>(
+                                      static_cast<unsigned short>(
+                                                         0x80 | threeContin1));
+                            *genp++ = static_cast<char>(
+                                      static_cast<unsigned short>(
+                                                         0x80 | threeContin2));
                             *imgp++ = static_cast<unsigned short>(
                                             threeHdr << 12 | threeContin1 << 6
                                                                | threeContin2);

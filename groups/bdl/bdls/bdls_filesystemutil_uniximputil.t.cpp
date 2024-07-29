@@ -24,6 +24,12 @@
 #include <windows.h>
 #endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
+#endif
+
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 #include <bslmt_threadgroup.h>
 
 #include <bsls_atomic.h>
+#include <bsls_platform.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
@@ -38,6 +39,12 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wnull-pointer-subtraction"
+#endif
+#endif
 
 // ============================================================================
 //                             TEST PLAN

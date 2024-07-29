@@ -1,4 +1,13 @@
 // bdlcc_skiplist.t.cpp                                               -*-C++-*-
+
+#include <bsls_platform.h>
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wordered-compare-function-pointers"
+#endif
+#endif
+
 #include <bdlcc_skiplist.h>
 
 #include <bdlb_bitutil.h>
@@ -37,7 +46,6 @@
 #include <bsls_atomic.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>

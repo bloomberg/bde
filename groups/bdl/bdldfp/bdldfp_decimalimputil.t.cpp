@@ -8,6 +8,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
@@ -27,6 +28,12 @@ using bsl::cerr;
 using bsl::flush;
 using bsl::endl;
 using bsl::atoi;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
+#endif
 
 // ============================================================================
 //                                 TEST PLAN
