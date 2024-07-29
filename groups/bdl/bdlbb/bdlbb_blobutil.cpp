@@ -39,11 +39,14 @@ void copyFromPlace(char                *dstBuffer,
     int copied = 0;
     do {
         const bdlbb::BlobBuffer& buf = srcBlob.buffer(place.first);
-        int toCopy = bsl::min(length - copied, buf.size() - place.second);
-        bsl::memcpy(dstBuffer + copied, buf.data() + place.second, toCopy);
-        copied += toCopy;
+
+        if (0 != buf.size()) {
+            int toCopy = bsl::min(length - copied, buf.size() - place.second);
+            bsl::memcpy(dstBuffer + copied, buf.data() + place.second, toCopy);
+            copied += toCopy;
+            place.second = 0;
+        }
         ++place.first;
-        place.second = 0;
     } while (copied < length);
 }
 
@@ -214,11 +217,15 @@ void BlobUtil::append(Blob *dest, int length, char fill)
         {
             const BlobBuffer& buffer = dest->buffer(bufIdx++);
 
-            const int numBytesToFill = bsl::min(buffer.size() - writePosition,
-                                                numBytesLeft);
+            if (0 != buffer.size()) {
+                const int numBytesToFill =
+                         bsl::min(buffer.size() - writePosition, numBytesLeft);
 
-            bsl::memset(buffer.data() + writePosition, fill, numBytesToFill);
-            numBytesLeft -= numBytesToFill;
+                bsl::memset(buffer.data() + writePosition,
+                            fill,
+                            numBytesToFill);
+                numBytesLeft -= numBytesToFill;
+            }
         }
     }
 
@@ -227,10 +234,11 @@ void BlobUtil::append(Blob *dest, int length, char fill)
     while (0 < numBytesLeft) {
         const BlobBuffer& buffer = dest->buffer(bufIdx++);
 
-        const int numBytesToFill = bsl::min(buffer.size(), numBytesLeft);
-
-        bsl::memset(buffer.data(), fill, numBytesToFill);
-        numBytesLeft -= numBytesToFill;
+        if (0 != buffer.size()) {
+            const int numBytesToFill = bsl::min(buffer.size(), numBytesLeft);
+            bsl::memset(buffer.data(), fill, numBytesToFill);
+            numBytesLeft -= numBytesToFill;
+        }
     }
 }
 

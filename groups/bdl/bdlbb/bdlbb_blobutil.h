@@ -483,6 +483,12 @@ void BlobUtil::append(Blob *dest, const char *source, int length)
 {
     BSLS_ASSERT(0 != dest);
     BSLS_ASSERT(0 != source || 0 == length);
+    BSLS_ASSERT(0 <= length);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == length)) {
+        // There is no need to add even a single byte.
+        return;                                                       // RETURN
+    }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(dest->numDataBuffers())) {
         const int         lastDataBufIdx = dest->numDataBuffers() - 1;
