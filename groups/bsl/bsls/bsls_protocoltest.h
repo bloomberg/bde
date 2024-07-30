@@ -795,6 +795,15 @@ class ProtocolTest {
         }                                                                     \
     } while (0)
 
+#define BSLS_PROTOCOLTEST_RV_ASSERT(test, methodCall, returnValue)            \
+    do {                                                                      \
+        returnValue = test.method(                                            \
+                "inside BSLS_PROTOCOLTEST_ASSERT("#methodCall")")->methodCall;\
+        if (!test.lastStatus()) {                                             \
+            ASSERT(0 && "Not a virtual method: "#methodCall);                 \
+        }                                                                     \
+    } while (0)
+
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================

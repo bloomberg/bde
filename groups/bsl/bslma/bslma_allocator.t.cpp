@@ -1092,7 +1092,7 @@ int main(int argc, char *argv[])
 
         // Test 'bslma::Allocator' protocol.  Note that the base-class
         // 'allocate' and 'deallocate' non-virtual functions are hidden.
-        BSLS_PROTOCOLTEST_ASSERT(testObj, allocate(2));
+        BSLS_PROTOCOLTEST_RV_ASSERT(testObj, allocate(2), p);
         BSLS_PROTOCOLTEST_ASSERT(testObj, deallocate(p));
 
         // Test 'bsl::memory_resource' base-class protocol via pass-through
@@ -1100,7 +1100,7 @@ int main(int argc, char *argv[])
         // hidden within 'bslma::Allocator' and must be qualified in the method
         // call.
         typedef bsl::memory_resource Base;
-        BSLS_PROTOCOLTEST_ASSERT(testObj, Base::allocate(2, 1));
+        BSLS_PROTOCOLTEST_RV_ASSERT(testObj, Base::allocate(2, 1), p);
         BSLS_PROTOCOLTEST_ASSERT(testObj, Base::deallocate(p, 2, 1));
         BSLS_PROTOCOLTEST_ASSERT(testObj, is_equal(other));
 
@@ -1120,7 +1120,7 @@ int main(int argc, char *argv[])
         // hidden within 'bslma::Allocator' and must be qualified in the method
         // call.
         typedef bsl::memory_resource Base;
-        BSLS_PROTOCOLTEST_ASSERT(testIndirect, Base::allocate(2, 1));
+        BSLS_PROTOCOLTEST_RV_ASSERT(testIndirect, Base::allocate(2, 1), p);
         BSLS_PROTOCOLTEST_ASSERT(testIndirect, Base::deallocate(p, 2, 1));
         // The default implementation of 'do_is_equal' cannot be tested because
         // it does call a virtual function that we can intercept.
