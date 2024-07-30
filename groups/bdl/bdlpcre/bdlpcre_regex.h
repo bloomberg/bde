@@ -389,14 +389,26 @@ BSLS_IDENT("$Id$ $CSID$")
 // Next we call 'match' supplying 'message' and its length.  The 'matchVector'
 // will be populated with (offset, length) pairs describing substrings in
 // 'message' that match the prepared 'PATTERN'.  All variants of the overloaded
-// 'match' method return 0 if a match is found, and return a non-zero value
-// otherwise:
+// 'match' method return the 'k_STATUS_SUCCESS' status if a match is found,
+// 'k_STATUS_NO_MATCH' if a match is not found, and some other value if any
+// error occurs.  This value may help us to understand the reason of failure:
 //..
 //      bsl::vector<bsl::pair<size_t, size_t> > matchVector;
 //      returnValue = regEx.match(&matchVector, message, messageLength);
 //
-//      if (0 != returnValue) {
-//          return returnValue;  // no match
+//      if (RegEx::k_STATUS_SUCCESS != returnValue) {
+//          if (RegEx::k_STATUS_NO_MATCH == returnValue) {
+//              // No match.
+//              return returnValue;                                   // RETURN
+//          }
+//          else {
+//              // Some failure occurred during the function call.
+//              bsl::cout  << "'RegEx::match' failed with the following"
+//                         << " status: "
+//                         << returnValue
+//                         << bsl::endl;
+//              return returnValue;                                   // RETURN
+//          }
 //      }
 //..
 // Then we pass "subjectText" to the 'subpatternIndex' method to obtain the
@@ -751,19 +763,12 @@ class RegEx {
         // contain embedded null characters.  The specified
         // 'skipUTF8Validation' flag indicates whether UTF-8 string validity
         // checking is skipped.  Begin matching at the specified
-        // 'subjectOffset' in 'subject'.  Return:
-        //
-        //: o 0 on success and invoke the specified 'extractor' to extract the
-        //:   result of the match
-        //:
-        //: o 1 if the 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:   (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, otherwise
-        //
-        // The behavior is undefined unless 'true == isPrepared()',
+        // 'subjectOffset' in 'subject'.  Return 'k_STATUS_SUCCESS' on success,
+        // 'k_STATUS_NO_MATCH' if a match is not found, and another value if an
+        // error occurs.  If the returned status is not 'k_STATUS_SUCCESS' or
+        // 'k_STATUS_NO_MATCH' it may match one of specific 'k_STATUS_*' error
+        // return constants defined below (but is not guaranteed to).  The
+        // behavior is undefined unless 'true == isPrepared()',
         // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
         // and 'subject' is valid UTF-8 if 'pattern()' was prepared with
         // 'k_FLAG_UTF8' but 'false == skipUTF8Validation'.
@@ -845,6 +850,51 @@ class RegEx {
 
         k_REPLACE_UNSET_EMPTY   = 1 << 4   // simple unset insert = empty
                                            // string
+    };
+
+    enum {
+        // Enumeration used to distinguish among results of match operations.
+
+        k_STATUS_SUCCESS                                  =  0,
+            // successful completion of the operation
+
+        k_STATUS_NO_MATCH                                 = -1,
+            // the subject string did not match the pattern
+
+        k_STATUS_DEPTH_LIMIT_FAILURE                      =  1,
+            // 'depthLimit()' was exceeded
+
+        k_STATUS_JIT_STACK_LIMIT_FAILURE                  =  2,
+            // memory available for the JIT stack is not large enough
+            // (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+
+        k_STATUS_UTF8_TRUNCATED_CHARACTER_FAILURE         =  3,
+            // the UTF-8 string ends with a truncated UTF-8 character
+
+        k_STATUS_UTF8_SIGNIFICANT_BITS_VALUE_FAILURE      =  4,
+            // the two most significant bits of the 2nd, 3rd or 4th byte of the
+            // UTF-8 character do not have the binary value 0b10
+
+        k_STATUS_UTF8_5_OR_6_BYTES_CHARACTER_FAILURE      =  5,
+            // a UTF-8 character is either 5 or 6 bytes long
+
+        k_STATUS_UTF8_4_BYTES_CHARACTER_RANGE_FAILURE     =  6,
+            // a 4-byte UTF-8 character has a value greater than 0x10ffff
+
+        k_STATUS_UTF8_3_BYTES_CHARACTER_RANGE_FAILURE     =  7,
+            // a 3-byte UTF-8 character has a value in the range 0xd800 to
+            // 0xdfff
+
+        k_STATUS_UTF8_OVERLONG_CHARACTER_FAILURE          =  8,
+            // a 2-, 3- or 4-byte UTF-8 character is "overlong", i.e. it codes
+            // for a value that can be represented by fewer bytes
+
+        k_STATUS_UTF8_FIRST_BYTE_SIGNIFICANT_BITS_FAILURE =  9,
+            // the two most significant bits of the first byte of a UTF-8
+            // character have the binary value 0b10
+
+        k_STATUS_UTF8_FIRST_BYTE_WRONG_VALUE_FAILURE      =  10,
+            // the first byte of a UTF-8 character has the value 0xfe or 0xff
     };
 
     static const size_t k_INVALID_OFFSET;
@@ -981,23 +1031,16 @@ class RegEx {
         // at the optionally specified 'subjectOffset' in 'subject'.  If
         // 'subjectOffset' is not specified, matching begins at the start of
         // 'subject'.  UTF-8 validity checking is performed on 'subject' if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return:
-        //
-        //: o 0 on success
-        //:
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, for example, if 'pattern()' was prepared
-        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
-        //
-        // The behavior is undefined unless 'true == isPrepared()' and
-        // 'subjectOffset <= subject.length()'.  Note that JIT optimization is
-        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
-        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
-        // not required.
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return
+        // 'k_STATUS_SUCCESS' on success, 'k_STATUS_NO_MATCH' if a match is not
+        // found, and another value if an error occurs.  If the returned status
+        // is not 'k_STATUS_SUCCESS' or 'k_STATUS_NO_MATCH' it may match one of
+        // specific 'k_STATUS_*' error return constants defined above (but is
+        // not guaranteed to).  The behavior is undefined unless
+        // 'true == isPrepared()' and 'subjectOffset <= subject.length()'.
+        // Note that JIT optimization is disabled if 'pattern()' was prepared
+        // with 'k_FLAG_UTF8'; use 'matchRaw' if JIT is preferred and UTF-8
+        // validation of 'subject' is not required.
 
     int match(const char *subject,
               size_t      subjectLength,
@@ -1007,20 +1050,13 @@ class RegEx {
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // matching begins at the start of 'subject'.  'subject' may contain
         // embedded null characters.  UTF-8 validity checking is performed on
-        // 'subject' if 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return:
-        //
-        //: o 0 on success
-        //:
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, for example, if 'pattern()' was prepared
-        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
-        //
-        // The behavior is undefined unless 'true == isPrepared()',
-        // 'subject || 0 == subjectLength', and
+        // 'subject' if 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return
+        // 'k_STATUS_SUCCESS' on success, 'k_STATUS_NO_MATCH' if a match is not
+        // found, and another value if an error occurs.  If the returned status
+        // is not 'k_STATUS_SUCCESS' or 'k_STATUS_NO_MATCH' it may match one of
+        // specific 'k_STATUS_*' error return constants defined above (but is
+        // not guaranteed to).  The behavior is undefined unless
+        // 'true == isPrepared()', 'subject || 0 == subjectLength', and
         // 'subjectOffset <= subjectLength'.  Note that JIT optimization is
         // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
         // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
@@ -1039,23 +1075,14 @@ class RegEx {
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // matching begins at the start of 'subject'.  'subject' may contain
         // embedded null characters.  UTF-8 validity checking is performed on
-        // 'subject' if 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return:
-        //
-        //: o 0 on success and load the specified 'result' with, respectively,
-        //:   a '(offset, length)' pair or a 'bsl::string_view' indicating the
-        //:   leftmost match of 'pattern()'
-        //:
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, for example, if 'pattern()' was prepared
-        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
-        //
-        // 'result' is unchanged if a non-zero value is returned.  The behavior
-        // is undefined unless 'true == isPrepared()',
-        // 'subject || 0 == subjectLength', and
+        // 'subject' if 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return
+        // 'k_STATUS_SUCCESS' on success, 'k_STATUS_NO_MATCH' if a match is not
+        // found, and another value if an error occurs.  If the returned status
+        // is not 'k_STATUS_SUCCESS' or 'k_STATUS_NO_MATCH' it may match one of
+        // specific 'k_STATUS_*' error return constants defined above (but is
+        // not guaranteed to).  'result' is unchanged if a value other than
+        // 'k_STATUS_SUCCESS' is returned.  The behavior is undefined unless
+        // 'true == isPrepared()', 'subject || 0 == subjectLength', and
         // 'subjectOffset <= subjectLength'.  Note that JIT optimization is
         // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
         // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
@@ -1068,25 +1095,17 @@ class RegEx {
         // at the optionally specified 'subjectOffset' in 'subject'.  If
         // 'subjectOffset' is not specified, matching begins at the start of
         // 'subject'.  UTF-8 validity checking is performed on 'subject' if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return:
-        //
-        //: o 0 on success and load the specified 'result' with a
-        //:   'bsl::string_view' indicating the leftmost match of 'pattern()'
-        //:
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, for example, if 'pattern()' was prepared
-        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
-        //
-        // 'result' is unchanged if a non-zero value is returned.  The behavior
-        // is undefined unless 'true == isPrepared()' and
-        // 'subjectOffset <= subject.length()'.  Note that JIT optimization is
-        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
-        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
-        // not required.
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return
+        // 'k_STATUS_SUCCESS' on success, 'k_STATUS_NO_MATCH' if a match is not
+        // found, and another value if an error occurs.  If the returned status
+        // is not 'k_STATUS_SUCCESS' or 'k_STATUS_NO_MATCH' it may match one of
+        // specific 'k_STATUS_*' error return constants defined above (but is
+        // not guaranteed to).  'result' is unchanged if a value other than
+        // 'k_STATUS_SUCCESS' is returned.  The behavior is undefined unless
+        // 'true == isPrepared()' and 'subjectOffset <= subject.length()'.
+        // Note that JIT optimization is disabled if 'pattern()' was prepared
+        // with 'k_FLAG_UTF8'; use 'matchRaw' if JIT is preferred and UTF-8
+        // validation of 'subject' is not required.
 
     int match(bsl::vector<bsl::pair<size_t, size_t> > *result,
               const char                              *subject,
@@ -1118,21 +1137,15 @@ class RegEx {
         //:   pair or an empty 'bslstl::StringRef'); sub-patterns matching
         //:   multiple times have their respective 'result' elements loaded
         //:   with the pairs or 'bslstl::StringRef' indicating the rightmost
-        //:   match, and return 0.
+        //:   match, and return 'k_STATUS_SUCCESS'.
         //
-        // Otherwise, return:
-        //
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, for example, if 'pattern()' was prepared
-        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
-        //
-        // 'result' is unchanged if a non-zero value is returned.  The behavior
-        // is undefined unless 'true == isPrepared()',
-        // 'subject || 0 == subjectLength', and
+        // Otherwise, return 'k_STATUS_NO_MATCH' if a match is not found, and
+        // another value if an error occurs.  If the returned status is not
+        // 'k_STATUS_SUCCESS' or 'k_STATUS_NO_MATCH' it may match one of
+        // specific 'k_STATUS_*' error return constants defined above (but is
+        // not guaranteed to).  'result' is unchanged if a value other than
+        // 'k_STATUS_SUCCESS' is returned.  The behavior is undefined unless
+        // 'true == isPrepared()', 'subject || 0 == subjectLength', and
         // 'subjectOffset <= subjectLength'.  Note that JIT optimization is
         // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
         // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
@@ -1165,43 +1178,32 @@ class RegEx {
         //:   'result' elements loaded with an empty 'bsl::string_view');
         //:   sub-patterns matching multiple times have their respective
         //:   'result' elements loaded with a 'bsl::string_view' indicating the
-        //:   rightmost match, and return 0.
+        //:   rightmost match, and return 'k_STATUS_SUCCESS'.
         //
-        // Otherwise, return:
-        //
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, for example, if 'pattern()' was prepared
-        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
-        //
-        // 'result' is unchanged if a non-zero value is returned.  The behavior
-        // is undefined unless 'true == isPrepared()' and
-        // 'subjectOffset <= subject.length()'.  Note that JIT optimization is
-        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
-        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
-        // not required.  Also note that after a successful call, 'result'
-        // will contain exactly 'numSubpatterns() + 1' elements.
+        // Otherwise, return 'k_STATUS_NO_MATCH' if a match is not found, and
+        // another value if an error occurs.  If the returned status is not
+        // 'k_STATUS_SUCCESS' or 'k_STATUS_NO_MATCH' it may match one of
+        // specific 'k_STATUS_*' error return constants defined above (but is
+        // not guaranteed to).  'result' is unchanged if a value other than
+        // 'k_STATUS_SUCCESS' is returned.  The behavior is undefined unless
+        // 'true == isPrepared()' and 'subjectOffset <= subject.length()'. Note
+        // that JIT optimization is disabled if 'pattern()' was prepared with
+        // 'k_FLAG_UTF8'; use 'matchRaw' if JIT is preferred and UTF-8
+        // validation of 'subject' is not required. Also note that after a
+        // successful call, 'result' will contain exactly
+        // 'numSubpatterns() + 1' elements.
 
     int matchRaw(const bsl::string_view& subject,
                  size_t                  subjectOffset = 0) const;
         // Match the specified 'subject' against 'pattern()'.  Begin matching
         // at the optionally specified 'subjectOffset' in 'subject'.  If
         // 'subjectOffset' is not specified, matching begins at the start of
-        // 'subject'.  Return:
-        //
-        //: o 0 on success
-        //:
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, otherwise
-        //
-        // The behavior is undefined unless 'true == isPrepared()',
+        // 'subject'.  Return 'k_STATUS_SUCCESS' on success,
+        // 'k_STATUS_NO_MATCH' if a match is not found, and another value if an
+        // error occurs.  If the returned status is not 'k_STATUS_SUCCESS' or
+        // 'k_STATUS_NO_MATCH' it may match one of specific 'k_STATUS_*' error
+        // return constants defined above (but is not guaranteed to).  The
+        // behavior is undefined unless 'true == isPrepared()',
         // 'subjectOffset <= subject.length()', and 'subject' is valid UTF-8 if
         // 'pattern()' was prepared with 'k_FLAG_UTF8'.
 
@@ -1212,18 +1214,12 @@ class RegEx {
         // against 'pattern()'.  Begin matching at the optionally specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // matching begins at the start of 'subject'.  'subject' may contain
-        // embedded null characters.  Return:
-        //
-        //: o 0 on success
-        //:
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, otherwise
-        //
-        // The behavior is undefined unless 'true == isPrepared()',
+        // embedded null characters.  Return 'k_STATUS_SUCCESS' on success,
+        // 'k_STATUS_NO_MATCH' if a match is not found, and another value if an
+        // error occurs.  If the returned status is not 'k_STATUS_SUCCESS' or
+        // 'k_STATUS_NO_MATCH' it may match one of specific 'k_STATUS_*' error
+        // return constants defined above (but is not guaranteed to).  The
+        // behavior is undefined unless 'true == isPrepared()',
         // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
         //  and 'subject' is valid UTF-8 if 'pattern()' was prepared with
         // 'k_FLAG_UTF8'.
@@ -1240,21 +1236,13 @@ class RegEx {
         // against 'pattern()'.  Begin matching at the optionally specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // matching begins at the start of 'subject'.  'subject' may contain
-        // embedded null characters.  Return:
-        //
-        //: o 0 on success and load the specified 'result' with, respectively,
-        //:   a '(offset, length)' pair or a 'bsl::string_view' indicating the
-        //:   leftmost match of 'pattern()'
-        //:
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, otherwise
-        //
-        // 'result' is unchanged if a non-zero value is returned.  The behavior
-        // is undefined unless 'true == isPrepared()',
+        // embedded null characters.  Return 'k_STATUS_SUCCESS' on success,
+        // 'k_STATUS_NO_MATCH' if a match is not found, and another value if an
+        // error occurs.  If the returned status is not 'k_STATUS_SUCCESS' or
+        // 'k_STATUS_NO_MATCH' it may match one of specific 'k_STATUS_*' error
+        // return constants defined above (but is not guaranteed to).  'result'
+        // is unchanged if a value other than 'k_STATUS_SUCCESS' is returned.
+        // The behavior is undefined unless 'true == isPrepared()',
         // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
         // and 'subject' is valid UTF-8 if 'pattern()' was prepared with
         // 'k_FLAG_UTF8'.
@@ -1265,20 +1253,13 @@ class RegEx {
         // Match the specified 'subject' against 'pattern()'.  Begin matching
         // at the optionally specified 'subjectOffset' in 'subject'.  If
         // 'subjectOffset' is not specified, matching begins at the start of
-        // 'subject'.  Return:
-        //
-        //: o 0 on success and load the specified 'result' with a
-        //:   'bsl::string_view' indicating the leftmost match of 'pattern()'
-        //:
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value, otherwise
-        //
-        // 'result' is unchanged if a non-zero value is returned.  The behavior
-        // is undefined unless 'true == isPrepared()',
+        // 'subject'.  Return 'k_STATUS_SUCCESS' on success,
+        // 'k_STATUS_NO_MATCH' if a match is not found, and another value if an
+        // error occurs.  If the returned status is not 'k_STATUS_SUCCESS' or
+        // 'k_STATUS_NO_MATCH' it may match one of specific 'k_STATUS_*' error
+        // return constants defined above (but is not guaranteed to).  'result'
+        // is unchanged if a value other than 'k_STATUS_SUCCESS' is returned.
+        // The behavior is undefined unless 'true == isPrepared()',
         // 'subjectOffset <= subject.length()', and 'subject' is valid UTF-8 if
         // 'pattern()' was prepared with 'k_FLAG_UTF8'.
 
@@ -1310,23 +1291,19 @@ class RegEx {
         //:   pair or an empty 'bslstl::StringRef'); sub-patterns matching
         //:   multiple times have their respective 'result' elements loaded
         //:   with the pairs or 'bslstl::StringRef' indicating the rightmost
-        //:   match, and return 0.
+        //:   match, and return 'k_STATUS_SUCCESS'.
         //
-        // Otherwise, return:
-        //
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value
-        //
-        // 'result' is unchanged if a non-zero value is returned.  The behavior
-        // is undefined unless 'true == isPrepared()',
-        // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
-        // and 'subject' is valid UTF-8 if 'pattern()' was prepared with
-        // 'k_FLAG_UTF8'.  Note that after a successful call, 'result' will
-        // contain exactly 'numSubpatterns() + 1' elements.
+        // Otherwise, return 'k_STATUS_NO_MATCH' if a match is not found, and
+        // another value if an error occurs.  If the returned status is not
+        // 'k_STATUS_SUCCESS' or 'k_STATUS_NO_MATCH' it may match one of
+        // specific 'k_STATUS_*' error return constants defined above (but is
+        // not guaranteed to).  'result' is unchanged if a value other than
+        // 'k_STATUS_SUCCESS' is returned.  The behavior is undefined unless
+        // 'true == isPrepared()', 'subject || 0 == subjectLength',
+        // 'subjectOffset <= subjectLength', and 'subject' is valid UTF-8 if
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Note that after a
+        // successful call, 'result' will contain exactly
+        // 'numSubpatterns() + 1' elements.
 
     int matchRaw(bsl::vector<bsl::string_view>           *result,
                  const bsl::string_view&                  subject,
@@ -1356,23 +1333,18 @@ class RegEx {
         //:   'result' elements loaded with an empty 'bsl::string_view');
         //:   sub-patterns matching multiple times have their respective
         //:   'result' elements loaded with a 'bsl::string_view' indicating the
-        //:   rightmost match, and return 0.
+        //:   rightmost match, and return 'k_STATUS_SUCCESS'.
         //
-        // Otherwise, return:
-        //
-        //: o 1 if 'depthLimit()' was exceeded
-        //:
-        //: o 2 if memory available for the JIT stack is not large enough
-        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
-        //:
-        //: o another non-zero value
-        //
-        // 'result' is unchanged if a non-zero value is returned.  The behavior
-        // is undefined unless 'true == isPrepared()',
-        // 'subjectOffset <= subject.length()', and 'subject' is valid UTF-8 if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Also note that after a
-        // successful call, 'result' will contain exactly
-        // 'numSubpatterns() + 1' elements.
+        // Otherwise, return 'k_STATUS_NO_MATCH' if a match is not found, and
+        // another value if an error occurs.  If the returned status is not
+        // 'k_STATUS_SUCCESS' or 'k_STATUS_NO_MATCH' it may match one of
+        // specific 'k_STATUS_*' error return constants defined above (but is
+        // not guaranteed to).  'result' is unchanged if a value other than
+        // 'k_STATUS_SUCCESS' is returned.  The behavior is undefined unless
+        // 'true == isPrepared()', 'subjectOffset <= subject.length()', and
+        // 'subject' is valid UTF-8 if 'pattern()' was prepared with
+        // 'k_FLAG_UTF8'.  Also note that after a successful call, 'result'
+        // will contain exactly 'numSubpatterns() + 1' elements.
 
     void namedSubpatterns(
                  bsl::vector<bsl::pair<bsl::string_view, int> > *result) const;

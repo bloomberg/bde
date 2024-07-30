@@ -15,6 +15,8 @@
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
+#include <bsl_climits.h>  // 'INT_MAX'
+#include <bsl_cmath.h>    // 'abs'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -704,14 +706,26 @@ int countNames(
 // Next we call 'match' supplying 'message' and its length.  The 'matchVector'
 // will be populated with (offset, length) pairs describing substrings in
 // 'message' that match the prepared 'PATTERN'.  All variants of the overloaded
-// 'match' method return 0 if a match is found, and return a non-zero value
-// otherwise:
+// 'match' method return the 'k_STATUS_SUCCESS' status if a match is found,
+// 'k_STATUS_NO_MATCH' if a match is not found, and some other value if any
+// error occurs.  This value may help us to understand the reason of failure:
 //..
         bsl::vector<bsl::pair<size_t, size_t> > matchVector;
         returnValue = regEx.match(&matchVector, message, messageLength);
 
-        if (0 != returnValue) {
-            return returnValue;  // no match                          // RETURN
+        if (RegEx::k_STATUS_SUCCESS != returnValue) {
+            if (RegEx::k_STATUS_NO_MATCH == returnValue) {
+                // No match.
+                return returnValue;                                   // RETURN
+            }
+            else {
+                // Some failure occurred during the function call.
+                bsl::cout  << "'RegEx::match' failed with the following"
+                           << " status: "
+                           << returnValue
+                           << bsl::endl;
+                return returnValue;                                   // RETURN
+            }
         }
 //..
 // Then we pass "subjectText" to the 'subpatternIndex' method to obtain the
@@ -1311,7 +1325,8 @@ int main(int argc, char *argv[])
             k_X   = Obj::k_REPLACE_EXTENDED,
             k_U   = Obj::k_REPLACE_UNKNOWN_UNSET,
             k_E   = Obj::k_REPLACE_UNSET_EMPTY,
-            k_GUE = k_G | k_U | k_E
+            k_GUE = k_G | k_U | k_E,
+            k_I   = INT_MIN
         };
 
         bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -1338,9 +1353,9 @@ int main(int argc, char *argv[])
 { L_,    "=abc=",     "A",              0,       "=A=",       1,        0  },
 { L_,    "=abc=abc=", "A",              0,       "=A=abc=",   1,        0  },
 { L_,    "=abc=",     "+$1$0$1+",       0,       "=+babcb+=", 1,        0  },
-{ L_,    "=abc=",     "+${1$0$1+",      0,       "",         -1,        4  },
-{ L_,    "=abc=",     "+$3+",           0,       "",         -1,        3  },
-{ L_,    "=ab=",      "+$2+",           0,       "",         -1,        3  },
+{ L_,    "=abc=",     "+${1$0$1+",      0,       "",          k_I,      4  },
+{ L_,    "=abc=",     "+$3+",           0,       "",          k_I,      3  },
+{ L_,    "=ab=",      "+$2+",           0,       "",          k_I,      3  },
 // k_REPLACE_LITERAL ------------------------------------------------------
 { L_,    "=abc=",     "+$1+",           0,       "=+b+=",     1,        0  },
 { L_,    "=abc=",     "+$1+",         k_L,       "=+$1+=",    1,        0  },
@@ -1357,9 +1372,9 @@ int main(int argc, char *argv[])
                        "${2:+E:e}+",  k_X | k_G, "=+De+="
                                                   "+dE+=",    2,        0  },
 // k_REPLACE_UNKNOWN_UNSET and k_REPLACE_UNSET_EMPTY-----------------------
-{ L_,    "=ac=",      "+$3+",         k_U,       "",         -1,        3  },
+{ L_,    "=ac=",      "+$3+",         k_U,       "",          k_I,      3  },
 { L_,    "=ac=",      "+$0$1$0+",     k_E,       "=+acac+=",  1,        0  },
-{ L_,    "=ac=",      "+$0$3$0+",     k_E,       "",         -1,        5  },
+{ L_,    "=ac=",      "+$0$3$0+",     k_E,       "",          k_I,      5  },
 { L_,    "=ac=",      "+$0$3$0+",     k_E | k_U, "=+acac+=",  1,        0  },
 // All flags except k_REPLACE_EXTENDED ------------------------------------
 { L_,    "=ab=ac=",   "+$0$1$2+",     k_GUE,     "=+abb+="
@@ -1407,7 +1422,7 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE,     retCode,   OFFSET,     offset,
                                      0 <= retCode || OFFSET   == offset);
                         ASSERTV(LINE,     retCode,   EXPECTED,   result1,
-                                     0 >  retCode || EXPECTED == result1);
+                                   k_I == retCode || EXPECTED == result1);
 
                         std::string result2(10000, 0);
 
@@ -1420,8 +1435,9 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE, RC, retCode,   RC       == retCode);
                         ASSERTV(LINE,     retCode,   OFFSET,     offset,
                                      0 <= retCode || OFFSET   == offset);
-                        ASSERTV(LINE,     retCode,   EXPECTED,   result2,
-                                     0 >  retCode || EXPECTED == result2);
+                        ASSERTV(LINE,     retCode,   EXPECTED,
+                                result2.c_str(),
+                                   k_I == retCode || EXPECTED == result2);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         std::pmr::string result3(j, 0);
@@ -1436,7 +1452,7 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE,     retCode,   OFFSET,     offset,
                                      0 <= retCode || OFFSET   == offset);
                         ASSERTV(LINE,     retCode,   EXPECTED,   result3,
-                                     0 >  retCode || EXPECTED == result3);
+                                   k_I == retCode || EXPECTED == result3);
 #endif
                     }
                     { // replaceRaw
@@ -1453,7 +1469,7 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE,     retCode,   OFFSET,     offset,
                                      0 <= retCode || OFFSET   == offset);
                         ASSERTV(LINE,     retCode,   EXPECTED,   result1,
-                                     0 >  retCode || EXPECTED == result1);
+                                   k_I == retCode || EXPECTED == result1);
 
                         std::string result2(10000, 0);
 
@@ -1466,8 +1482,9 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE, RC, retCode,   RC       == retCode);
                         ASSERTV(LINE,     retCode,   OFFSET,     offset,
                                      0 <= retCode || OFFSET   == offset);
-                        ASSERTV(LINE,     retCode,   EXPECTED,   result2,
-                                     0 >  retCode || EXPECTED == result2);
+                        ASSERTV(LINE,     retCode,   EXPECTED,
+                                result2.c_str(),
+                                   k_I == retCode || EXPECTED == result2);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                         std::pmr::string result3(j, 0);
@@ -1482,7 +1499,7 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE,     retCode,   OFFSET,     offset,
                                      0 <= retCode || OFFSET   == offset);
                         ASSERTV(LINE,     retCode,   EXPECTED,   result3,
-                                     0 >  retCode || EXPECTED == result3);
+                                   k_I == retCode || EXPECTED == result3);
 #endif
                     }
                 }
@@ -1509,7 +1526,7 @@ int main(int argc, char *argv[])
             //---- ---------------  ---------- ---- -------
             { L_,                0,          1,   0,    1   },
             { L_,                0,          0,   0,    1   },
-            { L_, Obj::k_FLAG_UTF8,          1,   1,   -1   },
+            { L_, Obj::k_FLAG_UTF8,          1,   1,    k_I },
             { L_, Obj::k_FLAG_UTF8,          0,   1,    0   },
             };
 
@@ -3684,9 +3701,9 @@ int main(int argc, char *argv[])
         //:   correctly and works as documented.  In particular, we want to
         //:   check that the 'subject', 'subjectLength', and 'subjectStart'
         //:   arguments are passed to PCRE correctly and the resulting
-        //:   'ovector' is copied correctly to the 'result'.  Also we want to
-        //:   make sure that a failure code is returned when the subject does
-        //:   not match the pattern.
+        //:   'vector' is copied correctly to the 'result'.  Also we want to
+        //:   make sure that the correct status code is returned regardless of
+        //:   the results of the function call.
         //
         // Plan:
         //: 1 Prepare a regular expression object using a given 'PATTERN'
@@ -3805,7 +3822,7 @@ int main(int argc, char *argv[])
 
         int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN, 0, 0);
 
-        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(errorMsg, errorOffset, Obj::k_STATUS_SUCCESS == retCode);
 
         if (verbose) {
             cout << "\nTesting non-empty subjects." << endl;
@@ -3877,50 +3894,43 @@ int main(int argc, char *argv[])
                 retCodeVSv2 = X.match(&vsv2, string_view(SUBJECT, SUBJECT_LEN),
                                              subjectStart);
 #endif
+                const int EXP_RET_VALUE = subjectStart <= MATCH_OFFSET
+                                                      ? Obj::k_STATUS_SUCCESS
+                                                      : Obj::k_STATUS_NO_MATCH;
+
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCode);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCode1);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodePr);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeSr);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeSv);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVPr);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVSr);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVSv);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVSv1);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVSv2);
+#endif
+
                 if (subjectStart <= MATCH_OFFSET) {
-                    ASSERTV(LINE, subjectStart, 0 == retCode);
-                    ASSERTV(LINE, subjectStart, 0 == retCode1);
-                    ASSERTV(LINE, subjectStart, 0 == retCodePr);
                     ASSERTV(LINE, subjectStart,                 pr.first,
                                                 MATCH_OFFSET == pr.first);
                     ASSERTV(LINE, subjectStart,                 pr.second,
                                                 MATCH_LENGTH == pr.second);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeSr);
                     ASSERTV(LINE, subjectStart, EXPECTED, sr, EXPECTED == sr);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeSv);
                     ASSERTV(LINE, subjectStart, EXPECTED, sv, EXPECTED == sv);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVPr);
                     ASSERTV(LINE, subjectStart,                 vpr[0].first,
                                                 MATCH_OFFSET == vpr[0].first);
                     ASSERTV(LINE, subjectStart,                 vpr[0].second,
                                                 MATCH_LENGTH == vpr[0].second);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVSr);
                     ASSERTV(LINE, subjectStart, EXPECTED,   vsr[0],
                                                 EXPECTED == vsr[0]);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv);
                     ASSERTV(LINE, subjectStart, EXPECTED,   vsv[0],
                                                 EXPECTED == vsv[0]);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv1);
                     ASSERTV(LINE, subjectStart, EXPECTED,   vsv1[0],
                                                 EXPECTED == vsv1[0]);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv2);
                     ASSERTV(LINE, subjectStart, EXPECTED,   vsv2[0],
                                                 EXPECTED == vsv2[0]);
-#endif
-                }
-                else {
-                    ASSERTV(LINE, subjectStart, 0 != retCode);
-                    ASSERTV(LINE, subjectStart, 0 != retCode1);
-                    ASSERTV(LINE, subjectStart, 0 != retCodePr);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeSr);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeSv);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVPr);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVSr);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv1);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv2);
 #endif
                 }
 
@@ -3951,50 +3961,40 @@ int main(int argc, char *argv[])
                                                             SUBJECT_LEN),
                                                 subjectStart);
 #endif
+
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCode);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCode1);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodePr);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeSr);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeSv);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVPr);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVSr);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVSv);
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVSv1);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                ASSERTV(LINE, subjectStart, EXP_RET_VALUE == retCodeVSv2);
+#endif
+
                 if (subjectStart <= MATCH_OFFSET) {
-                    ASSERTV(LINE, subjectStart, 0 == retCode);
-                    ASSERTV(LINE, subjectStart, 0 == retCode1);
-                    ASSERTV(LINE, subjectStart, 0 == retCodePr);
                     ASSERTV(LINE, subjectStart,                 pr.first,
                                                 MATCH_OFFSET == pr.first);
                     ASSERTV(LINE, subjectStart,                 pr.second,
                                                 MATCH_LENGTH == pr.second);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeSr);
                     ASSERTV(LINE, subjectStart, EXPECTED, sr, EXPECTED == sr);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeSv);
                     ASSERTV(LINE, subjectStart, EXPECTED, sv, EXPECTED == sv);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVPr);
                     ASSERTV(LINE, subjectStart,                 vpr[0].first,
                                                 MATCH_OFFSET == vpr[0].first);
                     ASSERTV(LINE, subjectStart,                 vpr[0].second,
                                                 MATCH_LENGTH == vpr[0].second);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVSr);
                     ASSERTV(LINE, subjectStart, EXPECTED,   vsr[0],
                                                 EXPECTED == vsr[0]);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv);
                     ASSERTV(LINE, subjectStart, EXPECTED,   vsv[0],
                                                 EXPECTED == vsv[0]);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv1);
                     ASSERTV(LINE, subjectStart, EXPECTED,   vsv1[0],
                                                 EXPECTED == vsv1[0]);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv2);
                     ASSERTV(LINE, subjectStart, EXPECTED,   vsv2[0],
                                                 EXPECTED == vsv2[0]);
-#endif
-                }
-                else {
-                    ASSERTV(LINE, subjectStart, 0 != retCode);
-                    ASSERTV(LINE, subjectStart, 0 != retCode1);
-                    ASSERTV(LINE, subjectStart, 0 != retCodePr);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeSr);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeSv);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVPr);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVSr);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv1);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv2);
 #endif
                 }
             }
@@ -4034,16 +4034,16 @@ int main(int argc, char *argv[])
             }
 
             retCode = GOOD.match(string_view("", 0));
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
 
             retCode = GOOD.match("", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
 
             retCode = GOOD.matchRaw("", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
 
             retCode = GOOD.matchRaw(string_view("", 0));
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
 
             bsl::pair<size_t, size_t>           pr;
             bslstl::StringRef                   sr;
@@ -4056,57 +4056,57 @@ int main(int argc, char *argv[])
             std::pmr::vector<bsl::string_view>  vsv2;
 #endif
             retCode = GOOD.match(&pr, "", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(pr.first,   0 == pr.first);
             ASSERTV(pr.second , 0 == pr.second);
 
             retCode = GOOD.match(&sr, "", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(sr, sr.empty());
 
             retCode = GOOD.match(&sv, string_view("", 0));
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(sv, sv.empty());
 
             retCode = GOOD.match(&vpr, "", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(vpr[0].first,   0 == vpr[0].first);
             ASSERTV(vpr[0].second , 0 == vpr[0].second);
 
             retCode = GOOD.match(&vsr, "", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(vsr[0], bslstl::StringRef("", 0) == vsr[0]);
 
             retCode = GOOD.match(&vsv, string_view("", 0));
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(vsv[0], string_view("", 0) == vsv[0]);
 
             retCode = GOOD.match(&vsv1, string_view("", 0));
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(vsv1[0], string_view("", 0) == vsv1[0]);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             retCode = GOOD.match(&vsv2, string_view("", 0));
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(vsv2[0], string_view("", 0) == vsv2[0]);
 #endif
 
             retCode = GOOD.matchRaw(&pr, "", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(pr.first,   0 == pr.first);
             ASSERTV(pr.second , 0 == pr.second);
 
             retCode = GOOD.matchRaw(&sr, "", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(sr, sr.empty());
 
             retCode = GOOD.matchRaw(&vpr, "", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(vpr[0].first,   0 == vpr[0].first);
             ASSERTV(vpr[0].second , 0 == vpr[0].second);
 
             retCode = GOOD.matchRaw(&vsr, "", 0);
-            ASSERT(0 == retCode);
+            ASSERTV(retCode, Obj::k_STATUS_SUCCESS == retCode);
             ASSERTV(vsr[0], bslstl::StringRef("", 0) == vsr[0]);
 
             if (veryVerbose) {
@@ -4114,56 +4114,315 @@ int main(int argc, char *argv[])
             }
 
             retCode = NOT_GOOD.match(   string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
             retCode = NOT_GOOD.match(   "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw("", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
             retCode = NOT_GOOD.match(   &pr,    "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(&pr,    "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
             retCode = NOT_GOOD.match(   &sr,    "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(&sr,    "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
             retCode = NOT_GOOD.match(   &sv,    string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(&sv,    string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
             retCode = NOT_GOOD.match(   &vpr,   "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(&vpr,   "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
             retCode = NOT_GOOD.match(   &vsr,   "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(&vsr,   "", 0);
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
             retCode = NOT_GOOD.match(   &vsv,  string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(&vsv,  string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
             retCode = NOT_GOOD.match(   &vsv1, string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(&vsv1, string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             retCode = NOT_GOOD.match(   &vsv2, string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
             retCode = NOT_GOOD.matchRaw(&vsv2, string_view("", 0));
-            ASSERT(0 != retCode);
+            ASSERTV(retCode, Obj::k_STATUS_NO_MATCH == retCode);
 #endif
+        }
+
+        if (verbose) cout << "\nTesting return codes." << endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                const char *d_subject;   // subject string
+                int         d_expected;  // expected return value
+            } ERROR_CODES_DATA[] = {
+                //LINE   SUBJECT                      EXPECTED RETURN VALUE
+                //----   ---------------------------  ----------------------
+                // subject length = 1
+                { L_,    "abc",
+                      Obj::k_STATUS_SUCCESS                                  },
+                { L_,    "def",
+                      Obj::k_STATUS_NO_MATCH                                 },
+
+                // UTF-8 failures
+                { L_,    "\xC0",
+                      Obj::k_STATUS_UTF8_TRUNCATED_CHARACTER_FAILURE         },
+                { L_,    "\xE0\x80",
+                      Obj::k_STATUS_UTF8_TRUNCATED_CHARACTER_FAILURE         },
+                { L_,    "\xF0\x80\x80",
+                      Obj::k_STATUS_UTF8_TRUNCATED_CHARACTER_FAILURE         },
+                { L_,    "\xF8\x80\x80\x80",
+                      Obj::k_STATUS_UTF8_TRUNCATED_CHARACTER_FAILURE         },
+                { L_,    "\xC0\x01",
+                      Obj::k_STATUS_UTF8_SIGNIFICANT_BITS_VALUE_FAILURE      },
+                { L_,    "\xE0\x01\x80",
+                      Obj::k_STATUS_UTF8_SIGNIFICANT_BITS_VALUE_FAILURE      },
+                { L_,    "\xF0\x01\x80\x80",
+                      Obj::k_STATUS_UTF8_SIGNIFICANT_BITS_VALUE_FAILURE      },
+                { L_,    "\xF8\x01\x80\x80\x80",
+                      Obj::k_STATUS_UTF8_SIGNIFICANT_BITS_VALUE_FAILURE      },
+                { L_,    "\xF9\x80\x80\x80\x80",
+                      Obj::k_STATUS_UTF8_5_OR_6_BYTES_CHARACTER_FAILURE      },
+                { L_,   "\xF4\x90\x80\x80",
+                      Obj::k_STATUS_UTF8_4_BYTES_CHARACTER_RANGE_FAILURE     },
+                { L_,   "\xED\xA0\x80",
+                      Obj::k_STATUS_UTF8_3_BYTES_CHARACTER_RANGE_FAILURE     },
+                { L_,   "\xF8\x80\x80\x80\x80",
+                      Obj::k_STATUS_UTF8_OVERLONG_CHARACTER_FAILURE          },
+                { L_,   "\x80\x00",
+                      Obj::k_STATUS_UTF8_FIRST_BYTE_SIGNIFICANT_BITS_FAILURE },
+                { L_,   "\xFE\x80",
+                      Obj::k_STATUS_UTF8_FIRST_BYTE_WRONG_VALUE_FAILURE      },
+            };
+            const size_t NUM_ERROR_CODES_DATA = sizeof ERROR_CODES_DATA /
+                                                sizeof *ERROR_CODES_DATA;
+
+            // Although the documentation for the function does not specify the
+            // error code that is returned in the case when it does not match
+            // the values from the 'k_STATUS_* set, for testing we can treat
+            // the function as a white box and, accordingly, we know exactly
+            // its value.
+
+            const int BDE_OFFSET = 10000;
+
+            for (char overload = 'a'; overload <= 'j'; ++overload) {
+                const char OVERLOAD = overload;
+
+                bsl::string                             errorMsg;
+                size_t                                  errorOffset;
+                bsl::pair<size_t, size_t>               resultPair;
+                bsl::string_view                        resultView;
+                bsl::vector<bsl::pair<size_t, size_t> > resultVector;
+                bsl::vector<bslstl::StringRef>          resultStringVector;
+                bsl::vector<bsl::string_view>           resultViewVector;
+                std::vector<bsl::string_view>           resultStdViewVector;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<bsl::string_view>      resultStdPmrViewVector;
+#endif
+
+                for (size_t i = 0; i < NUM_ERROR_CODES_DATA; ++i) {
+                    const int     LINE     = ERROR_CODES_DATA[i].d_lineNum;
+                    const char   *SUBJECT  = ERROR_CODES_DATA[i].d_subject;
+                    const bsl::string_view SUBJECT_VIEW =
+                                                 ERROR_CODES_DATA[i].d_subject;
+                    const size_t  LENGTH   = SUBJECT_VIEW.length();
+                    const int     EXPECTED = ERROR_CODES_DATA[i].d_expected;
+
+                    Obj mX;
+
+                    mX.prepare(&errorMsg,
+                               &errorOffset,
+                               PATTERN,
+                               RegEx::k_FLAG_UTF8);
+
+                    int rc = BDE_OFFSET;
+                    switch (OVERLOAD) {
+                      case 'a': {
+                        rc = mX.match(SUBJECT_VIEW);
+                      } break;
+                      case 'b': {
+                        rc = mX.match(SUBJECT, LENGTH);
+                      } break;
+                      case 'c': {
+                        rc = mX.match(&resultPair, SUBJECT, LENGTH);
+                      } break;
+                      case 'd': {
+                        rc = mX.match(&resultView, SUBJECT, LENGTH);
+                      } break;
+                      case 'e': {
+                        rc = mX.match(&resultView, SUBJECT_VIEW);
+                      } break;
+                      case 'f': {
+                        rc = mX.match(&resultVector, SUBJECT, LENGTH);
+                      } break;
+                      case 'g': {
+                        rc = mX.match(&resultStringVector, SUBJECT, LENGTH);
+                      } break;
+                      case 'h': {
+                        rc = mX.match(&resultViewVector, SUBJECT_VIEW);
+                      } break;
+                      case 'i': {
+                        rc = mX.match(&resultStdViewVector, SUBJECT_VIEW);
+                      } break;
+                      case 'j': {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        rc = mX.match(&resultStdPmrViewVector, SUBJECT_VIEW);
+#else
+                        rc = EXPECTED;
+#endif
+                      } break;
+                      default: {
+                        ASSERTV("Unexpected overload", OVERLOAD, false);
+                      }
+                    }
+
+                    ASSERTV(OVERLOAD, LINE, EXPECTED, rc, EXPECTED == rc);
+
+                    // "raw' versions ignore UTF-8 checks, so we do not expect
+                    // special return codes.
+                    const int RAW_EXPECTED =
+                                          (EXPECTED == Obj::k_STATUS_SUCCESS)
+                                                     ? Obj::k_STATUS_SUCCESS
+                                                     : Obj::k_STATUS_NO_MATCH;
+                    rc = BDE_OFFSET;
+                    switch (OVERLOAD) {
+                      case 'a': {
+                        rc = mX.matchRaw(SUBJECT_VIEW);
+                      } break;
+                      case 'b': {
+                        rc = mX.matchRaw(SUBJECT, LENGTH);
+                      } break;
+                      case 'c': {
+                        rc = mX.matchRaw(&resultPair, SUBJECT, LENGTH);
+                      } break;
+                      case 'd': {
+                        rc = mX.matchRaw(&resultView, SUBJECT, LENGTH);
+                      } break;
+                      case 'e': {
+                        rc = mX.matchRaw(&resultView, SUBJECT_VIEW);
+                      } break;
+                      case 'f': {
+                        rc = mX.matchRaw(&resultVector, SUBJECT, LENGTH);
+                      } break;
+                      case 'g': {
+                        rc = mX.matchRaw(&resultStringVector, SUBJECT, LENGTH);
+                      } break;
+                      case 'h': {
+                        rc = mX.matchRaw(&resultViewVector, SUBJECT_VIEW);
+                      } break;
+                      case 'i': {
+                        rc = mX.matchRaw(&resultStdViewVector, SUBJECT_VIEW);
+                      } break;
+                      case 'j': {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        rc = mX.matchRaw(&resultStdPmrViewVector,
+                                         SUBJECT_VIEW);
+#else
+                        rc = RAW_EXPECTED;
+#endif
+                      } break;
+                      default: {
+                        ASSERTV("Unexpected overload", OVERLOAD, false);
+                      }
+                    }
+
+                    ASSERTV(OVERLOAD, LINE, RAW_EXPECTED, rc,
+                            RAW_EXPECTED == rc);
+                }
+
+                // The only possible way to check for a general error
+                // ('k_STATUS_FAILURE') being returned is to raise the
+                // 'PCRE2_ERROR_BADUTFOFFSET' library error, when a UTF-8
+                // string is valid, but the value of start offset did not point
+                // to the beginning of a UTF character.  All other error
+                // variants are either prevented by our code, or depend on
+                // internal library states, or are not consistently
+                // reproducible.  Unfortunately, this option is not suitable
+                // for the 'raw' overloads, since they do not check the
+                // correctness of the UTF-8 string.
+                {
+                    const char             *SUBJECT  = "\xC0\x80";
+                    const bsl::string_view  SUBJECT_VIEW = SUBJECT;
+                    const size_t            LENGTH   = SUBJECT_VIEW.length();
+                    const size_t            OFFSET   = 1;
+                    const int               EXPECTED =
+                                    abs(PCRE2_ERROR_BADUTFOFFSET) + BDE_OFFSET;
+
+                    Obj mX;
+
+                    mX.prepare(&errorMsg,
+                               &errorOffset,
+                               PATTERN,
+                               RegEx::k_FLAG_UTF8);
+
+                    int rc = Obj::k_STATUS_SUCCESS;
+                    switch (OVERLOAD) {
+                      case 'a': {
+                        rc = mX.match(SUBJECT_VIEW, OFFSET);
+                      } break;
+                      case 'b': {
+                        rc = mX.match(SUBJECT, LENGTH, OFFSET);
+                      } break;
+                      case 'c': {
+                        rc = mX.match(&resultPair, SUBJECT, LENGTH, OFFSET);
+                      } break;
+                      case 'd': {
+                        rc = mX.match(&resultView, SUBJECT, LENGTH, OFFSET);
+                      } break;
+                      case 'e': {
+                        rc = mX.match(&resultView, SUBJECT_VIEW, OFFSET);
+                      } break;
+                      case 'f': {
+                        rc = mX.match(&resultVector, SUBJECT, LENGTH, OFFSET);
+                      } break;
+                      case 'g': {
+                        rc = mX.match(&resultStringVector,
+                                      SUBJECT,
+                                      LENGTH,
+                                      OFFSET);
+                      } break;
+                      case 'h': {
+                        rc = mX.match(&resultViewVector, SUBJECT_VIEW, OFFSET);
+                      } break;
+                      case 'i': {
+                        rc = mX.match(&resultStdViewVector,
+                                      SUBJECT_VIEW,
+                                      OFFSET);
+                      } break;
+                      case 'j': {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        rc = mX.match(&resultStdPmrViewVector,
+                                      SUBJECT_VIEW,
+                                      OFFSET);
+#else
+                        rc = EXPECTED;
+#endif
+                      } break;
+                      default: {
+                        ASSERTV("Unexpected overload", OVERLOAD, false);
+                      }
+                    }
+
+                    ASSERTV(OVERLOAD, EXPECTED, rc, EXPECTED == rc);
+                }
+            }
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
