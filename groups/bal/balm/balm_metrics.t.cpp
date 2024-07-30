@@ -90,7 +90,8 @@ using bsl::flush;
 //                                             const char *file,
 //                                             int         line);
 // [18] WARNING LOG TEST: ALL MACROS
-// [19] USAGE EXAMPLE
+// [19] CONCERN: Macros support repetitive default manager replacement
+// [20] USAGE EXAMPLE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -235,7 +236,6 @@ bool balmMetricsIfCategoryEnabledTest(const char *category)
     }
     return false;
 }
-
 
 // ============================================================================
 //                     BSLS_LOG TEST MACHINERY
@@ -1368,7 +1368,7 @@ int main(int argc, char *argv[])
     Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -1418,14 +1418,50 @@ int main(int argc, char *argv[])
 //..
        balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
        ASSERT(0 != manager);
+
+    }
 //..
 // Note that the default metrics manager will be released when the
 // 'managerGuard' exits this scoped and is destroyed.  Clients that choose to
 // explicitly call 'balm::DefaultMetricsManager::create()' must also explicitly
 // call 'balm::DefaultMetricsManager::release()'.
 
-    }
-    } break;
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING DEFAULT MANGER REPLACEMENT
+        //
+        // Concerns:
+        //: 1 BALM_METRICS_TIME_BLOCK* macros correctly handle repetitive
+        //:   creation and destruction of the 'DefaultMetricsManager'
+        //:   (DRQS 175971077).
+        //
+        // Plan:
+        //: 1 Create and destroy 'DefaultMetricsManager' several times in a row
+        //:   using 'balm::DefaultMetricsManagerScopedGuard'.  At each
+        //:   iteration update a metric using 'BALM_METRICS_DYNAMIC_TIME_BLOCK'
+        //:   macro and verify the result.
+        //
+        // Testing:
+        //   CONCERN: Macros support repetitive default manager replacement
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING DEFAULT MANGER REPLACEMENT" << endl
+                          << "==================================" << endl;
+
+        typedef BALM::DefaultMetricsManagerScopedGuard ScopedGuard;
+
+        for (int i = 0; i < 10; ++i) {
+            bsl::ostringstream stream;
+            ScopedGuard        managerGuard(stream);
+            staticTimeEmptyFunction("category",
+                                    "metrics",
+                                    SWGuard::k_NANOSECONDS);
+            BALM::DefaultMetricsManager::instance()->publishAll();
+            ASSERTV(stream.str(), !stream.str().empty());
+        }
+      } break;
       case 18: {
         // --------------------------------------------------------------------
         // Testing:

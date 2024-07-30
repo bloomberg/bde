@@ -1079,11 +1079,14 @@ do {                                                                          \
     static BloombergLP::balm::Collector *VARIABLE_NAME = 0;                   \
     if (BloombergLP::balm::DefaultMetricsManager::instance()) {               \
        using namespace BloombergLP;                                           \
-       if (0 == VARIABLE_NAME) {                                              \
+       typedef balm::Metrics_Helper Helper;                                   \
+       static balm::CategoryHolder holder = { false, 0, 0 };                  \
+       if (0 == holder.category()) {                                          \
            balm::CollectorRepository& repository =                            \
               balm::DefaultMetricsManager::instance()->collectorRepository(); \
            VARIABLE_NAME = repository.getDefaultCollector((CATEGORY),         \
                                                           (METRIC));          \
+           Helper::initializeCategoryHolder(&holder, CATEGORY);               \
        }                                                                      \
     }                                                                         \
     else {                                                                    \
