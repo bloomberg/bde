@@ -200,8 +200,13 @@ bool isByteOrderMarker(const void *bytes, int maxBytes)
 //}
 
 template <class e_RANGE_TYPE>
-struct Formatter_UnicodeData_EndCompare {
+struct Formatter_UnicodeData_EndCompare
+    // Component-private comparator class to facilitate range searches using
+    // standard algorithms.
+{
     bool operator()(const e_RANGE_TYPE& range, const unsigned long int value)
+        // Return true if the `d_end` member of the specified `range` is less
+        // than the specified `value`, false otherwise.
     {
         return range.d_end < value;
     }
@@ -209,6 +214,8 @@ struct Formatter_UnicodeData_EndCompare {
 
 bslfmt::Formatter_UnicodeData::GraphemeBreakCategory
 getGraphemeBreakCategory(unsigned long int codepoint)
+    // Find and return the Unicode Grapheme Break category for the specified
+    // `codepoint` if one exists, otherwise return `e_UNASSIGNED`.
 {
     const bslfmt::Formatter_UnicodeData::GraphemeBreakCategoryRange *first =
                   bslfmt::Formatter_UnicodeData::s_graphemeBreakCategoryRanges;
@@ -265,6 +272,9 @@ bool getExtendedPictogramValue(unsigned long int codepoint)
 }
 
 int getCodepointWidth(unsigned long int codepoint)
+    // Determine the width of the specified `codepoint` per the rules in the
+    // C++ standard in [format.string.std]. Note that this width may differ
+    // from that specified by the Unicode standard.
 {
     const bslfmt::Formatter_UnicodeData::BooleanRange *first =
                    bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges;
@@ -292,13 +302,20 @@ int getCodepointWidth(unsigned long int codepoint)
     return 2;
 }
 
-class Formatter_UnicodeData_StartCompare_GB11_LH_Regex {
+class Formatter_UnicodeData_StartCompare_GB11_LH_Regex
+    // A component-private state machine required to detect emoji modifier
+    // sequences per https://www.unicode.org/reports/tr29/#GB11
+{
   private:
     // PRIVATE TYPES
-    enum State { e_START, e_EXT_PIC };
+    enum State {
+        e_START,   // Startup state
+        e_EXT_PIC  // State indicating `match` has been called for a single
+                   // Extended_Pictogram and zero or more Extend characters.
+    };
 
     // DATA
-    State d_state;
+    State d_state; // The current state.
 
     // NOT IMPLEMENTED
     bool operator==(const Formatter_UnicodeData_StartCompare_GB11_LH_Regex&)
@@ -308,15 +325,23 @@ class Formatter_UnicodeData_StartCompare_GB11_LH_Regex {
     // CREATORS
 
     Formatter_UnicodeData_StartCompare_GB11_LH_Regex();
+        // Construct an object in `e_START` state.
 
     // MANIPULATORS
     bool
     match(const bslfmt::Formatter_UnicodeData::GraphemeBreakCategory left_gbp,
-          bool left_ExtPic)
+          bool left_epv)
+        // Return true for the ZWJ codepoint (determined by the specified
+        // `left_gbp` being `e_ZERO_WIDTH_JOINER`) and the function was
+        // previously called for an Extended_Pictogram codepoint (determined by
+        // the specified `left_epv` being true) followed by zero or more Extend
+        // codepoints (determined by the specified `left_gbp` being
+        // `e_EXTEND`). Update the internal state to enable correct
+        // calculations on subsequent calls.
     {
         switch (d_state) {
           case e_START:
-            if (left_ExtPic) {
+            if (left_epv) {
                 d_state = e_EXT_PIC;
             }
             return false;
@@ -722,6 +747,7 @@ Formatter_UnicodeUtils::extractGraphemeCluster(UtfEncoding  encoding,
         // match GB11 now, so that we're sure to update it for every character,
         // not just ones where the GB11 rule is considered
         const bool is_GB11_Match = gb11_matcher.match(left_gbp, left_epv);
+
         // Also update the number of sequential RIs immediately
         if (left_gbp == Formatter_UnicodeData::e_REGIONAL_INDICATOR) {
                 ++num_RIs;

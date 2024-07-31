@@ -80,6 +80,8 @@ struct Formatter_UnicodeUtils {
 };
 #endif
 
+#if 0
+
 template <class t_CHAR>
 struct Formatter_CharUtils {
   public:
@@ -154,6 +156,8 @@ struct Formatter_CharUtils<wchar_t> {
         return out;
     }
 };
+
+#endif
 
 }  // close namespace bslfmt
 }  // close enterprise namespace
