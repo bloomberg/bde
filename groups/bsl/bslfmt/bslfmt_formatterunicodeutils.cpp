@@ -18,12 +18,6 @@ BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
 
 #include <bslfmt_formatterunicodedata.h>
 
-//#include <bsl_cstdlib.h>
-//#include <bsl_cstring.h>
-//#include <bsl_fstream.h>
-//#include <bsl_ios.h>
-//#include <bsl_streambuf.h>
-
 // LOCAL MACROS
 
 #define UNLIKELY(EXPRESSION) BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(EXPRESSION)
@@ -179,25 +173,6 @@ bool isByteOrderMarker(const void *bytes, int maxBytes)
     return false;
 }
 
-//struct Formatter_UnicodeUtils_FirstPairMemberComparator
-//    /// Comparator for a map of pairs of ints that compares only the first
-//    /// element of those pairs.
-//{
-//    bool operator()(const bsl::pair<unsigned int, unsigned int>& p1,
-//                    const bsl::pair<unsigned int, unsigned int>& p2) const
-//    {
-//        return (p2.first - p1.first);
-//    }
-//};
-//
-//typedef bsl::map<bsl::pair<unsigned int, unsigned int>,
-//                 Formatter_UnicodeUtils_FirstPairMemberComparator>
-//    Formatter_UnicodeUtils_MapOfRanges;
-//
-//Formatter_UnicodeUtils_MapOfRanges makeMapOfZeros()
-//{
-//    Formatter_UnicodeUtils_MapOfRanges result;
-//}
 
 template <class e_RANGE_TYPE>
 struct Formatter_UnicodeData_EndCompare
@@ -212,8 +187,8 @@ struct Formatter_UnicodeData_EndCompare
     }
 };
 
-bslfmt::Formatter_UnicodeData::GraphemeBreakCategory
-getGraphemeBreakCategory(unsigned long int codepoint)
+bslfmt::Formatter_UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
+                                                   unsigned long int codepoint)
     // Find and return the Unicode Grapheme Break category for the specified
     // `codepoint` if one exists, otherwise return `e_UNASSIGNED`.
 {
@@ -246,10 +221,10 @@ getGraphemeBreakCategory(unsigned long int codepoint)
 bool getExtendedPictogramValue(unsigned long int codepoint)
 {
     const bslfmt::Formatter_UnicodeData::BooleanRange *first =
-                  bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges;
+                   bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges;
     const bslfmt::Formatter_UnicodeData::BooleanRange *last =
-              bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges +
-              bslfmt::Formatter_UnicodeData::s_extendedPictographicRangeCount;
+               bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges +
+               bslfmt::Formatter_UnicodeData::s_extendedPictographicRangeCount;
 
     Formatter_UnicodeData_EndCompare<
         bslfmt::Formatter_UnicodeData::BooleanRange>
@@ -277,9 +252,9 @@ int getCodepointWidth(unsigned long int codepoint)
     // from that specified by the Unicode standard.
 {
     const bslfmt::Formatter_UnicodeData::BooleanRange *first =
-                   bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges;
+                       bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges;
     const bslfmt::Formatter_UnicodeData::BooleanRange *last =
-               bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges +
+                   bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges +
                    bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRangeCount;
 
     Formatter_UnicodeData_EndCompare<
@@ -291,15 +266,338 @@ int getCodepointWidth(unsigned long int codepoint)
 
     // Below the first element in the array.
     if (found == last)
-        return 1;                                                 // RETURN
+        return 1;                                                     // RETURN
 
     if (found->d_start > codepoint)
-        return 1;                                                 // RETURN
+        return 1;                                                     // RETURN
 
     if (found->d_end < codepoint)
-        return 1;                                                 // RETURN
+        return 1;                                                     // RETURN
 
     return 2;
+}
+
+
+/// Extract a UTF-8 code point from no more than the specified `maxBytes`
+/// of the byte stream at the specified `bytes` location. Return a `
+/// Extract a UTF-8 code point from no more than `maxBytes` of the byte
+/// stream at the specified `bytes` location. Return a
+/// `CodePointExtractionResult` providing a decode status and, if the
+/// decode is valid, a count of the source bytes used and the decoded
+/// Unicode code point value. Byte Order Markers are not supported.
+bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
+extractUtf8(const void *bytes, int maxBytes)
+{
+    bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult result;
+    memset(&result,
+           0,
+           sizeof(bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult));
+
+    if (0 == bytes || maxBytes < 1)
+        return result;                                                // RETURN
+
+    if (isByteOrderMarker(bytes, maxBytes))
+        return result;                                                // RETURN
+
+    const unsigned char *start = static_cast<const unsigned char *>(bytes);
+
+    switch (static_cast<unsigned char>(*start) >> 4) {
+      case 0x0:
+        BSLA_FALLTHROUGH;
+      case 0x1:
+        BSLA_FALLTHROUGH;
+      case 0x2:
+        BSLA_FALLTHROUGH;
+      case 0x3:
+        BSLA_FALLTHROUGH;
+      case 0x4:
+        BSLA_FALLTHROUGH;
+      case 0x5:
+        BSLA_FALLTHROUGH;
+      case 0x6:
+        BSLA_FALLTHROUGH;
+      case 0x7: {
+        result.codePointValue = *start;
+        result.numSourceBytes = 1;
+        result.isValid        = true;
+        result.sourceEncoding = bslfmt::Formatter_UnicodeUtils::e_UTF8;
+        result.codePointWidth = 1;  // simple ascii value.
+      } break;
+      case 0x8:
+        BSLA_FALLTHROUGH;
+      case 0x9:
+        BSLA_FALLTHROUGH;
+      case 0xa:
+        BSLA_FALLTHROUGH;
+      case 0xb: {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        // Unexpected continuation octet
+        return result;                                                // RETURN
+      } break;
+      case 0xc:
+        BSLA_FALLTHROUGH;
+      case 0xd: {
+        if (UNLIKELY(maxBytes < 2)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Too few bytes available given the length indicated by the first
+            // byte.
+            return result;                                            // RETURN
+        }
+
+        const unsigned int value = get2ByteUtf8Value(start);
+
+        if (UNLIKELY(value < k_MIN_2_BYTE_UTF8_VALUE)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Overlong encoding
+            return result;                                            // RETURN
+        }
+        if (UNLIKELY(isNotUtf8Continuation(start[1]))) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Non-continuation octet
+            return result;                                            // RETURN
+        }
+
+        result.codePointValue = value;
+        result.numSourceBytes = 2;
+        result.isValid        = true;
+        result.sourceEncoding = bslfmt::Formatter_UnicodeUtils::e_UTF8;
+        result.codePointWidth = getCodepointWidth(value);
+      } break;
+      case 0xe: {
+        if (UNLIKELY(maxBytes < 3)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Too few bytes available given the length indicated by the first
+            // byte.
+            return result;                                            // RETURN
+        }
+
+        const unsigned int value = get3ByteUtf8Value(start);
+
+        if (UNLIKELY(value < k_MIN_3_BYTE_UTF8_VALUE)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Overlong encoding
+            return result;                                            // RETURN
+        }
+        if (UNLIKELY(isNotUtf8Continuation(start[1]) ||
+                     isNotUtf8Continuation(start[2]))) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Non-continuation octet
+            return result;                                            // RETURN
+        }
+        if (UNLIKELY(isSurrogateValue(value))) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Erroneous surrogate value
+            return result;                                            // RETURN
+        }
+
+        result.codePointValue = value;
+        result.numSourceBytes = 3;
+        result.isValid        = true;
+        result.sourceEncoding = bslfmt::Formatter_UnicodeUtils::e_UTF8;
+        result.codePointWidth = getCodepointWidth(value);
+      } break;
+      case 0xf: {
+        if (UNLIKELY(maxBytes < 4)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Too few bytes available given the length indicated by the first
+            // byte.
+            return result;                                            // RETURN
+        }
+
+        const unsigned int value = get4ByteUtf8Value(start);
+
+        if (UNLIKELY(bool(0x8 & *start))) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Invalid initial octet for 4-byte value
+            return result;                                            // RETURN
+        }
+        if (UNLIKELY(value < k_MIN_4_BYTE_UTF8_VALUE)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Overlong encoding
+            return result;                                            // RETURN
+        }
+        if (UNLIKELY(value > k_MAX_UTF_VALID)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Value exceeds 0X10FFFF
+            return result;                                            // RETURN
+        }
+        if (UNLIKELY(isNotUtf8Continuation(start[1]) ||
+                     isNotUtf8Continuation(start[2]) ||
+                     isNotUtf8Continuation(start[3]))) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Non-continuation octet
+            return result;                                            // RETURN
+        }
+
+        result.codePointValue = value;
+        result.numSourceBytes = 4;
+        result.isValid        = true;
+        result.sourceEncoding = bslfmt::Formatter_UnicodeUtils::e_UTF8;
+        result.codePointWidth = getCodepointWidth(value);
+      } break;
+      default: {
+        BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+      }
+    }
+
+    return result;
+}
+
+/// Extract a UTF-16 code point from no more than the specified `maxBytes`
+/// of the byte stream at the specified `bytes` location. Return a
+/// `CodePointExtractionResult` providing a decode status and, if the
+/// decode is valid, a count of the source bytes used and the decoded
+/// Unicode code point value. Behavior is undefined if `bytes` is not a
+/// valid pointer to an array of `numBytes/2` `wchar_t` types in contiguous
+/// memory. Behaviour is undefined if `16 != sizeof(wchar_t)`. Endianness
+/// is assumed to be the same as for the `wchar_t` type and Byte Order
+/// Markers are not supported.
+bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
+extractUtf16(const void *bytes, int maxBytes)
+{
+    bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult result;
+    memset(&result,
+           0,
+           sizeof(bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult));
+
+    // If ever this function is called on a platform with a 32-bit wchar_t
+    // (such as on Linux) then something went very badly wrong.
+    BSLS_ASSERT_OPT(sizeof(wchar_t) == 2);
+
+    if (0 == bytes || maxBytes < 2 || sizeof(wchar_t) != 2)
+        return result;                                                // RETURN
+
+    if (isByteOrderMarker(bytes, maxBytes))
+        return result;                                                // RETURN
+
+    const wchar_t *start = static_cast<const wchar_t *>(bytes);
+
+    const unsigned int first = static_cast<unsigned int>(*start);
+
+    if (UNLIKELY(isLowSurrogateValue(first))) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            // Illegal to have a low surrogate without a preceeding high
+            // surrogate.
+
+        return result;                                                // RETURN
+    }
+
+    if (!isHighSurrogateValue(first)) {
+        // Illegal to have a low surrogate without a preceeding high surrogate.
+
+        result.codePointValue = first;
+        result.numSourceBytes = 2;
+        result.isValid        = true;
+        result.sourceEncoding = bslfmt::Formatter_UnicodeUtils::e_UTF16;
+        result.codePointWidth = getCodepointWidth(first);
+
+        return result;                                                // RETURN
+    }
+
+    if (UNLIKELY(maxBytes < 4)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        // Too few bytes available given the first is a surrogate
+        return result;                                                // RETURN
+    }
+
+    const unsigned int second = static_cast<unsigned int>(*(start + 1));
+
+    if (UNLIKELY(!isLowSurrogateValue(second))) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            // High surrogate must be followed by a low surrogate
+
+        return result;                                                // RETURN
+    }
+
+    const unsigned int value = (((first - k_UTF16_HIGH_SURROGATE_START)
+                                 << 10) |
+                                (second - k_UTF16_LOW_SURROGATE_START)) +
+                               k_UTF16_SURROGATE_PAIR_OFFSET;
+
+    if (UNLIKELY(value > k_MAX_UTF_VALID)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        // Value exceeds 0X10FFFF
+        return result;                                                // RETURN
+    }
+
+    result.codePointValue = value;
+    result.numSourceBytes = 4;
+    result.isValid        = true;
+    result.sourceEncoding = bslfmt::Formatter_UnicodeUtils::e_UTF16;
+    result.codePointWidth = getCodepointWidth(value);
+
+    return result;                                                    // RETURN
+}
+
+/// Extract a UTF-32 code point from no more than the specified `maxBytes`
+/// of the byte stream at the specified `bytes` location. Return a
+/// `CodePointExtractionResult` providing a decode status and, if the
+/// decode is valid, a count of the source bytes used and the decoded
+/// Unicode code point value. Behavior is undefined if `bytes` is not a
+/// valid pointer to an array of `numBytes/2` `wchar_t` types in contiguous
+/// memory. Behaviour is undefined if `32 != sizeof(wchar_t)`. Endianness
+/// is assumed to be the same as for the `wchar_t` type and Byte Order
+/// Markers are not supported.
+bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
+extractUtf32(const void *bytes, int maxBytes)
+{
+    bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult result;
+    memset(&result,
+           0,
+           sizeof(bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult));
+
+    // If ever this function is called on a platform with a 32-bit wchar_t
+    // (such as on Linux) then something went very badly wrong.
+    BSLS_ASSERT_OPT(sizeof(wchar_t) == 4);
+
+    if (sizeof(wchar_t) != 4)
+        return result;                                                // RETURN
+
+    if (0 == bytes || maxBytes < 4)
+        return result;                                                // RETURN
+
+    if (isByteOrderMarker(bytes, maxBytes))
+        return result;                                                // RETURN
+
+    const wchar_t *start = static_cast<const wchar_t *>(bytes);
+
+    const unsigned int value = static_cast<unsigned int>(*start);
+
+    if (UNLIKELY(isSurrogateValue(value))) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            // Illegal to have a low surrogate values in any UTF schema.
+
+        return result;                                                // RETURN
+    }
+
+    if (UNLIKELY(value > k_MAX_UTF_VALID)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        // Value exceeds 0X10FFFF
+        return result;                                                // RETURN
+    }
+
+    result.codePointValue = value;
+    result.numSourceBytes = 4;
+    result.isValid        = true;
+    result.sourceEncoding = bslfmt::Formatter_UnicodeUtils::e_UTF32;
+    result.codePointWidth = getCodepointWidth(value);
+    return result;                                                    // RETURN
 }
 
 class Formatter_UnicodeData_StartCompare_GB11_LH_Regex
@@ -374,286 +672,6 @@ Formatter_UnicodeData_StartCompare_GB11_LH_Regex::
 
 namespace BloombergLP {
 namespace bslfmt {
-
-Formatter_UnicodeUtils::CodePointExtractionResult
-Formatter_UnicodeUtils::extractUtf8(const void *bytes, int maxBytes)
-{
-    CodePointExtractionResult result;
-    memset(&result, 0, sizeof(CodePointExtractionResult));
-
-    if (0 == bytes || maxBytes < 1)
-        return result;                                                // RETURN
-
-    if (isByteOrderMarker(bytes, maxBytes))
-        return result;                                                // RETURN
-
-    const unsigned char *start = static_cast<const unsigned char *>(bytes);
-
-    switch (static_cast<unsigned char>(*start) >> 4) {
-        case 0x0: BSLA_FALLTHROUGH;
-        case 0x1: BSLA_FALLTHROUGH;
-        case 0x2: BSLA_FALLTHROUGH;
-        case 0x3: BSLA_FALLTHROUGH;
-        case 0x4: BSLA_FALLTHROUGH;
-        case 0x5: BSLA_FALLTHROUGH;
-        case 0x6: BSLA_FALLTHROUGH;
-        case 0x7: {
-            result.codePointValue = *start;
-            result.numSourceBytes = 1;
-            result.isValid        = true;
-            result.sourceEncoding = e_UTF8;
-            result.codePointWidth = 1; // simple ascii value.
-        } break;
-        case 0x8: BSLA_FALLTHROUGH;
-        case 0x9: BSLA_FALLTHROUGH;
-        case 0xa: BSLA_FALLTHROUGH;
-        case 0xb: {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-            // Unexpected continuation octet
-            return result;                                            // RETURN
-        } break;
-        case 0xc: BSLA_FALLTHROUGH;
-        case 0xd: {
-            if (UNLIKELY(maxBytes < 2)) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Too few bytes available given the length indicated by the
-                // first byte.
-                return result                   ;                     // RETURN
-            }
-
-            const unsigned int value = get2ByteUtf8Value(start);
-
-            if (UNLIKELY(value < k_MIN_2_BYTE_UTF8_VALUE)) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Overlong encoding
-                return result;                                        // RETURN
-            }
-            if (UNLIKELY(isNotUtf8Continuation(start[1]))) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Non-continuation octet
-                return result;                                        // RETURN
-            }
-
-            result.codePointValue = value;
-            result.numSourceBytes = 2;
-            result.isValid        = true;
-            result.sourceEncoding = e_UTF8;
-            result.codePointWidth = getCodepointWidth(value);
-        } break;
-        case 0xe: {
-            if (UNLIKELY(maxBytes < 3)) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Too few bytes available given the length indicated by the
-                // first byte.
-                return result;                                        // RETURN
-            }
-
-            const unsigned int value = get3ByteUtf8Value(start);
-
-            if (UNLIKELY(value < k_MIN_3_BYTE_UTF8_VALUE)) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Overlong encoding
-                return result;                                        // RETURN
-            }
-            if (UNLIKELY(isNotUtf8Continuation(start[1]) ||
-                         isNotUtf8Continuation(start[2]))) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Non-continuation octet
-                return result;                                        // RETURN
-            }
-            if (UNLIKELY(isSurrogateValue(value))) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Erroneous surrogate value
-                return result;                                        // RETURN
-            }
-
-            result.codePointValue = value;
-            result.numSourceBytes = 3;
-            result.isValid        = true;
-            result.sourceEncoding = e_UTF8;
-            result.codePointWidth = getCodepointWidth(value);
-        } break;
-        case 0xf: {
-            if (UNLIKELY(maxBytes < 4)) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Too few bytes available given the length indicated by the
-                // first byte.
-                return result;                                        // RETURN
-            }
-
-            const unsigned int value = get4ByteUtf8Value(start);
-
-            if (UNLIKELY(bool(0x8 & *start))) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Invalid initial octet for 4-byte value
-                return result;                                        // RETURN
-            }
-            if (UNLIKELY(value < k_MIN_4_BYTE_UTF8_VALUE)) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Overlong encoding
-                return result;                                        // RETURN
-            }
-            if (UNLIKELY(value > k_MAX_UTF_VALID)) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Value exceeds 0X10FFFF
-                return result;                                        // RETURN
-            }
-            if (UNLIKELY(isNotUtf8Continuation(start[1]) ||
-                         isNotUtf8Continuation(start[2]) ||
-                         isNotUtf8Continuation(start[3]))) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                // Non-continuation octet
-                return result;                                        // RETURN
-            }
-
-            result.codePointValue = value;
-            result.numSourceBytes = 4;
-            result.isValid        = true;
-            result.sourceEncoding = e_UTF8;
-            result.codePointWidth = getCodepointWidth(value);
-        } break;
-        default: {
-            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
-        }
-    }
-
-    return result;
-}
-
-Formatter_UnicodeUtils::CodePointExtractionResult
-Formatter_UnicodeUtils::extractUtf16(const void *bytes, int maxBytes)
-{
-    CodePointExtractionResult result;
-    memset(&result, 0, sizeof(CodePointExtractionResult));
-
-    // If ever this function is called on a platform with a 32-bit wchar_t
-    // (such as on Linux) then something went very badly wrong.
-    BSLS_ASSERT_OPT(sizeof(wchar_t) == 2);
-
-    if (0 == bytes || maxBytes < 2 || sizeof(wchar_t) != 2)
-            return result;                                            // RETURN
-
-    if (isByteOrderMarker(bytes, maxBytes))
-            return result;                                            // RETURN
-
-    const wchar_t *start = static_cast<const wchar_t *>(bytes);
-
-    const unsigned int first = static_cast<unsigned int>(*start);
-
-    if (UNLIKELY(isLowSurrogateValue(first))) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        // Illegal to have a low surrogate without a preceeding high surrogate.
-
-        return result;                                                // RETURN
-    }
-
-    if (!isHighSurrogateValue(first)) {
-        // Illegal to have a low surrogate without a preceeding high surrogate.
-
-        result.codePointValue = first;
-        result.numSourceBytes = 2;
-        result.isValid        = true;
-        result.sourceEncoding = e_UTF16;
-        result.codePointWidth = getCodepointWidth(first);
-
-        return result;                                                // RETURN
-    }
-
-    if (UNLIKELY(maxBytes < 4)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-        // Too few bytes available given the first is a surrogate
-        return result;                                                // RETURN
-    }
-
-    const unsigned int second = static_cast<unsigned int>(*(start+1));
-
-    if (UNLIKELY(!isLowSurrogateValue(second))) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        // High surrogate must be followed by a low surrogate
-
-        return result;                                                // RETURN
-    }
-
-    const unsigned int value =
-        (((first  - k_UTF16_HIGH_SURROGATE_START) << 10) |
-          (second - k_UTF16_LOW_SURROGATE_START)) +
-        k_UTF16_SURROGATE_PAIR_OFFSET;
-
-    if (UNLIKELY(value > k_MAX_UTF_VALID)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-        // Value exceeds 0X10FFFF
-        return result;                                                // RETURN
-    }
-
-    result.codePointValue = value;
-    result.numSourceBytes = 4;
-    result.isValid        = true;
-    result.sourceEncoding = e_UTF16;
-    result.codePointWidth = getCodepointWidth(value);
-
-    return result;                                                    // RETURN
-}
-
-
-Formatter_UnicodeUtils::CodePointExtractionResult
-Formatter_UnicodeUtils::extractUtf32(const void *bytes, int maxBytes)
-{
-    CodePointExtractionResult result;
-    memset(&result, 0, sizeof(CodePointExtractionResult));
-
-    // If ever this function is called on a platform with a 32-bit wchar_t
-    // (such as on Linux) then something went very badly wrong.
-    BSLS_ASSERT_OPT(sizeof(wchar_t) == 4);
-
-    if (sizeof(wchar_t) != 4)
-            return result;                                            // RETURN
-
-    if (0 == bytes || maxBytes < 4)
-            return result;                                            // RETURN
-
-    if (isByteOrderMarker(bytes, maxBytes))
-            return result;                                            // RETURN
-
-    const wchar_t *start = static_cast<const wchar_t *>(bytes);
-
-    const unsigned int value = static_cast<unsigned int>(*start);
-
-    if (UNLIKELY(isSurrogateValue(value))) {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        // Illegal to have a low surrogate values in any UTF schema.
-
-        return result;                                                // RETURN
-    }
-
-    if (UNLIKELY(value > k_MAX_UTF_VALID)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-        // Value exceeds 0X10FFFF
-        return result;                                                // RETURN
-    }
-
-    result.codePointValue = value;
-    result.numSourceBytes = 4;
-    result.isValid        = true;
-    result.sourceEncoding = e_UTF32;
-    result.codePointWidth = getCodepointWidth(value);
-    return result;                                                    // RETURN
-}
 
 Formatter_UnicodeUtils::CodePointExtractionResult
 Formatter_UnicodeUtils::extractCodePoint(UtfEncoding  encoding,
@@ -850,6 +868,49 @@ Formatter_UnicodeUtils::extractGraphemeCluster(UtfEncoding  encoding,
 }  // close namespace bslfmt
 }  // close enterprise namespace
 
+// ----------------------------------------------------------------------------
+//
+// The class Formatter_UnicodeData_StartCompare_GB11_LH_Regex and the function
+// Formatter_UnicodeUtils::extractGraphemeCluster were adapted for bde use from
+// Microsoft MSVC library code, 2024
+//  'https://github.com/microsoft/STL/blob/main/stl/inc/format'
+//
+// Copyright (c) Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// 
+// NOTE:
+// The Microsoft `format` header was itself derived in part from libfmt under
+// the following license:
+// 
+// Copyright (c) 2012 - present, Victor Zverovich
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+// --- Optional exception to the license ---
+//
+// As an exception, if, as a result of your compiling your source code,
+// portions of this Software are embedded into a machine-executable object form
+// of such source code, you may redistribute such embedded portions in such
+// object form without including the above copyright and permission notices.
+// 
+// ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
