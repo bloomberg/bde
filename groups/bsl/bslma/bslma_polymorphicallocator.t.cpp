@@ -12,6 +12,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bsls_assert.h>
 #include <bsls_keyword.h>
@@ -254,7 +255,7 @@ class TestType {
                       long a05 = 0, long a06 = 0, long a07 = 0, long a08 = 0,
                       long a09 = 0, long a10 = 0, long a11 = 0, long a12 = 0,
                       long a13 = 0, long a14 = 0);
-    TestType(bsl::allocator_arg_t, const ALLOCATOR &alloc = ALLOCATOR(),
+    TestType(bsl::allocator_arg_t, const ALLOCATOR &alloc,
              long a01 = 0, long a02 = 0, long a03 = 0, long a04 = 0,
              long a05 = 0, long a06 = 0, long a07 = 0, long a08 = 0,
              long a09 = 0, long a10 = 0, long a11 = 0, long a12 = 0,
@@ -318,6 +319,28 @@ struct ConvertibleToPolyAlloc {
     operator bsl::polymorphic_allocator<double>() const
         { return bsl::polymorphic_allocator<double>(); }
 };
+
+template <class VAL_TP, class TYPE>
+inline
+void runDestroy(bsl::polymorphic_allocator<VAL_TP>& alloc, TYPE *p)
+    // Call the 'destroy' method on the specified 'alloc', passing it the
+    // specified 'p' address.  The 'polymorphic_allocator::destroy', was
+    // deprecated in C++23 but was undeprecated in C++26 in March 2024 (see
+    // http://wg21.link/P2875).  If 'destroy' is deprecated or if it is unknown
+    // whether it is deprecated, then this function calls
+    // 'bsl::allocator_traits<>::destroy' instead of 'alloc.destroy'.
+{
+    // GCC back-ported the deprecation to C++20
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR) &&                \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) &&   \
+    ! defined(BSLS_LIBRARYFEATURES_HAS_CPP26_BASELINE_LIBRARY)
+    // Avoid call to deprecated method
+    typedef bsl::polymorphic_allocator<VAL_TP> Alloc;
+    bsl::allocator_traits<Alloc>::destroy(alloc, p);
+#else
+    alloc.destroy(p);
+#endif
+}
 
 // ============================================================================
 //                             USAGE EXAMPLES
@@ -599,12 +622,12 @@ int main(int argc, char *argv[])
 #define TEST(EXP, ...) do {                                                   \
         alloc.construct(&buf1.object(), __VA_ARGS__);                         \
         ASSERTV(EXP, buf1.object().value(), EXP == buf1.object().value());    \
-        alloc.destroy(&buf1.object());                                        \
+        runDestroy(alloc, &buf1.object());                                    \
         ASSERTV(TT::lastDestroyed() == buf1.address());                       \
         alloc.construct(&buf2.object(), __VA_ARGS__);                         \
         ASSERT(alloc == buf2.object().get_allocator());                       \
         ASSERTV(EXP, buf2.object().value(), EXP == buf2.object().value());    \
-        alloc.destroy(&buf2.object());                                        \
+        runDestroy(alloc, &buf2.object());                                    \
         ASSERTV(AATT::lastDestroyed() == buf2.address());                     \
     } while (false);
 
@@ -612,13 +635,13 @@ int main(int argc, char *argv[])
         {
             alloc.construct(&buf1.object());
             ASSERTV(buf1.object().value(), 0 == buf1.object().value());
-            alloc.destroy(&buf1.object());
+            runDestroy(alloc, &buf1.object());
             ASSERTV(TT::lastDestroyed() == buf1.address());
 
             alloc.construct(&buf2.object());
             ASSERT(alloc == buf2.object().get_allocator());
             ASSERTV(0, buf2.object().value(), 0 == buf1.object().value());
-            alloc.destroy(&buf2.object());
+            runDestroy(alloc, &buf2.object());
             ASSERTV(AATT::lastDestroyed() == buf2.address());
         }
 
