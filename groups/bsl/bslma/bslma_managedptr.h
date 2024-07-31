@@ -187,6 +187,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //      explicit Circle(double radius);
 //          // Create a 'Circle' object having the specified 'radius'.
 //
+//      virtual ~Circle();
+//          // Destroy this object.
+//
 //      // ACCESSORS
 //      virtual double area() const;
 //          // Return the area of this Circle, given by the formula pi*r*r.
@@ -202,6 +205,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //      explicit Square(double side);
 //          // Create a 'Square' having sides of length 'side'.
 //
+//      virtual ~Square();
+//          // Destroy this object.
+//
 //      // ACCESSORS
 //      virtual double area() const;
 //          // Return the area of this Square, given by the formula side*side
@@ -214,12 +220,20 @@ BSLS_IDENT("$Id$ $CSID$")
 //  {
 //  }
 //
+//  Circle::~Circle()
+//  {
+//  }
+//
 //  double Circle::area() const {
 //      return 3.141592653589793238462 * d_radius * d_radius;
 //  }
 //
 //  Square::Square(double side)
 //  : d_sideLength(side)
+//  {
+//  }
+//
+//  Square::~Square()
 //  {
 //  }
 //

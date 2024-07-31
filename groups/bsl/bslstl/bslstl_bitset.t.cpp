@@ -724,9 +724,9 @@ int main(int argc, char *argv[])
             BSLA_MAYBE_UNUSED unsigned long long val = 1;
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::bitset<64>()));
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::bitset<64>(val)));
         }
 
         // page 557: 20.8.2 bitset operations:

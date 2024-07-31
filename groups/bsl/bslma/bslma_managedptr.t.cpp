@@ -430,6 +430,9 @@ namespace USAGE_EXAMPLES {
         explicit Circle(double radius);
             // Create a 'Circle' object having the specified 'radius'.
 
+        virtual ~Circle();
+            // Destroy this object.
+
         // ACCESSORS
         virtual double area() const;
             // Return the area of this Circle, given by the formula pi*r*r.
@@ -446,6 +449,9 @@ namespace USAGE_EXAMPLES {
             // Create a 'Square' having sides with length of the specified
             // 'side'.
 
+        virtual ~Square();
+            // Destroy this object.
+
         // ACCESSORS
         virtual double area() const;
             // Return the area of this Square, given by the formula side*side
@@ -458,6 +464,10 @@ namespace USAGE_EXAMPLES {
     {
     }
 
+    Circle::~Circle()
+    {
+    }
+
     double Circle::area() const
     {
         return 3.141592653589793238462 * d_radius * d_radius;
@@ -465,6 +475,10 @@ namespace USAGE_EXAMPLES {
 
     Square::Square(double side)
     : d_sideLength(side)
+    {
+    }
+
+    Square::~Square()
     {
     }
 

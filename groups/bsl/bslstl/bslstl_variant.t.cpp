@@ -6,6 +6,7 @@
 #include <bslh_hash.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bslstl_string.h>
@@ -33,6 +34,10 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 
 // ============================================================================
 //                                  TEST PLAN

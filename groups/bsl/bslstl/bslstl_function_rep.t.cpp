@@ -26,10 +26,6 @@
 #include <cstdio>   // 'printf'
 #include <cstdlib>  // 'atoi'
 
-#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
-#pragma GCC diagnostic ignored "-Wclass-memaccess"
-#endif
-
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
 #pragma bde_verify -AL01   // Class needs allocator() method
@@ -45,6 +41,11 @@
 
 using std::printf;
 using namespace BloombergLP;
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#pragma GCC diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+#endif
 
 // ============================================================================
 //                             TEST PLAN
