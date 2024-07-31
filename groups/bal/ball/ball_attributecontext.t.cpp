@@ -1872,8 +1872,8 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::Handle ruleThreads[NUM_RULETHREADS];
             bslmt::ThreadUtil::Handle contextThreads[NUM_CONTEXTTHREADS];
 
+            ThreadArgs ruleThreadArgs[NUM_RULETHREADS];
             for (int j = 0; j < NUM_RULETHREADS; ++j) {
-                ThreadArgs ruleThreadArgs[NUM_RULETHREADS];
 
                 ruleThreadArgs[j].d_categoryManager_p = &manager;
                 ruleThreadArgs[j].d_seed              = seed;
@@ -1884,8 +1884,8 @@ int main(int argc, char *argv[])
                                  reinterpret_cast<void *>(&ruleThreadArgs[j]));
             }
 
+            ThreadArgs contextThreadArgs[NUM_CONTEXTTHREADS];
             for (int j = 0; j < NUM_CONTEXTTHREADS; ++j) {
-                ThreadArgs contextThreadArgs[NUM_CONTEXTTHREADS];
 
                 contextThreadArgs[j].d_categoryManager_p = &manager;
                 contextThreadArgs[j].d_seed              = seed;
