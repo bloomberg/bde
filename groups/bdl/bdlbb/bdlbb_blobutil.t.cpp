@@ -35,6 +35,16 @@ using namespace bsl;
 //=============================================================================
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
+// [19] BlobUtilAsciiDumper(const Blob *blob);
+// [19] BlobUtilAsciiDumper(const Blob *blob, int length);
+// [19] BlobUtilAsciiDumper(const Blob *blob, int offset, int length);
+// [19] bsl::ostream& operator<<(ostream&, const BlobUtilAsciiDumper&);
+// [18] bsl::ostream& asciiDump(bsl::ostream& stream, const Blob& source);
+// [18] bsl::ostream& asciiDump(bsl::ostream&, const Blob&, int, int);
+// [17] BlobUtilHexDumper(const Blob *blob);
+// [17] BlobUtilHexDumper(const Blob *blob, int length);
+// [17] BlobUtilHexDumper(const Blob *blob, int offset, int length);
+// [17] bsl::ostream& operator<<(bsl::ostream&, const BlobUtilHexDumper&);
 // [16] void append(int length, char fill);
 // [15] void prependWithCapacityBuffer(Blob*,BlobBuffer*,const char*,int);
 // [14] void appendWithCapacityBuffer(Blob*,BlobBuffer*,const char*,int);
@@ -562,6 +572,602 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING 'BlobUtilAsciiDumper'
+        //
+        // Concerns:
+        //: 1 The three and two parameter constructors accept any positive
+        //:   length and offset values (even exceeding blob length).
+        //:
+        //: 2 The one-parameter constructor sets the size of the blob as the
+        //:   number of bytes to output.
+        //:
+        //: 3 The output operator calculates the number of bytes to output as
+        //:   the lesser of the length passed and the difference between the
+        //:   blob size and the offset.
+        //:
+        //: 4 No memory is allocated by constructors.
+        //:
+        //: 5 The output 'operator<<'s signature and return type are standard.
+        //:
+        //: 6 The output 'operator<<' returns the destination 'ostream'.
+        //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create several objects, passing different values as arguments.
+        //:   Verify object values through direct access to the object fields.
+        //:   Verify that no additional memory is allocated.  (C-1..2, 4)
+        //:
+        //: 2 Use the address of 'operator<<' to initialize a function pointer
+        //:   having the appropriate signature and return type for the
+        //:   output operator defined in this component.  (C-5..6)
+        //:
+        //: 3 Create bdlbb::Blob' object, pass it to the 'BlobUtilAsciiDumper'
+        //:   constructor and output the resulting object using output stream
+        //:   operator.  Compare the result with the result of the 'asciiDump'
+        //:   function call for the same 'Blob' object.  (C-3)
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid constructor arguments, but not triggered
+        //:   for valid ones (using the 'BSLS_ASSERTTEST_*' macros). (C-7)
+        //
+        // Testing:
+        //   BlobUtilAsciiDumper(const Blob *blob);
+        //   BlobUtilAsciiDumper(const Blob *blob, int length);
+        //   BlobUtilAsciiDumper(const Blob *blob, int offset, int length);
+        //   bsl::ostream& operator<<(ostream&, const BlobUtilAsciiDumper&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'BlobUtilAsciiDumper'"
+                             "\n=============================" << endl;
+
+        if (verbose) cout << "\tTesting constructors" << endl;
+        {
+            bslma::TestAllocator         oa("object",  veryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            const int BUFFER_SIZE = 8;
+            const int BLOBS_NUM   = 3;
+            bdlbb::SimpleBlobBufferFactory factory(BUFFER_SIZE, &oa);
+            bsl::vector<bdlbb::Blob> blobs(&oa);
+            for (int i = 0; i < BLOBS_NUM; ++i) {
+                bdlbb::Blob blob(&factory, &oa);
+                blob.setLength(i * BUFFER_SIZE);
+                blobs.push_back(bslmf::MovableRefUtil::move(blob));
+            }
+
+            for (int blobIndex = 0; blobIndex < BLOBS_NUM; ++blobIndex) {
+                const bdlbb::Blob *BLOB = &blobs[blobIndex];
+                for (int length = 0; length <= BLOBS_NUM; ++length) {
+                    const int LENGTH = length * BUFFER_SIZE;
+                    for (int offset = 0; offset <= BLOBS_NUM; ++offset) {
+                        const int OFFSET     = offset * BUFFER_SIZE;
+
+                        if (veryVerbose) {
+                             P_(blobIndex) P_(LENGTH) P(OFFSET)
+                        }
+
+                        // Testing a constructor with three parameters.
+                        bdlbb::BlobUtilAsciiDumper mX(BLOB, OFFSET, LENGTH);
+
+                        ASSERTV(BLOB   == mX.d_blob_p);
+                        ASSERTV(OFFSET == mX.d_offset);
+                        ASSERTV(LENGTH == mX.d_length);
+                    }
+
+                    {
+                        if (veryVerbose) {
+                             P_(blobIndex) P(LENGTH)
+                        }
+
+                        // Testing a constructor with two parameters.
+                        bdlbb::BlobUtilAsciiDumper mX(BLOB, LENGTH);
+
+                        ASSERTV(BLOB   == mX.d_blob_p);
+                        ASSERTV(0      == mX.d_offset);
+                        ASSERTV(LENGTH == mX.d_length);
+
+                    }
+                }
+
+                {
+                    if (veryVerbose) {
+                        P(blobIndex)
+                    }
+
+                    // Testing a constructor with one parameter.
+                    bdlbb::BlobUtilAsciiDumper mX(BLOB);
+
+                    ASSERTV(BLOB           == mX.d_blob_p);
+                    ASSERTV(0              == mX.d_offset);
+                    ASSERTV(BLOB->length() == mX.d_length);
+
+                }
+            }
+
+            ASSERT(0 == da.numBytesTotal());
+        }
+
+        if (verbose)
+            cout << "\tVerifying signature and return value of stream "
+                    "operator."
+                 << endl;
+        {
+            typedef std::ostream& (*operatorPtr)(
+                                            std::ostream&,
+                                            const bdlbb::BlobUtilAsciiDumper&);
+
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorOut = bdlbb::operator<<;
+
+            (void)operatorOut; // quash potential compiler warnings
+        }
+
+        if (verbose) cout << "\tTesting stream insertion operator" << endl;
+        {
+            bdlbb::SimpleBlobBufferFactory  factory(5);
+            bdlbb::Blob                     blob(&factory);
+            const char                     *TEST_STR =
+                                    "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
+                                    "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10";
+
+            copyStringToBlob(&blob, TEST_STR);
+            const int BLOB_LENGTH = blob.length();
+
+            for (int length = 0; length <= BLOB_LENGTH + 1; ++length) {
+                const int LENGTH = length;
+                for (int offset = 0; offset <= BLOB_LENGTH + 1; ++offset ) {
+                    const int OFFSET = offset;
+                    const int EXP_OFFSET = OFFSET < BLOB_LENGTH
+                                         ? OFFSET
+                                         : BLOB_LENGTH;
+                    const int EXP_LENGTH = LENGTH < BLOB_LENGTH - EXP_OFFSET
+                                         ? LENGTH
+                                         : BLOB_LENGTH - EXP_OFFSET;
+
+                    if (veryVerbose) {
+                        P_(LENGTH) P(OFFSET)
+                    }
+
+                    bsl::stringstream  outModel;
+                    bsl::stringstream  out;
+                    bsl::ostream      *mR = 0;
+
+                    bdlbb::BlobUtil::asciiDump(outModel,
+                                               blob,
+                                               EXP_OFFSET,
+                                               EXP_LENGTH);
+
+                    mR = &(out << bdlbb::BlobUtilAsciiDumper(&blob,
+                                                           OFFSET,
+                                                           LENGTH));
+
+                    ASSERTV(&out == mR);
+                    ASSERTV(outModel.str() == out.str());
+                }
+            }
+        }
+
+        if (verbose) cout << "\tNegative testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            BlobBufferFactory factory(1);
+            bdlbb::Blob       blob(&factory);
+            blob.setLength(1);
+            bsl::stringstream out;
+
+            ASSERT_PASS(bdlbb::BlobUtilAsciiDumper(&blob,  0,  1));
+            ASSERT_FAIL(bdlbb::BlobUtilAsciiDumper(&blob, -1,  1));
+            ASSERT_FAIL(bdlbb::BlobUtilAsciiDumper(&blob,  0, -1));
+
+            ASSERT_PASS(bdlbb::BlobUtilAsciiDumper(&blob,  1));
+            ASSERT_FAIL(bdlbb::BlobUtilAsciiDumper(&blob, -1));
+        }
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'asciiDump'
+        //
+        // Concerns:
+        //: 1 The 'asciiDump' streams out data in accordance with the requested
+        //:   offset and length.
+        //:
+        //: 2 The 'asciiDump' correctly handles empty data buffers.
+        //:
+        //: 3 No memory is allocated during streaming.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using loop-based approach create several various blobs and
+        //:   stream them out using 'asciiDump' and passing various offsets and
+        //:   lengths.  Verify the result.  Verify that no additional memory is
+        //:   allocated.
+        //:
+        //: 2 Create a blob containing empty data buffers and stream it out
+        //:   using 'asciiDump' and passing various offsets and lengths.
+        //:   Verify the result.  Verify that no additional memory is
+        //:   allocated.  (C-1..3)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid constructor arguments, but not triggered
+        //:   for valid ones (using the 'BSLS_ASSERTTEST_*' macros). (C-4)
+        //
+        // Testing:
+        //   bsl::ostream& asciiDump(bsl::ostream& stream, const Blob& source);
+        //   bsl::ostream& asciiDump(bsl::ostream&, const Blob&, int, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'asciiDump'"
+                          << "\n===================" << endl;
+
+        enum { k_BUF_SIZE = 2048 };
+
+        bslma::TestAllocator         da("default", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        const char *STR_DATA = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5";
+
+        const int                      BUFFER_SIZE     = 8;
+        const int                      MAX_NUM_BUFFERS = 5;
+        bdlbb::SimpleBlobBufferFactory factory(BUFFER_SIZE);
+
+        if (verbose) cout << "\tTest basic behavior." << endl;
+        for (int i = 0; i < MAX_NUM_BUFFERS; ++i) {
+            const int         NUM_BUFFERS = i;
+            const int         STR_LENGTH  = NUM_BUFFERS * BUFFER_SIZE;
+            const bsl::string TEST_STR(STR_DATA, STR_LENGTH);
+
+            bdlbb::Blob myBlob(&factory);
+            bdlbb::Blob modelBlob(&factory);
+
+            copyStringToBlob(&myBlob,    TEST_STR);
+            copyStringToBlob(&modelBlob, TEST_STR);
+
+            ASSERT(NUM_BUFFERS == myBlob.numDataBuffers());
+
+            // Testing overload with 2 parameters.
+            {
+                char                        buf[k_BUF_SIZE];
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream                out(&obuf);
+
+                // Action.
+                ASSERT(&out == &bdlbb::BlobUtil::asciiDump(out, myBlob));
+
+                ASSERTV(STR_LENGTH, obuf.length(),
+                        STR_LENGTH == obuf.length());
+                ASSERTV(buf, 0 == strncmp(buf, STR_DATA, STR_LENGTH));
+            }
+
+            // Testing overload with 4 parameters.
+            for (int offset = 0; offset <= STR_LENGTH; offset += 4) {
+                const int OFFSET    = offset;
+                const int REMAINDER = STR_LENGTH - OFFSET;
+
+                for (int length = 0; length <= REMAINDER; length += 4) {
+                    const int LENGTH = length;
+
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    ASSERTV(NUM_BUFFERS, OFFSET, LENGTH,
+                            0 == bdlbb::BlobUtil::compare(modelBlob, myBlob));
+
+                    // Action.
+                    ASSERTV(NUM_BUFFERS, OFFSET, LENGTH,
+                            &out == &bdlbb::BlobUtil::asciiDump(out,
+                                                                myBlob,
+                                                                OFFSET,
+                                                                LENGTH));
+
+                    ASSERTV(NUM_BUFFERS, OFFSET, LENGTH,
+                            0 == bdlbb::BlobUtil::compare(modelBlob, myBlob));
+                    ASSERTV(NUM_BUFFERS, OFFSET, LENGTH,
+                            NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERTV(NUM_BUFFERS, OFFSET, LENGTH, obuf.length(),
+                            LENGTH == obuf.length());
+                    ASSERTV(NUM_BUFFERS, OFFSET, LENGTH,
+                            0 == strncmp(buf, STR_DATA + OFFSET, LENGTH));
+                }
+            }
+        }
+
+        if (verbose) cout << "\tTest blob with empty data buffers." << endl;
+        {
+            bdlbb::Blob             myBlob(&factory);
+            const bdlbb::BlobBuffer emptyBuffer;
+            myBlob.appendDataBuffer(emptyBuffer);
+
+            // Filling the blob.
+
+            for (int i = 0; i < MAX_NUM_BUFFERS; ++i) {
+                bdlbb::BlobBuffer buffer;
+                factory.allocate(&buffer);
+                ASSERT(BUFFER_SIZE == buffer.size());
+                bsl::memcpy(buffer.data(),
+                            STR_DATA + i * BUFFER_SIZE,
+                            BUFFER_SIZE);
+                myBlob.appendDataBuffer(MoveUtil::move(buffer));
+                myBlob.appendDataBuffer(emptyBuffer);
+            }
+
+            ASSERTV(myBlob.numDataBuffers(),
+                    MAX_NUM_BUFFERS * 2 + 1 == myBlob.numDataBuffers());
+
+            const int STR_LENGTH  = MAX_NUM_BUFFERS * BUFFER_SIZE;
+
+            // Testing overload with 2 parameters.
+            {
+                char                        buf[k_BUF_SIZE];
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream                out(&obuf);
+
+                // Action.
+                ASSERT(&out == &bdlbb::BlobUtil::asciiDump(out, myBlob));
+
+                ASSERTV(STR_LENGTH, obuf.length(),
+                        STR_LENGTH == obuf.length());
+                ASSERTV(buf, 0 == strncmp(buf, STR_DATA, STR_LENGTH));
+            }
+
+            // Testing overload with 4 parameters.
+            for (int offset = 0; offset <= STR_LENGTH; offset += 4) {
+                const int OFFSET    = offset;
+                const int REMAINDER = STR_LENGTH - OFFSET;
+
+                for (int length = 0; length <= REMAINDER; length += 4) {
+                    const int LENGTH = length;
+
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    // Action.
+                    ASSERTV(OFFSET, LENGTH,
+                            &out == &bdlbb::BlobUtil::asciiDump(out,
+                                                                myBlob,
+                                                                OFFSET,
+                                                                LENGTH));
+
+                    ASSERTV(OFFSET, LENGTH,
+                            NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERTV(OFFSET, LENGTH, obuf.length(),
+                            LENGTH == obuf.length());
+                    ASSERTV(OFFSET, LENGTH,
+                            0 == strncmp(buf, STR_DATA + OFFSET, LENGTH));
+                }
+            }
+        }
+
+        if (verbose) cout << "\tNegative testing" << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const int BLOB_BUFFER_SIZE = 2;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            ASSERTV(0 == blob.length());
+
+            bsl::stringstream os;
+
+            ASSERT_PASS(bdlbb::BlobUtil::asciiDump(os, blob,  0,  0));
+            ASSERT_FAIL(bdlbb::BlobUtil::asciiDump(os, blob,  0, -1));
+            ASSERT_FAIL(bdlbb::BlobUtil::asciiDump(os, blob, -1,  0));
+
+            ASSERT_FAIL(bdlbb::BlobUtil::asciiDump(os, blob,  0,  1));
+            ASSERT_FAIL(bdlbb::BlobUtil::asciiDump(os, blob,  1,  0));
+        }
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING 'BlobUtilHexDumper'
+        //
+        // Concerns:
+        //: 1 The three and two parameter constructors accept any positive
+        //:   length and offset values (even exceeding blob length).
+        //:
+        //: 2 The one-parameter constructor sets the size of the blob as the
+        //:   number of bytes to output.
+        //:
+        //: 3 The output operator calculates the number of bytes to output as
+        //:   the lesser of the length passed and the difference between the
+        //:   blob size and the offset.
+        //:
+        //: 4 No memory is allocated by constructors.
+        //:
+        //: 5 The output 'operator<<'s signature and return type are standard.
+        //:
+        //: 6 The output 'operator<<' returns the destination 'ostream'.
+        //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create several objects, passing different values as arguments.
+        //:   Verify object values through direct access to the object fields.
+        //:   Verify that no additional memory is allocated.  (C-1..2, 4)
+        //:
+        //: 2 Use the address of 'operator<<' to initialize a function pointer
+        //:   having the appropriate signature and return type for the
+        //:   output operator defined in this component.  (C-5..6)
+        //:
+        //: 3 Create bdlbb::Blob' object, pass it to the 'BlobUtilHexDumper'
+        //:   constructor and output the resulting object using output stream
+        //:   operator.  Compare the result with the result of the 'hexDump'
+        //:   function call for the same 'Blob' object.  (C-3)
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid constructor arguments, but not triggered
+        //:   for valid ones (using the 'BSLS_ASSERTTEST_*' macros). (C-7)
+        //
+        // Testing:
+        //   BlobUtilHexDumper(const Blob *blob);
+        //   BlobUtilHexDumper(const Blob *blob, int offset, int length);
+        //   bsl::ostream& operator<<(bsl::ostream&, const BlobUtilHexDumper&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'BlobUtilHexDumper'\n"
+                             "===========================\n";
+
+        if (verbose) cout << "\tTesting constructors\n";
+        {
+            bslma::TestAllocator         oa("object",  veryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            const int BUFFER_SIZE = 8;
+            const int BLOBS_NUM   = 3;
+            bdlbb::SimpleBlobBufferFactory factory(BUFFER_SIZE, &oa);
+            bsl::vector<bdlbb::Blob> blobs(&oa);
+            for (int i = 0; i < BLOBS_NUM; ++i) {
+                bdlbb::Blob blob(&factory, &oa);
+                blob.setLength(i * BUFFER_SIZE);
+                blobs.push_back(bslmf::MovableRefUtil::move(blob));
+            }
+
+            for (int blobIndex = 0; blobIndex < BLOBS_NUM; ++blobIndex) {
+                const bdlbb::Blob *BLOB = &blobs[blobIndex];
+                for (int length = 0; length <= BLOBS_NUM; ++length) {
+                    const int LENGTH = length * BUFFER_SIZE;
+                    for (int offset = 0; offset <= BLOBS_NUM; ++offset) {
+                        const int OFFSET     = offset * BUFFER_SIZE;
+
+                        if (veryVerbose) {
+                             P_(blobIndex) P_(LENGTH) P(OFFSET)
+                        }
+
+                        // Testing a constructor with three parameters.
+                        bdlbb::BlobUtilHexDumper mX(BLOB, OFFSET, LENGTH);
+
+                        ASSERTV(BLOB   == mX.d_blob_p);
+                        ASSERTV(OFFSET == mX.d_offset);
+                        ASSERTV(LENGTH == mX.d_length);
+                    }
+
+                    {
+                        if (veryVerbose) {
+                             P_(blobIndex) P(LENGTH)
+                        }
+
+                        // Testing a constructor with two parameters.
+                        bdlbb::BlobUtilHexDumper mX(BLOB, LENGTH);
+
+                        ASSERTV(BLOB   == mX.d_blob_p);
+                        ASSERTV(0      == mX.d_offset);
+                        ASSERTV(LENGTH == mX.d_length);
+
+                    }
+                }
+
+                {
+                    if (veryVerbose) {
+                        P(blobIndex)
+                    }
+
+                    // Testing a constructor with one parameter.
+                    bdlbb::BlobUtilHexDumper mX(BLOB);
+
+                    ASSERTV(BLOB           == mX.d_blob_p);
+                    ASSERTV(0              == mX.d_offset);
+                    ASSERTV(BLOB->length() == mX.d_length);
+
+                }
+            }
+
+            ASSERT(0 == da.numBytesTotal());
+        }
+
+        if (verbose)
+            printf("\tVerifying signature and return value of stream "
+                   "operator.\n");
+        {
+            typedef std::ostream& (*operatorPtr)(
+                                              std::ostream&,
+                                              const bdlbb::BlobUtilHexDumper&);
+
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorOut = bdlbb::operator<<;
+
+            (void)operatorOut; // quash potential compiler warnings
+        }
+
+        if (verbose) cout << "\tTesting stream insertion operator\n";
+        {
+            bdlbb::SimpleBlobBufferFactory  factory(5);
+            bdlbb::Blob                     blob(&factory);
+            const char                     *TEST_STR =
+                                    "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
+                                    "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10";
+
+            copyStringToBlob(&blob, TEST_STR);
+            const int BLOB_LENGTH = blob.length();
+
+            for (int length = 0; length <= BLOB_LENGTH + 1; ++length) {
+                const int LENGTH = length;
+                for (int offset = 0; offset <= BLOB_LENGTH + 1; ++offset ) {
+                    const int OFFSET = offset;
+                    const int EXP_OFFSET = OFFSET < BLOB_LENGTH
+                                         ? OFFSET
+                                         : BLOB_LENGTH;
+                    const int EXP_LENGTH = LENGTH < BLOB_LENGTH - EXP_OFFSET
+                                         ? LENGTH
+                                         : BLOB_LENGTH - EXP_OFFSET;
+
+                    if (veryVerbose) {
+                        P_(LENGTH) P(OFFSET)
+                    }
+
+                    bsl::stringstream  outModel;
+                    bsl::stringstream  out;
+                    bsl::ostream      *mR = 0;
+
+                    bdlbb::BlobUtil::hexDump(outModel,
+                                             blob,
+                                             EXP_OFFSET,
+                                             EXP_LENGTH);
+
+                    mR = &(out << bdlbb::BlobUtilHexDumper(&blob,
+                                                           OFFSET,
+                                                           LENGTH));
+
+                    ASSERTV(&out == mR);
+                    ASSERTV(outModel.str() == out.str());
+                }
+            }
+        }
+
+        if (verbose) cout << "Negative testing\n";
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            BlobBufferFactory factory(1);
+            bdlbb::Blob       blob(&factory);
+            blob.setLength(1);
+            bsl::stringstream out;
+
+            ASSERT_PASS(bdlbb::BlobUtilHexDumper(&blob,  0,  1));
+            ASSERT_FAIL(bdlbb::BlobUtilHexDumper(&blob, -1,  1));
+            ASSERT_FAIL(bdlbb::BlobUtilHexDumper(&blob,  0, -1));
+
+            ASSERT_PASS(bdlbb::BlobUtilHexDumper(&blob,  1));
+            ASSERT_FAIL(bdlbb::BlobUtilHexDumper(&blob, -1));
+        }
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // TESTING 'append' WITH SINGLE CHAR FILL

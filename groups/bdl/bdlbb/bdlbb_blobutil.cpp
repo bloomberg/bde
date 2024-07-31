@@ -5,10 +5,13 @@
 BSLS_IDENT_RCSID(bdlbb_blobutil_cpp, "$Id$ $CSID$")
 
 #include <bdlb_print.h>
+
 #include <bslma_allocator.h>
 #include <bslma_deallocatorproctor.h>
 #include <bslma_default.h>
+
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -48,6 +51,36 @@ void copyFromPlace(char                *dstBuffer,
         }
         ++place.first;
     } while (copied < length);
+}
+
+bsl::ostream& asciiDumpFromBufferStart(bsl::ostream&      stream,
+                                       const bdlbb::Blob& source,
+                                       int                bufferIndex,
+                                       int                numBytes)
+    // Output to the specified 'stream' the specified 'numBytes' of data from
+    // the specified 'source' starting from the blob buffer having the
+    // specified 'bufferIndex' and return a reference to the modifiable
+    // 'stream'.  The behavior is undefined unless '0 <= bufferIndex',
+    // '0 <= numBytes', and the incrementing 'bufferIndex' does not reach the
+    // number of data buffers.
+{
+    BSLS_ASSERT(0 <= bufferIndex);
+    BSLS_ASSERT(0 <= numBytes);
+    while (0 < numBytes) {
+        BSLS_ASSERT(source.numDataBuffers() > bufferIndex);
+        const bdlbb::BlobBuffer& buffer = source.buffer(bufferIndex);
+
+        if (0 != buffer.size()) {
+            int bytesToWrite = numBytes < buffer.size() ? numBytes
+                                                        : buffer.size();
+
+            stream.write(buffer.data(), bytesToWrite);
+            numBytes -= bytesToWrite;
+        }
+        ++bufferIndex;
+    }
+
+    return stream;
 }
 
 }  // close unnamed namespace
@@ -549,22 +582,44 @@ char *BlobUtil::getContiguousDataBuffer(Blob              *blob,
 
 bsl::ostream& BlobUtil::asciiDump(bsl::ostream& stream, const Blob& source)
 {
-    int numBytes = source.length();
+    return asciiDumpFromBufferStart(stream, source, 0, source.length());
+}
 
-    for (int numBytesRemaining = numBytes, i = 0; 0 < numBytesRemaining; ++i) {
-        BSLS_ASSERT(i < source.numBuffers());
+bsl::ostream& BlobUtil::asciiDump(bsl::ostream& stream,
+                                  const Blob&   source,
+                                  int           offset,
+                                  int           length)
+{
+    BSLS_ASSERT(0 <= offset);
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(length <= source.length());
+    BSLS_ASSERT(offset <= source.length() - length);
 
-        const BlobBuffer& buffer = source.buffer(i);
-
-        int bytesToWrite = numBytesRemaining < buffer.size()
-                               ? numBytesRemaining
-                               : buffer.size();
-
-        stream.write(buffer.data(), bytesToWrite);
-        numBytesRemaining -= bytesToWrite;
+    if (0 == source.length() || 0 == length) {
+        return stream;                                                // RETURN
     }
 
-    return stream;
+    bsl::pair<int, int> place       = findBufferIndexAndOffset(source, offset);
+    int                 bufferIndex = place.first;
+    int                 offsetInThisBuffer = place.second;
+
+    // Stream data from the buffer pointed by the offset.
+
+    int               numBytesLeft = length;
+    const BlobBuffer& offsetBuffer = source.buffer(bufferIndex);
+    int               bytesToWrite = bsl::min(
+                                     numBytesLeft,
+                                     offsetBuffer.size() - offsetInThisBuffer);
+
+    stream.write(offsetBuffer.data() + offsetInThisBuffer, bytesToWrite);
+    numBytesLeft -= bytesToWrite;
+
+    // Stream remaining data.
+
+    return asciiDumpFromBufferStart(stream,
+                                    source,
+                                    bufferIndex + 1,
+                                    numBytesLeft);
 }
 
 bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,

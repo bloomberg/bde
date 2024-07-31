@@ -213,6 +213,17 @@ struct BlobUtil {
         // Write to the specified 'stream' an ascii dump of the specified
         // 'source', and return a reference to the modifiable 'stream'.
 
+    static bsl::ostream& asciiDump(bsl::ostream& stream,
+                                   const Blob&   source,
+                                   int           offset,
+                                   int           length);
+        // Write to the specified 'stream' an ascii dump of the specified
+        // 'length' bytes of the specified 'source' starting at the specified
+        // 'offset', and return a reference to the modifiable 'stream'.  The
+        // behavior is undefined unless '0 <= offset', '0 <= length',
+        // 'length <= source.length()' and
+        // 'offset <= source.length() - length'.
+
     static bsl::ostream& hexDump(bsl::ostream& stream, const Blob& source);
         // Write to the specified 'stream' a hexdump of the specified 'source',
         // and return a reference to the modifiable 'stream'.
@@ -223,7 +234,10 @@ struct BlobUtil {
                                  int           length);
         // Write to the specified 'stream' a hexdump of the specified 'length'
         // bytes of the specified 'source' starting at the specified 'offset',
-        // and return a reference to the modifiable 'stream'.
+        // and return a reference to the modifiable 'stream'.  The behavior is
+        // undefined unless '0 <= offset', '0 <= length',
+        // 'length <= source.length()' and
+        // 'offset <= source.length() - length'.
 
     static void padToAlignment(Blob *dest,
                                int   alignment,
@@ -392,17 +406,39 @@ struct BlobUtilAsciiDumper {
     // 'ball' logs.
 
     // DATA
-    const Blob *d_blob_p;
+    const Blob *d_blob_p;  // data to be dumped (held, not owned)
+    int         d_offset;  // desired offset
+    int         d_length;  // desired number of bytes to be dumped
 
     // CREATORS
     explicit BlobUtilAsciiDumper(const Blob *blob);
-        // Create an ascii dumper for the specified 'blob'.
+        // Create an ascii dumper for the specified 'blob' that dumps the
+        // entire 'blob' to the output stream when passed to 'operator<<'.  See
+        // 'operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)' for details.
+
+    BlobUtilAsciiDumper(const Blob *blob, int length);
+        // Create an ascii dumper for the specified 'blob' that ascii dumps the
+        // first 'min(length, blob->length())' bytes of the 'blob' to the
+        // output stream when passed to 'operator<<'.  See
+        // 'operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)' for details.
+        // The behavior is undefined unless '0 <= length'.
+
+    BlobUtilAsciiDumper(const Blob *blob, int offset, int length);
+        // Create a hex dumper for the specified 'blob' that ascii dumps the
+        // bytes of the 'blob' starting with the 'min(offset, blob->length())'
+        // byte and until 'min(offset + length, blob->length())' byte to the
+        // output stream when passed to 'operator<<'.  See
+        // 'operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)' for details.
+        // The behavior is undefined unless '0 <= offset && 0 <= length'.
 };
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, const BlobUtilAsciiDumper& rhs);
-    // Ascii-dump the blob referenced by the specified 'rhs' to the specified
-    // 'stream', and return a reference to the modifiable 'stream'.
+    // Ascii-dump to the specified 'stream' the bytes of the  blob referenced
+    // by the specified 'rhs' starting with the
+    // 'min(rhs.d_offset, rhs.d_blob_p->length())' byte and until
+    // 'min(rhs.d_offset + rhs.d_length, rhs.d_blob_p->length())' byte, and
+    // return a reference to the modifiable 'stream'.
 
                           // ========================
                           // struct BlobUtilHexDumper
@@ -414,23 +450,39 @@ struct BlobUtilHexDumper {
     // 'ball' logs.
 
     // DATA
-    const Blob *d_blob_p;
-    int         d_offset;
-    int         d_length;
+    const Blob *d_blob_p;  // data to be dumped (held, not owned)
+    int         d_offset;  // desired offset
+    int         d_length;  // desired number of bytes to be dumped
 
     // CREATORS
     explicit BlobUtilHexDumper(const Blob *blob);
-        // Create a hex dumper for the specified 'blob'.
+        // Create a hex dumper for the specified 'blob' that hex dumps the
+        // entire 'blob' to the output stream when passed to 'operator<<'.  See
+        // 'operator<<(bsl::ostream&, const BlobUtilHexDumper&)' for details.
+
+    BlobUtilHexDumper(const Blob *blob, int length);
+        // Create a hex dumper for the specified 'blob' that hex dumps the
+        // first 'min(length, blob->length())' bytes of the 'blob' to the
+        // output stream when passed to 'operator<<'.  See
+        // 'operator<<(bsl::ostream&, const BlobUtilHexDumper&)' for details.
+        // The behavior is undefined unless '0 <= length'.
 
     BlobUtilHexDumper(const Blob *blob, int offset, int length);
-        // Create a hex dumper for the specified 'blob' that dumps the
-        // specified 'length' bytes starting at the specified 'offset'.
+        // Create a hex dumper for the specified 'blob' that hex dumps the
+        // bytes of the 'blob' starting with the 'min(offset, blob->length())'
+        // byte and until 'min(offset + length, blob->length())' byte to the
+        // output stream when passed to 'operator<<'.  See
+        // 'operator<<(bsl::ostream&, const BlobUtilHexDumper&)' for details.
+        // The behavior is undefined unless '0 <= offset && 0 <= length'.
 };
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, const BlobUtilHexDumper& rhs);
-    // Hex-dump the blob referenced by the specified 'rhs' to the specified
-    // 'stream', and return a reference to the modifiable 'stream'.
+    // Hex-dump to the specified 'stream' the bytes of the  blob referenced by
+    // the specified 'rhs' starting with the
+    // 'min(rhs.d_offset, rhs.d_blob_p->length())' byte and until
+    // 'min(rhs.d_offset + rhs.d_length, rhs.d_blob_p->length())' byte, and
+    // return a reference to the modifiable 'stream'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -758,7 +810,30 @@ int BlobUtil::prependDataBufferIfValid(Blob                          *dest,
 inline
 BlobUtilAsciiDumper::BlobUtilAsciiDumper(const Blob *blob)
 : d_blob_p(blob)
+, d_offset(0)
+, d_length(blob->length())
 {
+}
+
+inline
+BlobUtilAsciiDumper::BlobUtilAsciiDumper(const Blob *blob, int length)
+: d_blob_p(blob)
+, d_offset(0)
+, d_length(length)
+{
+    BSLS_ASSERT(0 <= length);
+}
+
+inline
+BlobUtilAsciiDumper::BlobUtilAsciiDumper(const Blob *blob,
+                                         int         offset,
+                                         int         length)
+: d_blob_p(blob)
+, d_offset(offset)
+, d_length(length)
+{
+    BSLS_ASSERT(0 <= offset);
+    BSLS_ASSERT(0 <= length);
 }
 }  // close package namespace
 
@@ -767,7 +842,9 @@ inline
 bsl::ostream& bdlbb::operator<<(bsl::ostream&              stream,
                                 const BlobUtilAsciiDumper& rhs)
 {
-    return BlobUtil::asciiDump(stream, *rhs.d_blob_p);
+    int offset = bsl::min(rhs.d_offset, rhs.d_blob_p->length());
+    int length = bsl::min(rhs.d_length, rhs.d_blob_p->length() - offset);
+    return BlobUtil::asciiDump(stream, *rhs.d_blob_p, offset, length);
 }
 
 namespace bdlbb {
@@ -786,11 +863,22 @@ BlobUtilHexDumper::BlobUtilHexDumper(const Blob *blob)
 }
 
 inline
+BlobUtilHexDumper::BlobUtilHexDumper(const Blob *blob, int length)
+: d_blob_p(blob)
+, d_offset(0)
+, d_length(length)
+{
+    BSLS_ASSERT(0 <= length);
+}
+
+inline
 BlobUtilHexDumper::BlobUtilHexDumper(const Blob *blob, int offset, int length)
 : d_blob_p(blob)
 , d_offset(offset)
-, d_length((bsl::min)(length, blob->length() - offset))
+, d_length(length)
 {
+    BSLS_ASSERT(0 <= offset);
+    BSLS_ASSERT(0 <= length);
 }
 }  // close package namespace
 
@@ -799,8 +887,9 @@ inline
 bsl::ostream& bdlbb::operator<<(bsl::ostream&            stream,
                                 const BlobUtilHexDumper& rhs)
 {
-    return BlobUtil::hexDump(
-        stream, *rhs.d_blob_p, rhs.d_offset, rhs.d_length);
+    int offset = bsl::min(rhs.d_offset, rhs.d_blob_p->length());
+    int length = bsl::min(rhs.d_length, rhs.d_blob_p->length() - offset);
+    return BlobUtil::hexDump(stream, *rhs.d_blob_p, offset, length);
 }
 
 }  // close enterprise namespace
