@@ -35,6 +35,12 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 
+#if defined(__has_feature)
+#if __has_feature(memory_sanitizer)
+#include <sanitizer/msan_interface.h>
+#endif
+#endif
+
 # include <execinfo.h>
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
@@ -417,6 +423,13 @@ int StackAddressUtil::getStackAddresses(void **buffer,
     }
 
     int ret = backtrace(buffer, maxFrames);
+#if defined(__has_feature)
+#if __has_feature(memory_sanitizer)
+    if (ret > 0) {
+        __msan_unpoison(buffer, sizeof(void*) * ret);
+    }
+#endif
+#endif
     if (0 == ret) {
         void *p;
         backtrace(&p, 1);
