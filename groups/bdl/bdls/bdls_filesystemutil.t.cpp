@@ -128,14 +128,14 @@ using bsls::NameOf;
 // [26] int mapChecked(FileDescriptor, void **, Offset, bsl::size_t, int);
 // [26] int unmap(void *, bsl::size_t);
 // [28] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
-// [29] bool isSymbolicLink(STRING_TYPE);
-// [29] int getSymbolicLinkTarget(STRING_TYPE *, STRING_TYPE);
-// [30] createTemporarySubdirectory(bsl::string*, const bsl::string_view&)
-// [30] createTemporarySubdirectory(std::string*, const bsl::string_view&)
-// [30] createTemporarySubdirectory(pmr::string*, const bsl::string_view&)
-// [31] int remove(const char *);
+// [29] createTemporarySubdirectory(bsl::string*, const bsl::string_view&)
+// [29] createTemporarySubdirectory(std::string*, const bsl::string_view&)
+// [29] createTemporarySubdirectory(pmr::string*, const bsl::string_view&)
+// [30] int remove(const char *);
+// [30] int remove(STRING_TYPE);
 // [31] int remove(STRING_TYPE);
-// [32] int remove(STRING_TYPE);
+// [32] bool isSymbolicLink(STRING_TYPE);
+// [32] int getSymbolicLinkTarget(STRING_TYPE *, STRING_TYPE);
 //
 // FREE OPERATORS
 // [27] ostream& operator<<(ostream&, Whence);
@@ -154,8 +154,9 @@ using bsls::NameOf;
 // [20] CONCERN: directory permissions
 // [21] CONCERN: error codes for 'createDirectories'
 // [21] CONCERN: error codes for 'createPrivateDirectory'
-// [34] TESTING USAGE EXAMPLE 2
-// [33] TESTING USAGE EXAMPLE 1
+// [33] TESTING REMOVE UNIX SOCKET
+// [35] TESTING USAGE EXAMPLE 2
+// [34] TESTING USAGE EXAMPLE 1
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -4440,7 +4441,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -4525,7 +4526,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -4643,6 +4644,72 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING REMOVE UNIX SOCKET (DRQS 176123156)
+        //
+        // Concern:
+        //: 1 That 'Obj::remove' can remove an open socket.
+        //
+        // Plan:
+        //: 1 Open a socket between and bind it to the file system.
+        //:
+        //: 2 Remove the file manifestation of the socket.
+        //:
+        //: 3 Iterate twice, in the second iteration close the socket file
+        //:   descriptor before removing the file.
+        //
+        // Testing:
+        //   TESTING REMOVE UNIX SOCKET
+        // --------------------------------------------------------------------
+
+#ifndef BSLS_PLATFORM_OS_UNIX
+        if (verbose) cout <<
+                          "TESTING REMOVE UNIX SOCKET -- skipped on Windows\n"
+                          "================================================\n";
+#else
+        if (verbose) cout << "TESTING REMOVE UNIX SOCKET (DRQS 176123156)\n"
+                             "==============-----------------============\n";
+
+        ::sockaddr_un jointAddrRaw;
+        ::sockaddr *jointAddr_p =
+                                reinterpret_cast< ::sockaddr *>(&jointAddrRaw);
+        char *socketName = jointAddrRaw.sun_path;
+
+        for (int closeFirst = 0; closeFirst < 2; ++closeFirst) {
+            const char *fileName = closeFirst ? "closedFile" : "openFile";
+            ASSERT(bsl::strlen(fileName) < sizeof(jointAddrRaw.sun_path));
+
+            ::memset(jointAddr_p, 0, sizeof(jointAddrRaw));
+            jointAddrRaw.sun_family = AF_UNIX;
+            bsl::strcpy(socketName, fileName);
+
+            int sfd = ::socket(AF_UNIX, SOCK_STREAM, 0);
+            ASSERT(0 <= sfd);
+
+            Obj::remove(socketName);
+            int rc = ::bind(sfd, jointAddr_p, sizeof(jointAddrRaw));
+            ASSERT(0 == rc);
+
+            if (closeFirst) {
+                ASSERT(0 == ::close(sfd));
+            }
+
+            if (veryVerbose) {
+                char lsBuf[100] = { "ls -l " };
+                bsl::strcat(lsBuf, socketName);
+                ASSERTV(lsBuf, 0 == ::system(lsBuf));
+            }
+
+            ASSERT(Obj::exists(socketName));
+
+            rc = Obj::remove(socketName);
+            ASSERTV(closeFirst, rc, errno, ::strerror(errno), 0 == rc);
+
+            ASSERT(! Obj::exists(socketName));
+        }
+#endif
       } break;
       case 32: {
         // --------------------------------------------------------------------

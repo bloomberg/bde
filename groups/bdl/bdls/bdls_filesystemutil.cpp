@@ -1003,58 +1003,23 @@ int u_removeContentsOfTree(
             continue;
         }
 
-        bool isDir = false;
         FileDescriptor entryFD = ::openat(dirFD,
                                           entry.d_name,
-                                          O_RDONLY | O_NOFOLLOW | O_NONBLOCK,
+                                          O_DIRECTORY | O_RDONLY | O_NOFOLLOW,
                                           0);
-        if (-1 == entryFD) {
-            if (ENOENT == errno) {
-                // Another thread or process has deleted the file.
+        if (-1 != entryFD) {
+            // 'entry.d_name' is a directory.
 
-                return -3;                                            // RETURN
-            }
-#ifdef BSLS_PLATFORM_OS_AIX
-            // On AIX, '::openat' fails on pipes, but'::faccessat' is able to
-            // confirm that they exist.
+            // 'u_removeContentsOfTree' will close 'entryFD'.
 
-            if (EINVAL == errno && 0 == ::faccessat(dirFD,
-                                                    entry.d_name,
-                                                    F_OK,
-                                                    AT_SYMLINK_NOFOLLOW)) {
-                // It's a pipe -- delete it like a plain file.
-
-                ;
-            }
-            else
-#endif
-            if (ELOOP != errno) {
-                // not a symlink -- error
-
-                return -4;                                            // RETURN
-            }
-
-            // it's a symlink or pipe -- we'll just delete it like a plain file
-        }
-        else {
-            StatResult statResult;
-            if (0 != ::performFStat(entryFD, &statResult)) {
-                return 0 == ::close(entryFD) ? -5 : -6;               // RETURN
-            }
-            isDir = S_ISDIR(statResult.st_mode);
-            if (isDir) {
-                // 'u_removeContentsOfTree' will close 'entryFD'.
-
-                const int rc = u_removeContentsOfTree(entryFD);
-                if (0 != rc) {
-                    return -7;                                        // RETURN
-                }
-            } else if (0 != ::close(entryFD)) {
-                return -8;                                            // RETURN
+            const int rc = u_removeContentsOfTree(entryFD);
+            if (0 != rc) {
+                return -7;                                            // RETURN
             }
         }
 
-        if (0 != ::unlinkat(dirFD, entry.d_name, isDir ? AT_REMOVEDIR : 0)) {
+        const int flag = -1 != entryFD ? AT_REMOVEDIR : 0;
+        if (0 != ::unlinkat(dirFD, entry.d_name, flag)) {
             return -9;                                                // RETURN
         }
 
@@ -2561,84 +2526,43 @@ int FilesystemUtil::remove(const char *path, bool recursiveFlag)
                                                     0,
                                                     &invokeCloseFD);
 
-    bool isDir        = false;
-    bool leafFDIsOpen = false;
-    bool isError      = false;
-
     // If 'leaf' is a symlink, we just want to delete the symlink, not what it
     // points to, hence 'O_NOFOLLOW'.
 
     FileDescriptor leafFD = ::openat(parentFD,
                                      leaf.c_str(),
-                                     O_RDONLY | O_NOFOLLOW | O_NONBLOCK,
+                                     O_DIRECTORY | O_RDONLY | O_NOFOLLOW,
                                      0);
     if (-1 == leafFD) {
-#ifdef BSLS_PLATFORM_OS_AIX
-        // On AIX, '::openat' fails on pipes, but'::faccessat' is able to
-        // confirm that they exist.
-
-        if (EINVAL == errno && 0 == ::faccessat(parentFD,
-                                                leaf.c_str(),
-                                                F_OK,
-                                                AT_SYMLINK_NOFOLLOW)) {
-            // It's a pipe -- delete it like a plain file.
-
-            ;
-        }
-        else
-#endif
-        if (ELOOP != errno) {
-            // not a symlink -- error
-
-            return -6;                                                // RETURN
-        }
-
-        // it's a symlink or pipe -- we'll just delete it like a plain file
+        // It's a plain file, symlink, pipe, or socket -- we'll just delete it
+        // like a plain file.
 
         if (isErrorIfNotDir) {
-            // At this point, the file is either a symlink or (on AIX) maybe a
-            // pipe, and we treat those like plain files.  'isErrorIfNotDir'
-            // indicates that 'path' ended with '/' or "/.", which indicate
-            // that the client thought it was a directory, which is
-            // inconsistent and an error.
+            // 'isErrorIfNotDir' indicates that 'path' ended with '/' or "/.",
+            // which indicate that the client thought it was a directory, which
+            // is inconsistent and an error.
 
             return -7;                                                // RETURN
         }
     }
     else {
-        leafFDIsOpen = true;
+        // 'leaf' is a directory.
 
-        StatResult statResult;
-        if (0 != ::performFStat(leafFD, &statResult)) {
-            return 0 != ThisUtil::close(leafFD) ? -8 : -9;            // RETURN
-        }
-        isDir = S_ISDIR(statResult.st_mode);
-        if (!isDir) {
-            isError = isErrorIfNotDir;
-        }
-        else if (recursiveFlag) {
+        if (recursiveFlag) {
             const int rc = u_removeContentsOfTree(leafFD);
             if (0 != rc) {
-                return -10;                                           // RETURN
+                return -100 + rc;                                     // RETURN
             }
 
-            // 'u_removeContentsOfTree' has closed 'leafFD'.  Note that it
-            // removed files in the directory 'leaf', but not the directory
-            // 'leaf' itself.
-
-            leafFDIsOpen = false;
+            // 'u_removeContentsOfTree' closed 'leafFD'
+        }
+        else if (0 != ThisUtil::close(leafFD)) {
+            return -8;                                                // RETURN
         }
     }
 
-    if (leafFDIsOpen && 0 != ThisUtil::close(leafFD)) {
-        return -11;                                                   // RETURN
-    }
-
-    if (isError) {
-        return -12;                                                   // RETURN
-    }
-
-    return ::unlinkat(parentFD, leaf.c_str(), isDir ? AT_REMOVEDIR : 0)
+    const int flag = -1 != leafFD ? AT_REMOVEDIR : 0;
+    return ::unlinkat(parentFD, leaf.c_str(), flag)
            ? -13
            : 0;
 }
