@@ -166,6 +166,10 @@ struct is_trivially_default_constructible;
 namespace BloombergLP {
 namespace bslmf {
 
+           // ==================================================
+           // struct IsTriviallyDefaultConstructible_DetectTrait
+           // ==================================================
+
 template <class t_TYPE, bool t_K_INTRINSIC = false>
 struct IsTriviallyDefaultConstructible_DetectTrait
 : DetectNestedTrait<t_TYPE, bsl::is_trivially_default_constructible>::type {
@@ -177,10 +181,6 @@ struct IsTriviallyDefaultConstructible_DetectTrait
     // and the check for nested traits can be optimized away.
 };
 
-               // ==========================================
-               // struct IsTriviallyDefaultConstructible_Imp
-               // ==========================================
-
 template <class t_TYPE>
 struct IsTriviallyDefaultConstructible_DetectTrait<t_TYPE, true>
 : bsl::true_type {
@@ -188,6 +188,10 @@ struct IsTriviallyDefaultConstructible_DetectTrait<t_TYPE, true>
     // the (non-cv-qualified) (template parameter) 't_TYPE' is trivially
     // default constructible.
 };
+
+               // ==========================================
+               // struct IsTriviallyDefaultConstructible_Imp
+               // ==========================================
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 template <class t_TYPE>
@@ -207,7 +211,7 @@ struct IsTriviallyDefaultConstructible_Imp
       bsl::is_fundamental<t_TYPE>::value ||
       bsl::is_enum<t_TYPE>::value ||
       bsl::is_pointer<t_TYPE>::value ||
-      bsl::is_member_pointer<t_TYPE>::value> {
+      bsl::is_member_pointer<t_TYPE>::value>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 't_TYPE' is trivially
     // default-constructible.
