@@ -74,6 +74,59 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
+// ============================================================================
+//                  ASSISTANCE FUNCTIONS
+// ----------------------------------------------------------------------------
+
+void checkStandard(
+    const char                   *inputSpecification,
+    bsl::basic_string_view<char>  filler,
+    Formatter_SpecificationSplitter<char, const char *>::Alignment alignment,
+    Formatter_SpecificationSplitter<char, const char *>::Sign      sign,
+    bool                                                       alternativeFlag,
+    bool                                                       zeroPaddingFlag,
+    Formatter_SpecificationSplitter<char, const char *>::Value width,
+    Formatter_SpecificationSplitter<char, const char *>::Value precision,
+    bool                         localeSpecificFlag,
+    bsl::basic_string_view<char> finalSpec)
+{
+    const Formatter_SpecificationSplitter<char, const char *>::Sections sect =
+          static_cast<
+              Formatter_SpecificationSplitter<char, const char *>::Sections>(
+              Formatter_SpecificationSplitter<char, const char *>::
+                  e_SECTIONS_FILL_ALIGN |
+              Formatter_SpecificationSplitter<char, const char *>::
+                  e_SECTIONS_SIGN_FLAG |
+              Formatter_SpecificationSplitter<char, const char *>::
+                  e_SECTIONS_ALTERNATE_FLAG |
+              Formatter_SpecificationSplitter<char, const char *>::
+                  e_SECTIONS_ZERO_PAD_FLAG |
+              Formatter_SpecificationSplitter<char, const char *>::
+                  e_SECTIONS_WIDTH |
+              Formatter_SpecificationSplitter<char, const char *>::
+                  e_SECTIONS_PRECISION |
+              Formatter_SpecificationSplitter<char, const char *>::
+                  e_SECTIONS_LOCALE_FLAG |
+              Formatter_SpecificationSplitter<char, const char *>::
+                  e_SECTIONS_FINAL_SPECIFICATION);
+
+    Formatter_SpecificationSplitter<char, const char *> fs;
+
+    const char *start = inputSpecification;
+    const char *end   = start + strlen(start);
+    int         rv    = fs.parse(&start, end, sect);
+    ASSERT(0 == rv);
+    ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
+                                                  fs.fillerCharacters()));
+    ASSERT(alignment == fs.alignment());
+    ASSERT(sign == fs.sign());
+    ASSERT(alternativeFlag == fs.alternativeFlag());
+    ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
+    ASSERT(width == fs.width());
+    ASSERT(precision == fs.precision());
+    ASSERT(localeSpecificFlag == fs.localcSpecificFlag());
+    ASSERT(finalSpec == fs.finalSpec());
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -91,11 +144,52 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-        Formatter_SpecificationSplitter<char, const char *>  fs;
-        const char                                          *start = "{}";
+        typedef Formatter_SpecificationSplitter<char, const char *>       FSC;
+        typedef Formatter_SpecificationSplitter<wchar_t, const wchar_t *> FSW;
+
+        checkStandard("",
+                      "",
+                      FSC::e_ALIGN_DEFAULT,
+                      FSC::e_SIGN_DEFAULT,
+                      false,
+                      false,
+                      FSC::Value(0, FSC::Value::e_DEFAULT),
+                      FSC::Value(0, FSC::Value::e_DEFAULT),
+                      false,
+                      "");
+
+        checkStandard("*<06.3XYZ",
+                      "*",
+                      FSC::e_ALIGN_LEFT,
+                      FSC::e_SIGN_DEFAULT,
+                      false,
+                      true,
+                      FSC::Value(6, FSC::Value::e_VALUE),
+                      FSC::Value(3, FSC::Value::e_VALUE),
+                      false,
+                      "XYZ");
+
+        checkStandard("*<{}.{3}XYZ",
+                      "*",
+                      FSC::e_ALIGN_LEFT,
+                      FSC::e_SIGN_DEFAULT,
+                      false,
+                      false,
+                      FSC::Value(0, FSC::Value::e_NEXT_ARG),
+                      FSC::Value(3, FSC::Value::e_ARG_ID),
+                      false,
+                      "XYZ");
+
+        FSC  fs;
+        const char                                          *spec = "{}";
+        const char                                          *start = spec + 1;
         const char *end = start + strlen(start);
-        fs.parse(start, end);
-        ASSERT(true);  // placeholder
+        int         rv  = fs.parse(
+                         &start,
+                         end,
+                         Formatter_SpecificationSplitter<char,
+                                                const char *>::e_SECTIONS_ALL);
+        ASSERT(0 == rv);  // placeholder
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
