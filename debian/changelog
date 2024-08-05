@@ -1,5 +1,26 @@
-bsl-internal (4.12.0.0) unstable; urgency=low
+bsl-internal (4.12.0.1) unstable; urgency=low
 
+  * 3be660995 Bdls filesystemutil remove socket drqs 176123156 (#4850)
+  * b397b332e Avoid call to deprecated 'delete' method in 'bslma_polymorphicallocator.t.cpp' (#4853)
+  * ef3e9ab9c 'bdldd::BlobUtilHexDumper' API improvements.  DRQS 175544483 (#4787)
+  * a316c26d4 reduce bsl td warnings (#4852)
+  * 368132e5c DRQS 176142328: Fix lifetime issue in unit test (#4851)
+  * 132073472 Additional return statuses have been added for the 'RegEx::match'. DRQS 170470469 (#4753)
+  * 37a134558 bslma_allocator UBSAN test fix (#4849)
+  * eca474b85 BALM_METRICS_DYNAMIC_TIME_BLOCK macro correctly handles manager replacement. DRQS 175971077 (#4836)
+  * 316097618 bslma_bslallocator test should not free the nullptr (#4848)
+  * 2afbe81ac UBSAN errors have been fixed in 'bdlbb::BlobUtil' (#4833)
+  * 32b3bc9bb fix td compile warnings for clang-15 (#4847)
+  * 51ce83211 bdlcc_objectpool test fix (#4846)
+  * 9ca8e379c Re-sync invokerutil cpp03 test driver (#4845)
+  * 0e4cc510f reduce warnings (#4844)
+  * 0cb9f2989 Add static_cast to supress warning in bdlde_base64decoder (#4843)
+
+ -- Bill Chapman <bchapman2@bloomberg.net>  Fri, 2 Aug 2024 11:13:12 -0400
+
+bsl-internal (4.12.0.0) git; urgency=low
+
+  * 21a86806d Changelog for version 4.12.0.0
   * c88a56b5f Bumped version to 4.12.0.0
   * c5f63b61d bdls::FilesystemUtil::remove use 'O_NONBLOCK' when opening files (DRQS 176058340) (#4837)
   * 78efe41cd Fix bslstl_function_invokerutil nightly test failure (#4841)
@@ -21,7 +42,7 @@ bsl-internal (4.12.0.0) unstable; urgency=low
   * 9b275104a reduce td warnings (#4822)
   * d58cb4468 bdls::FilesystemUtil::remove -- fix security vulnerabilty drqs 174781262 (#4720)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 25 Jul 2024 11:26:00 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 25 Jul 2024 12:02:11 -0400
 
 bsl-internal (4.11.0.0) git; urgency=low
 
