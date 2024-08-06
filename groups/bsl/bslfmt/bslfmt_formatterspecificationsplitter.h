@@ -424,13 +424,13 @@ int Formatter_SpecificationSplitter<t_CHAR, t_ITER>::parseFillAndAlignment(
       } break;
       case 2: {
         cp = Formatter_UnicodeUtils::extractCodePoint(
-                                                Formatter_UnicodeUtils::e_UTF8,
+                                                Formatter_UnicodeUtils::e_UTF16,
                                                 (const void *)buffer,
                                                 cp_pos * sizeof(t_CHAR));
       } break;
       case 4: {
         cp = Formatter_UnicodeUtils::extractCodePoint(
-                                                Formatter_UnicodeUtils::e_UTF8,
+                                                Formatter_UnicodeUtils::e_UTF32,
                                                 (const void *)buffer,
                                                 cp_pos * sizeof(t_CHAR));
       } break;
@@ -535,7 +535,13 @@ int Formatter_SpecificationSplitter<t_CHAR, t_ITER>::parseWidth(
                                                                  t_ITER *start,
                                                                  t_ITER  end)
 {
-    return d_width.parse(start, end, false);
+    typedef Formatter_SpecificationSplitter<t_CHAR, t_ITER> FS;
+
+    int rv = d_width.parse(start, end, false);
+    // Widths must be strictly positive.
+    if (d_width == FS::Value(0, FS::Value::e_VALUE))
+        rv = -1;
+    return rv;
 }
 
 template <class t_CHAR, class t_ITER>

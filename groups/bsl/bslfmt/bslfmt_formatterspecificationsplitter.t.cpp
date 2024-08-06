@@ -128,6 +128,58 @@ void checkStandard(
     ASSERT(finalSpec == fs.finalSpec());
 }
 
+void checkStandard(
+    const wchar_t                   *inputSpecification,
+    bsl::basic_string_view<wchar_t>  filler,
+    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::Alignment
+                                     alignment,
+    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::Sign sign,
+    bool alternativeFlag,
+    bool zeroPaddingFlag,
+    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::Value width,
+    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::Value precision,
+    bool                            localeSpecificFlag,
+    bsl::basic_string_view<wchar_t> finalSpec)
+{
+    const Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::Sections
+        sect = static_cast<
+            Formatter_SpecificationSplitter<wchar_t,
+                                            const wchar_t *>::Sections>(
+                    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::
+                        e_SECTIONS_FILL_ALIGN |
+                    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::
+                        e_SECTIONS_SIGN_FLAG |
+                    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::
+                        e_SECTIONS_ALTERNATE_FLAG |
+                    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::
+                        e_SECTIONS_ZERO_PAD_FLAG |
+                    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::
+                        e_SECTIONS_WIDTH |
+                    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::
+                        e_SECTIONS_PRECISION |
+                    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::
+                        e_SECTIONS_LOCALE_FLAG |
+                    Formatter_SpecificationSplitter<wchar_t, const wchar_t *>::
+                        e_SECTIONS_FINAL_SPECIFICATION);
+
+    Formatter_SpecificationSplitter<wchar_t, const wchar_t *> fs;
+
+    const wchar_t *start = inputSpecification;
+    const wchar_t *end   = start + wcslen(start);
+    int            rv    = fs.parse(&start, end, sect);
+    ASSERT(0 == rv);
+    ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
+                                                     fs.fillerCharacters()));
+    ASSERT(alignment == fs.alignment());
+    ASSERT(sign == fs.sign());
+    ASSERT(alternativeFlag == fs.alternativeFlag());
+    ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
+    ASSERT(width == fs.width());
+    ASSERT(precision == fs.precision());
+    ASSERT(localeSpecificFlag == fs.localcSpecificFlag());
+    ASSERT(finalSpec == fs.finalSpec());
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -180,16 +232,39 @@ int main(int argc, char **argv)
                       false,
                       "XYZ");
 
-        FSC  fs;
-        const char                                          *spec = "{}";
-        const char                                          *start = spec + 1;
-        const char *end = start + strlen(start);
-        int         rv  = fs.parse(
-                         &start,
-                         end,
-                         Formatter_SpecificationSplitter<char,
-                                                const char *>::e_SECTIONS_ALL);
-        ASSERT(0 == rv);  // placeholder
+        checkStandard(L"",
+                      L"",
+                      FSW::e_ALIGN_DEFAULT,
+                      FSW::e_SIGN_DEFAULT,
+                      false,
+                      false,
+                      FSW::Value(0, FSW::Value::e_DEFAULT),
+                      FSW::Value(0, FSW::Value::e_DEFAULT),
+                      false,
+                      L"");
+
+        checkStandard(L"*<06.3XYZ",
+                      L"*",
+                      FSW::e_ALIGN_LEFT,
+                      FSW::e_SIGN_DEFAULT,
+                      false,
+                      true,
+                      FSW::Value(6, FSW::Value::e_VALUE),
+                      FSW::Value(3, FSW::Value::e_VALUE),
+                      false,
+                      L"XYZ");
+
+        checkStandard(L"*<{}.{3}XYZ",
+                      L"*",
+                      FSW::e_ALIGN_LEFT,
+                      FSW::e_SIGN_DEFAULT,
+                      false,
+                      false,
+                      FSW::Value(0, FSW::Value::e_NEXT_ARG),
+                      FSW::Value(3, FSW::Value::e_ARG_ID),
+                      false,
+                      L"XYZ");
+
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

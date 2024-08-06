@@ -42,7 +42,6 @@
 #include <bslfmt_formatterfloating.h>
 #include <bslfmt_formatterpointer.h>
 #include <bslfmt_formatterstring.h>
-#include <bslfmt_formatterutils.h>
 
 #include <iterator>             // 'back_insert_iterator'
 

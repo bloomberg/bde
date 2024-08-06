@@ -22,7 +22,6 @@
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterunicodeutils.h>
-#include <bslfmt_formatterutils.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'

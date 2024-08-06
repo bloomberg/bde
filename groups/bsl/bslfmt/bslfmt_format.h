@@ -137,7 +137,6 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formatterfloating.h>
 #include <bslfmt_formatterpointer.h>
 #include <bslfmt_formatterstring.h>
-#include <bslfmt_formatterutils.h>
 #endif
 
 #include <bsls_compilerfeatures.h>
