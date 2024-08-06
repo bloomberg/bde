@@ -384,8 +384,8 @@ int main(int argc, char **argv)
 
             std::string rv1 = std::vformat((const char *)fmt,
                                             std::make_format_args(1));
-            std::string rv2 = std::vformat("{:\U0001F600<6}",
-                                std::make_format_args(1));
+            std::string rv2 = std::vformat((const char *)u8"{:\U0001F600<6}",
+                                std::make_format_args((int)1));
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
