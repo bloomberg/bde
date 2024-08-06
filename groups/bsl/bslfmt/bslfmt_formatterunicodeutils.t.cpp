@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 
         ASSERT(!cpresult.isValid);
 
-        const char *fmt1 = (const char *) u8"\U0001F600";
+        const char *fmt1 = (const char *) "\U0001F600";
         int len1 = (int) strlen(fmt1);
 
         cpresult = Formatter_UnicodeUtils::extractCodePoint(
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
         ASSERT(cpresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF8);
 
         if (sizeof(wchar_t) == 2) {
-            const wchar_t *fmt2 = (const wchar_t *)u"\U0001F600";
+            const wchar_t *fmt2 = (const wchar_t *) L"\U0001F600";
             int         len2 = (int) wcslen(fmt2);
 
             cpresult = Formatter_UnicodeUtils::extractCodePoint(
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
             ASSERT(cpresult.numSourceBytes == 4);
         }
         else {
-            const wchar_t *fmt2 = (const wchar_t *)U"\U0001F600";
+            const wchar_t *fmt2 = (const wchar_t *) L"\U0001F600";
             int         len2 = (int) wcslen(fmt2);
 
             cpresult = Formatter_UnicodeUtils::extractCodePoint(
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
         ASSERT(cpresult.codePointWidth == 2);
         ASSERT(cpresult.isValid == true);
 
-        const char *fmt3 = (const char *) u8"\U00000067\U00000308";
+        const char *fmt3 = (const char *) "\U00000067\U00000308";
         int len3 = (int) strlen(fmt3);
 
         Formatter_UnicodeUtils::GraphemeClusterExtractionResult
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
         ASSERT(gcresult.numSourceBytes == 3);
         ASSERT(gcresult.sourceEncoding == Formatter_UnicodeUtils::e_UTF8);
 
-        const char *fmt4 = (const char *) u8"\U0001F408\U0000200D\U0001F7E7hello";
+        const char *fmt4 = (const char *) "\U0001F408\U0000200D\U0001F7E7hello";
         int len4 = (int) strlen(fmt4);
 
         gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
 
         if (sizeof(wchar_t) == 2) {
             const wchar_t *fmt5 = (const wchar_t *)
-                u"\U0001F407\U0000200D\U0001F7E7hello";
+                L"\U0001F407\U0000200D\U0001F7E7hello";
             int         len5 = (int) wcslen(fmt5);
 
             gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
@@ -204,7 +204,7 @@ int main(int argc, char **argv)
         }
         else {
             const wchar_t *fmt5 = (const wchar_t *)
-                U"\U0001F407\U0000200D\U0001F7E7hello";
+                L"\U0001F407\U0000200D\U0001F7E7hello";
             int         len5 = (int) wcslen(fmt5);
 
             gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(

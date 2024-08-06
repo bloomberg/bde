@@ -167,7 +167,7 @@ class Formatter_SpecificationSplitter {
 
 template <class t_CHAR, class t_ITER>
 inline
-Formatter_SpecificationSplitter <t_CHAR, t_ITER>::Alignment
+typename Formatter_SpecificationSplitter <t_CHAR, t_ITER>::Alignment
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::alignmentFromChar(t_CHAR in)
 {
     if ('<' == in)
@@ -185,7 +185,7 @@ Formatter_SpecificationSplitter<t_CHAR, t_ITER>::alignmentFromChar(t_CHAR in)
 
 template <class t_CHAR, class t_ITER>
 inline
-Formatter_SpecificationSplitter<t_CHAR, t_ITER>::Sign
+typename Formatter_SpecificationSplitter<t_CHAR, t_ITER>::Sign
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::signFromChar(t_CHAR in)
 {
     if ('+' == in)
@@ -242,6 +242,7 @@ int       Formatter_SpecificationSplitter<t_CHAR, t_ITER>::fillerCharacters()
 }
 
 template <class t_CHAR, class t_ITER>
+typename
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::Alignment
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::alignment()
 {
@@ -249,6 +250,7 @@ Formatter_SpecificationSplitter<t_CHAR, t_ITER>::alignment()
 }
 
 template <class t_CHAR, class t_ITER>
+typename
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::Sign
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::sign()
 {
@@ -268,6 +270,7 @@ bool Formatter_SpecificationSplitter<t_CHAR, t_ITER>::zeroPaddingFlag()
 }
 
 template <class t_CHAR, class t_ITER>
+typename
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::Value
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::width()
 {
@@ -275,6 +278,7 @@ Formatter_SpecificationSplitter<t_CHAR, t_ITER>::width()
 }
 
 template <class t_CHAR, class t_ITER>
+typename
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::Value
 Formatter_SpecificationSplitter<t_CHAR, t_ITER>::precision()
 {
@@ -301,8 +305,9 @@ int Formatter_SpecificationSplitter<t_CHAR, t_ITER>::parse(t_ITER   *start,
                                                            t_ITER    end,
                                                            Sections  sections)
 {
-    BSLMF_ASSERT((bsl::is_same<bsl::iterator_traits<t_ITER>::value_type,
-                               t_CHAR>::value));
+    BSLMF_ASSERT(
+               (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
+                             t_CHAR>::value));
 
     // Handle empty string or empty specification.
     if (*start == end || **start == '}')
