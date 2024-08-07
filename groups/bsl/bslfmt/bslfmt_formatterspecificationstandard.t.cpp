@@ -91,26 +91,6 @@ void checkStandard(
     bool                         localeSpecificFlag,
     FormatterSpecificationStandard<char, const char *>::FormatType formatType)
 {
-    const FormatterSpecificationStandard<char, const char *>::Sections sect =
-          static_cast<
-              FormatterSpecificationStandard<char, const char *>::Sections>(
-              FormatterSpecificationStandard<char, const char *>::
-                  e_SECTIONS_FILL_ALIGN |
-              FormatterSpecificationStandard<char, const char *>::
-                  e_SECTIONS_SIGN_FLAG |
-              FormatterSpecificationStandard<char, const char *>::
-                  e_SECTIONS_ALTERNATE_FLAG |
-              FormatterSpecificationStandard<char, const char *>::
-                  e_SECTIONS_ZERO_PAD_FLAG |
-              FormatterSpecificationStandard<char, const char *>::
-                  e_SECTIONS_WIDTH |
-              FormatterSpecificationStandard<char, const char *>::
-                  e_SECTIONS_PRECISION |
-              FormatterSpecificationStandard<char, const char *>::
-                  e_SECTIONS_LOCALE_FLAG |
-              FormatterSpecificationStandard<char, const char *>::
-                  e_SECTIONS_FINAL_SPECIFICATION);
-
     FormatterSpecificationStandard<char, const char *> fs;
 
     const char *start = inputSpecification;
@@ -146,27 +126,6 @@ void checkStandard(
      FormatterSpecificationStandard<wchar_t, const wchar_t *>::FormatType
           formatType)
 {
-    const FormatterSpecificationStandard<wchar_t, const wchar_t *>::Sections
-        sect = static_cast<
-            FormatterSpecificationStandard<wchar_t,
-                                            const wchar_t *>::Sections>(
-                    FormatterSpecificationStandard<wchar_t, const wchar_t *>::
-                        e_SECTIONS_FILL_ALIGN |
-                    FormatterSpecificationStandard<wchar_t, const wchar_t *>::
-                        e_SECTIONS_SIGN_FLAG |
-                    FormatterSpecificationStandard<wchar_t, const wchar_t *>::
-                        e_SECTIONS_ALTERNATE_FLAG |
-                    FormatterSpecificationStandard<wchar_t, const wchar_t *>::
-                        e_SECTIONS_ZERO_PAD_FLAG |
-                    FormatterSpecificationStandard<wchar_t, const wchar_t *>::
-                        e_SECTIONS_WIDTH |
-                    FormatterSpecificationStandard<wchar_t, const wchar_t *>::
-                        e_SECTIONS_PRECISION |
-                    FormatterSpecificationStandard<wchar_t, const wchar_t *>::
-                        e_SECTIONS_LOCALE_FLAG |
-                    FormatterSpecificationStandard<wchar_t, const wchar_t *>::
-                        e_SECTIONS_FINAL_SPECIFICATION);
-
     FormatterSpecificationStandard<wchar_t, const wchar_t *> fs;
 
     const wchar_t *start = inputSpecification;

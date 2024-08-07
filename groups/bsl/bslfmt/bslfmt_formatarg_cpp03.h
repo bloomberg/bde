@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jul 16 15:55:47 2024
+// Generated on Wed Aug  7 18:02:44 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -782,6 +782,8 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
                       // -------------------------------
 
 // CLASS METHODS
+
+// TODO ImpUtil not ImpUtils
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE

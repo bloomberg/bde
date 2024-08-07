@@ -242,7 +242,7 @@ bool  FormatterSpecificationStandard<t_CHAR, t_ITER>::localcSpecificFlag()
 }
 
 template <class t_CHAR, class t_ITER>
-FormatterSpecificationStandard<t_CHAR, t_ITER>::FormatType
+typename FormatterSpecificationStandard<t_CHAR, t_ITER>::FormatType
 FormatterSpecificationStandard<t_CHAR, t_ITER>::formatType()
 {
     return d_formatType;

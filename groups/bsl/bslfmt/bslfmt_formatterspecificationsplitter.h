@@ -191,14 +191,14 @@ class FormatterSpecification_Splitter
 
 inline
 FormatterSpecification_SplitterEnums::Value::Value()
-: d_type(e_DEFAULT), d_value(0)
+: d_value(0), d_type(e_DEFAULT)
 {
 }
 
 inline
 FormatterSpecification_SplitterEnums::Value::Value(int value, ValueType type)
-: d_type(type)
-, d_value(value)
+: d_value(value)
+, d_type(type)
 {
 }
 
@@ -481,7 +481,7 @@ int FormatterSpecification_Splitter<t_CHAR, t_ITER>::parseFillAndAlignment(
     if (!cp.isValid)
         return -1;                                                    // RETURN
 
-    if (cp.numSourceBytes > cp_pos * sizeof(t_CHAR))
+    if (static_cast<size_t>(cp.numSourceBytes) > cp_pos * sizeof(t_CHAR))
         return -1;                                                    // RETURN
 
     t_ITER aligner = *start + (cp.numSourceBytes / sizeof(t_CHAR));
