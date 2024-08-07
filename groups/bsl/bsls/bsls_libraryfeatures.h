@@ -1877,7 +1877,7 @@ BSLS_IDENT("$Id: $")
                     defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE >= 11
                     #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY   1
                 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) &&            \
-                      defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 15
+                      defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 150000
                     #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY   1
                 #endif
             #endif
@@ -1885,7 +1885,7 @@ BSLS_IDENT("$Id: $")
     #endif
 
     #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L &&                         \
-        (_GLIBCXX_RELEASE >= 9 || _LIBCPP_VERSION >= 16)
+        (_GLIBCXX_RELEASE >= 9 || _LIBCPP_VERSION >= 170000)
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                            1
         #if defined(_GLIBCXX_RELEASE)
         // GLIB logic as above for GNU
