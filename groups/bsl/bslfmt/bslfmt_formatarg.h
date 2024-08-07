@@ -622,6 +622,8 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
 
 // CLASS METHODS
 
+// TODO ImpUtil not ImpUtils
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_CONTEXT, class... t_FMTARGS>
 void Format_FormatArg_ImpUtils::makeFormatArgArray(
