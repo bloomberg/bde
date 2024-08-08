@@ -371,20 +371,21 @@ struct AllocatorUtil {
 
     template <class t_TYPE>
     static
-    void *allocateBytesImp(const bsl::polymorphic_allocator<t_TYPE>& allocator,
-                           std::size_t                             nbytes,
-                           std::size_t                             alignment);
+    void *allocateBytesImp(
+                          const bsl::polymorphic_allocator<t_TYPE>& allocator,
+                          std::size_t                               nbytes,
+                          std::size_t                               alignment);
     template <class t_TYPE>
     static
     void *allocateBytesImp(const bsl::allocator<t_TYPE>& allocator,
-                           std::size_t                 nbytes,
-                           std::size_t                 alignment);
+                           std::size_t                   nbytes,
+                           std::size_t                   alignment);
     template <class t_ALLOCATOR>
     static
     typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer
     allocateBytesImp(const t_ALLOCATOR&          allocator,
-                     std::size_t               nbytes,
-                     std::size_t               alignment);
+                     std::size_t                 nbytes,
+                     std::size_t                 alignment);
         // Return the specified 'nbytes' raw bytes having the specified
         // 'alignment' allocated from the specified 'allocator'.  If
         // 'alignment' is larger than the largest supported alignment, the
@@ -393,21 +394,21 @@ struct AllocatorUtil {
     template <class t_TYPE>
     static void
     deallocateBytesImp(const bsl::polymorphic_allocator<t_TYPE>&  allocator,
-                       void                                    *p,
-                       std::size_t                              nbytes,
-                       std::size_t                              alignment);
+                       void                                      *p,
+                       std::size_t                                nbytes,
+                       std::size_t                                alignment);
     template <class t_TYPE>
     static void
     deallocateBytesImp(const bsl::allocator<t_TYPE>&  allocator,
-                       void                        *p,
-                       std::size_t                  nbytes,
-                       std::size_t                  alignment);
+                       void                          *p,
+                       std::size_t                    nbytes,
+                       std::size_t                    alignment);
     template <class t_ALLOCATOR>
     static void deallocateBytesImp(
         const t_ALLOCATOR&                                       allocator,
         typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer p,
-        std::size_t                                            nbytes,
-        std::size_t                                            alignment);
+        std::size_t                                              nbytes,
+        std::size_t                                              alignment);
         // Return, to the specified 'allocator', the block of raw memory at the
         // specified 'p' address having the specified 'nbytes' size and the
         // specified 'alignment'.  The behavior is undefined unless 'p' refers
@@ -417,7 +418,7 @@ struct AllocatorUtil {
     template <class t_ALLOCATOR, class t_POINTER, class t_VALUE_TYPE>
     static void deallocateObjectImp(const t_ALLOCATOR&  allocator,
                                     t_POINTER           p,
-                                    std::size_t       n,
+                                    std::size_t         n,
                                     const t_VALUE_TYPE& );
 
     template <class t_ALLOCATOR, class t_POINTER, class t_VALUE_TYPE>
@@ -458,13 +459,13 @@ struct AllocatorUtil {
     template <class t_ALLOCATOR>
     static typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer
     allocateBytes(const t_ALLOCATOR& allocator,
-                  std::size_t      nbytes,
-                  std::size_t      alignment = k_MAX_ALIGNMENT);
+                  std::size_t        nbytes,
+                  std::size_t        alignment = k_MAX_ALIGNMENT);
         // Return a pointer to a block of raw memory allocated from the
         // specified 'allocator' having the specified 'nbytes' size and
         // optionally specified 'alignment'.  If 'alignment' is larger than the
         // largest supported alignment, either the block will be aligned to the
-        // maxiumum supported alignment or an exception will be thrown.  The
+        // maximum supported alignment or an exception will be thrown.  The
         // specific choice of behavior is determined by the allocator: for
         // polymorphic allocators the behavior is determined by the memory
         // resource, whereas for non-polymorphic allocators, the alignment is
@@ -505,8 +506,8 @@ struct AllocatorUtil {
     static void deallocateBytes(
         const t_ALLOCATOR&                                       allocator,
         typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer p,
-        std::size_t                                            nbytes,
-        std::size_t                                            alignment
+        std::size_t                                              nbytes,
+        std::size_t                                              alignment
                                                             = k_MAX_ALIGNMENT);
         // Return to the specified allocator the block raw memory at the
         // specified 'p' address having the specified 'nbytes' size and
@@ -517,7 +518,7 @@ struct AllocatorUtil {
     template <class t_ALLOCATOR, class t_POINTER>
     static void deallocateObject(const t_ALLOCATOR& allocator,
                                  t_POINTER          p,
-                                 std::size_t      n = 1);
+                                 std::size_t        n = 1);
         // Return to the specified 'allocator' a block of raw memory at the
         // specified 'p' address that is suitably sized and aligned to hold an
         // object of (templatize parameter) 't_TYPE'.  Optionally specify 'n'
@@ -642,8 +643,8 @@ template <class t_TYPE>
 inline
 void *AllocatorUtil::allocateBytesImp(
                        const bsl::polymorphic_allocator<t_TYPE>& allocator,
-                       std::size_t                             nbytes,
-                       std::size_t                             alignment)
+                       std::size_t                               nbytes,
+                       std::size_t                               alignment)
 {
     return allocator.resource()->allocate(nbytes, alignment);
 }
@@ -651,8 +652,8 @@ void *AllocatorUtil::allocateBytesImp(
 template <class t_TYPE>
 inline
 void *AllocatorUtil::allocateBytesImp(const bsl::allocator<t_TYPE>& allocator,
-                                      std::size_t                 nbytes,
-                                      std::size_t                 alignment)
+                                      std::size_t                   nbytes,
+                                      std::size_t                   alignment)
 {
     return allocator.resource()->allocate(nbytes, alignment);
 }
@@ -660,8 +661,8 @@ void *AllocatorUtil::allocateBytesImp(const bsl::allocator<t_TYPE>& allocator,
 template <class t_ALLOCATOR>
 typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer
 AllocatorUtil::allocateBytesImp(const t_ALLOCATOR& allocator,
-                                std::size_t      nbytes,
-                                std::size_t      alignment)
+                                std::size_t        nbytes,
+                                std::size_t        alignment)
 {
     BSLMF_ASSERT(4 <= k_MAX_ALIGNMENT && k_MAX_ALIGNMENT <= 32);
 
@@ -695,9 +696,9 @@ template <class t_TYPE>
 inline
 void AllocatorUtil::deallocateBytesImp(
                           const bsl::polymorphic_allocator<t_TYPE>&  allocator,
-                          void                                    *p,
-                          std::size_t                              nbytes,
-                          std::size_t                              alignment)
+                          void                                      *p,
+                          std::size_t                                nbytes,
+                          std::size_t                                alignment)
 {
     return allocator.resource()->deallocate(p, nbytes, alignment);
 }
@@ -717,8 +718,8 @@ template <class t_ALLOCATOR>
 void AllocatorUtil::deallocateBytesImp(
     const t_ALLOCATOR&                                       allocator,
     typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer p,
-    std::size_t                                            nbytes,
-    std::size_t                                            alignment)
+    std::size_t                                              nbytes,
+    std::size_t                                              alignment)
 {
     BSLMF_ASSERT(4 <= k_MAX_ALIGNMENT && k_MAX_ALIGNMENT <= 32);
 
@@ -765,7 +766,7 @@ template <class t_ALLOCATOR, class t_POINTER, class t_VALUE_TYPE>
 inline
 void AllocatorUtil::deallocateObjectImp(const t_ALLOCATOR&  allocator,
                                         t_POINTER           p,
-                                        std::size_t       n,
+                                        std::size_t         n,
                                         const t_VALUE_TYPE& )
 {
     typedef AllocatorUtil_Traits<t_ALLOCATOR, t_VALUE_TYPE> Traits;
@@ -820,8 +821,8 @@ template <class t_ALLOCATOR>
 inline
 typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer
 AllocatorUtil::allocateBytes(const t_ALLOCATOR& allocator,
-                             std::size_t      nbytes,
-                             std::size_t      alignment)
+                             std::size_t        nbytes,
+                             std::size_t        alignment)
 {
     BSLS_ASSERT(isPowerOf2(alignment));
 
@@ -862,8 +863,8 @@ inline
 void AllocatorUtil::deallocateBytes(
     const t_ALLOCATOR&                                       allocator,
     typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer p,
-    std::size_t                                            nbytes,
-    std::size_t                                            alignment)
+    std::size_t                                              nbytes,
+    std::size_t                                              alignment)
 {
     BSLS_ASSERT(isPowerOf2(alignment));
 
@@ -876,7 +877,7 @@ template <class t_ALLOCATOR, class t_POINTER>
 inline
 void AllocatorUtil::deallocateObject(const t_ALLOCATOR& allocator,
                                      t_POINTER          p,
-                                     std::size_t      n)
+                                     std::size_t        n)
 {
     BSLS_ASSERT(t_POINTER() != p);
     deallocateObjectImp(allocator, p, n, *p);

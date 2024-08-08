@@ -188,7 +188,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // Finally, we destroy the released 'Datum' object:
 //..
-//  Datum::destroy(internalObj, obj.get_allocator().mechanism());
+//  Datum::destroy(internalObj, obj.get_allocator());
 //..
 
 #include <bdlscm_version.h>
@@ -196,6 +196,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdld_datum.h>
 
 #include <bslma_allocator.h>
+#include <bslma_allocatorutil.h>
 #include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -221,7 +222,7 @@ class ManagedDatum {
 
   public:
     // TYPES
-    typedef bsl::allocator<char> allocator_type;
+    typedef bsl::allocator<> allocator_type;
 
   private:
     // DATA
@@ -230,7 +231,6 @@ class ManagedDatum {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslma::UsesBslmaAllocator);
     BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslmf::IsBitwiseMoveable);
         // 'ManagedDatum' objects are allocator-aware and bitwise movable.
 
@@ -405,13 +405,13 @@ ManagedDatum::ManagedDatum(const ManagedDatum&   original,
                            const allocator_type& allocator)
 : d_allocator(allocator)
 {
-    d_data = original.d_data.clone(d_allocator.mechanism());
+    d_data = original.d_data.clone(d_allocator);
 }
 
 inline
 ManagedDatum::~ManagedDatum()
 {
-    Datum::destroy(d_data, d_allocator.mechanism());
+    Datum::destroy(d_data, d_allocator);
 }
 
 // MANIPULATORS
@@ -434,7 +434,7 @@ void ManagedDatum::adopt(const Datum& obj)
 inline
 void ManagedDatum::clone(const Datum& value)
 {
-    Datum data = value.clone(d_allocator.mechanism());
+    Datum data = value.clone(d_allocator);
     ManagedDatum(data, d_allocator).swap(*this);
 }
 

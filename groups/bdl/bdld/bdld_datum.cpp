@@ -154,26 +154,24 @@ bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs);
     // Return 'true' if key in the specified 'lhs' is less than key in the
     // specified 'rhs' and 'false' otherwise.
 
-static Datum copyArray(const DatumArrayRef&  array,
-                       bslma::Allocator     *basicAllocator);
+static Datum copyArray(const DatumArrayRef&        array,
+                       const Datum::AllocatorType& allocator);
     // Clone the elements in the specified 'array'.  Use the specified
-    // 'basicAllocator' to allocate memory (if needed).  Any dynamically
-    // allocated memory inside the 'Datum' objects within 'array' is also deep-
-    // copied.
+    // 'allocator' to allocate memory (if needed).  Any dynamically allocated
+    // memory inside the 'Datum' objects within 'array' is also deep-copied.
 
-static Datum copyIntMap(const DatumIntMapRef&  map,
-                        bslma::Allocator      *basicAllocator);
+static Datum copyIntMap(const DatumIntMapRef&       map,
+                        const Datum::AllocatorType& allocator);
     // Clone the elements in the specified int 'map'.  Use the specified
-    // 'basicAllocator' to allocate memory (if needed).  Any dynamically
-    // allocated memory inside the 'Datum' objects within 'map' is also
-    // deep-copied.
+    // 'allocator' to allocate memory (if needed).  Any dynamically allocated
+    // memory inside the 'Datum' objects within 'map' is also deep-copied.
 
-static Datum copyMapOwningKeys(const DatumMapRef&  map,
-                               bslma::Allocator   *basicAllocator);
+static Datum copyMapOwningKeys(const DatumMapRef&          map,
+                               const Datum::AllocatorType& allocator);
     // Clone the elements in the specified 'map'.  Use the specified
-    // 'basicAllocator' to allocate memory (if needed).  Any dynamically
-    // allocated memory inside the 'Datum' objects within 'map' is also
-    // deep-copied.  The keys in the elements within 'map' are cloned.
+    // 'allocator' to allocate memory (if needed).  Any dynamically allocated
+    // memory inside the 'Datum' objects within 'map' is also deep-copied.  The
+    // keys in the elements within 'map' are also cloned.
 
 static const Datum *findElementBinary(const bslstl::StringRef& key,
                                       const DatumMapRef&       map);
@@ -200,21 +198,22 @@ class Datum_ArrayProctor {
 
   private:
     // DATA
-    void             *d_base_p;       // base address of the array of 'Datum'
-                                      // objects
+    void        *d_base_p;     // base address of the array of 'Datum' objects
 
-    ELEMENT          *d_begin_p;      // starting address of the range in the
-                                      // array to be managed
+    bsl::size_t  d_size;       // number of bytes in the base allocation
 
-    ELEMENT          *d_end_p;        // address of the first element beyond
-                                      // the last element in the range to be
-                                      // managed
+    ELEMENT     *d_begin_p;    // starting address of the range in the array to
+                               // be managed
 
-    bool              d_released;     // flag indicating whether the object has
-                                      // been released explicitly
+    ELEMENT     *d_end_p;      // address of the first element beyond the last
+                               // element in the range to be managed
 
-    bslma::Allocator *d_allocator_p;  // allocator used to manage memory for
-                                      // the array of 'Datum' objects
+    bool         d_released;   // flag indicating whether the object has been
+                               // released explicitly
+
+    Datum::AllocatorType
+                 d_allocator;  // allocator used to manage memory for
+                               // the array of 'Datum' objects
 
     // PRIVATE MANIPULATORS
     void destroy();
@@ -229,14 +228,15 @@ class Datum_ArrayProctor {
 
   public:
     // CREATORS
-    Datum_ArrayProctor(void             *base,
-                       ELEMENT          *begin,
-                       ELEMENT          *end,
-                       bslma::Allocator *basicAllocator);
+    Datum_ArrayProctor(void                        *base,
+                       bsl::size_t                  size,
+                       ELEMENT                     *begin,
+                       ELEMENT                     *end,
+                       const Datum::AllocatorType&  allocator);
         // Create an array exception proctor object for the array of 'Datum'
         // objects at the specified 'base' delimited by the range specified by
         // '[ begin, end )'.  The memory inside the array is managed using the
-        // specified 'basicAllocator'.  The behavior is undefined unless
+        // specified 'allocator'.  The behavior is undefined unless
         // '0 != base', '0 != begin', '0 != basicAllocator', 'begin <= end' (if
         // '0 != end'), and each element in the range '[ begin, end )' has been
         // initialized.
@@ -255,10 +255,6 @@ class Datum_ArrayProctor {
     void release();
         // Set 'd_released' flag to 'true', indicating that proctor shouldn't
         // destroy managed objects on it's destruction.
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(Datum_ArrayProctor,
-                                   bslma::UsesBslmaAllocator);
 };
 
                          // ------------------------
@@ -268,20 +264,21 @@ class Datum_ArrayProctor {
 // CREATORS
 template <class ELEMENT>
 Datum_ArrayProctor<ELEMENT>::Datum_ArrayProctor(
-                                              void             *base,
-                                              ELEMENT          *begin,
-                                              ELEMENT          *end,
-                                              bslma::Allocator *basicAllocator)
+                                        void                        *base,
+                                        bsl::size_t                  size,
+                                        ELEMENT                     *begin,
+                                        ELEMENT                     *end,
+                                        const Datum::AllocatorType&  allocator)
 : d_base_p(base)
+, d_size(size)
 , d_begin_p(begin)
 , d_end_p(end)
 , d_released(false)
-, d_allocator_p(basicAllocator)
+, d_allocator(bslma::AllocatorUtil::adapt(allocator))
 {
     BSLS_ASSERT(base);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(!end || begin <= end);
-    BSLS_ASSERT(basicAllocator);
 }
 
 template <class ELEMENT>
@@ -302,10 +299,10 @@ void Datum_ArrayProctor<ELEMENT>::destroy()
     BSLS_ASSERT(d_begin_p <= d_end_p);
 
     for (ELEMENT *ptr = d_begin_p; ptr < d_end_p; ++ptr) {
-        Datum::destroy(*ptr, d_allocator_p);
+        Datum::destroy(*ptr, d_allocator);
     }
 
-    d_allocator_p->deallocate(d_base_p);
+    bslma::AllocatorUtil::deallocateBytes(d_allocator, d_base_p, d_size);
 
 }
 
@@ -315,10 +312,10 @@ void Datum_ArrayProctor<DatumMapEntry>::destroy()
     BSLS_ASSERT(d_begin_p <= d_end_p);
 
     for (DatumMapEntry *ptr = d_begin_p; ptr < d_end_p; ++ptr) {
-        Datum::destroy(ptr->value(), d_allocator_p);
+        Datum::destroy(ptr->value(), d_allocator);
     }
 
-    d_allocator_p->deallocate(d_base_p);
+    bslma::AllocatorUtil::deallocateBytes(d_allocator, d_base_p, d_size);
 }
 
 template <>
@@ -327,10 +324,10 @@ void Datum_ArrayProctor<DatumIntMapEntry>::destroy()
     BSLS_ASSERT(d_begin_p <= d_end_p);
 
     for (DatumIntMapEntry *ptr = d_begin_p; ptr < d_end_p; ++ptr) {
-        Datum::destroy(ptr->value(), d_allocator_p);
+        Datum::destroy(ptr->value(), d_allocator);
     }
 
-    d_allocator_p->deallocate(d_base_p);
+    bslma::AllocatorUtil::deallocateBytes(d_allocator, d_base_p, d_size);
 }
 
 template <class ELEMENT>
@@ -358,17 +355,17 @@ class Datum_CopyVisitor {
 
   private:
     // DATA
-    Datum            *d_result_p;     // pointer where the newly created
-                                      // 'Datum' object is to be stored (not
-                                      // owned)
+    Datum                *d_result_p;   // pointer where the newly created
+                                        // 'Datum' object is to be stored (not
+                                        // owned)
 
-    bslma::Allocator *d_allocator_p;  // allocator used to allocate memory for
-                                      // 'd_result_p' (if needed)
+    Datum::AllocatorType  d_allocator;  // allocator used to allocate memory
+                                        // for 'd_result_p' (if needed)
 
   public:
     // CREATORS
-    Datum_CopyVisitor(Datum            *result,
-                      bslma::Allocator *basicAllocator);
+    Datum_CopyVisitor(Datum                       *result,
+                      const Datum::AllocatorType&  allocator);
         // Create a 'Datum_CopyVisitor' object with the specified 'result'
         // and 'basicAllocator'.
 
@@ -440,10 +437,6 @@ class Datum_CopyVisitor {
     void operator()(bdldfp::Decimal64 value);
         // Create a 'Datum' object using the specified 'value' and copy it
         // into 'd_result_p'.
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(Datum_CopyVisitor,
-                                   bslma::UsesBslmaAllocator);
 };
 
                           // -----------------------
@@ -451,10 +444,10 @@ class Datum_CopyVisitor {
                           // -----------------------
 
 // CREATORS
-Datum_CopyVisitor::Datum_CopyVisitor(Datum            *result,
-                                     bslma::Allocator *basicAllocator)
+Datum_CopyVisitor::Datum_CopyVisitor(Datum                       *result,
+                                     const Datum::AllocatorType&  allocator)
 : d_result_p(result)
-, d_allocator_p(basicAllocator)
+, d_allocator(allocator)
 {
 }
 
@@ -472,12 +465,12 @@ void Datum_CopyVisitor::operator()(const bdlt::Date& value)
 
 void Datum_CopyVisitor::operator()(const bdlt::Datetime& value)
 {
-    *d_result_p = Datum::createDatetime(value, d_allocator_p);
+    *d_result_p = Datum::createDatetime(value, d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(const bdlt::DatetimeInterval& value)
 {
-    *d_result_p = Datum::createDatetimeInterval(value, d_allocator_p);
+    *d_result_p = Datum::createDatetimeInterval(value, d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(const bdlt::Time& value)
@@ -489,7 +482,7 @@ void Datum_CopyVisitor::operator()(const bslstl::StringRef& value)
 {
     *d_result_p = Datum::copyString(value.data(),
                                     value.length(),
-                                    d_allocator_p);
+                                    d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(bool value)
@@ -499,7 +492,7 @@ void Datum_CopyVisitor::operator()(bool value)
 
 void Datum_CopyVisitor::operator()(bsls::Types::Int64 value)
 {
-    *d_result_p = Datum::createInteger64(value, d_allocator_p);
+    *d_result_p = Datum::createInteger64(value, d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(double value)
@@ -511,7 +504,7 @@ void Datum_CopyVisitor::operator()(const DatumError& value)
 {
     *d_result_p = Datum::createError(value.code(),
                                      value.message(),
-                                     d_allocator_p);
+                                     d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(int value)
@@ -526,29 +519,29 @@ void Datum_CopyVisitor::operator()(const DatumUdt& value)
 
 void Datum_CopyVisitor::operator()(const DatumArrayRef& value)
 {
-    *d_result_p = copyArray(value, d_allocator_p);
+    *d_result_p = copyArray(value, d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(const DatumMapRef& value)
 {
-    *d_result_p = copyMapOwningKeys(value, d_allocator_p);
+    *d_result_p = copyMapOwningKeys(value, d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(const DatumIntMapRef& value)
 {
-    *d_result_p = copyIntMap(value, d_allocator_p);
+    *d_result_p = copyIntMap(value, d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(const DatumBinaryRef& value)
 {
     *d_result_p = Datum::copyBinary(value.data(),
                                     value.size(),
-                                    d_allocator_p);
+                                    d_allocator);
 }
 
 void Datum_CopyVisitor::operator()(bdldfp::Decimal64 value)
 {
-    *d_result_p = Datum::createDecimal64(value, d_allocator_p);
+    *d_result_p = Datum::createDecimal64(value, d_allocator);
 }
 
                          // =========================
@@ -662,22 +655,24 @@ bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 }
 
 static
-Datum copyArray(const DatumArrayRef& array, bslma::Allocator *basicAllocator)
+Datum copyArray(const DatumArrayRef&        array,
+                const Datum::AllocatorType& allocator)
 {
     DatumMutableArrayRef ref;
     if (array.length()) {
-        Datum::createUninitializedArray(&ref, array.length(), basicAllocator);
+        Datum::createUninitializedArray(&ref, array.length(), allocator);
 
         // Track the allocated memory and destroy it if any of the allocations
         // inside the for loop throws.
         Datum_ArrayProctor<Datum> proctor(ref.length(),
+                                          (array.length() + 1) * sizeof(Datum),
                                           ref.data(),
                                           ref.data(),
-                                          basicAllocator);
+                                          allocator);
 
         // Copy the new elements.
         for (DatumArrayRef::SizeType i = 0; i < array.length(); ++i) {
-            ref.data()[i] = array[i].clone(basicAllocator);
+            ref.data()[i] = array[i].clone(allocator);
             proctor.moveEnd();
         }
 
@@ -688,8 +683,8 @@ Datum copyArray(const DatumArrayRef& array, bslma::Allocator *basicAllocator)
 }
 
 static
-Datum copyIntMap(const DatumIntMapRef&  map,
-                 bslma::Allocator      *basicAllocator)
+Datum copyIntMap(const DatumIntMapRef&       map,
+                 const Datum::AllocatorType& allocator)
 {
     DatumMutableIntMapRef ref;
 
@@ -697,20 +692,22 @@ Datum copyIntMap(const DatumIntMapRef&  map,
 
         Datum::createUninitializedIntMap(&ref,
                                          map.size(),
-                                         basicAllocator);
+                                         allocator);
 
         // Track the allocated memory and destroy it if any of the allocations
         // inside the for loop throws.
-        Datum_ArrayProctor<DatumIntMapEntry> proctor(ref.size(),
-                                                     ref.data(),
-                                                     ref.data(),
-                                                     basicAllocator);
+        Datum_ArrayProctor<DatumIntMapEntry> proctor(
+                                   ref.size(),
+                                   (map.size() + 1) * sizeof(DatumIntMapEntry),
+                                   ref.data(),
+                                   ref.data(),
+                                   allocator);
         // Copy the new elements.
 
         for (DatumMapRef::SizeType i = 0; i < map.size(); ++i) {
             ref.data()[i] =
                        DatumIntMapEntry(map[i].key(),
-                                        map[i].value().clone(basicAllocator));
+                                        map[i].value().clone(allocator));
             proctor.moveEnd();
         }
 
@@ -722,8 +719,8 @@ Datum copyIntMap(const DatumIntMapRef&  map,
 }
 
 static
-Datum copyMapOwningKeys(const DatumMapRef&  map,
-                        bslma::Allocator   *basicAllocator)
+Datum copyMapOwningKeys(const DatumMapRef&          map,
+                        const Datum::AllocatorType& allocator)
 {
     DatumMutableMapOwningKeysRef ref;
 
@@ -736,14 +733,16 @@ Datum copyMapOwningKeys(const DatumMapRef&  map,
         Datum::createUninitializedMap(&ref,
                                       map.size(),
                                       totalSizeOfKeys,
-                                      basicAllocator);
+                                      allocator);
 
         // Track the allocated memory and destroy it if any of the allocations
         // inside the for loop throws.
-        Datum_ArrayProctor<DatumMapEntry> proctor(ref.size(),
-                                                  ref.data(),
-                                                  ref.data(),
-                                                  basicAllocator);
+        Datum_ArrayProctor<DatumMapEntry> proctor(
+                    ref.size(),
+                    (map.size() + 1) * sizeof(DatumMapEntry) + totalSizeOfKeys,
+                    ref.data(),
+                    ref.data(),
+                    allocator);
 
         // Copy the new elements.
         char *nextKeyPos = ref.keys();
@@ -756,7 +755,7 @@ Datum copyMapOwningKeys(const DatumMapRef&  map,
                                      static_cast<int>(map[i].key().length()));
             ref.data()[i] =
                        DatumMapEntry(newKey,
-                                     map[i].value().clone(basicAllocator));
+                                     map[i].value().clone(allocator));
             nextKeyPos += map[i].key().length();
             proctor.moveEnd();
         }
@@ -849,7 +848,7 @@ BSLMF_ASSERT(sizeof(bdlt::Time) <= sizeof(long long));
 BSLMF_ASSERT(sizeof(Datum_MapHeader) <= sizeof(DatumMapEntry));
 
 // CLASS METHODS
-Datum Datum::createDecimal64(bdldfp::Decimal64     value,
+Datum Datum::createDecimal64(bdldfp::Decimal64    value,
                              const AllocatorType& allocator)
 {
     using namespace bdldfp;
@@ -882,7 +881,8 @@ Datum Datum::createDecimal64(bdldfp::Decimal64     value,
             return result;                                            // RETURN
         }
         else {
-            void *mem = new (*allocator.mechanism()) bdldfp::Decimal64(value);
+            void* mem = allocateBytes(allocator, sizeof(bdldfp::Decimal64));
+            new (mem) bdldfp::Decimal64(value);
             return createExtendedDataObject(
                                         e_EXTENDED_INTERNAL_DECIMAL64_ALLOC,
                                         mem);
@@ -901,7 +901,7 @@ Datum Datum::createDecimal64(bdldfp::Decimal64     value,
 
 Datum Datum::createError(int                      code,
                          const bslstl::StringRef& message,
-                         const AllocatorType&    allocator)
+                         const AllocatorType&     allocator)
 {
     if (message.isEmpty()) {  // do not allocate memory if 'message' is empty
         return createError(code);                                     // RETURN
@@ -910,15 +910,15 @@ Datum Datum::createError(int                      code,
     // Allocate extra bytes for length of the string and the error code to be
     // stored before the string.
 
-    static const int      align = sizeof(int);
-    const Datum::SizeType length = message.length();
+    static const int align  = sizeof(int);
+    const SizeType   length = static_cast<int>(message.length());
 
     // Allocate extra bytes (if needed) to make the allocated size a multiple
     // of 'align'.  See 'copyString' for more explanation.
 
-    const Datum::SizeType  memlen = (length + align - 1) & ~(align - 1);
-    void                  *mem = allocator.mechanism()->allocate(
-                                                     memlen + 2 * sizeof(int));
+    const SizeType  memlen = (length + align - 1) & ~(align - 1);
+    void           *mem    =
+                            allocateBytes(allocator, memlen + 2 * sizeof(int));
 
     *static_cast<int *>(mem) = code;
     *(static_cast<int *>(mem) + 1) = static_cast<int>(length);
@@ -933,13 +933,13 @@ Datum Datum::createError(int                      code,
 
 Datum Datum::copyBinary(const void            *value,
                         SizeType               size,
-                        const AllocatorType&  allocator)
+                        const AllocatorType&   allocator)
 {
     BSLS_ASSERT(0 == size || value);
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     const SizeType sizeSize = sizeof(double);
-    void *mem = allocator.mechanism()->allocate(sizeSize + size);
+    void *mem = allocateBytes(allocator, sizeSize + size);
     new (mem) SizeType(size);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
         bsl::memcpy(reinterpret_cast<char *>(mem) + sizeSize, value, size);
@@ -961,19 +961,20 @@ Datum Datum::copyBinary(const void            *value,
         return result;                                                // RETURN
     }
 
-    BSLS_ASSERT(size <= bsl::numeric_limits<unsigned int>::max());
+    BSLS_ASSERT(size <= bsl::numeric_limits<int>::max());
+    size = static_cast<int>(size);
 
     result.d_as.d_type  = e_INTERNAL_BINARY_ALLOC;
     result.d_as.d_int32 = static_cast<int>(size);
-    result.d_as.d_ptr   = allocator.mechanism()->allocate(size);
+    result.d_as.d_ptr   = allocateBytes(allocator, size);
     bsl::memcpy(result.d_as.d_ptr, value, size);
 
     return result;
 #endif  // end - 64 bit
 }
 
-Datum Datum::copyString(const char            *string,
-                        SizeType               length,
+Datum Datum::copyString(const char           *string,
+                        SizeType              length,
                         const AllocatorType&  allocator)
 {
     BSLS_ASSERT(string || 0 == length);
@@ -1012,7 +1013,7 @@ Datum Datum::copyString(const char            *string,
     // of 'align'.
 
     size = (size + align - 1) & ~(align - 1);  // mask off lower bits
-    void *mem = allocator.mechanism()->allocate(size);
+    void *mem = allocateBytes(allocator, size);
 
     *static_cast<SizeType *>(mem) = length;
     char *data = static_cast<char *>(mem) + sizeof(SizeType);
@@ -1035,15 +1036,15 @@ Datum Datum::copyString(const char            *string,
 
     result.d_as.d_type  = e_INTERNAL_STRING;
     result.d_as.d_int32 = static_cast<int>(length);
-    result.d_as.d_ptr   = allocator.mechanism()->allocate(length);
+    result.d_as.d_ptr   = allocateBytes(allocator, length);
     bsl::memcpy(result.d_as.d_ptr, string, length);
 #endif  // end - 64 bit
 
     return result;
 }
 
-void Datum::createUninitializedArray(DatumMutableArrayRef  *result,
-                                     SizeType               capacity,
+void Datum::createUninitializedArray(DatumMutableArrayRef *result,
+                                     SizeType              capacity,
                                      const AllocatorType&  allocator)
 {
     BSLS_ASSERT(result);
@@ -1052,18 +1053,19 @@ void Datum::createUninitializedArray(DatumMutableArrayRef  *result,
 
     // Allocate one extra element to store length of the array.
 
-    void     *mem = allocator.mechanism()->allocate(
-                                               sizeof(Datum) * (capacity + 1));
+    void     *mem = allocateBytes(allocator, sizeof(Datum) * (capacity + 1));
     SizeType *length = static_cast<SizeType *>(mem);
 
     // Store length of the array in the front.
 
     *length = 0;
-    *result = DatumMutableArrayRef(static_cast<Datum *>(mem) + 1, length);
+    *result = DatumMutableArrayRef(static_cast<Datum *>(mem) + 1,
+                                   length,
+                                   capacity);
 }
 
-void Datum::createUninitializedMap(DatumMutableMapRef    *result,
-                                   SizeType               capacity,
+void Datum::createUninitializedMap(DatumMutableMapRef   *result,
+                                   SizeType              capacity,
                                    const AllocatorType&  allocator)
 {
     BSLS_ASSERT(result);
@@ -1074,15 +1076,17 @@ void Datum::createUninitializedMap(DatumMutableMapRef    *result,
     // Allocate extra elements to store size of the map and a flag to determine
     // if the map is sorted or not.
 
-    void *mem = allocator.mechanism()->allocate(
-                                       sizeof(DatumMapEntry) * (capacity + 1));
+    void *mem = allocateBytes(allocator,
+                              sizeof(DatumMapEntry) * (capacity + 1));
 
     // Store map header in the front (1 DatumMapEntry).
     Datum_MapHeader *header = static_cast<Datum_MapHeader *>(mem);
 
-    header->d_size     = 0;
-    header->d_sorted   = false;
-    header->d_ownsKeys = false;
+    header->d_size         = 0;
+    header->d_capacity     = capacity;
+    header->d_keysCapacity = 0;
+    header->d_sorted       = false;
+    header->d_ownsKeys     = false;
 
     *result = DatumMutableMapRef(static_cast<DatumMapEntry *>(mem) + 1,
                                  &header->d_size,
@@ -1091,7 +1095,7 @@ void Datum::createUninitializedMap(DatumMutableMapRef    *result,
 
 void Datum::createUninitializedIntMap(DatumMutableIntMapRef *result,
                                       SizeType               capacity,
-                                      const AllocatorType&  allocator)
+                                      const AllocatorType&   allocator)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(capacity < bsl::numeric_limits<SizeType>::max() /
@@ -1100,13 +1104,14 @@ void Datum::createUninitializedIntMap(DatumMutableIntMapRef *result,
 
     // Allocate one extra element to store size of the map and a flag to
     // determine if the map is sorted or not.
-    void * const mem = allocator.mechanism()->allocate(
-                                    sizeof(DatumIntMapEntry) * (capacity + 1));
+    void * mem = allocateBytes(allocator,
+                               sizeof(DatumIntMapEntry) * (capacity + 1));
 
     // Store map header in the front ( 1 DatumMapEntry ).
     Datum_IntMapHeader *header = static_cast<Datum_IntMapHeader *>(mem);
 
     header->d_size     = 0;
+    header->d_capacity = capacity;
     header->d_sorted   = false;
 
     *result = DatumMutableIntMapRef(static_cast<DatumIntMapEntry *>(mem) + 1,
@@ -1117,7 +1122,7 @@ void Datum::createUninitializedIntMap(DatumMutableIntMapRef *result,
 void Datum::createUninitializedMap(DatumMutableMapOwningKeysRef *result,
                                    SizeType                      capacity,
                                    SizeType                      keysCapacity,
-                                   const AllocatorType&         allocator)
+                                   const AllocatorType&          allocator)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(capacity < (bsl::numeric_limits<SizeType>::max()-keysCapacity)/
@@ -1129,14 +1134,16 @@ void Datum::createUninitializedMap(DatumMutableMapOwningKeysRef *result,
     SizeType     bufferSize =
         bsls::AlignmentUtil::roundUpToMaximalAlignment(
                         sizeof(DatumMapEntry) * (capacity + 1) + keysCapacity);
-    void * const mem = allocator.mechanism()->allocate(bufferSize);
+    void * mem = allocateBytes(allocator, bufferSize);
 
     // Store map header in the front ( 1 DatumMapEntry ).
     Datum_MapHeader *header = static_cast<Datum_MapHeader *>(mem);
 
-    header->d_size     = 0;
-    header->d_sorted   = false;
-    header->d_ownsKeys = true;
+    header->d_size         = 0;
+    header->d_capacity     = capacity;
+    header->d_keysCapacity = keysCapacity;
+    header->d_sorted       = false;
+    header->d_ownsKeys     = true;
 
     char *keysMem = static_cast<char *>(mem)
                                     + (sizeof(DatumMapEntry) * (capacity + 1));
@@ -1148,8 +1155,8 @@ void Datum::createUninitializedMap(DatumMutableMapOwningKeysRef *result,
                                          &header->d_sorted);
 }
 
-char *Datum::createUninitializedString(Datum                 *result,
-                                       SizeType               length,
+char *Datum::createUninitializedString(Datum                *result,
+                                       SizeType              length,
                                        const AllocatorType&  allocator)
 {
     BSLS_ASSERT(result);
@@ -1175,7 +1182,7 @@ char *Datum::createUninitializedString(Datum                 *result,
     // allocate extra bytes for storing length of the string before the string
     // itself
 
-    void *mem = allocator.mechanism()->allocate(length + sizeof(length));
+    void *mem = allocateBytes(allocator, sizeof(length) + length);
     Datum_Helpers::store(mem, 0, length);
     result->d_as.d_cvp = mem;
 
@@ -1192,7 +1199,7 @@ char *Datum::createUninitializedString(Datum                 *result,
 
     result->d_as.d_type = e_INTERNAL_STRING;
     result->d_as.d_int32 = static_cast<int>(length);
-    result->d_as.d_ptr = allocator.mechanism()->allocate(length);
+    result->d_as.d_ptr = allocateBytes(allocator, length);
     return static_cast<char *>(result->d_as.d_ptr);
 #endif  // end - 64 bit
 }
@@ -1230,7 +1237,7 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
     switch (type) {
       case e_INTERNAL_EXTENDED: {
         const ExtendedInternalDataType extendedType =
-                                                value.extendedInternalType();
+                                                  value.extendedInternalType();
         switch (extendedType) {
           case e_EXTENDED_INTERNAL_MAP          :
             BSLS_ANNOTATION_FALLTHROUGH;
@@ -1239,34 +1246,45 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
             for (SizeType i = 0; i < values.size(); ++i) {
                 destroy(values[i].value(), allocator);
             }
-            destroyMemory(value, allocator);
+            destroyMemory(value, allocator, value.theMapAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_INT_MAP: {
             DatumIntMapRef values = value.theIntMap();
             for (SizeType i = 0; i < values.size(); ++i) {
                 destroy(values[i].value(), allocator);
             }
-            destroyMemory(value, allocator);
+            destroyMemory(value, allocator, value.theIntMapAllocNumBytes());
           } break;
-          case e_EXTENDED_INTERNAL_ERROR_ALLOC            :
-            BSLS_ANNOTATION_FALLTHROUGH;
-          case e_EXTENDED_INTERNAL_SREF_ALLOC             :
-            BSLS_ANNOTATION_FALLTHROUGH;
-          case e_EXTENDED_INTERNAL_AREF_ALLOC             :
-            BSLS_ANNOTATION_FALLTHROUGH;
-          case e_EXTENDED_INTERNAL_DATETIME_ALLOC         :
-            BSLS_ANNOTATION_FALLTHROUGH;
-          case e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC:
-            BSLS_ANNOTATION_FALLTHROUGH;
-          case e_EXTENDED_INTERNAL_INTEGER64_ALLOC        :
-            BSLS_ANNOTATION_FALLTHROUGH;
-          case e_EXTENDED_INTERNAL_BINARY_ALLOC           :
-            BSLS_ANNOTATION_FALLTHROUGH;
-          case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC        : {
-            destroyMemory(value, allocator);
+          case e_EXTENDED_INTERNAL_ERROR_ALLOC: {
+              destroyMemory(value, allocator, value.theErrorAllocNumBytes());
+          } break;
+          case e_EXTENDED_INTERNAL_SREF_ALLOC: {
+            destroyMemory(value,
+                          allocator,
+                          sizeof(SizeType) + sizeof(const char *));
+          } break;
+          case e_EXTENDED_INTERNAL_AREF_ALLOC: {
+            destroyMemory(value,
+                          allocator,
+                          sizeof(SizeType) + sizeof(Datum *));
+          } break;
+          case e_EXTENDED_INTERNAL_DATETIME_ALLOC: {
+            destroyMemory(value, allocator, sizeof(bdlt::Datetime));
+          } break;
+          case e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC: {
+            destroyMemory(value, allocator, sizeof(bdlt::DatetimeInterval));
+          } break;
+          case e_EXTENDED_INTERNAL_INTEGER64_ALLOC: {
+            destroyMemory(value, allocator, sizeof(bsls::Types::Int64));
+          } break;
+          case e_EXTENDED_INTERNAL_BINARY_ALLOC: {
+            destroyMemory(value, allocator, value.theBinaryAllocNumBytes());
+          } break;
+          case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
+            destroyMemory(value, allocator, sizeof(bdldfp::Decimal64));
           } break;
           default: {
-            // Other enumerators require no special handling.
+            // Other enumerators require no destruction.
           } break;
         }
       } break;
@@ -1275,13 +1293,15 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
         for (SizeType i = 0; i < values.length(); ++i) {
             destroy(values[i], allocator);
         }
-        destroyMemory(value, allocator);
+        destroyMemory(value, allocator, value.theInternalArrayAllocNumBytes());
       } break;
       case e_INTERNAL_STRING: {
-        destroyMemory(value, allocator);
+        destroyMemory(value,
+                      allocator,
+                      value.theInternalStringAllocNumBytes());
       } break;
       default: {
-        // Other enumerators require no special handling.
+        // Other enumerators require no destruction.
       } break;
     }
 #else   // end - 32 bit / begin - 64 bit
@@ -1293,28 +1313,32 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
         for (SizeType i = 0; i < values.size(); ++i) {
             destroy(values[i].value(), allocator);
         }
-        destroyMemory(value, allocator);
+        destroyMemory(value, allocator, value.theMapAllocNumBytes());
       } break;
       case e_INTERNAL_INT_MAP: {
         DatumIntMapRef values = value.theIntMap();
         for (SizeType i = 0; i < values.size(); ++i) {
             destroy(values[i].value(), allocator);
         }
-        destroyMemory(value, allocator);
+        destroyMemory(value, allocator, value.theIntMapAllocNumBytes());
       } break;
       case e_INTERNAL_ARRAY: {
         DatumArrayRef values = value.theArray();
         for (SizeType i = 0; i < values.length(); ++i) {
             destroy(values[i], allocator);
         }
-        destroyMemory(value, allocator);
+        destroyMemory(value, allocator, value.theInternalArrayAllocNumBytes());
       } break;
-      case e_INTERNAL_BINARY_ALLOC:
-        BSLS_ANNOTATION_FALLTHROUGH;
-      case e_INTERNAL_ERROR_ALLOC :
-        BSLS_ANNOTATION_FALLTHROUGH;
-      case e_INTERNAL_STRING      : {
-        destroyMemory(value, allocator);
+      case e_INTERNAL_BINARY_ALLOC: {
+        destroyMemory(value, allocator, value.theBinaryAllocNumBytes());
+      } break;
+      case e_INTERNAL_ERROR_ALLOC: {
+          destroyMemory(value, allocator, value.theErrorAllocNumBytes());
+      } break;
+      case e_INTERNAL_STRING: {
+        destroyMemory(value,
+                      allocator,
+                      value.theInternalStringAllocNumBytes());
       } break;
       default: {
       } break; // Other enumerators require no special handling.
@@ -1327,7 +1351,7 @@ Datum Datum::clone(const AllocatorType& allocator) const
 {
     Datum result;
 
-    Datum_CopyVisitor cv(&result, allocator.mechanism());
+    Datum_CopyVisitor cv(&result, allocator);
     apply(cv);
 
     return result;

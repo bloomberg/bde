@@ -90,6 +90,7 @@
 #include <bdldfp_decimal.h>
 
 #include <bslma_allocator.h>
+#include <bslma_allocatorutil.h>
 #include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -116,11 +117,11 @@ class DatumMaker {
 
   public:
     // TYPES
-    typedef bsl::allocator<char> allocator_type;
+    typedef bsl::allocator<> AllocatorType;
 
   private:
     // DATA
-    allocator_type d_allocator;  // allocator of dynamic memory
+    AllocatorType d_allocator;  // allocator of dynamic memory
 
 private:
     // NOT IMPLEMENTED
@@ -2309,12 +2310,8 @@ private:
 #endif
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(DatumMaker, bslma::UsesBslmaAllocator);
-        // 'DatumMaker' objects are allocator-aware
-
     // CREATORS
-    explicit DatumMaker(const allocator_type& allocator);
+    explicit DatumMaker(const AllocatorType& allocator);
         // Create a new 'DatumMaker' object that uses the specified 'allocator'
         // (e.g., the address of a 'bslma::Allocator' object) to supply memory
         // for the created 'bdld::Datum' objects.
@@ -2325,7 +2322,7 @@ private:
         //
         // Return 'get_allocator().mechanism()'.
 
-    allocator_type get_allocator() const;
+    AllocatorType get_allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the default
         // allocator in effect at construction is used.
@@ -7639,7 +7636,7 @@ void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder *builder,
 
 // CREATORS
 inline
-DatumMaker::DatumMaker(const allocator_type& allocator)
+DatumMaker::DatumMaker(const AllocatorType& allocator)
 : d_allocator(allocator)
 {
 }
@@ -7652,7 +7649,7 @@ bslma::Allocator *DatumMaker::allocator() const
 }
 
 inline
-DatumMaker::allocator_type DatumMaker::get_allocator() const
+DatumMaker::AllocatorType DatumMaker::get_allocator() const
 {
     return d_allocator;
 }

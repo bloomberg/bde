@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
 //..
 // Finally, we destroy the released 'Datum' object:
 //..
-    Datum::destroy(internalObj, obj.get_allocator().mechanism());
+    Datum::destroy(internalObj, obj.get_allocator());
 //..
       } break;
       case 14: {
