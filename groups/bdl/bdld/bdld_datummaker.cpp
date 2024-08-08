@@ -34,7 +34,7 @@ bdld::Datum DatumMaker::operator()(const bdld::DatumMapEntry *elements,
                                    bool                       sorted) const
 {
     bdld::DatumMutableMapRef map;
-    bdld::Datum::createUninitializedMap(&map, size, d_allocator_p);
+    bdld::Datum::createUninitializedMap(&map, size, d_allocator);
     for (int i = 0; i < size; ++i) {
         map.data()[i] = elements[i];
     }
@@ -48,7 +48,7 @@ bdld::Datum DatumMaker::operator()(const bdld::DatumIntMapEntry *elements,
                                    bool                          sorted) const
 {
     bdld::DatumMutableIntMapRef map;
-    bdld::Datum::createUninitializedIntMap(&map, size, d_allocator_p);
+    bdld::Datum::createUninitializedIntMap(&map, size, d_allocator);
     for (int i = 0; i < size; ++i) {
         map.data()[i] = elements[i];
     }

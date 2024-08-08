@@ -203,7 +203,7 @@ using bdldfp::Decimal64;
 // [19] char *createUninitializedString(Datum&, SizeType, Allocator *);
 // [29] const char *dataTypeToAscii(Datum::DataType);
 // [ 3] void destroy(const Datum&, bslma::Allocator *);
-// [27] void disposeUninitializedArray(Datum *, basicAllocator *);
+// [27] void disposeUninitializedArray(Datum *, AllocatorType);
 // [28] void disposeUninitializedMap(DatumMutableMapRef *, ...);
 // [28] void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
 //
@@ -211,7 +211,7 @@ using bdldfp::Decimal64;
 // [ 7] Datum& operator=(const Datum& rhs) = default;
 //
 // ACCESSORS
-// [23] Datum clone(bslma::Allocator *basicAllocator) const;
+// [23] Datum clone(AllocatorType) const;
 // [16] bool isArray() const;
 // [ 3] bool isBoolean() const;
 // [ 3] bool isBinary() const;
@@ -4474,7 +4474,7 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones.  (C-2)
         //
         // Testing:
-        //   void disposeUninitializedArray(Datum *, basicAllocator *);
+        //   void disposeUninitializedArray(Datum *, AllocatorType);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'disposeUninitializedArray'"
                              "\n===================================\n";
@@ -4982,7 +4982,7 @@ int main(int argc, char *argv[])
         //:   deep copy of the referenced data.  (C-3)
         //
         // Testing:
-        //   Datum clone(bslma::Allocator *basicAllocator) const;
+        //   Datum clone(AllocatorType) const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'clone' METHOD"
                              "\n======================\n";

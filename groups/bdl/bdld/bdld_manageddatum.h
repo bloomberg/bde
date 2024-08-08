@@ -219,15 +219,16 @@ class ManagedDatum {
     // This class implements a smart-pointer-like resource manager for a
     // 'Datum' object.
 
-  private:
-    // DATA
-    Datum                d_data;       // storage for data
-    bsl::allocator<char> d_allocator;  // allocator of dynamic memory
-
   public:
     // TYPES
     typedef bsl::allocator<char> allocator_type;
 
+  private:
+    // DATA
+    Datum          d_data;       // storage for data
+    allocator_type d_allocator;  // allocator of dynamic memory
+
+  public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslma::UsesBslmaAllocator);
     BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslmf::IsBitwiseMoveable);
@@ -236,10 +237,9 @@ class ManagedDatum {
     // CREATORS
     ManagedDatum();
     explicit ManagedDatum(const allocator_type& allocator);
-        // Create a 'ManagedDatum' object having the default (null) value.
-        // Optionally specify an 'allocator' (e.g., the address of a
-        // 'bslma::Allocator' object) to supply memory; otherwise, the default
-        // allocator is used.  Calling 'isNull' on the resulting managed
+        // Create a 'ManagedDatum' object having the default (null) value, and
+        // the specified 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) to supply memory.  Calling 'isNull' on the resulting managed
         // 'Datum' object returns 'true'.
 
     explicit ManagedDatum(const Datum&          datum,

@@ -605,6 +605,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlt_time.h>
 
 #include <bslma_allocator.h>
+#include <bslma_bslallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisecopyable.h>
@@ -701,6 +702,8 @@ class Datum {
 
   public:
     // TYPES
+    typedef bsl::allocator<char> AllocatorType;
+
     enum DataType {
         // Enumeration used to discriminate among the different externally-
         // exposed types of values that can be stored inside 'Datum'.
@@ -1286,9 +1289,9 @@ class Datum {
 
     // PRIVATE CLASS METHODS
     static void destroyMemory(const Datum&      value,
-                              bslma::Allocator *basicAllocator);
+                              const AllocatorType& allocator);
         // Deallocate any memory that was previously allocated for the
-        // specified 'value' using the specified 'basicAllocator'.
+        // specified 'value' using the specified 'allocator'.
 
     // PRIVATE ACCESSORS
     InternalDataType internalType() const;
@@ -1333,21 +1336,21 @@ class Datum {
         // length of a string.
 
     // CLASS METHODS
-    static Datum createArrayReference(const Datum      *array,
-                                      SizeType          length,
-                                      bslma::Allocator *basicAllocator);
+    static Datum createArrayReference(const Datum           *array,
+                                      SizeType               length,
+                                      const AllocatorType&  allocator);
         // Return, by value, a datum referring to the specified 'array',
-        // having the specified 'length', using the specified 'basicAllocator'
-        // to supply memory (if needed).  'array' is not copied, and is not
-        // freed when the returned object is destroyed with 'Datum::destroy'.
-        // The behavior is undefined unless 'array' contains at least 'length'
+        // having the specified 'length', using the specified 'allocator' to
+        // supply memory (if needed).  'array' is not copied, and is not freed
+        // when the returned object is destroyed with 'Datum::destroy'.  The
+        // behavior is undefined unless 'array' contains at least 'length'
         // elements.  The behavior is also undefined unless 'length <
         // UINT_MAX'.
 
     static Datum createArrayReference(const DatumArrayRef&  value,
-                                      bslma::Allocator     *basicAllocator);
+                                      const AllocatorType& allocator);
         // Return, by value, a datum having the specified 'value', using the
-        // specified 'basicAllocator' to supply memory (if needed).  The array
+        // specified 'allocator' to supply memory (if needed).  The array
         // referenced by 'value' is not copied, and is not freed if
         // 'Datum::destroy' is called on the returned object.  The behavior is
         // undefined unless 'value.length() < UINT_MAX'.
@@ -1358,24 +1361,24 @@ class Datum {
     static Datum createDate(const bdlt::Date& value);
         // Return, by value, a datum having the specified 'Date' 'value'.
 
-    static Datum createDatetime(const bdlt::Datetime&  value,
-                                bslma::Allocator      *basicAllocator);
+    static Datum createDatetime(const bdlt::Datetime& value,
+                                const AllocatorType& allocator);
         // Return, by value, a datum having the specified 'Datetime' 'value',
-        // using the specified 'basicAllocator' to supply memory (if needed).
+        // using the specified 'allocator' to supply memory (if needed).
 
     static Datum createDatetimeInterval(
-                                const bdlt::DatetimeInterval&  value,
-                                bslma::Allocator              *basicAllocator);
+                                const bdlt::DatetimeInterval& value,
+                                const AllocatorType&         allocator);
         // Return, by value, a datum holding the specified 'DatetimeInterval'
-        // 'value', using the specified 'basicAllocator' to supply memory (if
+        // 'value', using the specified 'allocator' to supply memory (if
         // needed).
 
-    static Datum createDecimal64(bdldfp::Decimal64  value,
-                                 bslma::Allocator  *basicAllocator);
+    static Datum createDecimal64(bdldfp::Decimal64     value,
+                                 const AllocatorType& allocator);
         // Return, by value, a datum having the specified 'Decimal64' 'value',
-        // using the specified 'basicAllocator' to supply memory (if needed).
-        // Note that the argument is passed by value because it is assumed to
-        // be a fundamental type.
+        // using the specified 'allocator' to supply memory (if needed).  Note
+        // that the argument is passed by value because it is assumed to be a
+        // fundamental type.
 
     static Datum createDouble(double value);
         // Return, by value, a datum having the specified 'double' 'value'.
@@ -1388,49 +1391,49 @@ class Datum {
         // Return, by value, a datum having a 'DatumError' value with the
         // specified 'code'.
 
-    static Datum createError(int                       code,
-                             const bslstl::StringRef&  message,
-                             bslma::Allocator         *basicAllocator);
+    static Datum createError(int                      code,
+                             const bslstl::StringRef& message,
+                             const AllocatorType&    allocator);
         // Return, by value, a datum having a 'DatumError' value with the
         // specified 'code' and the specified 'message', using the specified
-        // 'basicAllocator' to supply memory (if needed).
+        // 'allocator' to supply memory (if needed).
 
     static Datum createInteger(int value);
         // Return, by value, a datum having the specified 'int' 'value'.
 
-    static Datum createInteger64(bsls::Types::Int64  value,
-                                 bslma::Allocator   *basicAllocator);
+    static Datum createInteger64(bsls::Types::Int64    value,
+                                 const AllocatorType& allocator);
         // Return, by value, a datum having the specified 'Integer64' 'value',
-        // using the specified 'basicAllocator' to supply memory (if needed).
+        // using the specified 'allocator' to supply memory (if needed).
 
     static Datum createNull();
         // Return, by value, a datum having no value.
 
-    static Datum createStringRef(const char       *string,
-                                 SizeType          length,
-                                 bslma::Allocator *basicAllocator);
+    static Datum createStringRef(const char            *string,
+                                 SizeType               length,
+                                 const AllocatorType&  allocator);
         // Return, by value, a datum that refers to the specified 'string'
-        // having the specified 'length', using the specified 'basicAllocator'
-        // to supply memory (if needed).  The behavior is undefined unless
+        // having the specified 'length', using the specified 'allocator' to
+        // supply memory (if needed).  The behavior is undefined unless
         // '0 != string || 0 == length'.  The behavior is also undefined
         // unless 'length < UINT_MAX'.  Note that 'string' is not copied, and
         // is not freed if 'Datum::destroy' is called on the returned object.
 
-    static Datum createStringRef(const char       *string,
-                                 bslma::Allocator *basicAllocator);
+    static Datum createStringRef(const char            *string,
+                                 const AllocatorType&  allocator);
         // Return, by value, a datum that refers to the specified 'string',
-        // using the specified 'basicAllocator' to supply memory (if needed).
-        // The behavior is undefined unless 'string' points to a UTF-8 encoded
+        // using the specified 'allocator' to supply memory (if needed).  The
+        // behavior is undefined unless 'string' points to a UTF-8 encoded
         // c-string.  The behavior is also undefined unless 'strlen(string) <
         // UINT_MAX'.  Note that 'string' is not copied, and is not freed if
         // 'Datum::destroy' is called on the returned object.
 
-    static Datum createStringRef(const bslstl::StringRef&  value,
-                                 bslma::Allocator         *basicAllocator);
+    static Datum createStringRef(const bslstl::StringRef& value,
+                                 const AllocatorType&    allocator);
         // Return, by value, a datum having the specified 'StringRef' 'value',
-        // using the specified 'basicAllocator' to supply memory (if needed).
-        // The behavior is undefined unless 'value.length() < UINT_MAX'.  Note
-        // that 'string' is not copied, and is not freed if 'Datum::destroy' is
+        // using the specified 'allocator' to supply memory (if needed).  The
+        // behavior is undefined unless 'value.length() < UINT_MAX'.  Note that
+        // 'string' is not copied, and is not freed if 'Datum::destroy' is
         // called on the returned object.
 
     static Datum createTime(const bdlt::Time& value);
@@ -1443,31 +1446,31 @@ class Datum {
         // not owned.  Also note that the content pointed to by 'data' object
         // is not copied.
 
-    static Datum copyBinary(const void       *value,
-                            SizeType          size,
-                            bslma::Allocator *basicAllocator);
+    static Datum copyBinary(const void            *value,
+                            SizeType               size,
+                            const AllocatorType&  allocator);
         // Return, by value, a datum referring to the copy of the specified
         // 'value' of the specified 'size', using the specified
-        // 'basicAllocator' to supply memory (if needed).  The behavior is
-        // undefined unless 'size < UINT_MAX'.  Note that the copy of the
-        // binary data is owned and will be freed if 'Datum::destroy' is called
-        // on the returned object.
-
-    static Datum copyString(const char       *string,
-                            SizeType          length,
-                            bslma::Allocator *basicAllocator);
-        // Return, by value, a datum that refers to the copy of the specified
-        // 'string' having the specified 'length', using the specified
-        // 'basicAllocator' to supply memory (if needed).  The behavior is
-        // undefined unless '0 != string || 0 == length'.  The behavior is also
-        // undefined unless 'length < UINT_MAX'.  Note that the copied string
-        // is owned and will be freed if 'Datum::destroy' is called on the
+        // 'allocator' to supply memory (if needed).  The behavior is undefined
+        // unless 'size < UINT_MAX'.  Note that the copy of the binary data is
+        // owned and will be freed if 'Datum::destroy' is called on the
         // returned object.
 
-    static Datum copyString(const bslstl::StringRef&  value,
-                            bslma::Allocator         *basicAllocator);
+    static Datum copyString(const char            *string,
+                            SizeType               length,
+                            const AllocatorType&  allocator);
+        // Return, by value, a datum that refers to the copy of the specified
+        // 'string' having the specified 'length', using the specified
+        // 'allocator' to supply memory (if needed).  The behavior is undefined
+        // unless '0 != string || 0 == length'.  The behavior is also undefined
+        // unless 'length < UINT_MAX'.  Note that the copied string is owned
+        // and will be freed if 'Datum::destroy' is called on the returned
+        // object.
+
+    static Datum copyString(const bslstl::StringRef& value,
+                            const AllocatorType&    allocator);
         // Return, by value, a datum having the copy of the specified
-        // 'StringRef' 'value', using the specified 'basicAllocator' to supply
+        // 'StringRef' 'value', using the specified 'allocator' to supply
         // memory (if needed).  The behavior is undefined unless
         // 'value.length() < UINT_MAX'.  Note that the copied string is owned,
         // and will be freed if 'Datum::destroy' is called on the returned
@@ -1510,74 +1513,73 @@ class Datum {
         // map.  Note that the adopted map is owned and will be freed if
         // 'Datum::destroy' is called on the returned object.
 
-    static void createUninitializedArray(DatumMutableArrayRef *result,
-                                         SizeType              capacity,
-                                         bslma::Allocator     *basicAllocator);
+    static void createUninitializedArray(DatumMutableArrayRef  *result,
+                                         SizeType               capacity,
+                                         const AllocatorType&  allocator);
         // Load the specified 'result' with a reference to a newly created
         // datum array having the specified 'capacity', using the specified
-        // 'basicAllocator' to supply memory.  The behavior is undefined if
+        // 'allocator' to supply memory.  The behavior is undefined if
         // 'capacity' 'Datum' objects would exceed the addressable memory for
         // the platform.  Note that the caller is responsible for filling in
         // elements into the datum array and setting its length accordingly.
         // The number of elements in the datum array cannot exceed 'capacity'.
         // Also note that any elements in the datum array that need dynamic
-        // memory must be allocated with 'basicAllocator'.
+        // memory must be allocated with 'allocator'.
 
     static void createUninitializedIntMap(
                                         DatumMutableIntMapRef *result,
                                         SizeType               capacity,
-                                        bslma::Allocator      *basicAllocator);
+                                        const AllocatorType&  allocator);
         // Load the specified 'result' with a reference to a newly created
         // datum int-map having the specified 'capacity', using the specified
-        // 'basicAllocator' to supply memory.  The behavior is undefined if
+        // 'allocator' to supply memory.  The behavior is undefined if
         // 'capacity' 'DatumIntMapEntry' objects would exceed the addressable
         // memory for the platform.  Note that the caller is responsible for
         // filling in elements into the datum int-map and setting its size
         // accordingly.  The number of elements in the datum int-map cannot
         // exceed 'capacity'.  Also note that any elements in the datum int-map
-        // that need dynamic memory, should also be allocated with
-        // 'basicAllocator'.
+        // that need dynamic memory, should also be allocated with 'allocator'.
 
-    static void createUninitializedMap(DatumMutableMapRef *result,
-                                       SizeType            capacity,
-                                       bslma::Allocator   *basicAllocator);
+    static void createUninitializedMap(DatumMutableMapRef    *result,
+                                       SizeType               capacity,
+                                       const AllocatorType&  allocator);
         // Load the specified 'result' with a reference to a newly created
         // datum map having the specified 'capacity', using the specified
-        // 'basicAllocator' to supply memory.  The behavior is undefined if
+        // 'allocator' to supply memory.  The behavior is undefined if
         // 'capacity' 'DatumMapEntry' objects would exceed the addressable
         // memory for the platform.  Note that the caller is responsible for
         // filling in elements into the datum map and setting its size
         // accordingly.  The number of elements in the datum map cannot exceed
         // 'capacity'.  Also note that any elements in the datum map that need
-        // dynamic memory, should also be allocated with 'basicAllocator'.
+        // dynamic memory, should also be allocated with 'allocator'.
 
     static void createUninitializedMap(
                                  DatumMutableMapOwningKeysRef *result,
                                  SizeType                      capacity,
                                  SizeType                      keysCapacity,
-                                 bslma::Allocator             *basicAllocator);
+                                 const AllocatorType&         allocator);
         // Load the specified 'result' with a reference to a newly created
         // datum-key-owning map having the specified 'capacity' and
-        // 'keysCapacity', using the specified 'basicAllocator' to supply
-        // memory.  The behavior is undefined if 'capacity' 'DatumMapEntry'
-        // objects plus 'keysCapacity' would exceed the addressable memory for
-        // the platform.  Note that the caller is responsible for filling in
-        // elements into the datum-key-owning map, copying the keys into it,
-        // and setting its size accordingly.  The number of elements in the
-        // datum-key-owning map cannot exceed 'capacity' and total size of all
-        // the keys cannot exceed 'keysCapacity'.  Also note that any elements
-        // in the datum-key-owning map that need dynamic memory, should also be
-        // allocated with 'basicAllocator'.
+        // 'keysCapacity', using the specified 'allocator' to supply memory.
+        // The behavior is undefined if 'capacity' 'DatumMapEntry' object plus
+        // 'keysCapacity' would exceed the addressable memory for the platform.
+        // Note that the caller is responsible for filling in elements into the
+        // datum-key-owning map, copying the keys into it, and setting its size
+        // accordingly.  The number of elements in the datum-key-owning map
+        // cannot exceed 'capacity' and total size of all the keys cannot
+        // exceed 'keysCapacity'.  Also note that any elements in the
+        // datum-key-owning map that need dynamic memory, should also be
+        // allocated with 'allocator'.
 
-    static char *createUninitializedString(Datum            *result,
-                                           SizeType          length,
-                                           bslma::Allocator *basicAllocator);
+    static char *createUninitializedString(Datum                 *result,
+                                           SizeType               length,
+                                           const AllocatorType&  allocator);
         // Load the specified 'result' with a reference to a newly created
         // character buffer of the specified 'length', using the specified
-        // 'basicAllocator' to supply memory, and return the address of this
-        // buffer.  The behavior is undefined unless 'length < UINT_MAX'.  Note
-        // that the caller is responsible for initializing the returned buffer
-        // with a UTF-8 encoded string.
+        // 'allocator' to supply memory, and return the address of this buffer
+        // The behavior is undefined unless 'length < UINT_MAX'.  Note that the
+        // caller is responsible for initializing the returned buffer with a
+        // UTF-8 encoded string.
 
     static const char *dataTypeToAscii(DataType type);
         // Return the non-modifiable string representation corresponding to the
@@ -1598,59 +1600,57 @@ class Datum {
         // from any of those corresponding to the enumerators, but is otherwise
         // unspecified.
 
-    static void destroy(const Datum& value, bslma::Allocator *basicAllocator);
+    static void destroy(const Datum& value, const AllocatorType& allocator);
         // Deallocate any memory that was previously allocated within the
-        // specified 'value' using the specified 'basicAllocator'.  If the
-        // 'value' contains an adopted array of datums, 'destroy' is called on
-        // each array element.  If the 'value' contains an adopted map of
-        // datums, 'destroy' is called on each map element.  The behavior is
-        // undefined unless all dynamically allocated memory owned by 'value'
-        // was allocated using 'basicAllocator', and has not previously been
-        // released by a call to 'destroy', either on this object, or on
-        // another object referring to same contents as this object (i.e., only
-        // one copy of a 'Datum' object can be destroyed).  The behavior is
-        // also undefined if 'value' has an uninitialized or partially
-        // initialized array or map (created using 'createUninitializedArray',
-        // 'createUninitializedMap' or 'createUninitializeMapOwningKeys').
-        // Note that after this operation completes, 'value' is left in an
-        // uninitialized state, and must be assigned a new value before being
-        // accessed again.
+        // specified 'value' using the specified 'allocator'.  If the 'value'
+        // contains an adopted array of datums, 'destroy' is called on each
+        // array element.  If the 'value' contains an adopted map of datums,
+        // 'destroy' is called on each map element.  The behavior is undefined
+        // unless all dynamically allocated memory owned by 'value' was
+        // allocated using 'allocator', and has not previously been released by
+        // a call to 'destroy', either on this object, or on another object
+        // referring to same contents as this object (i.e., only one copy of a
+        // 'Datum' object can be destroyed).  The behavior is also undefined if
+        // 'value' has an uninitialized or partially initialized array or map
+        // (created using 'createUninitializedArray', 'createUninitializedMap'
+        // or 'createUninitializeMapOwningKeys').  Note that after this
+        // operation completes, 'value' is left in an uninitialized state, and
+        // must be assigned a new value before being accessed again.
 
     static void disposeUninitializedArray(
-                                  const DatumMutableArrayRef&  array,
-                                  bslma::Allocator            *basicAllocator);
+                                        const DatumMutableArrayRef& array,
+                                        const AllocatorType&       allocator);
         // Deallocate the memory used by the specified 'array' (but *not*
         // memory allocated for its contained elements) using the specified
-        // 'basicAllocator'.  This method does not destroy individual array
-        // elements and the memory allocated for those elements must be
-        // explicitly deallocated before calling this method.  The behavior is
-        // undefined unless 'array' was created with 'createUninitializedArray'
-        // using 'basicAllocator'.
+        // 'allocator'.  This method does not destroy individual arrayelements
+        // and the memory allocated for those elements must be explicitly
+        // deallocated before calling this method.  The behavior is undefined
+        // unless 'array' was created with 'createUninitializedArray' using
+        // 'allocator'.
 
     static void disposeUninitializedIntMap(
-                                 const DatumMutableIntMapRef&  intMap,
-                                 bslma::Allocator             *basicAllocator);
+                                       const DatumMutableIntMapRef& intMap,
+                                       const AllocatorType&        allocator);
         // Deallocate the memory used by the specified 'intMap' (but *not*
         // memory allocated for its contained elements) using the specified
-        // 'basicAllocator'.  This method does not destroy individual map
-        // elements and the memory allocated for those elements must be
-        // explicitly deallocated before calling this method.  The behavior is
-        // undefined unless 'map' was created with 'createUninitializedIntMap'
-        // using 'basicAllocator'.
+        // 'allocator'.  This method does not destroy individual map elements
+        // and the memory allocated for those elements must be explicitly
+        // deallocated before calling this method.  The behavior is undefined
+        // unless 'map' was created with 'createUninitializedIntMap' using
+        // 'allocator'.
 
+    static void disposeUninitializedMap(const DatumMutableMapRef& map,
+                                        const AllocatorType&     allocator);
     static void disposeUninitializedMap(
-                                    const DatumMutableMapRef&  map,
-                                    bslma::Allocator          *basicAllocator);
-    static void disposeUninitializedMap(
-                          const DatumMutableMapOwningKeysRef&  map,
-                          bslma::Allocator                    *basicAllocator);
+                                const DatumMutableMapOwningKeysRef& map,
+                                const AllocatorType&               allocator);
         // Deallocate the memory used by the specified 'map' (but *not* memory
         // allocated for its contained elements) using the specified
-        // 'basicAllocator'.  This method does not destroy individual map
-        // elements and the memory allocated for those elements must be
-        // explicitly deallocated before calling this method.  The behavior is
-        // undefined unless 'map' was created with 'createUninitializedMap'
-        // using 'basicAllocator'.
+        // 'allocator'.  This method does not destroy individual map elements
+        // and the memory allocated for those elements must be explicitly
+        // deallocated before calling this method.  The behavior is undefined
+        // unless 'map' was created with 'createUninitializedMap' using
+        // 'allocator'.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Datum, bsl::is_trivially_copyable);
@@ -1684,9 +1684,9 @@ class Datum {
         // this object by passing held value to the 'visitor' object's
         // 'operator()' overload.
 
-    Datum clone(bslma::Allocator *basicAllocator) const;
+    Datum clone(const AllocatorType& allocator) const;
         // Return a datum holding a "deep-copy" of this object, using the
-        // specified 'basicAllocator' to supply memory.  This method creates an
+        // specified 'allocator' to supply memory.  This method creates an
         // independent deep-copy of the data of this object, including any
         // referenced data, with the exception of {User Defined Types}.  For
         // further information see {Deep Copying}.
@@ -1879,10 +1879,10 @@ class Datum {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED
     static void createUninitializedMapOwningKeys(
-                                 DatumMutableMapOwningKeysRef *result,
-                                 SizeType                      capacity,
-                                 SizeType                      keysCapacity,
-                                 bslma::Allocator             *basicAllocator);
+                                    DatumMutableMapOwningKeysRef *result,
+                                    SizeType                      capacity,
+                                    SizeType                      keysCapacity,
+                                    const AllocatorType&         allocator);
         // [!DEPRECATED!] Use 'createUninitializedMap' instead.
 
     static Datum adoptMapOwningKeys(
@@ -1890,8 +1890,8 @@ class Datum {
         // [!DEPRECATED!] Use 'adoptMap' instead.
 
     static void disposeUninitializedMapOwningKeys(
-                          const DatumMutableMapOwningKeysRef&  mapping,
-                          bslma::Allocator                    *basicAllocator);
+                                const DatumMutableMapOwningKeysRef& mapping,
+                                const AllocatorType&               allocator);
         // [!DEPRECATED!] Use 'disposeUninitializedMap' instead.
 #endif  // end - do not omit deprecated symbols
 };
@@ -3253,13 +3253,13 @@ const void* Datum::theInlineStorage() const
 
 // PRIVATE CLASS METHODS
 inline
-void Datum::destroyMemory(const Datum&      value,
-                          bslma::Allocator *basicAllocator)
+void Datum::destroyMemory(const Datum&          value,
+                          const AllocatorType& allocator)
 {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    basicAllocator->deallocate(const_cast<void*>(value.d_as.d_cvp));
+    allocator.mechanism()->deallocate(const_cast<void*>(value.d_as.d_cvp));
 #else   // end - 32 bit / begin - 64 bit
-    basicAllocator->deallocate(value.d_as.d_ptr);
+    allocator.mechanism()->deallocate(value.d_as.d_ptr);
 #endif  // end - 64 bit
 }
 
@@ -3344,12 +3344,11 @@ bslstl::StringRef Datum::theStringReference() const
 
 // CLASS METHODS
 inline
-Datum Datum::createArrayReference(const Datum      *array,
-                                  SizeType          length,
-                                  bslma::Allocator *basicAllocator)
+Datum Datum::createArrayReference(const Datum           *array,
+                                  SizeType               length,
+                                  const AllocatorType&  allocator)
 {
     BSLS_ASSERT(array || 0 == length);
-    BSLS_ASSERT(basicAllocator);
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     // If the length will fit in the 'd_ushort' area, store everything inline;
@@ -3363,13 +3362,14 @@ Datum Datum::createArrayReference(const Datum      *array,
         return result;                                                // RETURN
     }
 
-    void *mem = basicAllocator->allocate(sizeof(array) + sizeof(length));
+    void *mem = allocator.mechanism()->allocate(
+                                               sizeof(array) + sizeof(length));
     Datum_Helpers::store<const Datum *>(mem, 0,             array);
     Datum_Helpers::store<SizeType>     (mem, sizeof(array), length);
 
     return createExtendedDataObject(e_EXTENDED_INTERNAL_AREF_ALLOC, mem);
 #else   // end - 32 bit / begin - 64 bit
-    (void)basicAllocator;
+    (void)allocator;
 
     BSLS_ASSERT(length <= bsl::numeric_limits<unsigned int>::max());
 
@@ -3383,10 +3383,9 @@ Datum Datum::createArrayReference(const Datum      *array,
 
 inline
 Datum Datum::createArrayReference(const DatumArrayRef&  value,
-                                  bslma::Allocator     *basicAllocator)
+                                  const AllocatorType& allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-    return createArrayReference(value.data(), value.length(), basicAllocator);
+    return createArrayReference(value.data(), value.length(), allocator);
 }
 
 inline
@@ -3423,12 +3422,9 @@ Datum Datum::createDate(const bdlt::Date& value)
 }
 
 inline
-Datum Datum::createDatetime(const bdlt::Datetime&  value,
-                            bslma::Allocator      *basicAllocator)
+Datum Datum::createDatetime(const bdlt::Datetime& value,
+                            const AllocatorType& allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-    (void)basicAllocator;
-
     Datum result;
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     // Check if number of days from now fits in two bytes.
@@ -3445,11 +3441,13 @@ Datum Datum::createDatetime(const bdlt::Datetime&  value,
         bdlt::DatetimeInterval interval = value.time() - bdlt::Time();
         result.d_as.d_int = static_cast<int>(interval.totalMilliseconds());
     } else {
-        void *mem = new (*basicAllocator) bdlt::Datetime(value);
+        void *mem = new (*allocator.mechanism()) bdlt::Datetime(value);
         result = createExtendedDataObject(e_EXTENDED_INTERNAL_DATETIME_ALLOC,
                                           mem);
     }
 #else   // end - 32 bit / begin - 64 bit
+    (void)allocator;
+
     result.d_as.d_type = e_INTERNAL_DATETIME;
     new (result.theInlineStorage()) bdlt::Datetime(value);
 #endif  // end - 64 bit
@@ -3457,13 +3455,9 @@ Datum Datum::createDatetime(const bdlt::Datetime&  value,
 }
 
 inline
-Datum Datum::createDatetimeInterval(
-                                 const bdlt::DatetimeInterval&  value,
-                                 bslma::Allocator              *basicAllocator)
+Datum Datum::createDatetimeInterval(const bdlt::DatetimeInterval& value,
+                                    const AllocatorType&         allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-    (void)basicAllocator;
-
     Datum result;
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     const int                usValue = value.microseconds();
@@ -3476,15 +3470,17 @@ Datum Datum::createDatetimeInterval(
         result.d_as.d_exponent =
                                 k_DOUBLE_MASK | e_INTERNAL_DATETIME_INTERVAL;
     } else {
-        void *mem = new (*basicAllocator) bdlt::DatetimeInterval(value);
+        void *mem = new (*allocator.mechanism()) bdlt::DatetimeInterval(value);
         result = createExtendedDataObject(
                                 e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC,
                                 mem);
     }
 #else   // end - 32 bit / begin - 64 bit
-        result.d_as.d_type = e_INTERNAL_DATETIME_INTERVAL;
-        result.d_as.d_int32 = value.days();
-        result.d_as.d_int64 = value.fractionalDayInMicroseconds();
+    (void)allocator;
+
+    result.d_as.d_type = e_INTERNAL_DATETIME_INTERVAL;
+    result.d_as.d_int32 = value.days();
+    result.d_as.d_int64 = value.fractionalDayInMicroseconds();
 #endif  // end - 64 bit
     return result;
 }
@@ -3533,11 +3529,9 @@ Datum Datum::createInteger(int value)
 }
 
 inline
-Datum Datum::createInteger64(bsls::Types::Int64  value,
-                             bslma::Allocator   *basicAllocator)
+Datum Datum::createInteger64(bsls::Types::Int64    value,
+                             const AllocatorType& allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-
     Datum result;
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     if (Datum_Helpers32::storeSmallInt64(value,
@@ -3545,12 +3539,12 @@ Datum Datum::createInteger64(bsls::Types::Int64  value,
                                          &result.d_as.d_int)) {
         result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_INTEGER64;
     } else {
-        void *mem = new (*basicAllocator) bsls::Types::Int64(value);
+        void *mem = new (*allocator.mechanism()) bsls::Types::Int64(value);
         result = createExtendedDataObject(e_EXTENDED_INTERNAL_INTEGER64_ALLOC,
                                           mem);
     }
 #else   // end - 32 bit / begin - 64 bit
-    (void)basicAllocator;
+    (void)allocator;
 
     result.d_as.d_type  = e_INTERNAL_INTEGER64;
     result.d_as.d_int64 = value;
@@ -3575,12 +3569,11 @@ Datum Datum::createNull()
 }
 
 inline
-Datum Datum::createStringRef(const char       *string,
-                             SizeType          length,
-                             bslma::Allocator *basicAllocator)
+Datum Datum::createStringRef(const char            *string,
+                             SizeType               length,
+                             const AllocatorType&  allocator)
 {
     BSLS_ASSERT(string || 0 == length);
-    BSLS_ASSERT(basicAllocator);
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     // If the length will fit in the 'k_SHORT_OFFSET' area, store everything
@@ -3594,13 +3587,14 @@ Datum Datum::createStringRef(const char       *string,
         return result;                                                // RETURN
     }
 
-    void *mem = basicAllocator->allocate(sizeof(length) + sizeof(string));
+    void *mem = allocator.mechanism()->allocate(
+                                              sizeof(length) + sizeof(string));
     Datum_Helpers::store<const char *>(mem, 0,              string);
     Datum_Helpers::store<SizeType>    (mem, sizeof(string), length);
 
     return createExtendedDataObject(e_EXTENDED_INTERNAL_SREF_ALLOC, mem);
 #else   // end - 32 bit / begin - 64 bit
-    (void)basicAllocator;
+    (void)allocator;
 
     BSLS_ASSERT(length <= bsl::numeric_limits<unsigned int>::max());
 
@@ -3613,21 +3607,19 @@ Datum Datum::createStringRef(const char       *string,
 }
 
 inline
-Datum Datum::createStringRef(const char       *string,
-                             bslma::Allocator *basicAllocator)
+Datum Datum::createStringRef(const char            *string,
+                             const AllocatorType&  allocator)
 {
     BSLS_ASSERT(string);
-    BSLS_ASSERT(basicAllocator);
 
-    return createStringRef(string, bsl::strlen(string), basicAllocator);
+    return createStringRef(string, bsl::strlen(string), allocator);
 }
 
 inline
 Datum Datum::createStringRef(const bslstl::StringRef&  value,
-                             bslma::Allocator         *basicAllocator)
+                             const AllocatorType&     allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-    return createStringRef(value.data(), value.length(), basicAllocator);
+    return createStringRef(value.data(), value.length(), allocator);
 }
 
 inline
@@ -3731,45 +3723,39 @@ Datum Datum::adoptMap(const DatumMutableMapOwningKeysRef& map)
 }
 
 inline
-Datum Datum::copyString(const bslstl::StringRef&  value,
-                        bslma::Allocator         *basicAllocator)
+Datum Datum::copyString(const bslstl::StringRef& value,
+                        const AllocatorType&    allocator)
 {
-    return copyString(value.data(), value.length(), basicAllocator);
+    return copyString(value.data(), value.length(), allocator);
 }
 
 inline
-void Datum::disposeUninitializedArray(
-                                   const DatumMutableArrayRef&  array,
-                                   bslma::Allocator            *basicAllocator)
+void Datum::disposeUninitializedArray(const DatumMutableArrayRef& array,
+                                      const AllocatorType&       allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-    basicAllocator->deallocate(array.length());
+    allocator.mechanism()->deallocate(array.length());
 }
 
 inline
-void Datum::disposeUninitializedIntMap(
-                                  const DatumMutableIntMapRef&  map,
-                                  bslma::Allocator             *basicAllocator)
+void Datum::disposeUninitializedIntMap(const DatumMutableIntMapRef& map,
+                                       const AllocatorType&        allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-    basicAllocator->deallocate(map.size());
+    allocator.mechanism()->deallocate(map.size());
 }
 
 inline
-void Datum::disposeUninitializedMap(const DatumMutableMapRef&  map,
-bslma::Allocator          *basicAllocator)
+void Datum::disposeUninitializedMap(const DatumMutableMapRef& map,
+                                    const AllocatorType&     allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-    basicAllocator->deallocate(map.size());
+    allocator.mechanism()->deallocate(map.size());
 }
 
 inline
 void Datum::disposeUninitializedMap(
-                           const DatumMutableMapOwningKeysRef&  map,
-                           bslma::Allocator                    *basicAllocator)
+                                 const DatumMutableMapOwningKeysRef& map,
+                                 const AllocatorType&               allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-    basicAllocator->deallocate(map.size());
+    allocator.mechanism()->deallocate(map.size());
 }
 
 // ACCESSORS
@@ -4490,12 +4476,12 @@ void Datum::apply(t_VISITOR& visitor) const
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 void Datum::createUninitializedMapOwningKeys(
-                                 DatumMutableMapOwningKeysRef *result,
-                                 SizeType                      capacity,
-                                 SizeType                      keysCapacity,
-                                 bslma::Allocator             *basicAllocator)
+                                    DatumMutableMapOwningKeysRef *result,
+                                    SizeType                      capacity,
+                                    SizeType                      keysCapacity,
+                                    const AllocatorType&         allocator)
 {
-    createUninitializedMap(result, capacity, keysCapacity, basicAllocator);
+    createUninitializedMap(result, capacity, keysCapacity, allocator);
 }
 
 inline
@@ -4506,10 +4492,10 @@ Datum Datum::adoptMapOwningKeys(const DatumMutableMapOwningKeysRef& mapping)
 
 inline
 void Datum::disposeUninitializedMapOwningKeys(
-                           const DatumMutableMapOwningKeysRef&  mapping,
-                           bslma::Allocator                    *basicAllocator)
+                                 const DatumMutableMapOwningKeysRef& mapping,
+                                 const AllocatorType&               allocator)
 {
-    return disposeUninitializedMap(mapping, basicAllocator);
+    return disposeUninitializedMap(mapping, allocator);
 }
 #endif  // end - do not omit internal deprecated
 
