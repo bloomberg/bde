@@ -80,22 +80,22 @@ void aSsErT(bool condition, const char *message, int line)
 
 void checkStandard(
     const char                   *inputSpecification,
-    FormatterSpecificationStandard<char, const char *>::Category category,
+    FormatterSpecificationStandard<char>::Category category,
     bsl::basic_string_view<char>  filler,
-    FormatterSpecificationStandard<char, const char *>::Alignment alignment,
-    FormatterSpecificationStandard<char, const char *>::Sign      sign,
+    FormatterSpecificationStandard<char>::Alignment alignment,
+    FormatterSpecificationStandard<char>::Sign      sign,
     bool                                                       alternativeFlag,
     bool                                                       zeroPaddingFlag,
-    FormatterSpecificationStandard<char, const char *>::Value width,
-    FormatterSpecificationStandard<char, const char *>::Value precision,
+    FormatterSpecificationStandard<char>::Value width,
+    FormatterSpecificationStandard<char>::Value precision,
     bool                         localeSpecificFlag,
-    FormatterSpecificationStandard<char, const char *>::FormatType formatType)
+    FormatterSpecificationStandard<char>::FormatType formatType)
 {
-    FormatterSpecificationStandard<char, const char *> fs;
+    FormatterSpecificationStandard<char> fs;
 
     const char *start = inputSpecification;
     const char *end   = start + strlen(start);
-    int rv = FormatterSpecificationStandard<char, const char *>::parse(&fs, &start,
+    int rv = FormatterSpecificationStandard<char>::parse(&fs, &start,
                                                                        end, category);
     ASSERT(0 == rv);
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
@@ -112,25 +112,25 @@ void checkStandard(
 
 void checkStandard(
      const wchar_t                   *inputSpecification,
-     FormatterSpecificationStandard<wchar_t, const wchar_t *>::Category
+     FormatterSpecificationStandard<wchar_t>::Category
                                       category,
      bsl::basic_string_view<wchar_t>  filler,
-     FormatterSpecificationStandard<wchar_t, const wchar_t *>::Alignment
+     FormatterSpecificationStandard<wchar_t>::Alignment
                                       alignment,
-     FormatterSpecificationStandard<wchar_t, const wchar_t *>::Sign sign,
+     FormatterSpecificationStandard<wchar_t>::Sign sign,
      bool alternativeFlag,
      bool zeroPaddingFlag,
-     FormatterSpecificationStandard<wchar_t, const wchar_t *>::Value width,
-     FormatterSpecificationStandard<wchar_t, const wchar_t *>::Value precision,
+     FormatterSpecificationStandard<wchar_t>::Value width,
+     FormatterSpecificationStandard<wchar_t>::Value precision,
      bool localeSpecificFlag,
-     FormatterSpecificationStandard<wchar_t, const wchar_t *>::FormatType
+     FormatterSpecificationStandard<wchar_t>::FormatType
           formatType)
 {
-    FormatterSpecificationStandard<wchar_t, const wchar_t *> fs;
+    FormatterSpecificationStandard<wchar_t> fs;
 
     const wchar_t *start = inputSpecification;
     const wchar_t *end   = start + wcslen(start);
-    int rv = FormatterSpecificationStandard<wchar_t, const wchar_t *>::parse(&fs, 
+    int rv = FormatterSpecificationStandard<wchar_t>::parse(&fs, 
                                                                         &start,
                                                                         end, category);
     ASSERT(0 == rv);
@@ -162,8 +162,8 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-        typedef FormatterSpecificationStandard<char, const char *>       FSC;
-        typedef FormatterSpecificationStandard<wchar_t, const wchar_t *> FSW;
+        typedef FormatterSpecificationStandard<char>       FSC;
+        typedef FormatterSpecificationStandard<wchar_t> FSW;
 
         checkStandard("", FSC::e_CATEGORY_STRING,
                       "",
@@ -176,8 +176,8 @@ int main(int argc, char **argv)
                       false,
                       FSC::e_TYPE_UNASSIGNED);
 
-        checkStandard("*<06.3XYZ",
-                      FSC::e_CATEGORY_STRING,
+        checkStandard("*<06.3d",
+                      FSC::e_CATEGORY_INTEGRAL,
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
@@ -186,10 +186,10 @@ int main(int argc, char **argv)
                       FSC::Value(6, FSC::Value::e_VALUE),
                       FSC::Value(3, FSC::Value::e_VALUE),
                       false,
-                      FSC::e_TYPE_UNASSIGNED);
+                      FSC::e_INTEGRAL_DECIMAL);
 
-        checkStandard("*<{}.{3}XYZ",
-                      FSC::e_CATEGORY_STRING,
+        checkStandard("*<{}.{3}F",
+                      FSC::e_CATEGORY_FLOATING,
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
                       FSC::Value(0, FSC::Value::e_NEXT_ARG),
                       FSC::Value(3, FSC::Value::e_ARG_ID),
                       false,
-                      FSC::e_TYPE_UNASSIGNED);
+                      FSC::e_FLOATING_DECIMAL_UC);
 
         checkStandard(L"",
                       FSW::e_CATEGORY_STRING,
@@ -212,8 +212,8 @@ int main(int argc, char **argv)
                       false,
                       FSW::e_TYPE_UNASSIGNED);
 
-        checkStandard(L"*<06.3XYZ",
-                      FSW::e_CATEGORY_STRING,
+        checkStandard(L"*<06.3d",
+                      FSW::e_CATEGORY_INTEGRAL,
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,
@@ -222,10 +222,10 @@ int main(int argc, char **argv)
                       FSW::Value(6, FSW::Value::e_VALUE),
                       FSW::Value(3, FSW::Value::e_VALUE),
                       false,
-                      FSW::e_TYPE_UNASSIGNED);
+                      FSW::e_INTEGRAL_DECIMAL);
 
-        checkStandard(L"*<{}.{3}XYZ",
-                      FSW::e_CATEGORY_STRING,
+        checkStandard(L"*<{}.{3}f",
+                      FSW::e_CATEGORY_FLOATING,
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,
@@ -234,7 +234,7 @@ int main(int argc, char **argv)
                       FSW::Value(0, FSW::Value::e_NEXT_ARG),
                       FSW::Value(3, FSW::Value::e_ARG_ID),
                       false,
-                      FSW::e_TYPE_UNASSIGNED);
+                      FSW::e_FLOATING_DECIMAL);
 
       } break;
       default: {

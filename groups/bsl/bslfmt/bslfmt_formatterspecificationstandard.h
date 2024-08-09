@@ -120,12 +120,12 @@ class FormatterSpecificationStandard_Enums
     };
 };
 
-template <class t_CHAR, class t_ITER>
+template <class t_CHAR>
 class FormatterSpecificationStandard
 : public FormatterSpecificationStandard_Enums {
   private:
     // CLASS TYPES
-    typedef FormatterSpecification_Splitter<t_CHAR, t_ITER> FSS;
+    typedef FormatterSpecification_Splitter<t_CHAR> FSS;
     
     // DATA
     FSS        d_basicSplitter;
@@ -142,22 +142,23 @@ class FormatterSpecificationStandard
     FormatterSpecificationStandard();
 
     // CLASS FUNCTIONS
+    template <class t_ITER>
     static int parse(FormatterSpecificationStandard *outSpec,
                      t_ITER                          *start,
                      t_ITER                           end,
                      Category                         category);
 
     // ACCESSORS
-    const t_CHAR                   *filler();
-    int                             fillerCharacters();
-    Alignment                       alignment();
-    Sign                            sign();
-    bool                            alternativeFlag();
-    bool                            zeroPaddingFlag();
-    Value                           width();
-    Value                           precision();
-    bool                            localcSpecificFlag();
-    FormatType                      formatType();
+    const t_CHAR                   *filler() const;
+    int                             fillerCharacters() const;
+    Alignment                       alignment() const;
+    Sign                            sign() const;
+    bool                            alternativeFlag() const;
+    bool                            zeroPaddingFlag() const;
+    const Value                     width() const;
+    const Value                     precision() const;
+    bool                            localcSpecificFlag() const;
+    FormatType                      formatType() const;
 };
 
 // PRIVATE CLASS FUNCTIONS
@@ -166,97 +167,99 @@ class FormatterSpecificationStandard
 // CREATORS
 
 
-template <class t_CHAR, class t_ITER>
-FormatterSpecificationStandard<t_CHAR, t_ITER>::
+template <class t_CHAR>
+FormatterSpecificationStandard<t_CHAR>::
     FormatterSpecificationStandard()
 : d_basicSplitter()
 , d_formatType(FormatterSpecificationStandard::e_TYPE_UNASSIGNED)
 {
-    BSLMF_ASSERT(
-               (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
-                             t_CHAR>::value));
 }
 
 // ACCESSORS
 
-template <class t_CHAR, class t_ITER>
-const t_CHAR *FormatterSpecificationStandard<t_CHAR, t_ITER>::filler()
+template <class t_CHAR>
+const t_CHAR *FormatterSpecificationStandard<t_CHAR>::filler() const
 {
     return d_basicSplitter.filler();
 }
 
-template <class t_CHAR, class t_ITER>
-int       FormatterSpecificationStandard<t_CHAR, t_ITER>::fillerCharacters()
+template <class t_CHAR>
+int FormatterSpecificationStandard<t_CHAR>::fillerCharacters() const
 {
     return d_basicSplitter.fillerCharacters();
 }
 
-template <class t_CHAR, class t_ITER>
+template <class t_CHAR>
 typename
-FormatterSpecificationStandard<t_CHAR, t_ITER>::Alignment
-FormatterSpecificationStandard<t_CHAR, t_ITER>::alignment()
+FormatterSpecificationStandard<t_CHAR>::Alignment
+FormatterSpecificationStandard<t_CHAR>::alignment() const
 {
     return d_basicSplitter.alignment();
 }
 
-template <class t_CHAR, class t_ITER>
+template <class t_CHAR>
 typename
-FormatterSpecificationStandard<t_CHAR, t_ITER>::Sign
-FormatterSpecificationStandard<t_CHAR, t_ITER>::sign()
+FormatterSpecificationStandard<t_CHAR>::Sign
+FormatterSpecificationStandard<t_CHAR>::sign() const
 {
     return d_basicSplitter.sign();
 }
 
-template <class t_CHAR, class t_ITER>
-bool FormatterSpecificationStandard<t_CHAR, t_ITER>::alternativeFlag()
+template <class t_CHAR>
+bool FormatterSpecificationStandard<t_CHAR>::alternativeFlag() const
 {
     return d_basicSplitter.alternativeFlag();
 }
 
-template <class t_CHAR, class t_ITER>
-bool FormatterSpecificationStandard<t_CHAR, t_ITER>::zeroPaddingFlag()
+template <class t_CHAR>
+bool FormatterSpecificationStandard<t_CHAR>::zeroPaddingFlag() const
 {
     return d_basicSplitter.zeroPaddingFlag();
 }
 
-template <class t_CHAR, class t_ITER>
-typename
-FormatterSpecificationStandard<t_CHAR, t_ITER>::Value
-FormatterSpecificationStandard<t_CHAR, t_ITER>::width()
+template <class t_CHAR>
+typename const
+FormatterSpecificationStandard<t_CHAR>::Value
+FormatterSpecificationStandard<t_CHAR>::width() const
 {
     return d_basicSplitter.width();
 }
 
-template <class t_CHAR, class t_ITER>
-typename
-FormatterSpecificationStandard<t_CHAR, t_ITER>::Value
-FormatterSpecificationStandard<t_CHAR, t_ITER>::precision()
+template <class t_CHAR>
+typename const
+FormatterSpecificationStandard<t_CHAR>::Value
+FormatterSpecificationStandard<t_CHAR>::precision() const
 {
     return d_basicSplitter.precision();
 }
 
-template <class t_CHAR, class t_ITER>
-bool  FormatterSpecificationStandard<t_CHAR, t_ITER>::localcSpecificFlag()
+template <class t_CHAR>
+bool FormatterSpecificationStandard<t_CHAR>::localcSpecificFlag() const
 {
     return d_basicSplitter.localcSpecificFlag();
 }
 
-template <class t_CHAR, class t_ITER>
-typename FormatterSpecificationStandard<t_CHAR, t_ITER>::FormatType
-FormatterSpecificationStandard<t_CHAR, t_ITER>::formatType()
+template <class t_CHAR>
+typename FormatterSpecificationStandard<t_CHAR>::FormatType
+FormatterSpecificationStandard<t_CHAR>::formatType() const
 {
     return d_formatType;
 }
 
 // MANIPULATORS
 
-template <class t_CHAR, class t_ITER>
-int FormatterSpecificationStandard<t_CHAR, t_ITER>::parse(
+template <class t_CHAR>
+template <class t_ITER>
+int FormatterSpecificationStandard<t_CHAR>::parse(
                                      FormatterSpecificationStandard *outSpec,
                                      t_ITER                          *start,
                                      t_ITER                           end,
                                      Category                         category)
 {
+    BSLMF_ASSERT(
+               (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
+                             t_CHAR>::value));
+
     // Handle empty string or empty specification.
     if (*start == end || **start == '}')
         return 0;
@@ -289,8 +292,8 @@ int FormatterSpecificationStandard<t_CHAR, t_ITER>::parse(
     return -1;
 }
 
-template <class t_CHAR, class t_ITER>
-int FormatterSpecificationStandard<t_CHAR, t_ITER>::parseType(
+template <class t_CHAR>
+int FormatterSpecificationStandard<t_CHAR>::parseType(
                              FormatterSpecificationStandard        *outSpec,
                              const bsl::basic_string_view<t_CHAR>&  typeString,
                              Category                               category)

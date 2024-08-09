@@ -81,16 +81,16 @@ void aSsErT(bool condition, const char *message, int line)
 void checkStandard(
     const char                   *inputSpecification,
     bsl::basic_string_view<char>  filler,
-    FormatterSpecification_Splitter<char, const char *>::Alignment alignment,
-    FormatterSpecification_Splitter<char, const char *>::Sign      sign,
+    FormatterSpecification_Splitter<char>::Alignment alignment,
+    FormatterSpecification_Splitter<char>::Sign      sign,
     bool                                                       alternativeFlag,
     bool                                                       zeroPaddingFlag,
-    FormatterSpecification_Splitter<char, const char *>::Value width,
-    FormatterSpecification_Splitter<char, const char *>::Value precision,
+    FormatterSpecification_Splitter<char>::Value width,
+    FormatterSpecification_Splitter<char>::Value precision,
     bool                         localeSpecificFlag,
     bsl::basic_string_view<char> finalSpec)
 {
-    typedef FormatterSpecification_Splitter<char, const char *>         FSC;
+    typedef FormatterSpecification_Splitter<char>         FSC;
     const FSC::Sections sect = static_cast<FSC::Sections>(
             FSC::e_SECTIONS_FILL_ALIGN | FSC::e_SECTIONS_SIGN_FLAG |
             FSC::e_SECTIONS_ALTERNATE_FLAG | FSC::e_SECTIONS_ZERO_PAD_FLAG |
@@ -118,17 +118,17 @@ void checkStandard(
 void checkStandard(
     const wchar_t                   *inputSpecification,
     bsl::basic_string_view<wchar_t>  filler,
-    FormatterSpecification_Splitter<wchar_t, const wchar_t *>::Alignment
+    FormatterSpecification_Splitter<wchar_t>::Alignment
                                      alignment,
-    FormatterSpecification_Splitter<wchar_t, const wchar_t *>::Sign sign,
+    FormatterSpecification_Splitter<wchar_t>::Sign sign,
     bool alternativeFlag,
     bool zeroPaddingFlag,
-    FormatterSpecification_Splitter<wchar_t, const wchar_t *>::Value width,
-    FormatterSpecification_Splitter<wchar_t, const wchar_t *>::Value precision,
+    FormatterSpecification_Splitter<wchar_t>::Value width,
+    FormatterSpecification_Splitter<wchar_t>::Value precision,
     bool                            localeSpecificFlag,
     bsl::basic_string_view<wchar_t> finalSpec)
 {
-    typedef FormatterSpecification_Splitter<wchar_t, const wchar_t *> FSW;
+    typedef FormatterSpecification_Splitter<wchar_t> FSW;
 
     const FSW::Sections sect = static_cast<FSW::Sections>(
             FSW::e_SECTIONS_FILL_ALIGN | FSW::e_SECTIONS_SIGN_FLAG |
@@ -170,8 +170,8 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-        typedef FormatterSpecification_Splitter<char, const char *>       FSC;
-        typedef FormatterSpecification_Splitter<wchar_t, const wchar_t *> FSW;
+        typedef FormatterSpecification_Splitter<char>       FSC;
+        typedef FormatterSpecification_Splitter<wchar_t> FSW;
 
         checkStandard("",
                       "",

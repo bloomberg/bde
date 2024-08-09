@@ -21,34 +21,156 @@
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formatterspecificationstandard.h>
+#include <bslfmt_formatterunicodeutils.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
+#include <limits>     // for 'std::numeric_limits'
 
 #include <stdio.h>    // for 'snprintf'
 
 namespace BloombergLP {
 namespace bslfmt {
 
-template <class t_VALUE, class t_CHAR>
+template <class t_CHAR>
 struct Formatter_StringBase {
+  private:
+    // PRIVATE CLASS TYPES
+    typedef FormatterSpecificationStandard<t_CHAR> FSS;
+
+    // DATA
+    FSS d_spec;
+
+    // PRIVATE CLASS METHODS
+    static void findPrecisionLimitedString(
+                          int                            *charactersUsed,
+                          int                            *widthUsed,
+                          bsl::basic_string_view<t_CHAR>  inputString,
+                          int                             maxTotalDisplayWidth)
+    {
+        *widthUsed      = 0;
+        *charactersUsed = 0;
+
+        const t_CHAR *current   = inputString.data();
+        size_t        bytesLeft = inputString.size() * sizeof(t_CHAR);
+
+        while (bytesLeft > 0) {
+            Formatter_UnicodeUtils::GraphemeClusterExtractionResult gcresult;
+
+            switch (sizeof(t_CHAR)) {
+              case 1: {
+                gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
+                                                Formatter_UnicodeUtils::e_UTF8,
+                                                current,
+                                                bytesLeft);
+              } break;
+              case 2: {
+                gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
+                                                Formatter_UnicodeUtils::e_UTF16,
+                                                current,
+                                                bytesLeft);
+              } break;
+              case 4: {
+                gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
+                                                Formatter_UnicodeUtils::e_UTF32,
+                                                current,
+                                                bytesLeft);
+              } break;
+              default: {
+                BSLS_THROW(bsl::format_error("Invalid character width"));
+              }
+            }
+            if (!gcresult.isValid) {
+                BSLS_THROW(bsl::format_error("Invalid unicode stream"));
+            }
+
+            if (*widthUsed + gcresult.firstCodePointWidth >
+                maxTotalDisplayWidth)
+                break;
+
+            bytesLeft -= gcresult.numSourceBytes;
+            current += gcresult.numSourceBytes / sizeof(t_CHAR);
+
+            *charactersUsed += gcresult.numSourceBytes / sizeof(t_CHAR);
+
+            *widthUsed += gcresult.firstCodePointWidth;
+        }
+    }
   public:
     // MANIPULATORS
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                            t_PARSE_CONTEXT& pc)
     {
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bsl::format_error("not implemented"));
-        }
+        typename t_PARSE_CONTEXT::iterator current = pc.begin();
+
+        FSS::parse(&d_spec, &current, pc.end(), FSS::e_CATEGORY_STRING);
+
+        if (d_spec.sign() != FSS::e_SIGN_DEFAULT)
+            BSLS_THROW(bsl::format_error(
+                      "Formatting sign specifier not valid for string types"));
+
+        if (d_spec.alternativeFlag())
+            BSLS_THROW(bsl::format_error(
+                         "Formatting # specifier not valid for string types"));
+
+        if (d_spec.zeroPaddingFlag())
+            BSLS_THROW(bsl::format_error(
+                         "Formatting 0 specifier not valid for string types"));
+
+        if (d_spec.localcSpecificFlag())
+            BSLS_THROW(bsl::format_error(
+                         "Formatting L specifier not supported"));
+
+        if (d_spec.formatType() == FSS::e_STRING_ESCAPED)
+            BSLS_THROW(
+                    bsl::format_error("String escaping not supported"));
+
         return pc.begin();
     }
 
+    // ACCESSORS
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(t_VALUE           v,
-                                               t_FORMAT_CONTEXT& fc) const
+    typename t_FORMAT_CONTEXT::iterator formatImpl(
+                                       bsl::basic_string_view<t_CHAR> v,
+                                       t_FORMAT_CONTEXT&              fc) const
     {
         bsl::basic_string_view<t_CHAR> sv(v);
+
+        int widthUsedByInput      = 0;
+        int charactersOfInputUsed = sv.size();
+
+        if (d_spec.width().valueType() != FSS::Value::e_DEFAULT ||
+            d_spec.precision().valueType() != FSS::Value::e_DEFAULT)
+        {
+            int maxDisplayWidth = 0;
+            switch (d_spec.precision().valueType()) {
+              case FSS::Value::e_DEFAULT: {
+                maxDisplayWidth = std::numeric_limits<int>::max();
+              } break;
+              case FSS::Value::e_VALUE: {
+                maxDisplayWidth = d_spec.precision().value();
+              } break;
+              case FSS::Value::e_NEXT_ARG: {
+                BSLS_THROW(bsl::format_error("TODO: implement feature"));
+              } break;
+              case FSS::Value::e_ARG_ID: {
+                BSLS_THROW(bsl::format_error("TODO: implement feature"));
+              } break;
+              default: {
+                BSLS_THROW(bsl::format_error("Invalid precision specifier"));
+              } break;
+            }
+            findPrecisionLimitedString(&charactersOfInputUsed,
+                                       &widthUsedByInput,
+                                       sv,
+                                       maxDisplayWidth);
+        }
+
+
+
+
         return bsl::copy(sv.begin(), sv.end(), fc.out());
     }
 };
@@ -61,26 +183,46 @@ namespace bsl {
 
 template <class t_CHAR>
 struct formatter<const t_CHAR *, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<const t_CHAR *, t_CHAR> {
+: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
   public:
     // TRAITS
 
     // There will already be a standard library formatter taking a raw
     // character pointer, so do not alias this into `std`.
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // ACCESSORS
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(const t_CHAR      *v,
+                                               t_FORMAT_CONTEXT&  fc) const
+    {
+        bsl::basic_string_view<t_CHAR> sv(v);
+        return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(
+                                                                           sv, fc);
+    }
 };
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class t_CHAR>
 struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<std::basic_string_view<t_CHAR>,
-                                            t_CHAR> {
+: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
   public:
     // TRAITS
 
     // There will already be a standard library formatter taking a `std`
     // string view, so do not alias this into `std`.
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // ACCESSORS
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                       std::basic_string_view<t_CHAR> v,
+                                       t_FORMAT_CONTEXT&              fc) const
+    {
+        bsl::basic_string_view<t_CHAR> sv(v);
+        return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(
+                                                                           sv, fc);
+    }
 };
 #endif
 
@@ -88,14 +230,24 @@ struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
 
 template <class t_CHAR>
 struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<bsl::basic_string_view<t_CHAR>,
-                                            t_CHAR> {
+: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
   public:
     // TRAITS
 
     // If we do not alias string view then we should alias its formatter from
     // the `std` namespace, so DO NOT DEFINE the trait
     // BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20.
+
+    // ACCESSORS
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                       bsl::basic_string_view<t_CHAR> v,
+                                       t_FORMAT_CONTEXT&              fc) const
+    {
+        bsl::basic_string_view<t_CHAR> sv(v);
+        return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(
+                                                                           sv, fc);
+    }
 };
 
 #endif

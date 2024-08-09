@@ -51,11 +51,11 @@ struct Formatter_CharacterBase {
     typename t_FORMAT_CONTEXT::iterator format(t_VALUE           x,
                                                t_FORMAT_CONTEXT& fc) const
     {
-        typename t_FORMAT_CONTEXT::iterator o = fc.out();
+        typename t_FORMAT_CONTEXT::iterator oi = fc.out();
 
-        t_DERIVED::doCharOutput(&o, x);
+        t_DERIVED::doCharOutput(&oi, x);
 
-        return o;
+        return oi;
     }
 };
 
