@@ -5,6 +5,8 @@
 
 #include <bslstl_string.h>
 
+#include <bslfmt_formatparsecontext.h> // Testing only
+
 #include <stdio.h>
 #include <string.h>
 
@@ -78,25 +80,27 @@ void aSsErT(bool condition, const char *message, int line)
 //                  ASSISTANCE FUNCTIONS
 // ----------------------------------------------------------------------------
 
+
 void checkStandard(
-    const char                   *inputSpecification,
-    FormatterSpecificationStandard<char>::Category category,
-    bsl::basic_string_view<char>  filler,
-    FormatterSpecificationStandard<char>::Alignment alignment,
-    FormatterSpecificationStandard<char>::Sign      sign,
-    bool                                                       alternativeFlag,
-    bool                                                       zeroPaddingFlag,
-    FormatterSpecificationStandard<char>::Value width,
-    FormatterSpecificationStandard<char>::Value precision,
-    bool                         localeSpecificFlag,
-    FormatterSpecificationStandard<char>::FormatType formatType)
+          const char                                       *inputSpecification,
+          FormatterSpecificationStandard<char>::Category    category,
+          bsl::basic_string_view<char>                      filler,
+          FormatterSpecificationStandard<char>::Alignment   alignment,
+          FormatterSpecificationStandard<char>::Sign        sign,
+          bool                                              alternativeFlag,
+          bool                                              zeroPaddingFlag,
+          FormatterSpecification_NumericValue               adjustedWidth,
+          FormatterSpecification_NumericValue               adjustedPrecision,
+          bool                                              localeSpecificFlag,
+          FormatterSpecificationStandard<char>::FormatType  formatType)
 {
     FormatterSpecificationStandard<char> fs;
 
+    basic_format_parse_context<char> pc(inputSpecification);
+
     const char *start = inputSpecification;
     const char *end   = start + strlen(start);
-    int rv = FormatterSpecificationStandard<char>::parse(&fs, &start,
-                                                                       end, category);
+    int rv = FormatterSpecificationStandard<char>::parse(&fs, &pc, category);
     ASSERT(0 == rv);
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
                                                   fs.fillerCharacters()));
@@ -104,35 +108,34 @@ void checkStandard(
     ASSERT(sign == fs.sign());
     ASSERT(alternativeFlag == fs.alternativeFlag());
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
-    ASSERT(width == fs.width());
-    ASSERT(precision == fs.precision());
+    ASSERT(adjustedWidth == fs.adjustedWidth());
+    ASSERT(adjustedPrecision == fs.adjustedPrecision());
     ASSERT(localeSpecificFlag == fs.localcSpecificFlag());
     ASSERT(formatType == fs.formatType());
 }
 
 void checkStandard(
-     const wchar_t                   *inputSpecification,
-     FormatterSpecificationStandard<wchar_t>::Category
-                                      category,
-     bsl::basic_string_view<wchar_t>  filler,
-     FormatterSpecificationStandard<wchar_t>::Alignment
-                                      alignment,
-     FormatterSpecificationStandard<wchar_t>::Sign sign,
-     bool alternativeFlag,
-     bool zeroPaddingFlag,
-     FormatterSpecificationStandard<wchar_t>::Value width,
-     FormatterSpecificationStandard<wchar_t>::Value precision,
-     bool localeSpecificFlag,
-     FormatterSpecificationStandard<wchar_t>::FormatType
-          formatType)
+       const wchar_t                                       *inputSpecification,
+       FormatterSpecificationStandard<wchar_t>::Category    category,
+       bsl::basic_string_view<wchar_t>                      filler,
+       FormatterSpecificationStandard<wchar_t>::Alignment   alignment,
+       FormatterSpecificationStandard<wchar_t>::Sign        sign,
+       bool                                                 alternativeFlag,
+       bool                                                 zeroPaddingFlag,
+       FormatterSpecification_NumericValue                  adjustedWidth,
+       FormatterSpecification_NumericValue                  adjustedPrecision,
+       bool                                                 localeSpecificFlag,
+       FormatterSpecificationStandard<wchar_t>::FormatType  formatType)
 {
     FormatterSpecificationStandard<wchar_t> fs;
 
+    basic_format_parse_context<wchar_t> pc(inputSpecification);
+
     const wchar_t *start = inputSpecification;
     const wchar_t *end   = start + wcslen(start);
-    int rv = FormatterSpecificationStandard<wchar_t>::parse(&fs, 
-                                                                        &start,
-                                                                        end, category);
+    int rv = FormatterSpecificationStandard<wchar_t>::parse(&fs,
+                                                            &pc,
+                                                            category);
     ASSERT(0 == rv);
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
                                                      fs.fillerCharacters()));
@@ -140,8 +143,8 @@ void checkStandard(
     ASSERT(sign == fs.sign());
     ASSERT(alternativeFlag == fs.alternativeFlag());
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
-    ASSERT(width == fs.width());
-    ASSERT(precision == fs.precision());
+    ASSERT(adjustedWidth == fs.adjustedWidth());
+    ASSERT(adjustedPrecision == fs.adjustedPrecision());
     ASSERT(localeSpecificFlag == fs.localcSpecificFlag());
     ASSERT(formatType == fs.formatType());
 }
@@ -162,8 +165,9 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-        typedef FormatterSpecificationStandard<char>       FSC;
+        typedef FormatterSpecificationStandard<char>    FSC;
         typedef FormatterSpecificationStandard<wchar_t> FSW;
+        typedef FormatterSpecification_NumericValue     FSValue;
 
         checkStandard("", FSC::e_CATEGORY_STRING,
                       "",
@@ -171,8 +175,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSC::Value(0, FSC::Value::e_DEFAULT),
-                      FSC::Value(0, FSC::Value::e_DEFAULT),
+                      FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(0, FSValue::e_DEFAULT),
                       false,
                       FSC::e_TYPE_UNASSIGNED);
 
@@ -183,8 +187,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       true,
-                      FSC::Value(6, FSC::Value::e_VALUE),
-                      FSC::Value(3, FSC::Value::e_VALUE),
+                      FSValue(6, FSValue::e_VALUE),
+                      FSValue(3, FSValue::e_VALUE),
                       false,
                       FSC::e_INTEGRAL_DECIMAL);
 
@@ -195,8 +199,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSC::Value(0, FSC::Value::e_NEXT_ARG),
-                      FSC::Value(3, FSC::Value::e_ARG_ID),
+                      FSValue(0, FSValue::e_NEXT_ARG),
+                      FSValue(3, FSValue::e_ARG_ID),
                       false,
                       FSC::e_FLOATING_DECIMAL_UC);
 
@@ -207,8 +211,8 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSW::Value(0, FSW::Value::e_DEFAULT),
-                      FSW::Value(0, FSW::Value::e_DEFAULT),
+                      FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(0, FSValue::e_DEFAULT),
                       false,
                       FSW::e_TYPE_UNASSIGNED);
 
@@ -219,8 +223,8 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       true,
-                      FSW::Value(6, FSW::Value::e_VALUE),
-                      FSW::Value(3, FSW::Value::e_VALUE),
+                      FSValue(6, FSValue::e_VALUE),
+                      FSValue(3, FSValue::e_VALUE),
                       false,
                       FSW::e_INTEGRAL_DECIMAL);
 
@@ -231,8 +235,8 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSW::Value(0, FSW::Value::e_NEXT_ARG),
-                      FSW::Value(3, FSW::Value::e_ARG_ID),
+                      FSValue(0, FSValue::e_NEXT_ARG),
+                      FSValue(3, FSValue::e_ARG_ID),
                       false,
                       FSW::e_FLOATING_DECIMAL);
 

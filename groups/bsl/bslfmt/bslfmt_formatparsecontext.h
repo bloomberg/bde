@@ -39,6 +39,8 @@ namespace bslfmt {
 template <class t_CHAR>
 class basic_format_parse_context;
 
+class Format_ParseContext_Test_Querier;
+
 // TYPEDEFS
 
 typedef basic_format_parse_context<char> format_parse_context;
@@ -78,8 +80,6 @@ class basic_format_parse_context {
                  bsl::basic_string_view<t_CHAR> fmt,
                  size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT;
 
-  public:
-
     // MANIPULATORS
     BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it);
 
@@ -100,8 +100,24 @@ class basic_format_parse_context {
                        const basic_format_parse_context&) BSLS_KEYWORD_DELETED;
     basic_format_parse_context& operator=(
                        const basic_format_parse_context&) BSLS_KEYWORD_DELETED;
+
+    // FRIENDS
+    friend class Format_ParseContext_Test_Querier;
 };
 
+               // --------------------------------------
+               // class Format_ParseContext_Test_Querier
+               // --------------------------------------
+
+struct Format_ParseContext_Test_Querier {
+    // TYPES
+    enum Indexing { e_UNKNOWN, e_MANUAL, e_AUTOMATIC };
+
+    // CLASS METHODS
+    template <class t_CHAR>
+    static Indexing queryIndexing(
+                       const basic_format_parse_context<t_CHAR>& parseContext);
+};
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -194,6 +210,28 @@ basic_format_parse_context<t_CHAR>::end() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_end;
 }
+
+                   // --------------------------------------
+                   // class Format_ParseContext_Test_Querier
+                   // --------------------------------------
+
+template <class t_CHAR>
+Format_ParseContext_Test_Querier::Indexing
+Format_ParseContext_Test_Querier::queryIndexing(
+                        const basic_format_parse_context<t_CHAR>& parseContext)
+{
+    switch (parseContext.d_indexing) {
+      case basic_format_parse_context<t_CHAR>::e_MANUAL: {
+        return e_MANUAL;                                              // RETURN
+      } break;
+      case basic_format_parse_context<t_CHAR>::e_AUTOMATIC: {
+        return e_AUTOMATIC;                                           // RETURN
+      } break;
+      default: {
+        return e_UNKNOWN;                                             // RETURN
+      } break;
+    }
+};
 
 
 }  // close namespace bslfmt

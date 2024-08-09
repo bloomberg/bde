@@ -36,6 +36,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 
 #include <bslstl_iterator.h>
+#include <bslstl_monostate.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
 
@@ -50,6 +51,82 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bslfmt {
+
+                   // -----------------------------------------
+                   // class FormatterSpecification_NumericValue
+                   // -----------------------------------------
+
+struct FormatterSpecification_NumericValue {
+  public:
+    // CLASS TYPES
+    enum ValueType { e_DEFAULT, e_VALUE, e_NEXT_ARG, e_ARG_ID };
+
+  private:
+    // DATA
+    int       d_value;
+    ValueType d_type;
+
+    // PRIVATE CLASS FUNCTIONS
+    template <class t_ITER>
+    static int parse(FormatterSpecification_NumericValue *outValue,
+                     t_ITER                              *start,
+                     t_ITER                               end,
+                     bool                                 hasInitialDot);
+
+    // FRIENDS
+    template <class t_CHAR>
+    friend class FormatterSpecification_Splitter;
+
+    friend class FormatterSpecification_NumericValueVisitor;
+
+  public:
+    // CREATORS
+    FormatterSpecification_NumericValue();
+    FormatterSpecification_NumericValue(int value, ValueType type);
+
+    // ACCESSORS
+    bool operator==(const FormatterSpecification_NumericValue& other) const;
+    int  value() const;
+    ValueType valueType() const;
+
+    // CLASS FUNCTIONS
+    template <typename t_FORMAT_CONTEXT>
+    static void finalize(FormatterSpecification_NumericValue *out,
+                  const t_FORMAT_CONTEXT&              context);
+};
+
+                 // ------------------------------------------------
+                 // class FormatterSpecification_NumericValueVisitor
+                 // ------------------------------------------------
+
+
+struct FormatterSpecification_NumericValueVisitor {
+  private:
+    // DATA
+    FormatterSpecification_NumericValue *d_value_p;
+
+  public:
+    // CREATORS
+
+    FormatterSpecification_NumericValueVisitor(
+                                      FormatterSpecification_NumericValue *pc);
+
+    // MANIPULATORS
+
+    void operator()(bsl::monostate) const;
+
+    template <class t_TYPE>
+    typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type operator()(
+                                                               t_TYPE x) const;
+
+    template <class t_TYPE>
+    typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type operator()(
+                                                               t_TYPE x) const;
+};
+
+              // ------------------------------------------
+              // class FormatterSpecification_SplitterEnums
+              // ------------------------------------------
 
 struct FormatterSpecification_SplitterEnums {
   public:
@@ -68,37 +145,37 @@ struct FormatterSpecification_SplitterEnums {
         e_SIGN_SPACE
     };
 
-    struct Value {
-      public:
-        // CLASS TYPES
-        enum ValueType { e_DEFAULT, e_VALUE, e_NEXT_ARG, e_ARG_ID };
+    //struct Value {
+    //  public:
+    //    // CLASS TYPES
+    //    enum ValueType { e_DEFAULT, e_VALUE, e_NEXT_ARG, e_ARG_ID };
 
-      private:
-        // DATA
-        int       d_value;
-        ValueType d_type;
+    //  private:
+    //    // DATA
+    //    int       d_value;
+    //    ValueType d_type;
 
-        // PRIVATE CLASS FUNCTIONS
-        template <class t_ITER>
-        static int parse(Value  *outValue,
-                         t_ITER *start,
-                         t_ITER  end,
-                         bool    hasInitialDot);
+    //    // PRIVATE CLASS FUNCTIONS
+    //    template <class t_ITER>
+    //    static int parse(Value  *outValue,
+    //                     t_ITER *start,
+    //                     t_ITER  end,
+    //                     bool    hasInitialDot);
 
-        // FRIENDS
-        template <class t_CHAR>
-        friend class FormatterSpecification_Splitter;
+    //    // FRIENDS
+    //    template <class t_CHAR>
+    //    friend class FormatterSpecification_Splitter;
 
-      public:
-        // CREATORS
-        Value();
-        Value(int value, ValueType type);
+    //  public:
+    //    // CREATORS
+    //    Value();
+    //    Value(int value, ValueType type);
 
-        // ACCESSORS
-        bool      operator==(const Value& other) const;
-        int       value() const;
-        ValueType valueType() const;
-    };
+    //    // ACCESSORS
+    //    bool      operator==(const Value& other) const;
+    //    int       value() const;
+    //    ValueType valueType() const;
+    //};
 
     enum Sections {
         e_SECTIONS_NONE                = 0,
@@ -115,6 +192,10 @@ struct FormatterSpecification_SplitterEnums {
     };
 };
 
+                 // ---------------------------------------------
+                 // class FormatterSpecification_Splitter<t_CHAR>
+                 // ---------------------------------------------
+
 template <class t_CHAR>
 class FormatterSpecification_Splitter
 : public FormatterSpecification_SplitterEnums {
@@ -128,14 +209,14 @@ class FormatterSpecification_Splitter
     int    d_fillerCharacters;
     int    d_fillerCodePointDisplayWidth;
 
-    Alignment                      d_alignment;
-    Sign                           d_sign;
-    bool                           d_alternativeFlag;
-    bool                           d_zeroPaddingFlag;
-    Value                          d_width;
-    Value                          d_precision;
-    bool                           d_localeSpecificFlag;
-    bsl::basic_string_view<t_CHAR> d_spec;
+    Alignment                           d_alignment;
+    Sign                                d_sign;
+    bool                                d_alternativeFlag;
+    bool                                d_zeroPaddingFlag;
+    FormatterSpecification_NumericValue d_width;
+    FormatterSpecification_NumericValue d_precision;
+    bool                                d_localeSpecificFlag;
+    bsl::basic_string_view<t_CHAR>      d_spec;
 
     // PRIVATE CLASS FUNCTIONS
     static Alignment alignmentFromChar(t_CHAR in);
@@ -191,35 +272,141 @@ class FormatterSpecification_Splitter
     FormatterSpecification_Splitter();
 
     // ACCESSORS
-    const t_CHAR                         *filler() const;
-    int                                   fillerCharacters() const;
-    int                                   fillerCodePointDisplayWidth() const;
-    Alignment                             alignment() const;
-    Sign                                  sign() const;
-    bool                                  alternativeFlag() const;
-    bool                                  zeroPaddingFlag() const;
-    const Value                           width() const;
-    const Value                           precision() const;
-    bool                                  localcSpecificFlag() const;
-    const bsl::basic_string_view<t_CHAR>  finalSpec() const;
+    const t_CHAR                             *filler() const;
+    int                                       fillerCharacters() const;
+    int                                       fillerCodePointDisplayWidth() const;
+    Alignment                                 alignment() const;
+    Sign                                      sign() const;
+    bool                                      alternativeFlag() const;
+    bool                                      zeroPaddingFlag() const;
+    const FormatterSpecification_NumericValue rawWidth() const;
+    const FormatterSpecification_NumericValue rawPrecision() const;
+    bool                                      localcSpecificFlag() const;
+    const bsl::basic_string_view<t_CHAR>      finalSpec() const;
 };
 
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
 
+                 // -----------------------------------------
+                 // class FormatterSpecification_NumericValue
+                 // -----------------------------------------
 
 // CREATORS
 
 inline
-FormatterSpecification_SplitterEnums::Value::Value()
+FormatterSpecification_NumericValue::FormatterSpecification_NumericValue()
 : d_value(0), d_type(e_DEFAULT)
 {
 }
 
 inline
-FormatterSpecification_SplitterEnums::Value::Value(int value, ValueType type)
+FormatterSpecification_NumericValue::FormatterSpecification_NumericValue(
+                                                               int       value,
+                                                               ValueType type)
 : d_value(value)
 , d_type(type)
 {
 }
+
+// ACCESSORS
+
+inline
+bool FormatterSpecification_NumericValue::operator==(
+                        const FormatterSpecification_NumericValue& other) const
+{
+    return d_value == other.d_value && d_type == other.d_type;
+}
+
+inline
+int FormatterSpecification_NumericValue::value() const
+{
+    return d_value;
+}
+
+inline
+FormatterSpecification_NumericValue::ValueType
+FormatterSpecification_NumericValue::valueType() const
+{
+    return d_type;
+}
+
+// CLASS METHODS
+template <typename t_FORMAT_CONTEXT>
+inline
+void FormatterSpecification_NumericValue::finalize(
+                                 FormatterSpecification_NumericValue *out,
+                                 const t_FORMAT_CONTEXT&              context)
+{
+    if (out->d_type != FormatterSpecification_NumericValue::e_ARG_ID)
+        return;                                                       // RETURN
+
+    FormatterSpecification_NumericValueVisitor visitor(out);
+    visit_format_arg(visitor, context.arg(out->d_value));
+}
+
+              // ------------------------------------------------
+              // class FormatterSpecification_NumericValueVisitor
+              // ------------------------------------------------
+
+inline
+FormatterSpecification_NumericValueVisitor::
+    FormatterSpecification_NumericValueVisitor(
+                                       FormatterSpecification_NumericValue *pc)
+: d_value_p(pc)
+{
+}
+
+inline void
+FormatterSpecification_NumericValueVisitor::operator()(bsl::monostate x) const
+{
+    BSLS_THROW(bsl::format_error("Nested argument id out of range"));
+}
+
+template <class t_TYPE>
+typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type
+FormatterSpecification_NumericValueVisitor::operator()(t_TYPE x) const
+{
+    d_value_p->d_value = x;
+    d_value_p->d_type  = FormatterSpecification_NumericValue::e_VALUE;
+}
+
+template <class t_TYPE>
+typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type
+FormatterSpecification_NumericValueVisitor::operator()(t_TYPE x) const
+{
+    BSLS_THROW(bsl::format_error("Nested value args must be integral"));
+}
+
+//template <typename t_INTEGRAL>
+//inline
+//void FormatterSpecification_NumericValueVisitor::operator()(
+//             typename bsl::enable_if<bsl::is_integral<t_INTEGRAL>::value,
+//                                           t_INTEGRAL>::type x) const
+//{
+//    d_value_p->value     = x;
+//    d_value_p->valueType = FormatterSpecification_NumericValue::e_VALUE;
+//}
+//
+//template <typename t_OTHER>
+//inline
+//void FormatterSpecification_NumericValueVisitor::operator()(
+//             typename bsl::enable_if<!bsl::is_integral<t_OTHER>::value,
+//                                           t_OTHER>::type x) const
+//{
+//    BSLS_THROW(bsl::format_error("Nested value args must be integral"));
+//}
+
+
+
+
+
+               // ---------------------------------------------
+               // class FormatterSpecification_Splitter<t_CHAR>
+               // ---------------------------------------------
+
+// CREATORS
 
 template <class t_CHAR>
 FormatterSpecification_Splitter<t_CHAR>::FormatterSpecification_Splitter()
@@ -236,26 +423,7 @@ FormatterSpecification_Splitter<t_CHAR>::FormatterSpecification_Splitter()
 
 // ACCESSORS
 
-inline
-bool FormatterSpecification_SplitterEnums::Value::operator==(
-                                                      const Value& other) const
-{
-    return d_value == other.d_value && d_type == other.d_type;
-}
 
-inline
-int
-FormatterSpecification_SplitterEnums::Value::value() const
-{
-    return d_value;
-}
-
-inline
-FormatterSpecification_SplitterEnums::Value::ValueType
-FormatterSpecification_SplitterEnums::Value::valueType() const
-{
-    return d_type;
-}
 
 template <class t_CHAR>
 const t_CHAR *FormatterSpecification_Splitter<t_CHAR>::filler() const
@@ -305,17 +473,15 @@ bool FormatterSpecification_Splitter<t_CHAR>::zeroPaddingFlag() const
 }
 
 template <class t_CHAR>
-typename const
-FormatterSpecification_Splitter<t_CHAR>::Value
-FormatterSpecification_Splitter<t_CHAR>::width() const
+typename const FormatterSpecification_NumericValue
+FormatterSpecification_Splitter<t_CHAR>::rawWidth() const
 {
     return d_width;
 }
 
 template <class t_CHAR>
-typename const
-FormatterSpecification_Splitter<t_CHAR>::Value
-FormatterSpecification_Splitter<t_CHAR>::precision() const
+typename const FormatterSpecification_NumericValue
+FormatterSpecification_Splitter<t_CHAR>::rawPrecision() const
 {
     return d_precision;
 }
@@ -467,12 +633,26 @@ int FormatterSpecification_Splitter<t_CHAR>::parse(
         else {
             // No brace found
             outSpec->d_spec = temp;
-            *start = end;
+            *start          = end;
         }
-
-        if (*start == end || **start == '}')
-            return 0;
     }
+
+    // We cannot mix specified and unspecified relative argument ids.
+
+    if (outSpec->d_width.valueType() ==
+            FormatterSpecification_NumericValue::e_NEXT_ARG &&
+        outSpec->d_precision.valueType() ==
+            FormatterSpecification_NumericValue::e_ARG_ID)
+        return -1;                                                    // RETURN
+
+    if (outSpec->d_width.valueType() ==
+            FormatterSpecification_NumericValue::e_ARG_ID &&
+        outSpec->d_precision.valueType() ==
+            FormatterSpecification_NumericValue::e_NEXT_ARG)
+        return -1;                                                    // RETURN
+
+    if (*start == end || **start == '}')
+        return 0;
 
     return -1;
 }
@@ -656,10 +836,11 @@ int FormatterSpecification_Splitter<t_CHAR>::parseWidth(
         return 0;
 
     typedef FormatterSpecification_Splitter<t_CHAR> FS;
+    typedef FormatterSpecification_NumericValue     FSNValue;
 
-    int rv = Value::parse(&outSpec->d_width, start, end, false);
-    // Widths must be strictly positive.
-    if (outSpec->d_width == FS::Value(0, FS::Value::e_VALUE))
+    int rv = FSNValue::parse(&outSpec->d_width, start, end, false);
+    // Non-relative widths must be strictly positive.
+    if (outSpec->d_width == FSNValue(0, FSNValue::e_VALUE))
         rv = -1;
     return rv;
 }
@@ -679,7 +860,9 @@ int FormatterSpecification_Splitter<t_CHAR>::parsePrecision(
     if (*start == end || **start == '}')
         return 0;
 
-    return Value::parse(&outSpec->d_precision, start, end, true);
+    typedef FormatterSpecification_NumericValue FSNValue;
+
+    return FSNValue::parse(&outSpec->d_precision, start, end, true);
 }
 
 template <class t_CHAR>
@@ -707,10 +890,11 @@ int FormatterSpecification_Splitter<t_CHAR>::parseLocaleSpecificFlag(
 }
 
 template <class t_ITER>
-int FormatterSpecification_SplitterEnums::Value::parse(Value  *outValue,
-                                                      t_ITER *start,
-                                                      t_ITER  end,
-                                                      bool    needInitialDot)
+int FormatterSpecification_NumericValue::parse(
+                           FormatterSpecification_NumericValue *outValue,
+                           t_ITER                              *start,
+                           t_ITER                               end,
+                           bool                                 needInitialDot)
 {
     // Handle empty string or empty specification.
     if (*start == end || **start == '}')

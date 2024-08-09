@@ -130,6 +130,8 @@ class FormatterSpecificationStandard
     // DATA
     FSS        d_basicSplitter;
     FormatType d_formatType;
+    int        d_widthArgId;
+    int        d_precisionArgId;
 
     // PRIVATE CLASS FUNCTIONS
     static int parseType(FormatterSpecificationStandard        *outSpec,
@@ -142,23 +144,23 @@ class FormatterSpecificationStandard
     FormatterSpecificationStandard();
 
     // CLASS FUNCTIONS
-    template <class t_ITER>
+    template <class t_PARSE_CONTEXT>
     static int parse(FormatterSpecificationStandard *outSpec,
-                     t_ITER                          *start,
-                     t_ITER                           end,
+                     t_PARSE_CONTEXT                *context,
                      Category                         category);
 
     // ACCESSORS
-    const t_CHAR                   *filler() const;
-    int                             fillerCharacters() const;
-    Alignment                       alignment() const;
-    Sign                            sign() const;
-    bool                            alternativeFlag() const;
-    bool                            zeroPaddingFlag() const;
-    const Value                     width() const;
-    const Value                     precision() const;
-    bool                            localcSpecificFlag() const;
-    FormatType                      formatType() const;
+    const t_CHAR                              *filler() const;
+    int                                        fillerCharacters() const;
+    int                                        fillerCodePointDisplayWidth() const;
+    Alignment                                  alignment() const;
+    Sign                                       sign() const;
+    bool                                       alternativeFlag() const;
+    bool                                       zeroPaddingFlag() const;
+    const FormatterSpecification_NumericValue  adjustedWidth() const;
+    const FormatterSpecification_NumericValue  adjustedPrecision() const;
+    bool                                       localcSpecificFlag() const;
+    FormatType                                 formatType() const;
 };
 
 // PRIVATE CLASS FUNCTIONS
@@ -172,6 +174,8 @@ FormatterSpecificationStandard<t_CHAR>::
     FormatterSpecificationStandard()
 : d_basicSplitter()
 , d_formatType(FormatterSpecificationStandard::e_TYPE_UNASSIGNED)
+, d_widthArgId(-1)
+, d_precisionArgId(-1)
 {
 }
 
@@ -187,6 +191,12 @@ template <class t_CHAR>
 int FormatterSpecificationStandard<t_CHAR>::fillerCharacters() const
 {
     return d_basicSplitter.fillerCharacters();
+}
+
+template <class t_CHAR>
+int FormatterSpecificationStandard<t_CHAR>::fillerCodePointDisplayWidth() const
+{
+    return d_basicSplitter.fillerCodePointDisplayWidth();
 }
 
 template <class t_CHAR>
@@ -218,19 +228,29 @@ bool FormatterSpecificationStandard<t_CHAR>::zeroPaddingFlag() const
 }
 
 template <class t_CHAR>
-typename const
-FormatterSpecificationStandard<t_CHAR>::Value
-FormatterSpecificationStandard<t_CHAR>::width() const
+typename const FormatterSpecification_NumericValue
+FormatterSpecificationStandard<t_CHAR>::adjustedWidth() const
 {
-    return d_basicSplitter.width();
+    if (d_basicSplitter.rawWidth().valueType() !=
+        FormatterSpecification_NumericValue::e_NEXT_ARG)
+        return d_basicSplitter.rawWidth();                               // RETURN
+
+    return FormatterSpecification_NumericValue(
+                                d_widthArgId,
+                                FormatterSpecification_NumericValue::e_ARG_ID);
 }
 
 template <class t_CHAR>
-typename const
-FormatterSpecificationStandard<t_CHAR>::Value
-FormatterSpecificationStandard<t_CHAR>::precision() const
+typename const FormatterSpecification_NumericValue
+FormatterSpecificationStandard<t_CHAR>::adjustedPrecision() const
 {
-    return d_basicSplitter.precision();
+    if (d_basicSplitter.rawPrecision().valueType() !=
+        FormatterSpecification_NumericValue::e_NEXT_ARG)
+        return d_basicSplitter.rawPrecision();                           // RETURN
+
+    return FormatterSpecification_NumericValue(
+                                d_precisionArgId,
+                                FormatterSpecification_NumericValue::e_ARG_ID);
 }
 
 template <class t_CHAR>
@@ -249,20 +269,23 @@ FormatterSpecificationStandard<t_CHAR>::formatType() const
 // MANIPULATORS
 
 template <class t_CHAR>
-template <class t_ITER>
+template <class t_PARSE_CONTEXT>
 int FormatterSpecificationStandard<t_CHAR>::parse(
-                                     FormatterSpecificationStandard *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end,
-                                     Category                         category)
+                                      FormatterSpecificationStandard *outSpec,
+                                      t_PARSE_CONTEXT                *context,
+                                      Category                        category)
 {
     BSLMF_ASSERT(
-               (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
-                             t_CHAR>::value));
+                (bsl::is_same<typename bsl::iterator_traits<
+                                  t_PARSE_CONTEXT::const_iterator>::value_type,
+                              t_CHAR>::value));
+
+    typename t_PARSE_CONTEXT::const_iterator current = context->begin();
+    typename t_PARSE_CONTEXT::const_iterator end     = context->end();
 
     // Handle empty string or empty specification.
-    if (*start == end || **start == '}')
-        return 0;
+    if (current == end || *current == '}')
+        return 0;                                                     // RETURN
 
     const Sections sect = static_cast<Sections>(
             e_SECTIONS_FILL_ALIGN |
@@ -274,8 +297,6 @@ int FormatterSpecificationStandard<t_CHAR>::parse(
             e_SECTIONS_LOCALE_FLAG |
             e_SECTIONS_FINAL_SPECIFICATION);
 
-    t_ITER current = *start;
-
     int rv = FSS::parse(&outSpec->d_basicSplitter, &current, end, sect);
     if (0 != rv)
         return rv;                                                    // RETURN
@@ -284,8 +305,24 @@ int FormatterSpecificationStandard<t_CHAR>::parse(
     if (0 != rv)
         return rv;                                                    // RETURN
 
+    if (outSpec->d_basicSplitter.rawWidth().valueType() ==
+        FormatterSpecification_NumericValue::e_NEXT_ARG)
+        outSpec->d_widthArgId = context->next_arg_id();
+
+    if (outSpec->d_basicSplitter.rawPrecision().valueType() ==
+        FormatterSpecification_NumericValue::e_NEXT_ARG)
+        outSpec->d_precisionArgId = context->next_arg_id();
+
+    if (outSpec->d_basicSplitter.rawWidth().valueType() ==
+        FormatterSpecification_NumericValue::e_ARG_ID)
+        context->check_arg_id(outSpec->d_basicSplitter.rawWidth().value());
+
+    if (outSpec->d_basicSplitter.rawPrecision().valueType() ==
+        FormatterSpecification_NumericValue::e_ARG_ID)
+        context->check_arg_id(outSpec->d_basicSplitter.rawPrecision().value());
+
     if (current == end || *current == '}') {
-        *start = current;
+        context->advance_to(current);
         return 0;                                                     // RETURN
     }
 

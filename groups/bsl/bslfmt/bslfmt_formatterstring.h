@@ -105,7 +105,7 @@ struct Formatter_StringBase {
     {
         typename t_PARSE_CONTEXT::iterator current = pc.begin();
 
-        FSS::parse(&d_spec, &current, pc.end(), FSS::e_CATEGORY_STRING);
+        FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
 
         if (d_spec.sign() != FSS::e_SIGN_DEFAULT)
             BSLS_THROW(bsl::format_error(
@@ -136,40 +136,76 @@ struct Formatter_StringBase {
                                        bsl::basic_string_view<t_CHAR> v,
                                        t_FORMAT_CONTEXT&              fc) const
     {
+        typedef FormatterSpecification_NumericValue FSNVAlue;
         bsl::basic_string_view<t_CHAR> sv(v);
 
-        int widthUsedByInput      = 0;
+        FSNVAlue finalWidth(d_spec.adjustedWidth());
+        FSNVAlue::finalize(&finalWidth, fc);
+
+        FSNVAlue finalPrecision(d_spec.adjustedPrecision());
+        FSNVAlue::finalize(&finalPrecision, fc);
+
+        int displayWidthUsedByInputString      = 0;
         int charactersOfInputUsed = sv.size();
 
-        if (d_spec.width().valueType() != FSS::Value::e_DEFAULT ||
-            d_spec.precision().valueType() != FSS::Value::e_DEFAULT)
-        {
-            int maxDisplayWidth = 0;
-            switch (d_spec.precision().valueType()) {
-              case FSS::Value::e_DEFAULT: {
-                maxDisplayWidth = std::numeric_limits<int>::max();
-              } break;
-              case FSS::Value::e_VALUE: {
-                maxDisplayWidth = d_spec.precision().value();
-              } break;
-              case FSS::Value::e_NEXT_ARG: {
-                BSLS_THROW(bsl::format_error("TODO: implement feature"));
-              } break;
-              case FSS::Value::e_ARG_ID: {
-                BSLS_THROW(bsl::format_error("TODO: implement feature"));
-              } break;
-              default: {
-                BSLS_THROW(bsl::format_error("Invalid precision specifier"));
-              } break;
-            }
-            findPrecisionLimitedString(&charactersOfInputUsed,
-                                       &widthUsedByInput,
-                                       sv,
-                                       maxDisplayWidth);
+        int maxDisplayWidth = 0;
+        switch (finalPrecision.valueType()) {
+            case FSNVAlue::e_DEFAULT: {
+            maxDisplayWidth = std::numeric_limits<int>::max();
+            } break;
+            case FSNVAlue::e_VALUE: {
+            maxDisplayWidth = finalPrecision.value();
+            } break;
+            default: {
+            BSLS_THROW(bsl::format_error("Invalid precision specifier"));
+            } break;
+        }
+        findPrecisionLimitedString(&charactersOfInputUsed,
+                                    &displayWidthUsedByInputString,
+                                    sv,
+                                    maxDisplayWidth);
+
+        int totalPadDisplayWidth = 0;
+
+        switch (finalWidth.valueType()) {
+          case FSNVAlue::e_DEFAULT: {
+            totalPadDisplayWidth = 0;
+          } break;
+          case FSNVAlue::e_VALUE: {
+            totalPadDisplayWidth = finalWidth.value() -
+                                   displayWidthUsedByInputString;
+          } break;
+          default: {
+            BSLS_THROW(bsl::format_error("Invalid precision specifier"));
+          } break;
         }
 
+        BSLS_ASSERT(totalPadDisplayWidth >= 0);
 
+        int leftPadFillerCopies = 0, rightPadFillerCopies = 0;
 
+        switch (d_spec.alignment()) {
+          case FSS::e_ALIGN_DEFAULT:
+          case FSS::e_ALIGN_LEFT: {
+            leftPadFillerCopies = 0;
+            rightPadFillerCopies = totalPadDisplayWidth /
+                                   d_spec.fillerCodePointDisplayWidth();
+          } break;
+          case FSS::e_ALIGN_MIDDLE: {
+            leftPadFillerCopies = (totalPadDisplayWidth / 2) /
+                                  d_spec.fillerCodePointDisplayWidth();
+            rightPadFillerCopies = ((totalPadDisplayWidth + 1) / 2) /
+                                   d_spec.fillerCodePointDisplayWidth();
+          } break;
+          case FSS::e_ALIGN_RIGHT: {
+            leftPadFillerCopies = totalPadDisplayWidth /
+                                  d_spec.fillerCodePointDisplayWidth();
+            rightPadFillerCopies = 0;
+          } break;
+          default: {
+            BSLS_THROW(bsl::format_error("Invalid alignment"));
+          } break;
+        }
 
         return bsl::copy(sv.begin(), sv.end(), fc.out());
     }
