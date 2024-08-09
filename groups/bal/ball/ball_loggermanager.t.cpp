@@ -37,6 +37,7 @@
 #include <bslmt_threadutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -1208,7 +1209,7 @@ struct TrackingAllocator : public bslma::Allocator {
     }
 
     // MANIPULATORS
-    void *allocate(size_type size)
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (in bytes).  If this allocator it not yet tracking
         // an address and 'sizeof(ball::LoggerManager) == size', then set this
@@ -1222,7 +1223,7 @@ struct TrackingAllocator : public bslma::Allocator {
         return p;
     }
 
-    virtual void deallocate(void *address)
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' matches the pointer being tracked, then set
         // a flag indicating that it has been deleted.
@@ -1260,7 +1261,8 @@ class MyObserver : public ball::Observer {
     // MANIPULATORS
     using Observer::publish;  // avoid hiding base class method
 
-    void publish(const ball::Record& record, const ball::Context& context)
+    void publish(const ball::Record&  record,
+                 const ball::Context& context) BSLS_KEYWORD_OVERRIDE
     {
         ++d_publishCount;
         d_stream << "Log " << context.recordIndex() + 1
@@ -1295,7 +1297,7 @@ class TestDestroyObserver : public ball::Observer {
     {
     }
 
-    virtual void releaseRecords()
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE
     {
         d_releaseCnt++;
     }
@@ -1320,15 +1322,16 @@ class PerformanceObserver : public ball::Observer {
 
     using Observer::publish;  // avoid hiding base class method
 
-    virtual void publish(const bsl::shared_ptr<const ball::Record>& record,
-                         const ball::Context&                       context)
+    void publish(const bsl::shared_ptr<const ball::Record>& record,
+                 const ball::Context&                       context)
+                                                          BSLS_KEYWORD_OVERRIDE
     {
         (void)record;
         (void)context;
         ++d_publishCount;
     }
 
-    virtual void releaseRecords()
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE
     {
     }
 
@@ -1536,7 +1539,7 @@ class PublishCountingObserver : public ball::Observer {
     {
     }
 
-    ~PublishCountingObserver()
+    ~PublishCountingObserver() BSLS_KEYWORD_OVERRIDE
         // Destroy this Publish Counting Observer.
     {
     }
@@ -1544,7 +1547,8 @@ class PublishCountingObserver : public ball::Observer {
     // MANIPULATORS
     using Observer::publish;  // avoid hiding base class method
 
-    void publish(const ball::Record&, const ball::Context&)
+    void publish(const ball::Record&,
+                 const ball::Context&) BSLS_KEYWORD_OVERRIDE
         // Increment the count maintained by this observer by 1.
     {
         ++d_publishCount;

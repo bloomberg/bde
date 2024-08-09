@@ -16,6 +16,8 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>       // time()
@@ -59,7 +61,8 @@ int testStatus = 0;
 
 struct ConcreteObserver : public ball::ObserverAdapter {
     using ball::ObserverAdapter::publish;
-    void publish(const ball::Record&, const ball::Context&)
+    void publish(const ball::Record&,
+                 const ball::Context&) BSLS_KEYWORD_OVERRIDE
     {
         cout << "ConcreteObserver::publish(record&)" << endl;
     }
@@ -90,10 +93,10 @@ namespace USAGE_EXAMPLE_1 {
 //
     public:
       explicit MyOstreamObserver(bsl::ostream *stream) : d_stream(stream) { }
-      virtual ~MyOstreamObserver();
+      ~MyOstreamObserver() BSLS_KEYWORD_OVERRIDE;
       using Observer::publish;  // avoid hiding base class method
-      virtual void publish(const ball::Record&  record,
-                           const ball::Context& context);
+      void publish(const ball::Record&  record,
+                   const ball::Context& context) BSLS_KEYWORD_OVERRIDE;
     };
 //..
 // Then, we implement the public methods of 'MyOstreamObserver', including the

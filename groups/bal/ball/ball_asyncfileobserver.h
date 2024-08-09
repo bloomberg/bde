@@ -524,6 +524,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
 #include <bsl_functional.h>
@@ -714,7 +715,7 @@ class AsyncFileObserver : public Observer {
         // used.  Note that independent default record formats are in effect
         // for 'stdout' and file logging (see 'setLogFormat').
 
-    ~AsyncFileObserver();
+    ~AsyncFileObserver() BSLS_KEYWORD_OVERRIDE;
         // Publish all records that were on the record queue upon entry if a
         // publication thread is running, stop the publication thread (if any),
         // close the log file if file logging is enabled, and destroy this
@@ -816,7 +817,8 @@ class AsyncFileObserver : public Observer {
     using Observer::publish;  // Avoid hiding base class.
 
     void publish(const bsl::shared_ptr<const Record>& record,
-                 const Context&                       context);
+                 const Context&                       context)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Process the record referenced by the specified 'record' shared
         // pointer having the specified publishing 'context' by writing the
         // record and 'context' to the current log file if file logging is
@@ -832,7 +834,7 @@ class AsyncFileObserver : public Observer {
         // otherwise, this method will block waiting until space is available
         // on the queue.  See {Log Record Queue} for further information.
 
-    void releaseRecords();
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE;
         // Discard any shared references to 'Record' objects that were supplied
         // to the 'publish' method, and are held by this observer.  Note that
         // this operation should be called if resources underlying the

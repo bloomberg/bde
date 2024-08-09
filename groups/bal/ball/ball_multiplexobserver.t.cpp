@@ -20,6 +20,7 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_annotation.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -120,12 +121,12 @@ class my_OstreamObserver : public ball::Observer {
 
   public:
     explicit my_OstreamObserver(ostream& stream) : d_stream(stream) { }
-    ~my_OstreamObserver() { }
+    ~my_OstreamObserver() BSLS_KEYWORD_OVERRIDE { }
 
     using Observer::publish;  // avoid hiding base class method
 
     void publish(const ball::Record&  record,
-                 const ball::Context& context);
+                 const ball::Context& context) BSLS_KEYWORD_OVERRIDE;
 };
 
 // my_ostreamobserver.cpp

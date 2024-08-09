@@ -429,6 +429,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmt_mutex.h>
 
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
 #include <bsl_memory.h>
@@ -548,7 +549,7 @@ class FileObserver : public Observer {
         // independent default record formats are in effect for 'stdout' and
         // file logging (see 'setLogFormat').
 
-    ~FileObserver();
+    ~FileObserver() BSLS_KEYWORD_OVERRIDE;
         // Close the log file of this file observer if file logging is enabled,
         // and destroy this file observer.
 
@@ -663,7 +664,8 @@ class FileObserver : public Observer {
         // in local time is already enabled.  Note that this method also
         // affects log filenames (see {Log Filename Patterns}).
 
-    void publish(const Record& record, const Context& context);
+    void publish(const Record&  record,
+                 const Context& context) BSLS_KEYWORD_OVERRIDE;
         // Process the specified log 'record' having the specified publishing
         // 'context' by writing 'record' and 'context' to the current log file
         // if file logging is enabled for this file observer, and to 'stdout'
@@ -671,7 +673,8 @@ class FileObserver : public Observer {
         // returned by 'stdoutThreshold'.
 
     void publish(const bsl::shared_ptr<const Record>& record,
-                 const Context&                       context);
+                 const Context&                       context)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Process the record referenced by the specified 'record' shared
         // pointer having the specified publishing 'context' by writing the
         // record and 'context' to the current log file if file logging is
@@ -679,7 +682,7 @@ class FileObserver : public Observer {
         // 'record' is at least as severe as the value returned by
         // 'stdoutThreshold'.
 
-    void releaseRecords();
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE;
         // Discard any shared references to 'Record' objects that were supplied
         // to the 'publish' method, and are held by this observer.  Note that
         // this operation should be called if resources underlying the

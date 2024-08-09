@@ -143,6 +143,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
@@ -235,11 +236,12 @@ class TestObserver : public Observer {
         // !DEPRECATED!: Use the constructor taking 'bsl::ostream *' instead.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-    virtual ~TestObserver();
+    ~TestObserver() BSLS_KEYWORD_OVERRIDE;
         // Destroy this test observer.
 
     // MANIPULATORS
-    virtual void publish(const Record& record, const Context& context);
+    void publish(const Record&  record,
+                 const Context& context) BSLS_KEYWORD_OVERRIDE;
         // Store as the most recently published data the specified log 'record'
         // and publishing 'context'.  If this test observer is in verbose mode,
         // print an appropriate diagnostic message to the stream specified at
@@ -249,8 +251,9 @@ class TestObserver : public Observer {
         //
         // !DEPRECATED!: Use the alternative 'publish' overload instead.
 
-    virtual void publish(const bsl::shared_ptr<const Record>& record,
-                         const Context&                       context);
+    void publish(const bsl::shared_ptr<const Record>& record,
+                 const Context&                       context)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Store as the most recently published data the specified log 'record'
         // and publishing 'context'.  If this test observer is in verbose mode,
         // print an appropriate diagnostic message to the stream specified at
@@ -258,7 +261,7 @@ class TestObserver : public Observer {
         // verbose mode, but that the 'setVerbose' method can affect this mode,
         // and thus the behavior of this method.
 
-    virtual void releaseRecords();
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE;
         // Discard any shared reference to a 'Record' object that was supplied
         // to the 'publish' method, and is held by this observer.  Note that
         // this operation should be called if resources underlying the

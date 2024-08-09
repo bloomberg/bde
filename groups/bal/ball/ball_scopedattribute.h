@@ -140,7 +140,7 @@ class ScopedAttribute_Container : public AttributeContainer {
         // an 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
         // supply memory; otherwise, the default allocator is used.
 
-    virtual ~ScopedAttribute_Container();
+    ~ScopedAttribute_Container() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object;
 
     // ACCESSORS

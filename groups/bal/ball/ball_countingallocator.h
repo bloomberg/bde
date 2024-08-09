@@ -75,6 +75,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_keyword.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -110,11 +111,11 @@ class CountingAllocator : public bslma::Allocator {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    virtual ~CountingAllocator();
+    ~CountingAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this counting allocator.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (bytes) and increment the byte count maintained by
         // this counting allocator by the sum of the least multiple of
@@ -125,7 +126,7 @@ class CountingAllocator : public bslma::Allocator {
         // type defined for the calling platform, even if the supplied
         // allocator guarantees only natural alignment.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory at the specified 'address' back to this allocator
         // and update the byte count maintained by this counting allocator
         // appropriately.  If 'address' is 0, this function has no effect.  The

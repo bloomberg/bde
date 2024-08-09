@@ -48,6 +48,7 @@
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
@@ -2208,7 +2209,7 @@ class my_PublishCountingObserver : public BloombergLP::ball::Observer {
     {
     }
 
-    ~my_PublishCountingObserver()
+    ~my_PublishCountingObserver() BSLS_KEYWORD_OVERRIDE
         // Destroy this object.
     {
     }
@@ -2217,7 +2218,7 @@ class my_PublishCountingObserver : public BloombergLP::ball::Observer {
     using Observer::publish;  // avoid hiding base class method
 
     void publish(const BloombergLP::ball::Record&,
-                 const BloombergLP::ball::Context&)
+                 const BloombergLP::ball::Context&) BSLS_KEYWORD_OVERRIDE
         // Increment the count maintained by this observer by 1, and ignore any
         // arguments that were supplied.
     {
@@ -2565,13 +2566,13 @@ class my_Observer : public BloombergLP::ball::Observer {
   public:
     // CREATORS
     my_Observer()  {}
-    ~my_Observer() {}
+    ~my_Observer() BSLS_KEYWORD_OVERRIDE {}
 
     // MANIPULATORS
     using Observer::publish;  // avoid hiding base class method
 
     void publish(const BloombergLP::ball::Record&  record,
-                 const BloombergLP::ball::Context&)
+                 const BloombergLP::ball::Context&) BSLS_KEYWORD_OVERRIDE
     {
         d_mutex.lock();
         d_publishedMessages.push_back(record.fixedFields().message());
