@@ -138,6 +138,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_review.h>
 
@@ -180,7 +181,7 @@ class Encoder {
             // Create a new stream using the optionally specified
             // 'basicAllocator'.
 
-        virtual ~MemOutStream();
+        ~MemOutStream() BSLS_KEYWORD_OVERRIDE;
             // Destroy this stream and release memory back to the allocator.
             //
             // Although the compiler should generate this destructor

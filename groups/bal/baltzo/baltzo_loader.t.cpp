@@ -8,6 +8,7 @@
 
 #include <bdlt_epochutil.h>
 
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_cstdlib.h>
@@ -78,7 +79,10 @@ namespace {
 typedef baltzo::Loader ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
-    int loadTimeZone(baltzo::Zoneinfo *, const char *) { return markDone(); }
+    int loadTimeZone(baltzo::Zoneinfo *, const char *) BSLS_KEYWORD_OVERRIDE
+    {
+        return markDone();
+    }
 };
 
 }  // close unnamed namespace
@@ -114,12 +118,12 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         MyLoaderImp();
             // Create a 'MyLoaderImp' object.
 
-        ~MyLoaderImp();
+        ~MyLoaderImp() BSLS_KEYWORD_OVERRIDE;
             // Destroy this object.
 
         // MANIPULATORS
-        virtual int loadTimeZone(baltzo::Zoneinfo *result,
-                                 const char       *timeZoneId);
+        int loadTimeZone(baltzo::Zoneinfo *result,
+                         const char       *timeZoneId) BSLS_KEYWORD_OVERRIDE;
             // Load into the specified 'result' the "Zoneinfo" time zone
             // information for the time zone identified by the specified
             // 'timeZoneId'.  Return 0 on success, and non-zero otherwise.

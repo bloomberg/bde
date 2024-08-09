@@ -469,6 +469,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_functional.h>
@@ -614,7 +615,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
         // using the 'setDemanglingPreferredFlag' manipulator.  The behavior is
         // undefined if 'numRecordedFrames < 2'.
 
-    virtual ~StackTraceTestAllocator();
+    ~StackTraceTestAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator.  Report any memory leaks to the 'ostream'
         // that was supplied at construction.  If no memory leaks are observed,
         // nothing is written to the output 'ostream'.  Call the failure
@@ -624,14 +625,14 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
         // outstanding memory blocks will be released.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of the specified positive
         // 'size' (in bytes).  If 'size' is 0, a null pointer is returned with
         // no other other effect.  Otherwise, invoke the 'allocate' method of
         // the allocator supplied at construction and record the returned block
         // in order to be able to report leaked blocks upon destruction.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect.
         // Otherwise, if the memory at 'address' is consistent with being
@@ -642,7 +643,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
         // deallocated a second time), write an error message and call the
         // failure handler.
 
-    virtual void release();
+    void release() BSLS_KEYWORD_OVERRIDE;
         // Deallocate all memory held by this allocator.
 
     void setDemanglingPreferredFlag(bool value);

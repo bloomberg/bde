@@ -262,6 +262,8 @@ BSLS_IDENT("$Id: $")
 
 #include <balxml_reader.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 
 namespace balxml {
@@ -274,7 +276,7 @@ class ValidatingReader : public Reader {
 
   public:
     // CREATORS
-    virtual ~ValidatingReader();
+    ~ValidatingReader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // MANIPULATORS

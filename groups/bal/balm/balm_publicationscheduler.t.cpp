@@ -6,18 +6,24 @@
 #include <balm_publisher.h>
 
 #include <bdlf_bind.h>
+
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlmt_timereventscheduler.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
+
 #include <bslmt_barrier.h>
 #include <bslmt_threadutil.h>
+
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_c_stdio.h>
@@ -431,11 +437,11 @@ class TestPublisher : public balm::Publisher {
         // constructed 'lastSample()' using the specified 'allocator' to
         // supply memory.
 
-    virtual ~TestPublisher();
+    ~TestPublisher() BSLS_KEYWORD_OVERRIDE;
         // Destroy this test publisher.
 
     // MANIPULATORS
-    virtual void publish(const balm::MetricSample& sample);
+    void publish(const balm::MetricSample& sample) BSLS_KEYWORD_OVERRIDE;
         // Increment the number of 'invocations()', set the
         // 'lastElapsedTime()' and 'lastTimeStamp()' equal to the elapsed time
         // and time stamp of the specified 'sample', and set 'lastRecords()'
@@ -1204,11 +1210,12 @@ void gg(bsl::vector<Action>   *actions,
             // 'stream' using the specified 'registry' to identify published
             // metrics.
 
-        virtual ~SimpleStreamPublisher();
+        ~SimpleStreamPublisher() BSLS_KEYWORD_OVERRIDE;
              // Destroy this publisher.
 
         // MANIPULATORS
-        virtual void publish(const balm::MetricSample& metricValues);
+        void publish(const balm::MetricSample& metricValues)
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Publish the specified 'metricValues'.  This implementation will
             // write the 'metricValues' to the output stream specified on
             // construction.

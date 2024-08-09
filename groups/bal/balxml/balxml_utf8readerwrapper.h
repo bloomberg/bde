@@ -342,7 +342,7 @@ class Utf8ReaderWrapper : public Reader {
         // used.  The behavior is undefined unless 'reader' has never been
         // opened or closed.
 
-    ~Utf8ReaderWrapper();
+    ~Utf8ReaderWrapper() BSLS_KEYWORD_OVERRIDE;
         // Close the held reader and destroy this object.
 
     // MANIPULATORS

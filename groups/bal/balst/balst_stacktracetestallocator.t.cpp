@@ -25,6 +25,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -747,7 +748,7 @@ class TouchyAllocator : public bslma::Allocator {
     , d_allocator(allocator) {}
 
     // MANIPULATORS
-    virtual void *allocate(bslma::Allocator::size_type size)
+    void *allocate(bslma::Allocator::size_type size) BSLS_KEYWORD_OVERRIDE
     {
         ASSERT(!d_inUse);
         d_inUse = true;
@@ -757,7 +758,7 @@ class TouchyAllocator : public bslma::Allocator {
         return ret;
     }
 
-    virtual void deallocate(void *address)
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
     {
         ASSERT(!d_inUse);
         d_inUse = true;

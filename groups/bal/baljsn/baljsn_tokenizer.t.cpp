@@ -4,14 +4,18 @@
 #include <baljsn_parserutil.h>
 
 #include <bdlde_utf8util.h>
+
 #include <bdlsb_memoutstreambuf.h>            // for testing only
 #include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>        // for testing only
 
 #include <bslim_testutil.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bsls_keyword.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cfloat.h>
@@ -256,7 +260,7 @@ struct BreakAllocator : public bslma::TestAllocator {
     BreakAllocator() : bslma::TestAllocator() {}
 
     // MANIPULATOR
-    virtual void *allocate(size_type size)
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE
     {
         return bslma::TestAllocator::allocate(size);
     }

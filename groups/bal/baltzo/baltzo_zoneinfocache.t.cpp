@@ -23,6 +23,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -277,7 +278,7 @@ class TestDriverTestLoader : public baltzo::Loader {
         // Note that providing a delay for 'loadTimeZone' in order to verify
         // thread safe access to that method.
 
-    virtual ~TestDriverTestLoader();
+    ~TestDriverTestLoader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this time zone data-source.
 
     // MANIPULATORS
@@ -308,7 +309,8 @@ class TestDriverTestLoader : public baltzo::Loader {
         // Add to this test load a time zone that is not well-defined with the
         // specified 'identifier'.
 
-    virtual int loadTimeZone(baltzo::Zoneinfo *result, const char *timeZoneId);
+    int loadTimeZone(baltzo::Zoneinfo *result, const char *timeZoneId)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Load into the specified 'result' the olson time zone information
         // for the time zone identified by the specified 'timeZoneId'.  Return
         // 0 on success, 'baltzo::ErrorCode::k_UNSUPPORTED_ID' if the
@@ -552,7 +554,7 @@ class TestLoader : public baltzo::Loader {
         // test loader will return 'baltzo::ErrorCode::k_UNSUPPORTED_ID' for
         // all time zone identifiers.
 
-    virtual ~TestLoader();
+    ~TestLoader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this time zone data-source.
 
     void print();
@@ -563,8 +565,8 @@ class TestLoader : public baltzo::Loader {
         // will be returned by 'loadTimeZone' for the identifier
         // 'timeZone.identifier()'.
 
-    virtual int loadTimeZone(baltzo::Zoneinfo *timeZone,
-                             const char       *timeZoneId);
+    int loadTimeZone(baltzo::Zoneinfo *timeZone,
+                     const char       *timeZoneId) BSLS_KEYWORD_OVERRIDE;
         // Load into the specified 'result' the olson time zone information
         // for the time zone identified by the specified 'timeZoneId'.  Return
         // 0 on success, 'baltzo::ErrorCode::k_UNSUPPORTED_ID' if the
@@ -1267,11 +1269,12 @@ int main(int argc, char *argv[])
               public:
                 // CREATORS
                 explicit ErrorLoader(int code): d_code(code) {}
-                virtual ~ErrorLoader() {}
+                ~ErrorLoader() BSLS_KEYWORD_OVERRIDE {}
 
                 // MANIPULATORS
-                virtual int loadTimeZone(baltzo::Zoneinfo * /* result */,
-                                         const char       * /* getZoneinfo */)
+                int loadTimeZone(baltzo::Zoneinfo * /* result */,
+                                 const char       * /* getZoneinfo */)
+                                                          BSLS_KEYWORD_OVERRIDE
                 { return d_code; }
             };
 

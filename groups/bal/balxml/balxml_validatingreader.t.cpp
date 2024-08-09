@@ -8,6 +8,8 @@
 #include <balxml_prefixstack.h>
 #include <balxml_elementattribute.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // atoi()
@@ -256,80 +258,85 @@ public:
 
     // PUBLIC CREATORS
     TestReader(const TestNode *document);
-    virtual ~TestReader(void);
+    ~TestReader(void) BSLS_KEYWORD_OVERRIDE;
 
     //------------------------------------------------
     // INTERFACE balxml::ValidatingReader
     //------------------------------------------------
 
     // MANIPULATORS
-    virtual void enableValidation(bool validationFlag);
+    void enableValidation(bool validationFlag) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addSchema(const char *location, bsl::streambuf *schema);
+    int addSchema(const char     *location,
+                  bsl::streambuf *schema) BSLS_KEYWORD_OVERRIDE;
 
-    virtual void  removeSchemas();
+    void  removeSchemas() BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
-    virtual bool validationFlag() const;
+    bool validationFlag() const BSLS_KEYWORD_OVERRIDE;
 
     //------------------------------------------------
     // INTERFACE baexml::gReader
     //------------------------------------------------
 
     // MANIPULATORS - SETUP METHODS
-    virtual void setResolver(XmlResolverFunctor resolver);
+    void setResolver(XmlResolverFunctor resolver) BSLS_KEYWORD_OVERRIDE;
 
-    virtual void setPrefixStack(balxml::PrefixStack *prefixes);
+    void setPrefixStack(balxml::PrefixStack *prefixes) BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
-    virtual int open(const char *filename,
-                     const char *encoding = 0);
-    virtual int open(const char *buffer,
-                     size_t      size,
-                     const char *url = 0,
-                     const char *encoding = 0);
-    virtual int open(bsl::streambuf *stream,
-                     const char     *url = 0,
-                     const char     *encoding = 0);
+    int open(const char *filename,
+             const char *encoding = 0) BSLS_KEYWORD_OVERRIDE;
+    int open(const char *buffer,
+             size_t      size,
+             const char *url = 0,
+             const char *encoding = 0) BSLS_KEYWORD_OVERRIDE;
+    int open(bsl::streambuf *stream,
+             const char     *url = 0,
+             const char     *encoding = 0) BSLS_KEYWORD_OVERRIDE;
 
-    virtual void close();
+    void close() BSLS_KEYWORD_OVERRIDE;
 
-    virtual int advanceToNextNode();
+    int advanceToNextNode() BSLS_KEYWORD_OVERRIDE;
 
-    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                int                       index) const;
-    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *qname) const;
-    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *localName,
-                                const char               *namespaceUri) const;
-    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *localName,
-                                int                       namespaceId) const;
+    int lookupAttribute(balxml::ElementAttribute *attribute,
+                        int                       index) const
+                                                         BSLS_KEYWORD_OVERRIDE;
+    int lookupAttribute(balxml::ElementAttribute *attribute,
+                        const char               *qname) const
+                                                         BSLS_KEYWORD_OVERRIDE;
+    int lookupAttribute(balxml::ElementAttribute *attribute,
+                        const char               *localName,
+                        const char               *namespaceUri) const
+                                                         BSLS_KEYWORD_OVERRIDE;
+    int lookupAttribute(balxml::ElementAttribute *attribute,
+                        const char               *localName,
+                        int                       namespaceId) const
+                                                         BSLS_KEYWORD_OVERRIDE;
 
-    virtual void setOptions(unsigned int flags);
+    void setOptions(unsigned int flags) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
-    virtual const char *documentEncoding() const;
-    virtual XmlResolverFunctor resolver() const;
-    virtual bool isOpen() const;
-    virtual const balxml::ErrorInfo& errorInfo() const;
-    virtual int getLineNumber() const;
-    virtual int getColumnNumber() const;
-    virtual balxml::PrefixStack *prefixStack() const;
-    virtual NodeType nodeType() const;
-    virtual const char *nodeName() const;
-    virtual const char *nodeLocalName() const;
-    virtual const char *nodePrefix() const;
-    virtual int nodeNamespaceId() const;
-    virtual const char *nodeNamespaceUri() const;
-    virtual const char *nodeBaseUri() const;
-    virtual bool nodeHasValue() const;
-    virtual const char *nodeValue() const;
-    virtual int nodeDepth() const;
-    virtual int numAttributes() const;
-    virtual bool isEmptyElement() const;
-    virtual unsigned int options() const;
+    const char *documentEncoding() const BSLS_KEYWORD_OVERRIDE;
+    XmlResolverFunctor resolver() const BSLS_KEYWORD_OVERRIDE;
+    bool isOpen() const BSLS_KEYWORD_OVERRIDE;
+    const balxml::ErrorInfo& errorInfo() const BSLS_KEYWORD_OVERRIDE;
+    int getLineNumber() const BSLS_KEYWORD_OVERRIDE;
+    int getColumnNumber() const BSLS_KEYWORD_OVERRIDE;
+    balxml::PrefixStack *prefixStack() const BSLS_KEYWORD_OVERRIDE;
+    NodeType nodeType() const BSLS_KEYWORD_OVERRIDE;
+    const char *nodeName() const BSLS_KEYWORD_OVERRIDE;
+    const char *nodeLocalName() const BSLS_KEYWORD_OVERRIDE;
+    const char *nodePrefix() const BSLS_KEYWORD_OVERRIDE;
+    int nodeNamespaceId() const BSLS_KEYWORD_OVERRIDE;
+    const char *nodeNamespaceUri() const BSLS_KEYWORD_OVERRIDE;
+    const char *nodeBaseUri() const BSLS_KEYWORD_OVERRIDE;
+    bool nodeHasValue() const BSLS_KEYWORD_OVERRIDE;
+    const char *nodeValue() const BSLS_KEYWORD_OVERRIDE;
+    int nodeDepth() const BSLS_KEYWORD_OVERRIDE;
+    int numAttributes() const BSLS_KEYWORD_OVERRIDE;
+    bool isEmptyElement() const BSLS_KEYWORD_OVERRIDE;
+    unsigned int options() const BSLS_KEYWORD_OVERRIDE;
 };
 //..
 // Utility function to skip past white space.

@@ -22,6 +22,7 @@
 #include <bslmf_assert.h>
 
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -389,7 +390,7 @@ class MmapAllocator : public bslma::Allocator {
     }
 
     // MANIPULATORS
-    virtual void *allocate(size_type size)
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE
     {
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
         // Run 'pmap -xs <pid>' to see a tabular description of the memory
@@ -432,7 +433,7 @@ class MmapAllocator : public bslma::Allocator {
 #endif
     }
 
-    virtual void deallocate(void *address)
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
     {
 #if defined(BSLS_PLATFORM_OS_LINUX)  \
  || defined(BSLS_PLATFORM_OS_DARWIN) \

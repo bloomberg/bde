@@ -5,16 +5,22 @@
 #include <balm_publisher.h>
 
 #include <bdlf_bind.h>
+
 #include <bdlmt_fixedthreadpool.h>
+
 #include <bdlt_dateutil.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocator.h>
+
 #include <bslmt_barrier.h>
+
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstddef.h>
@@ -188,11 +194,11 @@ class TestPublisher : public balm::Publisher {
         // constructed 'lastSample()' using the specified 'allocator' to
         // supply memory.
 
-    virtual ~TestPublisher();
+    ~TestPublisher() BSLS_KEYWORD_OVERRIDE;
         // Destroy this test publisher.
 
     // MANIPULATORS
-    virtual void publish(const balm::MetricSample& sample);
+    void publish(const balm::MetricSample& sample) BSLS_KEYWORD_OVERRIDE;
         // Increment the number of 'invocations()', set the
         // 'lastElapsedTime()' and 'lastTimeStamp()' equal to the elapsed time
         // and time stamp of the specified 'sample', and set 'lastRecords()'
