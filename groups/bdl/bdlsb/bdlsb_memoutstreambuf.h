@@ -144,6 +144,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
@@ -200,17 +201,19 @@ class MemOutStreamBuf : public bsl::streambuf {
 
   protected:
     // PROTECTED MANIPULATORS
-    virtual int_type overflow(
-                  int_type insertionChar = bsl::streambuf::traits_type::eof());
+    int_type overflow(
+                  int_type insertionChar = bsl::streambuf::traits_type::eof())
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Append the optionally specified 'insertionChar' to this stream
         // buffer's character buffer and return 'insertionChar'.  If
         // 'insertionChar' is not specified, 'traits_type::eof()' is appended
         // instead.
 
-    virtual pos_type seekoff(off_type                offset,
-                             bsl::ios_base::seekdir  way,
-                             bsl::ios_base::openmode which = bsl::ios_base::in
-                                                         | bsl::ios_base::out);
+    pos_type seekoff(off_type                offset,
+                     bsl::ios_base::seekdir  way,
+                     bsl::ios_base::openmode which = bsl::ios_base::in
+                                                         | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the position indicator to the relative specified 'offset' from
         // the base position indicated by the specified 'way' and return the
         // resulting absolute position on success or pos_type(-1) on failure.
@@ -219,9 +222,10 @@ class MemOutStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::out' or if the resulting absolute position is less
         // than zero or greater then 'length()'.
 
-    virtual pos_type seekpos(pos_type                position,
-                             bsl::ios_base::openmode which = bsl::ios_base::in
-                                                         | bsl::ios_base::out);
+    pos_type seekpos(pos_type                position,
+                     bsl::ios_base::openmode which = bsl::ios_base::in
+                                                         | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the position indicator to the specified 'position' and return
         // the resulting absolute position on success or pos_type(-1) on
         // failure.  Optionally specify 'which' area of the stream buffer.  The
@@ -229,8 +233,8 @@ class MemOutStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::out' or if 'position' is less then zero or greater
         // than 'length()'.
 
-    virtual bsl::streamsize xsputn(const char_type *source,
-                                   bsl::streamsize  numChars);
+    bsl::streamsize xsputn(const char_type *source,
+                           bsl::streamsize  numChars) BSLS_KEYWORD_OVERRIDE;
         // Write the specified 'numChars' characters from the specified
         // 'source' to the stream buffer.  Return the number of characters
         // successfully written.  The behavior is undefined unless '(source &&
@@ -258,7 +262,7 @@ class MemOutStreamBuf : public bsl::streambuf {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    ~MemOutStreamBuf();
+    ~MemOutStreamBuf() BSLS_KEYWORD_OVERRIDE;
         // Destroy this stream buffer.
 
     // MANIPULATORS

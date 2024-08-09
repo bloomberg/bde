@@ -164,7 +164,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
+
 #include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsls_keyword.h>
 #include <bsls_types.h>
 
@@ -445,7 +447,7 @@ class Utf8CheckingInStreamBufWrapper : public bsl::streambuf {
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    ~Utf8CheckingInStreamBufWrapper();
+    ~Utf8CheckingInStreamBufWrapper() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // MANIPULATOR

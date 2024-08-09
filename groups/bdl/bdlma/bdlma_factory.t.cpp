@@ -5,6 +5,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'memcpy'
@@ -92,13 +93,30 @@ class my_Factory : public bdlma::Factory<my_Obj> {
 
     my_Factory(int *destructorFlag) : d_destructorFlag_p(destructorFlag) { }
 
-    virtual ~my_Factory() { if (d_destructorFlag_p) *d_destructorFlag_p = 1; }
+    ~my_Factory() BSLS_KEYWORD_OVERRIDE
+    {
+        if (d_destructorFlag_p) {
+            *d_destructorFlag_p = 1;
+        }
+    }
 
-    virtual my_Obj *createObject()         { d_fun = 2; return  &d_obj; }
-    virtual void deleteObject(my_Obj *X)   { d_fun = 1; ASSERT(X == &d_obj); }
+    my_Obj *createObject() BSLS_KEYWORD_OVERRIDE
+    {
+        d_fun = 2;
+        return  &d_obj;
+    }
 
-    int fun() const { return d_fun; }
+    void deleteObject(my_Obj *X) BSLS_KEYWORD_OVERRIDE
+    {
+        d_fun = 1;
+        ASSERT(X == &d_obj);
+    }
+
+    int fun() const
         // Return descriptive code for the function called.
+    {
+       return d_fun;
+    }
 };
 
 //=============================================================================

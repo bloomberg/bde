@@ -13,6 +13,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>      // 'atoi'
@@ -243,11 +244,12 @@ class MyCalendarLoader : public bdlt::CalendarLoader {
     MyCalendarLoader();
         // Create a 'MyCalendarLoader' object.
 
-    ~MyCalendarLoader();
+    ~MyCalendarLoader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // MANIPULATORS
-    int load(bdlt::PackedCalendar *result, const char *calendarName);
+    int load(bdlt::PackedCalendar *result, const char *calendarName)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Load, into the specified 'result', the calendar identified by the
         // specified 'calendarName'.  Return 0 on success, and a non-zero value
         // otherwise.

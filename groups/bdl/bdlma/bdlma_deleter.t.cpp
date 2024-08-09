@@ -5,6 +5,8 @@
 
 #include <bslma_newdeleteallocator.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
@@ -98,12 +100,24 @@ class my_Deleter : public bdlma::Deleter<my_Obj>
         (void)basicAllocator;
     }
 
-    virtual ~my_Deleter() { if (d_destructorFlag_p) *d_destructorFlag_p = 1; }
+    ~my_Deleter() BSLS_KEYWORD_OVERRIDE
+    {
+        if (d_destructorFlag_p) {
+            *d_destructorFlag_p = 1;
+        }
+    }
 
-    virtual void deleteObject(my_Obj *X)   { (void)X;  d_fun = 1; }
+    void deleteObject(my_Obj *X) BSLS_KEYWORD_OVERRIDE
+    {
+        (void)X;
+        d_fun = 1;
+    }
 
-    int fun() const { return d_fun; }
+    int fun() const
         // Return descriptive code for the function called.
+    {
+        return d_fun;
+    }
 };
 
 //=============================================================================

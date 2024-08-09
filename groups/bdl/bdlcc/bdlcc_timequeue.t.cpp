@@ -21,6 +21,7 @@
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 
+#include <bsls_keyword.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
@@ -1304,7 +1305,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         my_TestSession(int verbose) : my_Session(), d_verbose(verbose) { }
 
         // MANIPULATORS
-        virtual int handleTimeout(my_Connection *connection)
+        int handleTimeout(my_Connection *connection) BSLS_KEYWORD_OVERRIDE
         {
             // Do something to handle timeout.
             if (d_verbose) {
@@ -1314,7 +1315,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             return 0;
         }
 
-        virtual int processData(void *data, int length)
+        int processData(void *data, int length) BSLS_KEYWORD_OVERRIDE
         {
             // Do something with the data...
             if (d_verbose) {
@@ -1334,11 +1335,11 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         int d_verbose;
 
       protected:
-        virtual void closeConnection(my_Connection *connection);
+        void closeConnection(my_Connection *connection) BSLS_KEYWORD_OVERRIDE;
             // Close the specified external 'connection' and call
             // 'removeConnection' when done.
 
-        virtual void monitorConnections();
+        void monitorConnections() BSLS_KEYWORD_OVERRIDE;
             // Monitor all connections in the current 'my_Server'.  When data
             // becomes available for a given connection, pass the data to that
             // connection for processing.
@@ -1358,7 +1359,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         {
         }
 
-        virtual ~my_TestServer();
+        ~my_TestServer() BSLS_KEYWORD_OVERRIDE;
     };
 
     // myTestSession.cpp             -*-C++-*-

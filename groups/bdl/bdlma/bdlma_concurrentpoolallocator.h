@@ -565,6 +565,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentutil.h>
 #include <bsls_atomic.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h>
 
@@ -697,11 +698,11 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless '1 <= maxBlocksPerChunk'.
 
-    ~ConcurrentPoolAllocator();
+    ~ConcurrentPoolAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this pool allocator.
 
     // MANIPULATORS
-    void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (in bytes), and having alignment conforming to the
         // platform requirement for any object having 'size' bytes.  If 'size'
@@ -713,7 +714,7 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
         // supplied at construction (or the default allocator, if no allocator
         // was supplied).
 
-    void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory at the specified 'address' back to this allocator.
         // If 'address' is 0, this method has no effect.  The behavior is
         // undefined unless 'address' was allocated using this allocator and

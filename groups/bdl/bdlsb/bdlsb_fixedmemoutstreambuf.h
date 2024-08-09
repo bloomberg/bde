@@ -129,6 +129,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
@@ -160,10 +161,10 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
 
   protected:
     // PROTECTED MANIPULATORS
-    virtual pos_type seekoff(
-                           off_type                offset,
-                           bsl::ios_base::seekdir  fixedPosition,
-                           bsl::ios_base::openmode which = bsl::ios_base::out);
+    pos_type seekoff(off_type                offset,
+                     bsl::ios_base::seekdir  fixedPosition,
+                     bsl::ios_base::openmode which = bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the position indicator to the relative specified 'offset' from
         // the base position indicated by the specified 'fixedPosition' and
         // return the resulting absolute position on success or pos_type(-1)
@@ -172,9 +173,9 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::out' or if the resulting absolute position is less
         // than zero or greater than the value returned by 'length'.
 
-    virtual pos_type seekpos(
-                           pos_type                position,
-                           bsl::ios_base::openmode which = bsl::ios_base::out);
+    pos_type seekpos(pos_type                position,
+                     bsl::ios_base::openmode which = bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the position indicator to the specified 'position' and return
         // the resulting absolute position on success or pos_type(-1) on
         // failure.  Optionally specify 'which' area of the stream buffer.  The
@@ -182,8 +183,9 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::out' or if position is less then zero or greater
         // than the value returned by 'length'.
 
-    virtual FixedMemOutStreamBuf *setbuf(char_type       *buffer,
-                                         bsl::streamsize  length);
+    FixedMemOutStreamBuf *setbuf(char_type       *buffer,
+                                 bsl::streamsize  length)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
         // modifiable stream buffer.  The behavior is undefined unless
@@ -201,7 +203,7 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
         // unless 'length == 0' or 'length > 0 && buffer != 0'.
         // Note that 'buffer' is held but not owned.
 
-    ~FixedMemOutStreamBuf();
+    ~FixedMemOutStreamBuf() BSLS_KEYWORD_OVERRIDE;
         // Destroy this stream buffer.
 
     // MANIPULATORS

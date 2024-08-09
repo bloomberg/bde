@@ -19,6 +19,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_keyword.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -464,18 +465,18 @@ class ConcurrencyDetectionAllocator : public bslma::Allocator {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    ~ConcurrencyDetectionAllocator();
+    ~ConcurrencyDetectionAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator.
 
     // MANIPULATORS
-    void *allocate(bsls::Types::size_type numBytes);
+    void *allocate(bsls::Types::size_type numBytes) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of (at least) the specified
         // 'numBytes'.  If 'size' is 0, a null pointer is returned with no
         // effect.  The behavior is undefined unless '0 <= size'.  Note that
         // the alignment of the address returned is the maximum alignment for
         // any fundamental type defined for the calling platform.
 
-    void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect.  The
         // behavior is undefined unless 'address' was allocated using this

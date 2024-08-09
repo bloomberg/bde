@@ -14,6 +14,8 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslmf_assert.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
 #include <bsl_cstddef.h>
@@ -298,11 +300,11 @@ class LimitsTestAllocator : public bslma::Allocator {
         // Create an instrumented "test" allocator, which does not allocate
         // memory.
 
-    ~LimitsTestAllocator();
+    ~LimitsTestAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator.
 
     // MANIPULATORS
-    void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly-allocated block of memory of the specified 'size' (in
         // bytes).  If 'size' is 0, a null pointer is returned.  Otherwise,
         // invoke the 'allocate' method of the allocator supplied at
@@ -310,7 +312,7 @@ class LimitsTestAllocator : public bslma::Allocator {
         // allocated blocks, and increase the number of currently allocated
         // bytes by 'size'.  Update all other fields accordingly.
 
-    void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect (other
         // than to record relevant statistics).  Otherwise, if the memory at

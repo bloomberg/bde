@@ -14,6 +14,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
@@ -417,7 +418,7 @@ struct PtrInputBuf : bsl::streambuf {
 
 struct NulBuf : bsl::streambuf {
     char d_dummy[64];
-    virtual int overflow(int c)
+    int overflow(int c) BSLS_KEYWORD_OVERRIDE
         // Overrides, and implements 'streambuf::overflow', passing the
         // specified 'c'.
     {

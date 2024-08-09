@@ -14,6 +14,7 @@
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -419,16 +420,16 @@ static int blockSize(int numBytes)
             // 'basicAllocator' is 0, the currently installed default allocator
             // is used.
 
-        ~my_FastAllocator();
+        ~my_FastAllocator() BSLS_KEYWORD_OVERRIDE;
             // Destroy this allocator.  All memory allocated from this
             // allocator is released.
 
         // MANIPULATORS
-        virtual void *allocate(size_type size);
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
             // Return the address of a contiguous block of memory of the
             // specified 'size' (in bytes).
 
-        virtual void deallocate(void *address);
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
             // This method has no effect on the memory block at the specified
             // 'address' as all memory allocated by this allocator is managed.
             // The behavior is undefined unless 'address' was allocated by this

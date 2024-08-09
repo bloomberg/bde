@@ -15,6 +15,7 @@
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -211,7 +212,7 @@ class TrackingAllocator : public bslma::Allocator {
 
   public:
     // MANIPULATORS
-    void *allocate(bsls::Types::size_type size)
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE
         // Return a newly allocated block of memory of the lesser of 'k_LARGE'
         // and the specified 'size' bytes.  Track the address of the returned
         // memory and the 'size'.
@@ -223,7 +224,7 @@ class TrackingAllocator : public bslma::Allocator {
         return p;
     }
 
-    void deallocate(void *address)
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
         // Return the memory block at the specified 'address' to this
         // allocator.  Remove the address from tracking.  The behavior is
         // undefined unless 'address' was allocated using this allocator object
@@ -447,16 +448,16 @@ static int blockSize(int numBytes)
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
-        ~my_SequentialAllocator();
+        ~my_SequentialAllocator() BSLS_KEYWORD_OVERRIDE;
             // Destroy this allocator.  All memory allocated from this
             // allocator is released.
 
         // MANIPULATORS
-        virtual void *allocate(size_type size);
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
             // Return the address of a contiguous block of memory of the
             // specified 'size' (in bytes).
 
-        virtual void deallocate(void *address);
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
             // This method has no effect on the memory block at the specified
             // 'address' as all memory allocated by this allocator is managed.
             // The behavior is undefined unless 'address' was allocated by this

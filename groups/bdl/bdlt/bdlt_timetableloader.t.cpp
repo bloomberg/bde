@@ -7,6 +7,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_cstdlib.h>        // 'atoi'
@@ -117,11 +118,12 @@ void aSsErT(bool condition, const char *message, int line)
         MyTimetableLoader();
             // Create a 'MyTimetableLoader' object.
 
-        virtual ~MyTimetableLoader();
+        ~MyTimetableLoader() BSLS_KEYWORD_OVERRIDE;
             // Destroy this object.
 
         // MANIPULATORS
-        virtual int load(bdlt::Timetable *result, const char *timetableName);
+        int load(bdlt::Timetable *result, const char *timetableName)
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Load, into the specified 'result', the timetable identified by
             // the specified 'timetableName'.  Return 0 on success, and a
             // non-zero value otherwise.  If the timetable corresponding to
@@ -343,7 +345,10 @@ namespace {
 typedef bdlt::TimetableLoader ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
-    int load(bdlt::Timetable *, const char *) { return markDone(); }
+    int load(bdlt::Timetable *, const char *) BSLS_KEYWORD_OVERRIDE
+    {
+        return markDone();
+    }
 };
 
 }  // close unnamed namespace

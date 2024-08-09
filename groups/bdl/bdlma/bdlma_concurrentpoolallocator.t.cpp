@@ -14,6 +14,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_cassert.h>
@@ -140,7 +141,7 @@ class TrackingAllocator : public bslma::Allocator {
     TrackingAllocator() : d_lastAllocationSize(0) {}
 
     // MANIPULATORS
-    void *allocate(bsls::Types::size_type size)
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE
         // Return a newly allocated block of memory of the lesser of 'k_LARGE'
         // and the specified 'size' bytes.  Track the address of the returned
         // memory and the 'size'.
@@ -155,7 +156,7 @@ class TrackingAllocator : public bslma::Allocator {
         return p;
     }
 
-    void deallocate(void *address)
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
         // Return the memory block at the specified 'address' to this
         // allocator.  Remove the address from tracking.  The behavior is
         // undefined unless 'address' was allocated using this allocator object

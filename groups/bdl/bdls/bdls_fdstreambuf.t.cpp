@@ -9,6 +9,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
@@ -215,7 +216,7 @@ class CtrlZAllocator : public bslma::TestAllocator {
     {}
 
     // MANIPULATOR
-    virtual void *allocate(size_type size)
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE
     {
         enum { CTRLZ = 26 };
 

@@ -273,6 +273,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_iosfwd.h>
@@ -330,12 +331,12 @@ class CountingAllocator : public bslma::Allocator {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    virtual ~CountingAllocator();
+    ~CountingAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator object.  Note that destroying this allocator
         // has no effect on any outstanding allocated memory.
 
     // MANIPULATORS
-    virtual void *allocate(bsls::Types::size_type size);
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly-allocated block of memory of the specified 'size' (in
         // bytes).  If 'size' is 0, a null pointer is returned with no other
         // effect (e.g., on allocation statistics).  Otherwise, invoke the
@@ -343,7 +344,7 @@ class CountingAllocator : public bslma::Allocator {
         // increment the number of currently (and cumulatively) allocated bytes
         // by 'size'.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect (e.g., on
         // allocation statistics).  Otherwise, decrease the number of currently

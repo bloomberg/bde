@@ -11,6 +11,7 @@
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 #include <bsls_types.h>
 
@@ -105,11 +106,11 @@ typedef bdlma::ManagedAllocator ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     // 'bslma::Allocator' protocol
-    void *allocate(size_type) { return markDone(); }
-    void deallocate(void *)   {        markDone(); }
+    void *allocate(size_type) BSLS_KEYWORD_OVERRIDE { return markDone(); }
+    void deallocate(void *) BSLS_KEYWORD_OVERRIDE   {        markDone(); }
 
     // 'bdlma::ManagedAllocator' protocol
-    void release()            {        markDone(); }
+    void release() BSLS_KEYWORD_OVERRIDE            {        markDone(); }
 };
 
 }  // close unnamed namespace
@@ -172,20 +173,20 @@ class my_SecurityAttributes;
             // memory blocks from the specified external 'buffer' having the
             // specified 'bufferSize' (in bytes).
 
-        ~my_BufferAllocator();
+        ~my_BufferAllocator() BSLS_KEYWORD_OVERRIDE;
             // Destroy this buffer allocator.
 
         // MANIPULATORS
-        void *allocate(bsls::Types::size_type size);
+        void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
             // Return the address of a maximally-aligned contiguous block of
             // memory of the specified 'size' (in bytes) on success, and 0 if
             // the allocation request exceeds the remaining free memory space
             // in the external buffer.
 
-        void deallocate(void *address);
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
             // This method has no effect for this buffer allocator.
 
-        void release();
+        void release() BSLS_KEYWORD_OVERRIDE;
             // Release all memory allocated through this object.  This
             // allocator is reset to the state it was in immediately following
             // construction.

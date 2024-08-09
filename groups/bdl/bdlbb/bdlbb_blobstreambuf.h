@@ -31,6 +31,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlbb_blob.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_ios.h>  // for 'bsl::streamsize'
@@ -73,20 +74,22 @@ class InBlobStreamBuf : public bsl::streambuf {
 
   protected:
     // PROTECTED VIRTUAL FUNCTIONS
-    virtual int_type overflow(int_type c = bsl::streambuf::traits_type::eof());
+    int_type overflow(int_type c = bsl::streambuf::traits_type::eof())
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return 'traits_type::eof()' unconditionally.
 
-    virtual int_type pbackfail(
-                              int_type c = bsl::streambuf::traits_type::eof());
+    int_type pbackfail(int_type c = bsl::streambuf::traits_type::eof())
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Adjust the underlying blob and put the optionally specified
         // character 'c' at the newly valid 'gptr()'.  Return 'c' (or
         // '~traits_type::eof' if 'c == traits_type::eof') on success, and
         // 'traits_type::eof()' otherwise.
 
-    virtual pos_type seekoff(
+    pos_type seekoff(
        off_type                offset,
        bsl::ios_base::seekdir  fixedPosition,
-       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the location from which the next I/O operation indicated by the
         // optionally specified 'which' mode will occur to the specified
         // 'offset' position from the location indicated by the specified
@@ -94,35 +97,36 @@ class InBlobStreamBuf : public bsl::streambuf {
         // 'off_type(-1)' otherwise.  'offset' may be negative.  Note that this
         // method will fail if 'bsl::ios_base::out' is set.
 
-    virtual pos_type seekpos(
+    pos_type seekpos(
        pos_type                position,
-       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the location from which the next I/O operation indicated by the
         // optionally specified 'which' mode will occur to the specified
         // 'position'.  Return 'position' on success, and 'off_type(-1)'
         // otherwise.  Note that this method will fail if 'bsl::ios_base::out'
         // is set.
 
-    virtual bsl::streamsize showmanyc();
+    bsl::streamsize showmanyc() BSLS_KEYWORD_OVERRIDE;
         // Return the number of characters currently available for reading from
         // this stream buffer, or 0 if there are none.
 
-    virtual int sync();
+    int sync() BSLS_KEYWORD_OVERRIDE;
         // Return 0 unconditionally.
 
-    virtual int_type underflow();
+    int_type underflow() BSLS_KEYWORD_OVERRIDE;
         // Adjust the underlying blob so that the next read position is valid.
         // Return the character at 'gptr()' on success and 'traits_type::eof()'
         // otherwise.
 
-    virtual bsl::streamsize xsgetn(char_type       *destination,
-                                   bsl::streamsize  numChars);
+    bsl::streamsize xsgetn(char_type       *destination,
+                           bsl::streamsize  numChars) BSLS_KEYWORD_OVERRIDE;
         // Read the specified 'numChars' to the specified 'destination'.
         // Return the number of characters successfully read.  The behavior is
         // undefined unless 0 <= 'numChars'.
 
-    virtual bsl::streamsize xsputn(const char_type *source,
-                                   bsl::streamsize  numChars);
+    bsl::streamsize xsputn(const char_type *source,
+                           bsl::streamsize  numChars) BSLS_KEYWORD_OVERRIDE;
         // Return 0 unconditionally.
 
   public:
@@ -132,7 +136,7 @@ class InBlobStreamBuf : public bsl::streambuf {
         // is undefined unless 'blob' remains valid and externally unmodified
         // for the lifetime of this 'streambuf'.
 
-    ~InBlobStreamBuf();
+    ~InBlobStreamBuf() BSLS_KEYWORD_OVERRIDE;
         // Destroy this stream buffer.
 
     // MANIPULATORS
@@ -187,18 +191,20 @@ class OutBlobStreamBuf : public bsl::streambuf {
 
   protected:
     // PROTECTED VIRTUAL FUNCTIONS
-    virtual int_type overflow(int_type c = bsl::streambuf::traits_type::eof());
+    int_type overflow(int_type c = bsl::streambuf::traits_type::eof())
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Append the optionally specified character 'c' to this streambuf, and
         // return 'c'.  By default, 'traits_type::eof()' is appended.
 
-    virtual int_type pbackfail(
-                              int_type c = bsl::streambuf::traits_type::eof());
+    int_type pbackfail(int_type c = bsl::streambuf::traits_type::eof())
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return 'traits_type::eof()' unconditionally.
 
-    virtual pos_type seekoff(
+    pos_type seekoff(
        off_type                offset,
        bsl::ios_base::seekdir  fixedPosition,
-       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the location from which the next I/O operation indicated by the
         // optionally specified 'which' mode will occur to the specified
         // 'offset' position from the location indicated by the specified
@@ -206,31 +212,32 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // 'off_type(-1)' otherwise.  'offset' may be negative.  Note that this
         // method will fail if 'bsl::ios_base::in' is set.
 
-    virtual pos_type seekpos(
+    pos_type seekpos(
        pos_type                position,
-       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the location from which the next I/O operation indicated by the
         // optionally specified 'which' mode will occur to the specified
         // 'position'.  Return 'position' on success, and 'off_type(-1)'
         // otherwise.  Note that this method will fail if 'bsl::ios_base::in'
         // is set.
 
-    virtual bsl::streamsize showmanyc();
+    bsl::streamsize showmanyc() BSLS_KEYWORD_OVERRIDE;
         // Return 0 unconditionally.
 
-    virtual int sync();
+    int sync() BSLS_KEYWORD_OVERRIDE;
         // Synchronize the put position in the blob of this stream buffer.
         // Return 0 unconditionally.
 
-    virtual int_type underflow();
+    int_type underflow() BSLS_KEYWORD_OVERRIDE;
         // Return 'traits_type::eof()' unconditionally.
 
-    virtual bsl::streamsize xsgetn(char_type       *destination,
-                                   bsl::streamsize  numChars);
+    bsl::streamsize xsgetn(char_type       *destination,
+                           bsl::streamsize  numChars) BSLS_KEYWORD_OVERRIDE;
         // Return 0 unconditionally.
 
-    virtual bsl::streamsize xsputn(const char_type *source,
-                                   bsl::streamsize  numChars);
+    bsl::streamsize xsputn(const char_type *source,
+                           bsl::streamsize  numChars) BSLS_KEYWORD_OVERRIDE;
         // Copy the specified 'numChars' from the specified 'source' to the
         // blob held by this streambuf, starting at the current put area
         // location.  The behavior is undefined unless 0 <= 'numChars'.
@@ -244,7 +251,7 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // valid and externally unmodified for the lifetime of this
         // 'streambuf'.
 
-    ~OutBlobStreamBuf();
+    ~OutBlobStreamBuf() BSLS_KEYWORD_OVERRIDE;
         // Destroy this stream buffer.
 
     // MANIPULATORS

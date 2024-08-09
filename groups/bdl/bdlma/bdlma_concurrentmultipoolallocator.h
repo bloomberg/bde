@@ -276,6 +276,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
@@ -411,7 +412,7 @@ class ConcurrentMultipoolAllocator : public bdlma::ManagedAllocator {
         // would exceed a maximum value, the chunk size is capped at that
         // value).
 
-    virtual ~ConcurrentMultipoolAllocator();
+    ~ConcurrentMultipoolAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this multipool allocator.  All memory allocated from this
         // allocator is released.
 
@@ -425,7 +426,7 @@ class ConcurrentMultipoolAllocator : public bdlma::ManagedAllocator {
 
                                 // Virtual Functions
 
-    virtual void *allocate(bsls::Types::size_type size);
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return the address of a contiguous block of maximally aligned memory
         // of (at least) the specified 'size' (in bytes).  If 'size' is 0, no
         // memory is allocated and 0 is returned.  If
@@ -433,13 +434,13 @@ class ConcurrentMultipoolAllocator : public bdlma::ManagedAllocator {
         // directly by the underlying allocator, but will not be pooled .  The
         // behavior is undefined unless '0 <= size'.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Relinquish the memory block at the specified 'address' back to this
         // allocator for reuse.  If 'address' is 0, this method has no effect.
         // The behavior is undefined unless 'address' was allocated by this
         // allocator, and has not already been deallocated.
 
-    virtual void release();
+    void release() BSLS_KEYWORD_OVERRIDE;
         // Relinquish all memory currently allocated through this multipool
         // allocator.
 

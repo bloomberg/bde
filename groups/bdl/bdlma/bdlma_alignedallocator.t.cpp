@@ -4,6 +4,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_protocoltest.h>
 #include <bsls_bslexceptionutil.h>
@@ -83,9 +84,10 @@ struct AlignedAllocatorTestImp :
                                bsls::ProtocolTestImp<bdlma::AlignedAllocator> {
     typedef bslma::Allocator::size_type size_type;
 
-    void *allocate(size_type)                     { return markDone(); }
-    void *allocateAligned(bsl::size_t, size_type) { return markDone(); }
-    void  deallocate(void* )                      {        markDone(); }
+    void *allocate(size_type) BSLS_KEYWORD_OVERRIDE { return markDone(); }
+    void *allocateAligned(bsl::size_t, size_type) BSLS_KEYWORD_OVERRIDE
+                                                    { return markDone(); }
+    void  deallocate(void* ) BSLS_KEYWORD_OVERRIDE  {        markDone(); }
 };
 
 }  // close unnamed namespace
@@ -132,12 +134,12 @@ struct AlignedAllocatorTestImp :
             // Create a 'MyAlignedAllocator' object.  Note that all objects of
             // this class share the same underlying resource.
 
-        virtual ~MyAlignedAllocator();
+        ~MyAlignedAllocator() BSLS_KEYWORD_OVERRIDE;
             // Destroy this object.  Note that destroying this object has no
             // effect on any outstanding allocated memory.
 
         // MANIPULATORS
-        virtual void *allocate(bsls::Types::size_type size);
+        void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
             // Return a newly allocated block of memory of (at least) the
             // specified positive 'size' (in bytes).  If 'size' is 0, a null
             // pointer is returned with no other effect.  If this allocator
@@ -151,8 +153,9 @@ struct AlignedAllocatorTestImp :
             // avoid having to acquire a lock, and potential contention in
             // multi-threaded programs).
 
-        virtual void *allocateAligned(bsls::Types::size_type size,
-                                      bsls::Types::size_type alignment);
+        void *allocateAligned(bsls::Types::size_type size,
+                              bsls::Types::size_type alignment)
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Return the address of a newly allocated block of memory of at
             // least the specified positive 'size' (in bytes), sufficiently
             // aligned such that the returned 'address' satisfies, for the
@@ -164,7 +167,7 @@ struct AlignedAllocatorTestImp :
             // undefined unless 'alignment' is both a multiple of
             // 'sizeof(void *)' and an integral non-negative power of two.
 
-        virtual void deallocate(void *address);
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
             // Return the memory block at the specified 'address' back to this
             // allocator.  If 'address' is 0, this function has no effect.  The
             // behavior is undefined unless 'address' was allocated using this

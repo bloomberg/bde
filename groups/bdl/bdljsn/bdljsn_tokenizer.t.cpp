@@ -23,6 +23,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
@@ -299,7 +300,7 @@ struct BreakAllocator : public bslma::TestAllocator {
 
     // MANIPULATOR
     // BDE_VERIFY pragma: -FD01
-    virtual void *allocate(size_type size)
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE
     {
         return bslma::TestAllocator::allocate(size);
     }
