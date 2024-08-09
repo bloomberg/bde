@@ -6,6 +6,7 @@
 // macro it will just provide those common pieces (and no 'main' function).
 
 #include <bsla_fallthrough.h>
+#include <bsla_maybeunused.h>
 #include <bsla_unused.h>
 
 #include <bslma_allocator.h>
@@ -69,6 +70,12 @@
 #include <string.h>
 
 // Don't put any 'using' declaration or directive here, see swap helpers below.
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
+#endif
 
 //=============================================================================
 //                             TEST PLAN
@@ -264,6 +271,7 @@ int testStatus = 0;
 #define aSsErT(COND, MSG, LINE) aSsErTF(COND, MSG, __FILE__, __LINE__)
 
 // Special version of 'aSsErT' taking a filename argument.
+BSLA_MAYBE_UNUSED
 void aSsErTF(bool condition, const char *message, const char *file, int line)
 {
     if (condition) {

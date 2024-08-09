@@ -45,6 +45,12 @@
 
 using namespace BloombergLP;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+#endif
+
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------

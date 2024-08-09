@@ -1,4 +1,13 @@
 // bslstl_list.2.t.cpp                                                -*-C++-*-
+
+#include <bsls_platform.h>
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic ignored "-Wordered-compare-function-pointers"
+#endif
+#endif
+
 #define BSLSTL_LIST_0T_AS_INCLUDE
 #include <bslstl_list.0.t.cpp>
 
