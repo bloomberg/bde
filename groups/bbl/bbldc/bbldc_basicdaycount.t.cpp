@@ -6,6 +6,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -90,17 +91,18 @@ class my_Convention : public bbldc::BasicDayCount {
     my_Convention();
         // Create this object.
 
-    ~my_Convention();
+    ~my_Convention() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
-    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const;
+    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return the (signed) number of days between the specified 'beginDate'
         // and 'endDate'.  If 'beginDate <= endDate' then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
         // 'endDate' negates the result.
 
     double yearsDiff(const bdlt::Date& beginDate,
-                     const bdlt::Date& endDate) const;
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate' according to the Actual/360 convention.
         // If 'beginDate <= endDate' then the result is non-negative.  Note
@@ -149,14 +151,14 @@ typedef bbldc::BasicDayCount ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int daysDiff(const bdlt::Date& beginDate,
-                 const bdlt::Date& endDate) const {
+                 const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE {
         (void)beginDate;
         (void)endDate;
         return markDone();
     }
 
     double yearsDiff(const bdlt::Date& beginDate,
-                     const bdlt::Date& endDate) const {
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE {
         (void)beginDate;
         (void)endDate;
         return markDone();
@@ -193,12 +195,13 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     class my_DayCountConvention : public bbldc::BasicDayCount {
       public:
         my_DayCountConvention() { }
-        virtual ~my_DayCountConvention();
-        virtual int daysDiff(const bdlt::Date& beginDate,
-                             const bdlt::Date& endDate) const;
+        ~my_DayCountConvention() BSLS_KEYWORD_OVERRIDE;
+        int daysDiff(const bdlt::Date& beginDate,
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
             // Return the (signed) number of days between the specified ...
-        virtual double yearsDiff(const bdlt::Date& beginDate,
-                                 const bdlt::Date& endDate) const;
+        double yearsDiff(const bdlt::Date& beginDate,
+                         const bdlt::Date& endDate) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Return the (signed fractional) number of years between the ...
     };
 //..

@@ -93,6 +93,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_review.h>
 
@@ -159,30 +160,31 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
         // the values contained in 'periodDate' are unique and sorted from
         // minimum to maximum.
 
-    virtual ~PeriodDateRangeDayCountAdapter();
+    ~PeriodDateRangeDayCountAdapter() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // ACCESSORS
-    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const;
+    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return the (signed) number of days between the specified 'beginDate'
         // and 'endDate' as per the 'CONVENTION' template policy.  If
         // 'beginDate <= endDate', then the result is non-negative.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
 
-    const bdlt::Date& firstDate() const;
+    const bdlt::Date& firstDate() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference providing non-modifiable access to
         // 'periodDate.front()' for the 'periodDate' provided at construction.
         // Note that this value is the earliest date in the valid range of this
         // day-count convention adaptation.
 
-    const bdlt::Date& lastDate() const;
+    const bdlt::Date& lastDate() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference providing non-modifiable access to
         // 'periodDate.back()' for the 'periodDate' provided at construction.
         // Note that this value is the latest date in the valid range of this
         // day-count convention adaptation.
 
     double yearsDiff(const bdlt::Date& beginDate,
-                     const bdlt::Date& endDate) const;
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate' as per the 'CONVENTION' template policy.
         // If 'beginDate <= endDate', then the result is non-negative.  The

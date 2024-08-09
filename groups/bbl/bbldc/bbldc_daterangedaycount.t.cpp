@@ -6,6 +6,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -92,25 +93,26 @@ class my_Convention : public bbldc::DateRangeDayCount {
     my_Convention();
         // Create this object.
 
-    ~my_Convention();
+    ~my_Convention() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
-    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const;
+    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return the (signed) number of days between the specified 'beginDate'
         // and 'endDate'.  If 'beginDate <= endDate' then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
         // 'endDate' negates the result.
 
-    const bdlt::Date& firstDate() const;
+    const bdlt::Date& firstDate() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference providing non-modifiable access to the earliest
         // date in the valid range of this day-count convention.
 
-    const bdlt::Date& lastDate() const;
+    const bdlt::Date& lastDate() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference providing non-modifiable access to the latest
         // date in the valid range of this day-count convention.
 
     double yearsDiff(const bdlt::Date& beginDate,
-                     const bdlt::Date& endDate) const;
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate' according to the Actual/360 convention.
         // If 'beginDate <= endDate' then the result is non-negative.  Note
@@ -169,26 +171,26 @@ typedef bbldc::DateRangeDayCount ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int daysDiff(const bdlt::Date& beginDate,
-                 const bdlt::Date& endDate) const {
+                 const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE {
         (void)beginDate;
         (void)endDate;
         return markDone();
     }
 
-    const bdlt::Date& firstDate() const {
+    const bdlt::Date& firstDate() const BSLS_KEYWORD_OVERRIDE {
         static bdlt::Date firstDate(9999, 12, 31);
         markDone();
         return firstDate;
     }
 
-    const bdlt::Date& lastDate() const {
+    const bdlt::Date& lastDate() const BSLS_KEYWORD_OVERRIDE {
         static bdlt::Date lastDate(9999, 12, 31);
         markDone();
         return lastDate;
     }
 
     double yearsDiff(const bdlt::Date& beginDate,
-                     const bdlt::Date& endDate) const {
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE {
         (void)beginDate;
         (void)endDate;
         return markDone();
@@ -228,16 +230,17 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
       public:
         my_DayCountConvention()
                            : d_firstDate(1, 1, 1), d_lastDate(9999, 12, 31) { }
-        virtual ~my_DayCountConvention();
-        virtual int daysDiff(const bdlt::Date& beginDate,
-                             const bdlt::Date& endDate) const;
+        ~my_DayCountConvention() BSLS_KEYWORD_OVERRIDE;
+        int daysDiff(const bdlt::Date& beginDate,
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
             // Return the (signed) number of days between the specified ...
-        virtual const bdlt::Date& firstDate() const;
+        const bdlt::Date& firstDate() const BSLS_KEYWORD_OVERRIDE;
             // Return a reference providing non-modifiable access to the ...
-        virtual const bdlt::Date& lastDate() const;
+        const bdlt::Date& lastDate() const BSLS_KEYWORD_OVERRIDE;
             // Return a reference providing non-modifiable access to the ...
-        virtual double yearsDiff(const bdlt::Date& beginDate,
-                                 const bdlt::Date& endDate) const;
+        double yearsDiff(const bdlt::Date& beginDate,
+                         const bdlt::Date& endDate) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Return the (signed fractional) number of years between the ...
     };
 //..

@@ -20,6 +20,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -185,12 +186,13 @@ class TestCalendarLoader : public bdlt::CalendarLoader
 {
   public:
     // CREATORS
-    ~TestCalendarLoader()
+    ~TestCalendarLoader() BSLS_KEYWORD_OVERRIDE
         // Destroy this object.
     {
     }
 
     int load(bdlt::PackedCalendar *result, const char * /* calendar name */)
+                                                          BSLS_KEYWORD_OVERRIDE
         // Load, into the specified 'result', the calendar corresponding to the
         // specified 'calendarName'.  Return 0 on success, and a non-zero value
         // otherwise.  If the return value is 1, the calendar was not found and

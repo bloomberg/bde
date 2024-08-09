@@ -69,6 +69,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlt_date.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 
 
@@ -86,14 +88,15 @@ class BasicBasicDayCountAdapter : public BasicDayCount {
 
   public:
     // ACCESSORS
-    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const;
+    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return the (signed) number of days between the specified 'beginDate'
         // and 'endDate' as per the 'CONVENTION' template policy.  If
         // 'beginDate <= endDate', then the result is non-negative.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
 
     double yearsDiff(const bdlt::Date& beginDate,
-                     const bdlt::Date& endDate) const;
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate' as per the 'CONVENTION' template policy.
         // If 'beginDate <= endDate', then the result is non-negative.  Note
