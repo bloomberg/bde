@@ -6,10 +6,13 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+
 #include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 
 #include <stdio.h>       // printf
 #include <stdlib.h>      // atoi
@@ -158,21 +161,21 @@ class SimpleRep : public bslma::SharedPtrRep {
         // an externally managed 'int' that will outlive this 'SimpleRep'
         // object.
 
-    ~SimpleRep();
+    ~SimpleRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this test shared ptr rep object.
 
     // MANIPULATORS
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // This method has no effect.
 
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // This method has no effect.
 
-    virtual void *getDeleter(const std::type_info&) { return 0; }
+    void *getDeleter(const std::type_info&) BSLS_KEYWORD_OVERRIDE { return 0; }
         // Return a null pointer.
 
     // ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return the address of the 'int' referred to by this object.
 
     int *ptr() const;

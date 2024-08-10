@@ -1,10 +1,13 @@
 // bslstl_allocator.t.cpp                                             -*-C++-*-
 #include <bslstl_allocator.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <limits>
 #include <new>
@@ -383,11 +386,11 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
             // 'delete' to supply and free memory.
 
         // MANIPULATORS
-        virtual void *allocate(size_type size);
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
             // Return a pointer to an uninitialized memory of the specified
             // 'size (in bytes).
 
-        virtual void deallocate(void *address);
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
             // Return the memory at the specified 'address' to this allocator.
 
         // ACCESSORS

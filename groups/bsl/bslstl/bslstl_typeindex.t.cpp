@@ -23,6 +23,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_outputredirector.h>
 #include <bsls_platform.h>
@@ -294,7 +295,7 @@ namespace usage {
             // Create a 'Triangle' having the it center at the specified
             // position '(x, y)', and having the specified 'radius'.
 
-        ~Circle();
+        ~Circle() BSLS_KEYWORD_OVERRIDE;
             // Destroy this object.
 
         // Further details elided from example.
@@ -310,7 +311,7 @@ namespace usage {
             // Create a 'Triangle' having the specified vertices, '(x1, y1)',
             // '(x2, y2)', and '(x3, y3)'.
 
-        ~Triangle();
+        ~Triangle() BSLS_KEYWORD_OVERRIDE;
             // Destroy this object.
 
         // Further details elided from example.
@@ -328,7 +329,7 @@ namespace usage {
             // Create a Polygon having vertices given by the specified range
             // '[firstPoint, endPoint)'.
 
-        ~Polygon();
+        ~Polygon() BSLS_KEYWORD_OVERRIDE;
             // Destroy this object.
 
         // Further details elided from example.

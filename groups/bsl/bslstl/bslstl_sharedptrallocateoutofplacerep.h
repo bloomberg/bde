@@ -196,6 +196,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_allocatortraits.h>
 #include <bslma_sharedptrrep.h>
 
+#include <bsls_keyword.h>
 #include <bsls_util.h>
 
 #include <typeinfo>
@@ -246,7 +247,7 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
         // note that a 'SharedPtrAllocateOutofplaceRep' must be created using
         // 'makeOutofplaceRep', which will call the private constructor.
 
-    ~SharedPtrAllocateOutofplaceRep();
+    ~SharedPtrAllocateOutofplaceRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this representation object and if the shared object has not
         // been deleted, delete the shared object using the associated deleter.
         // Note that this destructor is never called explicitly.  Instead,
@@ -267,12 +268,12 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
         // memory pointed to by 'ptr'.
 
     // MANIPULATORS
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // Destroy the object referred to by this representation.  This method
         // is invoked by 'releaseRef' when the number of shared references
         // reaches zero and should not be explicitly invoked otherwise.
 
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this representation object and deallocate the associated
         // memory.  This method is invoked by 'releaseRef' and 'releaseWeakRef'
         // when the number of weak references and the number of shared
@@ -281,13 +282,13 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
         // already been called for this representation.  Note that this method
         // effectively serves as the representation object's destructor.
 
-    virtual void *getDeleter(const std::type_info& type);
+    void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
         // Return a pointer to the deleter stored by the derived representation
         // if the deleter has the same type as that described by the specified
         // 'type', and a null pointer otherwise.
 
     // ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return the (untyped) address of the modifiable shared object to
         // which this object refers.
 

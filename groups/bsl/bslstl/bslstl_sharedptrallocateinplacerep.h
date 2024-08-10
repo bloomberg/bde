@@ -47,6 +47,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h>
 
@@ -103,7 +104,7 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
         // 'disposeRep' to destroy the copy the allocator and reclaim storage
         // for this object.
 
-    ~SharedPtrAllocateInplaceRep();  // = delete
+    ~SharedPtrAllocateInplaceRep() BSLS_KEYWORD_OVERRIDE;  // = delete
         // The destructor for this object should never be called.  The in-place
         // 'TYPE' object will be destroyed by a call to 'disposeObject' and the
         // stored allocator for this object will be destroyed by a call to
@@ -125,13 +126,13 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
         // 'disposeRep' until this object has been successfully constructed.
 
     // MANIPULATORS
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // Destroy the object being referred to by this representation.  This
         // method is automatically invoked by 'releaseRef' when the number of
         // shared references reaches zero and should not be explicitly invoked
         // otherwise.
 
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this representation object and deallocate the associated
         // memory.  This method is automatically invoked by 'releaseRef' and
         // 'releaseWeakRef' when the number of weak references and the number
@@ -140,7 +141,7 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
         // has already been called for this representation.  Note that this
         // method effectively serves as the representation object's destructor.
 
-    void *getDeleter(const std::type_info& type);
+    void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
         // Ignore the specified 'type' and return a null pointer.  Note that
         // there is no facility for the user to supply a deleter for an
         // in-place representation for a shared pointer.
@@ -152,7 +153,7 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
         // referenced object is stored internally as a data member.
 
     // ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return the (untyped) address of the modifiable shared object to
         // which this object refers.
 };
@@ -211,7 +212,7 @@ class SharedPtrArrayAllocateInplaceRep
         // to 'disposeRep' to destroy the copy the allocator and reclaim
         // storage for this object, pointed to by the specified 'allocatedPtr'.
 
-    ~SharedPtrArrayAllocateInplaceRep();  // = delete
+    ~SharedPtrArrayAllocateInplaceRep() BSLS_KEYWORD_OVERRIDE;  // = delete
         // The destructor for this object should never be called.  The in-place
         // 'TYPE' object will be destroyed by a call to 'disposeObject' and the
         // stored allocator for this object will be destroyed by a call to
@@ -251,13 +252,13 @@ class SharedPtrArrayAllocateInplaceRep
         // constructed.
 
     // MANIPULATORS
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // Destroy the object being referred to by this representation.  This
         // method is automatically invoked by 'releaseRef' when the number of
         // shared references reaches zero and should not be explicitly invoked
         // otherwise.
 
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this representation object and deallocate the associated
         // memory.  This method is automatically invoked by 'releaseRef' and
         // 'releaseWeakRef' when the number of weak references and the number
@@ -266,7 +267,7 @@ class SharedPtrArrayAllocateInplaceRep
         // has already been called for this representation.  Note that this
         // method effectively serves as the representation object's destructor.
 
-    void *getDeleter(const std::type_info& type);
+    void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
         // Ignore the specified 'type' and return a null pointer.  Note that
         // there is no facility for the user to supply a deleter for an
         // in-place representation for a shared pointer.
@@ -278,7 +279,7 @@ class SharedPtrArrayAllocateInplaceRep
         // referenced object is stored internally.
 
     // ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return the (untyped) address of the modifiable shared object to
         // which this object refers.
 };
