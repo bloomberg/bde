@@ -3,6 +3,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
@@ -244,7 +245,7 @@ class my_DerivedClass : public my_AbstractClass {
   public:
     // CREATORS
     my_DerivedClass() { }
-    ~my_DerivedClass();
+    ~my_DerivedClass() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
     int func2(int);
