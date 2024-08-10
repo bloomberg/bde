@@ -7,6 +7,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
@@ -161,36 +162,36 @@ class myChild : public myParent {
     my_Class c;
   public:
     explicit myChild(int *counter = 0) : c(counter) {}
-    ~myChild() {}
+    ~myChild() BSLS_KEYWORD_OVERRIDE                {}
 };
 
 // Testing Multiple Inheritance
 class myVirtualBase {
     int x;
   public:
-    myVirtualBase()          { }
-    virtual ~myVirtualBase() { }
+    myVirtualBase()          {}
+    virtual ~myVirtualBase() {}
 };
 
 class myLeftBase : virtual public myVirtualBase {
     int x;
   public:
-    myLeftBase()             { }
-    virtual ~myLeftBase()    { }
+    myLeftBase()                        {}
+    ~myLeftBase() BSLS_KEYWORD_OVERRIDE {}
 };
 
 class myRightBase : virtual public myVirtualBase {
     int x;
   public:
-    myRightBase()            { }
-    virtual ~myRightBase()   { }
+    myRightBase()                        {}
+    ~myRightBase() BSLS_KEYWORD_OVERRIDE {}
 };
 
 class myMostDerived : public myLeftBase, public myRightBase {
     my_Class c;
   public:
     explicit myMostDerived(int *counter = 0) : c(counter) {}
-    ~myMostDerived() {}
+    ~myMostDerived() BSLS_KEYWORD_OVERRIDE                {}
 };
 
 //=============================================================================

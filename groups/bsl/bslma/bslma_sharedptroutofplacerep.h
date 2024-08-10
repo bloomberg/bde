@@ -204,6 +204,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_issame.h>
 #include <bslmf_usesallocatorargt.h>
 
+#include <bsls_keyword.h>
 #include <bsls_util.h>
 
 #include <typeinfo>
@@ -326,7 +327,7 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // 'makeOutofplaceRep', which will call the appropriate private
         // constructor depending on the parameterized 'DELETER' type.
 
-    ~SharedPtrOutofplaceRep();
+    ~SharedPtrOutofplaceRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this representation object and if the shared object has not
         // been deleted, delete the shared object using the associated deleter.
         // Note that this destructor is never called explicitly.  Instead,
@@ -348,13 +349,13 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // pointed to by 'ptr'.
 
     // MANIPULATORS
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // Destroy the object being referred to by this representation.  This
         // method is automatically invoked by 'releaseRef' when the number of
         // shared references reaches zero and should not be explicitly invoked
         // otherwise.
 
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this representation object and deallocate the associated
         // memory.  This method is automatically invoked by 'releaseRef' and
         // 'releaseWeakRef' when the number of weak references and the number
@@ -364,13 +365,13 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // 'disposeRep' method effectively serves as the representation
         // object's destructor.
 
-    virtual void *getDeleter(const std::type_info& type);
+    void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
         // Return a pointer to the deleter stored by the derived representation
         // (if any) if the deleter has the same type as that described by the
         // specified 'type', and a null pointer otherwise.
 
     // ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return the (untyped) address of the modifiable shared object to
         // which this object refers.
 

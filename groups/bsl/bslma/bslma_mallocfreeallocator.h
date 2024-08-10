@@ -112,6 +112,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_keyword.h>
+
 #include <cstdlib>  // 'std::malloc', 'std::free'
 
 namespace BloombergLP {
@@ -147,7 +149,7 @@ class MallocFreeAllocator : public Allocator {
         // supply memory.  Note that all objects of this class share the same
         // underlying resource.
 
-    virtual ~MallocFreeAllocator();
+    ~MallocFreeAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator.  Note that the behavior of destroying an
         // allocator while memory is allocated from it is not specified.
         // (Unless you *know* that it is valid to do so, don't!)
@@ -156,7 +158,7 @@ class MallocFreeAllocator : public Allocator {
         // has no effect on allocated memory.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (in bytes).  If 'size' is 0, a null pointer is
         // returned with no other effect.  If this allocator cannot return the
@@ -167,7 +169,7 @@ class MallocFreeAllocator : public Allocator {
         // called when 'size' is 0 (in order to avoid having to acquire a lock,
         // and potential contention in multi-treaded programs).
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect.  The
         // behavior is undefined unless 'address' was allocated using this

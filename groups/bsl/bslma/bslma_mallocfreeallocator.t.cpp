@@ -6,6 +6,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
@@ -198,20 +199,20 @@ void operator delete(void *address)
             // supply memory.  If 'basicAllocator' is 0, the
             // 'bslma::MallocFreeAllocator' will be used.
 
-        ~my_Allocator();
+        ~my_Allocator() BSLS_KEYWORD_OVERRIDE;
             // Destroy this allocator.  Note that the behavior of destroying an
             // allocator while memory is allocated from it is not specified.
             // (Unless you *know* that it is valid to do so, don't!)
 
         // MANIPULATORS
-        void *allocate(size_type size);
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
             // Return a newly allocated block of memory of (at least) the
             // specified positive 'size' (bytes).  If 'size' is 0, a null
             // pointer is returned with no effect.  Note that the alignment of
             // the address returned is the maximum alignment for any
             // fundamental type defined for this platform.
 
-        void deallocate(void *address);
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
             // Return the memory at the specified 'address' back to this
             // allocator.  If 'address' is 0, this function has no effect.  The
             // behavior is undefined if 'address' was not allocated using this

@@ -4,9 +4,9 @@
 
 #include <bslma_allocator.h>
 
-#include <bsls_bsltestutil.h>
-
 #include <bsls_buildtarget.h>
+#include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -97,11 +97,11 @@ class my_Allocator : public bslma::Allocator {
   public:
     // CREATORS
     my_Allocator() : d_allocationLimit(-1) {}
-    ~my_Allocator() {}
+    ~my_Allocator() BSLS_KEYWORD_OVERRIDE  {}
 
     // MANIPULATORS
-    void *allocate(size_type size);
-    void deallocate(void *address) { free(address); }
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE { free(address); }
     void setAllocationLimit(int limit) { d_allocationLimit = limit; }
 
     // ACCESSORS

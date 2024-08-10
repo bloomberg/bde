@@ -8,6 +8,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -189,7 +190,7 @@ class MyDerivedObject : public MyTestObject
     //  MyDerivedObject(const MyDerivedObject& other) = default;
     //  MyDerivedObject operator=(const MyDerivedObject& other) = default;
 
-    ~MyDerivedObject();
+    ~MyDerivedObject() BSLS_KEYWORD_OVERRIDE;
         // Increment the stored reference to a counter by 100, then destroy
         // this object.
 };
@@ -224,7 +225,7 @@ class MySecondDerivedObject : public MyTestObject
     // MySecondDerivedObject(const MySecondDerivedObject& orig);
     // MySecondDerivedObject operator=(const MySecondDerivedObject& orig);
 
-    ~MySecondDerivedObject();
+    ~MySecondDerivedObject() BSLS_KEYWORD_OVERRIDE;
         // Increment the stored reference to a counter by 10000, then destroy
         // this object.
 };

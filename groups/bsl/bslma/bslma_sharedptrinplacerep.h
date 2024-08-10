@@ -161,6 +161,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_util.h>
 
 #include <stddef.h>
@@ -206,7 +207,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
     SharedPtrInplaceRep& operator=(const SharedPtrInplaceRep&);
 
     // PRIVATE CREATORS
-    ~SharedPtrInplaceRep();
+    ~SharedPtrInplaceRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this representation object and the embedded instance of
         // parameterized 'TYPE'.  Note that this destructor is never called.
         // Instead, 'disposeObject' destroys the in-place object and
@@ -229,14 +230,14 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 #endif
 
     // MANIPULATORS
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // Destroy the object being referred to by this representation.  This
         // method is automatically invoked by 'releaseRef' when the number of
         // shared references reaches zero and should not be explicitly invoked
         // otherwise.  Note that this function calls the destructor for the
         // shared object, but does not deallocate its footprint.
 
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // Deallocate the memory associated with this representation object
         // (including the shared object's footprint).  This method is
         // automatically invoked by 'releaseRef' and 'releaseWeakRef' when the
@@ -246,7 +247,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // for this representation.  Note that this 'disposeRep' method
         // effectively serves as the representation object's destructor.
 
-    void *getDeleter(const std::type_info& type);
+    void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
         // Return a null pointer.  Note that the specified 'type' is not used
         // as an in-place representation for a shared pointer can never store a
         // user-supplied deleter (there is no function that might try to create
@@ -257,7 +258,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // by this representation object.
 
     // ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return the (untyped) address of the modifiable (in-place) object
         // referred to by this representation object.
 };

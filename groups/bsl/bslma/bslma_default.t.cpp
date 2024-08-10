@@ -8,6 +8,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -157,18 +158,18 @@ typedef bslma::Default Obj;
         my_CountingAllocator();
             // Create a counting allocator.
 
-        virtual ~my_CountingAllocator();
+        ~my_CountingAllocator() BSLS_KEYWORD_OVERRIDE;
             // Destroy this counting allocator.
 
         // MANIPULATORS
-        virtual void *allocate(size_type size);
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
             // Return a newly allocated block of memory of (at least) the
             // specified positive 'size' (bytes).  If 'size' is 0, a null
             // pointer is returned with no effect.  Note that the alignment of
             // the address returned is the maximum alignment for any
             // fundamental type defined for this platform.
 
-        virtual void deallocate(void *address);
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
             // Return the memory at the specified 'address' back to this
             // allocator.  If 'address' is 0, this function has no effect.  The
             // behavior is undefined if 'address' was not allocated using this

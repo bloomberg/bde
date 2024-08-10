@@ -152,6 +152,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_alignmentutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 
 namespace BloombergLP {
 
@@ -202,17 +203,17 @@ class AllocatorAdaptor_Imp : public Allocator {
 #endif
 
 
-    virtual ~AllocatorAdaptor_Imp();
+    ~AllocatorAdaptor_Imp() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object and the STL-style allocator that it wraps.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a maximally-aligned block of memory no smaller than 'size'
         // bytes allocated from the STL-style allocator that was supplied to
         // this object's constructor.  Any exceptions thrown by the underlying
         // STL-style allocator are propagated out from this member.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to the
         // STL-allocator.  If 'address' is null, this funciton has no effect.
         // The behavior is undefined unless 'address' was allocated using this

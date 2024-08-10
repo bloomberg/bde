@@ -6,6 +6,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_protocoltest.h>
 
@@ -201,9 +202,9 @@ class my_Allocator : public bslma::Allocator {
 
   public:
     my_Allocator() : d_allocateCount(0), d_deallocateCount(0) { }
-    ~my_Allocator() { }
+    ~my_Allocator() BSLS_KEYWORD_OVERRIDE { }
 
-    void *allocate(size_type s) {
+    void *allocate(size_type s) BSLS_KEYWORD_OVERRIDE {
         d_fun = 1;
         d_arg = s;
         ++d_allocateCount;
@@ -211,7 +212,11 @@ class my_Allocator : public bslma::Allocator {
     }
 
     // MANIPULATORS
-    void deallocate(void *) { d_fun = 2;  ++d_deallocateCount; }
+    void deallocate(void *) BSLS_KEYWORD_OVERRIDE
+    {
+        d_fun = 2;
+        ++d_deallocateCount;
+    }
 
     // ACCESSORS
     int allocateCount() const { return d_allocateCount; }
@@ -237,9 +242,9 @@ class my_NewDeleteAllocator : public bslma::Allocator {
 
   public:
     my_NewDeleteAllocator(): d_count(0) { }
-    ~my_NewDeleteAllocator() { }
+    ~my_NewDeleteAllocator() BSLS_KEYWORD_OVERRIDE { }
 
-    void *allocate(size_type size)  {
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE {
         unsigned *p = (unsigned *) operator new(
                                size + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
         *p = MAGIC;
@@ -248,7 +253,7 @@ class my_NewDeleteAllocator : public bslma::Allocator {
         return (char *) p + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
     }
 
-    void deallocate(void *address)  {
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE {
         unsigned *p = (unsigned *)
                          ((bsls::AlignmentUtil::MaxAlignedType *) address - 1);
         ASSERT(MAGIC == *p);
@@ -288,7 +293,7 @@ class my_Class3Base {
 class my_Class3 : public my_Class3Base {
   public:
     my_Class3() { ++class3ObjectCount; }
-    virtual ~my_Class3();
+    ~my_Class3() BSLS_KEYWORD_OVERRIDE;
 };
 
 my_Class3Base::~my_Class3Base() { }
@@ -311,22 +316,22 @@ class my_VirtualBase {
 class my_LeftBase : virtual public my_VirtualBase {
     int x;
   public:
-    my_LeftBase()             { leftBaseObjectCount = 1; }
-    virtual ~my_LeftBase()    { leftBaseObjectCount = 0; }
+    my_LeftBase()                        { leftBaseObjectCount = 1; }
+    ~my_LeftBase() BSLS_KEYWORD_OVERRIDE { leftBaseObjectCount = 0; }
 };
 
 class my_RightBase : virtual public my_VirtualBase {
     int x;
   public:
-    my_RightBase()            { rightBaseObjectCount = 1; }
-    virtual ~my_RightBase()   { rightBaseObjectCount = 0; }
+    my_RightBase()                        { rightBaseObjectCount = 1; }
+    ~my_RightBase() BSLS_KEYWORD_OVERRIDE { rightBaseObjectCount = 0; }
 };
 
 class my_MostDerived : public my_LeftBase, public my_RightBase {
     int x;
   public:
-    my_MostDerived()          { mostDerivedObjectCount = 1; }
-    ~my_MostDerived()         { mostDerivedObjectCount = 0; }
+    my_MostDerived()                        { mostDerivedObjectCount = 1; }
+    ~my_MostDerived() BSLS_KEYWORD_OVERRIDE { mostDerivedObjectCount = 0; }
 };
 
 //=============================================================================

@@ -291,7 +291,7 @@ class CheckedResource : public bslma::TestAllocator {
                     bool              verboseFlag,
                     bslma::Allocator *upstream = 0);
 
-    ~CheckedResource();
+    ~CheckedResource() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;

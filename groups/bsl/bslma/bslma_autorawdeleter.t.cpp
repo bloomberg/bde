@@ -5,6 +5,7 @@
 #include <bslma_allocator.h>   // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
@@ -510,9 +511,18 @@ class my_MallocFreeAllocator : public bslma::Allocator {
   public:
     // CREATORS
     my_MallocFreeAllocator() {}
-    ~my_MallocFreeAllocator() {}
-    void *allocate(size_type size) { return (void *) malloc(size); }
-    inline void deallocate(void *address) { free(address); }
+    ~my_MallocFreeAllocator() BSLS_KEYWORD_OVERRIDE {}
+
+    // MANIPULATORS
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE
+    {
+        return (void *) malloc(size);
+    }
+
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
+    {
+        free(address);
+    }
 };
 
 // my_string.h

@@ -15,6 +15,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
@@ -331,7 +332,7 @@ class MyDerivedObject : public MyTestObject {
     // MyDerivedObject(const MyDerivedObject& other);
     // MyDerivedObject operator=(const MyDerivedObject& rhs);
 
-    ~MyDerivedObject();
+    ~MyDerivedObject() BSLS_KEYWORD_OVERRIDE;
         // Increment the stored reference to a counter by 100, then destroy
         // this object.
 };
@@ -355,7 +356,7 @@ class MySecondDerivedObject : public MyTestObject {
     // MySecondDerivedObject(const MySecondDerivedObject& other);
     // MySecondDerivedObject operator=(const MySecondDerivedObject& rhs);
 
-    ~MySecondDerivedObject();
+    ~MySecondDerivedObject() BSLS_KEYWORD_OVERRIDE;
         // Increment the stored reference to a counter by 10000, then destroy
         // this object.
 };
@@ -379,7 +380,7 @@ class MyDerivedDerivedObject : public MyDerivedObject {
     // MyDerivedDerivedObject(const MyDerivedDerivedObject& other);
     // MyDerivedDerivedObject operator=(const MyDerivedDerivedObject& rhs);
 
-    ~MyDerivedDerivedObject();
+    ~MyDerivedDerivedObject() BSLS_KEYWORD_OVERRIDE;
         // Increment the stored reference to a counter by 1000000, then destroy
         // this object.
 };
@@ -434,7 +435,7 @@ namespace USAGE_EXAMPLES {
             // Destroy this object.
 
         // ACCESSORS
-        virtual double area() const;
+        double area() const BSLS_KEYWORD_OVERRIDE;
             // Return the area of this Circle, given by the formula pi*r*r.
     };
 
@@ -453,7 +454,7 @@ namespace USAGE_EXAMPLES {
             // Destroy this object.
 
         // ACCESSORS
-        virtual double area() const;
+        double area() const BSLS_KEYWORD_OVERRIDE;
             // Return the area of this Square, given by the formula side*side
     };
 //..
@@ -1384,9 +1385,9 @@ class CompositeInt3 : public BaseInt1, public BaseInt2 {
     {
     }
 
-    virtual int data()  const { return d_data; }
-    virtual int data1() const { return d_data * d_data; }
-    virtual int data2() const { return d_data + d_data; }
+    int data()  const BSLS_KEYWORD_OVERRIDE { return d_data;          }
+    int data1() const BSLS_KEYWORD_OVERRIDE { return d_data * d_data; }
+    int data2() const BSLS_KEYWORD_OVERRIDE { return d_data + d_data; }
 };
 
 

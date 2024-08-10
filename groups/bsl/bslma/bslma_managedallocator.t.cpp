@@ -5,6 +5,7 @@
 #include <bslma_managedallocator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -108,12 +109,21 @@ class TestAllocator : public bslma::ManagedAllocator {
 
     // CREATORS
     TestAllocator() : d_fun(0) { globalTestAllocatorDtorCalled = 0; }
-    ~TestAllocator() { globalTestAllocatorDtorCalled = 1; }
+    ~TestAllocator() BSLS_KEYWORD_OVERRIDE
+    {
+        globalTestAllocatorDtorCalled = 1;
+    }
 
     // MANIPULATORS
-    void *allocate(size_type s) { d_fun = ALLOCATE; d_arg = s; return this; }
-    void deallocate(void *)     { d_fun = DEALLOCATE; }
-    void release()              { d_fun = RELEASE;    }
+    void *allocate(size_type s) BSLS_KEYWORD_OVERRIDE
+    {
+        d_fun = ALLOCATE;
+        d_arg = s;
+        return this;
+    }
+
+    void deallocate(void *) BSLS_KEYWORD_OVERRIDE { d_fun = DEALLOCATE; }
+    void release() BSLS_KEYWORD_OVERRIDE          { d_fun = RELEASE;    }
 
     // ACCESSORS
     size_type arg() const { return d_arg; }
@@ -149,12 +159,12 @@ class LinkedListMA : public bslma::ManagedAllocator {
 
     // CREATORS
     LinkedListMA();
-    ~LinkedListMA();
+    ~LinkedListMA() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
-    void *allocate(size_type size);
-    void deallocate(void *address);
-    void release(void);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
+    void release(void) BSLS_KEYWORD_OVERRIDE;
 
     friend std::ostream& operator<<(std::ostream& stream,
                                     const LinkedListMA& allctr);

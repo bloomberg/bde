@@ -6,6 +6,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
@@ -159,7 +160,7 @@ class my_Class3Base {
 class my_Class3 : public my_Class3Base {
   public:
     my_Class3() { ++class3ObjectCount; }
-    virtual ~my_Class3();
+    ~my_Class3() BSLS_KEYWORD_OVERRIDE;
 };
 
 my_Class3Base::~my_Class3Base() { }
@@ -182,22 +183,22 @@ public:
 class my_LeftBase : virtual public my_VirtualBase {
     int x;
 public:
-    my_LeftBase()             { ++leftBaseObjectCount; }
-    virtual ~my_LeftBase()    { --leftBaseObjectCount; }
+    my_LeftBase()                        { ++leftBaseObjectCount; }
+    ~my_LeftBase() BSLS_KEYWORD_OVERRIDE { --leftBaseObjectCount; }
 };
 
 class my_RightBase : virtual public my_VirtualBase {
     int x;
 public:
-    my_RightBase()            { ++rightBaseObjectCount; }
-    virtual ~my_RightBase()   { --rightBaseObjectCount; }
+    my_RightBase()                        { ++rightBaseObjectCount; }
+    ~my_RightBase() BSLS_KEYWORD_OVERRIDE { --rightBaseObjectCount; }
 };
 
 class my_MostDerived : public my_LeftBase, public my_RightBase {
     int x;
 public:
-    my_MostDerived()          { ++mostDerivedObjectCount; }
-    ~my_MostDerived()         { --mostDerivedObjectCount; }
+    my_MostDerived()                        { ++mostDerivedObjectCount; }
+    ~my_MostDerived() BSLS_KEYWORD_OVERRIDE { --mostDerivedObjectCount; }
 };
 
 //=============================================================================
