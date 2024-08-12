@@ -123,11 +123,12 @@ BSLS_IDENT("$Id: $")
 //          // their total value is greater than their associated threshold,
 //          // accessed via the specified 'thresholdKey'.
 //
-//      virtual ~ThresholdPublisher();
+//      ~ThresholdPublisher() BSLS_KEYWORD_OVERRIDE;
 //           // Destroy this publisher.
 //
 //      // MANIPULATORS
-//      virtual void publish(const balm::MetricSample& metricValues);
+//      virtual void publish(const balm::MetricSample& metricValues)
+//                                                       BSLS_KEYWORD_OVERRIDE;
 //          // Publish the specified 'metricValues' to the console if they are
 //          // greater than their associated threshold.
 //  };

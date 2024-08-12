@@ -130,7 +130,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
+
 #include <bslmf_nestedtraitdeclaration.h>
+
+#include <bsls_keyword.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_map.h>
@@ -182,7 +185,7 @@ class TestLoader: public Loader {
         // loader will return 'ErrorCode::k_UNSUPPORTED_ID' for all time-zone
         // identifiers.
 
-    virtual ~TestLoader();
+    ~TestLoader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this 'TestLoader' object;
 
     // MANIPULATORS
@@ -202,7 +205,8 @@ class TestLoader: public Loader {
         // if an error occurs.  The behavior is undefined unless
         // 'timeZoneData' contains at least 'timeZoneDataNumBytes' bytes.
 
-    virtual int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
+    int loadTimeZone(Zoneinfo *result, const char *timeZoneId)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Load into the specified 'result' the time-zone information for the
         // time-zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of

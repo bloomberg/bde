@@ -280,6 +280,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_cstring.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -540,7 +542,7 @@ class MiniReader :  public Reader {
 
   public:
     // PUBLIC CREATORS
-    virtual ~MiniReader();
+    ~MiniReader() BSLS_KEYWORD_OVERRIDE;
 
     explicit MiniReader(bslma::Allocator *basicAllocator = 0);
     explicit MiniReader(int bufSize, bslma::Allocator *basicAllocator = 0);
@@ -557,7 +559,7 @@ class MiniReader :  public Reader {
     //------------------------------------------------
 
     // MANIPULATORS - SETUP METHODS
-    virtual void setPrefixStack(PrefixStack *prefixes);
+    void setPrefixStack(PrefixStack *prefixes) BSLS_KEYWORD_OVERRIDE;
         // Set the prefix stack to the stack at the specified 'prefixes'
         // address or disable prefix stack support if 'prefixes' == 0.  This
         // stack is used to push and pop namespace prefixes as the parse
@@ -569,7 +571,7 @@ class MiniReader :  public Reader {
         // The behavior is undefined if this method is called after calling
         // 'open' and before calling 'close'.
 
-    virtual void setResolver(XmlResolverFunctor resolver);
+    void setResolver(XmlResolverFunctor resolver) BSLS_KEYWORD_OVERRIDE;
         // Set the external XML resource resolver to the specified 'resolver'.
         // The XML resource resolver is used by the 'balxml_reader' to find and
         // open an external resources (See the 'XmlResolverFunctor' typedef for
@@ -579,7 +581,8 @@ class MiniReader :  public Reader {
         // called after calling 'open' and before calling 'close'.
 
     // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
-    virtual int open(const char *filename, const char *encoding = 0);
+    int open(const char *filename,
+             const char *encoding = 0) BSLS_KEYWORD_OVERRIDE;
         // Set up the reader for parsing using the data contained in the XML
         // file described by the specified 'filename', and set the encoding
         // value to the optionally specified 'encoding' ("ASCII", "UTF-8",
@@ -593,10 +596,10 @@ class MiniReader :  public Reader {
         // that is already open.  Note that the reader will not be on a valid
         // node until 'advanceToNextNode' is called.
 
-    virtual int open(const char  *buffer,
-                     bsl::size_t  size,
-                     const char  *url = 0,
-                     const char  *encoding = 0);
+    int open(const char  *buffer,
+             bsl::size_t  size,
+             const char  *url = 0,
+             const char  *encoding = 0) BSLS_KEYWORD_OVERRIDE;
         // Set up the reader for parsing using the data contained in the
         // specified (XML) 'buffer' of the specified 'size', set the base URL
         // to the optionally specified 'url' and set the encoding value to the
@@ -612,9 +615,9 @@ class MiniReader :  public Reader {
         // Note that the reader will not be on a valid node until
         // 'advanceToNextNode' is called.
 
-    virtual int open(bsl::streambuf *stream,
-                     const char     *url = 0,
-                     const char     *encoding = 0);
+    int open(bsl::streambuf *stream,
+             const char     *url = 0,
+             const char     *encoding = 0) BSLS_KEYWORD_OVERRIDE;
         // Set up the reader for parsing using the data contained in the
         // specified (XML) 'stream', set the base URL to the optionally
         // specified 'url' and set the encoding value to the optionally
@@ -630,7 +633,7 @@ class MiniReader :  public Reader {
         // Note that the reader will not be on a valid node until
         // 'advanceToNextNode' is called.
 
-    virtual void close();
+    void close() BSLS_KEYWORD_OVERRIDE;
         // Close the reader.  Most, but not all state is reset.  Specifically,
         // the XML resource resolver and the prefix stack remain.  The prefix
         // stack shall be returned to the stack depth it had when
@@ -694,7 +697,7 @@ class MiniReader :  public Reader {
         // reader further (first call 'advanceToNextNode' before calling the
         // 'advanceToEndNodeRawBare' function again).
 
-    virtual int advanceToNextNode();
+    int advanceToNextNode() BSLS_KEYWORD_OVERRIDE;
         // Move to the next node in the data steam created by 'open' thus
         // allowing the node's properties to be queried via the 'Reader'
         // accessors.  Return 0 on successful read, 1 if there are no more
@@ -706,7 +709,8 @@ class MiniReader :  public Reader {
         // not be on a valid node until the first call to 'advanceToNextNode'
         // after the reader is opened.
 
-    virtual int lookupAttribute(ElementAttribute *attribute, int index) const;
+    int lookupAttribute(ElementAttribute *attribute,
+                        int               index) const BSLS_KEYWORD_OVERRIDE;
         // Find the attribute at the specified 'index' in the current node, and
         // fill in the specified 'attribute' structure.  Return 0 on success, 1
         // if no attribute is found at the 'index', and an a negative value
@@ -714,8 +718,8 @@ class MiniReader :  public Reader {
         // structure are invalid upon the next 'advanceToNextNode' or 'close'
         // is called.
 
-    virtual int lookupAttribute(ElementAttribute *attribute,
-                                const char       *qname) const;
+    int lookupAttribute(ElementAttribute *attribute,
+                        const char       *qname) const BSLS_KEYWORD_OVERRIDE;
         // Find the attribute with the specified 'qname' (qualified name) in
         // the current node, and fill in the specified 'attribute' structure.
         // Return 0 on success, 1 if there is no attribute found with 'qname',
@@ -723,9 +727,10 @@ class MiniReader :  public Reader {
         // the 'attribute' structure are invalid upon the next
         // 'advanceToNextNode' or 'close' is called.
 
-    virtual int lookupAttribute(ElementAttribute *attribute,
-                                const char       *localName,
-                                const char       *namespaceUri) const;
+    int lookupAttribute(ElementAttribute *attribute,
+                        const char       *localName,
+                        const char       *namespaceUri) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Find the attribute with the specified 'localName' and specified
         // 'namespaceUri' in the current node, and fill in the specified
         // 'attribute' structure.  Return 0 on success, 1 if there is no
@@ -735,9 +740,10 @@ class MiniReader :  public Reader {
         // strings that were filled into the 'attribute' structure are invalid
         // upon the next 'advanceToNextNode' or 'close' is called.
 
-    virtual int lookupAttribute(ElementAttribute *attribute,
-                                const char       *localName,
-                                int               namespaceId) const;
+    int lookupAttribute(ElementAttribute *attribute,
+                        const char       *localName,
+                        int               namespaceId) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Find the attribute with the specified 'localName' and specified
         // 'namespaceId' in the current node, and fill in the specified
         // 'attribute' structure.  Return 0 on success, 1 if there is no
@@ -747,32 +753,32 @@ class MiniReader :  public Reader {
         // the 'attribute' structure are invalid upon the next
         // 'advanceToNextNode' or 'close' is called.
 
-    virtual void setOptions(unsigned int flags);
+    void setOptions(unsigned int flags) BSLS_KEYWORD_OVERRIDE;
         // Set the options to the flags in the specified 'flags'.  The options
         // for the reader are persistent, i.e., the options are not reset by
         // 'close'.  The behavior is undefined if this method is called after
         // calling 'open' and before calling 'close'.
 
     // ACCESSORS
-    virtual const char *documentEncoding() const;
+    const char *documentEncoding() const BSLS_KEYWORD_OVERRIDE;
         // Return the document encoding or NULL on error.  The returned pointer
         // is owned by this object and must not be modified or deallocated by
         // the caller.  The returned pointer becomes invalid when 'close' is
         // called or the reader is destroyed.
 
-    virtual XmlResolverFunctor resolver() const;
+    XmlResolverFunctor resolver() const BSLS_KEYWORD_OVERRIDE;
         // Return the external XML resource resolver.
 
-    virtual bool isOpen() const;
+    bool isOpen() const BSLS_KEYWORD_OVERRIDE;
         // Return true if 'open' was called successfully and 'close' has not
         // yet been called and false otherwise.
 
-    virtual const ErrorInfo& errorInfo() const;
+    const ErrorInfo& errorInfo() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference to the non-modifiable error information for this
         // reader.  The returned value becomes invalid when 'close' is called
         // or the reader is destroyed.
 
-    virtual int getLineNumber() const;
+    int getLineNumber() const BSLS_KEYWORD_OVERRIDE;
         // Return the current line number within the input stream.  The current
         // line is the last line for which the reader has not yet seen a
         // newline.  Lines are counted starting at one from the time a stream
@@ -780,7 +786,7 @@ class MiniReader :  public Reader {
         // derived-class implementation is not required to count lines and may
         // just return 0.
 
-    virtual int getColumnNumber() const;
+    int getColumnNumber() const BSLS_KEYWORD_OVERRIDE;
         // Return the current column number within the input stream.  The
         // current column number is the number of characters since the last
         // newline was read by the reader plus one, i.e., the first column of
@@ -788,18 +794,18 @@ class MiniReader :  public Reader {
         // that a derived-class implementation is not required to count
         // columns and may just return 0.
 
-    virtual PrefixStack *prefixStack() const;
+    PrefixStack *prefixStack() const BSLS_KEYWORD_OVERRIDE;
         // Return a pointer to the modifiable prefix stack that is used by this
         // reader to manage namespace prefixes or 0 if namespace support is
         // disabled.  The behavior is undefined if the returned prefix stack is
         // augmented in any way after calling 'open' and before calling
         // 'close'.
 
-    virtual NodeType nodeType() const;
+    NodeType nodeType() const BSLS_KEYWORD_OVERRIDE;
         // Return the node type of the current node if the reader 'isOpen' and
         // has not encounter an error and 'Reader::NONE' otherwise.
 
-    virtual const char *nodeName() const;
+    const char *nodeName() const BSLS_KEYWORD_OVERRIDE;
         // Return the qualified name of the current node if the current node
         // has a name and NULL otherwise.  The returned pointer is owned by
         // this object and must not be modified or deallocated by the caller.
@@ -807,7 +813,7 @@ class MiniReader :  public Reader {
         // 'advanceToNextNode', when 'close' is called or the reader is
         // destroyed.
 
-    virtual const char *nodeLocalName() const;
+    const char *nodeLocalName() const BSLS_KEYWORD_OVERRIDE;
         // Return the local name of the current node if the current node has a
         // local name and NULL otherwise.  The returned pointer is owned by
         // this object and must not be modified or deallocated by the caller.
@@ -815,7 +821,7 @@ class MiniReader :  public Reader {
         // 'advanceToNextNode', when 'close' is called or the reader is
         // destroyed.
 
-    virtual const char *nodePrefix() const;
+    const char *nodePrefix() const BSLS_KEYWORD_OVERRIDE;
         // Return the prefix name of the current node if the correct node has a
         // prefix name and NULL otherwise.  The returned pointer is owned by
         // this object and must not be modified or deallocated by the caller.
@@ -823,11 +829,11 @@ class MiniReader :  public Reader {
         // 'advanceToNextNode', when 'close' is called or the reader is
         // destroyed.
 
-    virtual int nodeNamespaceId() const;
+    int nodeNamespaceId() const BSLS_KEYWORD_OVERRIDE;
         // Return the namespace ID of the current node if the current node has
         // a namespace id and a negative number otherwise.
 
-    virtual const char *nodeNamespaceUri() const;
+    const char *nodeNamespaceUri() const BSLS_KEYWORD_OVERRIDE;
         // Return the namespace URI name of the current node if the current
         // node has a namespace URI and NULL otherwise.  The returned pointer
         // is owned by this object and must not be modified or deallocated by
@@ -835,7 +841,7 @@ class MiniReader :  public Reader {
         // 'advanceToNextNode', when 'close' is called or the reader is
         // destroyed.
 
-    virtual const char *nodeBaseUri() const;
+    const char *nodeBaseUri() const BSLS_KEYWORD_OVERRIDE;
         // Return the base URI name of the current node if the current node has
         // a base URI and NULL otherwise.  The returned pointer is owned by
         // this object and must not be modified or deallocated by the caller.
@@ -843,30 +849,30 @@ class MiniReader :  public Reader {
         // 'advanceToNextNode', when 'close' is called or the reader is
         // destroyed.
 
-    virtual bool nodeHasValue() const;
+    bool nodeHasValue() const BSLS_KEYWORD_OVERRIDE;
         // Return true if the current node has a value and false otherwise.
 
-    virtual const char *nodeValue() const;
+    const char *nodeValue() const BSLS_KEYWORD_OVERRIDE;
         // Return the value of the current node if the current node has a value
         // and NULL otherwise.  The returned pointer is owned by this object
         // and must not be modified or deallocated by the caller.  The returned
         // pointer becomes invalid upon the next 'advanceToNextNode', when
         // 'close' is called or the reader is destroyed.
 
-    virtual int nodeDepth() const;
+    int nodeDepth() const BSLS_KEYWORD_OVERRIDE;
         // Return the nesting depth of the current node in the XML document.
         // The root node has depth 0.
 
-    virtual int numAttributes() const;
+    int numAttributes() const BSLS_KEYWORD_OVERRIDE;
         // Return the number of attributes for the current node if that node
         // has attributes and 0 otherwise.
 
-    virtual bool isEmptyElement() const;
+    bool isEmptyElement() const BSLS_KEYWORD_OVERRIDE;
         // Return true if the current node is an element (i.e., node type is
         // 'NODE_TYPE_ELEMENT') that ends with '/>'; and false otherwise.
         // Note that '<a/>' will be considered empty but '<a></a>' will not.
 
-    virtual unsigned int options() const;
+    unsigned int options() const BSLS_KEYWORD_OVERRIDE;
         // Return the option flags.
 
     // ACCESSORS

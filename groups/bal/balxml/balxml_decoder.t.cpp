@@ -76,26 +76,35 @@
 #include <bdlb_printmethods.h>
 #include <bdlb_string.h>
 #include <bdlb_variant.h>
+
 #include <bdlde_utf8util.h>
+
 #include <bdldfp_decimal.h>
+
 #include <bdls_filesystemutil.h>
 #include <bdls_osutil.h>
 #include <bdls_processutil.h>
+
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bdlt_datetimetz.h>
 
 #include <bslim_testutil.h>
 
 #include <bsla_fallthrough.h>
+
 #include <bslalg_typetraits.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
 #include <bsls_buildtarget.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
@@ -1729,36 +1738,36 @@ class TestContext : public balxml::Decoder_ElementContext {
                 bslma::Allocator *basicAllocator = 0);
         // TBD: doc
 
-    virtual ~TestContext();
+    ~TestContext() BSLS_KEYWORD_OVERRIDE;
         // TBD: doc
 
     // CALLBACKS
-    virtual int startElement(balxml::Decoder *decoder);
+    int startElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
         // Behavior is undefined if a previous successful call to
         // 'startElement' was not ended with a successful call to 'endElement'.
 
-    virtual int endElement(balxml::Decoder *decoder);
+    int endElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
         // Behavior is undefined unless the most recent call to 'startElement'
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
 
-    virtual int addCharacters(const char      *chars,
-                              size_t           length,
-                              balxml::Decoder *decoder);
+    int addCharacters(const char      *chars,
+                      size_t           length,
+                      balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
         // TBD: doc
         //
         // Behavior is undefined unless the most recent call to 'startElement'
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
 
-    virtual int parseAttribute(const char      *name,
-                               const char      *value,
-                               size_t           lenValue,
-                               balxml::Decoder *decoder);
+    int parseAttribute(const char      *name,
+                       const char      *value,
+                       size_t           lenValue,
+                       balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
         // TBD: doc
 
-    virtual int parseSubElement(const char      *elementName,
-                                balxml::Decoder *decoder);
+    int parseSubElement(const char      *elementName,
+                        balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
         // TBD: doc
         //
         // Behavior is undefined unless the most recent call to 'startElement'
@@ -1908,7 +1917,7 @@ class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
                               bslma::Allocator   *basicAllocator = 0);
         // TBD: doc
 
-    virtual ~TestVectorElemTypeContext();
+    ~TestVectorElemTypeContext() BSLS_KEYWORD_OVERRIDE;
         // TBD: doc
 
     // MANIPULATORS
@@ -1916,26 +1925,26 @@ class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
         // Reassociate this context with the specified 'object'.
 
     // CALLBACKS
-    virtual int startElement(balxml::Decoder *decoder);
+    int startElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
         // Behavior is undefined if a previous successful call to
         // 'startElement' was not ended with a successful call to 'endElement'.
 
-    virtual int endElement(balxml::Decoder *decoder);
+    int endElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
         // Behavior is undefined unless the most recent call to 'startElement'
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
 
-    virtual int addCharacters(const char      *chars,
-                              size_t           length,
-                              balxml::Decoder *decoder);
+    int addCharacters(const char      *chars,
+                      size_t           length,
+                      balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char      *name,
-                               const char      *value,
-                               size_t           lenValue,
-                               balxml::Decoder *decoder);
+    int parseAttribute(const char      *name,
+                       const char      *value,
+                       size_t           lenValue,
+                       balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char      *elementName,
-                                balxml::Decoder *decoder);
+    int parseSubElement(const char      *elementName,
+                        balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
         // TBD: doc
         //
         // Behavior is undefined unless the most recent call to 'startElement'

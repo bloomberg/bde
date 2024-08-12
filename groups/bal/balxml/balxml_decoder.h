@@ -277,6 +277,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_conditional.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_review.h>
 
@@ -375,7 +376,7 @@ class Decoder {
             // Create a new stream using the optionally specified
             // 'basicAllocator'.
 
-        virtual ~MemOutStream();
+        ~MemOutStream() BSLS_KEYWORD_OVERRIDE;
             // Destroy this stream and release memory back to the allocator.
 
         // MANIPULATORS
@@ -917,20 +918,21 @@ class Decoder_ChoiceContext :  public Decoder_ElementContext {
     //  ~Decoder_ChoiceContext();
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                        // =============================
@@ -957,23 +959,24 @@ class Decoder_NillableContext : public Decoder_ElementContext {
     // CREATORS
     Decoder_NillableContext();
 
-    ~Decoder_NillableContext();
+    ~Decoder_NillableContext() BSLS_KEYWORD_OVERRIDE;
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
     void setElementContext(Decoder_ElementContext *elementContext);
@@ -1018,20 +1021,21 @@ class Decoder_PushParserContext : public Decoder_ElementContext {
     //  ~Decoder_PushParserContext();
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                     // ===================================
@@ -1060,20 +1064,21 @@ class Decoder_SequenceContext : public Decoder_ElementContext {
     //  ~Decoder_SequenceContext();
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                      // =================================
@@ -1103,20 +1108,21 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
     //  ~Decoder_SimpleContext();
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                    // =====================================
@@ -1152,20 +1158,21 @@ class Decoder_CustomizedContext : public Decoder_ElementContext {
     //  ~Decoder_CustomizedContext();
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                     // ===================================
@@ -1192,20 +1199,21 @@ class Decoder_UnknownElementContext : public Decoder_ElementContext {
     //  ~Decoder_UnknownElementContext();
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                          // =========================
@@ -1233,20 +1241,21 @@ class Decoder_UTF8Context : public Decoder_ElementContext {
     //  ~Decoder_UTF8Context();
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                        // ==============================
@@ -1289,23 +1298,24 @@ class Decoder_StdStringContext : public Decoder_ElementContext {
     // CREATORS
     Decoder_StdStringContext(bsl::string *object, int formattingMode);
 
-    virtual ~Decoder_StdStringContext();
+    ~Decoder_StdStringContext() BSLS_KEYWORD_OVERRIDE;
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                      // ==================================
@@ -1356,23 +1366,24 @@ class Decoder_StdVectorCharContext : public Decoder_ElementContext {
     Decoder_StdVectorCharContext(bsl::vector<char> *object,
                                  int                formattingMode);
 
-    virtual ~Decoder_StdVectorCharContext();
+    ~Decoder_StdVectorCharContext() BSLS_KEYWORD_OVERRIDE;
 
     // CALLBACKS
-    virtual int startElement(Decoder *decoder);
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int endElement(Decoder *decoder);
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int addCharacters(const char   *chars,
-                              bsl::size_t   length,
-                              Decoder      *decoder);
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseAttribute(const char  *name,
-                               const char  *value,
-                               bsl::size_t  lenValue,
-                               Decoder     *decoder);
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
 
-    virtual int parseSubElement(const char *elementName, Decoder *decoder);
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 };
 
                     // ====================================

@@ -154,13 +154,13 @@ class BdlmMetricsAdapter : public bdlm::MetricsAdapter {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    ~BdlmMetricsAdapter();
+    ~BdlmMetricsAdapter() BSLS_KEYWORD_OVERRIDE;
         // Destroy this 'BdlmMetricsAdapter' object.
 
     // MANIPULATORS
     CallbackHandle registerCollectionCallback(
-                                const bdlm::MetricDescriptor& metricDescriptor,
-                                const Callback&               callback);
+                 const bdlm::MetricDescriptor& metricDescriptor,
+                 const Callback&               callback) BSLS_KEYWORD_OVERRIDE;
         // Register the specified 'callback' with the metrics manager specified
         // at construction, using the specified 'metricDescriptor'.  If
         // 'metricDescriptor.metricsNamspace()' equals
@@ -177,7 +177,8 @@ class BdlmMetricsAdapter : public bdlm::MetricsAdapter {
         // a period, and the object identifier attribute.  Return the callback
         // handle to be used with 'removeCollectionCallback'.
 
-    int removeCollectionCallback(const CallbackHandle& handle);
+    int removeCollectionCallback(const CallbackHandle& handle)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Remove the callback associated with the specified 'handle' from the
         // metrics manager specified at construction.  Return 0 on success, or
         // a non-zero value if 'handle' cannot be found.

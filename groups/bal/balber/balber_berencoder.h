@@ -180,6 +180,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 
 #include <bsl_ostream.h>
@@ -231,7 +232,7 @@ class BerEncoder {
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
-        virtual ~MemOutStream();
+        ~MemOutStream() BSLS_KEYWORD_OVERRIDE;
             // Destroy this stream and release memory back to the allocator.
             //
             // Although the compiler should generate this destructor

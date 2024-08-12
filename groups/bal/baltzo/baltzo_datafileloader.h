@@ -199,6 +199,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
@@ -256,7 +257,7 @@ class DataFileLoader : public Loader {
         // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
         // supply memory; otherwise, the default allocator is used.
 
-    virtual ~DataFileLoader();
+    ~DataFileLoader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this data-file loader.
 
     // MANIPULATORS
@@ -273,7 +274,8 @@ class DataFileLoader : public Loader {
         // contain valid Zoneinfo data, as determined by calling
         // 'isPlausibleZoneinfoRootPath' on 'path'.
 
-    virtual int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
+    int loadTimeZone(Zoneinfo *result, const char *timeZoneId)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Load into the specified 'result' the time-zone information for the
         // time zone identified by the specified 'timeZoneId'.  The 'result'
         // will have a sentinel transition at 01-01-001, meeting the first two

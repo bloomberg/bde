@@ -7,8 +7,11 @@
 #include <bdlt_currenttime.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>      // for testing only
 
 #include <bsl_cstdlib.h>
@@ -76,7 +79,7 @@ static void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
-    void publish(const balm::MetricSample&)  { markDone(); }
+    void publish(const balm::MetricSample&) BSLS_KEYWORD_OVERRIDE {markDone();}
 };
 
 // ============================================================================
@@ -107,11 +110,12 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
             // Create this publisher that will publish metrics to the specified
             // 'stream'.
 
-        virtual ~SimpleStreamPublisher();
+        ~SimpleStreamPublisher() BSLS_KEYWORD_OVERRIDE;
              // Destroy this publisher.
 
         // MANIPULATORS
-        virtual void publish(const balm::MetricSample& metricValues);
+        void publish(const balm::MetricSample& metricValues)
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Publish the specified 'metricValues'.  This implementation will
             // write the 'metricValues' to the output stream specified on
             // construction.

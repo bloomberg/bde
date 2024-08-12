@@ -5,18 +5,24 @@
 #include <balm_publisher.h>
 
 #include <bdlf_bind.h>
+
 #include <bdlmt_fixedthreadpool.h>
+
 #include <bdlt_dateutil.h>
 #include <bdlt_currenttime.h>
 
 #include <bsla_maybeunused.h>
+
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
 #include <bslmt_barrier.h>
+
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
@@ -528,7 +534,7 @@ class LockingPublisher : public balm::Publisher {
     {}
 
     // MANIPULATORS
-    virtual void publish(const balm::MetricSample&);
+    void publish(const balm::MetricSample&) BSLS_KEYWORD_OVERRIDE;
        // Lock and unlock the mutex specified at construction.
 };
 
@@ -587,11 +593,11 @@ class TestPublisher : public balm::Publisher {
         // constructed 'lastSample()' using the specified 'allocator' to
         // supply memory.
 
-    virtual ~TestPublisher();
+    ~TestPublisher() BSLS_KEYWORD_OVERRIDE;
         // Destroy this test publisher.
 
     // MANIPULATORS
-    virtual void publish(const balm::MetricSample& sample);
+    void publish(const balm::MetricSample& sample) BSLS_KEYWORD_OVERRIDE;
         // Increment the number of 'invocations()', set the 'lastTimeStamp()'
         // to 'sampleTimeStamp()', set 'lastRecords()' to be the records
         // referred to by 'sample' in *sorted* order, set 'lastElapsedTimes()'
@@ -1219,11 +1225,12 @@ void ConcurrencyTest::runTest()
             // 'stream' using the specified 'registry' to identify published
             // metrics.
 
-        virtual ~SimpleStreamPublisher();
+        ~SimpleStreamPublisher() BSLS_KEYWORD_OVERRIDE;
              // Destroy this publisher.
 
         // MANIPULATORS
-        virtual void publish(const balm::MetricSample& metricValues);
+        void publish(const balm::MetricSample& metricValues)
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Publish the specified 'metricValues'.  This implementation will
             // write the 'metricValues' to the output stream specified on
             // construction.
