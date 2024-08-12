@@ -77,6 +77,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlt_date.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 namespace bbldc {
 
@@ -92,24 +94,25 @@ class BasicDateRangeDayCountAdapter : public DateRangeDayCount {
 
   public:
     // ACCESSORS
-    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const;
+    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return the (signed) number of days between the specified 'beginDate'
         // and 'endDate' as per the 'CONVENTION' template policy.  If
         // 'beginDate <= endDate', then the result is non-negative.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
 
-    const bdlt::Date& firstDate() const;
+    const bdlt::Date& firstDate() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference providing non-modifiable access to a 'bdlt::Date'
         // with the value 1/1/1.  Note that this value is the earliest date in
         // the valid range of the adapted day-count convention.
 
-    const bdlt::Date& lastDate() const;
+    const bdlt::Date& lastDate() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference providing non-modifiable access to a 'bdlt::Date'
         // with the value 9999/12/31.  Note that this value is the latest date
         // in the valid range of the adapted day-count convention.
 
     double yearsDiff(const bdlt::Date& beginDate,
-                     const bdlt::Date& endDate) const;
+                     const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate' as per the 'CONVENTION' template policy.
         // If 'beginDate <= endDate', then the result is non-negative.  Note
