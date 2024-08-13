@@ -4,6 +4,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>
@@ -165,11 +166,11 @@ class Poly {
 };
 
 class DerivedFromPoly : public Poly {
-    ~DerivedFromPoly();
+    ~DerivedFromPoly() BSLS_KEYWORD_OVERRIDE;
 };
 
 class DerivedFromPolyThrowSpec : public Poly {
-    ~DerivedFromPolyThrowSpec() EXCEPTION_SPECIFICATION;
+    ~DerivedFromPolyThrowSpec() EXCEPTION_SPECIFICATION BSLS_KEYWORD_OVERRIDE;
 };
 
 class PolyThrowSpec {
@@ -177,7 +178,7 @@ class PolyThrowSpec {
 };
 
 class DerivedFromPolyThrowSpec2 : public PolyThrowSpec {
-    ~DerivedFromPolyThrowSpec2() EXCEPTION_SPECIFICATION;
+    ~DerivedFromPolyThrowSpec2() EXCEPTION_SPECIFICATION BSLS_KEYWORD_OVERRIDE;
 };
 
 class Base1 : public virtual Base {
@@ -194,23 +195,23 @@ class PolyVirtuallyDerived : public Base1, public Base2 {
 };
 
 class Poly1 : public virtual Poly {
-    ~Poly1();
+    ~Poly1() BSLS_KEYWORD_OVERRIDE;
 };
 
 class Poly2 : public virtual Poly {
-    ~Poly2();
+    ~Poly2() BSLS_KEYWORD_OVERRIDE;
 };
 
 class VirtuallyDerivedFromPoly : public Poly1, public Poly2 {
-    ~VirtuallyDerivedFromPoly();
+    ~VirtuallyDerivedFromPoly() BSLS_KEYWORD_OVERRIDE;
 };
 
 class VirtuallyDerivedMixed1 : public Base1, public Poly2 {
-    ~VirtuallyDerivedMixed1();
+    ~VirtuallyDerivedMixed1() BSLS_KEYWORD_OVERRIDE;
 };
 
 class VirtuallyDerivedMixed2 : public Poly1, public Base2 {
-    ~VirtuallyDerivedMixed2();
+    ~VirtuallyDerivedMixed2() BSLS_KEYWORD_OVERRIDE;
 };
 
 
@@ -257,7 +258,7 @@ class MyClass {
 class MyDerivedClass : public MyClass {
   public:
     MyDerivedClass();
-    virtual ~MyDerivedClass();
+    ~MyDerivedClass() BSLS_KEYWORD_OVERRIDE;
 };
 //..
 
