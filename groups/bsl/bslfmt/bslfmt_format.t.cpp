@@ -283,15 +283,28 @@ struct formatter<FormattableType, char> {
 #if 1
 template <class t_CHAR>
 struct formatter<FormattableType, t_CHAR> {
+  private:
     bsl::formatter<int, t_CHAR> d_formatter_bsl;
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
     std::formatter<int, t_CHAR> d_formatter_std;
 #endif
 
-    BSLS_KEYWORD_CONSTEXPR_CPP20
+  private:
+    // PRIVATE CLASS TYPES
+    typedef bslfmt::FormatterSpecificationStandard<t_CHAR> FSS;
+
+    // DATA
+    FSS d_spec;
+
+  public:
+
+
         typename bslfmt::basic_format_parse_context<t_CHAR>::iterator
+        BSLS_KEYWORD_CONSTEXPR_CPP20
         parse(bslfmt::basic_format_parse_context<t_CHAR>& pc)
     {
+        FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
+
         return d_formatter_bsl.parse(pc);
     }
 
@@ -299,6 +312,16 @@ struct formatter<FormattableType, t_CHAR> {
     t_OUT format(const FormattableType&             value,
                  bslfmt::basic_format_context<t_OUT, t_CHAR>& fc) const
     {
+        FSS final_spec(d_spec);
+
+        FSS::postprocess(&final_spec, fc);
+
+        typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
+
+        FSNVAlue finalWidth(final_spec.adjustedWidth());
+
+        FSNVAlue finalPrecision(final_spec.adjustedPrecision());
+
         const char name[] = "FormattableType";
         t_OUT out = fc.out();
         out  = std::copy(name, name + strlen(name), out);
@@ -312,10 +335,13 @@ struct formatter<FormattableType, t_CHAR> {
     }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    BSLS_KEYWORD_CONSTEXPR_CPP20
+
         typename std::basic_format_parse_context<t_CHAR>::iterator
+        BSLS_KEYWORD_CONSTEXPR_CPP20
         parse(std::basic_format_parse_context<t_CHAR>& pc)
     {
+        FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
+
         return d_formatter_std.parse(pc);
     }
 
@@ -323,6 +349,16 @@ struct formatter<FormattableType, t_CHAR> {
     t_OUT format(const FormattableType&             value,
                  std::basic_format_context<t_OUT, t_CHAR>& fc) const
     {
+        FSS final_spec(d_spec);
+
+        FSS::postprocess(&final_spec, fc);
+
+        typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
+
+        FSNVAlue finalWidth(final_spec.adjustedWidth());
+
+        FSNVAlue finalPrecision(final_spec.adjustedPrecision());
+
         const char name[] = "FormattableType";
         t_OUT      out    = fc.out();
         out               = std::copy(name, name + strlen(name), out);
@@ -442,11 +478,17 @@ int main(int argc, char **argv)
 
             FormattableType ft;
             ft.x = 37;
-            check(bsl::format("The value of {1} is {0}", ft.x, ft),
-                "The value of FormattableType{37} is 37");
-            check(bsl::vformat("The value of {1} is {0}",
-                                bsl::make_format_args(ft.x, ft)),
-                "The value of FormattableType{37} is 37");
+            //check(bslfmt::format("The value of {1:{0}} is {0}", ft.x, ft),
+            //    "The value of FormattableType{37} is 37");
+            //check(bslfmt::vformat("The value of {1:{0}} is {0}",
+            //                    bslfmt::make_format_args(ft.x, ft)),
+            //    "The value of FormattableType{37} is 37");
+
+            check(std::format("The value of {1:{0}} is {0}", ft.x, ft),
+                  "The value of FormattableType{37} is 37");
+            check(std::vformat("The value of {1:{0}} is {0}",
+                               bsl::make_format_args(ft.x, ft)),
+                  "The value of FormattableType{37} is 37");
         }
         { // simple test of format with wchar_t
             const bsl::wstring  intro = L"Here is a simple equation";

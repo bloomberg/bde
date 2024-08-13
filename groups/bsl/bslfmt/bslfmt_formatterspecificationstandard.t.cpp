@@ -100,8 +100,8 @@ void checkStandard(
 
     const char *start = inputSpecification;
     const char *end   = start + strlen(start);
-    int rv = FormatterSpecificationStandard<char>::parse(&fs, &pc, category);
-    ASSERT(0 == rv);
+    FormatterSpecificationStandard<char>::parse(&fs, &pc, category);
+
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
                                                   fs.fillerCharacters()));
     ASSERT(alignment == fs.alignment());
@@ -133,10 +133,10 @@ void checkStandard(
 
     const wchar_t *start = inputSpecification;
     const wchar_t *end   = start + wcslen(start);
-    int rv = FormatterSpecificationStandard<wchar_t>::parse(&fs,
+    FormatterSpecificationStandard<wchar_t>::parse(&fs,
                                                             &pc,
                                                             category);
-    ASSERT(0 == rv);
+
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
                                                      fs.fillerCharacters()));
     ASSERT(alignment == fs.alignment());

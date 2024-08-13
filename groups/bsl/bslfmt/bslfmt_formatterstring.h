@@ -136,14 +136,16 @@ struct Formatter_StringBase {
                                        bsl::basic_string_view<t_CHAR> v,
                                        t_FORMAT_CONTEXT&              fc) const
     {
+        FSS final_spec(d_spec);
+
+        FSS::postprocess(&final_spec, fc);
+
         typedef FormatterSpecification_NumericValue FSNVAlue;
         bsl::basic_string_view<t_CHAR> sv(v);
 
-        FSNVAlue finalWidth(d_spec.adjustedWidth());
-        FSNVAlue::finalize(&finalWidth, fc);
+        FSNVAlue finalWidth(final_spec.adjustedWidth());
 
-        FSNVAlue finalPrecision(d_spec.adjustedPrecision());
-        FSNVAlue::finalize(&finalPrecision, fc);
+        FSNVAlue finalPrecision(final_spec.adjustedPrecision());
 
         int displayWidthUsedByInputString      = 0;
         int charactersOfInputUsed = sv.size();
@@ -189,17 +191,17 @@ struct Formatter_StringBase {
           case FSS::e_ALIGN_LEFT: {
             leftPadFillerCopies = 0;
             rightPadFillerCopies = totalPadDisplayWidth /
-                                   d_spec.fillerCodePointDisplayWidth();
+                                   final_spec.fillerCodePointDisplayWidth();
           } break;
           case FSS::e_ALIGN_MIDDLE: {
             leftPadFillerCopies = (totalPadDisplayWidth / 2) /
-                                  d_spec.fillerCodePointDisplayWidth();
+                                  final_spec.fillerCodePointDisplayWidth();
             rightPadFillerCopies = ((totalPadDisplayWidth + 1) / 2) /
-                                   d_spec.fillerCodePointDisplayWidth();
+                                   final_spec.fillerCodePointDisplayWidth();
           } break;
           case FSS::e_ALIGN_RIGHT: {
             leftPadFillerCopies = totalPadDisplayWidth /
-                                  d_spec.fillerCodePointDisplayWidth();
+                                  final_spec.fillerCodePointDisplayWidth();
             rightPadFillerCopies = 0;
           } break;
           default: {

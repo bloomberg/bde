@@ -31,6 +31,10 @@
 namespace BloombergLP {
 namespace bslfmt {
 
+                        // ----------------------------
+                        // class Formatter_UnicodeUtils
+                        // ----------------------------
+
 struct Formatter_UnicodeUtils {
   public:
     // PUBLIC TYPES
@@ -120,6 +124,12 @@ struct Formatter_UnicodeUtils {
                                                         UtfEncoding  encoding,
                                                         const void  *bytes,
                                                         int          maxBytes);
+
+
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 int codepointBytesIfValid(
+                                                         const char firstChar);
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 int codepointBytesIfValid(
+                                                      const wchar_t firstChar);
 };
 
 template <class t_CHAR>
@@ -196,6 +206,54 @@ struct Formatter_CharUtils<wchar_t> {
         return out;
     }
 };
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                        // ----------------------------
+                        // class Formatter_UnicodeUtils
+                        // ----------------------------
+
+BSLS_KEYWORD_CONSTEXPR_CPP20 int Formatter_UnicodeUtils::codepointBytesIfValid(
+                                                          const char firstChar)
+{
+    unsigned char c = static_cast<unsigned char>(firstChar);
+    if ((c & 0x80) == 0x00)
+        return 1;
+    else if ((c & 0xe0) == 0xc0)
+        return 2;
+    else if ((c & 0xf0) == 0xe0)
+        return 3;
+    else if ((c & 0xf8) == 0xf0)
+        return 4;
+    else
+        return -1;
+}
+
+BSLS_KEYWORD_CONSTEXPR_CPP20 int Formatter_UnicodeUtils::codepointBytesIfValid(
+                                                      const wchar_t firstChar)
+{
+    switch (sizeof(wchar_t)) {
+      case 2: { // UTF-16
+        if (firstChar < 0xd800)
+            return 2;
+        else if (firstChar < 0xdc00)
+            return 4;
+        else
+            return -1;
+      } break;
+      case 4: { // UTF-32
+        if (firstChar < 0x80000000)
+            return 4;
+        else
+            return -1;
+      } break;
+      default: {
+        return -1; // unsuported wchar_t size.
+      } break;
+    }
+}
 
 }  // close namespace bslfmt
 }  // close enterprise namespace

@@ -101,8 +101,9 @@ void checkStandard(
 
     const char *start = inputSpecification;
     const char *end   = start + strlen(start);
-    int         rv    = FSC::parse(&fs, &start, end, sect);
-    ASSERT(0 == rv);
+
+    FSC::parse(&fs, &start, end, sect);
+
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
                                                   fs.fillerCharacters()));
     ASSERT(alignment == fs.alignment());
@@ -139,8 +140,9 @@ void checkStandard(
 
     const wchar_t *start = inputSpecification;
     const wchar_t *end   = start + wcslen(start);
-    int            rv    = FSW::parse(&fs, &start, end, sect);
-    ASSERT(0 == rv);
+
+    FSW::parse(&fs, &start, end, sect);
+
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
                                                      fs.fillerCharacters()));
     ASSERT(alignment == fs.alignment());

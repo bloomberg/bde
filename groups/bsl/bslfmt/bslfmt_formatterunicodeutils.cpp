@@ -55,11 +55,10 @@ enum {
                                                     // or not.
 
     k_UTF16_SURROGATE_MASK_TESTONE = 0xfffffC00U,  // Mask for testing if
-    // somethign is a high or low
+    // something is a high or low
     // surrogate.
 
     k_MIN_UTF16_SURROGATE = 0xd800,  // min surrogate value
-
 };
 
 static inline

@@ -43,7 +43,7 @@ struct Formatter_IntegerBase {
                                                            t_PARSE_CONTEXT& pc)
     {
         if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bsl::format_error("not implemented"));
+            //BSLS_THROW(bsl::format_error("not implemented"));
         }
         return pc.begin();
     }

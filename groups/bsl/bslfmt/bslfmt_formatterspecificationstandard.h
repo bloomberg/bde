@@ -128,26 +128,34 @@ class FormatterSpecificationStandard
     typedef FormatterSpecification_Splitter<t_CHAR> FSS;
     
     // DATA
-    FSS        d_basicSplitter;
-    FormatType d_formatType;
-    int        d_widthArgId;
-    int        d_precisionArgId;
+    ParsingStatus d_parsingStatus;
+    FSS           d_basicSplitter;
+    FormatType    d_formatType;
+    int           d_widthArgId;
+    int           d_precisionArgId;
+    std::string   d_dummy;
 
     // PRIVATE CLASS FUNCTIONS
-    static int parseType(FormatterSpecificationStandard        *outSpec,
-                         const bsl::basic_string_view<t_CHAR>&  typeString,
-                         Category                               category);
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
+                             FormatterSpecificationStandard        *outSpec,
+                             const bsl::basic_string_view<t_CHAR>&  typeString,
+                             Category                               category);
 
   public:
 
     // CREATORS
-    FormatterSpecificationStandard();
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard();
 
     // CLASS FUNCTIONS
     template <class t_PARSE_CONTEXT>
-    static int parse(FormatterSpecificationStandard *outSpec,
-                     t_PARSE_CONTEXT                *context,
-                     Category                         category);
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parse(
+                                     FormatterSpecificationStandard *outSpec,
+                                     t_PARSE_CONTEXT                *context,
+                                     Category                        category);
+
+    template <typename t_FORMAT_CONTEXT>
+    static void postprocess(FormatterSpecificationStandard *outSpec,
+                            const t_FORMAT_CONTEXT&         context);
 
     // ACCESSORS
     const t_CHAR                              *filler() const;
@@ -170,9 +178,10 @@ class FormatterSpecificationStandard
 
 
 template <class t_CHAR>
-FormatterSpecificationStandard<t_CHAR>::
-    FormatterSpecificationStandard()
-: d_basicSplitter()
+BSLS_KEYWORD_CONSTEXPR_CPP20
+FormatterSpecificationStandard<t_CHAR>::FormatterSpecificationStandard()
+: d_parsingStatus(FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
+, d_basicSplitter()
 , d_formatType(FormatterSpecificationStandard::e_TYPE_UNASSIGNED)
 , d_widthArgId(-1)
 , d_precisionArgId(-1)
@@ -184,18 +193,30 @@ FormatterSpecificationStandard<t_CHAR>::
 template <class t_CHAR>
 const t_CHAR *FormatterSpecificationStandard<t_CHAR>::filler() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_basicSplitter.filler();
 }
 
 template <class t_CHAR>
 int FormatterSpecificationStandard<t_CHAR>::fillerCharacters() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_basicSplitter.fillerCharacters();
 }
 
 template <class t_CHAR>
 int FormatterSpecificationStandard<t_CHAR>::fillerCodePointDisplayWidth() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_basicSplitter.fillerCodePointDisplayWidth();
 }
 
@@ -204,6 +225,10 @@ typename
 FormatterSpecificationStandard<t_CHAR>::Alignment
 FormatterSpecificationStandard<t_CHAR>::alignment() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_basicSplitter.alignment();
 }
 
@@ -212,18 +237,30 @@ typename
 FormatterSpecificationStandard<t_CHAR>::Sign
 FormatterSpecificationStandard<t_CHAR>::sign() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_basicSplitter.sign();
 }
 
 template <class t_CHAR>
 bool FormatterSpecificationStandard<t_CHAR>::alternativeFlag() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_basicSplitter.alternativeFlag();
 }
 
 template <class t_CHAR>
 bool FormatterSpecificationStandard<t_CHAR>::zeroPaddingFlag() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_basicSplitter.zeroPaddingFlag();
 }
 
@@ -231,6 +268,10 @@ template <class t_CHAR>
 typename const FormatterSpecification_NumericValue
 FormatterSpecificationStandard<t_CHAR>::adjustedWidth() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     if (d_basicSplitter.rawWidth().valueType() !=
         FormatterSpecification_NumericValue::e_NEXT_ARG)
         return d_basicSplitter.rawWidth();                               // RETURN
@@ -244,6 +285,10 @@ template <class t_CHAR>
 typename const FormatterSpecification_NumericValue
 FormatterSpecificationStandard<t_CHAR>::adjustedPrecision() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     if (d_basicSplitter.rawPrecision().valueType() !=
         FormatterSpecification_NumericValue::e_NEXT_ARG)
         return d_basicSplitter.rawPrecision();                           // RETURN
@@ -256,6 +301,10 @@ FormatterSpecificationStandard<t_CHAR>::adjustedPrecision() const
 template <class t_CHAR>
 bool FormatterSpecificationStandard<t_CHAR>::localcSpecificFlag() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_basicSplitter.localcSpecificFlag();
 }
 
@@ -263,14 +312,19 @@ template <class t_CHAR>
 typename FormatterSpecificationStandard<t_CHAR>::FormatType
 FormatterSpecificationStandard<t_CHAR>::formatType() const
 {
+    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
     return d_formatType;
 }
 
-// MANIPULATORS
+// CLASS FUNCTIONS
 
 template <class t_CHAR>
 template <class t_PARSE_CONTEXT>
-int FormatterSpecificationStandard<t_CHAR>::parse(
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterSpecificationStandard<t_CHAR>::parse(
                                       FormatterSpecificationStandard *outSpec,
                                       t_PARSE_CONTEXT                *context,
                                       Category                        category)
@@ -280,12 +334,16 @@ int FormatterSpecificationStandard<t_CHAR>::parse(
                                   t_PARSE_CONTEXT::const_iterator>::value_type,
                               t_CHAR>::value));
 
+    outSpec->d_dummy.reserve(256);
+
+    outSpec->d_parsingStatus = e_PARSING_PREPARSED;
+
     typename t_PARSE_CONTEXT::const_iterator current = context->begin();
     typename t_PARSE_CONTEXT::const_iterator end     = context->end();
 
     // Handle empty string or empty specification.
     if (current == end || *current == '}')
-        return 0;                                                     // RETURN
+        return;                                                       // RETURN
 
     const Sections sect = static_cast<Sections>(
             e_SECTIONS_FILL_ALIGN |
@@ -297,13 +355,9 @@ int FormatterSpecificationStandard<t_CHAR>::parse(
             e_SECTIONS_LOCALE_FLAG |
             e_SECTIONS_FINAL_SPECIFICATION);
 
-    int rv = FSS::parse(&outSpec->d_basicSplitter, &current, end, sect);
-    if (0 != rv)
-        return rv;                                                    // RETURN
+    FSS::parse(&outSpec->d_basicSplitter, &current, end, sect);
 
-    rv = parseType(outSpec, outSpec->d_basicSplitter.finalSpec(), category);
-    if (0 != rv)
-        return rv;                                                    // RETURN
+    parseType(outSpec, outSpec->d_basicSplitter.finalSpec(), category);
 
     if (outSpec->d_basicSplitter.rawWidth().valueType() ==
         FormatterSpecification_NumericValue::e_NEXT_ARG)
@@ -323,14 +377,30 @@ int FormatterSpecificationStandard<t_CHAR>::parse(
 
     if (current == end || *current == '}') {
         context->advance_to(current);
-        return 0;                                                     // RETURN
+        return;                                                       // RETURN
     }
 
-    return -1;
+    BSLS_THROW(bsl::format_error("Standard specification parse failure "
+                                 "(invalid character)"));             // RETURN
 }
 
 template <class t_CHAR>
-int FormatterSpecificationStandard<t_CHAR>::parseType(
+template <typename t_FORMAT_CONTEXT>
+void FormatterSpecificationStandard<t_CHAR>::postprocess(
+                                       FormatterSpecificationStandard *outSpec,
+                                       const t_FORMAT_CONTEXT&         context)
+{
+     FSS::postprocess(&outSpec->d_basicSplitter, context);
+
+     outSpec->d_parsingStatus =
+                            FormatterSpecificationStandard::e_PARSING_COMPLETE;
+}
+
+// PRIVATE CLASS FUNCTIONS
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterSpecificationStandard<t_CHAR>::parseType(
                              FormatterSpecificationStandard        *outSpec,
                              const bsl::basic_string_view<t_CHAR>&  typeString,
                              Category                               category)
@@ -340,7 +410,8 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
         switch (category) {
           case e_CATEGORY_UNASSIGNED: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            return -1;
+            BSLS_THROW(
+                 bsl::format_error("No default type for category"));  // RETURN
           } break;
           case e_CATEGORY_STRING: {
             outSpec->d_formatType = e_STRING_DEFAULT;
@@ -362,16 +433,18 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            return -1;
+            BSLS_THROW(
+                 bsl::format_error("No default type for category"));  // RETURN
           }
         }
-        return 0;
+        return;                                                       // RETURN
     }
 
     // Standard format strings only allow a single type character.
     if (typeString.size() > 1) {
         outSpec->d_formatType = e_TYPE_UNASSIGNED;
-        return -1;
+        BSLS_THROW(
+          bsl::format_error("Standard types are single-character"));  // RETURN
     }
 
     static const std::ctype<wchar_t>& ct =
@@ -382,7 +455,8 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
     switch (category) {
       case e_CATEGORY_UNASSIGNED: {
         outSpec->d_formatType = e_TYPE_UNASSIGNED;
-        return -1;
+        BSLS_THROW(
+                 bsl::format_error("Invalid type for unassigned."));  // RETURN
       } break;
       case e_CATEGORY_STRING: {
         switch (typeChar) {
@@ -394,7 +468,8 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            return -1;
+            BSLS_THROW(
+                     bsl::format_error("Invalid type for string."));  // RETURN
           }
         }
       } break;
@@ -423,7 +498,8 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            return -1;
+            BSLS_THROW(
+                   bsl::format_error("Invalid type for integers."));  // RETURN
           }
         }
       } break;
@@ -455,7 +531,8 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            return -1;
+            BSLS_THROW(
+            bsl::format_error("Invalid type for character types."));  // RETURN
           }
         }
       } break;
@@ -484,7 +561,8 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            return -1;
+            BSLS_THROW(
+                bsl::format_error("Invalid type for booleans."));  // RETURN
           }
         }
       } break;
@@ -516,7 +594,8 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            return -1;
+            BSLS_THROW(
+            bsl::format_error("Invalid type for floating points."));  // RETURN
           }
         }
       } break;
@@ -530,17 +609,23 @@ int FormatterSpecificationStandard<t_CHAR>::parseType(
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            return -1;
+            BSLS_THROW(
+                   bsl::format_error("Invalid type for pointers."));  // RETURN
           }
         }
       } break;
       default: {
         outSpec->d_formatType = e_TYPE_UNASSIGNED;
-        return -1;
+        BSLS_THROW(
+           bsl::format_error("Invalid type for default category."));  // RETURN
       }
     }
 
-    return (e_TYPE_UNASSIGNED == outSpec->d_formatType) ? -1 : 0;
+    if (e_TYPE_UNASSIGNED == outSpec->d_formatType)
+        BSLS_THROW(
+        bsl::format_error("Failed to parse type (reason unknown)"));  // RETURN
+
+    return;
 }
 
 
