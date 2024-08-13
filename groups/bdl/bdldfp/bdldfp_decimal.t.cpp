@@ -14,6 +14,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
+#include <bsls_keyword.h>
+
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
@@ -257,7 +259,7 @@ struct PtrInputBuf : bsl::streambuf {
 
 struct NulBuf : bsl::streambuf {
     char d_dummy[64];
-    virtual int overflow(int c) {
+    int overflow(int c) BSLS_KEYWORD_OVERRIDE {
         setp( d_dummy, d_dummy + sizeof(d_dummy));
         return traits_type::not_eof(c);
     }

@@ -18,6 +18,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
@@ -206,18 +207,19 @@ class TestMetricsAdapter : public bdlm::MetricsAdapter {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    ~TestMetricsAdapter();
+    ~TestMetricsAdapter() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // MANIPULATORS
     CallbackHandle registerCollectionCallback(
-                                const bdlm::MetricDescriptor& metricDescriptor,
-                                const Callback&               callback);
+                 const bdlm::MetricDescriptor& metricDescriptor,
+                 const Callback&               callback) BSLS_KEYWORD_OVERRIDE;
         // Save the specified 'metricsDescriptor' and 'callback' pair.
         // Return a callback handle that will be verified in
         // 'removeCollectionCallback'.
 
-    int removeCollectionCallback(const CallbackHandle& handle);
+    int removeCollectionCallback(const CallbackHandle& handle)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Do nothing with the specified 'handle'.  Assert the supplied
         // 'handle' matches what was provided by 'registerCollectionCallback'.
         // Return 0.

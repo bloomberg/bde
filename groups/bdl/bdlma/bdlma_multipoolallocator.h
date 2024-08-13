@@ -613,6 +613,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_keyword.h>
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
 
@@ -744,7 +745,7 @@ class MultipoolAllocator : public ManagedAllocator {
         // would exceed a maximum value, the chunk size is capped at that
         // value.
 
-    virtual ~MultipoolAllocator();
+    ~MultipoolAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this multipool allocator.  All memory allocated from this
         // allocator is released.
 
@@ -758,20 +759,20 @@ class MultipoolAllocator : public ManagedAllocator {
 
                                 // Virtual Functions
 
-    virtual void *allocate(bsls::Types::size_type size);
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return the address of a contiguous block of maximally-aligned memory
         // of (at least) the specified 'size' (in bytes).  If 'size' is 0, no
         // memory is allocated and 0 is returned.  If
         // 'size > maxPooledBlockSize()', the memory allocation is managed
         // directly by the underlying allocator, but will not be pooled .
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator for reuse.  If 'address' is 0, this method has no effect.
         // The behavior is undefined unless 'address' was allocated by this
         // allocator, and has not already been deallocated.
 
-    virtual void release();
+    void release() BSLS_KEYWORD_OVERRIDE;
         // Release all memory currently allocated through this multipool
         // allocator.
 

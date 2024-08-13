@@ -351,6 +351,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
@@ -775,13 +776,13 @@ class FdStreamBuf : public bsl::streambuf {
     // of the standard library 'bsl::streambuf' interface.
 
     // PROTECTED MANIPULATORS
-    virtual int_type underflow();
+    int_type underflow() BSLS_KEYWORD_OVERRIDE;
         // Replenish the input buffer with data obtained from the file
         // descriptor, and return the next character of input (or eof if no
         // input is available).  Note that in windows text mode, '\r\n'
         // sequences on the device will be translated to '\n's.
 
-    virtual int_type pbackfail(int_type c = traits_type::eof());
+    int_type pbackfail(int_type c = traits_type::eof()) BSLS_KEYWORD_OVERRIDE;
         // If the optionally specified 'c' is not given, move the current input
         // position back one character and return the character at that
         // position.  Otherwise specify a value for 'c' other than
@@ -802,7 +803,7 @@ class FdStreamBuf : public bsl::streambuf {
         // match the previously input character, or because the input position
         // is already at the beginning of the input buffer.
 
-    virtual int_type overflow(int_type c = traits_type::eof());
+    int_type overflow(int_type c = traits_type::eof()) BSLS_KEYWORD_OVERRIDE;
         // If in output mode, write the contents of the buffer to output.
         // Return 'traits_type::eof()' on failure, and any other value on
         // success.  Optionally specify a character 'c' to be appended to the
@@ -811,7 +812,8 @@ class FdStreamBuf : public bsl::streambuf {
         // to output mode.  Note that the write will translate '\n's to
         // '\r\n's.
 
-    virtual FdStreamBuf *setbuf(char_type *buffer, bsl::streamsize numBytes);
+    FdStreamBuf *setbuf(char_type *buffer, bsl::streamsize numBytes)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Use the specified 'buffer' of the specified 'numBytes' capacity as
         // the input/output buffer for this 'streambuf'.  If 'buffer == 0', the
         // buffer is dynamically allocated with a default size.  If both
@@ -819,10 +821,11 @@ class FdStreamBuf : public bsl::streambuf {
         // allocated.  The behavior is undefined if any I/O has preceded this
         // call, and unless the buffer is uninitialized before this call.
 
-    virtual pos_type seekoff(
+    pos_type seekoff(
         off_type                offset,
         bsl::ios_base::seekdir  whence,
-        bsl::ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out);
+        bsl::ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the file pointer associated with the file descriptor according
         // to the specified 'offset' and 'whence':
         //..
@@ -844,9 +847,10 @@ class FdStreamBuf : public bsl::streambuf {
         // text mode, seeking past a '\n' perceived by the caller will count as
         // 2 bytes since it has to seek over a '\r\n' sequence on the device.
 
-    virtual pos_type seekpos(
+    pos_type seekpos(
         pos_type                offset,
-        bsl::ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out);
+        bsl::ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Seek to the specified 'offset' relative to the beginning of the
         // file.  Return the resulting absolute position in the file relative
         // to the beginning.  Optionally specify 'mode' which is ignored.  Also
@@ -855,17 +859,17 @@ class FdStreamBuf : public bsl::streambuf {
         // disk will count as two bytes, though if it is read in it will be a
         // single '\n' byte.
 
-    virtual int sync();
+    int sync() BSLS_KEYWORD_OVERRIDE;
         // If in output mode, flush the buffer to the associated file
         // descriptor; otherwise do nothing.  Return 0 on success, -1
         // otherwise.
 
-    virtual void imbue(const bsl::locale& locale);
+    void imbue(const bsl::locale& locale) BSLS_KEYWORD_OVERRIDE;
         // Set the locale for this object.  This method has no effect.  The
         // behavior is undefined unless the specified 'locale' is the same as
         // 'bsl::locale()'.
 
-    virtual bsl::streamsize showmanyc();
+    bsl::streamsize showmanyc() BSLS_KEYWORD_OVERRIDE;
         // If this object is in putback mode, return the number of characters
         // remaining to be read in the putback buffer, and otherwise the
         // number of characters remaining in the file to be read.  Return a
@@ -873,7 +877,8 @@ class FdStreamBuf : public bsl::streambuf {
         // otherwise.  The behavior is undefined unless this object is in input
         // mode and the file descriptor is associated with a regular file.
 
-    virtual bsl::streamsize xsgetn(char *buffer, bsl::streamsize numBytes);
+    bsl::streamsize xsgetn(char *buffer, bsl::streamsize numBytes)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Read up to the specified 'numBytes' characters from the file
         // descriptor into the specified 'buffer' and return the number of
         // characters successfully read.  The behavior is undefined unless
@@ -881,8 +886,8 @@ class FdStreamBuf : public bsl::streambuf {
         // text file, a '\r\n' in the file will be read as '\n' (counting as a
         // single character).
 
-    virtual bsl::streamsize xsputn(const char      *buffer,
-                                   bsl::streamsize  numBytes);
+    bsl::streamsize xsputn(const char      *buffer,
+                           bsl::streamsize  numBytes) BSLS_KEYWORD_OVERRIDE;
         // Write up to the specified 'numBytes' characters from the specified
         // 'buffer' and return the number of characters successfully written.
         // Note that this method does not necessarily modify the file: this
@@ -921,7 +926,7 @@ class FdStreamBuf : public bsl::streambuf {
         // object.  Also note that the state of the 'fileDescriptor' is
         // unchanged by this call (i.e., there is no implicit seek).
 
-    ~FdStreamBuf();
+    ~FdStreamBuf() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object and, if 'willCloseOnReset' is 'true', close the
         // file descriptor associated with this object, if any.
 

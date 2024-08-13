@@ -3,6 +3,7 @@
 #include <bdlf_bind.00.t.cpp>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 
 #include <bsl_cstring.h>        // 'strcpy'
 #include <bsl_functional.h>     // 'ref', 'cref'
@@ -599,10 +600,10 @@ struct DerivedClass : public BaseClass {
 
     // CREATORS
     DerivedClass() { }
-    virtual ~DerivedClass() { }
+    ~DerivedClass() BSLS_KEYWORD_OVERRIDE { }
 
     // ACCESSORS
-    virtual int test() const { return 2; }
+    int test() const BSLS_KEYWORD_OVERRIDE { return 2; }
 };
 
 struct AbstractBaseClass {
@@ -624,10 +625,10 @@ struct ConcreteDerivedClass : public AbstractBaseClass {
 
     // CREATORS
     ConcreteDerivedClass() { }
-    virtual ~ConcreteDerivedClass() { }
+    ~ConcreteDerivedClass() BSLS_KEYWORD_OVERRIDE { }
 
     // ACCESSORS
-    virtual int test() const { return 2; }
+    int test() const BSLS_KEYWORD_OVERRIDE { return 2; }
 };
 
 }  // close namespace BDLF_BIND_TEST_CASE_6

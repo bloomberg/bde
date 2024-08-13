@@ -477,6 +477,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
@@ -532,12 +533,12 @@ class GuardingAllocator : public bslma::Allocator {
         // If 'guardLocation' is not specified, guard pages are placed
         // immediately following the memory blocks returned by 'allocate'.
 
-    virtual ~GuardingAllocator();
+    ~GuardingAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator object.  Note that destroying this allocator
         // has no effect on any outstanding allocated memory.
 
     // MANIPULATORS
-    virtual void *allocate(bsls::Types::size_type size);
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly-allocated maximally-aligned block of memory of the
         // specified 'size' (in bytes) that has a read/write protected guard
         // page located immediately before or after it according to the
@@ -546,7 +547,7 @@ class GuardingAllocator : public bslma::Allocator {
         // platform's memory page size is allocated for *every* call to this
         // method.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this method has no effect.
         // Otherwise, the guard page associated with 'address' is unprotected

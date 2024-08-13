@@ -54,6 +54,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlma_concurrentpoolallocator.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 namespace bdlbb {
 
@@ -100,12 +102,12 @@ class PooledBlobBufferFactory : public BlobBufferFactory {
         // the currently installed default allocator is used.  The behavior is
         // undefined unless '0 < bufferSize', and '1 <= maxBlocksPerChunk'.
 
-    ~PooledBlobBufferFactory();
+    ~PooledBlobBufferFactory() BSLS_KEYWORD_OVERRIDE;
         // Destroy this factory.  This operation releases all 'BlobBuffer'
         // objects allocated via this factory.
 
     // MANIPULATORS
-    void allocate(BlobBuffer *buffer);
+    void allocate(BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE;
         // Allocate a new buffer with the buffer size specified at construction
         // and load it into the specified 'buffer'.  Note that destruction of
         // the 'bdlbb::PooledBlobBufferFactory' object releases all

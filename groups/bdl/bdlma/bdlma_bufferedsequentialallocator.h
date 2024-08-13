@@ -192,6 +192,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_alignment.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_keyword.h>
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
 
@@ -301,12 +302,12 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // used for allocation.  Also note that when constant growth is used,
         // the size of the internal buffers will always be the same as 'size'.
 
-    virtual ~BufferedSequentialAllocator();
+    ~BufferedSequentialAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this buffered sequential allocator.  All memory allocated
         // from this allocator is released.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
         // construction.  If 'size' is 0, no memory is allocated and 0 is
@@ -314,14 +315,14 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // memory space in the external buffer supplied at construction, use
         // memory obtained from the allocator supplied at construction.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // This method has no effect on the memory block at the specified
         // 'address' as all memory allocated by this allocator is managed.  The
         // behavior is undefined unless 'address' is 0, or was allocated by
         // this allocator and has not already been deallocated.  The effect of
         // using 'address' after this call is undefined.
 
-    virtual void release();
+    void release() BSLS_KEYWORD_OVERRIDE;
         // Release all memory allocated through this allocator and return to
         // the underlying allocator *all* memory except the external buffer
         // supplied at construction.  The allocator is reset to its

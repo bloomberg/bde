@@ -12,6 +12,7 @@
 #include <bslmt_threadutil.h>
 
 #include <bsls_alignment.h>
+#include <bsls_keyword.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_iostream.h>
@@ -121,15 +122,15 @@ class NoopAllocator : public bslma::Allocator{
         *d_lastMethod = "NoopAllocator";
     }
 
-    ~NoopAllocator();
+    ~NoopAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this 'NoopAllocator'
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // This method has no effect for this allocator except that a
         // subsequent call to 'lastMethod()' will return 'allocate'.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // This method has no effect for this allocator except that a
         // subsequent call to 'lastMethod()' will return 'deallocate'.
 

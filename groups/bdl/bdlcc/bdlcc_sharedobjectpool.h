@@ -223,6 +223,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
@@ -270,18 +271,18 @@ class SharedObjectPool_Rep: public bslma::SharedPtrRep {
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.
 
-    ~SharedObjectPool_Rep();
+    ~SharedObjectPool_Rep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this representation object and the embedded instance of
         // 'TYPE'.
 
     // MANIPULATORS
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // Release this representation object.  This method is invoked when the
         // number of weak references and the number of strong references reach
         // zero.  This virtual override will return the object, and this
         // representation, to the associated pool.
 
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // Release the object being managed by this representation.  This
         // method is invoked when the number of strong references reaches zero.
         // Note that if there are any weak references to the shared object then
@@ -292,12 +293,12 @@ class SharedObjectPool_Rep: public bslma::SharedPtrRep {
         // Invoke the object resetter specified at construction on the
         // associated object.
 
-    virtual void *getDeleter(const std::type_info& type);
+    void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
         // Return NULL.  Shared object pools strictly control the delete policy
         // for their objects, and do not expose it to end users.
 
     // ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return (untyped) address of the object managed by this
         // representation.  This virtual override effectively returns
         // "(void*)ptr()".

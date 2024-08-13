@@ -15,6 +15,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 #include <bsls_review.h>
 #include <bsls_timeinterval.h>
@@ -130,8 +131,8 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     }
 
     CallbackHandle registerCollectionCallback(
-                                const bdlm::MetricDescriptor& metricDescriptor,
-                                const Callback&               callback)
+                  const bdlm::MetricDescriptor& metricDescriptor,
+                  const Callback&               callback) BSLS_KEYWORD_OVERRIDE
     {
         (void)metricDescriptor;
         (void)callback;
@@ -139,6 +140,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     }
 
     int removeCollectionCallback(const CallbackHandle& handle)
+                                                          BSLS_KEYWORD_OVERRIDE
     {
         (void)handle;
         return markDone();
@@ -259,13 +261,13 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
             // Create a 'my_MetricsAdapter' using the specified 'monitor' for
             // registered callbacks.
 
-        ~my_MetricsAdapter();
+        ~my_MetricsAdapter() BSLS_KEYWORD_OVERRIDE;
             // Destroy this object.
 
         // MANIPULATORS
         CallbackHandle registerCollectionCallback(
-                                const bdlm::MetricDescriptor& metricDescriptor,
-                                const Callback&               callback);
+                 const bdlm::MetricDescriptor& metricDescriptor,
+                 const Callback&               callback) BSLS_KEYWORD_OVERRIDE;
             // Register the specified 'callback' with a monitoring system,
             // using the specified 'metricDescriptor' for the registration.
             // Return the callback handle to be used with
@@ -273,7 +275,8 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
             // registration is implementation dependant, and may involve values
             // computed from the supplied arguments.
 
-        int removeCollectionCallback(const CallbackHandle& handle);
+        int removeCollectionCallback(const CallbackHandle& handle)
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Remove the callback associated with the specified 'handle'.
             // Return 0 on success, or a non-zero value if 'handle' cannot be
             // found.

@@ -754,7 +754,7 @@ struct DerivedTestAllocator : bslma::TestAllocator {
     : Base(name)
     {}
 
-    virtual void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
 };
 
 void *DerivedTestAllocator::allocate(size_type size)

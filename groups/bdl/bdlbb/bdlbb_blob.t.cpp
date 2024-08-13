@@ -20,6 +20,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
@@ -197,8 +198,8 @@ class UnknownFactoryException : public bsl::exception {
     const char *d_what;
   public:
     UnknownFactoryException(const char *s) : d_what(s) {}
-    virtual ~UnknownFactoryException() throw() {}
-    virtual const char* what() const throw() { return d_what; }
+    ~UnknownFactoryException() throw() BSLS_KEYWORD_OVERRIDE {}
+    const char* what() const throw() BSLS_KEYWORD_OVERRIDE { return d_what; }
 };
 
 void unknownFactoryHandler(const char *, const char *, int) {
@@ -408,10 +409,10 @@ class TestBlobBufferFactory : public bdlbb::BlobBufferFactory
     explicit TestBlobBufferFactory(bslma::Allocator *allocator,
                                    bsl::size_t       currentBufferSize = 4,
                                    bool              growFlag = true);
-    ~TestBlobBufferFactory();
+    ~TestBlobBufferFactory() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
-    void allocate(bdlbb::BlobBuffer *buffer);
+    void allocate(bdlbb::BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE;
     void setGrowFlag(bool growFlag);
 
     // ACCESSORS
@@ -503,10 +504,10 @@ class NullDeleter {
         // CREATORS
         explicit SimpleBlobBufferFactory(int               bufferSize = 1024,
                                          bslma::Allocator *basicAllocator = 0);
-        ~SimpleBlobBufferFactory();
+        ~SimpleBlobBufferFactory() BSLS_KEYWORD_OVERRIDE;
 
         // MANIPULATORS
-        void allocate(bdlbb::BlobBuffer *buffer);
+        void allocate(bdlbb::BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE;
     };
 
     SimpleBlobBufferFactory::SimpleBlobBufferFactory(

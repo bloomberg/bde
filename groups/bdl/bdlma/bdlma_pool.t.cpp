@@ -14,6 +14,7 @@
 #include <bsls_blockgrowth.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
@@ -472,22 +473,22 @@ class my_VirtualBase {
 class my_LeftBase : virtual public my_VirtualBase {
     int x;
   public:
-    my_LeftBase()             { leftBaseObjectCount = 1; }
-    virtual ~my_LeftBase()    { leftBaseObjectCount = 0; }
+    my_LeftBase()                        { leftBaseObjectCount = 1; }
+    ~my_LeftBase() BSLS_KEYWORD_OVERRIDE { leftBaseObjectCount = 0; }
 };
 
 class my_RightBase : virtual public my_VirtualBase {
     int x;
   public:
-    my_RightBase()            { rightBaseObjectCount = 1; }
-    virtual ~my_RightBase()   { rightBaseObjectCount = 0; }
+    my_RightBase()                        { rightBaseObjectCount = 1; }
+    ~my_RightBase() BSLS_KEYWORD_OVERRIDE { rightBaseObjectCount = 0; }
 };
 
 class my_MostDerived : public my_LeftBase, public my_RightBase {
     int x;
   public:
-    my_MostDerived()          { mostDerivedObjectCount = 1; }
-    ~my_MostDerived()         { mostDerivedObjectCount = 0; }
+    my_MostDerived()                        { mostDerivedObjectCount = 1; }
+    ~my_MostDerived() BSLS_KEYWORD_OVERRIDE { mostDerivedObjectCount = 0; }
 };
 
 //=============================================================================

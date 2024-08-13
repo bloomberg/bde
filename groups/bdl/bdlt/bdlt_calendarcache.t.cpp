@@ -21,6 +21,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -207,11 +208,12 @@ class TestLoader : public bdlt::CalendarLoader {
     TestLoader();
         // Create a test loader.
 
-    ~TestLoader();
+    ~TestLoader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // MANIPULATORS
-    int load(bdlt::PackedCalendar *result, const char *calendarName);
+    int load(bdlt::PackedCalendar *result, const char *calendarName)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Load, into the specified 'result', the calendar identified by the
         // specified 'calendarName'.  Return 0 on success, and a non-zero value
         // otherwise.
@@ -672,11 +674,12 @@ class MyCalendarLoader : public bdlt::CalendarLoader {
     MyCalendarLoader();
         // Create a 'MyCalendarLoader' object.
 
-    ~MyCalendarLoader();
+    ~MyCalendarLoader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // MANIPULATORS
-    int load(bdlt::PackedCalendar *result, const char *calendarName);
+    int load(bdlt::PackedCalendar *result, const char *calendarName)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Load, into the specified 'result', the calendar identified by the
         // specified 'calendarName'.  Return 0 on success, and a non-zero value
         // otherwise.

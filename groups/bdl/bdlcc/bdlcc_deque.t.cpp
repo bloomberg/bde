@@ -29,6 +29,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -1046,7 +1047,7 @@ struct BreakTestAllocator : public bslma::TestAllocator {
         // 'MallocFreeAllocator' singleton is used.
 
     // MANIPULATOR
-    void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Call the base class's 'allocate' function with the specified 'size'.
 };
 

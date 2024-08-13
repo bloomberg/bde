@@ -13,6 +13,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -162,8 +163,8 @@ struct RightChild {
 struct MostDerived : LeftChild, RightChild {
     int d_md;
 
-    MostDerived()  { ++numMostDerived; }
-    ~MostDerived() { --numMostDerived; }
+    MostDerived()                        { ++numMostDerived; }
+    ~MostDerived() BSLS_KEYWORD_OVERRIDE { --numMostDerived; }
 };
 
 //=============================================================================
@@ -305,11 +306,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             d_buffer[length] = '\0';
         }
 
-        virtual ~my_SmallMessage() {}
+        ~my_SmallMessage() BSLS_KEYWORD_OVERRIDE {}
             // Destroy this object.
 
         // PRIVATE ACCESSORS
-        virtual const char *getMessage()
+        const char *getMessage() BSLS_KEYWORD_OVERRIDE
         {
             return d_buffer;
         }
@@ -339,11 +340,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             d_buffer[length] = '\0';
         }
 
-        virtual ~my_MediumMessage() {}
+        ~my_MediumMessage() BSLS_KEYWORD_OVERRIDE {}
             // Destroy this object.
 
         // PRIVATE ACCESSORS
-        virtual const char *getMessage()
+        const char *getMessage() BSLS_KEYWORD_OVERRIDE
         {
             return d_buffer;
         }
@@ -373,11 +374,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             d_buffer[length] = '\0';
         }
 
-        virtual ~my_LargeMessage() {}
+        ~my_LargeMessage() BSLS_KEYWORD_OVERRIDE {}
             // Destroy this object.
 
         // PRIVATE ACCESSORS
-        virtual const char *getMessage()
+        const char *getMessage() BSLS_KEYWORD_OVERRIDE
         {
             return d_buffer;
         }
@@ -402,11 +403,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         {
         }
 
-        virtual ~my_GenericMessage() {}
+        ~my_GenericMessage() BSLS_KEYWORD_OVERRIDE {}
             // Destroy this object.
 
         // PRIVATE ACCESSORS
-        virtual const char *getMessage()
+        const char *getMessage() BSLS_KEYWORD_OVERRIDE
         {
             return d_buffer;
         }
@@ -569,17 +570,17 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
         // ...
 
-        virtual ~my_MultipoolAllocator();
+        ~my_MultipoolAllocator() BSLS_KEYWORD_OVERRIDE;
             // Destroy this multipool allocator.  All memory allocated from
             // this memory pool is released.
 
         // MANIPULATORS
-        virtual void *allocate(bsls::Types::size_type size);
+        void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
             // Return the address of a contiguous block of maximally-aligned
             // memory of (at least) the specified 'size' (in bytes).  If 'size'
             // is 0, no memory is allocated and 0 is returned.
 
-        virtual void deallocate(void *address);
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
             // Relinquish the memory block at the specified 'address' back to
             // this multipool allocator for reuse.  The behavior is undefined
             // unless 'address' is non-zero, was allocated by this multipool

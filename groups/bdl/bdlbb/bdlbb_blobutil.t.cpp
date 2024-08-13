@@ -157,12 +157,12 @@ class BlobBufferFactory : public bdlbb::BlobBufferFactory {
     {
     }
 
-    virtual ~BlobBufferFactory()
+    ~BlobBufferFactory() BSLS_KEYWORD_OVERRIDE
     {
     }
 
     // MANIPULATORS
-    virtual void allocate(bdlbb::BlobBuffer *buffer)
+    void allocate(bdlbb::BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE
     {
         ++d_numAllocateCalls;
         bsl::shared_ptr<char> shptr((char*)d_allocator_p->allocate(d_size),

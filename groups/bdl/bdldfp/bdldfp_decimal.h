@@ -4531,7 +4531,7 @@ class DecimalNumGet : public bsl::locale::facet {
 
   protected:
     // CREATORS
-    ~DecimalNumGet();
+    ~DecimalNumGet() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.  Note that the destructor is virtual.
 
     // ACCESSORS
@@ -4803,7 +4803,7 @@ class DecimalNumPut : public bsl::locale::facet {
 
   protected:
     // CREATORS
-    ~DecimalNumPut();
+    ~DecimalNumPut() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.  Note that the destructor is virtual.
 
     // ACCESSORS

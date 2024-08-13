@@ -12,6 +12,7 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
@@ -112,10 +113,10 @@ class testBlobBufferFactory : public bdlbb::BlobBufferFactory
     // CREATORS
     explicit testBlobBufferFactory(bslma::Allocator *allocator,
                                    bsl::size_t       currentBufferSize = 4);
-    ~testBlobBufferFactory();
+    ~testBlobBufferFactory() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
-    void allocate(bdlbb::BlobBuffer *buffer);
+    void allocate(bdlbb::BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE;
     void setGrowFlag(bool growFlag);
 
     // ACCESSORS

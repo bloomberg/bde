@@ -116,6 +116,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
@@ -149,10 +150,10 @@ class FixedMemInStreamBuf : public bsl::streambuf {
 
   protected:
     // PROTECTED MANIPULATORS
-    virtual pos_type seekoff(
-                            off_type                offset,
-                            bsl::ios_base::seekdir  way,
-                            bsl::ios_base::openmode which = bsl::ios_base::in);
+    pos_type seekoff(off_type                offset,
+                     bsl::ios_base::seekdir  way,
+                     bsl::ios_base::openmode which = bsl::ios_base::in)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the position indicator to the relative specified 'offset' from
         // the base position indicated by the specified 'way' and return the
         // resulting absolute position on success or pos_type(-1) on failure.
@@ -161,9 +162,9 @@ class FixedMemInStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::in' or if the resulting absolute position is less
         // than zero or greater than the value returned by 'length'.
 
-    virtual pos_type seekpos(
-                            pos_type                position,
-                            bsl::ios_base::openmode which = bsl::ios_base::in);
+    pos_type seekpos(pos_type                position,
+                     bsl::ios_base::openmode which = bsl::ios_base::in)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the position indicator to the specified 'position' and return
         // the resulting absolute position on success or pos_type(-1) on
         // failure.  Optionally specify 'which' area of the stream buffer.  The
@@ -171,7 +172,8 @@ class FixedMemInStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::in' or if position is less then zero or greater
         // than the value returned by 'length'.
 
-    virtual FixedMemInStreamBuf *setbuf(char  *buffer, bsl::streamsize length);
+    FixedMemInStreamBuf *setbuf(char            *buffer,
+                                bsl::streamsize  length) BSLS_KEYWORD_OVERRIDE;
     FixedMemInStreamBuf *setbuf(const char *buffer, bsl::streamsize length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the pointer
@@ -181,12 +183,12 @@ class FixedMemInStreamBuf : public bsl::streambuf {
         // the next input position indicator are preserved.  Note that 'buffer'
         // is held but not owned.
 
-    virtual bsl::streamsize showmanyc();
+    bsl::streamsize showmanyc() BSLS_KEYWORD_OVERRIDE;
         // Return the number of characters currently available for reading
         // from this stream buffer, or -1 if there are none.
 
-    virtual bsl::streamsize xsgetn(char_type       *destination,
-                                   bsl::streamsize  length);
+    bsl::streamsize xsgetn(char_type       *destination,
+                           bsl::streamsize  length) BSLS_KEYWORD_OVERRIDE;
         // Read the specified 'length' number of characters into the specified
         // 'destination'.  Return the number of characters successfully read.
         // The behavior is undefined unless '0 <= length'.
@@ -199,7 +201,7 @@ class FixedMemInStreamBuf : public bsl::streambuf {
         // behavior is undefined unless 'buffer != 0 && length > 0' or
         // 'length == 0'.
 
-    ~FixedMemInStreamBuf();
+    ~FixedMemInStreamBuf() BSLS_KEYWORD_OVERRIDE;
         // Destroy this stream buffer.
 
     // MANIPULATORS

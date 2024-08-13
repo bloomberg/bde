@@ -75,6 +75,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_isbitwisemoveable.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_cstddef.h>
 
 namespace BloombergLP {
@@ -115,11 +117,11 @@ class SimpleBlobBufferFactory : public BlobBufferFactory {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    virtual ~SimpleBlobBufferFactory();
+    ~SimpleBlobBufferFactory() BSLS_KEYWORD_OVERRIDE;
         // Destroy this 'SimpleBlobBufferFactory' object.
 
     // MANIPULATORS
-    virtual void allocate(bdlbb::BlobBuffer *buffer);
+    void allocate(bdlbb::BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE;
         // Allocate a blob buffer from this blob buffer factory, and load it
         // into the specified 'buffer'.
 

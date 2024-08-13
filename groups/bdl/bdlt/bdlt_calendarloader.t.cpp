@@ -8,6 +8,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_cstdlib.h>      // 'atoi'
@@ -111,12 +112,12 @@ void aSsErT(bool condition, const char *message, int line)
         MyCalendarLoader();
             // Create a 'MyCalendarLoader' object.
 
-        virtual ~MyCalendarLoader();
+        ~MyCalendarLoader() BSLS_KEYWORD_OVERRIDE;
             // Destroy this object.
 
         // MANIPULATORS
-        virtual int load(bdlt::PackedCalendar *result,
-                         const char           *calendarName);
+        int load(bdlt::PackedCalendar *result,
+                 const char           *calendarName) BSLS_KEYWORD_OVERRIDE;
             // Load, into the specified 'result', the calendar identified by
             // the specified 'calendarName'.  Return 0 on success, and a
             // non-zero value otherwise.  If the calendar corresponding to
@@ -325,7 +326,10 @@ namespace {
 typedef bdlt::CalendarLoader ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
-    int load(bdlt::PackedCalendar *, const char *) { return markDone(); }
+    int load(bdlt::PackedCalendar *, const char *) BSLS_KEYWORD_OVERRIDE
+    {
+        return markDone();
+    }
 };
 
 }  // close unnamed namespace

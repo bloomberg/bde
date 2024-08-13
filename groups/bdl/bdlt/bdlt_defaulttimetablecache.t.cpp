@@ -13,6 +13,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>      // 'atoi'
@@ -243,11 +244,12 @@ class MyTimetableLoader : public bdlt::TimetableLoader {
     MyTimetableLoader();
         // Create a 'MyTimetableLoader' object.
 
-    ~MyTimetableLoader();
+    ~MyTimetableLoader() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // MANIPULATORS
-    int load(bdlt::Timetable *result, const char *timetableName);
+    int load(bdlt::Timetable *result, const char *timetableName)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Load, into the specified 'result', the timetable identified by the
         // specified 'timetableName'.  Return 0 on success, and a non-zero
         // value otherwise.

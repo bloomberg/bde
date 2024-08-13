@@ -168,6 +168,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_cstddef.h>
 #include <bsl_ios.h>
 #include <bsl_streambuf.h>
@@ -238,10 +240,11 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
     // PROTECTED VIRTUAL FUNCTIONS
 
            // *** 27.5.2.4.2 buffer management and positioning ***
-    virtual pos_type seekoff(
+    pos_type seekoff(
        off_type                offset,
        bsl::ios_base::seekdir  way,
-       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the position indicator to the relative specified 'offset' from
         // the base position indicated by the specified 'way' and return the
         // resulting absolute position on success or pos_type(-1) on failure.
@@ -250,30 +253,32 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::out' or if the resulting absolute position is
         // negative.
 
-    virtual pos_type seekpos(
+    pos_type seekpos(
        pos_type                position,
-       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Set the position indicator to the specified 'position' and return
         // the resulting absolute position on success or pos_type(-1) on
         // failure.  Optionally specify 'which' area of the stream buffer.  The
         // 'seekpos' operation will fail if 'which' does not include the flag
         // 'bsl::ios_base::out' or if 'position' is negative.
 
-    virtual int sync();
+    int sync() BSLS_KEYWORD_OVERRIDE;
         // Set 'd_dataLength' to the amount of data that has been written to
         // this stream buffer, from the beginning of the stream to the current
         // 'pptr()' position and return 0.  Note that if 'pptr()' points into
         // the overflow buffer, this size the initial buffer, plus the portion
         // of the overflow buffer that has been written to.
 
-    virtual bsl::streamsize xsputn(const char_type *source,
-                                   bsl::streamsize  numChars);
+    bsl::streamsize xsputn(const char_type *source,
+                           bsl::streamsize  numChars) BSLS_KEYWORD_OVERRIDE;
         // Write the specified 'numChars' characters from the specified
         // 'source' to the stream buffer.  Return the number of characters
         // successfully written.  The behavior is undefined unless '(source &&
         // 0 < numChars) || 0 == numChars'.
 
-    virtual int_type overflow(int_type c = bsl::streambuf::traits_type::eof());
+    int_type overflow(int_type c = bsl::streambuf::traits_type::eof())
+                                                         BSLS_KEYWORD_OVERRIDE;
         // If c is not 'EOF', adjust the underlying buffer so that the next put
         // position is valid, put the specified 'c' at this position, and
         // increment the put position.  Return 'c' on success, and
@@ -296,7 +301,7 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
         // sequence of positive 'size' characters.  Note that this stream
         // buffer does not assume ownership of 'buffer'.
 
-    virtual ~OverflowMemOutStreamBuf();
+    ~OverflowMemOutStreamBuf() BSLS_KEYWORD_OVERRIDE;
         // Destroy this stream buffer.
 
     // ACCESSORS
