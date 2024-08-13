@@ -123,6 +123,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
@@ -187,20 +188,21 @@ class StreamObserver : public Observer {
         // allocator is used.  Note that a default record format is in effect
         // for stream logging (see 'setLogFileFunctor').
 
-    virtual ~StreamObserver();
+    ~StreamObserver() BSLS_KEYWORD_OVERRIDE;
         // Destroy this stream observer.
 
     // MANIPULATORS
     using Observer::publish;
 
-    virtual void publish(const bsl::shared_ptr<const Record>& record,
-                         const Context&                       context);
+    void publish(const bsl::shared_ptr<const Record>& record,
+                 const Context&                       context)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Process the specified log 'record' having the specified publishing
         // 'context'.  Print 'record' and 'context' to the 'bsl::ostream'
         // supplied at construction.  The behavior is undefined if 'record' or
         // 'context' is modified during the execution of this method.
 
-    virtual void releaseRecords();
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE;
         // Discard any shared reference to a 'Record' object that was supplied
         // to the 'publish' method, and is held by this observer.  Note that
         // this operation should be called if resources underlying the

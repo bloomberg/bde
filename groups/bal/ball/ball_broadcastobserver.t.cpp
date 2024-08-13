@@ -18,6 +18,7 @@
 
 #include <bsls_annotation.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -129,14 +130,15 @@ class my_OstreamObserver : public ball::Observer {
     {
     }
 
-    ~my_OstreamObserver()
+    ~my_OstreamObserver() BSLS_KEYWORD_OVERRIDE
     {
     }
 
     using Observer::publish;  // avoid hiding base class method
 
     void publish(const bsl::shared_ptr<const ball::Record>& record,
-                 const ball::Context&                       context);
+                 const ball::Context&                       context)
+                                                         BSLS_KEYWORD_OVERRIDE;
 };
 
 // my_ostreamobserver.cpp

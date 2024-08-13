@@ -7,6 +7,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 #include <bsls_types.h>
 
@@ -149,24 +150,27 @@ typedef ball::AttributeContainer Obj;
             // Create a service attributes object with the specified 'uuid',
             // 'luw', and 'firmNumber'.
 
-        virtual ~ServiceAttributes();
+        ~ServiceAttributes() BSLS_KEYWORD_OVERRIDE;
             // Destroy this service attributes object.
 
         // ACCESSORS
-        virtual bool hasValue(const ball::Attribute& value) const;
+        bool hasValue(const ball::Attribute& value) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Return 'true' if the attribute having specified 'value' exists
             // in this object, and 'false' otherwise.  This implementation will
             // return 'true' if 'value.name()' equals "uuid", "luw", or "firm"
             // and 'value.value()' is an 'int' equal to the corresponding
             // property value supplied at construction.
 
-        virtual bsl::ostream& print(bsl::ostream& stream,
-                                    int           level = 0,
-                                    int           spacesPerLevel = 4) const;
+        bsl::ostream& print(bsl::ostream& stream,
+                            int           level = 0,
+                            int           spacesPerLevel = 4) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Format this object to the specified output 'stream'.
 
-        virtual void visitAttributes(
-             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+        void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Invoke the specified 'visitor' function for all attributes in
             // this container.
     };
@@ -305,7 +309,7 @@ typedef ball::AttributeContainer Obj;
         AttributeSet(bslma::Allocator *basicAllocator = 0);
             // Create this attribute set.
 
-        virtual ~AttributeSet();
+        ~AttributeSet() BSLS_KEYWORD_OVERRIDE;
             // Destroy this attribute set.
 
         // MANIPULATORS
@@ -318,19 +322,22 @@ typedef ball::AttributeContainer Obj;
             // not a member of this set.
 
         // ACCESSORS
-        virtual bool hasValue(const ball::Attribute& value) const;
+        bool hasValue(const ball::Attribute& value) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Return 'true' if the attribute having specified 'value' exists
             // in this object, and 'false' otherwise.
 
-        virtual bsl::ostream& print(bsl::ostream& stream,
-                                    int           level = 0,
-                                    int           spacesPerLevel = 4) const;
+        bsl::ostream& print(bsl::ostream& stream,
+                            int           level = 0,
+                            int           spacesPerLevel = 4) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Format this object to the specified output 'stream' at the
             // (absolute value of) the optionally specified indentation 'level'
             // and return a reference to 'stream'.
 
-        virtual void visitAttributes(
-             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+        void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Invoke the specified 'visitor' function for all attributes in
             // this container.
     };
@@ -409,12 +416,14 @@ typedef ball::AttributeContainer Obj;
 
 struct AttributeContainerTest :
                               bsls::ProtocolTestImp<ball::AttributeContainer> {
-    bool hasValue(const ball::Attribute&) const        { return markDone(); }
-    bsl::ostream& print(bsl::ostream&, int, int) const
+    bool hasValue(const ball::Attribute&) const BSLS_KEYWORD_OVERRIDE
+                                                      { return markDone();    }
+    bsl::ostream& print(bsl::ostream&, int, int) const BSLS_KEYWORD_OVERRIDE
                                                       { return markDoneRef(); }
     void visitAttributes(
             const bsl::function<void(const ball::Attribute&)>&) const
-                                                                { markDone(); }
+                                                          BSLS_KEYWORD_OVERRIDE
+                                                      { markDone();           }
 };
 
 void visitNoop(const ball::Attribute&) {}

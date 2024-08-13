@@ -133,6 +133,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_rwmutex.h>
 #include <bslmt_writelockguard.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_memory.h>
 #include <bsl_set.h>
 #include <bsl_vector.h>
@@ -173,27 +175,29 @@ class MultiplexObserver : public Observer {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    virtual ~MultiplexObserver();
+    ~MultiplexObserver() BSLS_KEYWORD_OVERRIDE;
         // Destroy this multiplexing observer.  Note that this method has no
         // effect on the lifetime of observers registered with this observer,
         // if any.
 
     // MANIPULATORS
-    virtual void publish(const Record& record, const Context& context);
+    void publish(const Record&  record,
+                 const Context& context) BSLS_KEYWORD_OVERRIDE;
         // Process the specified log 'record' having the specified publishing
         // 'context' by forwarding 'record' and 'context' to each of the
         // observers registered with this multiplexing observer.
         //
         // !DEPRECATED!: Use the alternative 'publish' overload instead.
 
-    virtual void publish(const bsl::shared_ptr<const Record>& record,
-                         const Context&                       context);
+    void publish(const bsl::shared_ptr<const Record>& record,
+                 const Context&                       context)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Process the specified log 'record' having the specified publishing
         // 'context'.  This concrete publish implementations processes the
         // 'record' by forwarding 'record' and 'context' to each of the
         // observers registered with this multiplexing observer.
 
-    virtual void releaseRecords();
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE;
         // Discard any shared reference to a 'Record' object that was supplied
         // to the 'publish' method, and is held by this observer.  This
         // implementation processes 'releaseRecords' by calling

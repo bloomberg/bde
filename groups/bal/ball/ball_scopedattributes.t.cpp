@@ -15,6 +15,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_climits.h>
@@ -198,7 +199,7 @@ bool veryVeryVerbose;
         AttributeSet(bslma::Allocator *basicAllocator = 0);
             // Create an attribute set.
 
-        virtual ~AttributeSet();
+        ~AttributeSet() BSLS_KEYWORD_OVERRIDE;
             // Destroy this attribute set.
 
         // MANIPULATORS

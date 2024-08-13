@@ -361,6 +361,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmt_mutex.h>
 
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
 #include <bsl_fstream.h>
@@ -530,7 +531,7 @@ class FileObserver2 : public Observer {
         // 'enablePublishInLocalTime').  Also note that a default record format
         // is in effect for file logging (see 'setLogFileFunctor').
 
-    ~FileObserver2();
+    ~FileObserver2() BSLS_KEYWORD_OVERRIDE;
         // Close the log file of this file observer if file logging is enabled,
         // and destroy this file observer.
 
@@ -612,7 +613,8 @@ class FileObserver2 : public Observer {
         // in local time is already enabled.  Note that this method also
         // affects log filenames (see {Log Filename Patterns}).
 
-    void publish(const Record& record, const Context& context);
+    void publish(const Record&  record,
+                 const Context& context) BSLS_KEYWORD_OVERRIDE;
         // Process the specified log 'record' having the specified publishing
         // 'context' by writing 'record' and 'context' to the current log file
         // if file logging is enabled for this file observer.  The method has
@@ -620,14 +622,15 @@ class FileObserver2 : public Observer {
         // dropped.
 
     void publish(const bsl::shared_ptr<const Record>& record,
-                 const Context&                       context);
+                 const Context&                       context)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Process the record referenced by the specified 'record' shared
         // pointer having the specified publishing 'context' by writing the
         // record and 'context' to the current log file if file logging is
         // enabled for this file observer.  The method has no effect if file
         // logging is not enabled, in which case 'record' is dropped.
 
-    void releaseRecords();
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE;
         // Discard any shared references to 'Record' objects that were supplied
         // to the 'publish' method, and are held by this observer.  Note that
         // this operation should be called if resources underlying the

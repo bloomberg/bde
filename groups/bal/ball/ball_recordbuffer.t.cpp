@@ -12,6 +12,7 @@
 #include <bslmt_lockguard.h>
 #include <bslmt_recursivemutex.h>
 
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_protocoltest.h>
 
@@ -172,10 +173,10 @@ class my_DummyDeleter : public bdlma::Deleter<ball::Record> {
   public:
     // CREATORS
     my_DummyDeleter();
-    ~my_DummyDeleter();
+    ~my_DummyDeleter() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
-    void deleteObject(ball::Record *record);
+    void deleteObject(ball::Record *record) BSLS_KEYWORD_OVERRIDE;
 
 };
 
@@ -236,21 +237,25 @@ void my_DummyDeleter::deleteObject(ball::Record *)
       public:
         // CREATORS
         my_RecordBuffer();
-        virtual ~my_RecordBuffer();
+        ~my_RecordBuffer() BSLS_KEYWORD_OVERRIDE;
 
         // MANIPULATORS
-        virtual void beginSequence();
-        virtual void endSequence();
-        virtual void popBack();
-        virtual void popFront();
-        virtual int  pushBack(const bsl::shared_ptr<ball::Record>& handle);
-        virtual int  pushFront(const bsl::shared_ptr<ball::Record>& handle);
-        virtual void removeAll();
+        void beginSequence() BSLS_KEYWORD_OVERRIDE;
+        void endSequence() BSLS_KEYWORD_OVERRIDE;
+        void popBack() BSLS_KEYWORD_OVERRIDE;
+        void popFront() BSLS_KEYWORD_OVERRIDE;
+        int  pushBack(const bsl::shared_ptr<ball::Record>& handle)
+                                                         BSLS_KEYWORD_OVERRIDE;
+        int  pushFront(const bsl::shared_ptr<ball::Record>& handle)
+                                                         BSLS_KEYWORD_OVERRIDE;
+        void removeAll() BSLS_KEYWORD_OVERRIDE;
 
         // ACCESSORS
-        virtual const bsl::shared_ptr<ball::Record>& back() const;
-        virtual const bsl::shared_ptr<ball::Record>& front() const;
-        virtual int length() const;
+        const bsl::shared_ptr<ball::Record>& back() const
+                                                         BSLS_KEYWORD_OVERRIDE;
+        const bsl::shared_ptr<ball::Record>& front() const
+                                                         BSLS_KEYWORD_OVERRIDE;
+        int length() const BSLS_KEYWORD_OVERRIDE;
     };
 //..
 //
@@ -393,18 +398,20 @@ void my_DummyDeleter::deleteObject(ball::Record *)
 //-----------------------------------------------------------------------------
 
 struct RecordBufferTest : bsls::ProtocolTestImp<ball::RecordBuffer> {
-    void popBack()                                     { markDone(); }
-    void popFront()                                    { markDone(); }
-    int pushBack(const bsl::shared_ptr<ball::Record>&)  { return markDone(); }
-    int pushFront(const bsl::shared_ptr<ball::Record>&) { return markDone(); }
-    void removeAll()                                   { markDone(); }
-    void beginSequence()                               { markDone(); }
-    void endSequence()                                 { markDone(); }
+    void popBack() BSLS_KEYWORD_OVERRIDE              {        markDone();    }
+    void popFront() BSLS_KEYWORD_OVERRIDE             {        markDone();    }
+    int pushBack(const bsl::shared_ptr<ball::Record>&)
+                               BSLS_KEYWORD_OVERRIDE  { return markDone();    }
+    int pushFront(const bsl::shared_ptr<ball::Record>&)
+                                BSLS_KEYWORD_OVERRIDE { return markDone();    }
+    void removeAll() BSLS_KEYWORD_OVERRIDE            {        markDone();    }
+    void beginSequence() BSLS_KEYWORD_OVERRIDE        {        markDone();    }
+    void endSequence() BSLS_KEYWORD_OVERRIDE          {        markDone();    }
     const bsl::shared_ptr<ball::Record>& back() const
-                                                      { return markDoneRef(); }
+                                BSLS_KEYWORD_OVERRIDE { return markDoneRef(); }
     const bsl::shared_ptr<ball::Record>& front() const
-                                                      { return markDoneRef(); }
-    int length() const                                { return markDone(); }
+                                BSLS_KEYWORD_OVERRIDE { return markDoneRef(); }
+    int length() const BSLS_KEYWORD_OVERRIDE          { return markDone();    }
 };
 
 //=============================================================================

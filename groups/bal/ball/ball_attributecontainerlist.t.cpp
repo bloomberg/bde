@@ -12,6 +12,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -242,7 +243,7 @@ bslma::TestAllocator testAllocator;
             // Create an attribute set with the same value as the specified
             // 'original'.
 
-        virtual ~AttributeSet();
+        ~AttributeSet() BSLS_KEYWORD_OVERRIDE;
             // Destroy this attribute set.
 
         // MANIPULATORS
@@ -255,19 +256,22 @@ bslma::TestAllocator testAllocator;
             // not a member of this set.
 
         // ACCESSORS
-        virtual bool hasValue(const ball::Attribute& value) const;
+        bool hasValue(const ball::Attribute& value) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Return 'true' if the attribute having specified 'value' exists
             // in this object, and 'false' otherwise.
 
-        virtual bsl::ostream& print(bsl::ostream& stream,
-                                    int           level = 0,
-                                    int           spacesPerLevel = 4) const;
+        bsl::ostream& print(bsl::ostream& stream,
+                            int           level = 0,
+                            int           spacesPerLevel = 4) const
+                                                         BSLS_KEYWORD_OVERRIDE;
             // Format this object to the specified output 'stream' at the
             // (absolute value of) the optionally specified indentation 'level'
             // and return a reference to 'stream'.
 
-        virtual void visitAttributes(
-             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+        void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Invoke the specified 'visitor' function for all attributes in this
         // container.
     };
@@ -362,7 +366,7 @@ class TestPrintContainer : public ball::AttributeContainer {
         // Create a 'TestPrintContainer' that will print the specified 'c'
         // when 'print' is invoked.
 
-    virtual ~TestPrintContainer() {}
+    ~TestPrintContainer() BSLS_KEYWORD_OVERRIDE {}
         // Destroy this attribute set.
 
     // MANIPULATORS
@@ -371,21 +375,23 @@ class TestPrintContainer : public ball::AttributeContainer {
         // 'c'.
 
     // ACCESSORS
-    virtual bool hasValue(const ball::Attribute&) const
+    bool hasValue(const ball::Attribute&) const BSLS_KEYWORD_OVERRIDE
         // Return 'true'.
     {
         return true;
     }
 
-    virtual bsl::ostream& print(bsl::ostream& stream,
-                                int           level = 0,
-                                int           spacesPerLevel = 4) const;
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Format this object to the specified output 'stream' at the
         // (absolute value of) the optionally specified indentation 'level'
         // and return a reference to 'stream'.
 
-    virtual void visitAttributes(
-             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+    void visitAttributes(
+        const bsl::function<void(const ball::Attribute&)>& visitor) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Invoke the specified 'visitor' function for all attributes in this
         // container.
 };

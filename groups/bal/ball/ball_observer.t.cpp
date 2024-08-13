@@ -18,6 +18,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_annotation.h>
+#include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -106,8 +107,10 @@ void aSsErT(bool condition, const char *message, int line)
 
 struct ObserverTest : bsls::ProtocolTestImp<ball::Observer> {
     using Observer::publish;  // avoid hiding base class method
-    void publish(const ball::Record&, const ball::Context&)  { markDone(); }
-    void releaseRecords() { markDone(); }
+
+    void publish(const ball::Record&,
+                 const ball::Context&) BSLS_KEYWORD_OVERRIDE { markDone(); }
+    void releaseRecords()              BSLS_KEYWORD_OVERRIDE { markDone(); }
 };
 
 //=============================================================================
@@ -121,10 +124,10 @@ class my_OstreamObserver : public ball::Observer {
 
   public:
     my_OstreamObserver(ostream& stream) : d_stream(stream) { }
-    virtual ~my_OstreamObserver();
+    ~my_OstreamObserver() BSLS_KEYWORD_OVERRIDE;
     using Observer::publish;  // avoid hiding base class method
-    virtual void publish(const ball::Record&  record,
-                         const ball::Context& context);
+    void publish(const ball::Record&  record,
+                 const ball::Context& context) BSLS_KEYWORD_OVERRIDE;
 };
 
 // my_ostreamobserver.cpp

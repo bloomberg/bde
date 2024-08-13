@@ -133,6 +133,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_deque.h>
 #include <bsl_memory.h>
 
@@ -198,12 +200,12 @@ class FixedSizeRecordBuffer: public RecordBuffer {
         // installed default allocator is used.  The behavior is undefined
         // unless 'maxTotalSize > 0'.
 
-    virtual ~FixedSizeRecordBuffer();
+    ~FixedSizeRecordBuffer() BSLS_KEYWORD_OVERRIDE;
         // Remove all record handles from this record buffer and destroy this
         // record buffer.
 
     // MANIPULATORS
-    virtual void beginSequence();
+    void beginSequence() BSLS_KEYWORD_OVERRIDE;
         // *Lock* this record buffer so that a sequence of method invocations
         // on this record buffer can occur uninterrupted by other threads.  The
         // buffer will remain *locked* until 'endSequence' is called.  It is
@@ -211,53 +213,53 @@ class FixedSizeRecordBuffer: public RecordBuffer {
         // calls to 'beginSequence' and 'endSequence' (the implementation
         // guarantees this by employing a recursive mutex).
 
-    virtual void endSequence();
+    void endSequence() BSLS_KEYWORD_OVERRIDE;
         // *Unlock* this record buffer, thus allowing other threads to access
         // it.  The behavior is undefined unless the buffer is already *locked*
         // by 'beginSequence'.
 
-    virtual void popBack();
+    void popBack() BSLS_KEYWORD_OVERRIDE;
         // Remove from this record buffer the record handle positioned at the
         // back end of the buffer.  The behavior is undefined unless
         // '0 < length()'.
 
-    virtual void popFront();
+    void popFront() BSLS_KEYWORD_OVERRIDE;
         // Remove from this record buffer the record handle positioned at the
         // front end of the buffer.  The behavior is undefined unless
         // '0 < length()'.
 
-    virtual int pushBack(const bsl::shared_ptr<Record>& handle);
+    int pushBack(const bsl::shared_ptr<Record>& handle) BSLS_KEYWORD_OVERRIDE;
         // Push the specified 'handle' at the back end of this record buffer.
         // Return 0 on success, and a non-zero value otherwise.  In order to
         // accommodate a record, the records from the front end of the buffer
         // may be removed.  If a record can not be accommodated in the buffer,
         // it is silently discarded.
 
-    virtual int pushFront(const bsl::shared_ptr<Record>& handle);
+    int pushFront(const bsl::shared_ptr<Record>& handle) BSLS_KEYWORD_OVERRIDE;
         // Push the specified 'handle' at the front end of this record buffer.
         // Return 0 on success, and a non-zero value otherwise.  In order to
         // accommodate a record, the records from the end end of the buffer may
         // be removed.  If a record can not be accommodated in the buffer, it
         // is silently discarded.
 
-    virtual void removeAll();
+    void removeAll() BSLS_KEYWORD_OVERRIDE;
         // Remove all record handles stored in this record buffer.  Note that
         // 'length()' is now 0.
 
     // ACCESSORS
-    virtual const bsl::shared_ptr<Record>& back() const;
+    const bsl::shared_ptr<Record>& back() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference of the shared pointer referring to the record
         // positioned at the back end of this record buffer.  The behavior is
         // undefined unless this record buffer has been locked by the
         // 'beginSequence' method and unless '0 < length()'.
 
-    virtual const bsl::shared_ptr<Record>& front() const;
+    const bsl::shared_ptr<Record>& front() const BSLS_KEYWORD_OVERRIDE;
         // Return a reference of the shared pointer referring to the record
         // positioned at the front end of this record buffer.  The behavior is
         // undefined unless this record buffer has been locked by the
         // 'beginSequence' method and unless '0 < length()'.
 
-    virtual int length() const;
+    int length() const BSLS_KEYWORD_OVERRIDE;
         // Return the number of record handles in this record buffer.
 };
 

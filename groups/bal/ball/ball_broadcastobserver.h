@@ -154,6 +154,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readerwritermutex.h>
 #include <bslmt_readlockguard.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_memory.h>
 #include <bsl_string.h>
 #include <bsl_unordered_map.h>
@@ -205,7 +207,7 @@ class BroadcastObserver : public Observer {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    virtual ~BroadcastObserver();
+    ~BroadcastObserver() BSLS_KEYWORD_OVERRIDE;
         // Destroy this broadcast observer.  Note that this method has no
         // effect on the lifetime of observers registered with this observer,
         // if any.
@@ -255,8 +257,9 @@ class BroadcastObserver : public Observer {
 
     using Observer::publish;  // Avoid hiding base class method.
 
-    virtual void publish(const bsl::shared_ptr<const Record>& record,
-                         const Context&                       context);
+    void publish(const bsl::shared_ptr<const Record>& record,
+                 const Context&                       context)
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Process the specified log 'record' having the specified publishing
         // 'context' by forwarding 'record' and 'context' to each of the
         // observers registered with this broadcast observer.
@@ -273,7 +276,7 @@ class BroadcastObserver : public Observer {
         // created among registered observers.  Note that this method will fail
         // if an observer having 'observerName' is already registered.
 
-    virtual void releaseRecords();
+    void releaseRecords() BSLS_KEYWORD_OVERRIDE;
         // Discard any shared reference to a 'Record' object that was supplied
         // to the 'publish' method, and is held by this observer.  This
         // implementation processes 'releaseRecords' by calling

@@ -22,6 +22,7 @@
 #include <bslmt_mutex.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -237,7 +238,7 @@ class AttributeSet : public ball::AttributeContainer {
     AttributeSet(bslma::Allocator *basicAllocator = 0);
         // Create an attribute set.
 
-    virtual ~AttributeSet();
+    ~AttributeSet() BSLS_KEYWORD_OVERRIDE;
         // Destroy this attribute set.
 
     // MANIPULATORS
@@ -249,13 +250,14 @@ class AttributeSet : public ball::AttributeContainer {
         // if the attribute was found in this set, and 'false' otherwise.
 
     // ACCESSORS
-    virtual bool hasValue(const ball::Attribute& value) const;
+    bool hasValue(const ball::Attribute& value) const BSLS_KEYWORD_OVERRIDE;
         // Return 'true' if the attribute having the specified 'value' exists
         // in this set, and 'false' otherwise.
 
-    virtual bsl::ostream& print(bsl::ostream& stream,
-                                int           level = 0,
-                                int           spacesPerLevel = 4) const;
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Format this object to the specified output 'stream' at the
         // (absolute value of) the optionally specified indentation 'level'
         // and return a reference to 'stream'.  If 'level' is specified,
@@ -267,8 +269,9 @@ class AttributeSet : public ball::AttributeContainer {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-    virtual void visitAttributes(
-             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+    void visitAttributes(
+        const bsl::function<void(const ball::Attribute&)>& visitor) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Invoke the specified 'visitor' function for all attributes in this
         // container.
 };

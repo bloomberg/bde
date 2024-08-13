@@ -112,6 +112,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_functional.h>
 #include <bsl_unordered_set.h>
 
@@ -183,7 +185,7 @@ class DefaultAttributeContainer : public AttributeContainer {
         // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
         // otherwise, the default allocator is used.
 
-    virtual ~DefaultAttributeContainer();
+    ~DefaultAttributeContainer() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // MANIPULATORS
@@ -208,7 +210,7 @@ class DefaultAttributeContainer : public AttributeContainer {
     int numAttributes() const;
         // Return the number of attributes managed by this object.
 
-    virtual bool hasValue(const Attribute& value) const;
+    bool hasValue(const Attribute& value) const BSLS_KEYWORD_OVERRIDE;
         // Return 'true' if the attribute having specified 'value' exists in
         // this object, and 'false' otherwise.
 
@@ -220,9 +222,10 @@ class DefaultAttributeContainer : public AttributeContainer {
     const_iterator end() const;
         // Return an iterator pointing at one past the end of the map.
 
-    virtual bsl::ostream& print(bsl::ostream& stream,
-                                int           level = 0,
-                                int           spacesPerLevel = 4) const;
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Format this object to the specified output 'stream' at the (absolute
         // value of) the optionally specified indentation 'level' and return a
         // reference to 'stream'.  If 'level' is specified, optionally specify
@@ -233,8 +236,9 @@ class DefaultAttributeContainer : public AttributeContainer {
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
 
-    virtual void visitAttributes(
-             const bsl::function<void(const ball::Attribute&)> &visitor) const;
+    void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)> &visitor) const
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Invoke the specified 'visitor' function for all attributes in this
         // container.
 
