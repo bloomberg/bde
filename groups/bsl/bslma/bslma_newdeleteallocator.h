@@ -237,6 +237,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 
 namespace bslma {
@@ -296,12 +298,12 @@ class NewDeleteAllocator : public Allocator {
         // 'allocator' (factory) methods, or -- better -- the appropriate ones
         // in 'Default' (see 'bslma_default' for more information).
 
-    virtual ~NewDeleteAllocator();
+    ~NewDeleteAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator object.  Note that destroying this allocator
         // has no effect on any outstanding allocated memory.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (in bytes).  If 'size' is 0, a null pointer is
         // returned with no other effect.  The alignment of the address
@@ -311,7 +313,7 @@ class NewDeleteAllocator : public Allocator {
         // *not* called when 'size' is 0 (in order to avoid having to acquire a
         // lock, and potential contention in multi-threaded programs).
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect.  The
         // behavior is undefined unless 'address' was allocated using this

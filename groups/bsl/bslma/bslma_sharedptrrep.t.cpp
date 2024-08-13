@@ -4,8 +4,10 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
-#include <bsls_bsltestutil.h>
+
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -149,14 +151,14 @@ class MyTestImplementation : public bslma::SharedPtrRep {
     MyTestImplementation();
 
     // MANIPULATORS
-    virtual void disposeObject();
-    virtual void disposeRep();
-    virtual void *getDeleter(const std::type_info& type);
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
+    void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
     bool getNumObjectDisposed();
     bool getNumRepDisposed();
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
 };
 
                          // --------------------------

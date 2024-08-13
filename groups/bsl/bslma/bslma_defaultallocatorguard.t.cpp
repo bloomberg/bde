@@ -8,6 +8,7 @@
 #include <bslma_testallocator.h>           // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -109,11 +110,11 @@ class my_CountingAllocator : public bslma::Allocator
     int d_blocksOutstanding;
   public:
     my_CountingAllocator();
-    ~my_CountingAllocator();
+    ~my_CountingAllocator() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
-    virtual void deallocate(void *address);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
     int blocksOutstanding() const { return d_blocksOutstanding; }

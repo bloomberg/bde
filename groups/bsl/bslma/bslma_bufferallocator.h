@@ -205,6 +205,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 
 namespace bslma {
@@ -294,11 +296,11 @@ class BufferAllocator : public Allocator {
         // callback function 'allocCallback' that is invoked when a call to
         // 'allocate' cannot be fulfilled from 'buffer'.
 
-    ~BufferAllocator();
+    ~BufferAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this buffer allocator.
 
     // MANIPULATORS
-    void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (in bytes).  If 'size' is 0, a null pointer is
         // returned with no other effect.  If this allocator cannot return the
@@ -314,7 +316,7 @@ class BufferAllocator : public Allocator {
         // to return zero or throw an exception if this buffer allocator is
         // unable to satisfy the request.
 
-    void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // This function has no effect for this buffer allocator.
 
     // ACCESSORS

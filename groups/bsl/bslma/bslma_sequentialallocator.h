@@ -264,6 +264,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_managedallocator.h>
 #include <bslma_sequentialpool.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 
 
@@ -411,11 +413,11 @@ class SequentialAllocator : public ManagedAllocator {
         // 'maxBufferSize' may be overridden by a sufficiently large value
         // passed to 'allocate' or 'reserveCapacity'.
 
-    virtual ~SequentialAllocator();
+    ~SequentialAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this sequential allocator and release all associated memory.
 
     // MANIPULATORS
-    virtual void *allocate(size_type numBytes);
+    void *allocate(size_type numBytes) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (bytes).  If 'size' is 0, a null pointer is returned
         // with no effect.  The behavior is undefined unless '0 <= size'.  Note
@@ -435,7 +437,7 @@ class SequentialAllocator : public ManagedAllocator {
         // is returned.  The behavior is undefined unless
         // '0 <= *size <= maxNumBytes'.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // This method has no effect for this allocator.
 
     int expand(void *address, int originalNumBytes);
@@ -459,7 +461,7 @@ class SequentialAllocator : public ManagedAllocator {
         // expand the memory unless there have been no allocations since the
         // allocation for 'originalNumBytes'.
 
-    virtual void release();
+    void release() BSLS_KEYWORD_OVERRIDE;
         // Release all memory currently allocated through this allocator.
 
     virtual void reserveCapacity(int numBytes);

@@ -294,6 +294,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #include <bsls_bsllock.h>
 #include <bsls_buildtarget.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <cstdio>     // 'std::FILE' and (in macros) 'std::puts'
@@ -514,7 +515,7 @@ class TestAllocator : public Allocator {
         // to supply memory.  If 'basicAllocator' is 0, the
         // 'MallocFreeAllocator' singleton is used.
 
-    ~TestAllocator();
+    ~TestAllocator() BSLS_KEYWORD_OVERRIDE;
         // Destroy this allocator.  In verbose mode, print all contained state
         // values of this allocator object to 'stdout'.  Except in quiet mode,
         // automatically report any memory leaks to 'stdout'.  Abort if either
@@ -525,7 +526,7 @@ class TestAllocator : public Allocator {
         // the (default) 'MallocFreeAllocator' singleton was used).
 
     // MANIPULATORS
-    void *allocate(size_type size);
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly-allocated block of memory of the specified 'size' (in
         // bytes).  If 'size' is 0, a null pointer is returned.  Otherwise,
         // invoke the 'allocate' method of the allocator supplied at
@@ -536,7 +537,7 @@ class TestAllocator : public Allocator {
         // incremented, 'lastAllocatedNumBytes()' is set to 'size', and
         // 'lastDeallocatedAddress()' is set to 0.
 
-    void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect (other
         // than to record relevant statistics).  Otherwise, if the memory at
@@ -791,12 +792,13 @@ class TestAllocator_Proxy : public TestAllocator_ProxyBase {
     {
     }
 
-    ~TestAllocator_Proxy()
+    ~TestAllocator_Proxy() BSLS_KEYWORD_OVERRIDE
     {
     }
 
     // ACCESSORS
-    virtual void setAllocationLimit(bsls::Types::Int64 limit) const
+    void setAllocationLimit(bsls::Types::Int64 limit) const
+                                                          BSLS_KEYWORD_OVERRIDE
     {
         d_allocator_p->setAllocationLimit(limit);
     }
