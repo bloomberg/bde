@@ -9,6 +9,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_spinlock.h>
 #include <bsls_systemtime.h>
@@ -748,7 +749,7 @@ class ThreadProducerArrive : public ThreadTest {
     }
 
     // MANIPULATORS
-    virtual int mainLoop()
+    int mainLoop() BSLS_KEYWORD_OVERRIDE
         // Execute the sequence of operations specific to a
         // 'ThreadProducerArrive' object, and return 1.
     {
@@ -784,7 +785,7 @@ class ThreadProducerCountDown : public ThreadTest {
     }
 
     // MANIPULATORS
-    virtual int mainLoop()
+    int mainLoop() BSLS_KEYWORD_OVERRIDE
         // Execute the sequence of operations specific to a
         // 'ThreadProducerCountDown' object, and return 1.
     {
@@ -820,7 +821,7 @@ class ThreadConsumer : public ThreadTest {
     }
 
     // MANIPULATORS
-    virtual int mainLoop()
+    int mainLoop() BSLS_KEYWORD_OVERRIDE
         // Execute the sequence of operations specific to a 'ThreadConsumer'
         // object, and return 1.
     {
@@ -857,7 +858,7 @@ class ThreadProducerConsumer : public ThreadTest {
     }
 
     // MANIPULATORS
-    virtual int mainLoop()
+    int mainLoop() BSLS_KEYWORD_OVERRIDE
         // Execute the sequence of operations specific to a
         // 'ThreadProducerConsumer' object, and return 1.
     {
