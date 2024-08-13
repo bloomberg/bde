@@ -960,12 +960,12 @@ class TestInStream_Proxy: public TestInStream_ProxyBase {
     {
     }
 
-    ~TestInStream_Proxy()
+    ~TestInStream_Proxy() BSLS_KEYWORD_OVERRIDE
     {
     }
 
     // ACCESSORS
-    virtual void setInputLimit(int limit) const
+    void setInputLimit(int limit) const BSLS_KEYWORD_OVERRIDE
     {
         d_stream_p->setInputLimit(limit);
     }
