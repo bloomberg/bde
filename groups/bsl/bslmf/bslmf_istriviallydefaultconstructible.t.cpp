@@ -241,26 +241,26 @@ struct StructWithCtor {
 };
 
 struct NamedStructWithNonPodMember {
-    // This user-defined type is used to check the expected behaviour for a
+    // This user-defined type is used to check the expected behavior for a
     // 'well-behaved' non-copyable type.
     StructWithCtor x;
 };
 
 typedef struct {
-    // This user-defined type is used to check the expected behaviour for a
+    // This user-defined type is used to check the expected behavior for a
     // 'typedef struct' non-default-constructible type (checking to make sure
     // we're not encountering AIX bug {DRQS 153975424}).
     StructWithCtor x;
 } TypedefedStructWithNonPodMember;
 
 struct NamedStructWithPodMember {
-    // This user-defined type is used to check the expected behaviour for a
+    // This user-defined type is used to check the expected behavior for a
     // 'well-behaved' POD type.
     int x;
 };
 
 typedef struct {
-    // This user-defined type is used to check the expected behaviour for a
+    // This user-defined type is used to check the expected behavior for a
     // 'typedef struct' POD type.
     int x;
 } TypedefedStructWithPodMember;
@@ -400,9 +400,11 @@ int main(int argc, char *argv[])
         //:
         //: 3 Verify 'is_trivially_dflt_ctible<TSWNPM>' is 'false'.
         //:
-        //: 4 Verify 'is_trivially_dflt_ctible<NSWPM>' is 'false'.
+        //: 4 Verify 'is_trivially_dflt_ctible<NSWPM>' is 'false' unless native
+        //:   traits are used.
         //:
-        //: 5 Verify 'is_trivially_dflt_ctible<TSWPM>' is 'false' (C-1).
+        //: 5 Verify 'is_trivially_dflt_ctible<TSWPM>' is 'false' (C-1) unless
+        //:   native traits are used.
         //
         // Testing:
         //   'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
@@ -417,30 +419,31 @@ int main(int argc, char *argv[])
               "===========\n");
 
         // P-1
-        ASSERTV(
-            !bsl::is_trivially_default_constructible<StructWithCtor>::value,
-            !bsl::is_trivially_default_constructible<StructWithCtor>::value);
-        // P-2
-        ASSERTV(!bsl::is_trivially_default_constructible<
-                    NamedStructWithNonPodMember>::value,
-                !bsl::is_trivially_default_constructible<
-                    NamedStructWithNonPodMember>::value);
-        // P-3
-        ASSERTV(!bsl::is_trivially_default_constructible<
-                    TypedefedStructWithNonPodMember>::value,
-                !bsl::is_trivially_default_constructible<
-                    TypedefedStructWithNonPodMember>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                                       StructWithCtor>::value);
 
+        // P-2
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                          NamedStructWithNonPodMember>::value);
+        // P-3
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                      TypedefedStructWithNonPodMember>::value);
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
         // P-4
-        ASSERTV(!bsl::is_trivially_default_constructible<
-                    NamedStructWithPodMember>::value,
-                !bsl::is_trivially_default_constructible<
-                    NamedStructWithPodMember>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                             NamedStructWithPodMember>::value);
         // P-5
-        ASSERTV(!bsl::is_trivially_default_constructible<
-                    TypedefedStructWithPodMember>::value,
-                !bsl::is_trivially_default_constructible<
-                    TypedefedStructWithPodMember>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                         TypedefedStructWithPodMember>::value);
+#else
+        // P-4
+        ASSERT(bsl::is_trivially_default_constructible<
+                                             NamedStructWithPodMember>::value);
+        // P-5
+        ASSERT(bsl::is_trivially_default_constructible<
+                                         TypedefedStructWithPodMember>::value);
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -450,7 +453,8 @@ int main(int argc, char *argv[])
         //   trivially default constructible.
         //
         // Concerns:
-        //: 1 The meta-function returns 'false' for normal user-defined types.
+        //: 1 The meta-function returns 'false' for normal user-defined types
+        //:   when the standard trait is not present.
         //:
         //: 2 The meta-function returns 'true' for a user-defined type, if a
         //:   specialization for 'bsl::is_trivially_default_constructible' on
@@ -488,9 +492,15 @@ int main(int argc, char *argv[])
                    "\n===================================================\n");
 
         // C-1
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
         ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(
                                                      UserDefinedNonTdcTestType,
                                                      false);
+#else
+        ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(
+                                                     UserDefinedNonTdcTestType,
+                                                     true);
+#endif
 
         // C-2
         ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(

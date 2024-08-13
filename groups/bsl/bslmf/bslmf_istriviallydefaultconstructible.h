@@ -152,6 +152,10 @@ BSLS_IDENT("$Id: $")
 
 #include <stddef.h>
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+# include <type_traits>
+#endif
+
 namespace bsl {
 
 template <class t_TYPE>
@@ -162,30 +166,64 @@ struct is_trivially_default_constructible;
 namespace BloombergLP {
 namespace bslmf {
 
-                         // ==========================================
-                         // struct IsTriviallyDefaultConstructible_Imp
-                         // ==========================================
+           // ==================================================
+           // struct IsTriviallyDefaultConstructible_DetectTrait
+           // ==================================================
+
+template <class t_TYPE, bool t_K_INTRINSIC = false>
+struct IsTriviallyDefaultConstructible_DetectTrait
+: DetectNestedTrait<t_TYPE, bsl::is_trivially_default_constructible>::type {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (non-cv-qualified) (template parameter) 't_TYPE' has been explicitly
+    // tagged with the trivially default constructible trait.  If the flag
+    // 't_K_INTRINSIC' is 'true' then the compiler has already determined that
+    // 't_TYPE' is trivially default constructible without user intervention,
+    // and the check for nested traits can be optimized away.
+};
 
 template <class t_TYPE>
+struct IsTriviallyDefaultConstructible_DetectTrait<t_TYPE, true>
+: bsl::true_type {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (non-cv-qualified) (template parameter) 't_TYPE' is trivially
+    // default constructible.
+};
+
+               // ==========================================
+               // struct IsTriviallyDefaultConstructible_Imp
+               // ==========================================
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+template <class t_TYPE>
 struct IsTriviallyDefaultConstructible_Imp
-: bsl::integral_constant<
-      bool,
-      !bsl::is_reference<t_TYPE>::value &&
-          (bsl::is_fundamental<t_TYPE>::value || bsl::is_enum<t_TYPE>::value ||
-           bsl::is_pointer<t_TYPE>::value ||
-           bsl::is_member_pointer<t_TYPE>::value ||
-           DetectNestedTrait<t_TYPE, bsl::is_trivially_default_constructible>::
-               value)> {
+: IsTriviallyDefaultConstructible_DetectTrait<
+      t_TYPE,
+      ::std::is_trivially_default_constructible<t_TYPE>::value>::type {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (non-cv-qualified) (template parameter) 't_TYPE' is trivially
+    // default constructible.
+};
+#else
+template <class t_TYPE>
+struct IsTriviallyDefaultConstructible_Imp
+: IsTriviallyDefaultConstructible_DetectTrait<
+      t_TYPE,
+      bsl::is_fundamental<t_TYPE>::value ||
+      bsl::is_enum<t_TYPE>::value ||
+      bsl::is_pointer<t_TYPE>::value ||
+      bsl::is_member_pointer<t_TYPE>::value>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 't_TYPE' is trivially
     // default-constructible.
 };
+
 
 template <>
 struct IsTriviallyDefaultConstructible_Imp<void> : bsl::false_type {
     // This explicit specialization reports that 'void' is not a trivially
     // default constructible type, despite being a fundamental type.
 };
+#endif
 
 
 }  // close package namespace
@@ -193,14 +231,13 @@ struct IsTriviallyDefaultConstructible_Imp<void> : bsl::false_type {
 
 namespace bsl {
 
-                         // =========================================
-                         // struct is_trivially_default_constructible
-                         // =========================================
+                // =========================================
+                // struct is_trivially_default_constructible
+                // =========================================
 
 template <class t_TYPE>
 struct is_trivially_default_constructible
-: BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<
-      typename remove_cv<t_TYPE>::type> {
+: BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<t_TYPE>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (template parameter) 't_TYPE' is trivially default-constructible.
     // This 'struct' derives from 'bsl::true_type' if the 't_TYPE' is trivially
