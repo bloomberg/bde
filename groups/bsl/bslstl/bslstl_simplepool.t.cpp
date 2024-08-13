@@ -16,6 +16,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_stdtestallocator.h>
@@ -278,7 +279,7 @@ class CheckedResource : public bslma::TestAllocator {
                     bool              verboseFlag,
                     bslma::Allocator *upstream = 0);
 
-    ~CheckedResource();
+    ~CheckedResource() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;

@@ -296,7 +296,7 @@ struct Callback0 : Node {
     {
     }
 
-    void invoke() BSLS_NOTHROW_SPEC
+    void invoke() BSLS_NOTHROW_SPEC BSLS_KEYWORD_OVERRIDE
     {
         d_invokingThread = Thread::currentThreadId();
         d_finished.store(true);
@@ -323,7 +323,7 @@ struct Callback1 : Callback0 {
     // functionality beyond that of 'Callback0'.
     explicit Callback1(GlobalState *state) : d_state_p(state) {}
 
-    void invoke() BSLS_NOTHROW_SPEC;
+    void invoke() BSLS_NOTHROW_SPEC BSLS_KEYWORD_OVERRIDE;
         // Arrive and wait at 'd_state_p->d_invoke1LatchBegin'.  Then, create a
         // 'Callback0' object, register it with 'd_state_p->d_stopState' and
         // verify that 'enregister' returns false and that the 'Callback0' has
@@ -468,7 +468,7 @@ struct GenericCallback : Node {
     {
     }
 
-    void invoke() BSLS_NOTHROW_SPEC
+    void invoke() BSLS_NOTHROW_SPEC BSLS_KEYWORD_OVERRIDE
     {
         d_count.add(1);
     }
@@ -493,7 +493,7 @@ struct Callback2To6 : GenericCallback {
         d_globalState_p = statePtr;
     }
 
-    void invoke() BSLS_NOTHROW_SPEC;
+    void invoke() BSLS_NOTHROW_SPEC BSLS_KEYWORD_OVERRIDE;
         // The behavior of each of the five callbacks of this type depends on
         // the order in which it was executed relative to the others.  See the
         // test plan for more details.

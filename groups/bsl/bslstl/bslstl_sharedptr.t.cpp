@@ -1884,7 +1884,7 @@ class MyTestObject : public MyTestBaseObject {
     explicit MyTestObject(bsls::Types::Int64 *deleteCounter,
                           bsls::Types::Int64 *copyCounter = 0);
 
-    virtual ~MyTestObject();
+    ~MyTestObject() BSLS_KEYWORD_OVERRIDE;
         // Destroy this object.
 
     // ACCESSORS
@@ -2403,23 +2403,23 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
         // by the specified 'dataPtr_p', which should be destroyed using the
         // specified 'basicAllocator'.
 
-    ~TestSharedPtrRep();
+    ~TestSharedPtrRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this test shared ptr rep object.
 
     // VIRTUAL (OVERRIDE) MANIPULATORS
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // Release the value stored by this representation.
 
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // Release this representation.
 
-    virtual void *getDeleter(const std::type_info&) { return 0; }
+    void *getDeleter(const std::type_info&) BSLS_KEYWORD_OVERRIDE { return 0; }
         // Return a pointer to the deleter stored by the derived representation
         // (if any) if the deleter has the same type as that described by the
         // specified 'type', and a null pointer otherwise.
 
     // VIRTUAL (OVERRIDE) ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return the original pointer stored by this representation.
 
     // ACCESSORS
@@ -2475,22 +2475,22 @@ class NonOwningRep : public bslma::SharedPtrRep {
         // currently installed default allocator is presumed to have been used.
         // Note that this object does not allocate any memory itself.
 
-    ~NonOwningRep();
+    ~NonOwningRep() BSLS_KEYWORD_OVERRIDE;
         // Destroy this test shared ptr rep object.
 
     // VIRTUAL (OVERRIDE) MANIPULATORS
-    virtual void disposeObject();
+    void disposeObject() BSLS_KEYWORD_OVERRIDE;
         // Release the value stored by this representation.
 
-    virtual void disposeRep();
+    void disposeRep() BSLS_KEYWORD_OVERRIDE;
         // Release this representation.
 
-    virtual void *getDeleter(const std::type_info&) { return 0; }
+    void *getDeleter(const std::type_info&) BSLS_KEYWORD_OVERRIDE { return 0; }
         // Return a null pointer.  Note that this rep type does not support
         // 'shared_ptr' custom deleters.
 
     // VIRTUAL (OVERRIDE) ACCESSORS
-    virtual void *originalPtr() const;
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
         // Return the original pointer stored by this representation.
 
     // ACCESSORS
@@ -2573,7 +2573,7 @@ class ShareThisDerived : public ShareThis
     {
     }
 
-    ~ShareThisDerived()
+    ~ShareThisDerived() BSLS_KEYWORD_OVERRIDE
         // Increment by 10 the integer referenced by 'd_destructorCount_p',
         // then destroy this object.  Note that the base class destructor will
         // also increment the same integer, for a combined raise of 11.
@@ -2746,7 +2746,7 @@ struct ScribblingAllocator : public bslma::Allocator {
     }
 
      // MANIPULATORS
-     virtual void *allocate(size_type size)
+     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE
          // Return a newly allocated block of memory of (at least) the
          // specified positive 'size' (in bytes).  If 'size' is 0, a null
          // pointer is returned with no other effect.  If this allocator
@@ -2763,7 +2763,7 @@ struct ScribblingAllocator : public bslma::Allocator {
         return address;
     }
 
-     virtual void deallocate(void *address)
+     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
          // Return the memory block at the specified 'address' back to this
          // allocator.  If 'address' is 0, this function has no effect.  The
          // behavior is undefined unless 'address' was allocated using this
@@ -2773,7 +2773,7 @@ struct ScribblingAllocator : public bslma::Allocator {
     }
 
 
-    ~ScribblingAllocator()
+    ~ScribblingAllocator() BSLS_KEYWORD_OVERRIDE
         // Destruct the object.
     {
     }

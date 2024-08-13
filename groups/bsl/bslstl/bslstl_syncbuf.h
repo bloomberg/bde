@@ -163,7 +163,7 @@ class basic_syncbuf : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>,
         // wrapped buffer.  Optionally specify an 'allocator' used to supply
         // memory.
 
-    ~basic_syncbuf();
+    ~basic_syncbuf() BSLS_KEYWORD_OVERRIDE;
         // Call 'emit'.  Any exceptions thrown by 'emit' are ignored.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
