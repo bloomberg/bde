@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <bslfmt_formatarg.h> // Testing only
+
 using namespace BloombergLP;
 using namespace bslfmt;
 
@@ -75,8 +77,63 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
-//                  ASSISTANCE FUNCTIONS
+//                  ASSISTANCE TYPES AND FUNCTIONS
 // ----------------------------------------------------------------------------
+
+namespace {
+
+template <class t_CHAR>
+struct MockFormatContext {
+  public:
+    // TYPES
+    typedef basic_format_arg<basic_format_context<void, t_CHAR> > Arg;
+
+  private:
+    // DATA
+    Arg d_arg_0;
+    Arg d_arg_1;
+    Arg d_arg_2;
+
+  public:
+    // CREATORS
+    template <class t_ARG0>
+    MockFormatContext(const t_ARG0 &arg_0) {
+        bsl::array<Arg, 1> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr, arg_0);
+        d_arg_0 = Arg(arr[0]);
+    }
+
+    template <class t_ARG0, class t_ARG1>
+    MockFormatContext(const t_ARG0 &arg_0, const t_ARG1 &arg_1) {
+        bsl::array<Arg, 2> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr, arg_0, arg_1);
+        d_arg_0 = Arg(arr[0]);
+        d_arg_1 = Arg(arr[1]);
+    }
+
+    template <class t_ARG0, class t_ARG1, class t_ARG2>
+    MockFormatContext(const t_ARG0& arg_0,
+                      const t_ARG1& arg_1,
+                      const t_ARG2& arg_2)
+    {
+        bsl::array<Arg, 3> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr,
+                                                      arg_0,
+                                                      arg_1,
+                                                      arg_2);
+        d_arg_0 = Arg(arr[0]);
+        d_arg_1 = Arg(arr[1]);
+        d_arg_2 = Arg(arr[2]);
+    }
+
+    // ACCESSORS
+    Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT {
+        if (id == 0) return d_arg_0;
+        if (id == 1) return d_arg_1;
+        if (id == 2) return d_arg_2;
+        return Arg();
+    }
+};
 
 void checkStandard(
           const char                                       *inputSpecification,
@@ -104,6 +161,9 @@ void checkStandard(
 
     FSC::parse(&fs, &start, end, sect);
 
+    MockFormatContext<char> mfc(99, 98, 97);
+    FSC::postprocess(&fs, mfc);
+
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
                                                   fs.fillerCharacters()));
     ASSERT(alignment == fs.alignment());
@@ -112,7 +172,7 @@ void checkStandard(
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
     ASSERT(rawWidth == fs.rawWidth());
     ASSERT(rawPrecision == fs.rawPrecision());
-    ASSERT(localeSpecificFlag == fs.localcSpecificFlag());
+    ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
     ASSERT(finalSpec == fs.finalSpec());
 }
 
@@ -143,6 +203,9 @@ void checkStandard(
 
     FSW::parse(&fs, &start, end, sect);
 
+    MockFormatContext<wchar_t> mfc(99, 98, 97);
+    FSW::postprocess(&fs, mfc);
+
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
                                                      fs.fillerCharacters()));
     ASSERT(alignment == fs.alignment());
@@ -151,8 +214,10 @@ void checkStandard(
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
     ASSERT(rawWidth == fs.rawWidth());
     ASSERT(rawPrecision == fs.rawPrecision());
-    ASSERT(localeSpecificFlag == fs.localcSpecificFlag());
+    ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
     ASSERT(finalSpec == fs.finalSpec());
+}
+
 }
 
 //=============================================================================
@@ -176,7 +241,7 @@ int main(int argc, char **argv)
         typedef FormatterSpecification_NumericValue      FSValue;
 
         checkStandard("",
-                      "",
+                      " ",
                       FSC::e_ALIGN_DEFAULT,
                       FSC::e_SIGN_DEFAULT,
                       false,
@@ -197,19 +262,30 @@ int main(int argc, char **argv)
                       false,
                       "XYZ");
 
-        checkStandard("*<{}.{3}XYZ",
+        checkStandard("*<{}.{}XYZ",
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
                       FSValue(0, FSValue::e_NEXT_ARG),
-                      FSValue(3, FSValue::e_ARG_ID),
+                      FSValue(0, FSValue::e_NEXT_ARG),
+                      false,
+                      "XYZ");
+
+        checkStandard("*<{1}.{2}XYZ",
+                      "*",
+                      FSC::e_ALIGN_LEFT,
+                      FSC::e_SIGN_DEFAULT,
+                      false,
+                      false,
+                      FSValue(1, FSValue::e_ARG_ID),
+                      FSValue(2, FSValue::e_ARG_ID),
                       false,
                       "XYZ");
 
         checkStandard(L"",
-                      L"",
+                      L" ",
                       FSW::e_ALIGN_DEFAULT,
                       FSW::e_SIGN_DEFAULT,
                       false,
@@ -230,14 +306,25 @@ int main(int argc, char **argv)
                       false,
                       L"XYZ");
 
-        checkStandard(L"*<{}.{3}XYZ",
+        checkStandard(L"*<{}.{}XYZ",
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
                       FSValue(0, FSValue::e_NEXT_ARG),
-                      FSValue(3, FSValue::e_ARG_ID),
+                      FSValue(0, FSValue::e_NEXT_ARG),
+                      false,
+                      L"XYZ");
+
+        checkStandard(L"*<{1}.{2}XYZ",
+                      L"*",
+                      FSW::e_ALIGN_LEFT,
+                      FSW::e_SIGN_DEFAULT,
+                      false,
+                      false,
+                      FSValue(1, FSValue::e_ARG_ID),
+                      FSValue(2, FSValue::e_ARG_ID),
                       false,
                       L"XYZ");
 

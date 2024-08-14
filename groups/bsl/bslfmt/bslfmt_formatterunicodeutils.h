@@ -94,7 +94,7 @@ struct Formatter_UnicodeUtils {
     /// supported.
     static CodePointExtractionResult extractCodePoint(UtfEncoding  encoding,
                                                       const void  *bytes,
-                                                      int          maxBytes);
+                                                      size_t       maxBytes);
 
     /// Extract a grapheme cluster from no more than the specified `maxBytes`
     /// of the byte stream at the specified `bytes` location in the specified
@@ -123,7 +123,7 @@ struct Formatter_UnicodeUtils {
     static GraphemeClusterExtractionResult extractGraphemeCluster(
                                                         UtfEncoding  encoding,
                                                         const void  *bytes,
-                                                        int          maxBytes);
+                                                        size_t       maxBytes);
 
 
     static BSLS_KEYWORD_CONSTEXPR_CPP20 int codepointBytesIfValid(
@@ -215,6 +215,7 @@ struct Formatter_CharUtils<wchar_t> {
                         // class Formatter_UnicodeUtils
                         // ----------------------------
 
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20 int Formatter_UnicodeUtils::codepointBytesIfValid(
                                                           const char firstChar)
 {
@@ -231,20 +232,24 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 int Formatter_UnicodeUtils::codepointBytesIfValid(
         return -1;
 }
 
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20 int Formatter_UnicodeUtils::codepointBytesIfValid(
                                                       const wchar_t firstChar)
 {
     switch (sizeof(wchar_t)) {
       case 2: { // UTF-16
-        if (firstChar < 0xd800)
+        if (static_cast<unsigned int>(firstChar) <
+            static_cast<unsigned int>(0xd800))
             return 2;
-        else if (firstChar < 0xdc00)
+        else if (static_cast<unsigned int>(firstChar) <
+                 static_cast<unsigned int>(0xdc00))
             return 4;
         else
             return -1;
       } break;
       case 4: { // UTF-32
-        if (firstChar < 0x80000000)
+        if (static_cast<unsigned long>(firstChar) <
+            static_cast<unsigned long>(0x80000000U))
             return 4;
         else
             return -1;

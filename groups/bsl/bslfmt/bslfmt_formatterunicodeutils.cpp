@@ -136,7 +136,7 @@ int get4ByteUtf8Value(const unsigned char *pc)
 }
 
 static inline
-bool isByteOrderMarker(const void *bytes, int maxBytes)
+bool isByteOrderMarker(const void *bytes, size_t maxBytes)
     // Determine whether the start of the specified array `bytes`, up to a
     // maximum length of the specified `maxBytes` contains a UTF Byte Order
     // Marker, and return the result.
@@ -285,7 +285,7 @@ int getCodepointWidth(unsigned long int codepoint)
 /// decode is valid, a count of the source bytes used and the decoded
 /// Unicode code point value. Byte Order Markers are not supported.
 bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
-extractUtf8(const void *bytes, int maxBytes)
+extractUtf8(const void *bytes, size_t maxBytes)
 {
     bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult result;
     memset(&result,
@@ -465,7 +465,7 @@ extractUtf8(const void *bytes, int maxBytes)
 /// is assumed to be the same as for the `wchar_t` type and Byte Order
 /// Markers are not supported.
 bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
-extractUtf16(const void *bytes, int maxBytes)
+extractUtf16(const void *bytes, size_t maxBytes)
 {
     bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult result;
     memset(&result,
@@ -553,7 +553,7 @@ extractUtf16(const void *bytes, int maxBytes)
 /// is assumed to be the same as for the `wchar_t` type and Byte Order
 /// Markers are not supported.
 bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
-extractUtf32(const void *bytes, int maxBytes)
+extractUtf32(const void *bytes, size_t maxBytes)
 {
     bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult result;
     memset(&result,
@@ -675,7 +675,7 @@ namespace bslfmt {
 Formatter_UnicodeUtils::CodePointExtractionResult
 Formatter_UnicodeUtils::extractCodePoint(UtfEncoding  encoding,
                                          const void   *bytes,
-                                         int          maxBytes)
+                                         size_t        maxBytes)
 {
     switch (encoding) {
         case e_UTF8: {
@@ -699,7 +699,7 @@ Formatter_UnicodeUtils::extractCodePoint(UtfEncoding  encoding,
 Formatter_UnicodeUtils::GraphemeClusterExtractionResult
 Formatter_UnicodeUtils::extractGraphemeCluster(UtfEncoding  encoding,
                                                const void   *bytes,
-                                               int          maxBytes)
+                                               size_t        maxBytes)
 {
     GraphemeClusterExtractionResult result;
 

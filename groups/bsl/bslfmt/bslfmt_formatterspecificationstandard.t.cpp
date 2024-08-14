@@ -5,6 +5,7 @@
 
 #include <bslstl_string.h>
 
+#include <bslfmt_formatarg.h> // Testing only
 #include <bslfmt_formatparsecontext.h> // Testing only
 
 #include <stdio.h>
@@ -80,6 +81,58 @@ void aSsErT(bool condition, const char *message, int line)
 //                  ASSISTANCE FUNCTIONS
 // ----------------------------------------------------------------------------
 
+template <class t_CHAR>
+struct MockFormatContext {
+  public:
+    // TYPES
+    typedef basic_format_arg<basic_format_context<void, t_CHAR> > Arg;
+
+  private:
+    // DATA
+    Arg d_arg_0;
+    Arg d_arg_1;
+    Arg d_arg_2;
+
+  public:
+    // CREATORS
+    template <class t_ARG0>
+    MockFormatContext(const t_ARG0 &arg_0) {
+        bsl::array<Arg, 1> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr, arg_0);
+        d_arg_0 = Arg(arr[0]);
+    }
+
+    template <class t_ARG0, class t_ARG1>
+    MockFormatContext(const t_ARG0 &arg_0, const t_ARG1 &arg_1) {
+        bsl::array<Arg, 2> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr, arg_0, arg_1);
+        d_arg_0 = Arg(arr[0]);
+        d_arg_1 = Arg(arr[1]);
+    }
+
+    template <class t_ARG0, class t_ARG1, class t_ARG2>
+    MockFormatContext(const t_ARG0& arg_0,
+                      const t_ARG1& arg_1,
+                      const t_ARG2& arg_2)
+    {
+        bsl::array<Arg, 3> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr,
+                                                      arg_0,
+                                                      arg_1,
+                                                      arg_2);
+        d_arg_0 = Arg(arr[0]);
+        d_arg_1 = Arg(arr[1]);
+        d_arg_2 = Arg(arr[2]);
+    }
+
+    // ACCESSORS
+    Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT {
+        if (id == 0) return d_arg_0;
+        if (id == 1) return d_arg_1;
+        if (id == 2) return d_arg_2;
+        return Arg();
+    }
+};
 
 void checkStandard(
           const char                                       *inputSpecification,
@@ -98,9 +151,10 @@ void checkStandard(
 
     basic_format_parse_context<char> pc(inputSpecification);
 
-    const char *start = inputSpecification;
-    const char *end   = start + strlen(start);
     FormatterSpecificationStandard<char>::parse(&fs, &pc, category);
+
+    MockFormatContext<char> mfc(99, 98, 97);
+    FormatterSpecificationStandard<char>::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
                                                   fs.fillerCharacters()));
@@ -110,7 +164,7 @@ void checkStandard(
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
     ASSERT(adjustedWidth == fs.adjustedWidth());
     ASSERT(adjustedPrecision == fs.adjustedPrecision());
-    ASSERT(localeSpecificFlag == fs.localcSpecificFlag());
+    ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
     ASSERT(formatType == fs.formatType());
 }
 
@@ -131,11 +185,12 @@ void checkStandard(
 
     basic_format_parse_context<wchar_t> pc(inputSpecification);
 
-    const wchar_t *start = inputSpecification;
-    const wchar_t *end   = start + wcslen(start);
     FormatterSpecificationStandard<wchar_t>::parse(&fs,
                                                             &pc,
                                                             category);
+
+    MockFormatContext<wchar_t> mfc(99, 98, 97);
+    FormatterSpecificationStandard<wchar_t>::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
                                                      fs.fillerCharacters()));
@@ -145,7 +200,7 @@ void checkStandard(
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
     ASSERT(adjustedWidth == fs.adjustedWidth());
     ASSERT(adjustedPrecision == fs.adjustedPrecision());
-    ASSERT(localeSpecificFlag == fs.localcSpecificFlag());
+    ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
     ASSERT(formatType == fs.formatType());
 }
 

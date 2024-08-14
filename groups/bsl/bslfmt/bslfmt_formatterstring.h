@@ -44,7 +44,7 @@ struct Formatter_StringBase {
 
     // PRIVATE CLASS METHODS
     static void findPrecisionLimitedString(
-                          int                            *charactersUsed,
+                          size_t                         *charactersUsed,
                           int                            *widthUsed,
                           bsl::basic_string_view<t_CHAR>  inputString,
                           int                             maxTotalDisplayWidth)
@@ -103,8 +103,6 @@ struct Formatter_StringBase {
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                            t_PARSE_CONTEXT& pc)
     {
-        typename t_PARSE_CONTEXT::iterator current = pc.begin();
-
         FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
 
         if (d_spec.sign() != FSS::e_SIGN_DEFAULT)
@@ -119,7 +117,7 @@ struct Formatter_StringBase {
             BSLS_THROW(bsl::format_error(
                          "Formatting 0 specifier not valid for string types"));
 
-        if (d_spec.localcSpecificFlag())
+        if (d_spec.localeSpecificFlag())
             BSLS_THROW(bsl::format_error(
                          "Formatting L specifier not supported"));
 
@@ -147,8 +145,8 @@ struct Formatter_StringBase {
 
         FSNVAlue finalPrecision(final_spec.adjustedPrecision());
 
-        int displayWidthUsedByInputString      = 0;
-        int charactersOfInputUsed = sv.size();
+        int    displayWidthUsedByInputString = 0;
+        size_t charactersOfInputUsed         = 0;
 
         int maxDisplayWidth = 0;
         switch (finalPrecision.valueType()) {
