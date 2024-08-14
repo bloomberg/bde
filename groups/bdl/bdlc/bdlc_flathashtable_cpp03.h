@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Feb 20 23:16:19 2024
+// Generated on Wed Aug 14 13:19:00 2024
 // Command line: sim_cpp11_features.pl bdlc_flathashtable.h
 
 #ifdef COMPILING_BDLC_FLATHASHTABLE_H
@@ -1854,7 +1854,10 @@ void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::clear()
                                 d_controls_p,
                                 d_controls_p + d_capacity);
 
-    bsl::memset(d_controls_p, GroupControl::k_EMPTY, d_capacity);
+    if (d_controls_p) {
+        bsl::memset(d_controls_p, GroupControl::k_EMPTY, d_capacity);
+    }
+
     d_size = 0;
 }
 

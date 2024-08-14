@@ -1517,7 +1517,10 @@ void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::clear()
                                 d_controls_p,
                                 d_controls_p + d_capacity);
 
-    bsl::memset(d_controls_p, GroupControl::k_EMPTY, d_capacity);
+    if (d_controls_p) {
+        bsl::memset(d_controls_p, GroupControl::k_EMPTY, d_capacity);
+    }
+
     d_size = 0;
 }
 
