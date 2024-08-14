@@ -32,7 +32,9 @@ void OverflowMemOutStreamBuf::grow(bsl::size_t numBytes)
     char *newBuffer =
                     reinterpret_cast<char *>(d_allocator_p->allocate(newSize));
 
-    bsl::memcpy(newBuffer, d_overflowBuffer_p, d_overflowBufferSize);
+    if (numBytes) {
+        bsl::memcpy(newBuffer, d_overflowBuffer_p, d_overflowBufferSize);
+    }
     d_allocator_p->deallocate(d_overflowBuffer_p);
 
     d_overflowBuffer_p = newBuffer;
