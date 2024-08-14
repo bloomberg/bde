@@ -334,6 +334,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_buildtarget.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
@@ -1153,12 +1154,12 @@ class TestInStream_Proxy: public TestInStream_ProxyBase {
     {
     }
 
-    ~TestInStream_Proxy()
+    ~TestInStream_Proxy() BSLS_KEYWORD_OVERRIDE
     {
     }
 
     // ACCESSORS
-    virtual void setInputLimit(int limit) const
+    void setInputLimit(int limit) const BSLS_KEYWORD_OVERRIDE
     {
         d_stream_p->setInputLimit(limit);
     }
