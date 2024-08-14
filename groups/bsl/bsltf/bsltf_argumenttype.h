@@ -451,7 +451,7 @@ template <int N>
 inline
 void ArgumentType<N>::reset()
 {
-    this->resetCopyMoveState();
+    d_tracker.resetCopyMoveState();
     d_data = -1;
 }
 

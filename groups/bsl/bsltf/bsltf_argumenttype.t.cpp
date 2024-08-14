@@ -69,6 +69,7 @@ using namespace BloombergLP;
 // [ 9] ArgumentType& operator=(ArgumentType const& rhs);
 // [11] ArgumentType& operator=(bslmf::MovableRef<ArgumentType> rhs);
 // [12] ArgumentType& operator=(int rhs);
+// [ 2] void reset();
 // [ 2] void set(int value, CopyMoveState::Enum state);
 //
 // ACCESSORS
@@ -1362,16 +1363,18 @@ int main(int argc, char *argv[])
         //:
         //: 2 The 'set' method can set the object to any valid state.
         //:
-        //: 3 The value and copy/move state can be read through a const
+        //: 3 The 'reset' method will set the object to the default-constructed
+        //:   state.
+        //: 4 The value and copy/move state can be read through a const
         //:   reference using the appropriate accessors.
         //:
-        //: 4 (Negative testing) In the appropriate build mode, setting an
+        //: 5 (Negative testing) In the appropriate build mode, setting an
         //:   invalid combination of value and copy/move state results in an
         //:   assertion failure.
         //
         // Plan:
         //: 1 Default-construct an object and use the individual (as yet
-        //:   unproven) 'int' conversion operator and 'copyMoveState()'
+        //:   unproven) 'int' conversion operator and 'copyMoveState'
         //:   accessor to verify the default-constructed state.  (C-1)
         //:
         //: 2 Using the table-driven technique, specify a set of distinct
@@ -1384,15 +1387,19 @@ int main(int argc, char *argv[])
         //:   specified in the table rows.  (C-2)
         //:
         //:   2 Use the 'int' conversion operator to Verify that 'mX' has the
-        //:     intended integer value.  (C-3)
+        //:     intended integer value.  (C-4)
         //:
         //:   3 Use the 'copyMoveState' accessor to verify that 'mX' has the
-        //:     intended copy/move state. (C-3)
+        //:     intended copy/move state.  (C-4)
+        //:
+        //:   4 Use the 'reset' method on 'mX' and use the 'int' conversion
+        //:     operator and 'copyMoveState' accessor to verify that it is back
+        //:     to its default-constructed state.  (C-3)
         //:
         //: 4 Using the 'AssertTest' mechanism and a representative sample of
         //:   valid and invalid arguments to 'set', verify that the invalid
         //:   combinations trigger assert failures whereas the valid ones do
-        //:   not.  (C-4)
+        //:   not.  (C-5)
         //
         // Testing:
         //   ArgumentType(ArgumentTypeDefault);
@@ -1426,6 +1433,10 @@ int main(int argc, char *argv[])
             mX.set(VALUE, CMSTATE);
             ASSERTV(LINE, X, VALUE == int(X));
             ASSERTV(LINE, X, CMSTATE == X.copyMoveState());
+
+            mX.reset();
+            ASSERTV(LINE, X, D                == int(X));
+            ASSERTV(LINE, X, CMS::e_ORIGINAL  == X.copyMoveState());
         }
 
         if (verbose) printf("\tNegative Testing.\n");
