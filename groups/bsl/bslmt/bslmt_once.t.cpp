@@ -48,6 +48,7 @@ using namespace bsl;
 // [ 3] void bslmt::Once::cancel(OnceLock *onceLock);
 // [ 2] bool bslmt::Once::enter(OnceLock *onceLock);
 // [ 2] void bslmt::Once::leave(OnceLock *onceLock);
+// [ 2] bool bslmt::Once::isMaybeUninitialized() const;
 // [ 4] bslmt::OnceGuard::bslmt::OnceGuard(bslmt::Once *once);
 // [ 4] bslmt::OnceGuard::~bslmt::OnceGuard(bslmt::Once *once);
 // [ 5] void bslmt::OnceGuard::cancel();
@@ -1701,6 +1702,8 @@ int main(int argc, char *argv[])
         //     for the winner, but not for the other losers.
         //   - Subsequent attempts to enter the same one-time code do nothing
         //     and return immediately.
+        //   - The exposed state of initialization is consistent with the
+        //     behavior of the object.
         //   - The above concerns are met for as few as 1 and as many as 15
         //     threads.  (It is assumed that more than 15 threads will not
         //     change the behavior.)
@@ -1728,6 +1731,8 @@ int main(int argc, char *argv[])
         //   - Repeat the test without resetting the bslmt::Once structure.
         //   - Verify that none of the threads are winners the second time.
         //   - Verify that it takes almost no time for each thread to complete.
+        //   - Verify that the state of initialization is consistent at each
+        //     step.
         //   - Reset the 'bslmt::Once' object and repeat this test many times
         //     to maximize the chance of exposing unhandled race conditions.
         //   - Repeat the entire test with two separate 'bslmt::Once' objects
@@ -1777,6 +1782,10 @@ int main(int argc, char *argv[])
                 bslmt::Once once = BSLMT_ONCE_INITIALIZER;
                 int winner = -1;
 
+                // Verify the initial state
+                LOOP2_ASSERT(repetition, numThreads,
+                             once.isMaybeUninitialized());
+
                 // Initialize the test records
                 for (int i = 0; i < numThreads; ++i) {
                     testRecords[i].d_barrier_p   = &barrier;
@@ -1821,6 +1830,10 @@ int main(int argc, char *argv[])
                                  MIN_ELAPSED <= winnerElapsed &&
                                  MAX_ELAPSED >= winnerElapsed);
                 }
+
+                // Verify the state is no longer uninitialized
+                LOOP2_ASSERT(repetition, numThreads,
+                             !once.isMaybeUninitialized());
 
                 // Verify expected results of all threads.
                 for (int i = 0; i < numThreads; ++i) {
@@ -1888,6 +1901,10 @@ int main(int argc, char *argv[])
                     }
                 }
 
+                // Verify the state has not changed
+                LOOP2_ASSERT(repetition, numThreads,
+                             !once.isMaybeUninitialized());
+
             } // end for (repetition)
         } // end for (numThreads)
 
@@ -1916,6 +1933,12 @@ int main(int argc, char *argv[])
                 int winner2 = -1;
                 bslmt::Once once1 = BSLMT_ONCE_INITIALIZER;
                 bslmt::Once once2 = BSLMT_ONCE_INITIALIZER;
+
+                // Verify the initial state
+                LOOP2_ASSERT(repetition, numThreads,
+                             once1.isMaybeUninitialized());
+                LOOP2_ASSERT(repetition, numThreads,
+                             once2.isMaybeUninitialized());
 
                 // Initialize the test records
                 for (int i = 0; i < numThreads; ++i) {
@@ -2036,6 +2059,12 @@ int main(int argc, char *argv[])
                     }
                 }
 
+                // Verify the state is no longer uninitialized
+                LOOP2_ASSERT(repetition, numThreads,
+                             !once1.isMaybeUninitialized());
+                LOOP2_ASSERT(repetition, numThreads,
+                             !once2.isMaybeUninitialized());
+
                 // Re-initialize the test records
                 winner1 = -1;
                 winner2 = -1;
@@ -2077,6 +2106,12 @@ int main(int argc, char *argv[])
                                      elapsedTime < MAX_NOOP_DELAY);
                     }
                 }
+
+                // Verify the state has not changed
+                LOOP2_ASSERT(repetition, numThreads,
+                             !once1.isMaybeUninitialized());
+                LOOP2_ASSERT(repetition, numThreads,
+                             !once2.isMaybeUninitialized());
 
             } // end for (repetition)
         } // end for (numThreads)

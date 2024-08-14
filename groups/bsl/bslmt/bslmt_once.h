@@ -346,6 +346,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #include <bsls_assert.h>
 #include <bsls_buildtarget.h>
+#include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
 #include <bsl_exception.h>
@@ -476,6 +477,11 @@ class Once {
         // where 'function' is a function or functor that can be called with no
         // arguments.  Note that one-time code is considered not to have run if
         // 'function' terminates with an exception.
+
+    // ACCESSORS
+    bool isMaybeUninitialized() const;
+        // Return 'true' if this object may not be in the "done" state (that
+        // is, 'leave' has not been called).
 };
 
                              // ===============
@@ -571,9 +577,11 @@ class OnceGuard {
 // macro within a source file supplies a different 'doOnceObj' name.
 #define BSLMT_ONCE_DO_IMP(doOnceObj)                                          \
     static BloombergLP::bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;       \
-    for (BloombergLP::bslmt::OnceGuard                            /* NOLINT */\
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(                                \
+                                           doOnceObj.isMaybeUninitialized())) \
+        for (BloombergLP::bslmt::OnceGuard                        /* NOLINT */\
                                                 bslmt_doOnceGuard(&doOnceObj);\
-         bslmt_doOnceGuard.enter(); bslmt_doOnceGuard.leave())
+             bslmt_doOnceGuard.enter(); bslmt_doOnceGuard.leave())
 
                              // ---------------
                              // class OnceGuard
@@ -609,6 +617,7 @@ bool bslmt::OnceGuard::isInProgress() const
                                 // class Once
                                 // ----------
 
+// MANIPULATORS
 template <class FUNC>
 inline
 void bslmt::Once::callOnce(FUNC& function)
@@ -647,6 +656,13 @@ void bslmt::Once::callOnce(const FUNC& function)
         function();
 #endif
     }
+}
+
+// ACCESSORS
+inline
+bool bslmt::Once::isMaybeUninitialized() const
+{
+    return e_DONE != bsls::AtomicOperations::getIntAcquire(&d_state);
 }
 
 }  // close enterprise namespace
