@@ -881,11 +881,11 @@ Datum Datum::createDecimal64(bdldfp::Decimal64    value,
             return result;                                            // RETURN
         }
         else {
-            void* mem = allocateBytes(allocator, sizeof(bdldfp::Decimal64));
-            new (mem) bdldfp::Decimal64(value);
+            void* mem = AllocUtil::newObject<bdldfp::Decimal64>(allocator,
+                                                                value);
             return createExtendedDataObject(
-                                        e_EXTENDED_INTERNAL_DECIMAL64_ALLOC,
-                                        mem);
+                                           e_EXTENDED_INTERNAL_DECIMAL64_ALLOC,
+                                           mem);
         }
     }
 #else   // end - 32 bit / begin - 64 bit
@@ -917,8 +917,9 @@ Datum Datum::createError(int                      code,
     // of 'align'.  See 'copyString' for more explanation.
 
     const SizeType  memlen = (length + align - 1) & ~(align - 1);
-    void           *mem    =
-                            allocateBytes(allocator, memlen + 2 * sizeof(int));
+    void           *mem    = AllocUtil::allocateBytes(allocator,
+                                                      memlen + 2 * sizeof(int),
+                                                      align);
 
     *static_cast<int *>(mem) = code;
     *(static_cast<int *>(mem) + 1) = static_cast<int>(length);
@@ -939,7 +940,7 @@ Datum Datum::copyBinary(const void            *value,
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     const SizeType sizeSize = sizeof(double);
-    void *mem = allocateBytes(allocator, sizeSize + size);
+    void *mem = AllocUtil::allocateBytes(allocator, sizeSize + size);
     new (mem) SizeType(size);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
         bsl::memcpy(reinterpret_cast<char *>(mem) + sizeSize, value, size);
@@ -966,7 +967,7 @@ Datum Datum::copyBinary(const void            *value,
 
     result.d_as.d_type  = e_INTERNAL_BINARY_ALLOC;
     result.d_as.d_int32 = static_cast<int>(size);
-    result.d_as.d_ptr   = allocateBytes(allocator, size);
+    result.d_as.d_ptr   = AllocUtil::allocateBytes(allocator, size);
     bsl::memcpy(result.d_as.d_ptr, value, size);
 
     return result;
@@ -1013,7 +1014,7 @@ Datum Datum::copyString(const char           *string,
     // of 'align'.
 
     size = (size + align - 1) & ~(align - 1);  // mask off lower bits
-    void *mem = allocateBytes(allocator, size, align);
+    void *mem = AllocUtil::allocateBytes(allocator, size, align);
 
     *static_cast<SizeType *>(mem) = length;
     char *data = static_cast<char *>(mem) + sizeof(SizeType);
@@ -1036,7 +1037,7 @@ Datum Datum::copyString(const char           *string,
 
     result.d_as.d_type  = e_INTERNAL_STRING;
     result.d_as.d_int32 = static_cast<int>(length);
-    result.d_as.d_ptr   = allocateBytes(allocator, length);
+    result.d_as.d_ptr   = AllocUtil::allocateBytes(allocator, length);
     bsl::memcpy(result.d_as.d_ptr, string, length);
 #endif  // end - 64 bit
 
@@ -1053,7 +1054,8 @@ void Datum::createUninitializedArray(DatumMutableArrayRef *result,
 
     // Allocate one extra element to store length of the array.
 
-    void     *mem = allocateBytes(allocator, sizeof(Datum) * (capacity + 1));
+    void     *mem = AllocUtil::allocateBytes(allocator,
+                                             sizeof(Datum) * (capacity + 1));
     SizeType *length = static_cast<SizeType *>(mem);
 
     // Store length of the array in the front.
@@ -1076,8 +1078,9 @@ void Datum::createUninitializedMap(DatumMutableMapRef   *result,
     // Allocate extra elements to store size of the map and a flag to determine
     // if the map is sorted or not.
 
-    void *mem = allocateBytes(allocator,
-                              sizeof(DatumMapEntry) * (capacity + 1));
+    void *mem = AllocUtil::allocateBytes(
+                                       allocator,
+                                       sizeof(DatumMapEntry) * (capacity + 1));
 
     // Store map header in the front (1 DatumMapEntry).
     Datum_MapHeader *header = static_cast<Datum_MapHeader *>(mem);
@@ -1104,8 +1107,9 @@ void Datum::createUninitializedIntMap(DatumMutableIntMapRef *result,
 
     // Allocate one extra element to store size of the map and a flag to
     // determine if the map is sorted or not.
-    void * mem = allocateBytes(allocator,
-                               sizeof(DatumIntMapEntry) * (capacity + 1));
+    void * mem = AllocUtil::allocateBytes(
+                                    allocator,
+                                    sizeof(DatumIntMapEntry) * (capacity + 1));
 
     // Store map header in the front ( 1 DatumMapEntry ).
     Datum_IntMapHeader *header = static_cast<Datum_IntMapHeader *>(mem);
@@ -1131,10 +1135,10 @@ void Datum::createUninitializedMap(DatumMutableMapOwningKeysRef *result,
 
     // Allocate one extra element to store size of the map and a flag to
     // determine if the map is sorted or not.
-    SizeType     bufferSize =
+    SizeType bufferSize =
         bsls::AlignmentUtil::roundUpToMaximalAlignment(
                         sizeof(DatumMapEntry) * (capacity + 1) + keysCapacity);
-    void *mem = allocateBytes(allocator, bufferSize);
+    void *mem = AllocUtil::allocateBytes(allocator, bufferSize);
 
     // Store map header in the front ( 1 DatumMapEntry ).
     Datum_MapHeader *header = static_cast<Datum_MapHeader *>(mem);
@@ -1182,7 +1186,7 @@ char *Datum::createUninitializedString(Datum                *result,
     // allocate extra bytes for storing length of the string before the string
     // itself
 
-    void *mem = allocateBytes(allocator, sizeof(length) + length);
+    void *mem = AllocUtil::allocateBytes(allocator, sizeof(length) + length);
     Datum_Helpers::store(mem, 0, length);
     result->d_as.d_cvp = mem;
 
@@ -1199,7 +1203,7 @@ char *Datum::createUninitializedString(Datum                *result,
 
     result->d_as.d_type = e_INTERNAL_STRING;
     result->d_as.d_int32 = static_cast<int>(length);
-    result->d_as.d_ptr = allocateBytes(allocator, length);
+    result->d_as.d_ptr = AllocUtil::allocateBytes(allocator, length);
     return static_cast<char *>(result->d_as.d_ptr);
 #endif  // end - 64 bit
 }
@@ -1246,42 +1250,59 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
             for (SizeType i = 0; i < values.size(); ++i) {
                 destroy(values[i].value(), allocator);
             }
-            destroyMemory(value, allocator, value.theMapAllocNumBytes());
+            AllocUtil::deallocateBytes(allocator,
+                                       value.allocatedPtr(),
+                                       value.theMapAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_INT_MAP: {
             DatumIntMapRef values = value.theIntMap();
             for (SizeType i = 0; i < values.size(); ++i) {
                 destroy(values[i].value(), allocator);
             }
-            destroyMemory(value, allocator, value.theIntMapAllocNumBytes());
+            AllocUtil::deallocateBytes(allocator,
+                                       value.allocatedPtr(),
+                                       value.theIntMapAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_ERROR_ALLOC: {
-              destroyMemory(value, allocator, value.theErrorAllocNumBytes());
+            AllocUtil::deallocateBytes(allocator,
+                                       value.allocatedPtr(),
+                                       value.theErrorAllocNumBytes(),
+                                       sizeof(int));
           } break;
           case e_EXTENDED_INTERNAL_SREF_ALLOC: {
-            destroyMemory(value,
-                          allocator,
-                          sizeof(SizeType) + sizeof(const char *));
+            AllocUtil::deallocateBytes(allocator,
+                                       value.allocatedPtr(),
+                                       sizeof(SizeType) + sizeof(const char*));
           } break;
           case e_EXTENDED_INTERNAL_AREF_ALLOC: {
-            destroyMemory(value,
-                          allocator,
-                          sizeof(SizeType) + sizeof(Datum *));
+            AllocUtil::deallocateBytes(allocator,
+                                       value.allocatedPtr(),
+                                       sizeof(SizeType) + sizeof(Datum *));
           } break;
           case e_EXTENDED_INTERNAL_DATETIME_ALLOC: {
-            destroyMemory(value, allocator, sizeof(bdlt::Datetime));
+            AllocUtil::deallocateObject<bdlt::Datetime>(allocator,
+                                                        value.allocatedPtr());
+
           } break;
           case e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC: {
-            destroyMemory(value, allocator, sizeof(bdlt::DatetimeInterval));
+            AllocUtil::deallocateObject<bdlt::DatetimeInterval>(
+                                                         allocator,
+                                                         value.allocatedPtr());
           } break;
           case e_EXTENDED_INTERNAL_INTEGER64_ALLOC: {
-            destroyMemory(value, allocator, sizeof(bsls::Types::Int64));
+            AllocUtil::deallocateObject<bsls::Types::Int64>(
+                                                         allocator,
+                                                         value.allocatedPtr());
           } break;
           case e_EXTENDED_INTERNAL_BINARY_ALLOC: {
-            destroyMemory(value, allocator, value.theBinaryAllocNumBytes());
+            AllocUtil::deallocateBytes(allocator,
+                                       value.allocatedPtr(),
+                                       value.theBinaryAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
-            destroyMemory(value, allocator, sizeof(bdldfp::Decimal64));
+            AllocUtil::deallocateObject<bdldfp::Decimal64>(
+                                                         allocator,
+                                                         value.allocatedPtr());
           } break;
           default: {
             // Other enumerators require no destruction.
@@ -1293,13 +1314,15 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
         for (SizeType i = 0; i < values.length(); ++i) {
             destroy(values[i], allocator);
         }
-        destroyMemory(value, allocator, value.theInternalArrayAllocNumBytes());
+        AllocUtil::deallocateBytes(allocator,
+                                   value.allocatedPtr(),
+                                   value.theInternalArrayAllocNumBytes());
       } break;
       case e_INTERNAL_STRING: {
-        destroyMemory(value,
-                      allocator,
-                      value.theInternalStringAllocNumBytes(),
-                      sizeof(SizeType));
+        AllocUtil::deallocateBytes(allocator,
+                                   value.allocatedPtr(),
+                                   value.theInternalStringAllocNumBytes(),
+                                   sizeof(SizeType));
       } break;
       default: {
         // Other enumerators require no destruction.
@@ -1314,32 +1337,42 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
         for (SizeType i = 0; i < values.size(); ++i) {
             destroy(values[i].value(), allocator);
         }
-        destroyMemory(value, allocator, value.theMapAllocNumBytes());
+        AllocUtil::deallocateBytes(allocator,
+                                   value.allocatedPtr(),
+                                   value.theMapAllocNumBytes());
       } break;
       case e_INTERNAL_INT_MAP: {
         DatumIntMapRef values = value.theIntMap();
         for (SizeType i = 0; i < values.size(); ++i) {
             destroy(values[i].value(), allocator);
         }
-        destroyMemory(value, allocator, value.theIntMapAllocNumBytes());
+        AllocUtil::deallocateBytes(allocator,
+                                   value.allocatedPtr(),
+                                   value.theIntMapAllocNumBytes());
       } break;
       case e_INTERNAL_ARRAY: {
         DatumArrayRef values = value.theArray();
         for (SizeType i = 0; i < values.length(); ++i) {
             destroy(values[i], allocator);
         }
-        destroyMemory(value, allocator, value.theInternalArrayAllocNumBytes());
+        AllocUtil::deallocateBytes(allocator,
+                                   value.allocatedPtr(),
+                                   value.theInternalArrayAllocNumBytes());
       } break;
       case e_INTERNAL_BINARY_ALLOC: {
-        destroyMemory(value, allocator, value.theBinaryAllocNumBytes());
+        AllocUtil::deallocateBytes(allocator,
+                                   value.allocatedPtr(),
+                                   value.theBinaryAllocNumBytes());
       } break;
       case e_INTERNAL_ERROR_ALLOC: {
-          destroyMemory(value, allocator, value.theErrorAllocNumBytes());
+        AllocUtil::deallocateBytes(allocator,
+                                   value.allocatedPtr(),
+                                   value.theErrorAllocNumBytes());
       } break;
       case e_INTERNAL_STRING: {
-        destroyMemory(value,
-                      allocator,
-                      value.theInternalStringAllocNumBytes());
+        AllocUtil::deallocateBytes(allocator,
+                                   value.allocatedPtr(),
+                                   value.theInternalStringAllocNumBytes());
       } break;
       default: {
       } break; // Other enumerators require no special handling.

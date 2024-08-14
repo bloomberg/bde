@@ -701,6 +701,10 @@ class Datum {
     // invalid and it is undefined behavior to deep-copy or destroy them.
     // Although, these copies can be used on the left hand side of assignment.
 
+  private:
+    // TYPES
+    typedef bslma::AllocatorUtil AllocUtil;
+
   public:
     // TYPES
     typedef bsl::allocator<> AllocatorType;
@@ -1288,38 +1292,12 @@ class Datum {
     friend bool operator!=(const Datum& lhs, const Datum& rhs);
     friend bsl::ostream& operator<<(bsl::ostream& stream, const Datum& rhs);
 
-    // PRIVATE CLASS METHODS
-    static void *allocateBytes(const AllocatorType& allocator,
-                               bsl::size_t          nbytes);
-        // Return a pointer to a block of raw memory allocated from the
-        // specified 'allocator' having the specified 'nbytes' size and
-        // maximum non-extended alignment.
-
-    static void *allocateBytes(const AllocatorType& allocator,
-                               bsl::size_t          nbytes,
-                               bsl::size_t          align);
-        // Return a pointer to a block of raw memory allocated from the
-        // specified 'allocator' having the specified 'nbytes' size, and the
-        // specified 'align' alignment.
-
-    static void destroyMemory(const Datum&         value,
-                              const AllocatorType& allocator,
-                              bsl::size_t          nbytes);
-        // Deallocate the specified 'nbytes' of memory that was previously
-        // allocated for the specified 'value' using the specified 'allocator'.
-        // The behavior is undefined unless 'nbytes' matches the allocated
-        // number of bytes.
-
-    static void destroyMemory(const Datum&         value,
-                              const AllocatorType& allocator,
-                              bsl::size_t          nbytes,
-                              bsl::size_t          align);
-        // Deallocate the specified 'nbytes' of memory that was previously
-        // allocated for the specified 'value' using the specified 'allocator'
-        // and 'align' alignment.  The behavior is undefined unless 'nbytes'
-        // and 'align' both match the values specified for the allocation.
-
     // PRIVATE ACCESSORS
+    void *allocatedPtr() const;
+        // Return the pointer to the first byte of the memory allocated by this
+        // 'Datum' object.  The behavior is undefined unless the internal type
+        // indicates the object *has* allocated.
+
     InternalDataType internalType() const;
         // Return the internal type of value stored in this object as one of
         // the enumeration values defined in 'InternalDataType'.
@@ -3297,54 +3275,13 @@ const void* Datum::theInlineStorage() const
 
 // PRIVATE CLASS METHODS
 inline
-void *Datum::allocateBytes(const AllocatorType& allocator, bsl::size_t nbytes)
+void *Datum::allocatedPtr() const
 {
-    using bslma::AllocatorUtil;
-
-    return AllocatorUtil::allocateBytes(allocator, nbytes);
-}
-
-inline
-void *Datum::allocateBytes(const AllocatorType& allocator,
-                           bsl::size_t          nbytes,
-                           bsl::size_t          align)
-{
-    using bslma::AllocatorUtil;
-
-    return AllocatorUtil::allocateBytes(allocator, nbytes, align);
-}
-
-inline
-void Datum::destroyMemory(const Datum&         value,
-                          const AllocatorType& allocator,
-                          bsl::size_t          nbytes)
-{
-    using bslma::AllocatorUtil;
-
-    void* deallocPtr =
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-        const_cast<void*>(value.d_as.d_cvp);
+    return const_cast<void*>(d_as.d_cvp);
 #else   // end - 32 bit / begin - 64 bit
-        value.d_as.d_ptr;
+    return d_as.d_ptr;
 #endif  // end - 64 bit
-    AllocatorUtil::deallocateBytes(allocator, deallocPtr, nbytes);
-}
-
-inline
-void Datum::destroyMemory(const Datum&         value,
-                          const AllocatorType& allocator,
-                          bsl::size_t          nbytes,
-                          bsl::size_t          align)
-{
-    using bslma::AllocatorUtil;
-
-    void* deallocPtr =
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-        const_cast<void*>(value.d_as.d_cvp);
-#else   // end - 32 bit / begin - 64 bit
-        value.d_as.d_ptr;
-#endif  // end - 64 bit
-    AllocatorUtil::deallocateBytes(allocator, deallocPtr, nbytes, align);
 }
 
 // PRIVATE ACCESSORS
@@ -3570,7 +3507,8 @@ Datum Datum::createArrayReference(const Datum          *array,
         return result;                                                // RETURN
     }
 
-    void *mem = allocateBytes(allocator, sizeof(array) + sizeof(length));
+    void *mem = AllocUtil::allocateBytes(allocator,
+                                         sizeof(array) + sizeof(length));
     Datum_Helpers::store<const Datum *>(mem, 0,             array);
     Datum_Helpers::store<SizeType>     (mem, sizeof(array), length);
 
@@ -3648,8 +3586,7 @@ Datum Datum::createDatetime(const bdlt::Datetime& value,
         bdlt::DatetimeInterval interval = value.time() - bdlt::Time();
         result.d_as.d_int = static_cast<int>(interval.totalMilliseconds());
     } else {
-        void *mem = allocateBytes(allocator, sizeof(bdlt::Datetime));
-        new (mem) bdlt::Datetime(value);
+        void *mem = AllocUtil::newObject<bdlt::Datetime>(allocator, value);
         result = createExtendedDataObject(e_EXTENDED_INTERNAL_DATETIME_ALLOC,
                                           mem);
     }
@@ -3675,14 +3612,13 @@ Datum Datum::createDatetimeInterval(const bdlt::DatetimeInterval& value,
         Datum_Helpers32::storeSmallInt64(msValue,
                                          &result.d_as.d_short,
                                          &result.d_as.d_int)) {
-        result.d_as.d_exponent =
-                                k_DOUBLE_MASK | e_INTERNAL_DATETIME_INTERVAL;
+        result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_DATETIME_INTERVAL;
     } else {
-        void *mem = allocateBytes(allocator, sizeof(bdlt::DatetimeInterval));
-        new (mem) bdlt::DatetimeInterval(value);
+        void *mem = AllocUtil::newObject<bdlt::DatetimeInterval>(allocator,
+                                                                 value);
         result = createExtendedDataObject(
-                                e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC,
-                                mem);
+                                   e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC,
+                                   mem);
     }
 #else   // end - 32 bit / begin - 64 bit
     (void)allocator;
@@ -3748,8 +3684,7 @@ Datum Datum::createInteger64(bsls::Types::Int64   value,
                                          &result.d_as.d_int)) {
         result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_INTEGER64;
     } else {
-        void *mem = allocateBytes(allocator, sizeof(bsls::Types::Int64));
-        new (mem) bsls::Types::Int64(value);
+        void *mem = AllocUtil::newObject<bsls::Types::Int64>(allocator, value);
         result = createExtendedDataObject(e_EXTENDED_INTERNAL_INTEGER64_ALLOC,
                                           mem);
     }
@@ -3797,7 +3732,8 @@ Datum Datum::createStringRef(const char           *string,
         return result;                                                // RETURN
     }
 
-    void *mem = allocateBytes(allocator, sizeof(length) + sizeof(string));
+    void *mem = AllocUtil::allocateBytes(allocator,
+                                         sizeof(length) + sizeof(string));
     Datum_Helpers::store<const char *>(mem, 0,              string);
     Datum_Helpers::store<SizeType>    (mem, sizeof(string), length);
 
@@ -3942,9 +3878,9 @@ inline
 void Datum::disposeUninitializedArray(const DatumMutableArrayRef& array,
                                       const AllocatorType&        allocator)
 {
-    bslma::AllocatorUtil::deallocateBytes(allocator,
-                                          array.length(),
-                                          array.capacity());
+    AllocUtil::deallocateBytes(allocator,
+                               array.length(),
+                               array.capacity());
 }
 
 inline
@@ -3954,7 +3890,7 @@ void Datum::disposeUninitializedIntMap(const DatumMutableIntMapRef& map,
     Datum_MapHeader *hdr =
                  static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
 
-    bslma::AllocatorUtil::deallocateBytes(
+    AllocUtil::deallocateBytes(
                              allocator,
                              map.size(),
                              (hdr->d_capacity + 1) * sizeof(DatumIntMapEntry));
@@ -3967,10 +3903,9 @@ void Datum::disposeUninitializedMap(const DatumMutableMapRef& map,
     Datum_MapHeader *hdr =
                  static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
 
-    bslma::AllocatorUtil::deallocateBytes(
-                                allocator,
-                                map.size(),
-                                (hdr->d_capacity + 1) * sizeof(DatumMapEntry));
+    AllocUtil::deallocateBytes(allocator,
+                               map.size(),
+                               (hdr->d_capacity + 1) * sizeof(DatumMapEntry));
 }
 
 inline
@@ -3981,9 +3916,7 @@ void Datum::disposeUninitializedMap(
     Datum_MapHeader *hdr =
                  static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
 
-    bslma::AllocatorUtil::deallocateBytes(allocator,
-                                          map.size(),
-                                          hdr->d_allocatedSize);
+    AllocUtil::deallocateBytes(allocator, map.size(), hdr->d_allocatedSize);
 }
 
 // ACCESSORS
