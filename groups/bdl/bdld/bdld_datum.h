@@ -2093,11 +2093,11 @@ struct Datum_MapHeader {
     // stored in front of the Datum maps.
 
     // DATA
-    Datum::SizeType d_size;         // size of the map
-    Datum::SizeType d_capacity;     // number of allocated map entries
-    Datum::SizeType d_keysCapacity; // allocated space for owned keys
-    bool            d_sorted;       // sorted flag
-    bool            d_ownsKeys;     // owns keys flag
+    Datum::SizeType d_size;          // size of the map
+    Datum::SizeType d_capacity;      // number of allocated map entries
+    Datum::SizeType d_allocatedSize; // full allocated memory size in bytes
+    bool            d_sorted;        // sorted flag
+    bool            d_ownsKeys;      // owns keys flag
 };
 
                           // ========================
@@ -3402,11 +3402,7 @@ bsl::size_t Datum::theMapAllocNumBytes() const
     const Datum_MapHeader *header =
                                 reinterpret_cast<const Datum_MapHeader *>(map);
 
-    // If we have keys capacity but own no keys, that is memory corruption
-    BSLS_ASSERT_SAFE((header->d_keysCapacity == 0) || header->d_ownsKeys);
-
-    return (header->d_capacity + 1) * sizeof(DatumMapEntry) +
-                                             header->d_keysCapacity;
+    return header->d_allocatedSize;
 }
 
 inline
@@ -3942,10 +3938,9 @@ void Datum::disposeUninitializedMap(
     Datum_MapHeader *hdr =
                  static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
 
-    bslma::AllocatorUtil::deallocateBytes(
-          allocator,
-          map.size(),
-          (hdr->d_capacity + 1) * sizeof(DatumMapEntry) + hdr->d_keysCapacity);
+    bslma::AllocatorUtil::deallocateBytes(allocator,
+                                          map.size(),
+                                          hdr->d_allocatedSize);
 }
 
 // ACCESSORS

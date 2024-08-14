@@ -1082,11 +1082,11 @@ void Datum::createUninitializedMap(DatumMutableMapRef   *result,
     // Store map header in the front (1 DatumMapEntry).
     Datum_MapHeader *header = static_cast<Datum_MapHeader *>(mem);
 
-    header->d_size         = 0;
-    header->d_capacity     = capacity;
-    header->d_keysCapacity = 0;
-    header->d_sorted       = false;
-    header->d_ownsKeys     = false;
+    header->d_size          = 0;
+    header->d_capacity      = capacity;
+    header->d_allocatedSize = sizeof(DatumMapEntry) * (capacity + 1);
+    header->d_sorted        = false;
+    header->d_ownsKeys      = false;
 
     *result = DatumMutableMapRef(static_cast<DatumMapEntry *>(mem) + 1,
                                  &header->d_size,
@@ -1134,16 +1134,16 @@ void Datum::createUninitializedMap(DatumMutableMapOwningKeysRef *result,
     SizeType     bufferSize =
         bsls::AlignmentUtil::roundUpToMaximalAlignment(
                         sizeof(DatumMapEntry) * (capacity + 1) + keysCapacity);
-    void * mem = allocateBytes(allocator, bufferSize);
+    void *mem = allocateBytes(allocator, bufferSize);
 
     // Store map header in the front ( 1 DatumMapEntry ).
     Datum_MapHeader *header = static_cast<Datum_MapHeader *>(mem);
 
-    header->d_size         = 0;
-    header->d_capacity     = capacity;
-    header->d_keysCapacity = keysCapacity;
-    header->d_sorted       = false;
-    header->d_ownsKeys     = true;
+    header->d_size          = 0;
+    header->d_capacity      = capacity;
+    header->d_allocatedSize = bufferSize;
+    header->d_sorted        = false;
+    header->d_ownsKeys      = true;
 
     char *keysMem = static_cast<char *>(mem)
                                     + (sizeof(DatumMapEntry) * (capacity + 1));
