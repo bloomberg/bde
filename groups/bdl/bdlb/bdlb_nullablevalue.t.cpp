@@ -187,7 +187,7 @@ using bsls::NameOf;
 // [36] bsl::optional assignment from derived type
 // [38] IsBitwiseMoveable
 // [38] IsBitwiseCopyable
-
+// [39] CONCERN: Derived from 'optional' concepts (DRQS 176233812)
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -6745,6 +6745,36 @@ struct EasyConvert {
     }
 };
 
+                              // ------------
+                              // Test Case 39
+                              // ------------
+
+namespace {
+namespace test_case_39 {
+struct Foo {
+    template <class t_TYPE>
+    static void foo();
+        // Implementation note: This function must be a class member, must be a
+        // template, and must be defined out-of-line in order to reproduce the
+        // issue described in {DRQS 176233812}.
+};
+
+template <class t_TYPE>
+void Foo::foo()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    // Even more weirdly, the issue goes away if 'NullableValue' is
+    // instantiated with 't_TYPE' instead of a fixed type.
+    bdlb::NullableValue<int> nv = 1;
+    ASSERT(nv == nv);
+    ASSERT(nv != 2);
+    ASSERT(nv < std::optional<int>(2));
+    ASSERT(nv > bsl::optional<int>(0));
+#endif
+}
+}  // close namespace test_case_39
+}  // close unnamed namespace
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -6768,7 +6798,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 39: {
+      case 40: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6811,6 +6841,31 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 39: {
+        // --------------------------------------------------------------------
+        // DRQS 176233812
+        //
+        // Concerns:
+        //: 1 Constraints on the relational and equality operators for
+        //:   'NullableValue' are evaluated correctly.
+        //
+        // Plan:
+        //: 1 Define a function template that compares a 'NullableValue' object
+        //:   to a bare value, itself, a 'bsl::optional' object, and a
+        //:   'std::optional' object.  Call a specialization of this function
+        //:   template and verify that each comparison yields the correct
+        //:   result.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: Derived from 'optional' concepts (DRQS 176233812)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\n"
+                          << "DRQS 176233812\n"
+                          << "==============\n";
+
+        test_case_39::Foo::foo<void>();
       } break;
       case 38: {
         // --------------------------------------------------------------------

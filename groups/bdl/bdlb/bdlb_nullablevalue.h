@@ -157,6 +157,11 @@ class NullableValue_WithoutAllocator;
                          // ==========================
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+template <class t_TYPE>
+void nullableValue_acceptsBslOptional(const bsl::optional<t_TYPE>&);
+
+template <class t_TYPE>
+void nullableValue_acceptsStdOptional(const std::optional<t_TYPE>&);
 
 template <class t_TYPE>
 concept NullableValue_ConvertibleToBool =
@@ -168,16 +173,14 @@ template <class t_TYPE>
 concept NullableValue_DerivedFromBslOptional =
     // This component-private concept is used in the subsequent implementation
     // of the component-private concept 'NullableValue_DerivedFromOptional'.
-    requires(const t_TYPE &t) {
-        []<class U>(const bsl::optional<U>&){}(t);
-    };
+    requires (const t_TYPE& t) { optional_acceptsBslOptional(t); };
+
 template <class t_TYPE>
 concept NullableValue_DerivedFromStdOptional =
     // This component-private concept is used in the subsequent implementation
     // of the component-private concept 'NullableValue_DerivedFromOptional'.
-    requires(const t_TYPE &t) {
-        []<class U>(const std::optional<U>&){}(t);
-    };
+    requires (const t_TYPE& t) { optional_acceptsStdOptional(t); };
+
 template <class t_TYPE>
 concept NullableValue_DerivedFromOptional =
     // This component-private concept models whether a type is derived from one
