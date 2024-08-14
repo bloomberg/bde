@@ -1013,7 +1013,7 @@ Datum Datum::copyString(const char           *string,
     // of 'align'.
 
     size = (size + align - 1) & ~(align - 1);  // mask off lower bits
-    void *mem = allocateBytes(allocator, size);
+    void *mem = allocateBytes(allocator, size, align);
 
     *static_cast<SizeType *>(mem) = length;
     char *data = static_cast<char *>(mem) + sizeof(SizeType);
@@ -1298,7 +1298,8 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
       case e_INTERNAL_STRING: {
         destroyMemory(value,
                       allocator,
-                      value.theInternalStringAllocNumBytes());
+                      value.theInternalStringAllocNumBytes(),
+                      sizeof(SizeType));
       } break;
       default: {
         // Other enumerators require no destruction.

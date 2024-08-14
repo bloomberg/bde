@@ -1295,6 +1295,13 @@ class Datum {
         // specified 'allocator' having the specified 'nbytes' size and
         // maximum non-extended alignment.
 
+    static void *allocateBytes(const AllocatorType& allocator,
+                               bsl::size_t          nbytes,
+                               bsl::size_t          align);
+        // Return a pointer to a block of raw memory allocated from the
+        // specified 'allocator' having the specified 'nbytes' size, and the
+        // specified 'align' alignment.
+
     static void destroyMemory(const Datum&         value,
                               const AllocatorType& allocator,
                               bsl::size_t          nbytes);
@@ -1302,6 +1309,15 @@ class Datum {
         // allocated for the specified 'value' using the specified 'allocator'.
         // The behavior is undefined unless 'nbytes' matches the allocated
         // number of bytes.
+
+    static void destroyMemory(const Datum&         value,
+                              const AllocatorType& allocator,
+                              bsl::size_t          nbytes,
+                              bsl::size_t          align);
+        // Deallocate the specified 'nbytes' of memory that was previously
+        // allocated for the specified 'value' using the specified 'allocator'
+        // and 'align' alignment.  The behavior is undefined unless 'nbytes'
+        // and 'align' both match the values specified for the allocation.
 
     // PRIVATE ACCESSORS
     InternalDataType internalType() const;
@@ -3289,6 +3305,16 @@ void *Datum::allocateBytes(const AllocatorType& allocator, bsl::size_t nbytes)
 }
 
 inline
+void *Datum::allocateBytes(const AllocatorType& allocator,
+                           bsl::size_t          nbytes,
+                           bsl::size_t          align)
+{
+    using bslma::AllocatorUtil;
+
+    return AllocatorUtil::allocateBytes(allocator, nbytes, align);
+}
+
+inline
 void Datum::destroyMemory(const Datum&         value,
                           const AllocatorType& allocator,
                           bsl::size_t          nbytes)
@@ -3302,6 +3328,23 @@ void Datum::destroyMemory(const Datum&         value,
         value.d_as.d_ptr;
 #endif  // end - 64 bit
     AllocatorUtil::deallocateBytes(allocator, deallocPtr, nbytes);
+}
+
+inline
+void Datum::destroyMemory(const Datum&         value,
+                          const AllocatorType& allocator,
+                          bsl::size_t          nbytes,
+                          bsl::size_t          align)
+{
+    using bslma::AllocatorUtil;
+
+    void* deallocPtr =
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+        const_cast<void*>(value.d_as.d_cvp);
+#else   // end - 32 bit / begin - 64 bit
+        value.d_as.d_ptr;
+#endif  // end - 64 bit
+    AllocatorUtil::deallocateBytes(allocator, deallocPtr, nbytes, align);
 }
 
 // PRIVATE ACCESSORS
