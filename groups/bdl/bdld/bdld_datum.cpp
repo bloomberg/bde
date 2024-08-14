@@ -1280,19 +1280,20 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
                                        sizeof(SizeType) + sizeof(Datum *));
           } break;
           case e_EXTENDED_INTERNAL_DATETIME_ALLOC: {
-            AllocUtil::deallocateObject<bdlt::Datetime>(allocator,
-                                                        value.allocatedPtr());
+            AllocUtil::deallocateObject(
+                           allocator,
+                           static_cast<bdlt::Datetime*>(value.allocatedPtr()));
 
           } break;
           case e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC: {
-            AllocUtil::deallocateObject<bdlt::DatetimeInterval>(
-                                                         allocator,
-                                                         value.allocatedPtr());
+            AllocUtil::deallocateObject(
+                   allocator,
+                   static_cast<bdlt::DatetimeInterval*>(value.allocatedPtr()));
           } break;
           case e_EXTENDED_INTERNAL_INTEGER64_ALLOC: {
-            AllocUtil::deallocateObject<bsls::Types::Int64>(
-                                                         allocator,
-                                                         value.allocatedPtr());
+            AllocUtil::deallocateObject(
+                       allocator,
+                       static_cast<bsls::Types::Int64*>(value.allocatedPtr()));
           } break;
           case e_EXTENDED_INTERNAL_BINARY_ALLOC: {
             AllocUtil::deallocateBytes(allocator,
@@ -1300,9 +1301,9 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
                                        value.theBinaryAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
-            AllocUtil::deallocateObject<bdldfp::Decimal64>(
-                                                         allocator,
-                                                         value.allocatedPtr());
+            AllocUtil::deallocateObject(
+                        allocator,
+                        static_cast<bdldfp::Decimal64*>(value.allocatedPtr()));
           } break;
           default: {
             // Other enumerators require no destruction.
