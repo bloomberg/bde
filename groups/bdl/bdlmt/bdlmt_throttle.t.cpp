@@ -2613,20 +2613,43 @@ int main(int argc, char *argv[])
             typedef TimeInterval TI;
             const TI time;
 
-            const Int64 int64Max   = bsl::numeric_limits<Int64>::max();
-            const Int64 secondsMax = int64Max / u::k_SECOND;
-            const Int64 int64Min   = bsl::numeric_limits<Int64>::min();
-            const Int64 secondsMin = int64Min / u::k_SECOND;
+            const Int64 int64Max    = bsl::numeric_limits<Int64>::max();
+            const Int64 secondsMax  = int64Max / u::k_SECOND;
+
+            // 'd_prevLeakTime' starts out initialized to
+            // '-Obj::k_TEN_YEARS_NANOSECONDS', and in a successful
+            // 'requestPermission', that is subtracted from 'now', so when
+            // passing near-max values to 'now', we have to lower the near-max
+            // value so that that subtraction can occur without overflowing the
+            // 'Int64' which would be undefined behavior.
+
+            const Int64 secondsMaxB =
+                       (int64Max - Obj::k_TEN_YEARS_NANOSECONDS) / u::k_SECOND;
+            const Int64 int64Min    = bsl::numeric_limits<Int64>::min();
+            const Int64 secondsMin  = int64Min / u::k_SECOND;
 
             if (veryVerbose) cout << "Negative Testing, 2-Arg\n";
 
-            ASSERT_PASS(mX.requestPermission(1, time));
-            ASSERT_PASS(mX.requestPermission(2, time));
-            ASSERT_PASS(mX.requestPermission(3, time));
-            ASSERT_PASS(mX.requestPermission(4, time));
+            // A successful call to 'requestPermission' changes the value of
+            // 'd_prevLeakTime' to a hard-to-predict value which, combined with
+            // some of the max or near-max values we're passing in to
+            // subsequent 'requestPermission' calls, results in overflows of
+            // 'Int64' values which is undefined behavior.  So to keep things
+            // predictable and defined, on all the 'requestPermission' calls
+            // that we expect to pass we start with a newly-initialized 'Obj'.
 
-            ASSERT_PASS(mX.requestPermission(1, TI(secondsMax, 100)));
-            ASSERT_PASS(mX.requestPermission(2, TI(secondsMin, 0)));
+#define U_ASSERT_PASS(expr) do {                                              \
+                Obj mY = BDLMT_THROTTLE_INIT(4, u::k_SECOND);                 \
+                ASSERT_PASS(expr);                                            \
+            } while (false)
+
+            U_ASSERT_PASS(mY.requestPermission(1, time));
+            U_ASSERT_PASS(mY.requestPermission(2, time));
+            U_ASSERT_PASS(mY.requestPermission(3, time));
+            U_ASSERT_PASS(mY.requestPermission(4, time));
+
+            U_ASSERT_PASS(mY.requestPermission(1, TI(secondsMaxB, 100)));
+            U_ASSERT_PASS(mY.requestPermission(2, TI(secondsMin,  0)));
 
             ASSERT_FAIL(mX.requestPermission(1, TI(secondsMax, 999999999)));
             ASSERT_FAIL(mX.requestPermission(2, TI(secondsMin, -999999999)));
@@ -2645,8 +2668,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "Negative Testing, 1-Arg\n";
 
-            ASSERT_PASS(mX.requestPermission(TI(secondsMax, 100)));
-            ASSERT_PASS(mX.requestPermission(TI(secondsMin, 0)));
+            U_ASSERT_PASS(mY.requestPermission(TI(secondsMaxB, 100)));
+            U_ASSERT_PASS(mY.requestPermission(TI(secondsMin,  0)));
 
             ASSERT_FAIL(mX.requestPermission(TI(secondsMax, 999999999)));
             ASSERT_FAIL(mX.requestPermission(TI(secondsMin, -999999999)));
@@ -2655,6 +2678,7 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(mX.requestPermission(TI(int64Max, 999999999)));
             ASSERT_FAIL(mX.requestPermission(TI(int64Min, 0)));
             ASSERT_FAIL(mX.requestPermission(TI(int64Min, -999999999)));
+#undef U_ASSERT_PASS
         }
       } break;
       case 3: {

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Aug 15 09:48:59 2024
+// Generated on Thu Aug 15 14:01:22 2024
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
