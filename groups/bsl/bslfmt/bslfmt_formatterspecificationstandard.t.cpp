@@ -82,6 +82,14 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 template <class t_CHAR>
+struct MockParseContext : public bslfmt::basic_format_parse_context<t_CHAR> {
+    MockParseContext(const bsl::basic_string_view<t_CHAR>& sv)
+    : bslfmt::basic_format_parse_context<t_CHAR>(sv, 4)
+    {
+    }
+};
+
+template <class t_CHAR>
 struct MockFormatContext {
   public:
     // TYPES
@@ -92,6 +100,7 @@ struct MockFormatContext {
     Arg d_arg_0;
     Arg d_arg_1;
     Arg d_arg_2;
+    Arg d_arg_3;
 
   public:
     // CREATORS
@@ -125,11 +134,30 @@ struct MockFormatContext {
         d_arg_2 = Arg(arr[2]);
     }
 
+    template <class t_ARG0, class t_ARG1, class t_ARG2, class t_ARG3>
+    MockFormatContext(const t_ARG0& arg_0,
+                      const t_ARG1& arg_1,
+                      const t_ARG2& arg_2,
+                      const t_ARG3& arg_3)
+    {
+        bsl::array<Arg, 4> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr,
+                                                      arg_0,
+                                                      arg_1,
+                                                      arg_2,
+                                                      arg_3);
+        d_arg_0 = Arg(arr[0]);
+        d_arg_1 = Arg(arr[1]);
+        d_arg_2 = Arg(arr[2]);
+        d_arg_3 = Arg(arr[3]);
+    }
+
     // ACCESSORS
     Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT {
         if (id == 0) return d_arg_0;
         if (id == 1) return d_arg_1;
         if (id == 2) return d_arg_2;
+        if (id == 3) return d_arg_3;
         return Arg();
     }
 };
@@ -142,18 +170,18 @@ void checkStandard(
           FormatterSpecificationStandard<char>::Sign        sign,
           bool                                              alternativeFlag,
           bool                                              zeroPaddingFlag,
-          FormatterSpecification_NumericValue               adjustedWidth,
-          FormatterSpecification_NumericValue               adjustedPrecision,
+          FormatterSpecification_NumericValue               postprocessedWidth,
+          FormatterSpecification_NumericValue               postprocessedPrecision,
           bool                                              localeSpecificFlag,
           FormatterSpecificationStandard<char>::FormatType  formatType)
 {
     FormatterSpecificationStandard<char> fs;
 
-    basic_format_parse_context<char> pc(inputSpecification);
+    MockParseContext<char> pc(inputSpecification);
 
     FormatterSpecificationStandard<char>::parse(&fs, &pc, category);
 
-    MockFormatContext<char> mfc(99, 98, 97);
+    MockFormatContext<char> mfc(99, 98, 97, 96);
     FormatterSpecificationStandard<char>::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
@@ -162,8 +190,8 @@ void checkStandard(
     ASSERT(sign == fs.sign());
     ASSERT(alternativeFlag == fs.alternativeFlag());
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
-    ASSERT(adjustedWidth == fs.adjustedWidth());
-    ASSERT(adjustedPrecision == fs.adjustedPrecision());
+    ASSERT(postprocessedWidth == fs.postprocessedWidth());
+    ASSERT(postprocessedPrecision == fs.postprocessedPrecision());
     ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
     ASSERT(formatType == fs.formatType());
 }
@@ -176,20 +204,20 @@ void checkStandard(
        FormatterSpecificationStandard<wchar_t>::Sign        sign,
        bool                                                 alternativeFlag,
        bool                                                 zeroPaddingFlag,
-       FormatterSpecification_NumericValue                  adjustedWidth,
-       FormatterSpecification_NumericValue                  adjustedPrecision,
+       FormatterSpecification_NumericValue                  postprocessedWidth,
+       FormatterSpecification_NumericValue                  postprocessedPrecision,
        bool                                                 localeSpecificFlag,
        FormatterSpecificationStandard<wchar_t>::FormatType  formatType)
 {
     FormatterSpecificationStandard<wchar_t> fs;
 
-    basic_format_parse_context<wchar_t> pc(inputSpecification);
+    MockParseContext<wchar_t> pc(inputSpecification);
 
     FormatterSpecificationStandard<wchar_t>::parse(&fs,
                                                             &pc,
                                                             category);
 
-    MockFormatContext<wchar_t> mfc(99, 98, 97);
+    MockFormatContext<wchar_t> mfc(99, 98, 97, 96);
     FormatterSpecificationStandard<wchar_t>::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
@@ -198,8 +226,8 @@ void checkStandard(
     ASSERT(sign == fs.sign());
     ASSERT(alternativeFlag == fs.alternativeFlag());
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
-    ASSERT(adjustedWidth == fs.adjustedWidth());
-    ASSERT(adjustedPrecision == fs.adjustedPrecision());
+    ASSERT(postprocessedWidth == fs.postprocessedWidth());
+    ASSERT(postprocessedPrecision == fs.postprocessedPrecision());
     ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
     ASSERT(formatType == fs.formatType());
 }
@@ -225,7 +253,7 @@ int main(int argc, char **argv)
         typedef FormatterSpecification_NumericValue     FSValue;
 
         checkStandard("", FSC::e_CATEGORY_STRING,
-                      "",
+                      " ",
                       FSC::e_ALIGN_DEFAULT,
                       FSC::e_SIGN_DEFAULT,
                       false,
@@ -233,7 +261,7 @@ int main(int argc, char **argv)
                       FSValue(0, FSValue::e_DEFAULT),
                       FSValue(0, FSValue::e_DEFAULT),
                       false,
-                      FSC::e_TYPE_UNASSIGNED);
+                      FSC::e_STRING_DEFAULT);
 
         checkStandard("*<06.3d",
                       FSC::e_CATEGORY_INTEGRAL,
@@ -247,21 +275,21 @@ int main(int argc, char **argv)
                       false,
                       FSC::e_INTEGRAL_DECIMAL);
 
-        checkStandard("*<{}.{3}F",
+        checkStandard("*<{1}.{3}F",
                       FSC::e_CATEGORY_FLOATING,
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_NEXT_ARG),
-                      FSValue(3, FSValue::e_ARG_ID),
+                      FSValue(98, FSValue::e_VALUE),
+                      FSValue(96, FSValue::e_VALUE),
                       false,
                       FSC::e_FLOATING_DECIMAL_UC);
 
         checkStandard(L"",
                       FSW::e_CATEGORY_STRING,
-                      L"",
+                      L" ",
                       FSW::e_ALIGN_DEFAULT,
                       FSW::e_SIGN_DEFAULT,
                       false,
@@ -269,7 +297,7 @@ int main(int argc, char **argv)
                       FSValue(0, FSValue::e_DEFAULT),
                       FSValue(0, FSValue::e_DEFAULT),
                       false,
-                      FSW::e_TYPE_UNASSIGNED);
+                      FSW::e_STRING_DEFAULT);
 
         checkStandard(L"*<06.3d",
                       FSW::e_CATEGORY_INTEGRAL,
@@ -283,15 +311,15 @@ int main(int argc, char **argv)
                       false,
                       FSW::e_INTEGRAL_DECIMAL);
 
-        checkStandard(L"*<{}.{3}f",
+        checkStandard(L"*<{0}.{3}f",
                       FSW::e_CATEGORY_FLOATING,
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_NEXT_ARG),
-                      FSValue(3, FSValue::e_ARG_ID),
+                      FSValue(99, FSValue::e_VALUE),
+                      FSValue(96, FSValue::e_VALUE),
                       false,
                       FSW::e_FLOATING_DECIMAL);
 

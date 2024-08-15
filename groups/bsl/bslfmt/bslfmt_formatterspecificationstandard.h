@@ -165,8 +165,8 @@ class FormatterSpecificationStandard
     Sign                                       sign() const;
     bool                                       alternativeFlag() const;
     bool                                       zeroPaddingFlag() const;
-    const FormatterSpecification_NumericValue  adjustedWidth() const;
-    const FormatterSpecification_NumericValue  adjustedPrecision() const;
+    const FormatterSpecification_NumericValue  postprocessedWidth() const;
+    const FormatterSpecification_NumericValue  postprocessedPrecision() const;
     bool                                       localeSpecificFlag() const;
     FormatType                                 formatType() const;
 };
@@ -270,36 +270,24 @@ bool FormatterSpecificationStandard<t_CHAR>::zeroPaddingFlag() const
 
 template <class t_CHAR>
 const FormatterSpecification_NumericValue
-FormatterSpecificationStandard<t_CHAR>::adjustedWidth() const
+FormatterSpecificationStandard<t_CHAR>::postprocessedWidth() const
 {
     if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
         BSLS_THROW(bsl::format_error("Format standard specification "
                                      "'.postprocess' not called"));   // RETURN
 
-    if (d_basicSplitter.rawWidth().valueType() !=
-        FormatterSpecification_NumericValue::e_NEXT_ARG)
-        return d_basicSplitter.rawWidth();                            // RETURN
-
-    return FormatterSpecification_NumericValue(
-                                d_widthArgId,
-                                FormatterSpecification_NumericValue::e_ARG_ID);
+    return d_basicSplitter.postprocessedWidth();
 }
 
 template <class t_CHAR>
 const FormatterSpecification_NumericValue
-FormatterSpecificationStandard<t_CHAR>::adjustedPrecision() const
+FormatterSpecificationStandard<t_CHAR>::postprocessedPrecision() const
 {
     if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
         BSLS_THROW(bsl::format_error("Format standard specification "
                                      "'.postprocess' not called"));   // RETURN
 
-    if (d_basicSplitter.rawPrecision().valueType() !=
-        FormatterSpecification_NumericValue::e_NEXT_ARG)
-        return d_basicSplitter.rawPrecision();                        // RETURN
-
-    return FormatterSpecification_NumericValue(
-                                d_precisionArgId,
-                                FormatterSpecification_NumericValue::e_ARG_ID);
+    return d_basicSplitter.postprocessedPrecision();
 }
 
 template <class t_CHAR>

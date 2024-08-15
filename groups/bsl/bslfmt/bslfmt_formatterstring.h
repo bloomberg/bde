@@ -141,9 +141,9 @@ struct Formatter_StringBase {
         typedef FormatterSpecification_NumericValue FSNVAlue;
         bsl::basic_string_view<t_CHAR> sv(v);
 
-        FSNVAlue finalWidth(final_spec.adjustedWidth());
+        FSNVAlue finalWidth(final_spec.postprocessedWidth());
 
-        FSNVAlue finalPrecision(final_spec.adjustedPrecision());
+        FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
 
         int    displayWidthUsedByInputString = 0;
         size_t charactersOfInputUsed         = 0;

@@ -86,7 +86,7 @@ namespace {
 template <class t_CHAR>
 struct MockParseContext : public bslfmt::basic_format_parse_context<t_CHAR> {
     MockParseContext(const bsl::basic_string_view<t_CHAR>& sv)
-    : bslfmt::basic_format_parse_context<t_CHAR>(sv)
+    : bslfmt::basic_format_parse_context<t_CHAR>(sv, 3)
     {
     }
 };
@@ -152,7 +152,9 @@ void checkStandard(
           bool                                              alternativeFlag,
           bool                                              zeroPaddingFlag,
           FormatterSpecification_NumericValue               rawWidth,
+          FormatterSpecification_NumericValue               postprocessedWidth,
           FormatterSpecification_NumericValue               rawPrecision,
+          FormatterSpecification_NumericValue               postprocessedPrecision,
           bool                                              localeSpecificFlag,
           bsl::basic_string_view<char>                      finalSpec)
 {
@@ -182,6 +184,8 @@ void checkStandard(
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
     ASSERT(rawWidth == fs.rawWidth());
     ASSERT(rawPrecision == fs.rawPrecision());
+    ASSERT(postprocessedWidth == fs.postprocessedWidth());
+    ASSERT(postprocessedPrecision == fs.postprocessedPrecision());
     ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
     ASSERT(finalSpec == fs.finalSpec());
 }
@@ -194,7 +198,9 @@ void checkStandard(
        bool                                                 alternativeFlag,
        bool                                                 zeroPaddingFlag,
        FormatterSpecification_NumericValue                  rawWidth,
+       FormatterSpecification_NumericValue                  postprocessedWidth,
        FormatterSpecification_NumericValue                  rawPrecision,
+       FormatterSpecification_NumericValue                  postprocessedPrecision,
        bool                                                 localeSpecificFlag,
        bsl::basic_string_view<wchar_t>                      finalSpec)
 {
@@ -225,6 +231,8 @@ void checkStandard(
     ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
     ASSERT(rawWidth == fs.rawWidth());
     ASSERT(rawPrecision == fs.rawPrecision());
+    ASSERT(postprocessedWidth == fs.postprocessedWidth());
+    ASSERT(postprocessedPrecision == fs.postprocessedPrecision());
     ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
     ASSERT(finalSpec == fs.finalSpec());
 }
@@ -259,6 +267,8 @@ int main(int argc, char **argv)
                       false,
                       FSValue(0, FSValue::e_DEFAULT),
                       FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(0, FSValue::e_DEFAULT),
                       false,
                       "");
 
@@ -269,6 +279,8 @@ int main(int argc, char **argv)
                       false,
                       true,
                       FSValue(6, FSValue::e_VALUE),
+                      FSValue(6, FSValue::e_VALUE),
+                      FSValue(3, FSValue::e_VALUE),
                       FSValue(3, FSValue::e_VALUE),
                       false,
                       "XYZ");
@@ -279,8 +291,10 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_NEXT_ARG),
-                      FSValue(0, FSValue::e_NEXT_ARG),
+                      FSValue(0, FSValue::e_ARG_ID),
+                      FSValue(99, FSValue::e_VALUE),
+                      FSValue(1, FSValue::e_ARG_ID),
+                      FSValue(98, FSValue::e_VALUE),
                       false,
                       "XYZ");
 
@@ -291,7 +305,9 @@ int main(int argc, char **argv)
                       false,
                       false,
                       FSValue(1, FSValue::e_ARG_ID),
+                      FSValue(98, FSValue::e_VALUE),
                       FSValue(2, FSValue::e_ARG_ID),
+                      FSValue(97, FSValue::e_VALUE),
                       false,
                       "XYZ");
 
@@ -301,6 +317,8 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
+                      FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(0, FSValue::e_DEFAULT),
                       FSValue(0, FSValue::e_DEFAULT),
                       FSValue(0, FSValue::e_DEFAULT),
                       false,
@@ -313,6 +331,8 @@ int main(int argc, char **argv)
                       false,
                       true,
                       FSValue(6, FSValue::e_VALUE),
+                      FSValue(6, FSValue::e_VALUE),
+                      FSValue(3, FSValue::e_VALUE),
                       FSValue(3, FSValue::e_VALUE),
                       false,
                       L"XYZ");
@@ -323,8 +343,10 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_NEXT_ARG),
-                      FSValue(0, FSValue::e_NEXT_ARG),
+                      FSValue(0, FSValue::e_ARG_ID),
+                      FSValue(99, FSValue::e_VALUE),
+                      FSValue(1, FSValue::e_ARG_ID),
+                      FSValue(98, FSValue::e_VALUE),
                       false,
                       L"XYZ");
 
@@ -335,7 +357,9 @@ int main(int argc, char **argv)
                       false,
                       false,
                       FSValue(1, FSValue::e_ARG_ID),
+                      FSValue(98, FSValue::e_VALUE),
                       FSValue(2, FSValue::e_ARG_ID),
+                      FSValue(97, FSValue::e_VALUE),
                       false,
                       L"XYZ");
 

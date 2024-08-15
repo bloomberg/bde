@@ -198,8 +198,10 @@ class FormatterSpecification_Splitter
     Sign                                d_sign;
     bool                                d_alternativeFlag;
     bool                                d_zeroPaddingFlag;
-    FormatterSpecification_NumericValue d_width;
-    FormatterSpecification_NumericValue d_precision;
+    FormatterSpecification_NumericValue d_rawWidth;
+    FormatterSpecification_NumericValue d_rawPrecision;
+    FormatterSpecification_NumericValue d_postprocessedWidth;
+    FormatterSpecification_NumericValue d_postprocessedPrecision;
     bool                                d_localeSpecificFlag;
     bsl::basic_string_view<t_CHAR>      d_spec;
 
@@ -235,13 +237,13 @@ class FormatterSpecification_Splitter
                                       t_ITER                           end);
 
     template <class t_ITER>
-    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseWidth(
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseRawWidth(
                                       FormatterSpecification_Splitter *outSpec,
                                       t_ITER                          *start,
                                       t_ITER                           end);
 
     template <class t_ITER>
-    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parsePrecision(
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseRawPrecision(
                                       FormatterSpecification_Splitter *outSpec,
                                       t_ITER                          *start,
                                       t_ITER                           end);
@@ -283,6 +285,10 @@ class FormatterSpecification_Splitter
     BSLS_KEYWORD_CONSTEXPR_CPP20 Sign      sign() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool      alternativeFlag() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool      zeroPaddingFlag() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+    postprocessedWidth() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+    postprocessedPrecision() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
     rawWidth() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
@@ -604,6 +610,17 @@ bool FormatterSpecification_Splitter<t_CHAR>::zeroPaddingFlag() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+FormatterSpecification_Splitter<t_CHAR>::postprocessedWidth() const
+{
+    if (d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
+    return d_postprocessedWidth;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
 FormatterSpecification_Splitter<t_CHAR>::rawWidth() const
 {
     if (d_parsingStatus !=
@@ -612,7 +629,18 @@ FormatterSpecification_Splitter<t_CHAR>::rawWidth() const
         BSLS_THROW(bsl::format_error(
                        "Format specification '.parse' not called"));  // RETURN
 
-    return d_width;
+    return d_rawWidth;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+FormatterSpecification_Splitter<t_CHAR>::postprocessedPrecision() const
+{
+    if (d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
+        BSLS_THROW(bsl::format_error(
+                 "Format specification '.postprocess' not called"));  // RETURN
+
+    return d_postprocessedPrecision;
 }
 
 template <class t_CHAR>
@@ -625,7 +653,7 @@ FormatterSpecification_Splitter<t_CHAR>::rawPrecision() const
         BSLS_THROW(bsl::format_error(
                        "Format specification '.parse' not called"));  // RETURN
 
-    return d_precision;
+    return d_rawPrecision;
 }
 
 template <class t_CHAR>
@@ -719,7 +747,7 @@ FormatterSpecification_Splitter<t_CHAR>::parse(
         }
         else if (outSpec->rawWidth().valueType() ==
                  FormatterSpecification_NumericValue::e_NEXT_ARG) {
-            outSpec->d_width = FormatterSpecification_NumericValue(
+            outSpec->d_rawWidth = FormatterSpecification_NumericValue(
                                 static_cast<int>(pc->next_arg_id()),
                                 FormatterSpecification_NumericValue::e_ARG_ID);
         }
@@ -732,7 +760,7 @@ FormatterSpecification_Splitter<t_CHAR>::parse(
         }
         else if (outSpec->rawPrecision().valueType() ==
                  FormatterSpecification_NumericValue::e_NEXT_ARG) {
-            outSpec->d_precision = FormatterSpecification_NumericValue(
+            outSpec->d_rawPrecision = FormatterSpecification_NumericValue(
                                 static_cast<int>(pc->next_arg_id()),
                                 FormatterSpecification_NumericValue::e_ARG_ID);
         }
@@ -804,14 +832,14 @@ FormatterSpecification_Splitter<t_CHAR>::rawParse(
     }
 
     if (0 != (sections & e_SECTIONS_WIDTH)) {
-        parseWidth(outSpec, start, end);
+        parseRawWidth(outSpec, start, end);
 
         if (*start == end || **start == '}')
             return;                                                   // RETURN
     }
 
     if (0 != (sections & e_SECTIONS_PRECISION)) {
-        parsePrecision(outSpec, start, end);
+        parseRawPrecision(outSpec, start, end);
 
         if (*start == end || **start == '}')
             return;                                                   // RETURN
@@ -845,17 +873,17 @@ FormatterSpecification_Splitter<t_CHAR>::rawParse(
 
     // We cannot mix specified and unspecified relative argument ids.
 
-    if (outSpec->d_width.valueType() ==
+    if (outSpec->d_rawWidth.valueType() ==
             FormatterSpecification_NumericValue::e_NEXT_ARG &&
-        outSpec->d_precision.valueType() ==
+        outSpec->d_rawPrecision.valueType() ==
             FormatterSpecification_NumericValue::e_ARG_ID) {
         BSLS_THROW(bsl::format_error(
                        "Cannot mix manual and automatic indexing"));  // RETURN
     }
 
-    if (outSpec->d_width.valueType() ==
+    if (outSpec->d_rawWidth.valueType() ==
             FormatterSpecification_NumericValue::e_ARG_ID &&
-        outSpec->d_precision.valueType() ==
+        outSpec->d_rawPrecision.valueType() ==
             FormatterSpecification_NumericValue::e_NEXT_ARG) {
         BSLS_THROW(bsl::format_error(
                        "Cannot mix manual and automatic indexing"));  // RETURN
@@ -1080,7 +1108,7 @@ void FormatterSpecification_Splitter<t_CHAR>::parseZeroPaddingFlag(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parseWidth(
+void FormatterSpecification_Splitter<t_CHAR>::parseRawWidth(
                                      FormatterSpecification_Splitter *outSpec,
                                      t_ITER                          *start,
                                      t_ITER                           end)
@@ -1095,9 +1123,9 @@ void FormatterSpecification_Splitter<t_CHAR>::parseWidth(
 
     typedef FormatterSpecification_NumericValue     FSNValue;
 
-    FSNValue::parse(&outSpec->d_width, start, end, false);
+    FSNValue::parse(&outSpec->d_rawWidth, start, end, false);
     // Non-relative widths must be strictly positive.
-    if (outSpec->d_width == FSNValue(0, FSNValue::e_VALUE))
+    if (outSpec->d_rawWidth == FSNValue(0, FSNValue::e_VALUE))
         BSLS_THROW(bsl::format_error("Field widths must be > 0."));   // RETURN
     return;
 }
@@ -1105,7 +1133,7 @@ void FormatterSpecification_Splitter<t_CHAR>::parseWidth(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parsePrecision(
+void FormatterSpecification_Splitter<t_CHAR>::parseRawPrecision(
                                      FormatterSpecification_Splitter *outSpec,
                                      t_ITER                          *start,
                                      t_ITER                           end)
@@ -1120,7 +1148,7 @@ void FormatterSpecification_Splitter<t_CHAR>::parsePrecision(
 
     typedef FormatterSpecification_NumericValue FSNValue;
 
-    return FSNValue::parse(&outSpec->d_precision, start, end, true);
+    return FSNValue::parse(&outSpec->d_rawPrecision, start, end, true);
 }
 
 template <class t_CHAR>
@@ -1160,12 +1188,17 @@ void FormatterSpecification_Splitter<t_CHAR>::postprocess(
     }
 
     if (0 != (out->d_sections & e_SECTIONS_WIDTH)) {
-        FormatterSpecification_NumericValue::finalize(&out->d_width, context);
+        out->d_postprocessedWidth = out->d_rawWidth;
+        FormatterSpecification_NumericValue::finalize(
+                                                    &out->d_postprocessedWidth,
+                                                    context);
     }
 
     if (0 != (out->d_sections & e_SECTIONS_PRECISION)) {
-        FormatterSpecification_NumericValue::finalize(&out->d_precision,
-                                                      context);
+        out->d_postprocessedPrecision = out->d_rawPrecision;
+        FormatterSpecification_NumericValue::finalize(
+                                                &out->d_postprocessedPrecision,
+                                                context);
     }
 
     out->d_parsingStatus = FormatterSpecification_Splitter::e_PARSING_COMPLETE;

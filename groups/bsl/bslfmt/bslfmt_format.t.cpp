@@ -318,9 +318,9 @@ struct formatter<FormattableType, t_CHAR> {
 
         typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
 
-        FSNVAlue finalWidth(final_spec.adjustedWidth());
+        FSNVAlue finalWidth(final_spec.postprocessedWidth());
 
-        FSNVAlue finalPrecision(final_spec.adjustedPrecision());
+        FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
 
         const char name[] = "FormattableType";
         t_OUT out = fc.out();
@@ -355,9 +355,9 @@ struct formatter<FormattableType, t_CHAR> {
 
         typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
 
-        FSNVAlue finalWidth(final_spec.adjustedWidth());
+        FSNVAlue finalWidth(final_spec.postprocessedWidth());
 
-        FSNVAlue finalPrecision(final_spec.adjustedPrecision());
+        FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
 
         const char name[] = "FormattableType";
         t_OUT      out    = fc.out();
