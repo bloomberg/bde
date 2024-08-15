@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <bslfmt_formatarg.h> // Testing only
+#include <bslfmt_formatparsecontext.h> // Testing only
 
 using namespace BloombergLP;
 using namespace bslfmt;
@@ -84,7 +85,10 @@ namespace {
 
 template <class t_CHAR>
 struct MockParseContext : public bslfmt::basic_format_parse_context<t_CHAR> {
-    using bslfmt::basic_format_parse_context<t_CHAR>::const_iterator;
+    MockParseContext(const bsl::basic_string_view<t_CHAR>& sv)
+    : bslfmt::basic_format_parse_context<t_CHAR>(sv)
+    {
+    }
 };
 
 template <class t_CHAR>
@@ -161,8 +165,9 @@ void checkStandard(
 
     FSC fs;
 
-    bslfmt::basic_format_parse_context<char> mpc(
-                             bsl::basic_string_view<char>(inputSpecification));
+    bsl::basic_string_view<char> inputStringView(inputSpecification);
+
+    MockParseContext<char> mpc(inputStringView);
 
     FSC::parse(&fs, &mpc, sect);
 
@@ -203,8 +208,9 @@ void checkStandard(
 
     FSW fs;
 
-    bslfmt::basic_format_parse_context<wchar_t> mpc(
-                          bsl::basic_string_view<wchar_t>(inputSpecification));
+    bsl::basic_string_view<wchar_t> inputStringView(inputSpecification);
+
+    MockParseContext<wchar_t> mpc(inputStringView);
 
     FSW::parse(&fs, &mpc, sect);
 
