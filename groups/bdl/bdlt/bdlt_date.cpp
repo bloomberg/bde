@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
+#include <bsl_limits.h>
 #include <bsl_ostream.h>
 
 #include <bsl_c_stdio.h>   // 'snprintf'
@@ -35,6 +36,10 @@ static const char *const months[] = {
 int Date::addDaysIfValid(int numDays)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (bsl::numeric_limits<int>::max() - d_serialDate < numDays) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     const int tmpSerialDate = d_serialDate + numDays;
 
