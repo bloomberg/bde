@@ -1,7 +1,7 @@
 pipeline {
 
     agent {                                     //pick a build agent with label BLDLNX.
-        label 'BLDLNX'                          //Sandbox can use BLDLNX/BLDIBM/BLDSUN,
+        label 'BDEBLL'                          //Sandbox can use BLDLNX/BLDIBM/BLDSUN,
                                                 //GNRLD/GNRIBM/GNRSUN
 
     }
