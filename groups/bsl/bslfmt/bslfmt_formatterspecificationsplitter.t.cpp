@@ -83,6 +83,11 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 template <class t_CHAR>
+struct MockParseContext : public bslfmt::basic_format_parse_context<t_CHAR> {
+    using bslfmt::basic_format_parse_context<t_CHAR>::const_iterator;
+};
+
+template <class t_CHAR>
 struct MockFormatContext {
   public:
     // TYPES
@@ -156,10 +161,10 @@ void checkStandard(
 
     FSC fs;
 
-    const char *start = inputSpecification;
-    const char *end   = start + strlen(start);
+    bslfmt::basic_format_parse_context<char> mpc(
+                             bsl::basic_string_view<char>(inputSpecification));
 
-    FSC::parse(&fs, &start, end, sect);
+    FSC::parse(&fs, &mpc, sect);
 
     MockFormatContext<char> mfc(99, 98, 97);
     FSC::postprocess(&fs, mfc);
@@ -198,10 +203,10 @@ void checkStandard(
 
     FSW fs;
 
-    const wchar_t *start = inputSpecification;
-    const wchar_t *end   = start + wcslen(start);
+    bslfmt::basic_format_parse_context<wchar_t> mpc(
+                          bsl::basic_string_view<wchar_t>(inputSpecification));
 
-    FSW::parse(&fs, &start, end, sect);
+    FSW::parse(&fs, &mpc, sect);
 
     MockFormatContext<wchar_t> mfc(99, 98, 97);
     FSW::postprocess(&fs, mfc);

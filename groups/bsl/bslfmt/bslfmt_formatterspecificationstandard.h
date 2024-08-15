@@ -352,7 +352,9 @@ void FormatterSpecificationStandard<t_CHAR>::parse(
             e_SECTIONS_LOCALE_FLAG |
             e_SECTIONS_FINAL_SPECIFICATION);
 
-    FSS::parse(&outSpec->d_basicSplitter, context, sect);
+    FormatterSpecification_Splitter<t_CHAR>::parse(&outSpec->d_basicSplitter,
+                                                   context,
+                                                   sect);
 
     parseType(outSpec, outSpec->d_basicSplitter.finalSpec(), category);
 
