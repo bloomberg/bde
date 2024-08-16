@@ -191,7 +191,7 @@ int BslSourceNameParserUtil::getComponentName(const char **componentNamePtr,
     // regular-expression-like syntax where dot '.' represents itself (so we
     // avoid a lot of backslashes), \d is decimal digit:
     //..
-    // "grppkg_component[_test[0-9a-z]*](.h|(.[a-z]*\d\d?)?(.[tg])?.cpp)"
+    // "grppkg_component[_test[0-9a-z]*](.h|(.[a-z]*\d\d?)?(.[tg]|(xt))?.cpp)"
     //..
     // The file name may be preceded by a path that is irrelevant to parsing
     // and if present it ends with a (forward) slash '/' or backslash '\\'.
@@ -213,7 +213,15 @@ int BslSourceNameParserUtil::getComponentName(const char **componentNamePtr,
 
     // We ensured earlier that the name is longer than 3 characters, so we can
     // safely check here if it ends in ".cpp":
-    if (endsWith(end, ".cpp")) {
+    if (endsWith(end, ".xt.cpp")) {
+        end -= 7;  // Cut off the ".xt.cpp"
+        srcType = k_TTEST | k_IS_TEST_XTEMPLATE;
+    }
+    else if (endsWith(end, ".h")) {  // A header file
+        end -= 2;     // Cut off the ".h"
+        srcType = k_HEADER;  // Component header (.h) file
+    }
+    else if (endsWith(end, ".cpp")) {
         end -= 4;  // Cut off the ".cpp"
 
         // See if there is a test driver tag, and cut it off if there is.  We
@@ -230,11 +238,6 @@ int BslSourceNameParserUtil::getComponentName(const char **componentNamePtr,
         else {
             srcType = k_IMPL;  // Component implementation (.cpp) file
         }
-    }
-    else if (endsWith(end, ".h")) {  // A header file
-        end -= 2;     // Cut off the ".h"
-
-        srcType = k_HEADER;  // Component header (.h) file
     }
     else {
         // It was not a .cpp file, or a .h file

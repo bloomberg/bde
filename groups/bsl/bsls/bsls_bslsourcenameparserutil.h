@@ -326,13 +326,25 @@ struct BslSourceNameParserUtil {
         // significant word are used at the moment:
         //..
         //  7 6 5 4 3 2 10
-        // |r|r|r|3|S|M|KK|
+        // |r|r|3|S|M|X|KK|
         //
         // K - two bits describing the extension (kind)
         //
+        // X - a bit that is set only the file is a test driver "template"
+        //     source file with the extension ".xt.cpp".  These files are valid
+        //     C++ code, but they are not compiled directly, as they are too
+        //     large/slow to compile (on certain platforms/compilers).  Their
+        //     content is selectively copied into temporary '.NN.t.xpp' files
+        //     that are actually compiled into executables.  The temporary
+        //     '.NN.t.xpp' files use '#line N "filename"' directives to refer
+        //     back to the ".xt.cpp" template so the actual build and run time
+        //     (ASSERT) messages will point to the actual source that is
+        //     visible to the programmer (in the source control system).  (The
+        //     generated '.NN.t.xpp' files exist during the build only.)
+        //
         // M - a bit that is set only the file is a test driver source file,
         //     and it is a multi-file test driver that has a "segment" of
-        //     (normally) decimal digits, e.g., "abcx_name.14.g.cpp".
+        //     (normally) decimal digits, e.g., "abcx_name.14.t.cpp".
         //
         // S - a bit that is set if the file belongs to a subordinate test
         //     driver, a file that has "_test", followed by non-underscore
@@ -355,11 +367,13 @@ struct BslSourceNameParserUtil {
         k_TTEST     = 0x2,  // .t.cpp -- traditional test driver
         k_GTEST     = 0x3,  // .g.cpp -- Google test test driver
 
-        k_IS_MULTIFILE_TEST   = 0x4,  // "[^a-z0-9]+.(t.cpp|g.cpp)"
+        k_IS_TEST_XTEMPLATE   = 0x4,   // ".xt.cpp" file
 
-        k_IS_SUBORDINATE_TEST = 0x8,  // "_test[^a-z0-9]*.(h|cpp|t.cpp|g.cpp)"
+        k_IS_MULTIFILE_TEST   = 0x8,   // "[^a-z0-9]+.(t.cpp|g.cpp)"
 
-        k_IS_CPP03_GENERATED  = 0x10  // "_cpp03" at the very end, before exts
+        k_IS_SUBORDINATE_TEST = 0x10,  // "_test[^a-z0-9]*.(h|cpp|t.cpp|g.cpp)"
+
+        k_IS_CPP03_GENERATED  = 0x20   // "_cpp03" at the very end, before exts
     };
 
     // CLASS METHODS

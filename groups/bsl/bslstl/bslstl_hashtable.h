@@ -249,24 +249,29 @@ BSLS_IDENT("$Id: $")
 //                          // =================
 //
 //  template <class KEY,
-//            class HASH      = bsl::hash<KEY>,
-//            class EQUAL     = bsl::equal_to<KEY>,
+//            class HASHF     = bsl::hash<     KEY>,
+//            class EQUAL     = bsl::equal_to< KEY>,
 //            class ALLOCATOR = bsl::allocator<KEY> >
 //  class MyHashedSet
 //  {
 //    private:
 //      // PRIVATE TYPES
-//      typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
-//      typedef typename AllocatorTraits::difference_type difference_type;
-//      typedef BloombergLP::bslstl::HashTableIterator<const KEY,
-//                                                     difference_type>
-//                                                        iterator;
+//      typedef bsl::allocator_traits<ALLOCATOR>               AllocatorTraits;
+//      typedef typename AllocatorTraits::difference_type      difference_type;
+//      typedef BloombergLP::bslstl::HashTableIterator<
+//                                        const KEY, difference_type> iterator;
+//
+//      typedef UseEntireValueAsKey<KEY>                               HashKey;
+//
+//      typedef BloombergLP::bslstl::HashTable<HashKey,
+//                                             HASHF,
+//                                             EQUAL,
+//                                             ALLOCATOR>         ImpHashTable;
+//
 //
 //      // DATA
-//      BloombergLP::bslstl::HashTable<UseEntireValueAsKey<KEY>,
-//                                     HASH,
-//                                     EQUAL,
-//                                     ALLOCATOR> d_impl;
+//      ImpHashTable d_impl;
+//
 //    public:
 //      // TYPES
 //      typedef typename AllocatorTraits::size_type size_type;
@@ -274,7 +279,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // CREATORS
 //      explicit MyHashedSet(size_type        initialNumBuckets = 0,
-//                           const HASH&      hash              = HASH(),
+//                           const HASHF&     hash              = HASHF(),
 //                           const EQUAL&     keyEqual          = EQUAL(),
 //                           const ALLOCATOR& allocator         = ALLOCATOR());
 //          // Create an empty 'MyHashedSet' object having a maximum load
@@ -284,7 +289,7 @@ BSLS_IDENT("$Id: $")
 //          // value is used.  Optionally specify a 'hash' used to generate the
 //          // hash values associated to the keys extracted from the values
 //          // contained in this object.  If 'hash' is not supplied, a
-//          // default-constructed object of type 'HASH' is used.  Optionally
+//          // default-constructed object of type 'HASHF' is used.  Optionally
 //          // specify a key-equality functor 'keyEqual' used to verify that
 //          // two key values are the same.  If 'keyEqual' is not supplied, a
 //          // default-constructed object of type 'EQUAL' is used.  Optionally
@@ -337,11 +342,11 @@ BSLS_IDENT("$Id: $")
 //                          // =================
 //
 //  // CREATORS
-//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY, class HASHF, class EQUAL, class ALLOCATOR>
 //  inline
-//  MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::MyHashedSet(
+//  MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::MyHashedSet(
 //                                          size_type        initialNumBuckets,
-//                                          const HASH&      hash,
+//                                          const HASHF&     hash,
 //                                          const EQUAL&     keyEqual,
 //                                          const ALLOCATOR& allocator)
 //  : d_impl(hash, keyEqual, initialNumBuckets, allocator)
@@ -352,10 +357,10 @@ BSLS_IDENT("$Id: $")
 // semantics needed for adding values (unique values only) to sets.
 //..
 //  // MANIPULATORS
-//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY, class HASHF, class EQUAL, class ALLOCATOR>
 //  inline
-//  bsl::pair<typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
-//         bool>    MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::insert(
+//  bsl::pair<typename MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::iterator,
+//            bool>    MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::insert(
 //                                                            const KEY& value)
 //  {
 //      typedef bsl::pair<iterator, bool> ResultType;
@@ -368,35 +373,35 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ACCESSORS
-//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY, class HASHF, class EQUAL, class ALLOCATOR>
 //  inline
-//  typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-//           MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::bucket_count() const
+//  typename MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::size_type
+//           MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::bucket_count() const
 //  {
 //      return d_impl.numBuckets();
 //  }
 //
-//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY, class HASHF, class EQUAL, class ALLOCATOR>
 //  inline
-//  typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-//           MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::cend() const
+//  typename MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::const_iterator
+//           MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::cend() const
 //  {
 //      return const_iterator();
 //  }
 //
-//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY, class HASHF, class EQUAL, class ALLOCATOR>
 //  inline
-//  typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-//           MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::find(const KEY& key)
+//  typename MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::const_iterator
+//           MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::find(const KEY& key)
 //                                                                        const
 //  {
 //      return const_iterator(d_impl.find(key));
 //  }
 //
-//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY, class HASHF, class EQUAL, class ALLOCATOR>
 //  inline
-//  typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-//           MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::size() const
+//  typename MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::size_type
+//           MyHashedSet<KEY, HASHF, EQUAL, ALLOCATOR>::size() const
 //  {
 //      return d_impl.size();
 //  }
@@ -514,23 +519,23 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class KEY,
 //            class VALUE,
-//            class HASH      = bsl::hash<KEY>,
-//            class EQUAL     = bsl::equal_to<KEY>,
+//            class HASHF     = bsl::hash<     KEY>,
+//            class EQUAL     = bsl::equal_to< KEY>,
 //            class ALLOCATOR = bsl::allocator<KEY> >
 //  class MyHashedMap
 //  {
 //    private:
 //      // PRIVATE TYPES
-//      typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
+//      typedef bsl::allocator_traits<ALLOCATOR>               AllocatorTraits;
 //
-//      typedef BloombergLP::bslstl::HashTable<
-//                      UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
-//                      HASH,
-//                      EQUAL,
-//                      ALLOCATOR>                     HashTable;
+//      typedef UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> > HashKey;
+//      typedef BloombergLP::bslstl::HashTable<HashKey,
+//                                             HASHF,
+//                                             EQUAL,
+//                                             ALLOCATOR>         ImpHashTable;
 //
 //      // DATA
-//      HashTable d_impl;
+//      ImpHashTable d_impl;
 //
 //    public:
 //      // TYPES
@@ -538,7 +543,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // CREATORS
 //      explicit MyHashedMap(size_type        initialNumBuckets = 0,
-//                           const HASH&      hash              = HASH(),
+//                           const HASHF&     hash              = HASHF(),
 //                           const EQUAL&     keyEqual          = EQUAL(),
 //                           const ALLOCATOR& allocator         = ALLOCATOR());
 //      // Create an empty 'MyHashedMap' object having a maximum load factor
@@ -548,7 +553,7 @@ BSLS_IDENT("$Id: $")
 //      // Optionally specify 'hash' to generate the hash values associated
 //      // with the key-value pairs contained in this unordered map.  If 'hash'
 //      // is not supplied, a default-constructed object of (template
-//      // parameter) 'HASH' is used.  Optionally specify a key-equality
+//      // parameter) 'HASHF' is used.  Optionally specify a key-equality
 //      // functor 'keyEqual' used to determine whether two keys have the same
 //      // value.  If 'keyEqual' is not supplied, a default-constructed object
 //      // of (template parameter) 'EQUAL' is used.  Optionally specify an
@@ -585,11 +590,15 @@ BSLS_IDENT("$Id: $")
 //                          // =================
 //
 //  // CREATORS
-//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY,
+//            class VALUE,
+//            class HASHF,
+//            class EQUAL,
+//            class ALLOCATOR>
 //  inline
-//  MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::MyHashedMap(
+//  MyHashedMap<KEY, VALUE, HASHF, EQUAL, ALLOCATOR>::MyHashedMap(
 //                                          size_type        initialNumBuckets,
-//                                          const HASH&      hash,
+//                                          const HASHF&     hash,
 //                                          const EQUAL&     keyEqual,
 //                                          const ALLOCATOR& allocator)
 //  : d_impl(hash, keyEqual, initialNumBuckets, allocator)
@@ -607,9 +616,13 @@ BSLS_IDENT("$Id: $")
 // 'bslalg_hashtableimputil').
 //..
 //  // MANIPULATORS
-//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY,
+//            class VALUE,
+//            class HASHF,
+//            class EQUAL,
+//            class ALLOCATOR>
 //  inline
-//  VALUE& MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
+//  VALUE& MyHashedMap<KEY, VALUE, HASHF, EQUAL, ALLOCATOR>::operator[](
 //                                                              const KEY& key)
 //  {
 //      typedef typename HashTable::NodeType           HashTableNode;
@@ -670,41 +683,38 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class KEY,
 //            class VALUE,
-//            class HASH      = bsl::hash<KEY>,
-//            class EQUAL     = bsl::equal_to<KEY>,
+//            class HASHF     = bsl::hash<     KEY>,
+//            class EQUAL     = bsl::equal_to< KEY>,
 //            class ALLOCATOR = bsl::allocator<KEY> >
 //  class MyHashedMultiMap
 //  {
 //    private:
 //      // PRIVATE TYPES
-//      typedef bsl::pair<const KEY, VALUE>               value_type;
-//      typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
-//      typedef typename AllocatorTraits::difference_type difference_type;
+//      typedef bsl::pair<const KEY, VALUE>                         value_type;
+//      typedef bsl::allocator_traits<ALLOCATOR>               AllocatorTraits;
+//      typedef typename AllocatorTraits::difference_type      difference_type;
 //
-//      typedef BloombergLP::bslstl::HashTable<
-//                      UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
-//                      HASH,
-//                      EQUAL,
-//                      ALLOCATOR>                     HashTable;
+//      typedef UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> > HashKey;
+//      typedef BloombergLP::bslstl::HashTable<HashKey,
+//                                             HASHF,
+//                                             EQUAL,
+//                                             ALLOCATOR>         ImpHashTable;
 //
 //      // DATA
-//      HashTable d_impl;
+//      ImpHashTable d_impl;
 //
 //    public:
 //      // TYPES
-//      typedef typename AllocatorTraits::size_type  size_type;
-//
-//      typedef BloombergLP::bslstl::HashTableIterator<value_type,
-//                                                     difference_type>
-//                                                                    iterator;
-//      typedef BloombergLP::bslstl::HashTableIterator<const value_type,
-//                                                     difference_type>
-//                                                              const_iterator;
+//      typedef typename AllocatorTraits::size_type                  size_type;
+//      typedef BloombergLP::bslstl::HashTableIterator<
+//                                      value_type, difference_type>  iterator;
+//      typedef BloombergLP::bslstl::HashTableIterator<
+//                           const value_type, difference_type> const_iterator;
 //
 //      // CREATORS
 //      explicit MyHashedMultiMap(
 //                           size_type        initialNumBuckets = 0,
-//                           const HASH&      hash              = HASH(),
+//                           const HASHF&     hash              = HASHF(),
 //                           const EQUAL&     keyEqual          = EQUAL(),
 //                           const ALLOCATOR& allocator         = ALLOCATOR());
 //      // Create an empty 'MyHashedMultiMap' object having a maximum load
@@ -714,7 +724,7 @@ BSLS_IDENT("$Id: $")
 //      // Optionally specify a 'hash', a hash-functor used to generate the
 //      // hash values associated to the key-value pairs contained in this
 //      // object.  If 'hash' is not supplied, a default-constructed object of
-//      // (template parameter) 'HASH' type is used.  Optionally specify a
+//      // (template parameter) 'HASHF' type is used.  Optionally specify a
 //      // key-equality functor 'keyEqual' used to verify that two key values
 //      // are the same.  If 'keyEqual' is not supplied, a default-constructed
 //      // object of (template parameter) 'EQUAL' type is used.  Optionally
@@ -759,13 +769,17 @@ BSLS_IDENT("$Id: $")
 //                          // ======================
 //
 //  // CREATORS
-//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY,
+//            class VALUE,
+//            class HASHF,
+//            class EQUAL,
+//            class ALLOCATOR>
 //  inline
-//  MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::MyHashedMultiMap(
-//                                         size_type        initialNumBuckets,
-//                                         const HASH&      hash,
-//                                         const EQUAL&     keyEqual,
-//                                         const ALLOCATOR& allocator)
+//  MyHashedMultiMap<KEY, VALUE, HASHF, EQUAL, ALLOCATOR>::MyHashedMultiMap(
+//                                          size_type        initialNumBuckets,
+//                                          const HASHF&     hash,
+//                                          const EQUAL&     keyEqual,
+//                                          const ALLOCATOR& allocator)
 //  : d_impl(hash, keyEqual, initialNumBuckets, allocator)
 //  {
 //  }
@@ -776,11 +790,15 @@ BSLS_IDENT("$Id: $")
 // key value.
 //..
 //  // MANIPULATORS
-//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY,
+//            class VALUE,
+//            class HASHF,
+//            class EQUAL,
+//            class ALLOCATOR>
 //  template <class SOURCE_TYPE>
 //  inline
-//  typename MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-//           MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+//  typename MyHashedMultiMap<KEY, VALUE, HASHF, EQUAL, ALLOCATOR>::iterator
+//           MyHashedMultiMap<KEY, VALUE, HASHF, EQUAL, ALLOCATOR>::insert(
 //                                                    const SOURCE_TYPE& value)
 //  {
 //      return iterator(d_impl.insert(value));
@@ -790,21 +808,25 @@ BSLS_IDENT("$Id: $")
 // 'findRange' method to the types expected by the caller.
 //..
 //  // ACCESSORS
-//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class KEY,
+//            class VALUE,
+//            class HASHF,
+//            class EQUAL,
+//            class ALLOCATOR>
 //  bsl::pair<typename MyHashedMultiMap<KEY,
-//                                      VALUE,
-//                                      HASH,
-//                                      EQUAL,
-//                                      ALLOCATOR>::const_iterator,
+//                                   VALUE,
+//                                   HASHF,
+//                                   EQUAL,
+//                                   ALLOCATOR>::const_iterator,
 //         typename MyHashedMultiMap<KEY,
 //                                   VALUE,
-//                                   HASH,
+//                                   HASHF,
 //                                   EQUAL, ALLOCATOR>::const_iterator>
-//  MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+//  MyHashedMultiMap<KEY, VALUE, HASHF, EQUAL, ALLOCATOR>::equal_range(
 //                                                        const KEY& key) const
 //  {
-//      typedef bsl::pair<const_iterator, const_iterator> ResultType;
-//      typedef BloombergLP::bslalg::BidirectionalLink    HashTableLink;
+//      typedef bsl::pair<const_iterator, const_iterator>  ResultType;
+//      typedef BloombergLP::bslalg::BidirectionalLink     HashTableLink;
 //
 //      HashTableLink *first;
 //      HashTableLink *last;
@@ -817,9 +839,9 @@ BSLS_IDENT("$Id: $")
 //
 // We define several aliases to make our code more concise.
 //..
-//  typedef MyHashedMultiMap<int, double>::iterator       Iterator;
-//  typedef MyHashedMultiMap<int, double>::const_iterator ConstIterator;
-//  typedef bsl::pair<ConstIterator, ConstIterator>       ConstRange;
+//  typedef MyHashedMultiMap<int, double>::iterator        Iterator;
+//  typedef MyHashedMultiMap<int, double>::const_iterator  ConstIterator;
+//  typedef bsl::pair<ConstIterator, ConstIterator>        ConstRange;
 //..
 // Searching for an element (key value 10) in a newly created, empty container
 // correctly shows the absence of any such element.
@@ -1147,8 +1169,8 @@ BSLS_IDENT("$Id: $")
 // would have had to manage key-value/record pairs, where the key-value would
 // be a copy of part of the record.
 //..
-//      bsl::pair<ConstItrById, ConstItrById> findByCustomerId(
-//                                                            int value) const;
+//      bsl::pair<ConstItrById, ConstItrById> findByCustomerId(int value)
+//                                                                       const;
 //          // Return a pair of iterators providing non-modifiable access to
 //          // the sequence of 'MySalesRecord' objects in this container having
 //          // a 'customerId' attribute equal to the specified 'value' where
@@ -1227,7 +1249,7 @@ BSLS_IDENT("$Id: $")
 //
 //  inline
 //  bsl::pair<MySalesRecordContainer::ConstItrById,
-//            MySalesRecordContainer::ConstItrById>
+//         MySalesRecordContainer::ConstItrById>
 //  MySalesRecordContainer::findByCustomerId(int value) const
 //  {
 //      typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
@@ -1242,7 +1264,7 @@ BSLS_IDENT("$Id: $")
 //
 //  inline
 //  bsl::pair<MySalesRecordContainer::ConstItrById,
-//            MySalesRecordContainer::ConstItrById>
+//         MySalesRecordContainer::ConstItrById>
 //  MySalesRecordContainer::findByVendorId(int value) const
 //  {
 //      typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
@@ -1278,12 +1300,12 @@ BSLS_IDENT("$Id: $")
 //          const char *description = DATA[i].description;
 //
 //          printf("%d: %d %d %s\n",
-//                 orderNumber,
-//                 customerId,
-//                 vendorId,
-//                 description);
-//          bsl::pair<MySalesRecordContainer::ConstItrByOrderNumber,
-//                 bool> status = msrc.insert(DATA[i]);
+//                 orderNumber, customerId, vendorId, description);
+//
+//          typedef MySalesRecordContainer::ConstItrByOrderNumber MyConstItr;
+//          typedef bsl::pair<MyConstItr, bool>                   InsertResult;
+//
+//          const InsertResult status = msrc.insert(DATA[i]);
 //          assert(msrc.cend() != status.first);
 //          assert(true        == status.second);
 //      }
@@ -1308,10 +1330,8 @@ BSLS_IDENT("$Id: $")
 //          const char *description = DATA[i].description;
 //
 //          printf("%d: %d %d %s\n",
-//                 orderNumber,
-//                 customerId,
-//                 vendorId,
-//                 description);
+//                 orderNumber, customerId, vendorId, description);
+//
 //          MySalesRecordContainer::ConstItrByOrderNumber itr =
 //                                         msrc.findByOrderNumber(orderNumber);
 //          assert(msrc.cend() != itr);
@@ -1336,11 +1356,14 @@ BSLS_IDENT("$Id: $")
 //..
 //      printf("Find sales records by customer identifier.\n");
 //
+//      typedef MySalesRecordContainer::ConstItrById MyConstItrById;
+//
 //      for (int customerId = 100; customerId <= 200; customerId += 100) {
-//          bsl::pair<MySalesRecordContainer::ConstItrById,
-//                    MySalesRecordContainer::ConstItrById> result =
+//          bsl::pair<MyConstItrById, MyConstItrById> result =
 //                                           msrc.findByCustomerId(customerId);
-//          int count = std::distance(result.first, result.second);
+//          typedef bsl::iterator_traits<
+//                                  MyConstItrById>::difference_type CountType;
+//          const CountType count = bsl::distance(result.first, result.second);
 //          printf("customerId %d, count %d\n", customerId, count);
 //
 //          for (MySalesRecordContainer::ConstItrById itr  = result.first,
@@ -1371,11 +1394,15 @@ BSLS_IDENT("$Id: $")
 //..
 //      printf("Find sales records by vendor identifier.\n");
 //
+//      typedef MySalesRecordContainer::ConstItrById MyConstItrById;
+//
 //      for (int vendorId = 10; vendorId <= 20; vendorId += 10) {
-//          bsl::pair<MySalesRecordContainer::ConstItrById,
-//                    MySalesRecordContainer::ConstItrById> result =
+//          bsl::pair<MyConstItrById, MyConstItrById> result =
 //                                               msrc.findByVendorId(vendorId);
-//          int count = std::distance(result.first, result.second);
+//          typedef bsl::iterator_traits<
+//                                  MyConstItrById>::difference_type CountType;
+//          const CountType count = bsl::distance(result.first, result.second);
+//
 //          printf("vendorId %d, count %d\n", vendorId, count);
 //
 //          for (MySalesRecordContainer::ConstItrById itr  = result.first,
@@ -1710,7 +1737,6 @@ class HashTable_ComparatorWrapper<const FUNCTOR> {
         // Call the wrapped 'functor' with the specified 'arg1' and 'arg2' (in
         // that order) and return the result.  Note that 'ARGn_TYPE' will
         // typically be deduced as a 'const' type.
-
 
     const FUNCTOR& functor() const;
         // Return a reference providing non-modifiable access to the hash
@@ -2157,7 +2183,7 @@ class HashTable {
         // 'arguments' (see {Requirements on 'KEY_CONFIG'});
 #endif
 
-    bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
+    bslalg::BidirectionalLink *insertIfMissing(const KeyType&             key);
     bslalg::BidirectionalLink *insertIfMissing(
                                        bslmf::MovableRef<NonConstKeyType> key);
         // Insert into this hash-table a newly-created 'ValueType' object,
@@ -3180,7 +3206,6 @@ HashTable_ComparatorWrapper<FUNCTOR>::swap(HashTable_ComparatorWrapper &other)
 
                  // 'const FUNCTOR' partial specialization
 
-
 template <class FUNCTOR>
 inline
 HashTable_ComparatorWrapper<const FUNCTOR>::HashTable_ComparatorWrapper()
@@ -3350,16 +3375,18 @@ void HashTable_Util::destroyBucketArray(
                                      std::size_t               bucketArraySize,
                                      const ALLOCATOR&          allocator)
 {
-    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
-    (void) SizeType();
-
     BSLS_ASSERT_SAFE(data);
     BSLS_ASSERT_SAFE(
                   (1  < bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() != data)
                || (1 == bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() == data));
-    BSLS_ASSERT_SAFE(bucketArraySize <= std::numeric_limits<SizeType>::max());
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type AllocSizeType;
+    BSLS_ASSERT_SAFE(
+                 bucketArraySize <= std::numeric_limits<AllocSizeType>::max());
+#endif
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
         bslma::AllocatorUtil::deallocateObject(allocator, data,
@@ -3373,12 +3400,14 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
                                 std::size_t              bucketArraySize,
                                 const ALLOCATOR&         allocator)
 {
-    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
-    (void) SizeType();
-
     BSLS_ASSERT_SAFE(anchor);
     BSLS_ASSERT_SAFE(0 != bucketArraySize);
-    BSLS_ASSERT_SAFE(bucketArraySize <= std::numeric_limits<SizeType>::max());
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type AllocSizeType;
+    BSLS_ASSERT_SAFE(
+                 bucketArraySize <= std::numeric_limits<AllocSizeType>::max());
+#endif
 
     typedef bslalg::HashTableBucket Bucket;
     Bucket *data = bslma::AllocatorUtil::allocateObject<Bucket>(allocator,
@@ -3389,11 +3418,11 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     anchor->setBucketArrayAddressAndSize(data, bucketArraySize);
 }
 
-                //-------------------------------
-                // class HashTable_ImplParameters
-                //-------------------------------
+                   //-------------------------------
+                   // class HashTable_ImplParameters
+                   //-------------------------------
 
-    // CREATORS
+// CREATORS
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
@@ -3449,8 +3478,6 @@ nodeFactory()
 {
     return d_nodeFactory;
 }
-
-
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
@@ -3846,7 +3873,6 @@ quickSwapExchangeAllocators(HashTable *other)
     BSLS_ASSERT_SAFE(other);
 
     d_parameters.quickSwapExchangeAllocators(&other->d_parameters);
-
 
     using std::swap;
     swap(d_anchor,        other->d_anchor);
@@ -4248,7 +4274,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
                                                             const KeyType& key)
 {
     bool dummy = false;
-    return tryEmplace(&dummy, (bslalg::BidirectionalLink *)0, key);
+    return tryEmplace(&dummy, (bslalg::BidirectionalLink*)0, key);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -4823,7 +4849,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
     typedef typename ::bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-
     // First test - are the containers the same size?
 
     if (this->size() != other.size()) {
@@ -4855,7 +4880,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
 
         while (endWalker != endRange) {
 
-
             if (rhsWalker == rhsLast) {
                 return false;   // different length subsequences      // RETURN
             }
@@ -4881,9 +4905,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
         }
 
         if (cursor == endRange) {
-            continue;
+            continue;                                               // CONTINUE
         }
-
 
         // Now comes the harder part of validating that one subsequence is a
         // permutation of another, by counting elements that compare equal
@@ -4914,7 +4937,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
                     scanner = scanner->nextLink();
                 }
                 if (scanner != marker) {  // We have seen 'lhs' one before.
-                    continue;
+                    continue;                                       // CONTINUE
                 }
             }
 

@@ -33,8 +33,6 @@ bslstl_function_smallobjectoptimization
 bslstl_hash
 bslstl_hashtable
 bslstl_hashtable_cpp03
-bslstl_hashtable_test1
-bslstl_hashtable_test2
 bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
 bslstl_inplace
@@ -66,9 +64,9 @@ bslstl_optional_cpp03
 bslstl_ostream
 bslstl_ostringstream
 bslstl_osyncstream
-bslstl_ownerless
 bslstl_ownerequal
 bslstl_ownerhash
+bslstl_ownerless
 bslstl_pair
 bslstl_priorityqueue
 bslstl_priorityqueue_cpp03

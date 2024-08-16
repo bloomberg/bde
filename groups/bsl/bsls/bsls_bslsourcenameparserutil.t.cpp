@@ -1252,9 +1252,12 @@ int main(int argc, char *argv[])
             { L_, ".t.cpp",     Util::k_TTEST  },
             { L_, ".g.cpp",     Util::k_GTEST  },
 
+            // Automatically-split test driver
+            { L_, ".xt.cpp",    Util::k_TTEST | Util::k_IS_TEST_XTEMPLATE },
+
             // Multi-part
             { L_, ".0.t.cpp",   Util::k_TTEST | Util::k_IS_MULTIFILE_TEST },
-            { L_, ".0.g.cpp",   Util::k_GTEST | Util::k_IS_MULTIFILE_TEST},
+            { L_, ".0.g.cpp",   Util::k_GTEST | Util::k_IS_MULTIFILE_TEST },
             { L_, ".9.t.cpp",   Util::k_TTEST | Util::k_IS_MULTIFILE_TEST },
 
             { L_, ".00.t.cpp",  Util::k_TTEST | Util::k_IS_MULTIFILE_TEST },
@@ -1385,6 +1388,10 @@ int main(int argc, char *argv[])
             // Verify valid minimum part id (number)
             { L_,  "gggp_c.0.t.cpp",  0           },
             { L_,  "gggp_c.0.g.cpp",  0           },
+
+            // Verify the "test driver template" extension
+            { L_,  "gggp_c.xt.cpp",   0           },
+            { L_,  "gggp_c..xt.cpp",  k_NO_PART   },
         };
         const size_t k_NUM_BAD_DATA = sizeof k_BAD_DATA / sizeof * k_BAD_DATA;
 

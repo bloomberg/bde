@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Mar 27 09:12:28 2024
+// Generated on Tue Jul  2 14:14:40 2024
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -276,7 +276,6 @@ class HashTable_ComparatorWrapper<const FUNCTOR> {
         // Call the wrapped 'functor' with the specified 'arg1' and 'arg2' (in
         // that order) and return the result.  Note that 'ARGn_TYPE' will
         // typically be deduced as a 'const' type.
-
 
     const FUNCTOR& functor() const;
         // Return a reference providing non-modifiable access to the hash
@@ -1159,7 +1158,7 @@ class HashTable {
 // }}} END GENERATED CODE
 #endif
 
-    bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
+    bslalg::BidirectionalLink *insertIfMissing(const KeyType&             key);
     bslalg::BidirectionalLink *insertIfMissing(
                                        bslmf::MovableRef<NonConstKeyType> key);
         // Insert into this hash-table a newly-created 'ValueType' object,
@@ -3480,7 +3479,6 @@ HashTable_ComparatorWrapper<FUNCTOR>::swap(HashTable_ComparatorWrapper &other)
 
                  // 'const FUNCTOR' partial specialization
 
-
 template <class FUNCTOR>
 inline
 HashTable_ComparatorWrapper<const FUNCTOR>::HashTable_ComparatorWrapper()
@@ -3650,16 +3648,18 @@ void HashTable_Util::destroyBucketArray(
                                      std::size_t               bucketArraySize,
                                      const ALLOCATOR&          allocator)
 {
-    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
-    (void) SizeType();
-
     BSLS_ASSERT_SAFE(data);
     BSLS_ASSERT_SAFE(
                   (1  < bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() != data)
                || (1 == bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() == data));
-    BSLS_ASSERT_SAFE(bucketArraySize <= std::numeric_limits<SizeType>::max());
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type AllocSizeType;
+    BSLS_ASSERT_SAFE(
+                 bucketArraySize <= std::numeric_limits<AllocSizeType>::max());
+#endif
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
         bslma::AllocatorUtil::deallocateObject(allocator, data,
@@ -3673,12 +3673,14 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
                                 std::size_t              bucketArraySize,
                                 const ALLOCATOR&         allocator)
 {
-    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
-    (void) SizeType();
-
     BSLS_ASSERT_SAFE(anchor);
     BSLS_ASSERT_SAFE(0 != bucketArraySize);
-    BSLS_ASSERT_SAFE(bucketArraySize <= std::numeric_limits<SizeType>::max());
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type AllocSizeType;
+    BSLS_ASSERT_SAFE(
+                 bucketArraySize <= std::numeric_limits<AllocSizeType>::max());
+#endif
 
     typedef bslalg::HashTableBucket Bucket;
     Bucket *data = bslma::AllocatorUtil::allocateObject<Bucket>(allocator,
@@ -3689,11 +3691,11 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     anchor->setBucketArrayAddressAndSize(data, bucketArraySize);
 }
 
-                //-------------------------------
-                // class HashTable_ImplParameters
-                //-------------------------------
+                   //-------------------------------
+                   // class HashTable_ImplParameters
+                   //-------------------------------
 
-    // CREATORS
+// CREATORS
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
@@ -3749,8 +3751,6 @@ nodeFactory()
 {
     return d_nodeFactory;
 }
-
-
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
@@ -4146,7 +4146,6 @@ quickSwapExchangeAllocators(HashTable *other)
     BSLS_ASSERT_SAFE(other);
 
     d_parameters.quickSwapExchangeAllocators(&other->d_parameters);
-
 
     using std::swap;
     swap(d_anchor,        other->d_anchor);
@@ -6505,7 +6504,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
                                                             const KeyType& key)
 {
     bool dummy = false;
-    return tryEmplace(&dummy, (bslalg::BidirectionalLink *)0, key);
+    return tryEmplace(&dummy, (bslalg::BidirectionalLink*)0, key);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -8999,7 +8998,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
     typedef typename ::bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
     typedef bslalg::HashTableImpUtil ImpUtil;
 
-
     // First test - are the containers the same size?
 
     if (this->size() != other.size()) {
@@ -9031,7 +9029,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
 
         while (endWalker != endRange) {
 
-
             if (rhsWalker == rhsLast) {
                 return false;   // different length subsequences      // RETURN
             }
@@ -9057,9 +9054,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
         }
 
         if (cursor == endRange) {
-            continue;
+            continue;                                               // CONTINUE
         }
-
 
         // Now comes the harder part of validating that one subsequence is a
         // permutation of another, by counting elements that compare equal
@@ -9090,7 +9086,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
                     scanner = scanner->nextLink();
                 }
                 if (scanner != marker) {  // We have seen 'lhs' one before.
-                    continue;
+                    continue;                                       // CONTINUE
                 }
             }
 
