@@ -274,7 +274,7 @@ Datum_ArrayProctor<ELEMENT>::Datum_ArrayProctor(
 , d_begin_p(begin)
 , d_end_p(end)
 , d_released(false)
-, d_allocator(bslma::AllocatorUtil::adapt(allocator))
+, d_allocator(allocator)
 {
     BSLS_ASSERT(base);
     BSLS_ASSERT(begin);
@@ -1251,7 +1251,7 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
                 destroy(values[i].value(), allocator);
             }
             AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr(),
+                                       value.allocatedPtr<void>(),
                                        value.theMapAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_INT_MAP: {
@@ -1260,50 +1260,49 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
                 destroy(values[i].value(), allocator);
             }
             AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr(),
+                                       value.allocatedPtr<void>(),
                                        value.theIntMapAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_ERROR_ALLOC: {
             AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr(),
+                                       value.allocatedPtr<void>(),
                                        value.theErrorAllocNumBytes(),
                                        sizeof(int));
           } break;
           case e_EXTENDED_INTERNAL_SREF_ALLOC: {
             AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr(),
+                                       value.allocatedPtr<void>(),
                                        sizeof(SizeType) + sizeof(const char*));
           } break;
           case e_EXTENDED_INTERNAL_AREF_ALLOC: {
             AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr(),
+                                       value.allocatedPtr<void>(),
                                        sizeof(SizeType) + sizeof(Datum *));
           } break;
           case e_EXTENDED_INTERNAL_DATETIME_ALLOC: {
-            AllocUtil::deallocateObject(
-                           allocator,
-                           static_cast<bdlt::Datetime*>(value.allocatedPtr()));
+            AllocUtil::deallocateObject(allocator,
+                                        value.allocatedPtr<bdlt::Datetime>());
 
           } break;
           case e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC: {
             AllocUtil::deallocateObject(
-                   allocator,
-                   static_cast<bdlt::DatetimeInterval*>(value.allocatedPtr()));
+                                 allocator,
+                                 value.allocatedPtr<bdlt::DatetimeInterval>());
           } break;
           case e_EXTENDED_INTERNAL_INTEGER64_ALLOC: {
             AllocUtil::deallocateObject(
-                       allocator,
-                       static_cast<bsls::Types::Int64*>(value.allocatedPtr()));
+                                     allocator,
+                                     value.allocatedPtr<bsls::Types::Int64>());
           } break;
           case e_EXTENDED_INTERNAL_BINARY_ALLOC: {
             AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr(),
+                                       value.allocatedPtr<void>(),
                                        value.theBinaryAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
             AllocUtil::deallocateObject(
-                        allocator,
-                        static_cast<bdldfp::Decimal64*>(value.allocatedPtr()));
+                                      allocator,
+                                      value.allocatedPtr<bdldfp::Decimal64>());
           } break;
           default: {
             // Other enumerators require no destruction.
@@ -1316,12 +1315,12 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
             destroy(values[i], allocator);
         }
         AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr(),
+                                   value.allocatedPtr<void>(),
                                    value.theInternalArrayAllocNumBytes());
       } break;
       case e_INTERNAL_STRING: {
         AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr(),
+                                   value.allocatedPtr<void>(),
                                    value.theInternalStringAllocNumBytes(),
                                    sizeof(SizeType));
       } break;
@@ -1339,7 +1338,7 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
             destroy(values[i].value(), allocator);
         }
         AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr(),
+                                   value.allocatedPtr<void>(),
                                    value.theMapAllocNumBytes());
       } break;
       case e_INTERNAL_INT_MAP: {
@@ -1348,7 +1347,7 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
             destroy(values[i].value(), allocator);
         }
         AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr(),
+                                   value.allocatedPtr<void>(),
                                    value.theIntMapAllocNumBytes());
       } break;
       case e_INTERNAL_ARRAY: {
@@ -1357,22 +1356,22 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
             destroy(values[i], allocator);
         }
         AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr(),
+                                   value.allocatedPtr<void>(),
                                    value.theInternalArrayAllocNumBytes());
       } break;
       case e_INTERNAL_BINARY_ALLOC: {
         AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr(),
+                                   value.allocatedPtr<void>(),
                                    value.theBinaryAllocNumBytes());
       } break;
       case e_INTERNAL_ERROR_ALLOC: {
         AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr(),
+                                   value.allocatedPtr<void>(),
                                    value.theErrorAllocNumBytes());
       } break;
       case e_INTERNAL_STRING: {
         AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr(),
+                                   value.allocatedPtr<void>(),
                                    value.theInternalStringAllocNumBytes());
       } break;
       default: {
@@ -1422,7 +1421,7 @@ bdldfp::Decimal64 Datum::theDecimal64() const
       } break;
       case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
           BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-          return *static_cast<const Decimal64 *>(d_as.d_cvp);         // RETURN
+          return *allocatedPtr<const Decimal64>()           ;         // RETURN
       } break;
       default: {
       } break;

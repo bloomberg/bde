@@ -1293,7 +1293,8 @@ class Datum {
     friend bsl::ostream& operator<<(bsl::ostream& stream, const Datum& rhs);
 
     // PRIVATE ACCESSORS
-    void *allocatedPtr() const;
+    template <class t_TYPE>
+    t_TYPE *allocatedPtr() const;
         // Return the pointer to the first byte of the memory allocated by this
         // 'Datum' object.  The behavior is undefined unless the internal type
         // indicates the object *has* allocated.
@@ -2027,8 +2028,8 @@ class DatumMutableArrayRef {
     // DATA
     Datum    *d_data_p;    // pointer to an array (not owned)
     SizeType *d_length_p;  // pointer to the length of the array
-    SizeType  d_capacity;  // Required to dispose of uninitialized arrays
-
+    SizeType  d_capacity;  // array capacity (to dispose of uninitialized
+                           // arrays)
   public:
     // CREATORS
     DatumMutableArrayRef();
@@ -3274,13 +3275,14 @@ const void* Datum::theInlineStorage() const
 // have platform-specific implementation.
 
 // PRIVATE CLASS METHODS
+template <class t_TYPE>
 inline
-void *Datum::allocatedPtr() const
+t_TYPE *Datum::allocatedPtr() const
 {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    return const_cast<void*>(d_as.d_cvp);
+    return static_cast<t_TYPE *>(const_cast<void*>(d_as.d_cvp));
 #else   // end - 32 bit / begin - 64 bit
-    return d_as.d_ptr;
+    return static_cast<t_TYPE *>(d_as.d_ptr);
 #endif  // end - 64 bit
 }
 
@@ -3303,22 +3305,16 @@ inline
 DatumArrayRef Datum::theArrayReference() const
 {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    return DatumArrayRef(static_cast<const Datum *>(d_as.d_cvp),
-                         d_as.d_ushort);
+    return DatumArrayRef(allocatedPtr<const Datum>(), d_as.d_ushort);
 #else   // end - 32 bit / begin - 64 bit
-    return DatumArrayRef(static_cast<const Datum *>(d_as.d_ptr),
-                         d_as.d_int32);
+    return DatumArrayRef(allocatedPtr<const Datum>(), d_as.d_int32);
 #endif  // end - 64 bit
 }
 
 inline
 DatumArrayRef Datum::theInternalArray() const
 {
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    const Datum *data = static_cast<const Datum *>(d_as.d_cvp);
-#else   // end - 32 bit / begin - 64 bit
-    const Datum *data = reinterpret_cast<const Datum *>(d_as.d_ptr);
-#endif  // end - 64 bit
+    const Datum *data = allocatedPtr<const Datum>();
     if (data) {
         const SizeType size = *reinterpret_cast<const SizeType *>(data);
         return DatumArrayRef(data + 1, size);                         // RETURN
@@ -3330,11 +3326,11 @@ inline
 bslstl::StringRef Datum::theInternalString() const
 {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    const char *data = static_cast<const char *>(d_as.d_cvp);
+    const char *data = allocatedPtr<const char>();
     return bslstl::StringRef(data + sizeof(SizeType),
                              Datum_Helpers::load<SizeType>(data, 0));
 #else   // end - 32 bit / begin - 64 bit
-    return bslstl::StringRef(static_cast<const char *>(d_as.d_ptr),
+    return bslstl::StringRef(allocatedPtr<const char>(),
                              d_as.d_int32);
 #endif  // end - 64 bit
 }
@@ -3355,11 +3351,9 @@ inline
 bslstl::StringRef Datum::theStringReference() const
 {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    return bslstl::StringRef(static_cast<const char *>(d_as.d_cvp),
-                             d_as.d_ushort);
+    return bslstl::StringRef(allocatedPtr<const char>(), d_as.d_ushort);
 #else   // end - 32 bit / begin - 64 bit
-    return bslstl::StringRef(static_cast<const char *>(d_as.d_ptr),
-                             d_as.d_int32);
+    return bslstl::StringRef(allocatedPtr<const char>(), d_as.d_int32);
 #endif // BSLS_PLATFORM_CPU_32_BIT
 }
 
@@ -3368,21 +3362,13 @@ bsl::size_t Datum::theMapAllocNumBytes() const
 {
     BSLS_ASSERT_SAFE(isMap());
 
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    const DatumMapEntry *map = static_cast<const DatumMapEntry *>(d_as.d_cvp);
-#else   // end - 32 bit / begin - 64 bit
-    const DatumMapEntry *map = static_cast<const DatumMapEntry *>(d_as.d_ptr);
-#endif  // end - 64 bit
-
-    if (0 == map) {
-        return 0;                                                     // RETURN
-    }
+    const DatumMapEntry *map = allocatedPtr<const DatumMapEntry>();
 
     // Map header is stored in the place of the first DatumMapEntry
     const Datum_MapHeader *header =
                                 reinterpret_cast<const Datum_MapHeader *>(map);
 
-    return header->d_allocatedSize;
+    return header ? header->d_allocatedSize : 0;
 }
 
 inline
@@ -3390,23 +3376,13 @@ bsl::size_t Datum::theIntMapAllocNumBytes() const
 {
     BSLS_ASSERT_SAFE(isIntMap());
 
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    const DatumIntMapEntry *map =
-                             static_cast<const DatumIntMapEntry *>(d_as.d_cvp);
-#else   // end - 32 bit / begin - 64 bit
-    const DatumIntMapEntry *map =
-                             static_cast<const DatumIntMapEntry *>(d_as.d_ptr);
-#endif  // end - 64 bit
-
-    if (0 == map) {
-        return 0;                                                     // RETURN
-    }
+    const DatumIntMapEntry *map = allocatedPtr<const DatumIntMapEntry>();
 
     // Map header is stored in the place of the first DatumIntMapEntry
     const Datum_IntMapHeader *header =
                              reinterpret_cast<const Datum_IntMapHeader *>(map);
 
-    return (header->d_capacity + 1) * sizeof(DatumIntMapEntry);
+    return header ? (header->d_capacity + 1) * sizeof(DatumIntMapEntry) : 0;
 }
 
 inline
@@ -3421,11 +3397,11 @@ bsl::size_t Datum::theErrorAllocNumBytes() const
 
     BSLS_ASSERT_SAFE(
                     e_EXTENDED_INTERNAL_ERROR_ALLOC == extendedInternalType());
-    const char *data = static_cast<const char *>(d_as.d_cvp);
 #else   // end - 32 bit / begin - 64 bit
     BSLS_ASSERT_SAFE(e_INTERNAL_ERROR_ALLOC == internalType());
-    const char *data = reinterpret_cast<const char*>(d_as.d_ptr);
 #endif  // end - 64 bit
+
+    const char* data = allocatedPtr<const char>();
 
     const bsl::size_t msgLen  = Datum_Helpers::load<int>(data, sizeof(int));
     const bsl::size_t align   = sizeof(int);
@@ -3442,7 +3418,7 @@ bsl::size_t Datum::theBinaryAllocNumBytes() const
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     BSLS_ASSERT_SAFE(
                    e_EXTENDED_INTERNAL_BINARY_ALLOC == extendedInternalType());
-    return *static_cast<const SizeType*>(d_as.d_cvp) + sizeof(double);
+    return *allocatedPtr<const SizeType>() + sizeof(double);
 #else   // end - 32 bit / begin - 64 bit
     BSLS_ASSERT_SAFE(e_INTERNAL_BINARY_ALLOC == internalType());
     return d_as.d_int32;
@@ -3456,7 +3432,7 @@ bsl::size_t Datum::theInternalStringAllocNumBytes() const
     BSLS_ASSERT_SAFE(e_INTERNAL_STRING == internalType());
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    const char* data = static_cast<const char*>(d_as.d_cvp);
+    const char *data = allocatedPtr<const char>();
     const bsl::size_t msgLen  = Datum_Helpers::load<SizeType>(data, 0);
     const bsl::size_t align   = sizeof(SizeType);
     const bsl::size_t headLen = sizeof(SizeType);
@@ -3474,11 +3450,7 @@ bsl::size_t Datum::theInternalArrayAllocNumBytes() const
     BSLS_ASSERT_SAFE(isArray());
     BSLS_ASSERT_SAFE(e_INTERNAL_ARRAY == internalType());
 
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    const Datum* data = static_cast<const Datum*>(d_as.d_cvp);
-#else   // end - 32 bit / begin - 64 bit
-    const Datum* data = reinterpret_cast<const Datum*>(d_as.d_ptr);
-#endif  // end - 64 bit
+    const Datum *data = allocatedPtr<const Datum>();
     if (data) {
         const bsl::size_t length = *reinterpret_cast<const SizeType*>(data);
         return (length + 1) * sizeof(Datum);                          // RETURN
@@ -3887,8 +3859,8 @@ inline
 void Datum::disposeUninitializedIntMap(const DatumMutableIntMapRef& map,
                                        const AllocatorType&         allocator)
 {
-    Datum_MapHeader *hdr =
-                 static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
+    Datum_IntMapHeader *hdr =
+              static_cast<Datum_IntMapHeader*>(static_cast<void*>(map.size()));
 
     AllocUtil::deallocateBytes(
                              allocator,
@@ -4083,8 +4055,8 @@ DatumBinaryRef Datum::theBinary() const
     BSLS_ASSERT_SAFE(isBinary());
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    return DatumBinaryRef(static_cast<const double *>(d_as.d_cvp) + 1,// RETURN
-                          *static_cast<const SizeType *>(d_as.d_cvp));
+    return DatumBinaryRef(allocatedPtr<const double>() + 1,
+                          *allocatedPtr<const SizeType>());           // RETURN
 #else   // end - 32 bit / begin - 64 bit
     const InternalDataType type = internalType();
     switch(type) {
@@ -4144,7 +4116,7 @@ bdlt::Datetime Datum::theDatetime() const
     BSLS_ASSERT_SAFE(type == e_INTERNAL_EXTENDED);
     BSLS_ASSERT_SAFE(
             extendedInternalType() == e_EXTENDED_INTERNAL_DATETIME_ALLOC);
-    return *static_cast<const bdlt::Datetime*>(d_as.d_cvp);
+    return *allocatedPtr<const bdlt::Datetime>();
 #else   // end - 32 bit / begin - 64 bit
     return *reinterpret_cast<const bdlt::Datetime *>(theInlineStorage());
 #endif  // end - 64 bit
@@ -4168,7 +4140,7 @@ bdlt::DatetimeInterval Datum::theDatetimeInterval() const
     BSLS_ASSERT_SAFE(type == e_INTERNAL_EXTENDED);
     BSLS_ASSERT_SAFE(
         extendedInternalType() == e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC);
-    return *static_cast<const bdlt::DatetimeInterval *>(d_as.d_cvp);
+    return *allocatedPtr<const bdlt::DatetimeInterval>();
 #else   // end - 32 bit / begin - 64 bit
     return bdlt::DatetimeInterval(d_as.d_int32,   // days
                                   0,              // hours
@@ -4212,13 +4184,13 @@ DatumError Datum::theError() const
         return DatumError(d_as.d_int);                                // RETURN
     }
 
-    const char *data = static_cast<const char *>(d_as.d_cvp);
+    const char *data = allocatedPtr<const char>();
 #else   // end - 32 bit / begin - 64 bit
     if (e_INTERNAL_ERROR == internalType()) {
         return DatumError(static_cast<int>(d_as.d_int64));            // RETURN
     }
 
-    const char *data = reinterpret_cast<const char*>(d_as.d_ptr);
+    const char *data = allocatedPtr<const char>();
 #endif  // end - 64 bit
 
     return DatumError(
@@ -4264,11 +4236,7 @@ DatumMapRef Datum::theMap() const
 {
     BSLS_ASSERT_SAFE(isMap());
 
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    const DatumMapEntry *map = static_cast<const DatumMapEntry *>(d_as.d_cvp);
-#else   // end - 32 bit / begin - 64 bit
-    const DatumMapEntry *map = static_cast<const DatumMapEntry *>(d_as.d_ptr);
-#endif  // end - 64 bit
+    const DatumMapEntry *map = allocatedPtr<const DatumMapEntry>();
 
     if (map) {
         // Map header takes first DatumMapEntry
@@ -4288,13 +4256,7 @@ DatumIntMapRef Datum::theIntMap() const
 {
     BSLS_ASSERT_SAFE(isIntMap());
 
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    const DatumIntMapEntry *map =
-                             static_cast<const DatumIntMapEntry *>(d_as.d_cvp);
-#else   // end - 32 bit / begin - 64 bit
-    const DatumIntMapEntry *map =
-                             static_cast<const DatumIntMapEntry *>(d_as.d_ptr);
-#endif  // end - 64 bit
+    const DatumIntMapEntry *map = allocatedPtr<const DatumIntMapEntry>();
 
     if (map) {
         // Map header takes first DatumMapEntry
@@ -4355,9 +4317,9 @@ DatumUdt Datum::theUdt() const
 {
     BSLS_ASSERT_SAFE(isUdt());
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    return DatumUdt(const_cast<void*>(d_as.d_cvp), d_as.d_ushort);
+    return DatumUdt(allocatedPtr<void>(), d_as.d_ushort);
 #else   // end - 32 bit / begin - 64 bit
-    return DatumUdt(d_as.d_ptr, d_as.d_int32);
+    return DatumUdt(allocatedPtr<void>(), d_as.d_int32);
 #endif  // end - 64 bit
 }
 
