@@ -2055,6 +2055,9 @@ class DatumMutableArrayRef {
         // that this method's definition is compiler generated.
 
     // ACCESSORS
+    void *allocatedPtr() const;
+        // Return pointer to the memory allocated for the array.
+
     Datum *data() const;
         // Return pointer to the first element of the held array.
 
@@ -2144,6 +2147,9 @@ class DatumMutableMapRef {
         // that this method's definition is compiler generated.
 
     // ACCESSORS
+    void *allocatedPtr() const;
+        // Return pointer to the memory allocated for the map.
+
     DatumMapEntry *data() const;
         // Return pointer to the first element in the (held) map.
 
@@ -2209,6 +2215,9 @@ class DatumMutableIntMapRef {
         // that this method's definition is compiler generated.
 
     // ACCESSORS
+    void *allocatedPtr() const;
+        // Return pointer to the memory allocated for the map.
+
     DatumIntMapEntry *data() const;
         // Return pointer to the first element in the (held) map.
 
@@ -2239,14 +2248,16 @@ class DatumMutableMapOwningKeysRef {
 
   private:
     // DATA
-    DatumMapEntry *d_data_p;    // pointer to a map of datums (not owned)
+    DatumMapEntry *d_data_p;         // pointer to a map of datums (not owned)
 
-    SizeType      *d_size_p;    // pointer to the size of the map
+    SizeType      *d_size_p;         // pointer to the size of the map
 
-    char          *d_keys_p;    // pointer to the key storage
+    SizeType       d_allocatedSize;  // number of bytes allocated for the map
 
-    bool          *d_sorted_p;  // pointer to flag indicating whether the map
-                                // is sorted or not
+    char          *d_keys_p;         // pointer to the key storage
+
+    bool          *d_sorted_p;       // pointer to flag indicating whether the
+                                     // map is sorted or not
 
   public:
     // CREATORS
@@ -2255,10 +2266,11 @@ class DatumMutableMapOwningKeysRef {
 
     DatumMutableMapOwningKeysRef(DatumMapEntry *data,
                                  SizeType      *size,
+                                 SizeType      allocatedSize,
                                  char          *keys,
                                  bool          *sorted);
         // Create a 'DatumMutableMapOwningKeysRef' object having the specified
-        // 'data', 'size', 'keys', and 'sorted'.
+        // 'data', 'size', 'allocatedSize', 'keys', and 'sorted'.
 
     //! DatumMutableMapOwningKeysRef(
     //!                const DatumMutableMapOwningKeysRef& original) = default;
@@ -2277,6 +2289,12 @@ class DatumMutableMapOwningKeysRef {
         // that this method's definition is compiler generated.
 
     // ACCESSORS
+    SizeType allocatedSize() const;
+        // Return the number of bytes allocated for the map.
+
+    void *allocatedPtr() const;
+        // Return pointer to the memory allocated for the map.
+
     DatumMapEntry *data() const;
         // Return pointer to the first element in the held map.
 
@@ -2877,22 +2895,22 @@ class DatumMapRef {
         // Return 'size() == 0'.
 
     size_type size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a const-pointer to the number of elements of the array this
+        // Return a const-pointer to the number of elements of the map this
         // reference object represents.
 
     const_reference front() const;
         // Return a reference providing non-modifiable access to the first
-        // element of the array this reference object represents.  The behavior
+        // element of the map this reference object represents.  The behavior
         // is undefined unless 'size() > 0'.
 
     const_reference back() const;
         // Return a reference providing non-modifiable access to the last
-        // element of the array this reference object represents.  The behavior
+        // element of the map this reference object represents.  The behavior
         // is undefined unless 'size() > 0'.
 
     pointer data() const BSLS_KEYWORD_NOEXCEPT;
         // Return the address providing non-modifiable access to the first
-        // element of the array this reference object represents.  Return a
+        // element of the map this reference object represents.  Return a
         // valid pointer which cannot be dereferenced if the 'size() == 0'.
 
     bool isSorted() const;
@@ -3851,7 +3869,7 @@ void Datum::disposeUninitializedArray(const DatumMutableArrayRef& array,
                                       const AllocatorType&        allocator)
 {
     AllocUtil::deallocateBytes(allocator,
-                               array.length(),
+                               array.allocatedPtr(),
                                array.capacity());
 }
 
@@ -3864,7 +3882,7 @@ void Datum::disposeUninitializedIntMap(const DatumMutableIntMapRef& map,
 
     AllocUtil::deallocateBytes(
                              allocator,
-                             map.size(),
+                             map.allocatedPtr(),
                              (hdr->d_capacity + 1) * sizeof(DatumIntMapEntry));
 }
 
@@ -3876,8 +3894,8 @@ void Datum::disposeUninitializedMap(const DatumMutableMapRef& map,
                  static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
 
     AllocUtil::deallocateBytes(allocator,
-                               map.size(),
-                               (hdr->d_capacity + 1) * sizeof(DatumMapEntry));
+                               map.allocatedPtr(),
+                               hdr->d_allocatedSize);
 }
 
 inline
@@ -3888,7 +3906,9 @@ void Datum::disposeUninitializedMap(
     Datum_MapHeader *hdr =
                  static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
 
-    AllocUtil::deallocateBytes(allocator, map.size(), hdr->d_allocatedSize);
+    AllocUtil::deallocateBytes(allocator,
+                               map.allocatedPtr(),
+                               hdr->d_allocatedSize);
 }
 
 // ACCESSORS
@@ -5116,6 +5136,12 @@ DatumMutableArrayRef::DatumMutableArrayRef(Datum    *data,
 
 // ACCESSORS
 inline
+void *DatumMutableArrayRef::allocatedPtr() const
+{
+    return d_length_p;
+}
+
+inline
 Datum *DatumMutableArrayRef::data() const
 {
     return d_data_p;
@@ -5157,6 +5183,12 @@ DatumMutableIntMapRef::DatumMutableIntMapRef(DatumIntMapEntry *data,
 }
 
 // ACCESSORS
+inline
+void *DatumMutableIntMapRef::allocatedPtr() const
+{
+    return d_size_p;
+}
+
 inline
 DatumIntMapEntry *DatumMutableIntMapRef::data() const
 {
@@ -5200,6 +5232,12 @@ DatumMutableMapRef::DatumMutableMapRef(DatumMapEntry *data,
 
 // ACCESSORS
 inline
+void *DatumMutableMapRef::allocatedPtr() const
+{
+    return d_size_p;
+}
+
+inline
 DatumMapEntry *DatumMutableMapRef::data() const
 {
     return d_data_p;
@@ -5233,18 +5271,33 @@ DatumMutableMapOwningKeysRef::DatumMutableMapOwningKeysRef()
 
 inline
 DatumMutableMapOwningKeysRef::DatumMutableMapOwningKeysRef(
-                                                         DatumMapEntry *data,
-                                                         SizeType      *size,
-                                                         char          *keys,
-                                                         bool          *sorted)
+                                                  DatumMapEntry *data,
+                                                  SizeType      *size,
+                                                  SizeType       allocatedSize,
+                                                  char          *keys,
+                                                  bool          *sorted)
 : d_data_p(data)
 , d_size_p(size)
+, d_allocatedSize(allocatedSize)
 , d_keys_p(keys)
 , d_sorted_p(sorted)
 {
 }
 
 // ACCESSORS
+inline
+void *DatumMutableMapOwningKeysRef::allocatedPtr() const
+{
+    return d_size_p;
+}
+
+inline
+DatumMutableMapOwningKeysRef::SizeType
+DatumMutableMapOwningKeysRef::allocatedSize() const
+{
+    return d_allocatedSize;
+}
+
 inline
 DatumMapEntry *DatumMutableMapOwningKeysRef::data() const
 {

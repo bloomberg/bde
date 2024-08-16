@@ -10302,12 +10302,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting value constructor.\n";
         {
-            DatumMapEntry                           data;
+            DatumMapEntry                          data;
             DatumMutableMapOwningKeysRef::SizeType size;
-            char                                    keys;
-            bool                                    sorted;
+            DatumMutableMapOwningKeysRef::SizeType allocatedSize = 0;
+            char                                   keys;
+            bool                                   sorted;
             const DatumMutableMapOwningKeysRef      obj(&data,
                                                         &size,
+                                                        allocatedSize,
                                                         &keys,
                                                         &sorted);
 

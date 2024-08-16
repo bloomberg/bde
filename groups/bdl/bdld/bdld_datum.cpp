@@ -739,7 +739,7 @@ Datum copyMapOwningKeys(const DatumMapRef&          map,
         // inside the for loop throws.
         Datum_ArrayProctor<DatumMapEntry> proctor(
                     ref.size(),
-                    (map.size() + 1) * sizeof(DatumMapEntry) + totalSizeOfKeys,
+                    ref.allocatedSize(),
                     ref.data(),
                     ref.data(),
                     allocator);
@@ -1155,6 +1155,7 @@ void Datum::createUninitializedMap(DatumMutableMapOwningKeysRef *result,
     *result = DatumMutableMapOwningKeysRef(
                                          static_cast<DatumMapEntry *>(mem) + 1,
                                          &header->d_size,
+                                         bufferSize,
                                          keysMem,
                                          &header->d_sorted);
 }
