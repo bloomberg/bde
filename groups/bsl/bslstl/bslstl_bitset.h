@@ -143,6 +143,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_bslallocator.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -187,16 +189,19 @@ struct Bitset_ImpUtil {
     enum {
         k_BYTES_PER_INT = sizeof(int),
         k_BITS_PER_INT  = CHAR_BIT * sizeof(int),
-        k_INTS_IN_LONG  = sizeof(long) / sizeof(int)
+        k_INTS_IN_LONG  = sizeof(long) / sizeof(int),
+        k_INTS_IN_LLONG = sizeof(long long) / sizeof(int)
     };
 
-    static void defaultInit(unsigned int  *data,
-                            size_t         size,
-                            unsigned long  val = 0);
+    BSLMF_ASSERT(k_INTS_IN_LLONG == 2);
+
+    static void defaultInit(unsigned int       *data,
+                            std::size_t         size,
+                            unsigned long long  val = 0);
         // Initialize the memory at the address specified by 'data' so that the
         // the first 'M' bit positions correspond to the bit values in the
         // specified 'val' where 'M' is the smaller of 'size * k_BITS_PER_INT'
-        // and 'CHAR_BIT * sizeof(unsigned long)'.  The remaining bits are
+        // and 'CHAR_BIT * sizeof(unsigned long long)'.  The remaining bits are
         // initialized to zero '0'.
 };
 
@@ -205,28 +210,19 @@ struct Bitset_ImpUtil {
                           // ====================
 
 template <std::size_t BITSETSIZE,
-          std::size_t NUM_INIT =  (BITSETSIZE < sizeof(long) / sizeof(int))
-                                 ? BITSETSIZE : sizeof(long) / sizeof(int)>
+          std::size_t NUM_INIT =
+                     (BITSETSIZE < (std::size_t)Bitset_ImpUtil::k_INTS_IN_LLONG
+                      ? BITSETSIZE
+                      : (std::size_t)Bitset_ImpUtil::k_INTS_IN_LLONG)>
 class Bitset_ImpBase;
     // This component private 'class' template describes the basic data and
     // initialization semantics needed in order to implement a C++11 'bitset'
     // class.  The 'BITSETSIZE' template parameter specifies the size of the
     // underlying data array, 'd_data'.  The 'NUM_INIT' template parameter
     // specifies the number of elements in 'd_data' needed to use when storing
-    // a value of type 'unsigned long'.  Partial class template specializations
-    // of 'Bitset_ImpBase' are provided for 'NUM_INIT == 1' and
+    // a value of type 'unsigned long long'.  Partial class template
+    // specializations of 'Bitset_ImpBase' are provided for 'NUM_INIT == 1' and
     // 'NUM_INIT == 2'.  No other values of 'NUM_INIT' are supported.
-
-#if __cplusplus >= 201103L
-template <std::size_t BITSETSIZE, std::size_t NUM_INIT>
-class Bitset_ImpBase {
-  private:
-    static_assert(NUM_INIT != NUM_INIT,
-                  "bsl::bitset is not supported on this target because "
-                  "sizeof(long) / sizeof(int) is neither 1 nor 2.");
-};
-#endif
-
 
 template <std::size_t BITSETSIZE>
 class Bitset_ImpBase<BITSETSIZE, 1> {
@@ -240,14 +236,14 @@ class Bitset_ImpBase<BITSETSIZE, 1> {
         // zero.  In C++11 this constructor can be used in a constant
         // expression.
 
-    BSLS_KEYWORD_CONSTEXPR Bitset_ImpBase(unsigned long val);
+    BSLS_KEYWORD_CONSTEXPR Bitset_ImpBase(unsigned long long val);
         // Create a 'Bitset_ImpBase' with the first 'N' bit positions of
         // 'd_data' corresponding to the first 'N' bit positions of the
         // specified 'val' after conversion to 'unsigned int' and the remaining
         // bits in 'd_data' initialized to zero, where 'N' is
         // 'CHAR_BIT * sizeof(int)'.  The behavior is undefined unless
-        // 'BITSETSIZE == 1' or 'sizeof(long) / sizeof(int) == 1'.  In C++11
-        // this constructor can be used in a constant expression.
+        // 'BITSETSIZE == 1'.  In C++11 this constructor can be used in a
+        // constant expression.
 };
 
 template <std::size_t BITSETSIZE>
@@ -262,14 +258,13 @@ class Bitset_ImpBase<BITSETSIZE, 2> {
         // zero.  In C++11 this constructor can be used in a constant
         // expression.
 
-    BSLS_KEYWORD_CONSTEXPR Bitset_ImpBase(unsigned long);
+    BSLS_KEYWORD_CONSTEXPR Bitset_ImpBase(unsigned long long val);
         // Create a 'Bitset_ImpBase' with the first 'N' bit positions of
         // 'd_data' corresponding to the first 'N' bit positions of the
         // specified 'val' after conversion to 'unsigned int' and the remaining
         // bits in 'd_data' initialized to zero, where 'N' is
-        // 'CHAR_BIT * sizeof(int) * 2'.  The behavior is undefined unless
-        // 'sizeof(long) / sizeof(int) == 2'.  In C++11 this constructor can be
-        // used in a constant expression.
+        // 'CHAR_BIT * sizeof(int) * 2'.  In C++11 this constructor can be used
+        // in a constant expression.
 };
 
                         // =================
@@ -406,11 +401,11 @@ class bitset :
         // Create a 'bitset' with all bits initialized to '0'.
 
     BSLS_KEYWORD_CONSTEXPR
-    bitset(unsigned long val) BSLS_KEYWORD_NOEXCEPT;                // IMPLICIT
+    bitset(unsigned long long val) BSLS_KEYWORD_NOEXCEPT;           // IMPLICIT
         // Create a bitset with its first 'M' bit positions correspond to bit
         // values in the specified 'val'.  'M' is the smaller of the
-        // parameterized 'N' and '8 * sizeof(unsigned long)'.  If 'M < N', the
-        // remaining bit positions are initialized to 0.
+        // parameterized 'N' and '8 * sizeof(unsigned long long)'.  If 'M < N',
+        // the remaining bit positions are initialized to 0.
 
 #if !defined(BSLSTL_BITSET_MSVC_CANNOT_PARSE_DEFAULTS_WITH_COLONS)
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
@@ -648,7 +643,7 @@ Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase()
 
 template <std::size_t BITSETSIZE>
 inline BSLS_KEYWORD_CONSTEXPR
-Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase(unsigned long val)
+Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase(unsigned long long val)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) \
  &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
   : d_data{static_cast<unsigned int>(val)}
@@ -671,11 +666,11 @@ Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase()
 {
 }
 
-  template <std::size_t BITSETSIZE>
+template <std::size_t BITSETSIZE>
 inline BSLS_KEYWORD_CONSTEXPR
-Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase(unsigned long val)
+Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase(unsigned long long val)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) \
- &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER < 1900)
+ &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
   : d_data{static_cast<unsigned int>(val),
            static_cast<unsigned int>(val >> (sizeof(int) * CHAR_BIT))}
 {
@@ -884,7 +879,7 @@ bitset<N>::bitset() BSLS_KEYWORD_NOEXCEPT : Base()
 
 template <std::size_t N>
 BSLS_KEYWORD_CONSTEXPR
-bitset<N>::bitset(unsigned long val) BSLS_KEYWORD_NOEXCEPT : Base(val)
+bitset<N>::bitset(unsigned long long val) BSLS_KEYWORD_NOEXCEPT : Base(val)
 {
 }
 

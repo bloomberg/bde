@@ -18,26 +18,21 @@ namespace bsl {
                         // class Bitset_ImpUtil
                         // --------------------
 
-void Bitset_ImpUtil::defaultInit(unsigned int  *data,
-                                 size_t         size,
-                                 unsigned long  val)
+void Bitset_ImpUtil::defaultInit(unsigned int       *data,
+                                 size_t              size,
+                                 unsigned long long  val)
 {
     ::memset(data, 0, size * k_BYTES_PER_INT);
     if (val == 0) {
-      return;                                                         // RETURN
+        return;                                                       // RETURN
     }
-    if (1 == k_INTS_IN_LONG) {
-        data[0] = static_cast<unsigned int>(val);
-    }
-    else {
-        const unsigned int numInts = (unsigned int) k_INTS_IN_LONG
-                                                    < (unsigned int) size
-                                     ? (unsigned int) k_INTS_IN_LONG
-                                     : (unsigned int) size;
+    const unsigned int numInts =
+                             (unsigned int)k_INTS_IN_LLONG < (unsigned int)size
+                             ? (unsigned int)k_INTS_IN_LLONG
+                             : (unsigned int)size;
 
-        for (unsigned int i = 0; i < numInts; ++i) {
-            data[i] = static_cast<unsigned int>(val >> (k_BITS_PER_INT * i));
-        }
+    for (unsigned int i = 0; i < numInts; ++i) {
+        data[i] = static_cast<unsigned int>(val >> (k_BITS_PER_INT * i));
     }
 }
 

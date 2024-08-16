@@ -72,7 +72,7 @@ using namespace std;    // still using iostream
 // ----------------------------------------------------------------------------
 // CREATORS:
 // [ 2] constexpr bitset() noexcept;
-// [ 3] constexpr bitset(unsigned long) noexcept;
+// [ 3] constexpr bitset(unsigned long long) noexcept;
 // [ 4] bitset(std::basic_string, size_type, size_type, char, char);
 // [ 4] bitset(bsl::basic_string, size_type, size_type, char, char);
 // [  ] bitset(const bitset&) noexcept;
@@ -249,15 +249,15 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
 
 template <size_t N>
 bool verifyBitset(const bsl::bitset<N> obj,
-                  size_t               expected,
+                  unsigned long long   expected,
                   bool                 verbose)
 {
     (void)verbose;  // not clear why this is passed but not used
 
     for (size_t bitIndex = 0; bitIndex != N; ++bitIndex) {
-        size_t expectedBit = 0;
+        unsigned long long expectedBit = 0;
 
-        if (bitIndex < sizeof(size_t) * CHAR_BIT) {
+        if (bitIndex < sizeof(long long) * CHAR_BIT) {
             expectedBit = ((expected >> bitIndex) & 1);
         }
 
@@ -277,9 +277,9 @@ bool verifyBitset(const bsl::bitset<N> obj,
 template <size_t N>
 constexpr bool verifyBitConstexpr(size_t                bitIndex,
                                   const bsl::bitset<N>& obj,
-                                  unsigned long         expected)
+                                  unsigned long long    expected)
 {
-    return bitIndex < sizeof(unsigned long) * CHAR_BIT
+    return bitIndex < sizeof(unsigned long long) * CHAR_BIT
         ? (((expected >> bitIndex) & 1)) == obj[bitIndex]
         : 0 == obj[bitIndex];
 }
@@ -288,8 +288,8 @@ template <size_t BIT_INDEX, size_t N>
 struct VerifyBitsetHelper {
     constexpr VerifyBitsetHelper() {}
 
-    constexpr
-    bool operator()(const bsl::bitset<N>& obj, unsigned long expected) const
+    constexpr bool
+    operator()(const bsl::bitset<N>& obj, unsigned long long expected) const
     {
         return verifyBitConstexpr(BIT_INDEX, obj, expected) &&
             VerifyBitsetHelper<BIT_INDEX - 1, N>()(obj, expected);
@@ -300,8 +300,8 @@ template <size_t N>
 struct VerifyBitsetHelper<0, N> {
     constexpr VerifyBitsetHelper() {}
 
-    constexpr
-    bool operator()(const bsl::bitset<N>& obj, unsigned long expected) const
+    constexpr bool
+    operator()(const bsl::bitset<N>& obj, unsigned long long expected) const
     {
         return verifyBitConstexpr(0, obj, expected);
     }
@@ -309,7 +309,7 @@ struct VerifyBitsetHelper<0, N> {
 
 template <size_t N>
 constexpr
-bool verifyBitsetConstexpr(const bsl::bitset<N>& obj, unsigned long value)
+bool verifyBitsetConstexpr(const bsl::bitset<N>& obj, unsigned long long value)
 {
     return VerifyBitsetHelper<N - 1, N>()(obj, value);
 }
@@ -401,7 +401,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 #endif
 }
 
-template <unsigned int LINE, size_t TESTSIZE, unsigned long VALUE>
+template <unsigned int LINE, size_t TESTSIZE, unsigned long long VALUE>
 void testCase3Imp(bool verbose, bool veryVerbose)
 {
     typedef bsl::bitset<TESTSIZE> Obj;
@@ -423,24 +423,23 @@ void testCase3Imp(bool verbose, bool veryVerbose)
 template <size_t TESTSIZE>
 void testCase3(bool verbose, bool veryVerbose, bool /* veryVeryVerbose */)
 {
-    if (verbose) printf("Testing bitset<" ZU ">(unsigned long) constructor\n",
-                        TESTSIZE);
-                          //LINE  VALUE
-                          //----  -------------------
+    if (verbose)
+        printf("Testing bitset<" ZU ">(unsigned long long) constructor\n",
+               TESTSIZE);
+
+                 //LINE          VALUE
+                 //----          -------------------
     testCase3Imp<L_, TESTSIZE,   0                  >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0x10101010         >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0xabcdef01         >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0x12345678         >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0xffffffff         >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0x87654321         >(verbose, veryVerbose);
-#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     testCase3Imp<L_, TESTSIZE,   0x1010101010101010 >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0xabcdef01abcdef01 >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0x1234567812345678 >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0xffffffffffffffff >(verbose, veryVerbose);
     testCase3Imp<L_, TESTSIZE,   0x8765432187654321 >(verbose, veryVerbose);
-#endif
-
 }
 
 }  // close unnamed namespace
@@ -1232,9 +1231,9 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING UNSIGNED LONG CONSTRUCTOR
-        //   Ensure that the unsigned long constructor leaves the object in the
-        //   expected state for different initial sizes.
+        // TESTING 'unsigned long long' CONSTRUCTOR
+        //   Ensure that the 'unsigned long long' constructor leaves the object
+        //   in the expected state for different initial sizes.
         //
         // Concerns:
         //: 1 All 'N' bits in a 'bitset<N>(k)'-constructed bitset match the N
@@ -1243,18 +1242,19 @@ int main(int argc, char *argv[])
         //: 2 (C++11 only) 'bitset<N>(k)' can be used in a constant expression.
         //
         // Plan:
-        //   Construct bitsets of different sizes with different unsigned long
-        //   arguments 'k', and check that all 'N' bits in the bitset match the
-        //   'N' lowest bits of 'k'. Then repeat the same process except that
-        //   the construction and checks are done at compile time (C++11 only).
+        //   Construct bitsets of different sizes with different
+        //   'unsigned long long' arguments 'k', and check that all 'N' bits in
+        //   the bitset match the 'N' lowest bits of 'k'. Then repeat the same
+        //   process except that the construction and checks are done at
+        //   compile time (C++11 only).
         //
         // Testing:
-        //  constexpr bitset(unsigned long) noexcept;
+        //  constexpr bitset(unsigned long long) noexcept;
         //  constexpr bool operator[](std::size_t pos) const;
         //---------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING UNSIGNED LONG CONSTRUCTOR"
-                            "\n=================================\n");
+        if (verbose) printf("\nTESTING 'unsigned long long' CONSTRUCTOR"
+                            "\n========================================\n");
 
 //      testCase3<0>(verbose, veryVerbose, veryVeryVerbose);   // bad test code
         testCase3<1>(verbose, veryVerbose, veryVeryVerbose);
