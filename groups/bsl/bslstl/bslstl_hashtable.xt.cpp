@@ -9296,9 +9296,11 @@ int main(int argc, char *argv[])
         u_RUN_HARNESS(TestCases_ConvertibleValueConfiguration);
         u_RUN_HARNESS(TestCases_ModifiableFunctors);
         u_RUN_HARNESS(TestCases_StatefulAllocatorConfiguration);
+#ifndef u_NO_REFERENCE_COLLAPSING
         u_RUN_HARNESS(TestCases_FunctorReferences);
-        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_FunctionReferences);
+#endif
+        u_RUN_HARNESS(TestCases_FunctionTypes);
 #undef  u_RUN_HARNESS
       } break;
       case 23: {
@@ -9469,9 +9471,11 @@ int main(int argc, char *argv[])
         u_RUN_HARNESS(TestCases_ConvertibleValueConfiguration);
         u_RUN_HARNESS(TestCases_ModifiableFunctors);
         u_RUN_HARNESS(TestCases_StatefulAllocatorConfiguration);
+#ifndef u_NO_REFERENCE_COLLAPSING
         u_RUN_HARNESS(TestCases_FunctorReferences);
-        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_FunctionReferences);
+#endif
+        u_RUN_HARNESS(TestCases_FunctionTypes);
 
 #undef u_RUN_HARNESS
 #undef u_TESTED_TYPES
@@ -9907,9 +9911,11 @@ int main(int argc, char *argv[])
         u_RUN_HARNESS(TestCases_ConvertibleValueConfiguration);
         u_RUN_HARNESS(TestCases_ModifiableFunctors);
         u_RUN_HARNESS(TestCases_StatefulAllocatorConfiguration);
+#ifndef u_NO_REFERENCE_COLLAPSING
         u_RUN_HARNESS(TestCases_FunctorReferences);
-        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_FunctionReferences);
+#endif
+        u_RUN_HARNESS(TestCases_FunctionTypes);
 #undef u_RUN_HARNESS
 #undef u_TESTED_TYPES
       } break;
@@ -9969,9 +9975,11 @@ int main(int argc, char *argv[])
     //      has not enough context to understand anything.
         u_RUN_HARNESS(TestCases_ModifiableFunctors);
   #endif  // if 0
+#ifndef u_NO_REFERENCE_COLLAPSING
         u_RUN_HARNESS(TestCases_FunctorReferences);
-        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_FunctionReferences);
+#endif
+        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_StdAllocatorConfiguration);
         u_RUN_HARNESS(TestCases_StatefulAllocatorConfiguration);
 #undef u_RUN_HARNESS
@@ -10027,9 +10035,11 @@ int main(int argc, char *argv[])
         u_RUN_HARNESS(TestCases_FunctionPointers);
         u_RUN_HARNESS(TestCases_GenericFunctors);
         u_RUN_HARNESS(TestCases_ModifiableFunctors);
+#ifndef u_NO_REFERENCE_COLLAPSING
         u_RUN_HARNESS(TestCases_FunctorReferences);
-        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_FunctionReferences);
+#endif
+        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_StdAllocatorConfiguration);
         u_RUN_HARNESS(TestCases_StatefulAllocatorConfiguration);
 #undef u_RUN_HARNESS
@@ -10155,9 +10165,11 @@ int main(int argc, char *argv[])
         u_RUN_HARNESS(TestCases_GenericFunctors);
         u_RUN_HARNESS(TestCases_ConvertibleValueConfiguration);
         u_RUN_HARNESS(TestCases_ModifiableFunctors);
+#ifndef u_NO_REFERENCE_COLLAPSING
         u_RUN_HARNESS(TestCases_FunctorReferences);
-        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_FunctionReferences);
+#endif
+        u_RUN_HARNESS(TestCases_FunctionTypes);
         u_RUN_HARNESS(TestCases_FunctionPointers);
         u_RUN_HARNESS(TestCases_StdAllocatorConfiguration);
         u_RUN_HARNESS(TestCases_StatefulAllocatorConfiguration);
