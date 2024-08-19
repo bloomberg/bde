@@ -1422,7 +1422,7 @@ bdldfp::Decimal64 Datum::theDecimal64() const
       } break;
       case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
           BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-          return *allocatedPtr<const Decimal64>()           ;         // RETURN
+          return *allocatedPtr<const Decimal64>();                    // RETURN
       } break;
       default: {
       } break;

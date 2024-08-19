@@ -3380,11 +3380,8 @@ bsl::size_t Datum::theMapAllocNumBytes() const
 {
     BSLS_ASSERT_SAFE(isMap());
 
-    const DatumMapEntry *map = allocatedPtr<const DatumMapEntry>();
-
     // Map header is stored in the place of the first DatumMapEntry
-    const Datum_MapHeader *header =
-                                reinterpret_cast<const Datum_MapHeader *>(map);
+    const Datum_MapHeader *header = allocatedPtr<const Datum_MapHeader>();
 
     return header ? header->d_allocatedSize : 0;
 }
@@ -3394,13 +3391,10 @@ bsl::size_t Datum::theIntMapAllocNumBytes() const
 {
     BSLS_ASSERT_SAFE(isIntMap());
 
-    const DatumIntMapEntry *map = allocatedPtr<const DatumIntMapEntry>();
-
     // Map header is stored in the place of the first DatumIntMapEntry
-    const Datum_IntMapHeader *header =
-                             reinterpret_cast<const Datum_IntMapHeader *>(map);
+    const Datum_IntMapHeader *hdr = allocatedPtr<const Datum_IntMapHeader>();
 
-    return header ? (header->d_capacity + 1) * sizeof(DatumIntMapEntry) : 0;
+    return hdr ? (hdr->d_capacity + 1) * sizeof(DatumIntMapEntry) : 0;
 }
 
 inline
