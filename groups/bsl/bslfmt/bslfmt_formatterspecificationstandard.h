@@ -435,7 +435,7 @@ void FormatterSpecificationStandard<t_CHAR>::parseType(
           bsl::format_error("Standard types are single-character"));  // RETURN
     }
 
-    static const std::ctype<wchar_t>& ct =
+    const std::ctype<wchar_t>& ct =
                 std::use_facet<std::ctype<wchar_t> >(std::locale::classic());
 
     char typeChar = ct.narrow(typeString.front(), '\0');

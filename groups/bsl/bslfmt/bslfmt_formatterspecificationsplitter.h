@@ -855,7 +855,7 @@ FormatterSpecification_Splitter<t_CHAR>::rawParse(
     if (0 != (sections & e_SECTIONS_FINAL_SPECIFICATION)) {
         bsl::basic_string_view<t_CHAR> temp(*start, end);
 
-        static const t_CHAR braces[3] = {'{', '}', '\0'};
+        const BSLS_KEYWORD_CONSTEXPR t_CHAR braces[3] = {'{', '}', '\0'};
 
         // Take anything left up to but not including any brace.
         size_t brace_pos = temp.find_first_of(braces);
