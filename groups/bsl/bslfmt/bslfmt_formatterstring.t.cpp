@@ -116,7 +116,10 @@ int main(int argc, char **argv)
         ASSERT((bslfmt::format("String={:*^10.5}.", bsl::string("abcdefg")) ==
                 "String=**abcde***."));
 
-        auto val = std::format("String={:*^10.5}.", bsl::string("abcdefg"));
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+        std::string val = std::format("String={:*^10.5}.",
+                                      bsl::string("abcdefg"));
+#endif
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
