@@ -158,17 +158,19 @@ class FormatterSpecificationStandard
                             const t_FORMAT_CONTEXT&         context);
 
     // ACCESSORS
-    const t_CHAR                              *filler() const;
-    int                                        fillerCharacters() const;
-    int                                        fillerCodePointDisplayWidth() const;
-    Alignment                                  alignment() const;
-    Sign                                       sign() const;
-    bool                                       alternativeFlag() const;
-    bool                                       zeroPaddingFlag() const;
-    const FormatterSpecification_NumericValue  postprocessedWidth() const;
-    const FormatterSpecification_NumericValue  postprocessedPrecision() const;
-    bool                                       localeSpecificFlag() const;
-    FormatType                                 formatType() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const t_CHAR *filler() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 int           fillerCharacters() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 int           fillerCodePointDisplayWidth() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 Alignment     alignment() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 Sign          sign() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool          alternativeFlag() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool          zeroPaddingFlag() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+                                               postprocessedWidth() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+                                               postprocessedPrecision() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool          localeSpecificFlag() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType    formatType() const;
 };
 
 // PRIVATE CLASS FUNCTIONS
@@ -191,6 +193,7 @@ FormatterSpecificationStandard<t_CHAR>::FormatterSpecificationStandard()
 // ACCESSORS
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 const t_CHAR *FormatterSpecificationStandard<t_CHAR>::filler() const
 {
     if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
@@ -201,6 +204,7 @@ const t_CHAR *FormatterSpecificationStandard<t_CHAR>::filler() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 int FormatterSpecificationStandard<t_CHAR>::fillerCharacters() const
 {
     if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
@@ -211,6 +215,7 @@ int FormatterSpecificationStandard<t_CHAR>::fillerCharacters() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 int FormatterSpecificationStandard<t_CHAR>::fillerCodePointDisplayWidth() const
 {
     if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
@@ -221,6 +226,7 @@ int FormatterSpecificationStandard<t_CHAR>::fillerCodePointDisplayWidth() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 typename
 FormatterSpecificationStandard<t_CHAR>::Alignment
 FormatterSpecificationStandard<t_CHAR>::alignment() const
@@ -234,6 +240,7 @@ FormatterSpecificationStandard<t_CHAR>::alignment() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 typename
 FormatterSpecificationStandard<t_CHAR>::Sign
 FormatterSpecificationStandard<t_CHAR>::sign() const
@@ -247,6 +254,7 @@ FormatterSpecificationStandard<t_CHAR>::sign() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecificationStandard<t_CHAR>::alternativeFlag() const
 {
     if (d_parsingStatus ==
@@ -258,6 +266,7 @@ bool FormatterSpecificationStandard<t_CHAR>::alternativeFlag() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecificationStandard<t_CHAR>::zeroPaddingFlag() const
 {
     if (d_parsingStatus ==
@@ -269,6 +278,7 @@ bool FormatterSpecificationStandard<t_CHAR>::zeroPaddingFlag() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 const FormatterSpecification_NumericValue
 FormatterSpecificationStandard<t_CHAR>::postprocessedWidth() const
 {
@@ -280,6 +290,7 @@ FormatterSpecificationStandard<t_CHAR>::postprocessedWidth() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 const FormatterSpecification_NumericValue
 FormatterSpecificationStandard<t_CHAR>::postprocessedPrecision() const
 {
@@ -291,6 +302,7 @@ FormatterSpecificationStandard<t_CHAR>::postprocessedPrecision() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecificationStandard<t_CHAR>::localeSpecificFlag() const
 {
     if (d_parsingStatus ==
@@ -302,6 +314,7 @@ bool FormatterSpecificationStandard<t_CHAR>::localeSpecificFlag() const
 }
 
 template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 typename FormatterSpecificationStandard<t_CHAR>::FormatType
 FormatterSpecificationStandard<t_CHAR>::formatType() const
 {

@@ -8,8 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <bslfmt_formatimp.h> // Testing only
+
 using namespace BloombergLP;
-using namespace bsl;
 
 
 // ============================================================================
@@ -107,6 +108,15 @@ int main(int argc, char **argv)
         (void)dummy5;
 #endif
         ASSERT(true);  // placeholder
+
+        ASSERT((bslfmt::format("String={:*^10.5}.",
+                               "abcdefg") == "String=**abcde***."));
+        ASSERT((bslfmt::format("String={:*^10.5}.", std::string("abcdefg")) ==
+                "String=**abcde***."));
+        ASSERT((bslfmt::format("String={:*^10.5}.", bsl::string("abcdefg")) ==
+                "String=**abcde***."));
+
+        auto val = std::format("String={:*^10.5}.", bsl::string("abcdefg"));
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

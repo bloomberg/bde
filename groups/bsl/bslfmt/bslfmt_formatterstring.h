@@ -207,7 +207,27 @@ struct Formatter_StringBase {
           } break;
         }
 
-        return bsl::copy(sv.begin(), sv.end(), fc.out());
+        typename t_FORMAT_CONTEXT::iterator outIterator = fc.out();
+
+        for (int i = 0; i < leftPadFillerCopies; ++i) {
+            outIterator = bsl::copy(
+                           final_spec.filler(),
+                           final_spec.filler() + final_spec.fillerCharacters(),
+                           outIterator);
+        }
+
+        outIterator = bsl::copy(sv.begin(),
+                                sv.begin() + charactersOfInputUsed,
+                                outIterator);
+
+        for (int i = 0; i < rightPadFillerCopies; ++i) {
+            outIterator = bsl::copy(
+                           final_spec.filler(),
+                           final_spec.filler() + final_spec.fillerCharacters(),
+                           outIterator);
+        }
+
+        return outIterator;
     }
 };
 
