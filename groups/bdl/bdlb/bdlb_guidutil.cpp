@@ -315,7 +315,7 @@ void GuidUtil::generateNonSecure(Guid *result, bsl::size_t numGuids)
     static GuidState_Imp *guidStatePtr;
     static bslmt::Mutex  *pcgMutexPtr;
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!s_pid.loadRelaxed())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!s_pid.loadAcquire())) {
         BSLMT_ONCE_DO
         {
             registerForkCallback();
