@@ -1,17 +1,18 @@
-// bslstl_formatterstring.t.cpp                                       -*-C++-*-
-#include <bslfmt_formatterstring.h>
+// bslfmt_formattertestutil.t.cpp                                     -*-C++-*-
+#include <bslfmt_formattertestutil.h>
 
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
 
+#include <bslfmt_formatarg.h> // Testing only
+#include <bslfmt_formatparsecontext.h> // Testing only
+
 #include <stdio.h>
 #include <string.h>
 
-#include <bslfmt_formatimp.h> // Testing only
-#include <bslfmt_formattertestutil.h> // Testing only
-
 using namespace BloombergLP;
+using namespace bslfmt;
 
 
 // ============================================================================
@@ -76,6 +77,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
+// ============================================================================
+//                  ASSISTANCE FUNCTIONS
+// ----------------------------------------------------------------------------
+
+
+
+
+
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -86,8 +95,6 @@ int main(int argc, char **argv)
     const bool verbose = argc > 2;
     // const bool veryVerbose = argc > 3;
 
-
-
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
@@ -96,55 +103,6 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        bsl::formatter<const char *, char>                  dummy1;
-        bsl::formatter<bsl::string_view, char>     dummy2;
-        bsl::formatter<bsl::wstring_view, wchar_t> dummy3;
-        (void)dummy1;
-        (void)dummy2;
-        (void)dummy3;
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-        std::formatter<bsl::string, char>          dummy4;
-        std::formatter<bsl::wstring, wchar_t>      dummy5;
-        (void)dummy4;
-        (void)dummy5;
-#endif
-        ASSERT(true);  // placeholder
-
-        ASSERT((bslfmt::format("String={:*^10.5}.",
-                               "abcdefg") == "String=**abcde***."));
-        ASSERT((bslfmt::format("String={:*^10.5}.", std::string("abcdefg")) ==
-                "String=**abcde***."));
-        ASSERT((bslfmt::format("String={:*^10.5}.", bsl::string("abcdefg")) ==
-                "String=**abcde***."));
-
-        ASSERT((bslfmt::format("String={2:*^{0}.{1}}.",
-                               10, 5, "abcdefg") == "String=**abcde***."));
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-        std::string val = std::format("String={:*^10.5}.",
-                                      bsl::string("abcdefg"));
-#endif
-
-        bsl::string message;
-
-        const char *input = "abcdefg";
-        const wchar_t *winput = L"abcdefg";
-
-        bool rv;
-
-        rv = bslfmt::Formatter_TestUtil<char>::testEvaluate(&message,
-                                                       "**abcde***",
-                                                       "{0:*^{1}.{2}}",
-                                                       input,
-                                                       10,
-                                                       5);
-
-        //rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluate(&message,
-        //                                                    L"**abcde***",
-        //                                                    L"{0:*^{1}.{2}}",
-        //                                                    winput,
-        //                                                    10,
-        //                                                    5);
 
       } break;
       default: {

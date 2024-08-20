@@ -18,6 +18,7 @@ bslfmt_formatterpointer
 bslfmt_formatterspecificationsplitter
 bslfmt_formatterspecificationstandard
 bslfmt_formatterstring
+bslfmt_formattertestutil
 bslfmt_formatterunicodedata
 bslfmt_formatterunicodeutils
 

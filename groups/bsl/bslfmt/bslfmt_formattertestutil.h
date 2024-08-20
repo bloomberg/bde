@@ -1,0 +1,488 @@
+// bslfmt_formattertestutil.h                                         -*-C++-*-
+
+#ifndef INCLUDED_BSLFMT_FORMATTERTESTUTIL
+#define INCLUDED_BSLFMT_FORMATTERTESTUTIL
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide invoker adaptors for 'bsl::function'
+//
+//@CLASSES:
+//  FormatSpecification_Splitter: Utility to tokenize format specifications.
+//  FormatSpecification_Splitter_Base: Base for FormatSpecification_Splitter.
+//
+//@SEE_ALSO: bslfmt_format.h
+//
+//@DESCRIPTION: This component provides a mechanism to perform a first-pass
+// split of a formatting string into its component parts in a way that is
+// compatible with [format.string] and [time.format] in the Standard. No
+// validation is performed by this component and further type-specific
+// processing will be required prior to use.
+// 
+// This component is for private use only.
+
+#include <bslscm_version.h>
+
+#include <bslalg_numericformatterutil.h>
+
+#include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>
+#include <bslmf_isarithmetic.h>
+#include <bslmf_issame.h>
+
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
+#include <bsls_keyword.h>
+
+#include <bslstl_array.h>
+#include <bslstl_iterator.h>
+#include <bslstl_string.h>
+#include <bslstl_stringview.h>
+
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatarg.h>
+#include <bslfmt_formatcontext.h>
+#include <bslfmt_formatterbase.h>
+
+#include <locale>     // for 'std::ctype', 'locale'
+#include <string>     // for 'std::char_traits'
+
+#include <stdio.h>    // for 'snprintf'
+
+using namespace BloombergLP;
+
+namespace BloombergLP {
+namespace bslfmt {
+
+template <class t_CHAR>
+struct Formatter_MockParseContext {
+  public:
+    // TYPES
+    typedef t_CHAR char_type;
+    typedef
+        typename bsl::basic_string_view<t_CHAR>::const_iterator const_iterator;
+    typedef const_iterator                                      iterator;
+
+    enum Indexing { e_UNKNOWN, e_MANUAL, e_AUTOMATIC };
+
+  private:
+    // DATA
+    iterator d_begin;
+    iterator d_end;
+    Indexing d_indexing;
+    size_t   d_next_arg_id;
+    size_t   d_num_args;
+
+  public:
+    // CREATORS
+    BSLS_KEYWORD_CONSTEXPR_CPP20 explicit Formatter_MockParseContext(
+                 bsl::basic_string_view<t_CHAR> fmt,
+                 size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT;
+
+    // MANIPULATORS
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it);
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 size_t next_arg_id();
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void check_arg_id(size_t id);
+
+    // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const_iterator
+    begin() const BSLS_KEYWORD_NOEXCEPT;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const_iterator
+    end() const BSLS_KEYWORD_NOEXCEPT;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 Indexing
+    indexing() const BSLS_KEYWORD_NOEXCEPT;
+
+  private:
+    // NOT IMPLEMENTED
+    Formatter_MockParseContext(
+                       const Formatter_MockParseContext&) BSLS_KEYWORD_DELETED;
+    Formatter_MockParseContext& operator=(
+                       const Formatter_MockParseContext&) BSLS_KEYWORD_DELETED;
+};
+
+template <class t_CHAR>
+class Formatter_MockFormatContext_Iterator {
+  private:
+    // DATA
+    t_CHAR *d_ptr;
+    t_CHAR *d_max;
+
+  public:
+    // TYPES
+    typedef std::ptrdiff_t difference_type;
+    typedef t_CHAR         value_type;
+
+    // CREATORS
+    Formatter_MockFormatContext_Iterator(t_CHAR *ptr, t_CHAR *max)
+    : d_ptr(ptr)
+    , d_max(max)
+    {
+    }
+
+    // MANIPULATORS
+    Formatter_MockFormatContext_Iterator& operator++()
+    {
+        d_ptr++;
+        if (d_ptr >= d_max)
+            BSLS_THROW(
+                   format_error("Formatter_MockFormatContext buffer overrun"));
+        return *this;
+    }
+    Formatter_MockFormatContext_Iterator operator++(int)
+    {
+        Formatter_MockFormatContext_Iterator copy = *this;
+        ++*this;
+        return copy;
+    }
+
+    // ACCESSORS
+    t_CHAR& operator*() const { return *d_ptr; }
+
+    t_CHAR *rawPointer() const { return d_ptr; }
+};
+
+template <class t_CHAR>
+struct Formatter_MockFormatContext {
+  public:
+    // TYPES
+    typedef basic_format_arg<basic_format_context<t_CHAR *, t_CHAR> > Arg;
+
+    typedef Formatter_MockFormatContext_Iterator<t_CHAR> iterator;
+    typedef t_CHAR                                       char_type;
+
+  private:
+    // PRIVATE TYPES
+
+    enum { k_BUFFER_SIZE = 512 };
+
+  private:
+    // DATA
+    Arg      d_arg_0;
+    Arg      d_arg_1;
+    Arg      d_arg_2;
+
+    t_CHAR   d_buffer[k_BUFFER_SIZE];
+    iterator d_iterator;
+
+  public:
+    // CREATORS
+    template <class t_ARG0>
+    Formatter_MockFormatContext(const t_ARG0& arg_0)
+    : d_buffer()
+    , d_iterator(d_buffer, d_buffer + k_BUFFER_SIZE - 1)
+    {
+        bsl::array<Arg, 1> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr, arg_0);
+        d_arg_0 = Arg(arr[0]);
+    }
+
+    template <class t_ARG0, class t_ARG1>
+    Formatter_MockFormatContext(const t_ARG0& arg_0, const t_ARG1& arg_1)
+    : d_buffer()
+    , d_iterator(d_buffer, d_buffer + k_BUFFER_SIZE - 1)
+    {
+        bsl::array<Arg, 2> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr, arg_0, arg_1);
+        d_arg_0 = Arg(arr[0]);
+        d_arg_1 = Arg(arr[1]);
+    }
+
+    template <class t_ARG0, class t_ARG1, class t_ARG2>
+    Formatter_MockFormatContext(const t_ARG0& arg_0,
+                                const t_ARG1& arg_1,
+                                const t_ARG2& arg_2)
+    : d_buffer()
+    , d_iterator(d_buffer, d_buffer + k_BUFFER_SIZE - 1)
+    {
+        bsl::array<Arg, 3> arr;
+        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr,
+                                                      arg_0,
+                                                      arg_1,
+                                                      arg_2);
+        d_arg_0 = Arg(arr[0]);
+        d_arg_1 = Arg(arr[1]);
+        d_arg_2 = Arg(arr[2]);
+    }
+
+    // ACCESSORS
+    Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT
+    {
+        if (id == 0)
+            return d_arg_0;
+        if (id == 1)
+            return d_arg_1;
+        if (id == 2)
+            return d_arg_2;
+
+        return Arg();
+    }
+
+    iterator out() const { return d_iterator; }
+
+    bsl::basic_string_view<t_CHAR> finalString() const
+    {
+        return bsl::basic_string_view<t_CHAR>(
+                                   d_buffer,
+                                   size_t(d_iterator.rawPointer() - d_buffer));
+    }
+
+    // MANIPULATORS
+    void advance_to(iterator it) { d_iterator = it; }
+};
+
+template <class t_CHAR>
+struct Formatter_TestUtil_Impl {
+  public:
+    // CLASS METHODS
+    template <class t_TYPE, class... t_ARGS>
+    static bool testEvaluate(
+            bsl::string                                         *message,
+            bsl::basic_string_view<t_CHAR>                       desiredResult,
+            std::basic_format_string<t_CHAR, t_TYPE, t_ARGS...>  fmt,
+            t_TYPE&&                                             value,
+            t_ARGS&&...                                          otherArgs);
+};
+
+template <class t_CHAR>
+struct Formatter_TestUtil {
+};
+
+template <>
+struct Formatter_TestUtil<char> {
+  public:
+    // CLASS METHODS
+    template <class t_TYPE, class... t_ARGS>
+    static bool testEvaluate(
+                          bsl::string                           *message,
+                          bsl::basic_string_view<char>         desiredResult,
+                          std::format_string<t_TYPE, t_ARGS...>  fmt,
+                          t_TYPE&&                               value,
+                          t_ARGS&&...                            otherArgs);
+};
+
+template <>
+struct Formatter_TestUtil<wchar_t> {
+  public:
+    // CLASS METHODS
+    template <class t_TYPE, class... t_ARGS>
+    static bool testEvaluate(
+                          bsl::string                            *message,
+                          bsl::basic_string_view<wchar_t>         desiredResult,
+                          std::wformat_string<t_TYPE, t_ARGS...>  fmt,
+                          t_TYPE&&                                value,
+                          t_ARGS&&...                             otherArgs);
+};
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                      // --------------------------------
+                      // class Formatter_TestUtil<t_CHAR>
+                      // --------------------------------
+
+template <class t_CHAR>
+template <class t_TYPE, class... t_ARGS>
+bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluate(
+            bsl::string                                         *message,
+            bsl::basic_string_view<t_CHAR>                       desiredResult,
+            std::basic_format_string<t_CHAR, t_TYPE, t_ARGS...>  fmt,
+            t_TYPE&&                                             value,
+            t_ARGS&&...                                          otherArgs)
+{
+    typedef bsl::basic_string<t_CHAR>      Str;
+    typedef bsl::basic_string_view<t_CHAR> StrV;
+
+    StrV fmtStr = fmt.get();
+
+    Formatter_MockParseContext<t_CHAR> mpc(fmtStr,
+                                           1 + sizeof...(otherArgs));
+
+    if (fmtStr.front() != '{') {
+        if (message)
+            *message = "opening brace missing";
+        return false;
+    }
+    fmtStr.remove_prefix(1);
+    mpc.advance_to(mpc.begin() + 1);
+
+    if (fmtStr.front() >= '1' && fmtStr.front() <= '9') {
+        if (message)
+            *message = "For testing, value must be arg 0";
+        return false;
+    }
+
+    if (fmtStr.front() == '0') {
+        mpc.check_arg_id(0);
+        fmtStr.remove_prefix(1);
+        mpc.advance_to(mpc.begin() + 1);
+        if (fmtStr.front() != ':' && fmtStr.front() != '}') {
+            if (message)
+                *message = "Missing ':' separator";
+            return false;
+        }
+    }
+    else {
+        mpc.next_arg_id();
+    }
+
+    if (fmtStr.front() == ':') {
+        fmtStr.remove_prefix(1);
+        mpc.advance_to(mpc.begin() + 1);
+    }
+
+    //mpc.advance_to(fmtStr.begin());
+
+    bsl::formatter<bsl::decay<t_TYPE>::type, t_CHAR> f;
+
+    mpc.advance_to(f.parse(mpc));
+
+    Formatter_MockFormatContext<t_CHAR> mfc(value,
+                                            otherArgs...);
+
+    mfc.advance_to(bsl::as_const(f).format(value, mfc));
+
+    Str res_bde(mfc.finalString());
+
+    Str res_std = std::format(fmt,
+                              std::forward<t_TYPE>(value),
+                              std::forward<t_ARGS>(otherArgs)...);
+
+    return (desiredResult == res_bde && desiredResult == res_std);
+}
+
+
+template <class t_TYPE, class... t_ARGS>
+bool Formatter_TestUtil<char>::testEvaluate(
+                          bsl::string                           *message,
+                          bsl::basic_string_view<char>           desiredResult,
+                          std::format_string<t_TYPE, t_ARGS...>  fmt,
+                          t_TYPE&&                               value,
+                          t_ARGS&&...                            otherArgs)
+{
+    return Formatter_TestUtil_Impl<char>::testEvaluate(
+                                           message,
+                                           desiredResult,
+                                           fmt,
+                                           std::forward<t_TYPE>(value),
+                                           std::forward<t_ARGS>(otherArgs)...);
+}
+
+template <class t_TYPE, class... t_ARGS>
+bool Formatter_TestUtil<wchar_t>::testEvaluate(
+                          bsl::string                           *message,
+                          bsl::basic_string_view<wchar_t>        desiredResult,
+                          std::wformat_string<t_TYPE, t_ARGS...> fmt,
+                          t_TYPE&&                               value,
+                          t_ARGS&&...                            otherArgs)
+{
+    return Formatter_TestUtil_Impl<wchar_t>::testEvaluate(
+                                           message,
+                                           desiredResult,
+                                           fmt,
+                                           std::forward<t_TYPE>(value),
+                                           std::forward<t_ARGS>(otherArgs)...);
+}
+
+
+
+                  // ----------------------------------------
+                  // class Formatter_MockParseContext<t_CHAR>
+                  // ----------------------------------------
+
+// CREATORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+Formatter_MockParseContext<t_CHAR>::Formatter_MockParseContext(
+                  bsl::basic_string_view<t_CHAR> fmt,
+                  size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT
+: d_begin(fmt.begin())
+, d_end(fmt.end())
+, d_indexing(e_UNKNOWN)
+, d_next_arg_id(0)
+, d_num_args(numArgs)
+{
+}
+
+// MANIPULATORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20 void
+Formatter_MockParseContext<t_CHAR>::advance_to(const_iterator it)
+{
+    d_begin = it;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20 size_t
+Formatter_MockParseContext<t_CHAR>::next_arg_id()
+{
+    if (d_indexing == e_MANUAL) {
+        BSLS_THROW(format_error("mixing of automatic and manual indexing"));
+    }
+    if (d_next_arg_id >= d_num_args) {
+        BSLS_THROW(format_error("number of conversion specifiers exceeds "
+        "number of arguments"));
+    }
+    if (d_indexing == e_UNKNOWN) {
+        d_indexing = e_AUTOMATIC;
+    }
+    return d_next_arg_id++;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20 void
+Formatter_MockParseContext<t_CHAR>::check_arg_id(size_t id)
+{
+    if (d_indexing == e_AUTOMATIC) {
+        BSLS_THROW(format_error("mixing of automatic and manual indexing"));
+    }
+    if (id >= d_num_args) {
+        BSLS_THROW(format_error("invalid argument index"));
+    }
+    if (d_indexing == e_UNKNOWN) {
+        d_indexing = e_MANUAL;
+    }
+}
+
+// ACCESSORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+    typename Formatter_MockParseContext<t_CHAR>::const_iterator
+    Formatter_MockParseContext<t_CHAR>::begin() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_begin;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+    typename Formatter_MockParseContext<t_CHAR>::const_iterator
+    Formatter_MockParseContext<t_CHAR>::end() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_end;
+}
+
+}  // close namespace bslfmt
+}  // close enterprise namespace
+
+#endif  // INCLUDED_BSLFMT_FORMATTERTESTUTIL
+
+// ----------------------------------------------------------------------------
+// Copyright 2023 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
