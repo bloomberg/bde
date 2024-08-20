@@ -191,7 +191,9 @@ int PosixDateImpUtil::lastDayOfMonth(int year, int month)
     BSLS_ASSERT(k_MIN_MONTH <= month);
     BSLS_ASSERT(               month <= k_MAX_MONTH);
 
-    return normDaysPerMonth[month] + (k_FEBRUARY == month && isLeapYear(year));
+    return (k_FEBRUARY == month && isLeapYear(year))
+        ? normDaysPerMonth[month] + 1
+        : normDaysPerMonth[month];
 }
 
 int PosixDateImpUtil::numLeapYears(int year1, int year2)

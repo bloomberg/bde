@@ -7203,7 +7203,7 @@ int main(int argc, char *argv[])
 
         Obj list;
 
-        int n[32] = {0};
+        int n[64] = {0};
 
         for (int i=0; i<k_NUM_ITERATIONS; i++) {
             H h;

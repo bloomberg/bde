@@ -286,7 +286,7 @@ int main(int argc, char **argv)
 //..
 // Now, use resulting 'inStream' to unexternalize user data:
 //..
-    unsigned int  magic;
+    unsigned int  magic = 0;
     int           key;
     bsl::string   value;
 

@@ -1,11 +1,15 @@
 // bdlt_dayofweekset.t.cpp                                            -*-C++-*-
 #include <bdlt_dayofweekset.h>
 
+#include <bdlt_dayofweek.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+
+#include <bsla_maybeunused.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -751,9 +755,11 @@ int main(int argc, char *argv[])
 
         ReverseIterator rit = X.rend();
 
-        ASSERT_SAFE_FAIL(*rit);
+        BSLA_MAYBE_UNUSED bdlt::DayOfWeek::Enum rv;
+
+        ASSERT_SAFE_FAIL(rv = *rit);
         --rit;
-        ASSERT_SAFE_PASS(*rit);
+        ASSERT_SAFE_PASS(rv = *rit);
 
         Iterator itB = it;
         ReverseIterator ritB = rit;

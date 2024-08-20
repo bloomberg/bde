@@ -220,6 +220,8 @@ void myTinyTrivialFunction(int x)
 struct BigThing {
     // Large object used to prevent small object optimization.
     int d_data[2048];
+
+    BigThing() : d_data()  {}
 };
 
 void bigThingProcessor(const BigThing& bt, int y)

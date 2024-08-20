@@ -12,6 +12,8 @@ BSLS_IDENT_RCSID(bdlb_numericparseutil_cpp, "$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
@@ -209,7 +211,7 @@ double reparseOutOfRange(const char              **restPtr,
 #endif  // Does not report under/overflow using the 'double' output value
 #endif  // 'double' 'from_chars' exists
 
-static
+BSLA_MAYBE_UNUSED static
 bool couldBeHexFloat(bsl::string_view strtodInput)
     // Return 'true' if the specified 'strtodInput' has a valid hexadecimal
     // prefix that followed by an optional dot and a hexadecimal digit, and
