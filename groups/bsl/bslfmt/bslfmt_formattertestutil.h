@@ -50,7 +50,31 @@ BSLS_IDENT("$Id: $")
 
 #include <stdio.h>    // for 'snprintf'
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#include <format>     // for oracle testing
+#endif
+
 using namespace BloombergLP;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#define BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING                              \
+    std::format_string<t_TYPE, t_ARG_1, t_ARG_2>
+#define BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING                             \
+    std::wformat_string<t_TYPE, t_ARG_1, t_ARG_2>
+#define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING                        \
+    std::basic_format_string<t_CHAR, t_TYPE, t_ARG_1, t_ARG_2>
+#define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER(ARG)            \
+    ARG.get()
+#else
+#define BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING                              \
+    bsl::string_view
+#define BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING                             \
+    bsl::wstring_view
+#define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING                        \
+    bsl::basic_string_view<t_CHAR>
+#define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER(ARG)            \
+    ARG
+#endif
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -244,7 +268,7 @@ struct Formatter_TestUtil_Impl {
     static bool testEvaluate(
      bsl::string                                                *message,
      bsl::basic_string_view<t_CHAR>                              desiredResult,
-     std::basic_format_string<t_CHAR, t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+     BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING              fmt,
      BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)                   value,
      BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)                  arg1,
      BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)                  arg2);
@@ -272,7 +296,7 @@ struct Formatter_TestUtil<char> {
     static bool testEvaluate(
         bsl::string                                  *message,
         bsl::basic_string_view<char>                  desiredResult,
-        std::format_string<t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+        BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING      fmt,
         BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)     value,
         BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)    arg1 = bsl::monostate(),
         BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)    arg2 = bsl::monostate());
@@ -286,7 +310,7 @@ struct Formatter_TestUtil<wchar_t> {
     static bool testEvaluate(
        bsl::string                                   *message,
        bsl::basic_string_view<wchar_t>                desiredResult,
-       std::wformat_string<t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+       BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING      fmt,
        BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)      value,
        BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)     arg1 = bsl::monostate(),
        BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)     arg2 = bsl::monostate());
@@ -345,7 +369,7 @@ bool Formatter_TestUtil_Impl<t_CHAR>::evaluateBslfmt(
         mpc.advance_to(mpc.begin() + 1);
     }
 
-    bsl::formatter<bsl::decay<t_TYPE>::type, t_CHAR> f;
+    bsl::formatter<typename bsl::decay<t_TYPE>::type, t_CHAR> f;
 
     mpc.advance_to(f.parse(mpc));
 
@@ -363,14 +387,15 @@ template <class t_TYPE, class t_ARG_1, class t_ARG_2>
 bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluate(
      bsl::string                                                *message,
      bsl::basic_string_view<t_CHAR>                              desiredResult,
-     std::basic_format_string<t_CHAR, t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+     BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING              fmt,
      BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)                   value,
      BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)                  arg1,
      BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)                  arg2)
 {
     typedef bsl::basic_string<t_CHAR>      Str;
 
-    bsl::basic_string_view<t_CHAR> fmtStr = fmt.get();
+    bsl::basic_string_view<t_CHAR> fmtStr =
+                    BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER(fmt);
 
     Str res_bde;
 
@@ -384,6 +409,8 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluate(
         return false;
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
     Str res_std = std::format(fmt,
                               BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
                               BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
@@ -394,6 +421,8 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluate(
         return false;
     }
 
+#endif
+
     return true;
 }
 
@@ -402,7 +431,7 @@ template <class t_TYPE, class t_ARG_1, class t_ARG_2>
 bool Formatter_TestUtil<char>::testEvaluate(
                    bsl::string                                  *message,
                    bsl::basic_string_view<char>                  desiredResult,
-                   std::format_string<t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+                   BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING      fmt,
                    BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)     value,
                    BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)    arg1,
                    BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)    arg2)
@@ -420,7 +449,7 @@ template <class t_TYPE, class t_ARG_1, class t_ARG_2>
 bool Formatter_TestUtil<wchar_t>::testEvaluate(
                   bsl::string                                   *message,
                   bsl::basic_string_view<wchar_t>                desiredResult,
-                  std::wformat_string<t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+                  BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING      fmt,
                   BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)      value,
                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)     arg1,
                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)     arg2)
@@ -513,6 +542,11 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 
 }  // close namespace bslfmt
 }  // close enterprise namespace
+
+#undef BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING
+#undef BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING
+#undef BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING
+#undef BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER
 
 #endif  // INCLUDED_BSLFMT_FORMATTERTESTUTIL
 

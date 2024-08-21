@@ -127,7 +127,6 @@ int main(int argc, char **argv)
 
         bsl::string message;
 
-        const char *input = "abcdefg";
         const wchar_t *winput = L"abcdefg";
 
         bool rv;
@@ -139,6 +138,8 @@ int main(int argc, char **argv)
                                                             10,
                                                             5);
 
+        ASSERTV(message.c_str(), rv);
+
         rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluate(
                                                               &message,
                                                               L"**abcde***",
@@ -146,6 +147,8 @@ int main(int argc, char **argv)
                                                               winput,
                                                               10,
                                                               5);
+
+        ASSERTV(message.c_str(), rv);
 
       } break;
       default: {

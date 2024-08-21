@@ -102,7 +102,7 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-
+        ASSERT(true); // placeholder
 
       } break;
       default: {
