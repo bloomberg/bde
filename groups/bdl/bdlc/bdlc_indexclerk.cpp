@@ -12,6 +12,17 @@ BSLS_IDENT_RCSID(bdlc_indexclerk_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_vector.h>
 
+///Implementation Notes
+///--------------------
+// When 'BSLS_ASSERT' is enabled and 'IndexClerkIter::operator*' is inlined,
+// GCC 12 to 14 (the latest version at the time of writing) can sometimes
+// optimize the code into a form that duplicates the access to 'd_index_p' in
+// the branch where '0 == d_index_p.base()', which triggers '-Warray-bounds'
+// (GCC bug 108770).  The ideal solution is to replace 'BSLS_ASSERT' with a
+// variant that is statically known to never continue on failure, but such a
+// facility doesn't currently exist in BDE, so instead we must manually disable
+// the warning in the body of 'operator*'.
+
 namespace BloombergLP {
 namespace bdlc {
 

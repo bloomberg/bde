@@ -128,6 +128,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
@@ -456,9 +457,19 @@ IndexClerkIter& IndexClerkIter::operator--()
 inline
 int IndexClerkIter::operator*() const
 {
+#if defined(BSLS_PLATFORM_CMP_GNU) && \
+    BSLS_PLATFORM_CMP_VERSION >= 120000 && BSLS_PLATFORM_CMP_VERSION < 150000
+    // See implementation notes in the .cpp file for explanation.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     BSLS_ASSERT(0 != d_index_p.base());
 
     return *d_index_p;
+#if defined(BSLS_PLATFORM_CMP_GNU) && \
+    BSLS_PLATFORM_CMP_VERSION >= 120000 && BSLS_PLATFORM_CMP_VERSION < 150000
+#pragma GCC diagnostic pop
+#endif
 }
 
 }  // close package namespace
