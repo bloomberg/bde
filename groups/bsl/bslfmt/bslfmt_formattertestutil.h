@@ -239,13 +239,25 @@ template <class t_CHAR>
 struct Formatter_TestUtil_Impl {
   public:
     // CLASS METHODS
-    template <class t_TYPE, class... t_ARGS>
+
+    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
     static bool testEvaluate(
-            bsl::string                                         *message,
-            bsl::basic_string_view<t_CHAR>                       desiredResult,
-            std::basic_format_string<t_CHAR, t_TYPE, t_ARGS...>  fmt,
-            t_TYPE&&                                             value,
-            t_ARGS&&...                                          otherArgs);
+     bsl::string                                                *message,
+     bsl::basic_string_view<t_CHAR>                              desiredResult,
+     std::basic_format_string<t_CHAR, t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)                   value,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)                  arg1,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)                  arg2);
+
+  private:
+    // PRIVATE CLASS METHODS
+    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+    static bool evaluateBslfmt(bsl::string                    *message,
+                               bsl::basic_string<t_CHAR>      *result,
+                               bsl::basic_string_view<t_CHAR>  fmt,
+                               const t_TYPE&                   value,
+                               const t_ARG_1&                  arg1,
+                               const t_ARG_2&                  arg2);
 };
 
 template <class t_CHAR>
@@ -256,26 +268,28 @@ template <>
 struct Formatter_TestUtil<char> {
   public:
     // CLASS METHODS
-    template <class t_TYPE, class... t_ARGS>
+    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
     static bool testEvaluate(
-                          bsl::string                           *message,
-                          bsl::basic_string_view<char>         desiredResult,
-                          std::format_string<t_TYPE, t_ARGS...>  fmt,
-                          t_TYPE&&                               value,
-                          t_ARGS&&...                            otherArgs);
+        bsl::string                                  *message,
+        bsl::basic_string_view<char>                  desiredResult,
+        std::format_string<t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+        BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)     value,
+        BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)    arg1 = bsl::monostate(),
+        BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)    arg2 = bsl::monostate());
 };
 
 template <>
 struct Formatter_TestUtil<wchar_t> {
   public:
     // CLASS METHODS
-    template <class t_TYPE, class... t_ARGS>
+    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
     static bool testEvaluate(
-                          bsl::string                            *message,
-                          bsl::basic_string_view<wchar_t>         desiredResult,
-                          std::wformat_string<t_TYPE, t_ARGS...>  fmt,
-                          t_TYPE&&                                value,
-                          t_ARGS&&...                             otherArgs);
+       bsl::string                                   *message,
+       bsl::basic_string_view<wchar_t>                desiredResult,
+       std::wformat_string<t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+       BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)      value,
+       BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)     arg1 = bsl::monostate(),
+       BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)     arg2 = bsl::monostate());
 };
 
 // ============================================================================
@@ -287,21 +301,16 @@ struct Formatter_TestUtil<wchar_t> {
                       // --------------------------------
 
 template <class t_CHAR>
-template <class t_TYPE, class... t_ARGS>
-bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluate(
-            bsl::string                                         *message,
-            bsl::basic_string_view<t_CHAR>                       desiredResult,
-            std::basic_format_string<t_CHAR, t_TYPE, t_ARGS...>  fmt,
-            t_TYPE&&                                             value,
-            t_ARGS&&...                                          otherArgs)
+template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+bool Formatter_TestUtil_Impl<t_CHAR>::evaluateBslfmt(
+                                       bsl::string                    *message,
+                                       bsl::basic_string<t_CHAR>      *result,
+                                       bsl::basic_string_view<t_CHAR>  fmtStr,
+                                       const t_TYPE&                   value,
+                                       const t_ARG_1&                  arg1,
+                                       const t_ARG_2&                  arg2)
 {
-    typedef bsl::basic_string<t_CHAR>      Str;
-    typedef bsl::basic_string_view<t_CHAR> StrV;
-
-    StrV fmtStr = fmt.get();
-
-    Formatter_MockParseContext<t_CHAR> mpc(fmtStr,
-                                           1 + sizeof...(otherArgs));
+    Formatter_MockParseContext<t_CHAR> mpc(fmtStr, 3);
 
     if (fmtStr.front() != '{') {
         if (message)
@@ -336,57 +345,93 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluate(
         mpc.advance_to(mpc.begin() + 1);
     }
 
-    //mpc.advance_to(fmtStr.begin());
-
     bsl::formatter<bsl::decay<t_TYPE>::type, t_CHAR> f;
 
     mpc.advance_to(f.parse(mpc));
 
-    Formatter_MockFormatContext<t_CHAR> mfc(value,
-                                            otherArgs...);
+    Formatter_MockFormatContext<t_CHAR> mfc(value, arg1, arg2);
 
     mfc.advance_to(bsl::as_const(f).format(value, mfc));
 
-    Str res_bde(mfc.finalString());
+    *result = bsl::basic_string<t_CHAR>(mfc.finalString());
+
+    return true;
+}
+
+template <class t_CHAR>
+template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluate(
+     bsl::string                                                *message,
+     bsl::basic_string_view<t_CHAR>                              desiredResult,
+     std::basic_format_string<t_CHAR, t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)                   value,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)                  arg1,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)                  arg2)
+{
+    typedef bsl::basic_string<t_CHAR>      Str;
+
+    bsl::basic_string_view<t_CHAR> fmtStr = fmt.get();
+
+    Str res_bde;
+
+    bool rv = evaluateBslfmt(message, &res_bde, fmtStr, value, arg1, arg2);
+
+    if (!rv)
+        return false;
+
+    if (desiredResult != res_bde) {
+        *message = "result does not match";
+        return false;
+    }
 
     Str res_std = std::format(fmt,
-                              std::forward<t_TYPE>(value),
-                              std::forward<t_ARGS>(otherArgs)...);
+                              BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
+                              BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
+                              BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
 
-    return (desiredResult == res_bde && desiredResult == res_std);
+    if (desiredResult != res_std) {
+        *message = "oracle does not match";
+        return false;
+    }
+
+    return true;
 }
 
 
-template <class t_TYPE, class... t_ARGS>
+template <class t_TYPE, class t_ARG_1, class t_ARG_2>
 bool Formatter_TestUtil<char>::testEvaluate(
-                          bsl::string                           *message,
-                          bsl::basic_string_view<char>           desiredResult,
-                          std::format_string<t_TYPE, t_ARGS...>  fmt,
-                          t_TYPE&&                               value,
-                          t_ARGS&&...                            otherArgs)
+                   bsl::string                                  *message,
+                   bsl::basic_string_view<char>                  desiredResult,
+                   std::format_string<t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)     value,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)    arg1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)    arg2)
 {
     return Formatter_TestUtil_Impl<char>::testEvaluate(
-                                           message,
-                                           desiredResult,
-                                           fmt,
-                                           std::forward<t_TYPE>(value),
-                                           std::forward<t_ARGS>(otherArgs)...);
+                                 message,
+                                 desiredResult,
+                                 fmt,
+                                 BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
+                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
+                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
 }
 
-template <class t_TYPE, class... t_ARGS>
+template <class t_TYPE, class t_ARG_1, class t_ARG_2>
 bool Formatter_TestUtil<wchar_t>::testEvaluate(
-                          bsl::string                           *message,
-                          bsl::basic_string_view<wchar_t>        desiredResult,
-                          std::wformat_string<t_TYPE, t_ARGS...> fmt,
-                          t_TYPE&&                               value,
-                          t_ARGS&&...                            otherArgs)
+                  bsl::string                                   *message,
+                  bsl::basic_string_view<wchar_t>                desiredResult,
+                  std::wformat_string<t_TYPE, t_ARG_1, t_ARG_2>  fmt,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)      value,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)     arg1,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)     arg2)
 {
     return Formatter_TestUtil_Impl<wchar_t>::testEvaluate(
-                                           message,
-                                           desiredResult,
-                                           fmt,
-                                           std::forward<t_TYPE>(value),
-                                           std::forward<t_ARGS>(otherArgs)...);
+                                 message,
+                                 desiredResult,
+                                 fmt,
+                                 BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
+                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
+                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
 }
 
 

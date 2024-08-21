@@ -133,18 +133,19 @@ int main(int argc, char **argv)
         bool rv;
 
         rv = bslfmt::Formatter_TestUtil<char>::testEvaluate(&message,
-                                                       "**abcde***",
-                                                       "{0:*^{1}.{2}}",
-                                                       input,
-                                                       10,
-                                                       5);
+                                                            "**abcde***",
+                                                            "{0:*^{1}.{2}}",
+                                                            "abcdefghi",
+                                                            10,
+                                                            5);
 
-        //rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluate(&message,
-        //                                                    L"**abcde***",
-        //                                                    L"{0:*^{1}.{2}}",
-        //                                                    winput,
-        //                                                    10,
-        //                                                    5);
+        rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluate(
+                                                              &message,
+                                                              L"**abcde***",
+                                                              L"{0:*^{1}.{2}}",
+                                                              winput,
+                                                              10,
+                                                              5);
 
       } break;
       default: {
