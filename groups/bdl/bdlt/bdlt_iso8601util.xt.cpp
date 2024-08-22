@@ -1,88 +1,5 @@
-// bdlt_iso8601util.00.t.cpp                                          -*-C++-*-
+// bdlt_iso8601util.xt.cpp                                           -*-C++-*-
 #include <bdlt_iso8601util.h>
-
-// This test driver is split into several executables to enable compilation on
-// platforms/compilers where the complete test code (with its many template
-// instantiations) ends up needing too much resources during compilation,
-// making it impossible to compile the code, or extremely slow.
-//
-// This test driver file contains all the 'bdlt_iso8601util' test code and it
-// is split into parts using conditional compilation.  It is '#include'd in the
-// individual test parts (01-02) after defining the
-// 'BDLT_ISO8601UTIL_TEST_PART_NUMBER' macro to the part number of the
-// including file.  When 'BDLT_ISO8601UTIL_TEST_PART_NUMBER' is defined and its
-// value is between 1-2 only the test code necessary for that part will be
-// compiled, including conditional compilation of some common code (to avoid
-// "unused" warnings) and of course the test cases in the 'main' function.
-// This method of splitting up a test driver to multiple test executables keeps
-// all the test code in one place (file), but still allows us to build (or to
-// build in reasonable time) the test driver.
-//
-// Note that to make sure that an IDE or smart editor does not gray out all the
-// code when editing if 'BDLT_ISO8601UTIL_TEST_PART_NUMBER' is undefined, *all*
-// code is enabled (like a non-split test driver).  The code itself sets that
-// value if the '__INTELLISENSE__' (Microsoft IDE specific predefined) or
-// either one of the 'BDLT_ISO8601UTIL_TEST_ENABLE_ALL', or 'BDE_TARGET_EDITOR'
-// are defined.  The 'BDE_TARGET_EDITOR' macro is meant to affect all split
-// test drivers, while 'BDLT_ISO8601UTIL_TEST_ENABLE_ALL' will only make all
-// effective test code active in this component test driver files.
-//
-// Set your smart editor or IDE to define 'BDLT_ISO8601UTIL_TEST_ENABLE_ALL'
-// when editing this file for the syntax highlighting to show all "interesting"
-// code active (not grayed out, or otherwise show inactive).  If you prefer all
-// split test drivers to be shown that way (all test code active) just define
-// 'BDE_TARGET_EDITOR' for your syntax-highlighting tool.
-//
-// When no control macro is defined this file (conditionally) compiles into an
-// empty test driver that return success for test case 1, and -1 (no such test
-// case) for test case number 2.  Test case number 1 returns success (and
-// prints when run 'verbose') so that pedantic test runners won't warn that "no
-// tests were run".
-
-#undef U_TEST_ENABLE_ALL
-#undef U_TEST_COMPILING_NO_CASES
-#undef U_TEST_NUMBER
-#undef U_TEST_COMPILING_A_PART
-#undef U_TEST_PART_01
-#undef U_TEST_PART_02
-
-#ifndef BDLT_ISO8601UTIL_TEST_PART_NUMBER
-
-// Test part number not defined means: editing or compiling part 00
-# if defined(__INTELLISENSE__) || defined(BDE_TARGET_EDITOR)
-  // Allow the IDE to see all code.
-#   define U_TEST_ENABLE_ALL
-#   define U_TEST_COMPILING_A_PART
-# else // not editing and no part number defined: we need a mock main
-#   define U_TEST_COMPILING_NO_CASES
-# endif
-
-#elif BDLT_ISO8601UTIL_TEST_PART_NUMBER >= 1  \
-   && BDLT_ISO8601UTIL_TEST_PART_NUMBER <= 2
-
-// Number is defined and in range
-
-# define U_TEST_NUMBER BDLT_ISO8601UTIL_TEST_PART_NUMBER
-# define U_TEST_COMPILING_A_PART
-
-#else  // If a bad test number is defined
-# error 'BDLT_ISO8601UTIL_TEST_PART_NUMBER' must be 1-2, or not defined.
-
-Sun_Studio_only_gives_a_warning_for_pound_error;
-
-#endif // out-of-range BDLT_ISO8601UTIL_TEST_PART_NUMBER
-
-#if 1 == U_TEST_NUMBER || defined(U_TEST_ENABLE_ALL)
-# define U_TEST_PART_01
-#endif
-#if 2 == U_TEST_NUMBER || defined(U_TEST_ENABLE_ALL)
-# define U_TEST_PART_02
-#endif
-
-#define U_TEST_CASE_SKIPPED                                                   \
-    cout << "Test case " << test << " is skipped in this executable.\n";
-
-#ifdef U_TEST_COMPILING_A_PART
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -103,15 +20,12 @@ Sun_Studio_only_gives_a_warning_for_pound_error;
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
 using namespace BloombergLP;
 using bsl::ptrdiff_t;
-
-#endif
-
-#include <bsl_iostream.h>
 
 using bsl::cout;
 using bsl::cerr;
@@ -124,32 +38,23 @@ using bsl::flush;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// NOTICE: To reduce the compilation time and enable compiling by certain
-// compilers (that easily run out of resources), the test driver has been
-// split into parts.
+//@bdetdsplit SILENCE WARNINGS: UNUSED
 //
-// 'bdlt_iso8601util.00.t.cpp': (this file, does not execute code)
-// 'bdlt_iso8601util.01.t.cpp':  1: BREATHING TEST
-//                               2: GENERATE 'Date'
-//                               3: GENERATE 'Time'
-//                               4: GENERATE 'Datetime'
-//                               5: GENERATE 'DateTz'
-//                               6: GENERATE 'TimeTz'
-//                               7: GENERATE 'DatetimeTz'
-//                               8: PARSE: DATE & DATETZ
-//                               9: PARSE: bsls::TimeInterval
-//                              10: PARSE: TIME & TIMETZ
-// 'bdlt_iso8601util.02.t.cpp': 11: PARSE: DATETIME & DATETIMETZ
-//                              12: GENERATE 'DateOrDateTz'
-//                              13: GENERATE 'TimeTz'
-//                              14: GENERATE 'DatetimeTz'
-//                              15: PARSE 'DateOrDateTz'
-//                              16: PARSE 'TimeOrTimeTz'
-//                              17: PARSE 'DatetimeOrDatetimeTz'
-//                              18: PARSE 'Datetime's WITH TIME ZONES
-//                              19: USAGE EXAMPLE
+//@bdetdsplit PARTS (syntax version 1.0.0)
+//@
+//@# This test driver will be split into multiple parts for faster compilation
+//@# using bde_xt_cpp_splitter.py from the bde-tools repo.  Each line below
+//@# controls which test cases from this file will be included in one (or more)
+//@# standalone test drivers.  Specific contents of each part can be further
+//@# controlled by //@bdetdsplit comments throughout this file, for which full
+//@# documentation can be found by running:
+//@#    bde_xt_cpp_splitter --help usage-guide
+//@
+//@  CASES: 1..9, 19
+//@  CASES: 10, 11.SLICES, 12
+//@  CASES: 13..15
+//@  CASES: 16, 17.SLICES, 18
 //-----------------------------------------------------------------------------
-//
 //                              Overview
 //                              --------
 // The component under test consists of a suite of static member functions
@@ -303,7 +208,6 @@ namespace {
 
 int testStatus = 0;
 
-#ifdef U_TEST_COMPILING_A_PART
 void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
@@ -315,15 +219,12 @@ void aSsErT(bool condition, const char *message, int line)
         }
     }
 }
-#endif // U_TEST_COMPILING_A_PART
 
 }  // close unnamed namespace
 
 // ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-
-#ifdef U_TEST_COMPILING_A_PART
 
 # define ASSERT       BSLIM_TESTUTIL_ASSERT
 # define ASSERTV      BSLIM_TESTUTIL_ASSERTV
@@ -354,13 +255,9 @@ void aSsErT(bool condition, const char *message, int line)
 # define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 # define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-#endif // U_TEST_COMPILING_A_PART
-
 //=============================================================================
 //                  GLOBALS, TYPEDEFS, CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-
-#ifdef U_TEST_COMPILING_A_PART
 
 typedef bdlt::Iso8601Util              Util;
 typedef bdlt::Iso8601UtilConfiguration Config;
@@ -374,13 +271,9 @@ const int k_DATETIMETZ_MAX_PRECISION = 6;
 const int k_TIME_MAX_PRECISION       = 6;
 const int k_TIMETZ_MAX_PRECISION     = 6;
 
-#endif // U_TEST_COMPILING_A_PART
-
 // ============================================================================
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
-
-#ifdef U_TEST_COMPILING_A_PART
 
 // Define DEFAULT DATA generally usable across 'generate' and 'parse' test
 // cases.
@@ -1064,8 +957,7 @@ bool containsOnlyDigits(const char *string)
     return true;
 }
 
-#ifdef U_TEST_PART_02
-
+//@bdetdsplit FOR 11, 17 BEGIN
 static
 bsl::string replaceTWithSpace(const char *buffer, ptrdiff_t length)
     // Return copy of the specified string with all 'T' & 't' characters
@@ -1077,8 +969,7 @@ bsl::string replaceTWithSpace(const char *buffer, ptrdiff_t length)
     }
     return s;
 }
-
-#endif
+//@bdetdsplit FOR 11, 17 END
 
 namespace {
 namespace u {
@@ -1101,5931 +992,6 @@ void removeCharFromString(bsl::string *str, char chr, int limit = INT_MAX)
 }  // close namespace u
 }  // close unnamed namespace
 
-#endif // U_TEST_COMPILING_A_PART
-
-//=============================================================================
-//                           OUT-OF-LINE TEST CASES
-//-----------------------------------------------------------------------------
-// This section includes test cases that have been moved out of the 'switch'
-// block in 'main' in order to alleviate compiler crash and/or performance
-// issues.
-
-#ifdef U_TEST_PART_02
-
-void testCase18(bool verbose,
-                bool veryVerbose,
-                bool veryVeryVerbose,
-                bool veryVeryVeryVerbose)
-{
-    (void) veryVeryVeryVerbose;
-    (void) veryVeryVerbose;
-    (void) veryVerbose;
-
-    if (verbose) cout << "PARSE 'Datetime's FROM STRINGS WITH TIME ZONES\n"
-                         "==============================================\n";
-
-    static const struct {
-        int         d_line;      // source line number
-        const char *d_input_p;   // input
-        int         d_year;      // year under test
-        int         d_month;     // month under test
-        int         d_day;       // day under test
-        int         d_hour;      // hour under test
-        int         d_minutes;   // minutes under test
-        int         d_seconds;   // seconds under test
-        int         d_milliSecs; // milli seconds under test
-        int         d_microSecs; // micro seconds under test
-        bool        d_isValid;   // isValid flag
-    } DATA[] = {
-
-  //line    input year month   day   hour    min   sec    ms   us   isValid
-  //----    ----- ---- -----   ---   ----    ---   ---    --   --   -------
-    {   L_, "0000-01-01T00:00:00.000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0000-01-01T00:00:00.000Z",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0000-01-01T00:00:00.000z",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0000-01-01T00:00:00.000-00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-
-    // DRQS 130122587: datetime parsing should accept offsets
-
-    {   L_, "0001-01-01T00:00:00.000Z",
-                   1,     1,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-01T00:00:00.000+00:00",
-                   1,     1,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-01T00:00:00.000+00:45",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00:00.000-23:59",
-                   1,     1,    1,    23,   59,     0,    0,   0,   true   },
-    {   L_, "0001-01-01T00:00:00.000000Z",
-                   1,     1,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-01T00:00:00.000000+00:00",
-                   1,     1,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-01T00:00:00.000000+00:45",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00:00.000000-23:59",
-                   1,     1,    1,    23,    59,    0,    0,   0,   true   },
-
-    {   L_, "0001-01-01T01:01:01.001z",
-                   1,     1,    1,     1,     1,    1,    1,   0,   true   },
-    {   L_, "0001-01-01T01:01:01.001+00:00",
-                   1,     1,    1,     1,     1,    1,    1,   0,   true   },
-    {   L_, "0001-01-01T01:01:01.001+08:20",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T01:01:01.001000z",
-                   1,     1,    1,     1,     1,    1,    1,   0,   true   },
-    {   L_, "0001-01-01T01:01:01.001000+00:00",
-                   1,     1,    1,     1,     1,    1,    1,   0,   true   },
-    {   L_, "0001-01-01T01:01:01.001000+08:20",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00:00.000000-23:59",
-                   1,     1,    1,    23,    59,    0,    0,   0,   true   },
-    {   L_, "0001-01-01T01:23:59.059059+00:00",
-                   1,     1,    1,     1,    23,   59,   59,  59,   true   },
-    {   L_, "0001-01-01T01:23:59.059059+23:59",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T01:23:59.059059-23:59",
-                   1,     1,    2,     1,    22,   59,   59,  59,   true   },
-    {   L_, "0001-01-02T00:00:00.000000+00:00",
-                   1,     1,    2,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-02T00:00:00.000000+23:59",
-                   1,     1,    1,     0,     1,    0,    0,   0,   true   },
-    {   L_, "0001-01-02T00:00:00.000000-23:59",
-                   1,     1,    2,    23,    59,    0,    0,   0,   true   },
-    {   L_, "0001-01-02T01:01:01.000001+00:00",
-                   1,     1,    2,     1,     1,    1,    0,   1,   true   },
-    {   L_, "0001-01-02T01:01:01.000001+08:20",
-                   1,     1,    1,    16,    41,    1,    0,   1,   true   },
-
-    {   L_, "0001-01-02T01:23:59.059168Z",
-                   1,     1,    2,     1,    23,   59,   59, 168,   true   },
-    {   L_, "0001-01-02T01:23:59.059168+00:00",
-                   1,     1,    2,     1,    23,   59,   59, 168,   true   },
-    {   L_, "0001-01-02T01:23:59.059168+08:20",
-                   1,     1,    1,    17,     3,   59,   59, 168,   true   },
-    {   L_, "0001-01-02T01:23:59.059168-08:20",
-                   1,     1,    2,     9,    43,   59,   59, 168,   true   },
-    {   L_, "0001-01-10T00:00:00.000000z",
-                   1,     1,   10,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-10T00:00:00.000000+00:00",
-                   1,     1,   10,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-10T01:01:01.001+01:39",
-                   1,     1,    9,    23,    22,    1,    1,   0,   true   },
-    {   L_, "0001-01-10T01:01:01.000001+01:39",
-                   1,     1,    9,    23,    22,    1,    0,   1,   true   },
-
-    {   L_, "0001-01-30T00:00:00.000000Z",
-                   1,     1,   30,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-30T00:00:00.000000+00:00",
-                   1,     1,   30,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-01-31T00:00:00.000000+23:59",
-                   1,     1,   30,     0,     1,    0,    0,   0,   true   },
-    {   L_, "0001-01-31T00:00:00.000000-23:59",
-                   1,     1,   31,    23,    59,    0,    0,   0,   true   },
-
-    {   L_, "0001-02-01T00:00:00.000000z",
-                   1,     2,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-02-01T00:00:00.000000+00:00",
-                   1,     2,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-02-01T23:59:59.000000+23:59",
-                   1,     2,    1,     0,     0,   59,    0,   0,   true   },
-
-    {   L_, "0001-12-31T00:00:00.000000Z",
-                   1,    12,   31,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-12-31T00:00:00.000000+00:00",
-                   1,    12,   31,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0001-12-31T23:59:59.000000+23:59",
-                   1,    12,   31,     0,     0,   59,    0,   0,   true   },
-
-    {   L_, "0002-01-01T00:00:00.000000+00:00",
-                   2,     1,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0002-01-01T23:59:59.000000+23:59",
-                   2,     1,    1,     0,     0,   59,    0,   0,   true   },
-
-    {   L_, "0004-01-01T00:00:00.000000+00:00",
-                   4,     1,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0004-01-01T23:59:59.000000+23:59",
-                   4,     1,    1,     0,     0,   59,    0,   0,   true   },
-
-    {   L_, "0004-02-28T00:00:00.000000+00:00",
-                   4,     2,   28,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0004-02-28T23:59:59.000000+23:59",
-                   4,     2,   28,     0,     0,   59,    0,   0,   true   },
-    {   L_, "0004-02-28T23:59:59.000000-23:59",
-                   4,     2,   29,    23,    58,   59,    0,   0,   true   },
-
-    {   L_, "0004-02-29T00:00:00.000000+00:00",
-                   4,     2,   29,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0004-02-29T23:59:59.000000+23:59",
-                   4,     2,   29,     0,     0,   59,    0,   0,   true   },
-    {   L_, "0004-02-29T23:59:59.000000-23:59",
-                   4,     3,    1,    23,    58,   59,    0,   0,   true   },
-
-    {   L_, "0004-03-01T00:00:00.000000+00:00",
-                   4,     3,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0004-03-01T23:59:59.000000+23:59",
-                   4,     3,    1,     0,     0,   59,    0,   0,   true   },
-    {   L_, "0004-03-01T23:59:59.000000-23:59",
-                   4,     3,    2,    23,    58,   59,    0,   0,   true   },
-
-    {   L_, "0008-02-28T00:00:00.000000+00:00",
-                   8,     2,   28,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0008-02-28T23:59:59.000000+23:59",
-                   8,     2,   28,     0,     0,   59,    0,   0,   true   },
-
-    {   L_, "0008-02-29T00:00:00.000000+00:00",
-                   8,     2,   29,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0008-02-29T23:59:59.000000+23:59",
-                   8,     2,   29,     0,     0,   59,    0,   0,   true   },
-
-    {   L_, "0008-03-01T00:00:00.000000+00:00",
-                   8,     3,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0008-03-01T23:59:59.000000+23:59",
-                   8,     3,    1,     0,     0,   59,    0,   0,   true   },
-
-    {   L_, "0100-02-28T00:00:00.000000+00:00",
-                 100,     2,   28,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0100-02-28T23:59:59.000000+23:59",
-                 100,     2,   28,     0,     0,   59,    0,   0,   true   },
-    {   L_, "0100-02-28T23:59:59.000000-23:59",
-                 100,     2,   29,    23,    58,   59,    0,   0,   true   },
-
-    {   L_, "0100-03-01T00:00:00.000000+00:00",
-                 100,     3,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0100-03-01T23:59:59.000000+23:59",
-                 100,     3,    1,     0,     0,   59,    0,   0,   true   },
-    {   L_, "0100-03-01T23:59:59.000000-23:59",
-                 100,     3,    2,    23,    58,   59,    0,   0,  true   },
-
-    {   L_, "0400-02-28T00:00:00.000000+00:00",
-                 400,     2,   28,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0400-02-28T23:59:59.000000+23:59",
-                 400,     2,   28,     0,     0,   59,    0,   0,   true   },
-    {   L_, "0400-02-28T23:59:59.000000-23:59",
-                 400,     2,   29,    23,    58,   59,    0,   0,   true   },
-
-    {   L_, "0400-02-29T00:00:00.000000+00:00",
-                 400,     2,   29,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0400-02-29T23:59:59.000000+23:59",
-                 400,     2,   29,     0,     0,   59,    0,   0,   true   },
-    {   L_, "0400-02-29T23:59:59.000000-23:59",
-                 400,     3,    1,    23,    58,   59,    0,   0,   true   },
-
-    {   L_, "0400-03-01T00:00:00.000000+00:00",
-                 400,     3,    1,     0,     0,    0,    0,   0,   true   },
-    {   L_, "0400-03-01T23:59:59.000000+23:59",
-                 400,     3,    1,     0,     0,   59,    0,   0,   true   },
-    {   L_, "0400-03-01T23:59:59.000000-23:59",
-                 400,     3,    2,    23,    58,   59,    0,   0,   true   },
-
-    {   L_, "9999-12-31T00:00:00.000000+00:00",
-                9999,    12,   31,     0,     0,    0,    0,   0,   true   },
-    {   L_, "9999-12-31T23:59:59.000000+23:59",
-                9999,    12,   31,     0,     0,   59,    0,   0,   true   },
-    {   L_, "9999-12-31T23:59:59.000000-23:59",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-
-    {   L_, "0000-01-01T00:00:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-00-01T00:00:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-00T00:00:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0000-00-00T00:00:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-13-00T00:00:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-32T00:00:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T25:00:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:61:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00:61.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00:00.000000+24:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00:00.000000+00:61",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00:00.000000-24:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00:00.000000-00:61",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-
-    {   L_, "GARBAGE",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, ".9999",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "23:59:59.9999",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "T23:59:59.9999",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "01T23:59:59.9999",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "01-01T23:59:59.9999",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00.000",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0001-01-01T00:00.000000",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "01-01-01T23:59:59.9999",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "01-01-01T23:59:59.9999999",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-
-    {   L_, "0000-01-01T00:00:00.000000+00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0000-01-01T00:00:00.000000Z",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0000-01-01T00:00:00.000000z",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-    {   L_, "0000-01-01T00:00:00.000000-00:00",
-                   1,     1,    1,    24,     0,    0,    0,   0,   false  },
-
-    };
-
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-    for (int i = 0; i < NUM_DATA; ++i) {
-        const int         LINE        = DATA[i].d_line;
-        const char       *INPUT       = DATA[i].d_input_p;
-        const int         YEAR        = DATA[i].d_year;
-        const int         MONTH       = DATA[i].d_month;
-        const int         DAY         = DATA[i].d_day;
-        const int         HOUR        = DATA[i].d_hour;
-        const int         MINUTE      = DATA[i].d_minutes;
-        const int         SECOND      = DATA[i].d_seconds;
-        const int         MILLISECOND = DATA[i].d_milliSecs;
-        const int         MICROSECOND = DATA[i].d_microSecs;
-        const bool        IS_VALID    = DATA[i].d_isValid;
-
-        bdlt::Datetime exp(YEAR, MONTH, DAY,
-                           HOUR, MINUTE, SECOND,
-                           MILLISECOND, MICROSECOND);
-        const bdlt::Datetime& EXP = exp;
-
-        bdlt::Datetime value;
-
-        const bsl::string_view isb(INPUT);
-
-        const int rc = Util::parse(&value, isb);
-        if (IS_VALID) {
-            ASSERTV(LINE, rc, 0 == rc);
-        }
-        else {
-            ASSERTV(LINE, rc, rc);
-        }
-        ASSERTV(LINE, EXP, INPUT, value,   EXP == value);
-    }
-}
-
-void testCase17(bool verbose,
-                bool veryVerbose,
-                bool /* veryVeryVerbose */,
-                bool /* veryVeryVeryVerbose */)
-{
-    if (verbose) cout << endl
-                      << "PARSE 'DatetimeOrDatetimeTz'" << endl
-                      << "============================" << endl;
-
-    Util::DatetimeOrDatetimeTz        mX;
-    const Util::DatetimeOrDatetimeTz& X = mX;
-
-    char buffer[Util::k_MAX_STRLEN];
-
-    const bdlt::Date       DD(246, 8, 10);
-    const bdlt::Time       TT(2, 4, 6, 8);
-
-    const bdlt::Datetime   XX(DD, TT);  // 'XX' and 'ZZ' are controls,
-    const bdlt::DatetimeTz ZZ(XX, -7);  // distinct from any test data
-
-    const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
-    const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
-                                                         DEFAULT_DATE_DATA;
-
-    const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
-    const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
-                                                         DEFAULT_TIME_DATA;
-
-    const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
-    const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
-                                                         DEFAULT_ZONE_DATA;
-
-    const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
-    const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
-                                                         DEFAULT_CNFG_DATA;
-
-    if (verbose) cout << "\nValid ISO 8601 strings." << endl;
-
-    for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
-        const int ILINE = DATE_DATA[ti].d_line;
-        const int YEAR  = DATE_DATA[ti].d_year;
-        const int MONTH = DATE_DATA[ti].d_month;
-        const int DAY   = DATE_DATA[ti].d_day;
-
-        const bdlt::Date DATE(YEAR, MONTH, DAY);
-
-        for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
-            const int JLINE = TIME_DATA[tj].d_line;
-            const int HOUR  = TIME_DATA[tj].d_hour;
-            const int MIN   = TIME_DATA[tj].d_min;
-            const int SEC   = TIME_DATA[tj].d_sec;
-            const int MSEC  = TIME_DATA[tj].d_msec;
-            const int USEC  = TIME_DATA[tj].d_usec;
-
-            for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
-                const int KLINE  = ZONE_DATA[tk].d_line;
-                const int OFFSET = ZONE_DATA[tk].d_offset;
-
-                if (   bdlt::Time(HOUR, MIN, SEC, MSEC, USEC)
-                                                            == bdlt::Time()
-                    && OFFSET != 0) {
-                    continue;  // skip invalid compositions
-                }
-
-                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
-                    const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
-                    const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
-                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
-
-                    int expMsec = MSEC;
-                    int expUsec = USEC;
-                    {
-                        // adjust the expected milliseconds to account for
-                        // PRECISION truncating the value generated
-
-                        int precision = (PRECISION < 3 ? PRECISION : 3);
-
-                        for (int i = 3; i > precision; --i) {
-                            expMsec /= 10;
-                        }
-
-                        for (int i = 3; i > precision; --i) {
-                            expMsec *= 10;
-                        }
-
-                        // adjust the expected microseconds to account for
-                        // PRECISION truncating the value generated
-
-                        precision = (PRECISION > 3 ? PRECISION - 3: 0);
-
-                        for (int i = 3; i > precision; --i) {
-                            expUsec /= 10;
-                        }
-
-                        for (int i = 3; i > precision; --i) {
-                            expUsec *= 10;
-                        }
-                    }
-
-                    const bdlt::Datetime   DATETIME(YEAR,
-                                                    MONTH,
-                                                    DAY,
-                                                    HOUR,
-                                                    MIN,
-                                                    SEC,
-                                                    expMsec,
-                                                    expUsec);
-                    const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
-
-                    if (veryVerbose) {
-                        if (0 == tc) {
-                            T_ P_(ILINE) P_(JLINE) P_(KLINE)
-                                                P_(DATETIME) P(DATETIMETZ);
-                        }
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                      P_(USECOMMA) P(USEZ);
-                    }
-
-                    Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
-
-                    // without zone designator in parsed string
-                    {
-                        const int LENGTH = Util::generateRaw(buffer,
-                                                             DATETIME,
-                                                             C);
-                        bsl::string str(buffer, LENGTH);
-
-                        if (veryVerbose) {
-                            const bsl::string STRING(buffer, LENGTH);
-                            T_ T_ P(STRING)
-                        }
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, str.c_str()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, str.c_str()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, str.c_str()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        // parseRelaxed() on the same string
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        buffer,
-                                                        LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        buffer,
-                                                        LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        buffer,
-                                                        LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                 StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                 StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                 StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        // parseRelaxed() on the string modified to have
-                        // SPACE instead of 'T'
-                        const bsl::string relaxed =
-                                         replaceTWithSpace(buffer, LENGTH);
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(
-                                          &mX,
-                                          relaxed.data(),
-                                          static_cast<int>(relaxed.length())));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                       StrView(relaxed)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                       StrView(relaxed)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                       StrView(relaxed)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-                    }
-
-                    // without zone designator in parsed string -- basic
-                    {
-                        int LENGTH = Util::generateRaw(buffer,
-                                                       DATETIME,
-                                                       C);
-                        bsl::string str(buffer, LENGTH);
-                        u::removeCharFromString(&str, '-', 2);
-                        u::removeCharFromString(&str, ':', 2);
-                        LENGTH = static_cast<int>(str.length());
-
-                        if (veryVerbose) {
-                            T_ T_ P(str)
-                        }
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        // parseRelaxed() on the same string
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        // parseRelaxed() on the string modified to have
-                        // SPACE instead of 'T'
-                        const bsl::string relaxed =
-                                        replaceTWithSpace(str.c_str(), LENGTH);
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, relaxed,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 relaxed.length(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 relaxed.length(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 relaxed.length(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(relaxed),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(relaxed),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = XX;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(relaxed),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-
-                        mX = ZZ;
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIME == X.the<bdlt::Datetime>());
-                    }
-
-                    // with zone designator in parsed string
-                    {
-                        if ((DATE == bdlt::Date() && OFFSET > 0)
-                         || (DATE == bdlt::Date(9999, 12, 31)
-                          && OFFSET < 0)) {
-                            continue;  // skip invalid compositions
-                        }
-
-                        const int LENGTH = Util::generateRaw(buffer,
-                                                             DATETIMETZ,
-                                                             C);
-                        bsl::string str(buffer, LENGTH);
-
-                        if (veryVerbose) {
-                            T_ T_ P(str)
-                        }
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                StrView(str)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                str.c_str()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                StrView(str)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                str.c_str()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                StrView(str)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parse(&mX,
-                                                str.c_str()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        // parseRelaxed() on the same string
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        buffer,
-                                                        LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        buffer,
-                                                        LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        buffer,
-                                                        LENGTH));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                 StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                 StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                 StrView(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        // parseRelaxed() on the string modified to have
-                        // SPACE instead of 'T'
-                        const bsl::string relaxed =
-                                         replaceTWithSpace(buffer, LENGTH);
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                       StrView(relaxed)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                       StrView(relaxed)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                               0 == Util::parseRelaxed(&mX,
-                                                       StrView(relaxed)));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-                    }
-
-                    // with zone designator in parsed string - basic
-
-                    for (int removeColons = 2; removeColons <= 3;
-                                                              ++removeColons) {
-                        if ((DATE == bdlt::Date() && OFFSET > 0)
-                         || (DATE == bdlt::Date(9999, 12, 31)
-                          && OFFSET < 0)) {
-                            continue;  // skip invalid compositions
-                        }
-
-                        int LENGTH = Util::generateRaw(buffer,
-                                                       DATETIMETZ,
-                                                       C);
-                        bsl::string str(buffer, LENGTH);
-                        u::removeCharFromString(&str, '-', 2);
-                        u::removeCharFromString(&str, ':', removeColons);
-                        LENGTH = static_cast<int>(str.length());
-
-                        if (veryVerbose) {
-                            T_ T_ P(str)
-                        }
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        // parseRelaxed() on the same string
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 LENGTH,
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(str),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 str.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        // parseRelaxed() on the string modified to have
-                        // SPACE instead of 'T'
-                        const bsl::string relaxed =
-                                        replaceTWithSpace(str.c_str(), LENGTH);
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.data(),
-                                                 relaxed.length(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.data(),
-                                                 relaxed.length(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.data(),
-                                                 relaxed.length(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(relaxed),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX.reset();
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(relaxed),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = XX;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::Datetime>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                XX == X.the<bdlt::Datetime>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 StrView(relaxed),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-
-                        mX = ZZ;
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                ZZ == X.the<bdlt::DatetimeTz>());
-
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parse(&mX,
-                                                 relaxed.c_str(),
-                                                 u::RELAXED_BASIC));
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                X.is<bdlt::DatetimeTz>());
-                        ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                DATETIMETZ == X.the<bdlt::DatetimeTz>());
-                    }
-                }  // loop over 'CNFG_DATA'
-            }  // loop over 'ZONE_DATA'
-        }  // loop over 'TIME_DATA'
-    }  // loop over 'DATE_DATA'
-
-    {
-        // verify 't' and 'z' are accepted
-
-        const bdlt::DatetimeTz EXPECTED(bdlt::Datetime(1, 2, 3, 1, 2, 3),
-                                        0);
-
-        bsl::string str = "0001-02-03t01:02:03z";
-
-        mX.reset();
-        ASSERTV(X.isUnset());
-
-        ASSERT(0 == Util::parse(&mX, str.c_str(), str.length()));
-        ASSERTV( X.is<bdlt::DatetimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
-
-        mX.reset();
-        ASSERTV(X.isUnset());
-
-        ASSERT(0 == Util::parse(&mX, StrView(str)));
-        ASSERTV( X.is<bdlt::DatetimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
-
-        str = "00010203t010203z";
-
-        mX.reset();
-        ASSERTV(X.isUnset());
-
-        ASSERT(0 == Util::parse(&mX,
-                                str.c_str(),
-                                str.length(),
-                                u::BASIC));
-        ASSERTV( X.is<bdlt::DatetimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
-
-        mX.reset();
-        ASSERTV(X.isUnset());
-
-        ASSERT(0 == Util::parse(&mX,
-                                StrView(str),
-                                u::BASIC));
-        ASSERTV( X.is<bdlt::DatetimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
-    }
-
-    if (verbose) cout << "\nInvalid strings." << endl;
-    {
-        const int              NUM_DATE_DATA =         NUM_BAD_DATE_DATA;
-        const BadDateDataRow (&DATE_DATA)[NUM_DATE_DATA] = BAD_DATE_DATA;
-
-        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
-            const int LINE = DATE_DATA[ti].d_line;
-
-            bsl::string bad(DATE_DATA[ti].d_invalid);
-
-            // Append a valid time.
-
-            bad.append("T12:26:52.726");
-
-            const char      *STRING = bad.c_str();
-            const ptrdiff_t  LENGTH = bad.length();
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(bad)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(bad)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(bad)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-        }
-
-        const int              NUM_TIME_DATA =         NUM_BAD_TIME_DATA;
-        const BadTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] = BAD_TIME_DATA;
-
-        for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
-            const int LINE = TIME_DATA[tj].d_line;
-
-            // Initialize with a *valid* date string, then append an
-            // invalid time.
-
-            bsl::string bad("2010-08-17");
-
-            // Ensure that 'bad' is initially valid, but only during the
-            // first iteration.
-
-            if (0 == tj) {
-                const char      *STRING = bad.data();
-                const ptrdiff_t  LENGTH = bad.length();
-
-                bdlt::Date mD(DD);  const bdlt::Date& D = mD;
-
-                ASSERT( 0 == Util::parse(&mD, STRING, LENGTH));
-                ASSERT(DD != D);
-
-                mD = DD;
-
-                ASSERT( 0 == Util::parse(&mD, StrView(bad)));
-                ASSERT(DD != D);
-            }
-
-            bad.append("T");
-            bad.append(TIME_DATA[tj].d_invalid);
-
-            const char      *STRING = bad.c_str();
-            const ptrdiff_t  LENGTH = bad.length();
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(bad)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(bad)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(bad)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          relaxed.data(),
-                                                          relaxed.length()));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          relaxed.data(),
-                                                          relaxed.length()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          relaxed.data(),
-                                                          relaxed.length()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-        }
-
-        const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
-        const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
-
-        for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
-            const int LINE = ZONE_DATA[tk].d_line;
-
-            // Initialize with a *valid* datetime string, then append an
-            // invalid zone designator.
-
-            bsl::string bad("2010-08-17T12:26:52.726");
-
-            // Ensure that 'bad' is initially valid, but only during the
-            // first iteration.
-
-            if (0 == tk) {
-                const char      *STRING = bad.data();
-                const ptrdiff_t  LENGTH = bad.length();
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX, STRING, LENGTH));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX, StrView(bad)));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX, bad.c_str()));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                // parseRelaxed() on the same string
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parseRelaxed(&mX, STRING, LENGTH));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parseRelaxed(&mX,
-                                                StrView(STRING, LENGTH)));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                // parseRelaxed() on the string modified to have SPACE
-                // instead of 'T'
-                const bsl::string relaxed =
-                                         replaceTWithSpace(STRING, LENGTH);
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parseRelaxed(&mX,
-                                                relaxed.data(),
-                                                relaxed.length()));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parseRelaxed(&mX, StrView(relaxed)));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-            }
-
-            // If 'ZONE_DATA[tk].d_invalid' contains nothing but digits,
-            // appending it to 'bad' simply extends the fractional second
-            // (so 'bad' remains valid).
-
-            if (containsOnlyDigits(ZONE_DATA[tk].d_invalid)) {
-                continue;
-            }
-
-            bad.append(ZONE_DATA[tk].d_invalid);
-
-            const char      *STRING = bad.c_str();
-            const ptrdiff_t  LENGTH = bad.length();
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(STRING, LENGTH)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          STRING,
-                                                          LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          relaxed.data(),
-                                                          relaxed.length()));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          relaxed.data(),
-                                                          relaxed.length()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
-                                                          relaxed.data(),
-                                                          relaxed.length()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parseRelaxed(&mX, StrView(relaxed)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-        }
-    }
-
-    if (verbose) cout << "\nInvalid strings - basic." << endl;
-    {
-        const int              NUM_DATE_DATA =         NUM_BASIC_BAD_DATE_DATA;
-        const BadDateDataRow (&DATE_DATA)[NUM_DATE_DATA] = BASIC_BAD_DATE_DATA;
-
-        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
-            const int LINE = DATE_DATA[ti].d_line;
-
-            bsl::string bad(DATE_DATA[ti].d_invalid);
-
-            // Append a valid time.
-
-            bad.append("T122652.726");
-
-            const char      *STRING = bad.c_str();
-            const ptrdiff_t  LENGTH = bad.length();
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX,
-                                                   STRING,
-                                                   LENGTH,
-                                                   u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX,
-                                                   STRING,
-                                                   LENGTH,
-                                                   u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX,
-                                                   STRING,
-                                                   LENGTH,
-                                                   u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-        }
-
-        const int              NUM_TIME_DATA =         NUM_BASIC_BAD_TIME_DATA;
-        const BadTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] = BASIC_BAD_TIME_DATA;
-
-        for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
-            const int LINE = TIME_DATA[tj].d_line;
-
-            // Initialize with a *valid* date string, then append an
-            // invalid time.
-
-            bsl::string bad("20100817");
-
-            // Ensure that 'bad' is initially valid, but only during the
-            // first iteration.
-
-            if (0 == tj) {
-                const char      *STRING = bad.data();
-                const ptrdiff_t  LENGTH = bad.length();
-
-                bdlt::Date mD(DD);  const bdlt::Date& D = mD;
-
-                ASSERT( 0 == Util::parse(&mD,
-                                         STRING,
-                                         LENGTH,
-                                         u::BASIC));
-                ASSERT(DD != D);
-
-                mD = DD;
-
-                ASSERT( 0 == Util::parse(&mD,
-                                         StrView(STRING, LENGTH),
-                                         u::BASIC));
-                ASSERT(DD != D);
-                mD = DD;
-
-                ASSERT( 0 == Util::parse(&mD,
-                                         bad.c_str(),
-                                         u::BASIC));
-                ASSERT(DD != D);
-            }
-
-            bad.append("T");
-            bad.append(TIME_DATA[tj].d_invalid);
-
-            const char      *STRING = bad.c_str();
-            const ptrdiff_t  LENGTH = bad.length();
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-        }
-
-        const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
-        const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
-
-        for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
-            const int LINE = ZONE_DATA[tk].d_line;
-
-            // Initialize with a *valid* datetime string, then append an
-            // invalid zone designator.
-
-            bsl::string bad("20100817T122652.726");
-
-            // Ensure that 'bad' is initially valid, but only during the
-            // first iteration.
-
-            if (0 == tk) {
-                const char      *STRING = bad.data();
-                const ptrdiff_t  LENGTH = bad.length();
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         STRING,
-                                         LENGTH,
-                                         u::RELAXED_BASIC));
-
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         StrView(bad),
-                                         u::RELAXED_BASIC));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         bad.c_str(),
-                                         u::RELAXED_BASIC));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                // parseRelaxed() on the same string
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         STRING,
-                                         LENGTH,
-                                         u::RELAXED_BASIC));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         StrView(bad),
-                                         u::RELAXED_BASIC));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         bad.c_str(),
-                                         u::RELAXED_BASIC));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                // parseRelaxed() on the string modified to have SPACE
-                // instead of 'T'
-                const bsl::string relaxed =
-                                         replaceTWithSpace(STRING, LENGTH);
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         relaxed.data(),
-                                         relaxed.length(),
-                                         u::RELAXED_BASIC));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         StrView(relaxed),
-                                         u::RELAXED_BASIC));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         relaxed.c_str(),
-                                         u::RELAXED_BASIC));
-                ASSERT(mX.is<bdlt::Datetime>());
-                ASSERT(XX != mX.the<bdlt::Datetime>());
-            }
-
-            // If 'ZONE_DATA[tk].d_invalid' contains nothing but digits,
-            // appending it to 'bad' simply extends the fractional second
-            // (so 'bad' remains valid).
-
-            if (containsOnlyDigits(ZONE_DATA[tk].d_invalid)) {
-                continue;
-            }
-
-            bsl::string zone(ZONE_DATA[tk].d_invalid);
-            u::removeCharFromString(&zone, ':', 1);
-            bad += zone;
-
-            const char      *STRING = bad.c_str();
-            const ptrdiff_t  LENGTH = bad.length();
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(bad),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
-        }
-    }
-
-    if (verbose) cout << "\nTesting leap seconds and fractional seconds."
-                      << endl;
-    {
-        const struct {
-            int         d_line;           // source line number
-
-            const char *d_input;          // input
-
-            int         d_year;           // year under test
-
-            int         d_month;          // month under test
-
-            int         d_day;            // day under test
-
-            int         d_hour;           // hour under test
-
-            int         d_min;            // minutes under test
-
-            int         d_sec;            // seconds under test
-
-            int         d_msec;           // milli seconds under test
-
-            int         d_usec;           // micro seconds under test
-
-            int         d_offset;         // UTC offset
-
-            bool        d_isDatetimeTz;   // flag indicating whether the
-                                          // result object is expected to
-                                          // contain 'DatetimeTz' or
-                                          // 'Datetime' object
-
-        } DATA[] = {
-            // leap seconds
-            { L_, "0001-01-01T00:00:60.000",
-                          0001, 01, 01, 00, 01, 00, 000, 000,   0, false },
-            { L_, "9998-12-31T23:59:60.999",
-                          9999, 01, 01, 00, 00, 00, 999, 000,   0, false },
-
-            // fractional seconds
-            { L_, "0001-01-01T00:00:00.0000001",
-                          0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
-            { L_, "0001-01-01T00:00:00.0000009",
-                          0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
-            { L_, "0001-01-01T00:00:00.00000001",
-                          0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
-            { L_, "0001-01-01T00:00:00.00000049",
-                          0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
-            { L_, "0001-01-01T00:00:00.00000050",
-                          0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
-            { L_, "0001-01-01T00:00:00.00000099",
-                          0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
-            { L_, "0001-01-01T00:00:00.0001",
-                          0001, 01, 01, 00, 00, 00, 000, 100,   0, false },
-            { L_, "0001-01-01T00:00:00.0009",
-                          0001, 01, 01, 00, 00, 00, 000, 900,   0, false },
-            { L_, "0001-01-01T00:00:00.00001",
-                          0001, 01, 01, 00, 00, 00, 000,  10,   0, false },
-            { L_, "0001-01-01T00:00:00.00049",
-                          0001, 01, 01, 00, 00, 00, 000, 490,   0, false },
-            { L_, "0001-01-01T00:00:00.00050",
-                          0001, 01, 01, 00, 00, 00, 000, 500,   0, false },
-            { L_, "0001-01-01T00:00:00.00099",
-                          0001, 01, 01, 00, 00, 00, 000, 990,   0, false },
-            { L_, "0001-01-01T00:00:00.9994" ,
-                          0001, 01, 01, 00, 00, 00, 999, 400,   0, false },
-            { L_, "0001-01-01T00:00:00.9995" ,
-                          0001, 01, 01, 00, 00, 00, 999, 500,   0, false },
-            { L_, "0001-01-01T00:00:00.9999" ,
-                          0001, 01, 01, 00, 00, 00, 999, 900,   0, false },
-            { L_, "9998-12-31T23:59:60.9999" ,
-                          9999, 01, 01, 00, 00, 00, 999, 900,   0, false },
-            { L_, "0001-01-01T00:00:00.9999994" ,
-                          0001, 01, 01, 00, 00, 00, 999, 999,   0, false },
-            { L_, "0001-01-01T00:00:00.9999995" ,
-                          0001, 01, 01, 00, 00, 01, 000, 000,   0, false },
-            { L_, "0001-01-01T00:00:00.9999999" ,
-                          0001, 01, 01, 00, 00, 01, 000, 000,   0, false },
-            { L_, "9998-12-31T23:59:60.9999999" ,
-                          9999, 01, 01, 00, 00, 01, 000, 000,   0, false },
-
-            // omit fractional seconds
-            { L_, "2014-12-23T12:34:45",
-                          2014, 12, 23, 12, 34, 45, 000, 000,   0, false },
-            { L_, "2014-12-23T12:34:45Z",
-                          2014, 12, 23, 12, 34, 45, 000, 000,   0,  true },
-            { L_, "2014-12-23T12:34:45+00:30",
-                          2014, 12, 23, 12, 34, 45, 000, 000,  30,  true },
-            { L_, "2014-12-23T12:34:45-01:30",
-                          2014, 12, 23, 12, 34, 45, 000, 000, -90,  true },
-
-            { L_, "2014-12-23T12:34:45.9999994Z",
-                          2014, 12, 23, 12, 34, 45, 999, 999,   0,  true },
-            { L_, "2014-12-23T12:34:45.9999994+00:30",
-                          2014, 12, 23, 12, 34, 45, 999, 999,  30,  true },
-            { L_, "2014-12-23T12:34:45.9999994-01:30",
-                          2014, 12, 23, 12, 34, 45, 999, 999, -90,  true },
-            { L_, "2014-12-23T12:34:45.9999995Z",
-                          2014, 12, 23, 12, 34, 46, 000, 000,   0,  true },
-            { L_, "2014-12-23T12:34:45.9999995+00:30",
-                          2014, 12, 23, 12, 34, 46, 000, 000,  30,  true },
-            { L_, "2014-12-23T12:34:45.9999995-01:30",
-                          2014, 12, 23, 12, 34, 46, 000, 000, -90,  true },
-            { L_, "0001-01-01T00:00:00.9999999Z",
-                          0001, 01, 01, 00, 00, 01, 000, 000,   0,  true },
-            { L_, "0001-01-01T00:00:00.9999999+00:30",
-                          0001, 01, 01, 00, 00, 01, 000, 000,  30,  true },
-            { L_, "0001-01-01T00:00:00.9999999-01:30",
-                          0001, 01, 01, 00, 00, 01, 000, 000, -90,  true },
-            { L_, "2014-12-23T12:34:60.9999994+00:30",
-                          2014, 12, 23, 12, 35, 00, 999, 999,  30,  true },
-            { L_, "2014-12-23T12:34:60.9999994-01:30",
-                          2014, 12, 23, 12, 35, 00, 999, 999, -90,  true },
-            { L_, "9998-12-31T23:59:60.9999999+00:30",
-                          9999, 01, 01, 00, 00, 01, 000, 000,  30,  true },
-            { L_, "9998-12-31T23:59:60.9999999-01:30",
-                          9999, 01, 01, 00, 00, 01, 000, 000, -90,  true },
-        };
-        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE          = DATA[ti].d_line;
-            const char *INPUT         = DATA[ti].d_input;
-            const int   LENGTH        =
-                                      static_cast<int>(bsl::strlen(INPUT));
-            const int   YEAR          = DATA[ti].d_year;
-            const int   MONTH         = DATA[ti].d_month;
-            const int   DAY           = DATA[ti].d_day;
-            const int   HOUR          = DATA[ti].d_hour;
-            const int   MIN           = DATA[ti].d_min;
-            const int   SEC           = DATA[ti].d_sec;
-            const int   MSEC          = DATA[ti].d_msec;
-            const int   USEC          = DATA[ti].d_usec;
-            const int   OFFSET        = DATA[ti].d_offset;
-            const bool  IS_DATETIMETZ = DATA[ti].d_isDatetimeTz;
-
-            if (veryVerbose) { T_ P_(LINE) P(INPUT) }
-
-            bdlt::Datetime   EXPECTED_DT(YEAR,
-                                         MONTH,
-                                         DAY,
-                                         HOUR,
-                                         MIN,
-                                         SEC,
-                                         MSEC,
-                                         USEC);
-            bdlt::DatetimeTz EXPECTED_DTTZ(EXPECTED_DT, OFFSET);
-
-            bsl::string str(INPUT, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX, INPUT, LENGTH));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX, str.c_str()));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parseRelaxed(&mX, INPUT, LENGTH));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parseRelaxed(&mX, StrView(INPUT, LENGTH)));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(INPUT, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parseRelaxed(&mX,
-                                            relaxed.data(),
-                                            relaxed.length()));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parseRelaxed(&mX, StrView(relaxed)));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-        }
-
-        // basic
-
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE          = DATA[ti].d_line;
-            const char *INPUT         = DATA[ti].d_input;
-            const int   YEAR          = DATA[ti].d_year;
-            const int   MONTH         = DATA[ti].d_month;
-            const int   DAY           = DATA[ti].d_day;
-            const int   HOUR          = DATA[ti].d_hour;
-            const int   MIN           = DATA[ti].d_min;
-            const int   SEC           = DATA[ti].d_sec;
-            const int   MSEC          = DATA[ti].d_msec;
-            const int   USEC          = DATA[ti].d_usec;
-            const int   OFFSET        = DATA[ti].d_offset;
-            const bool  IS_DATETIMETZ = DATA[ti].d_isDatetimeTz;
-
-            if (veryVerbose) { T_ P_(LINE) P(INPUT) }
-
-            bsl::string str(INPUT);
-            u::removeCharFromString(&str, '-', 2);
-            u::removeCharFromString(&str, ':');
-
-            INPUT            = str.c_str();
-            const int LENGTH = static_cast<int>(str.length());
-
-
-            bdlt::Datetime   EXPECTED_DT(YEAR,
-                                         MONTH,
-                                         DAY,
-                                         HOUR,
-                                         MIN,
-                                         SEC,
-                                         MSEC,
-                                         USEC);
-            bdlt::DatetimeTz EXPECTED_DTTZ(EXPECTED_DT, OFFSET);
-
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     INPUT,
-                                     LENGTH,
-                                     u::BASIC));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     StrView(INPUT, LENGTH),
-                                     u::BASIC));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     str.c_str(),
-                                     u::BASIC));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     INPUT,
-                                     LENGTH,
-                                     u::RELAXED_BASIC));
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     StrView(INPUT, LENGTH),
-                                     u::RELAXED_BASIC));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     str.c_str(),
-                                     u::RELAXED_BASIC));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(INPUT, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     relaxed.data(),
-                                     relaxed.length(),
-                                     u::RELAXED_BASIC));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     StrView(relaxed),
-                                     u::RELAXED_BASIC));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     relaxed.c_str(),
-                                     u::RELAXED_BASIC));
-
-            if (IS_DATETIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_DT == X.the<bdlt::Datetime>());
-            }
-        }
-    }
-
-    if (verbose)
-        cout << "\nTesting zone designators that overflow a 'Datetime'."
-             << endl;
-    {
-        struct {
-            int         d_line;
-            const char *d_input;
-            int         d_year;
-            int         d_month;
-            int         d_day;
-            int         d_hour;
-            int         d_min;
-            int         d_sec;
-            int         d_msec;
-            int         d_offset;
-        } DATA[] = {
-            { L_, "0001-01-01T00:00:00.000+00:00",
-                                    0001, 01, 01, 00, 00, 00, 000,     0 },
-            { L_, "0001-01-01T00:00:00.000+00:01",
-                                    0001, 01, 01, 00, 00, 00, 000,     1 },
-            { L_, "0001-01-01T23:58:59.000+23:59",
-                                    0001, 01, 01, 23, 58, 59, 000,  1439 },
-
-            { L_, "9999-12-31T23:59:59.999+00:00",
-                                    9999, 12, 31, 23, 59, 59, 999,     0 },
-            { L_, "9999-12-31T23:59:59.999-00:01",
-                                    9999, 12, 31, 23, 59, 59, 999,    -1 },
-            { L_, "9999-12-31T00:01:00.000-23:59",
-                                    9999, 12, 31, 00, 01, 00, 000, -1439 },
-        };
-        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE   = DATA[ti].d_line;
-            const char *INPUT  = DATA[ti].d_input;
-            const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
-            const int   YEAR   = DATA[ti].d_year;
-            const int   MONTH  = DATA[ti].d_month;
-            const int   DAY    = DATA[ti].d_day;
-            const int   HOUR   = DATA[ti].d_hour;
-            const int   MIN    = DATA[ti].d_min;
-            const int   SEC    = DATA[ti].d_sec;
-            const int   MSEC   = DATA[ti].d_msec;
-            const int   OFFSET = DATA[ti].d_offset;
-
-            if (veryVerbose) { T_ P_(LINE) P(INPUT) }
-
-            bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR, MONTH, DAY,
-                                                     HOUR, MIN, SEC, MSEC),
-                                      OFFSET);
-
-            bsl::string str(INPUT, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(
-                LINE, INPUT, LENGTH, 0 == Util::parse(&mX, INPUT, LENGTH));
-
-            ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, INPUT, LENGTH,
-                    EXPECTED == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
-
-            ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, INPUT, LENGTH,
-                    EXPECTED == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX, str.c_str()));
-
-            ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, INPUT, LENGTH,
-                    EXPECTED == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the same string
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(
-                LINE, INPUT, LENGTH, 0 == Util::parseRelaxed(&mX,
-                                                             INPUT,
-                                                             LENGTH));
-
-            ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, INPUT, LENGTH,
-                    EXPECTED == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parseRelaxed(&mX, StrView(INPUT, LENGTH)));
-
-            ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, INPUT, LENGTH,
-                    EXPECTED == X.the<bdlt::DatetimeTz>());
-
-            // parseRelaxed() on the string modified to have SPACE instead
-            // of 'T'
-            const bsl::string relaxed = replaceTWithSpace(INPUT, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH, 0 == Util::parseRelaxed(
-                                                            &mX,
-                                                            relaxed.data(),
-                                                            relaxed.length()));
-
-            ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, INPUT, LENGTH,
-                    EXPECTED == X.the<bdlt::DatetimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parseRelaxed(&mX, StrView(relaxed)));
-
-            ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
-            ASSERTV(LINE, INPUT, LENGTH,
-                    EXPECTED == X.the<bdlt::DatetimeTz>());
-        }
-    }
-
-    if (verbose) cout << "\nNegative Testing." << endl;
-    {
-        bsls::AssertTestHandlerGuard hG;
-
-        const char    *INPUT   = "2013-10-23T01:23:45";
-        const char    *INPUTB  = "20131023T012345";
-        const int      LENGTH  = static_cast<int>(bsl::strlen(INPUT));
-        const int      LENGTHB = static_cast<int>(bsl::strlen(INPUTB));
-        const StrView  STRING_REF(INPUT, LENGTH);
-        const StrView  STRING_REFB(INPUTB, LENGTHB);
-
-        bdlt::Datetime   result;
-        bdlt::DatetimeTz resultTz;
-
-        if (veryVerbose) cout << "\t'Invalid result'" << endl;
-        {
-            Util::TimeOrTimeTz *NULL_PTR = 0;
-
-            ASSERT_PASS(Util::parse(      &mX, INPUT, LENGTH));
-            ASSERT_FAIL(Util::parse( NULL_PTR, INPUT, LENGTH));
-
-            ASSERT_PASS(Util::parse(     &mX, STRING_REF));
-            ASSERT_FAIL(Util::parse(NULL_PTR, STRING_REF));
-        }
-
-        if (veryVerbose) cout << "\t'Invalid input'" << endl;
-        {
-            const char    *NULL_PTR = 0;
-            const StrView  NULL_REF;
-
-            ASSERT_PASS(Util::parse(&mX,    INPUT, LENGTH));
-            ASSERT_FAIL(Util::parse(&mX, NULL_PTR, LENGTH));
-
-            ASSERT_PASS(Util::parse(&mX, STRING_REF));
-            ASSERT_FAIL(Util::parse(&mX,   NULL_REF));
-
-            ASSERT_PASS(Util::parseRelaxed(&mX,    INPUT, LENGTH));
-            ASSERT_FAIL(Util::parseRelaxed(&mX, NULL_PTR, LENGTH));
-
-            ASSERT_PASS(Util::parseRelaxed(&mX, STRING_REF));
-            ASSERT_FAIL(Util::parseRelaxed(&mX,   NULL_REF));
-        }
-
-        if (veryVerbose) cout << "\t'Invalid length'" << endl;
-        {
-            ASSERT_PASS(Util::parse(&mX, INPUT, LENGTH));
-            ASSERT_PASS(Util::parse(&mX, INPUT,      0));
-            ASSERT_FAIL(Util::parse(&mX, INPUT,     -1));
-
-            ASSERT_PASS(Util::parseRelaxed(&mX, INPUT, LENGTH));
-            ASSERT_PASS(Util::parseRelaxed(&mX, INPUT,      0));
-            ASSERT_FAIL(Util::parseRelaxed(&mX, INPUT,     -1));
-        }
-    }
-}
-
-void testCase16(bool verbose,
-                bool veryVerbose,
-                bool /* veryVeryVerbose */,
-                bool /* veryVeryVeryVerbose */)
-{
-    if (verbose) cout << endl
-                      << "PARSE 'TimeOrTimeTz'" << endl
-                      << "====================" << endl;
-
-    Util::TimeOrTimeTz        mX;
-    const Util::TimeOrTimeTz& X = mX;
-
-    char buffer[Util::k_MAX_STRLEN];
-
-    const bdlt::Time   XX(2, 4, 6, 8);  // 'XX' and 'ZZ' are controls,
-    const bdlt::TimeTz ZZ(XX, -7);      // distinct from any test data
-
-    const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
-    const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
-                                                         DEFAULT_TIME_DATA;
-
-    const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
-    const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
-                                                         DEFAULT_ZONE_DATA;
-
-    const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
-    const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
-                                                         DEFAULT_CNFG_DATA;
-
-    if (verbose) cout << "\nValid ISO 8601 strings." << endl;
-
-    for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
-        const int ILINE = TIME_DATA[ti].d_line;
-        const int HOUR  = TIME_DATA[ti].d_hour;
-        const int MIN   = TIME_DATA[ti].d_min;
-        const int SEC   = TIME_DATA[ti].d_sec;
-        const int MSEC  = TIME_DATA[ti].d_msec;
-        const int USEC  = TIME_DATA[ti].d_usec;
-
-        for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
-            const int JLINE  = ZONE_DATA[tj].d_line;
-            const int OFFSET = ZONE_DATA[tj].d_offset;
-
-            if (   bdlt::Time(HOUR, MIN, SEC, MSEC, USEC) == bdlt::Time()
-                && OFFSET != 0) {
-                continue;  // skip invalid compositions
-            }
-
-            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
-                const int  CLINE     = CNFG_DATA[tc].d_line;
-                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
-                const int  PRECISION = CNFG_DATA[tc].d_precision;
-                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
-                const bool USEZ      = CNFG_DATA[tc].d_useZ;
-
-                int expMsec = MSEC;
-                int expUsec = USEC;
-                {
-                    // adjust the expected milliseconds to account for
-                    // PRECISION truncating the value generated
-
-                    int precision = (PRECISION < 3 ? PRECISION : 3);
-
-                    for (int i = 3; i > precision; --i) {
-                        expMsec /= 10;
-                    }
-
-                    for (int i = 3; i > precision; --i) {
-                        expMsec *= 10;
-                    }
-
-                    // adjust the expected microseconds to account for
-                    // PRECISION truncating the value generated
-
-                    precision = (PRECISION > 3 ? PRECISION - 3: 0);
-
-                    for (int i = 3; i > precision; --i) {
-                        expUsec /= 10;
-                    }
-
-                    for (int i = 3; i > precision; --i) {
-                        expUsec *= 10;
-                    }
-                }
-
-                const bdlt::Time TIME(HOUR, MIN, SEC, expMsec, expUsec);
-
-                const bdlt::TimeTz TIMETZ(TIME, OFFSET);
-
-                if (veryVerbose) {
-                    if (0 == tc) {
-                        T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ);
-                    }
-                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                      P_(USECOMMA) P(USEZ);
-                }
-
-                Config mC;  const Config& C = mC;
-                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
-
-                // without zone designator in parsed string
-                {
-                    const int LENGTH = Util::generateRaw(buffer, TIME, C);
-
-                    bsl::string str(buffer, LENGTH);
-
-                    if (veryVerbose) {
-                        T_ T_ P(str)
-                    }
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX, buffer, LENGTH));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = XX;
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX, buffer, LENGTH));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX, buffer, LENGTH));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, StrView(str)));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, str.c_str()));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = XX;
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, StrView(buffer, LENGTH)));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = XX;
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, str.c_str()));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, StrView(buffer, LENGTH)));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, str.c_str()));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-                }
-
-                // without zone designator in parsed string - basic
-                {
-                    int LENGTH = Util::generateRaw(buffer, TIME, C);
-                    bsl::string str(buffer, LENGTH);
-                    u::removeCharFromString(&str, ':');
-                    LENGTH = static_cast<int>(str.length());
-
-                    if (veryVerbose) {
-                        T_ T_ P(str)
-                    }
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             LENGTH,
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = XX;
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             LENGTH,
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             LENGTH,
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             StrView(str),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = XX;
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             StrView(str),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = XX;
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             StrView(str),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIME == X.the<bdlt::Time>());
-                }
-
-                // with zone designator in parsed string
-                {
-                    const int LENGTH = Util::generateRaw(buffer,
-                                                         TIMETZ,
-                                                         C);
-                    bsl::string str(buffer, LENGTH);
-
-                    if (veryVerbose) {
-                        T_ T_ P(str)
-                    }
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX, buffer, LENGTH));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = XX;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX, buffer, LENGTH));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX, buffer, LENGTH));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, StrView(buffer, LENGTH)));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, str.c_str()));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = XX;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, StrView(buffer, LENGTH)));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = XX;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, str.c_str()));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, StrView(buffer, LENGTH)));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                           0 == Util::parse(&mX, str.c_str()));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-                }
-
-                // with zone designator in parsed string
-
-                for (int remove = 2; remove <= 3; ++remove) {
-                    int LENGTH = Util::generateRaw(buffer,
-                                                   TIMETZ,
-                                                   C);
-                    bsl::string str(buffer, LENGTH);
-                    u::removeCharFromString(&str, ':', remove);
-                    LENGTH = static_cast<int>(str.length());
-
-                    if (veryVerbose) {
-                        T_ T_ P(str)
-                    }
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             LENGTH,
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = XX;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             LENGTH,
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             LENGTH,
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             StrView(str),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX.reset();
-                    ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = XX;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             StrView(str),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = XX;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            XX == X.the<bdlt::Time>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             StrView(str),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-
-                    mX = ZZ;
-
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            ZZ == X.the<bdlt::TimeTz>());
-
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            0 == Util::parse(&mX,
-                                             str.c_str(),
-                                             u::BASIC));
-                    ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
-                    ASSERTV(ILINE, JLINE, CLINE,
-                            TIMETZ == X.the<bdlt::TimeTz>());
-                }
-            }  // loop over 'CNFG_DATA'
-        }  // loop over 'ZONE_DATA'
-    }  // loop over 'TIME_DATA'
-
-    {
-        // verify 'z' is accepted
-        const bdlt::TimeTz EXPECTED(bdlt::Time(1,2,3) , 0);
-
-        bsl::string str = "01:02:03z";
-
-        mX.reset();
-        ASSERTV(X.isUnset());
-
-        ASSERTV(0 == Util::parse(&mX, str.c_str(), str.length()));
-        ASSERTV( X.is<bdlt::TimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
-
-        mX.reset();
-        ASSERTV(X.isUnset());
-
-        ASSERTV(0 == Util::parse(&mX, str.c_str()));
-        ASSERTV( X.is<bdlt::TimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
-
-        mX = XX;
-
-        ASSERTV(X.is<bdlt::Time>());
-        ASSERTV(XX == X.the<bdlt::Time>());
-
-        ASSERTV(0 == Util::parse(&mX, str.c_str(), str.length()));
-        ASSERTV(X.is<bdlt::TimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
-
-        mX = XX;
-
-        ASSERTV(X.is<bdlt::Time>());
-        ASSERTV(XX == X.the<bdlt::Time>());
-
-        ASSERTV(0 == Util::parse(&mX, str.c_str()));
-        ASSERTV(X.is<bdlt::TimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
-
-        mX = ZZ;
-
-        ASSERT(X.is<bdlt::TimeTz>());
-        ASSERT(ZZ == X.the<bdlt::TimeTz>());
-
-        ASSERTV(0 == Util::parse(&mX, str.c_str(), str.length()));
-        ASSERT(X.is<bdlt::TimeTz>());
-        ASSERT(EXPECTED == X.the<bdlt::TimeTz>());
-
-        mX = ZZ;
-
-        ASSERT(X.is<bdlt::TimeTz>());
-        ASSERT(ZZ == X.the<bdlt::TimeTz>());
-
-        ASSERTV(0 == Util::parse(&mX, str.c_str()));
-        ASSERT(X.is<bdlt::TimeTz>());
-        ASSERT(EXPECTED == X.the<bdlt::TimeTz>());
-
-        // basic
-
-        str = "010203z";
-
-        mX.reset();
-        ASSERTV(X.isUnset());
-
-        ASSERTV(0 == Util::parse(&mX,
-                                 str.c_str(),
-                                 u::BASIC));
-        ASSERTV( X.is<bdlt::TimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
-
-        mX = XX;
-
-        ASSERTV(X.is<bdlt::Time>());
-        ASSERTV(XX == X.the<bdlt::Time>());
-
-        ASSERTV(0 == Util::parse(&mX,
-                                 str.c_str(),
-                                 u::BASIC));
-        ASSERTV(X.is<bdlt::TimeTz>());
-        ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
-
-        mX = ZZ;
-
-        ASSERT(X.is<bdlt::TimeTz>());
-        ASSERT(ZZ == X.the<bdlt::TimeTz>());
-
-        ASSERTV(0 == Util::parse(&mX,
-                                 str.c_str(),
-                                 u::BASIC));
-        ASSERT(X.is<bdlt::TimeTz>());
-        ASSERT(EXPECTED == X.the<bdlt::TimeTz>());
-    }
-
-    if (verbose) cout << "\nInvalid strings." << endl;
-    {
-        const int              NUM_TIME_DATA =         NUM_BASIC_BAD_TIME_DATA;
-        const BadTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] = BASIC_BAD_TIME_DATA;
-
-        for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
-            const int   LINE   = TIME_DATA[ti].d_line;
-            const char *STRING = TIME_DATA[ti].d_invalid;
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            const ptrdiff_t LENGTH = bsl::strlen(STRING);
-
-            bsl::string bad(STRING, LENGTH);
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-        }
-
-        const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
-        const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
-
-        for (int ti = 0; ti < NUM_ZONE_DATA; ++ti) {
-            const int LINE = ZONE_DATA[ti].d_line;
-
-            // Initialize with a *valid* time string, then append an
-            // invalid zone designator.
-
-            bsl::string bad("12:26:52.726");
-
-            // Ensure that 'bad' is initially valid, but only during the
-            // first iteration.
-
-            static bool firstTime = true;
-            if (firstTime) {
-                firstTime = false;
-
-                const char *STRING = bad.data();
-                ptrdiff_t   LENGTH = bad.length();
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX, STRING, LENGTH));
-                ASSERT(mX.is<bdlt::Time>());
-                ASSERT(XX != mX.the<bdlt::Time>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX, StrView(STRING, LENGTH)));
-                ASSERT(mX.is<bdlt::Time>());
-                ASSERT(XX != mX.the<bdlt::Time>());
-            }
-
-            // If 'ZONE_DATA[ti].d_invalid' contains nothing but digits,
-            // appending it to 'bad' simply extends the fractional second
-            // (so 'bad' remains valid).
-
-            if (containsOnlyDigits(ZONE_DATA[ti].d_invalid)) {
-                continue;
-            }
-
-            bad.append(ZONE_DATA[ti].d_invalid);
-
-            const char *STRING = bad.c_str();
-            const int   LENGTH = static_cast<int>(bad.length());
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(STRING, LENGTH)));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, StrView(STRING, LENGTH)));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX, bad.c_str()));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-        }
-
-        // again -- basic
-
-        for (int ti = 0; ti < 2 * NUM_ZONE_DATA; ++ti) {
-            const int zi     = ti % NUM_ZONE_DATA;
-            const int remove = ti / NUM_ZONE_DATA;
-            const int LINE   = ZONE_DATA[zi].d_line;
-            const char *ZONE = ZONE_DATA[zi].d_invalid;
-
-            // Initialize with a *valid* time string, then append an
-            // invalid zone designator.
-
-            bsl::string bad("122652.726");
-
-            // Ensure that 'bad' is initially valid, but only during the
-            // first iteration.
-
-            static bool firstTime = true;
-            if (firstTime) {
-                firstTime = false;
-
-                const char *STRING = bad.data();
-                int         LENGTH = static_cast<int>(bad.length());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         STRING,
-                                         LENGTH,
-                                         u::BASIC));
-                ASSERT(mX.is<bdlt::Time>());
-                ASSERT(XX != mX.the<bdlt::Time>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         StrView(bad),
-                                         u::BASIC));
-                ASSERT(mX.is<bdlt::Time>());
-                ASSERT(XX != mX.the<bdlt::Time>());
-
-                mX = XX;
-
-                ASSERT( 0 == Util::parse(&mX,
-                                         bad.c_str(),
-                                         u::BASIC));
-                ASSERT(mX.is<bdlt::Time>());
-                ASSERT(XX != mX.the<bdlt::Time>());
-            }
-
-            // If 'ZONE_DATA[ti].d_invalid' contains nothing but digits,
-            // appending it to 'bad' simply extends the fractional second
-            // (so 'bad' remains valid).
-
-            if (containsOnlyDigits(ZONE)) {
-                continue;
-            }
-
-            bad.append(ZONE);
-            u::removeCharFromString(&bad, ':', remove);
-
-            const char *STRING = bad.c_str();
-            const int   LENGTH = static_cast<int>(bad.length());
-
-            if (veryVerbose) { T_ P_(LINE) P(STRING) }
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     STRING,
-                                     LENGTH,
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX.reset();
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.isUnset());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = XX;
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-            ASSERTV(LINE, STRING, X.is<bdlt::Time>());
-            ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     StrView(STRING, LENGTH),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            mX = ZZ;
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-
-            ASSERTV(LINE, STRING,
-                    0 != Util::parse(&mX,
-                                     bad.c_str(),
-                                     u::BASIC));
-
-            ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
-            ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
-        }
-    }
-
-    if (verbose) cout << "\nTesting leap seconds and fractional seconds."
-                      << endl;
-    {
-        const struct {
-            int         d_line;      // source line number
-
-            const char *d_input;     // input
-
-            int         d_hour;      // hour under test
-
-            int         d_min;       // minutes under test
-
-            int         d_sec;       // seconds under test
-
-            int         d_msec;      // milli seconds under test
-
-            int         d_usec;      // micro seconds under test
-
-            int         d_offset;    // UTC offset
-
-            bool        d_isTimeTz;  // flag indicating whether the result
-                                     // object is expected to contain
-                                     // 'TimeTz' or 'Time'  object
-        } DATA[] = {
-        // leap seconds
-        //LINE INPUT                    H   M   S   MS   US   OFF  DATETZ
-        //---- ------------------------ --  --  --  ---  ---  ---  ------
-        { L_,  "00:00:60.000",          00, 01, 00, 000, 000,   0, false },
-        { L_,  "22:59:60.999",          23, 00, 00, 999, 000,   0, false },
-        { L_,  "23:59:60.999",          00, 00, 00, 999, 000,   0, false },
-
-        // fractional seconds
-        { L_,  "00:00:00.0001",         00, 00, 00, 000, 100,   0, false },
-        { L_,  "00:00:00.0009",         00, 00, 00, 000, 900,   0, false },
-        { L_,  "00:00:00.00001",        00, 00, 00, 000,  10,   0, false },
-        { L_,  "00:00:00.00049",        00, 00, 00, 000, 490,   0, false },
-        { L_,  "00:00:00.00050",        00, 00, 00, 000, 500,   0, false },
-        { L_,  "00:00:00.00099",        00, 00, 00, 000, 990,   0, false },
-        { L_,  "00:00:00.0000001",      00, 00, 00, 000, 000,   0, false },
-        { L_,  "00:00:00.0000009",      00, 00, 00, 000, 001,   0, false },
-        { L_,  "00:00:00.00000001",     00, 00, 00, 000, 000,   0, false },
-        { L_,  "00:00:00.00000049",     00, 00, 00, 000, 000,   0, false },
-        { L_,  "00:00:00.00000050",     00, 00, 00, 000, 001,   0, false },
-        { L_,  "00:00:00.00000099",     00, 00, 00, 000, 001,   0, false },
-        { L_,  "00:00:00.9994",         00, 00, 00, 999, 400,   0, false },
-        { L_,  "00:00:00.9995",         00, 00, 00, 999, 500,   0, false },
-        { L_,  "00:00:00.9999",         00, 00, 00, 999, 900,   0, false },
-        { L_,  "00:00:59.9999",         00, 00, 59, 999, 900,   0, false },
-        { L_,  "23:59:59.9999",         23, 59, 59, 999, 900,   0, false },
-        { L_,  "00:00:00.9999994",      00, 00, 00, 999, 999,   0, false },
-        { L_,  "00:00:00.9999995",      00, 00,  1, 000, 000,   0, false },
-        { L_,  "00:00:00.9999999",      00, 00,  1, 000, 000,   0, false },
-        { L_,  "00:00:59.9999999",      00,  1, 00, 000, 000,   0, false },
-        { L_,  "23:59:59.9999999",      00, 00, 00, 000, 000,   0, false },
-
-        // omit fractional seconds
-        { L_,  "12:34:45",              12, 34, 45, 000, 000,   0, false },
-        { L_,  "12:34:45Z",             12, 34, 45, 000, 000,   0,  true },
-        { L_,  "12:34:45+00:30",        12, 34, 45, 000, 000,  30,  true },
-        { L_,  "00:00:00+00:30",        00, 00, 00, 000, 000,  30,  true },
-        { L_,  "12:34:45-01:30",        12, 34, 45, 000, 000, -90,  true },
-        { L_,  "23:59:59-01:30",        23, 59, 59, 000, 000, -90,  true },
-
-        { L_, "12:34:45.9999994Z",      12, 34, 45, 999, 999,   0,  true },
-        { L_, "12:34:45.9999994+00:30", 12, 34, 45, 999, 999,  30,  true },
-        { L_, "12:34:45.9999994-01:30", 12, 34, 45, 999, 999, -90,  true },
-        { L_, "12:34:45.9999995Z",      12, 34, 46, 000, 000,   0,  true },
-        { L_, "12:34:45.9999995+00:30", 12, 34, 46, 000, 000,  30,  true },
-        { L_, "12:34:45.9999995-01:30", 12, 34, 46, 000, 000, -90,  true },
-        { L_, "00:00:00.9999999Z",      00, 00, 01, 000, 000,   0,  true },
-        { L_, "00:00:00.9999999+00:30", 00, 00, 01, 000, 000,  30,  true },
-        { L_, "00:00:00.9999999-01:30", 00, 00, 01, 000, 000, -90,  true },
-        { L_, "12:34:60.9999994+00:30", 12, 35, 00, 999, 999,  30,  true },
-        { L_, "12:34:60.9999994-01:30", 12, 35, 00, 999, 999, -90,  true },
-        { L_, "23:59:60.9999999+00:30", 00, 00, 01, 000, 000,  30,  true },
-        { L_, "23:59:60.9999999-01:30", 00, 00, 01, 000, 000, -90,  true },
-        };
-        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-        for (int tti = 0; tti < 2 * NUM_DATA; ++tti) {
-            const int   ti        = tti % NUM_DATA;
-            const int   remove    = tti / NUM_DATA;
-            const int   LINE      = DATA[ti].d_line;
-            const char *INPUT     = DATA[ti].d_input;
-            int         LENGTH    = static_cast<int>(bsl::strlen(INPUT));
-            const int   HOUR      = DATA[ti].d_hour;
-            const int   MIN       = DATA[ti].d_min;
-            const int   SEC       = DATA[ti].d_sec;
-            const int   MSEC      = DATA[ti].d_msec;
-            const int   USEC      = DATA[ti].d_usec;
-            const int   OFFSET    = DATA[ti].d_offset;
-            const bool  IS_TIMETZ = DATA[ti].d_isTimeTz;
-
-            if (veryVerbose) { T_ P_(LINE) P(INPUT) }
-
-            const bdlt::Time   EXPECTED_TIME(HOUR, MIN, SEC, MSEC, USEC);
-            const bdlt::TimeTz EXPECTED_TIMETZ(EXPECTED_TIME, OFFSET);
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX, INPUT, LENGTH));
-
-            if (IS_TIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIME == X.the<bdlt::Time>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
-
-            if (IS_TIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIME == X.the<bdlt::Time>());
-            }
-
-            // repeat - basic
-
-            bsl::string str(INPUT, LENGTH);
-            u::removeCharFromString(&str, ':', 2 + remove);
-            INPUT = str.c_str();
-            LENGTH = static_cast<int>(str.length());
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     INPUT,
-                                     LENGTH,
-                                     u::BASIC));
-            if (IS_TIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIME == X.the<bdlt::Time>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     StrView(INPUT, LENGTH),
-                                     u::BASIC));
-
-            if (IS_TIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIME == X.the<bdlt::Time>());
-            }
-
-            mX.reset();
-            ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
-
-            ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parse(&mX,
-                                     str.c_str(),
-                                     u::BASIC));
-
-            if (IS_TIMETZ) {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
-            }
-            else {
-                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
-                ASSERTV(LINE, INPUT, LENGTH,
-                        EXPECTED_TIME == X.the<bdlt::Time>());
-            }
-        }
-    }
-
-    if (verbose) cout << "\nNegative Testing." << endl;
-    {
-        bsls::AssertTestHandlerGuard hG;
-
-        const char    *INPUT   = "01:23:45";
-        const char    *INPUTB  = "012345";
-        const int      LENGTH  = static_cast<int>(bsl::strlen(INPUT));
-        const int      LENGTHB = static_cast<int>(bsl::strlen(INPUTB));
-        const StrView  STRING_REF( INPUT,  LENGTH);
-        const StrView  STRING_REFB(INPUTB, LENGTHB);
-
-        if (veryVerbose) cout << "\t'Invalid result'" << endl;
-        {
-            Util::TimeOrTimeTz *NULL_PTR = 0;
-
-            ASSERT_PASS(Util::parse(     &mX, INPUT, LENGTH));
-            ASSERT_FAIL(Util::parse(NULL_PTR, INPUT, LENGTH));
-
-            ASSERT_PASS(Util::parse(     &mX, STRING_REF));
-            ASSERT_FAIL(Util::parse(NULL_PTR, STRING_REF));
-        }
-
-        if (veryVerbose) cout << "\t'Invalid result' - basic" << endl;
-        {
-            Util::TimeOrTimeTz *NULL_PTR = 0;
-
-            ASSERT_PASS(Util::parse(     &mX, INPUTB, LENGTHB, u::BASIC));
-            ASSERT_FAIL(Util::parse(NULL_PTR, INPUTB, LENGTHB, u::BASIC));
-
-
-            ASSERT_PASS(Util::parse(     &mX, STRING_REFB, u::BASIC));
-            ASSERT_FAIL(Util::parse(NULL_PTR, STRING_REFB, u::BASIC));
-        }
-
-        if (veryVerbose) cout << "\t'Invalid input'" << endl;
-        {
-            const char    *NULL_PTR = 0;
-            const StrView  NULL_REF;
-
-            ASSERT_PASS(Util::parse(&mX,    INPUT, LENGTH));
-            ASSERT_FAIL(Util::parse(&mX, NULL_PTR, LENGTH));
-
-            ASSERT_PASS(Util::parse(&mX, STRING_REF));
-            ASSERT_FAIL(Util::parse(&mX,   NULL_REF));
-        }
-
-        if (veryVerbose) cout << "\t'Invalid input' - basic" << endl;
-        {
-            const char    *NULL_PTR = 0;
-            const StrView  NULL_REF;
-
-            ASSERT_PASS(Util::parse(&mX,   INPUTB, LENGTHB, u::BASIC));
-            ASSERT_FAIL(Util::parse(&mX, NULL_PTR, LENGTHB, u::BASIC));
-
-            ASSERT_PASS(Util::parse(&mX, STRING_REFB, u::BASIC));
-            ASSERT_FAIL(Util::parse(&mX,   NULL_REF,  u::BASIC));
-        }
-
-        if (veryVerbose) cout << "\t'Invalid length'" << endl;
-        {
-            ASSERT_PASS(Util::parse(&mX, INPUT, LENGTH));
-            ASSERT_PASS(Util::parse(&mX, INPUT,      0));
-            ASSERT_FAIL(Util::parse(&mX, INPUT,     -1));
-        }
-
-        if (veryVerbose) cout << "\t'Invalid length' - basic" << endl;
-        {
-            ASSERT_PASS(Util::parse(&mX, INPUTB, LENGTHB, u::BASIC));
-            ASSERT_PASS(Util::parse(&mX, INPUTB,       0, u::BASIC));
-            ASSERT_FAIL(Util::parse(&mX, INPUTB,      -1, u::BASIC));
-        }
-    }
-}
-
-#endif // U_TEST_PART_02
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -7046,10 +1012,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-#ifdef U_TEST_COMPILING_A_PART
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
-#endif
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 19: {
@@ -7070,10 +1034,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
 
 ///Usage
 ///-----
@@ -7100,7 +1062,7 @@ int main(int argc, char *argv[])
 // For comparison with the ISO 8601 string generated below, note that streaming
 // the value of 'sourceDatetimeTz' to 'stdout':
 //..
-if (veryVerbose) {
+ if (veryVerbose) {
     bsl::cout << sourceDatetimeTz << bsl::endl;
 }
 //..
@@ -7250,20 +1212,312 @@ if (veryVerbose) {
     ASSERT(BUFLEN - 9 == rc);
     ASSERT(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
 //..
-#else
-    U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // PARSE 'Datetime's FROM STRINGS WITH TIME ZONES
+        // PARSE 'Datetime' FROM STRING WITH TIME ZONE
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        testCase18(verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
-#else
-        U_TEST_CASE_SKIPPED
-#endif
+        if (verbose) cout << "PARSE 'Datetime' FROM STRING WITH TIME ZONE\n"
+                             "===========================================\n";
+
+        static const struct {
+            int         d_line;      // source line number
+            const char *d_input_p;   // input
+            int         d_year;      // year under test
+            int         d_month;     // month under test
+            int         d_day;       // day under test
+            int         d_hour;      // hour under test
+            int         d_minutes;   // minutes under test
+            int         d_seconds;   // seconds under test
+            int         d_milliSecs; // milli seconds under test
+            int         d_microSecs; // micro seconds under test
+            bool        d_isValid;   // isValid flag
+        } DATA[] = {
+
+        //line  input
+        //----  ---------------------------------
+        //          year month   day   hour    min   sec    ms   us   isValid
+        //          ---- -----   ---   ----    ---   ---    --   --   -------
+        {   L_, "0000-01-01T00:00:00.000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0000-01-01T00:00:00.000Z",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0000-01-01T00:00:00.000z",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0000-01-01T00:00:00.000-00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+
+        // DRQS 130122587: datetime parsing should accept offsets
+
+        {   L_, "0001-01-01T00:00:00.000Z",
+                     1,     1,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-01T00:00:00.000+00:00",
+                     1,     1,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-01T00:00:00.000+00:45",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00:00.000-23:59",
+                     1,     1,    1,    23,   59,     0,    0,   0,   true   },
+        {   L_, "0001-01-01T00:00:00.000000Z",
+                     1,     1,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-01T00:00:00.000000+00:00",
+                     1,     1,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-01T00:00:00.000000+00:45",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00:00.000000-23:59",
+                     1,     1,    1,    23,    59,    0,    0,   0,   true   },
+
+        {   L_, "0001-01-01T01:01:01.001z",
+                     1,     1,    1,     1,     1,    1,    1,   0,   true   },
+        {   L_, "0001-01-01T01:01:01.001+00:00",
+                     1,     1,    1,     1,     1,    1,    1,   0,   true   },
+        {   L_, "0001-01-01T01:01:01.001+08:20",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T01:01:01.001000z",
+                     1,     1,    1,     1,     1,    1,    1,   0,   true   },
+        {   L_, "0001-01-01T01:01:01.001000+00:00",
+                     1,     1,    1,     1,     1,    1,    1,   0,   true   },
+        {   L_, "0001-01-01T01:01:01.001000+08:20",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00:00.000000-23:59",
+                     1,     1,    1,    23,    59,    0,    0,   0,   true   },
+        {   L_, "0001-01-01T01:23:59.059059+00:00",
+                     1,     1,    1,     1,    23,   59,   59,  59,   true   },
+        {   L_, "0001-01-01T01:23:59.059059+23:59",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T01:23:59.059059-23:59",
+                     1,     1,    2,     1,    22,   59,   59,  59,   true   },
+        {   L_, "0001-01-02T00:00:00.000000+00:00",
+                     1,     1,    2,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-02T00:00:00.000000+23:59",
+                     1,     1,    1,     0,     1,    0,    0,   0,   true   },
+        {   L_, "0001-01-02T00:00:00.000000-23:59",
+                     1,     1,    2,    23,    59,    0,    0,   0,   true   },
+        {   L_, "0001-01-02T01:01:01.000001+00:00",
+                     1,     1,    2,     1,     1,    1,    0,   1,   true   },
+        {   L_, "0001-01-02T01:01:01.000001+08:20",
+                     1,     1,    1,    16,    41,    1,    0,   1,   true   },
+
+        {   L_, "0001-01-02T01:23:59.059168Z",
+                     1,     1,    2,     1,    23,   59,   59, 168,   true   },
+        {   L_, "0001-01-02T01:23:59.059168+00:00",
+                     1,     1,    2,     1,    23,   59,   59, 168,   true   },
+        {   L_, "0001-01-02T01:23:59.059168+08:20",
+                     1,     1,    1,    17,     3,   59,   59, 168,   true   },
+        {   L_, "0001-01-02T01:23:59.059168-08:20",
+                     1,     1,    2,     9,    43,   59,   59, 168,   true   },
+        {   L_, "0001-01-10T00:00:00.000000z",
+                     1,     1,   10,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-10T00:00:00.000000+00:00",
+                     1,     1,   10,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-10T01:01:01.001+01:39",
+                     1,     1,    9,    23,    22,    1,    1,   0,   true   },
+        {   L_, "0001-01-10T01:01:01.000001+01:39",
+                     1,     1,    9,    23,    22,    1,    0,   1,   true   },
+
+        {   L_, "0001-01-30T00:00:00.000000Z",
+                     1,     1,   30,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-30T00:00:00.000000+00:00",
+                     1,     1,   30,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-01-31T00:00:00.000000+23:59",
+                     1,     1,   30,     0,     1,    0,    0,   0,   true   },
+        {   L_, "0001-01-31T00:00:00.000000-23:59",
+                     1,     1,   31,    23,    59,    0,    0,   0,   true   },
+
+        {   L_, "0001-02-01T00:00:00.000000z",
+                     1,     2,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-02-01T00:00:00.000000+00:00",
+                     1,     2,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-02-01T23:59:59.000000+23:59",
+                     1,     2,    1,     0,     0,   59,    0,   0,   true   },
+
+        {   L_, "0001-12-31T00:00:00.000000Z",
+                     1,    12,   31,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-12-31T00:00:00.000000+00:00",
+                     1,    12,   31,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0001-12-31T23:59:59.000000+23:59",
+                     1,    12,   31,     0,     0,   59,    0,   0,   true   },
+
+        {   L_, "0002-01-01T00:00:00.000000+00:00",
+                     2,     1,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0002-01-01T23:59:59.000000+23:59",
+                     2,     1,    1,     0,     0,   59,    0,   0,   true   },
+
+        {   L_, "0004-01-01T00:00:00.000000+00:00",
+                     4,     1,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0004-01-01T23:59:59.000000+23:59",
+                     4,     1,    1,     0,     0,   59,    0,   0,   true   },
+
+        {   L_, "0004-02-28T00:00:00.000000+00:00",
+                     4,     2,   28,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0004-02-28T23:59:59.000000+23:59",
+                     4,     2,   28,     0,     0,   59,    0,   0,   true   },
+        {   L_, "0004-02-28T23:59:59.000000-23:59",
+                     4,     2,   29,    23,    58,   59,    0,   0,   true   },
+
+        {   L_, "0004-02-29T00:00:00.000000+00:00",
+                     4,     2,   29,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0004-02-29T23:59:59.000000+23:59",
+                     4,     2,   29,     0,     0,   59,    0,   0,   true   },
+        {   L_, "0004-02-29T23:59:59.000000-23:59",
+                     4,     3,    1,    23,    58,   59,    0,   0,   true   },
+
+        {   L_, "0004-03-01T00:00:00.000000+00:00",
+                     4,     3,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0004-03-01T23:59:59.000000+23:59",
+                     4,     3,    1,     0,     0,   59,    0,   0,   true   },
+        {   L_, "0004-03-01T23:59:59.000000-23:59",
+                     4,     3,    2,    23,    58,   59,    0,   0,   true   },
+
+        {   L_, "0008-02-28T00:00:00.000000+00:00",
+                     8,     2,   28,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0008-02-28T23:59:59.000000+23:59",
+                     8,     2,   28,     0,     0,   59,    0,   0,   true   },
+
+        {   L_, "0008-02-29T00:00:00.000000+00:00",
+                     8,     2,   29,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0008-02-29T23:59:59.000000+23:59",
+                     8,     2,   29,     0,     0,   59,    0,   0,   true   },
+
+        {   L_, "0008-03-01T00:00:00.000000+00:00",
+                     8,     3,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0008-03-01T23:59:59.000000+23:59",
+                     8,     3,    1,     0,     0,   59,    0,   0,   true   },
+
+        {   L_, "0100-02-28T00:00:00.000000+00:00",
+                   100,     2,   28,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0100-02-28T23:59:59.000000+23:59",
+                   100,     2,   28,     0,     0,   59,    0,   0,   true   },
+        {   L_, "0100-02-28T23:59:59.000000-23:59",
+                   100,     2,   29,    23,    58,   59,    0,   0,   true   },
+
+        {   L_, "0100-03-01T00:00:00.000000+00:00",
+                   100,     3,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0100-03-01T23:59:59.000000+23:59",
+                   100,     3,    1,     0,     0,   59,    0,   0,   true   },
+        {   L_, "0100-03-01T23:59:59.000000-23:59",
+                   100,     3,    2,    23,    58,   59,    0,   0,   true   },
+
+        {   L_, "0400-02-28T00:00:00.000000+00:00",
+                   400,     2,   28,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0400-02-28T23:59:59.000000+23:59",
+                   400,     2,   28,     0,     0,   59,    0,   0,   true   },
+        {   L_, "0400-02-28T23:59:59.000000-23:59",
+                   400,     2,   29,    23,    58,   59,    0,   0,   true   },
+
+        {   L_, "0400-02-29T00:00:00.000000+00:00",
+                   400,     2,   29,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0400-02-29T23:59:59.000000+23:59",
+                   400,     2,   29,     0,     0,   59,    0,   0,   true   },
+        {   L_, "0400-02-29T23:59:59.000000-23:59",
+                   400,     3,    1,    23,    58,   59,    0,   0,   true   },
+
+        {   L_, "0400-03-01T00:00:00.000000+00:00",
+                   400,     3,    1,     0,     0,    0,    0,   0,   true   },
+        {   L_, "0400-03-01T23:59:59.000000+23:59",
+                   400,     3,    1,     0,     0,   59,    0,   0,   true   },
+        {   L_, "0400-03-01T23:59:59.000000-23:59",
+                   400,     3,    2,    23,    58,   59,    0,   0,   true   },
+
+        {   L_, "9999-12-31T00:00:00.000000+00:00",
+                  9999,    12,   31,     0,     0,    0,    0,   0,   true   },
+        {   L_, "9999-12-31T23:59:59.000000+23:59",
+                  9999,    12,   31,     0,     0,   59,    0,   0,   true   },
+        {   L_, "9999-12-31T23:59:59.000000-23:59",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+
+        {   L_, "0000-01-01T00:00:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-00-01T00:00:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-00T00:00:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0000-00-00T00:00:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-13-00T00:00:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-32T00:00:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T25:00:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:61:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00:61.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00:00.000000+24:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00:00.000000+00:61",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00:00.000000-24:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00:00.000000-00:61",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+
+        {   L_, "GARBAGE",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, ".9999",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "23:59:59.9999",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "T23:59:59.9999",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "01T23:59:59.9999",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "01-01T23:59:59.9999",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00.000",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0001-01-01T00:00.000000",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "01-01-01T23:59:59.9999",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "01-01-01T23:59:59.9999999",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+
+        {   L_, "0000-01-01T00:00:00.000000+00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0000-01-01T00:00:00.000000Z",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0000-01-01T00:00:00.000000z",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+        {   L_, "0000-01-01T00:00:00.000000-00:00",
+                     1,     1,    1,    24,     0,    0,    0,   0,   false  },
+
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int         LINE        = DATA[i].d_line;
+            const char       *INPUT       = DATA[i].d_input_p;
+            const int         YEAR        = DATA[i].d_year;
+            const int         MONTH       = DATA[i].d_month;
+            const int         DAY         = DATA[i].d_day;
+            const int         HOUR        = DATA[i].d_hour;
+            const int         MINUTE      = DATA[i].d_minutes;
+            const int         SECOND      = DATA[i].d_seconds;
+            const int         MILLISECOND = DATA[i].d_milliSecs;
+            const int         MICROSECOND = DATA[i].d_microSecs;
+            const bool        IS_VALID    = DATA[i].d_isValid;
+
+            bdlt::Datetime exp(YEAR, MONTH, DAY,
+                               HOUR, MINUTE, SECOND,
+                               MILLISECOND, MICROSECOND);
+            const bdlt::Datetime& EXP = exp;
+
+            bdlt::Datetime value;
+
+            const bsl::string_view isb(INPUT);
+
+            const int rc = Util::parse(&value, isb);
+            if (IS_VALID) {
+                ASSERTV(LINE, rc, 0 == rc);
+            }
+            else {
+                ASSERTV(LINE, rc, rc);
+            }
+            ASSERTV(LINE, EXP, INPUT, value,   EXP == value);
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -7347,11 +1601,4254 @@ if (veryVerbose) {
         //   int parseRelaxed(DatetimeOrDatetimeTz *, const bsl::string_view&);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        testCase17(verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
-#else
-        U_TEST_CASE_SKIPPED
-#endif
+        if (verbose) cout << "PARSE 'DatetimeOrDatetimeTz'\n"
+                             "============================\n";
+
+        Util::DatetimeOrDatetimeTz        mX;
+        const Util::DatetimeOrDatetimeTz& X = mX;
+
+        char buffer[Util::k_MAX_STRLEN];
+
+        const bdlt::Date       DD(246, 8, 10);
+        const bdlt::Time       TT(2, 4, 6, 8);
+
+        const bdlt::Datetime   XX(DD, TT);  // 'XX' and 'ZZ' are controls,
+        const bdlt::DatetimeTz ZZ(XX, -7);  // distinct from any test data
+
+        const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
+        const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
+                                                             DEFAULT_DATE_DATA;
+
+        const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
+        const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
+                                                             DEFAULT_TIME_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+//@bdetdsplit CODE SLICING BEGIN
+        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+
+        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+            const int ILINE = DATE_DATA[ti].d_line;
+            const int YEAR  = DATE_DATA[ti].d_year;
+            const int MONTH = DATE_DATA[ti].d_month;
+            const int DAY   = DATE_DATA[ti].d_day;
+
+            const bdlt::Date DATE(YEAR, MONTH, DAY);
+
+            for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
+                const int JLINE = TIME_DATA[tj].d_line;
+                const int HOUR  = TIME_DATA[tj].d_hour;
+                const int MIN   = TIME_DATA[tj].d_min;
+                const int SEC   = TIME_DATA[tj].d_sec;
+                const int MSEC  = TIME_DATA[tj].d_msec;
+                const int USEC  = TIME_DATA[tj].d_usec;
+
+                for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
+                    const int KLINE  = ZONE_DATA[tk].d_line;
+                    const int OFFSET = ZONE_DATA[tk].d_offset;
+
+                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC, USEC)
+                                                                == bdlt::Time()
+                        && OFFSET != 0) {
+                        continue;  // skip invalid compositions
+                    }
+
+                    for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                        const int  CLINE     = CNFG_DATA[tc].d_line;
+                        const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                        const int  PRECISION = CNFG_DATA[tc].d_precision;
+                        const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                        const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                        int expMsec = MSEC;
+                        int expUsec = USEC;
+                        {
+                            // adjust the expected milliseconds to account for
+                            // PRECISION truncating the value generated
+
+                            int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec *= 10;
+                            }
+
+                            // adjust the expected microseconds to account for
+                            // PRECISION truncating the value generated
+
+                            precision = (PRECISION > 3 ? PRECISION - 3: 0);
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec *= 10;
+                            }
+                        }
+
+                        const bdlt::Datetime   DATETIME(YEAR,
+                                                        MONTH,
+                                                        DAY,
+                                                        HOUR,
+                                                        MIN,
+                                                        SEC,
+                                                        expMsec,
+                                                        expUsec);
+                        const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                        if (veryVerbose) {
+                            if (0 == tc) {
+                                T_ P_(ILINE) P_(JLINE) P_(KLINE)
+                                                    P_(DATETIME) P(DATETIMETZ);
+                            }
+                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                          P_(USECOMMA) P(USEZ);
+                        }
+
+                        Config mC;  const Config& C = mC;
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+//@bdetdsplit CODE SLICING BEGIN
+                        // without zone designator in parsed string
+                        {
+                            const int LENGTH = Util::generateRaw(buffer,
+                                                                 DATETIME,
+                                                                 C);
+                            bsl::string str(buffer, LENGTH);
+
+                            if (veryVerbose) {
+                                const bsl::string STRING(buffer, LENGTH);
+                                T_ T_ P(STRING)
+                            }
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, str.c_str()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, str.c_str()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, str.c_str()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            // parseRelaxed() on the same string
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            buffer,
+                                                            LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            buffer,
+                                                            LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            buffer,
+                                                            LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                     StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                     StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                     StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            // parseRelaxed() on the string modified to have
+                            // SPACE instead of 'T'
+                            const bsl::string relaxed =
+                                             replaceTWithSpace(buffer, LENGTH);
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                           StrView(relaxed)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                           StrView(relaxed)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                           StrView(relaxed)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+                        }
+
+//@bdetdsplit CODE SLICING BREAK
+                        // without zone designator in parsed string -- basic
+                        {
+                            int LENGTH = Util::generateRaw(buffer,
+                                                           DATETIME,
+                                                           C);
+                            bsl::string str(buffer, LENGTH);
+                            u::removeCharFromString(&str, '-', 2);
+                            u::removeCharFromString(&str, ':', 2);
+                            LENGTH = static_cast<int>(str.length());
+
+                            if (veryVerbose) {
+                                T_ T_ P(str)
+                            }
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            // parseRelaxed() on the same string
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            // parseRelaxed() on the string modified to have
+                            // SPACE instead of 'T'
+                            const bsl::string relaxed =
+                                        replaceTWithSpace(str.c_str(), LENGTH);
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, relaxed,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     relaxed.length(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     relaxed.length(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     relaxed.length(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(relaxed),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(relaxed),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(relaxed),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+                        }
+
+//@bdetdsplit CODE SLICING BREAK
+                        // with zone designator in parsed string
+                        {
+                            if ((DATE == bdlt::Date() && OFFSET > 0)
+                             || (DATE == bdlt::Date(9999, 12, 31)
+                              && OFFSET < 0)) {
+                                continue;  // skip invalid compositions
+                            }
+
+                            const int LENGTH = Util::generateRaw(buffer,
+                                                                 DATETIMETZ,
+                                                                 C);
+                            bsl::string str(buffer, LENGTH);
+
+                            if (veryVerbose) {
+                                T_ T_ P(str)
+                            }
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(str)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    str.c_str()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(str)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    str.c_str()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(str)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    str.c_str()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            // parseRelaxed() on the same string
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            buffer,
+                                                            LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            buffer,
+                                                            LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            buffer,
+                                                            LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                     StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                     StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                     StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            // parseRelaxed() on the string modified to have
+                            // SPACE instead of 'T'
+                            const bsl::string relaxed =
+                                             replaceTWithSpace(buffer, LENGTH);
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parseRelaxed(&mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                           StrView(relaxed)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                           StrView(relaxed)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parseRelaxed(&mX,
+                                                           StrView(relaxed)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+                        }
+
+// @bdetdsplit CODE SLICING BREAK
+                        // with zone designator in parsed string - basic
+                        for (int removeColons = 2;
+                                 removeColons <= 3;
+                               ++removeColons)
+                        {
+                            if ((DATE == bdlt::Date() && OFFSET > 0)
+                             || (DATE == bdlt::Date(9999, 12, 31)
+                              && OFFSET < 0)) {
+                                continue;  // skip invalid compositions
+                            }
+
+                            int LENGTH = Util::generateRaw(buffer,
+                                                           DATETIMETZ,
+                                                           C);
+                            bsl::string str(buffer, LENGTH);
+                            u::removeCharFromString(&str, '-', 2);
+                            u::removeCharFromString(&str, ':', removeColons);
+                            LENGTH = static_cast<int>(str.length());
+
+                            if (veryVerbose) {
+                                T_ T_ P(str)
+                            }
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            // parseRelaxed() on the same string
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     LENGTH,
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(str),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     str.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            // parseRelaxed() on the string modified to have
+                            // SPACE instead of 'T'
+                            const bsl::string relaxed =
+                                        replaceTWithSpace(str.c_str(), LENGTH);
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.data(),
+                                                     relaxed.length(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.data(),
+                                                     relaxed.length(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.data(),
+                                                     relaxed.length(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(relaxed),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(relaxed),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrView(relaxed),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     relaxed.c_str(),
+                                                     u::RELAXED_BASIC));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+                        }
+//@bdetdsplit CODE SLICING END
+                    }  // loop over 'CNFG_DATA'
+                }  // loop over 'ZONE_DATA'
+            }  // loop over 'TIME_DATA'
+        }  // loop over 'DATE_DATA'
+
+//@bdetdsplit CODE SLICING BREAK
+        {
+            // verify 't' and 'z' are accepted
+
+            const bdlt::DatetimeTz EXPECTED(bdlt::Datetime(1, 2, 3, 1, 2, 3),
+                                            0);
+
+            bsl::string str = "0001-02-03t01:02:03z";
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERT(0 == Util::parse(&mX, str.c_str(), str.length()));
+            ASSERTV( X.is<bdlt::DatetimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERT(0 == Util::parse(&mX, StrView(str)));
+            ASSERTV( X.is<bdlt::DatetimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
+
+            str = "00010203t010203z";
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERT(0 == Util::parse(&mX,
+                                    str.c_str(),
+                                    str.length(),
+                                    u::BASIC));
+            ASSERTV( X.is<bdlt::DatetimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERT(0 == Util::parse(&mX,
+                                    StrView(str),
+                                    u::BASIC));
+            ASSERTV( X.is<bdlt::DatetimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
+        }
+
+        if (verbose) cout << "\nInvalid strings." << endl;
+        {
+            const int              NUM_DATE_DATA =         NUM_BAD_DATE_DATA;
+            const BadDateDataRow (&DATE_DATA)[NUM_DATE_DATA] = BAD_DATE_DATA;
+
+            for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+                const int LINE = DATE_DATA[ti].d_line;
+
+                bsl::string bad(DATE_DATA[ti].d_invalid);
+
+                // Append a valid time.
+
+                bad.append("T12:26:52.726");
+
+                const char      *STRING = bad.c_str();
+                const ptrdiff_t  LENGTH = bad.length();
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(bad)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(bad)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(bad)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
+                                                            &mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
+                                                            &mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
+                                                            &mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+
+            const int              NUM_TIME_DATA =         NUM_BAD_TIME_DATA;
+            const BadTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] = BAD_TIME_DATA;
+
+            for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
+                const int LINE = TIME_DATA[tj].d_line;
+
+                // Initialize with a *valid* date string, then append an
+                // invalid time.
+
+                bsl::string bad("2010-08-17");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                if (0 == tj) {
+                    const char      *STRING = bad.data();
+                    const ptrdiff_t  LENGTH = bad.length();
+
+                    bdlt::Date mD(DD);  const bdlt::Date& D = mD;
+
+                    ASSERT( 0 == Util::parse(&mD, STRING, LENGTH));
+                    ASSERT(DD != D);
+
+                    mD = DD;
+
+                    ASSERT( 0 == Util::parse(&mD, StrView(bad)));
+                    ASSERT(DD != D);
+                }
+
+                bad.append("T");
+                bad.append(TIME_DATA[tj].d_invalid);
+
+                const char      *STRING = bad.c_str();
+                const ptrdiff_t  LENGTH = bad.length();
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(bad)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(bad)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(bad)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX,
+                                                relaxed.data(),
+                                                relaxed.length()));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX,
+                                                relaxed.data(),
+                                                relaxed.length()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX,
+                                                relaxed.data(),
+                                                relaxed.length()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+
+            const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
+            const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
+
+            for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
+                const int LINE = ZONE_DATA[tk].d_line;
+
+                // Initialize with a *valid* datetime string, then append an
+                // invalid zone designator.
+
+                bsl::string bad("2010-08-17T12:26:52.726");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                if (0 == tk) {
+                    const char      *STRING = bad.data();
+                    const ptrdiff_t  LENGTH = bad.length();
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, STRING, LENGTH));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, StrView(bad)));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, bad.c_str()));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    // parseRelaxed() on the same string
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parseRelaxed(&mX, STRING, LENGTH));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parseRelaxed(&mX,
+                                                    StrView(STRING, LENGTH)));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    // parseRelaxed() on the string modified to have SPACE
+                    // instead of 'T'
+                    const bsl::string relaxed =
+                                             replaceTWithSpace(STRING, LENGTH);
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parseRelaxed(&mX,
+                                                    relaxed.data(),
+                                                    relaxed.length()));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parseRelaxed(&mX, StrView(relaxed)));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+                }
+
+                // If 'ZONE_DATA[tk].d_invalid' contains nothing but digits,
+                // appending it to 'bad' simply extends the fractional second
+                // (so 'bad' remains valid).
+
+                if (containsOnlyDigits(ZONE_DATA[tk].d_invalid)) {
+                    continue;
+                }
+
+                bad.append(ZONE_DATA[tk].d_invalid);
+
+                const char      *STRING = bad.c_str();
+                const ptrdiff_t  LENGTH = bad.length();
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(&mX,
+                                                              STRING,
+                                                              LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX,
+                                                relaxed.data(),
+                                                relaxed.length()));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX,
+                                                relaxed.data(),
+                                                relaxed.length()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX,
+                                                relaxed.data(),
+                                                relaxed.length()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parseRelaxed(&mX, StrView(relaxed)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+        }
+
+//@bdetdsplit CODE SLICING BREAK
+        if (verbose) cout << "\nInvalid strings - basic." << endl;
+        {
+            const int             NUM_DATE_DATA = NUM_BASIC_BAD_DATE_DATA;
+            const BadDateDataRow *DATE_DATA     = BASIC_BAD_DATE_DATA;
+
+            for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+                const int LINE = DATE_DATA[ti].d_line;
+
+                bsl::string bad(DATE_DATA[ti].d_invalid);
+
+                // Append a valid time.
+
+                bad.append("T122652.726");
+
+                const char      *STRING = bad.c_str();
+                const ptrdiff_t  LENGTH = bad.length();
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX,
+                                                       STRING,
+                                                       LENGTH,
+                                                       u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX,
+                                                       STRING,
+                                                       LENGTH,
+                                                       u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX,
+                                                       STRING,
+                                                       LENGTH,
+                                                       u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+
+            const int             NUM_TIME_DATA = NUM_BASIC_BAD_TIME_DATA;
+            const BadTimeDataRow *TIME_DATA     = BASIC_BAD_TIME_DATA;
+
+            for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
+                const int LINE = TIME_DATA[tj].d_line;
+
+                // Initialize with a *valid* date string, then append an
+                // invalid time.
+
+                bsl::string bad("20100817");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                if (0 == tj) {
+                    const char      *STRING = bad.data();
+                    const ptrdiff_t  LENGTH = bad.length();
+
+                    bdlt::Date mD(DD);  const bdlt::Date& D = mD;
+
+                    ASSERT( 0 == Util::parse(&mD,
+                                             STRING,
+                                             LENGTH,
+                                             u::BASIC));
+                    ASSERT(DD != D);
+
+                    mD = DD;
+
+                    ASSERT( 0 == Util::parse(&mD,
+                                             StrView(STRING, LENGTH),
+                                             u::BASIC));
+                    ASSERT(DD != D);
+                    mD = DD;
+
+                    ASSERT( 0 == Util::parse(&mD,
+                                             bad.c_str(),
+                                             u::BASIC));
+                    ASSERT(DD != D);
+                }
+
+                bad.append("T");
+                bad.append(TIME_DATA[tj].d_invalid);
+
+                const char      *STRING = bad.c_str();
+                const ptrdiff_t  LENGTH = bad.length();
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+
+            const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
+            const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
+
+            for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
+                const int LINE = ZONE_DATA[tk].d_line;
+
+                // Initialize with a *valid* datetime string, then append an
+                // invalid zone designator.
+
+                bsl::string bad("20100817T122652.726");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                if (0 == tk) {
+                    const char      *STRING = bad.data();
+                    const ptrdiff_t  LENGTH = bad.length();
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             STRING,
+                                             LENGTH,
+                                             u::RELAXED_BASIC));
+
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             StrView(bad),
+                                             u::RELAXED_BASIC));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             bad.c_str(),
+                                             u::RELAXED_BASIC));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    // parseRelaxed() on the same string
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             STRING,
+                                             LENGTH,
+                                             u::RELAXED_BASIC));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             StrView(bad),
+                                             u::RELAXED_BASIC));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             bad.c_str(),
+                                             u::RELAXED_BASIC));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    // parseRelaxed() on the string modified to have SPACE
+                    // instead of 'T'
+                    const bsl::string relaxed =
+                                             replaceTWithSpace(STRING, LENGTH);
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             relaxed.data(),
+                                             relaxed.length(),
+                                             u::RELAXED_BASIC));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             StrView(relaxed),
+                                             u::RELAXED_BASIC));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             relaxed.c_str(),
+                                             u::RELAXED_BASIC));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+                }
+
+                // If 'ZONE_DATA[tk].d_invalid' contains nothing but digits,
+                // appending it to 'bad' simply extends the fractional second
+                // (so 'bad' remains valid).
+
+                if (containsOnlyDigits(ZONE_DATA[tk].d_invalid)) {
+                    continue;
+                }
+
+                bsl::string zone(ZONE_DATA[tk].d_invalid);
+                u::removeCharFromString(&zone, ':', 1);
+                bad += zone;
+
+                const char      *STRING = bad.c_str();
+                const ptrdiff_t  LENGTH = bad.length();
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(bad),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+        }
+
+        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
+                          << endl;
+        {
+            const struct {
+                int         d_line;           // source line number
+
+                const char *d_input;          // input
+
+                int         d_year;           // year under test
+
+                int         d_month;          // month under test
+
+                int         d_day;            // day under test
+
+                int         d_hour;           // hour under test
+
+                int         d_min;            // minutes under test
+
+                int         d_sec;            // seconds under test
+
+                int         d_msec;           // milli seconds under test
+
+                int         d_usec;           // micro seconds under test
+
+                int         d_offset;         // UTC offset
+
+                bool        d_isDatetimeTz;   // flag indicating whether the
+                                              // result object is expected to
+                                              // contain 'DatetimeTz' or
+                                              // 'Datetime' object
+
+            } DATA[] = {
+                // leap seconds
+                { L_, "0001-01-01T00:00:60.000",
+                              0001, 01, 01, 00, 01, 00, 000, 000,   0, false },
+                { L_, "9998-12-31T23:59:60.999",
+                              9999, 01, 01, 00, 00, 00, 999, 000,   0, false },
+
+                // fractional seconds
+                { L_, "0001-01-01T00:00:00.0000001",
+                              0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
+                { L_, "0001-01-01T00:00:00.0000009",
+                              0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
+                { L_, "0001-01-01T00:00:00.00000001",
+                              0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
+                { L_, "0001-01-01T00:00:00.00000049",
+                              0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
+                { L_, "0001-01-01T00:00:00.00000050",
+                              0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
+                { L_, "0001-01-01T00:00:00.00000099",
+                              0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
+                { L_, "0001-01-01T00:00:00.0001",
+                              0001, 01, 01, 00, 00, 00, 000, 100,   0, false },
+                { L_, "0001-01-01T00:00:00.0009",
+                              0001, 01, 01, 00, 00, 00, 000, 900,   0, false },
+                { L_, "0001-01-01T00:00:00.00001",
+                              0001, 01, 01, 00, 00, 00, 000,  10,   0, false },
+                { L_, "0001-01-01T00:00:00.00049",
+                              0001, 01, 01, 00, 00, 00, 000, 490,   0, false },
+                { L_, "0001-01-01T00:00:00.00050",
+                              0001, 01, 01, 00, 00, 00, 000, 500,   0, false },
+                { L_, "0001-01-01T00:00:00.00099",
+                              0001, 01, 01, 00, 00, 00, 000, 990,   0, false },
+                { L_, "0001-01-01T00:00:00.9994" ,
+                              0001, 01, 01, 00, 00, 00, 999, 400,   0, false },
+                { L_, "0001-01-01T00:00:00.9995" ,
+                              0001, 01, 01, 00, 00, 00, 999, 500,   0, false },
+                { L_, "0001-01-01T00:00:00.9999" ,
+                              0001, 01, 01, 00, 00, 00, 999, 900,   0, false },
+                { L_, "9998-12-31T23:59:60.9999" ,
+                              9999, 01, 01, 00, 00, 00, 999, 900,   0, false },
+                { L_, "0001-01-01T00:00:00.9999994" ,
+                              0001, 01, 01, 00, 00, 00, 999, 999,   0, false },
+                { L_, "0001-01-01T00:00:00.9999995" ,
+                              0001, 01, 01, 00, 00, 01, 000, 000,   0, false },
+                { L_, "0001-01-01T00:00:00.9999999" ,
+                              0001, 01, 01, 00, 00, 01, 000, 000,   0, false },
+                { L_, "9998-12-31T23:59:60.9999999" ,
+                              9999, 01, 01, 00, 00, 01, 000, 000,   0, false },
+
+                // omit fractional seconds
+                { L_, "2014-12-23T12:34:45",
+                              2014, 12, 23, 12, 34, 45, 000, 000,   0, false },
+                { L_, "2014-12-23T12:34:45Z",
+                              2014, 12, 23, 12, 34, 45, 000, 000,   0,  true },
+                { L_, "2014-12-23T12:34:45+00:30",
+                              2014, 12, 23, 12, 34, 45, 000, 000,  30,  true },
+                { L_, "2014-12-23T12:34:45-01:30",
+                              2014, 12, 23, 12, 34, 45, 000, 000, -90,  true },
+
+                { L_, "2014-12-23T12:34:45.9999994Z",
+                              2014, 12, 23, 12, 34, 45, 999, 999,   0,  true },
+                { L_, "2014-12-23T12:34:45.9999994+00:30",
+                              2014, 12, 23, 12, 34, 45, 999, 999,  30,  true },
+                { L_, "2014-12-23T12:34:45.9999994-01:30",
+                              2014, 12, 23, 12, 34, 45, 999, 999, -90,  true },
+                { L_, "2014-12-23T12:34:45.9999995Z",
+                              2014, 12, 23, 12, 34, 46, 000, 000,   0,  true },
+                { L_, "2014-12-23T12:34:45.9999995+00:30",
+                              2014, 12, 23, 12, 34, 46, 000, 000,  30,  true },
+                { L_, "2014-12-23T12:34:45.9999995-01:30",
+                              2014, 12, 23, 12, 34, 46, 000, 000, -90,  true },
+                { L_, "0001-01-01T00:00:00.9999999Z",
+                              0001, 01, 01, 00, 00, 01, 000, 000,   0,  true },
+                { L_, "0001-01-01T00:00:00.9999999+00:30",
+                              0001, 01, 01, 00, 00, 01, 000, 000,  30,  true },
+                { L_, "0001-01-01T00:00:00.9999999-01:30",
+                              0001, 01, 01, 00, 00, 01, 000, 000, -90,  true },
+                { L_, "2014-12-23T12:34:60.9999994+00:30",
+                              2014, 12, 23, 12, 35, 00, 999, 999,  30,  true },
+                { L_, "2014-12-23T12:34:60.9999994-01:30",
+                              2014, 12, 23, 12, 35, 00, 999, 999, -90,  true },
+                { L_, "9998-12-31T23:59:60.9999999+00:30",
+                              9999, 01, 01, 00, 00, 01, 000, 000,  30,  true },
+                { L_, "9998-12-31T23:59:60.9999999-01:30",
+                              9999, 01, 01, 00, 00, 01, 000, 000, -90,  true },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE          = DATA[ti].d_line;
+                const char *INPUT         = DATA[ti].d_input;
+                const int   LENGTH        =
+                                          static_cast<int>(bsl::strlen(INPUT));
+                const int   YEAR          = DATA[ti].d_year;
+                const int   MONTH         = DATA[ti].d_month;
+                const int   DAY           = DATA[ti].d_day;
+                const int   HOUR          = DATA[ti].d_hour;
+                const int   MIN           = DATA[ti].d_min;
+                const int   SEC           = DATA[ti].d_sec;
+                const int   MSEC          = DATA[ti].d_msec;
+                const int   USEC          = DATA[ti].d_usec;
+                const int   OFFSET        = DATA[ti].d_offset;
+                const bool  IS_DATETIMETZ = DATA[ti].d_isDatetimeTz;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                bdlt::Datetime   EXPECTED_DT(YEAR,
+                                             MONTH,
+                                             DAY,
+                                             HOUR,
+                                             MIN,
+                                             SEC,
+                                             MSEC,
+                                             USEC);
+                bdlt::DatetimeTz EXPECTED_DTTZ(EXPECTED_DT, OFFSET);
+
+                bsl::string str(INPUT, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, INPUT, LENGTH));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, str.c_str()));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parseRelaxed(&mX, INPUT, LENGTH));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parseRelaxed(&mX, StrView(INPUT, LENGTH)));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(INPUT, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parseRelaxed(&mX,
+                                                relaxed.data(),
+                                                relaxed.length()));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parseRelaxed(&mX, StrView(relaxed)));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+            }
+
+            // basic
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE          = DATA[ti].d_line;
+                const char *INPUT         = DATA[ti].d_input;
+                const int   YEAR          = DATA[ti].d_year;
+                const int   MONTH         = DATA[ti].d_month;
+                const int   DAY           = DATA[ti].d_day;
+                const int   HOUR          = DATA[ti].d_hour;
+                const int   MIN           = DATA[ti].d_min;
+                const int   SEC           = DATA[ti].d_sec;
+                const int   MSEC          = DATA[ti].d_msec;
+                const int   USEC          = DATA[ti].d_usec;
+                const int   OFFSET        = DATA[ti].d_offset;
+                const bool  IS_DATETIMETZ = DATA[ti].d_isDatetimeTz;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                bsl::string str(INPUT);
+                u::removeCharFromString(&str, '-', 2);
+                u::removeCharFromString(&str, ':');
+
+                INPUT            = str.c_str();
+                const int LENGTH = static_cast<int>(str.length());
+
+
+                bdlt::Datetime   EXPECTED_DT(YEAR,
+                                             MONTH,
+                                             DAY,
+                                             HOUR,
+                                             MIN,
+                                             SEC,
+                                             MSEC,
+                                             USEC);
+                bdlt::DatetimeTz EXPECTED_DTTZ(EXPECTED_DT, OFFSET);
+
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         INPUT,
+                                         LENGTH,
+                                         u::BASIC));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         StrView(INPUT, LENGTH),
+                                         u::BASIC));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         str.c_str(),
+                                         u::BASIC));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         INPUT,
+                                         LENGTH,
+                                         u::RELAXED_BASIC));
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         StrView(INPUT, LENGTH),
+                                         u::RELAXED_BASIC));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         str.c_str(),
+                                         u::RELAXED_BASIC));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(INPUT, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         relaxed.data(),
+                                         relaxed.length(),
+                                         u::RELAXED_BASIC));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         StrView(relaxed),
+                                         u::RELAXED_BASIC));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         relaxed.c_str(),
+                                         u::RELAXED_BASIC));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+            }
+        }
+
+        if (verbose)
+            cout << "\nTesting zone designators that overflow a 'Datetime'."
+                 << endl;
+        {
+            struct {
+                int         d_line;
+                const char *d_input;
+                int         d_year;
+                int         d_month;
+                int         d_day;
+                int         d_hour;
+                int         d_min;
+                int         d_sec;
+                int         d_msec;
+                int         d_offset;
+            } DATA[] = {
+                { L_, "0001-01-01T00:00:00.000+00:00",
+                                        0001, 01, 01, 00, 00, 00, 000,     0 },
+                { L_, "0001-01-01T00:00:00.000+00:01",
+                                        0001, 01, 01, 00, 00, 00, 000,     1 },
+                { L_, "0001-01-01T23:58:59.000+23:59",
+                                        0001, 01, 01, 23, 58, 59, 000,  1439 },
+
+                { L_, "9999-12-31T23:59:59.999+00:00",
+                                        9999, 12, 31, 23, 59, 59, 999,     0 },
+                { L_, "9999-12-31T23:59:59.999-00:01",
+                                        9999, 12, 31, 23, 59, 59, 999,    -1 },
+                { L_, "9999-12-31T00:01:00.000-23:59",
+                                        9999, 12, 31, 00, 01, 00, 000, -1439 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE   = DATA[ti].d_line;
+                const char *INPUT  = DATA[ti].d_input;
+                const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+                const int   YEAR   = DATA[ti].d_year;
+                const int   MONTH  = DATA[ti].d_month;
+                const int   DAY    = DATA[ti].d_day;
+                const int   HOUR   = DATA[ti].d_hour;
+                const int   MIN    = DATA[ti].d_min;
+                const int   SEC    = DATA[ti].d_sec;
+                const int   MSEC   = DATA[ti].d_msec;
+                const int   OFFSET = DATA[ti].d_offset;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR, MONTH, DAY,
+                                                         HOUR, MIN, SEC, MSEC),
+                                          OFFSET);
+
+                bsl::string str(INPUT, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(
+                    LINE, INPUT, LENGTH, 0 == Util::parse(&mX, INPUT, LENGTH));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, str.c_str()));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the same string
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(
+                    LINE, INPUT, LENGTH, 0 == Util::parseRelaxed(&mX,
+                                                                 INPUT,
+                                                                 LENGTH));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parseRelaxed(&mX, StrView(INPUT, LENGTH)));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+
+                // parseRelaxed() on the string modified to have SPACE instead
+                // of 'T'
+                const bsl::string relaxed = replaceTWithSpace(INPUT, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH, 0 == Util::parseRelaxed(
+                                                            &mX,
+                                                            relaxed.data(),
+                                                            relaxed.length()));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parseRelaxed(&mX, StrView(relaxed)));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const char    *INPUT   = "2013-10-23T01:23:45";
+            const char    *INPUTB  = "20131023T012345";
+            const int      LENGTH  = static_cast<int>(bsl::strlen(INPUT));
+            const int      LENGTHB = static_cast<int>(bsl::strlen(INPUTB));
+            const StrView  STRING_REF(INPUT, LENGTH);
+            const StrView  STRING_REFB(INPUTB, LENGTHB);
+
+            bdlt::Datetime   result;
+            bdlt::DatetimeTz resultTz;
+
+            if (veryVerbose) cout << "\t'Invalid result'" << endl;
+            {
+                Util::TimeOrTimeTz *NULL_PTR = 0;
+
+                ASSERT_PASS(Util::parse(      &mX, INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse( NULL_PTR, INPUT, LENGTH));
+
+                ASSERT_PASS(Util::parse(     &mX, STRING_REF));
+                ASSERT_FAIL(Util::parse(NULL_PTR, STRING_REF));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid input'" << endl;
+            {
+                const char    *NULL_PTR = 0;
+                const StrView  NULL_REF;
+
+                ASSERT_PASS(Util::parse(&mX,    INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse(&mX, NULL_PTR, LENGTH));
+
+                ASSERT_PASS(Util::parse(&mX, STRING_REF));
+                ASSERT_FAIL(Util::parse(&mX,   NULL_REF));
+
+                ASSERT_PASS(Util::parseRelaxed(&mX,    INPUT, LENGTH));
+                ASSERT_FAIL(Util::parseRelaxed(&mX, NULL_PTR, LENGTH));
+
+                ASSERT_PASS(Util::parseRelaxed(&mX, STRING_REF));
+                ASSERT_FAIL(Util::parseRelaxed(&mX,   NULL_REF));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid length'" << endl;
+            {
+                ASSERT_PASS(Util::parse(&mX, INPUT, LENGTH));
+                ASSERT_PASS(Util::parse(&mX, INPUT,      0));
+                ASSERT_FAIL(Util::parse(&mX, INPUT,     -1));
+
+                ASSERT_PASS(Util::parseRelaxed(&mX, INPUT, LENGTH));
+                ASSERT_PASS(Util::parseRelaxed(&mX, INPUT,      0));
+                ASSERT_FAIL(Util::parseRelaxed(&mX, INPUT,     -1));
+            }
+        }
+//@bdetdsplit CODE SLICING END
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -7425,11 +5922,1360 @@ if (veryVerbose) {
         //   int parse(TimeOrTimeTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        testCase16(verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
-#else
-        U_TEST_CASE_SKIPPED
-#endif
+        if (verbose) cout << "PARSE 'TimeOrTimeTz'\n"
+                             "====================\n";
+
+        Util::TimeOrTimeTz        mX;
+        const Util::TimeOrTimeTz& X = mX;
+
+        char buffer[Util::k_MAX_STRLEN];
+
+        const bdlt::Time   XX(2, 4, 6, 8);  // 'XX' and 'ZZ' are controls,
+        const bdlt::TimeTz ZZ(XX, -7);      // distinct from any test data
+
+        const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
+        const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
+                                                             DEFAULT_TIME_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+
+        for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
+            const int ILINE = TIME_DATA[ti].d_line;
+            const int HOUR  = TIME_DATA[ti].d_hour;
+            const int MIN   = TIME_DATA[ti].d_min;
+            const int SEC   = TIME_DATA[ti].d_sec;
+            const int MSEC  = TIME_DATA[ti].d_msec;
+            const int USEC  = TIME_DATA[ti].d_usec;
+
+            for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
+                const int JLINE  = ZONE_DATA[tj].d_line;
+                const int OFFSET = ZONE_DATA[tj].d_offset;
+
+                if (   bdlt::Time(HOUR, MIN, SEC, MSEC, USEC) == bdlt::Time()
+                    && OFFSET != 0) {
+                    continue;  // skip invalid compositions
+                }
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    int expMsec = MSEC;
+                    int expUsec = USEC;
+                    {
+                        // adjust the expected milliseconds to account for
+                        // PRECISION truncating the value generated
+
+                        int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec /= 10;
+                        }
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec *= 10;
+                        }
+
+                        // adjust the expected microseconds to account for
+                        // PRECISION truncating the value generated
+
+                        precision = (PRECISION > 3 ? PRECISION - 3: 0);
+
+                        for (int i = 3; i > precision; --i) {
+                            expUsec /= 10;
+                        }
+
+                        for (int i = 3; i > precision; --i) {
+                            expUsec *= 10;
+                        }
+                    }
+
+                    const bdlt::Time TIME(HOUR, MIN, SEC, expMsec, expUsec);
+
+                    const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
+                    if (veryVerbose) {
+                        if (0 == tc) {
+                            T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ);
+                        }
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                          P_(USECOMMA) P(USEZ);
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                    // without zone designator in parsed string
+                    {
+                        const int LENGTH = Util::generateRaw(buffer, TIME, C);
+
+                        bsl::string str(buffer, LENGTH);
+
+                        if (veryVerbose) {
+                            T_ T_ P(str)
+                        }
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(str)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, str.c_str()));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, str.c_str()));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, str.c_str()));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+                    }
+
+                    // without zone designator in parsed string - basic
+                    {
+                        int LENGTH = Util::generateRaw(buffer, TIME, C);
+                        bsl::string str(buffer, LENGTH);
+                        u::removeCharFromString(&str, ':');
+                        LENGTH = static_cast<int>(str.length());
+
+                        if (veryVerbose) {
+                            T_ T_ P(str)
+                        }
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 LENGTH,
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 LENGTH,
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 LENGTH,
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 StrView(str),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 StrView(str),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 StrView(str),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+                    }
+
+                    // with zone designator in parsed string
+                    {
+                        const int LENGTH = Util::generateRaw(buffer,
+                                                             TIMETZ,
+                                                             C);
+                        bsl::string str(buffer, LENGTH);
+
+                        if (veryVerbose) {
+                            T_ T_ P(str)
+                        }
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, str.c_str()));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, str.c_str()));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, str.c_str()));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+                    }
+
+                    // with zone designator in parsed string
+
+                    for (int remove = 2; remove <= 3; ++remove) {
+                        int LENGTH = Util::generateRaw(buffer,
+                                                       TIMETZ,
+                                                       C);
+                        bsl::string str(buffer, LENGTH);
+                        u::removeCharFromString(&str, ':', remove);
+                        LENGTH = static_cast<int>(str.length());
+
+                        if (veryVerbose) {
+                            T_ T_ P(str)
+                        }
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 LENGTH,
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 LENGTH,
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 LENGTH,
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 StrView(str),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 StrView(str),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 StrView(str),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX,
+                                                 str.c_str(),
+                                                 u::BASIC));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+                    }
+                }  // loop over 'CNFG_DATA'
+            }  // loop over 'ZONE_DATA'
+        }  // loop over 'TIME_DATA'
+
+        {
+            // verify 'z' is accepted
+            const bdlt::TimeTz EXPECTED(bdlt::Time(1,2,3) , 0);
+
+            bsl::string str = "01:02:03z";
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERTV(0 == Util::parse(&mX, str.c_str(), str.length()));
+            ASSERTV( X.is<bdlt::TimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERTV(0 == Util::parse(&mX, str.c_str()));
+            ASSERTV( X.is<bdlt::TimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX = XX;
+
+            ASSERTV(X.is<bdlt::Time>());
+            ASSERTV(XX == X.the<bdlt::Time>());
+
+            ASSERTV(0 == Util::parse(&mX, str.c_str(), str.length()));
+            ASSERTV(X.is<bdlt::TimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX = XX;
+
+            ASSERTV(X.is<bdlt::Time>());
+            ASSERTV(XX == X.the<bdlt::Time>());
+
+            ASSERTV(0 == Util::parse(&mX, str.c_str()));
+            ASSERTV(X.is<bdlt::TimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX = ZZ;
+
+            ASSERT(X.is<bdlt::TimeTz>());
+            ASSERT(ZZ == X.the<bdlt::TimeTz>());
+
+            ASSERTV(0 == Util::parse(&mX, str.c_str(), str.length()));
+            ASSERT(X.is<bdlt::TimeTz>());
+            ASSERT(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX = ZZ;
+
+            ASSERT(X.is<bdlt::TimeTz>());
+            ASSERT(ZZ == X.the<bdlt::TimeTz>());
+
+            ASSERTV(0 == Util::parse(&mX, str.c_str()));
+            ASSERT(X.is<bdlt::TimeTz>());
+            ASSERT(EXPECTED == X.the<bdlt::TimeTz>());
+
+            // basic
+
+            str = "010203z";
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERTV(0 == Util::parse(&mX,
+                                     str.c_str(),
+                                     u::BASIC));
+            ASSERTV( X.is<bdlt::TimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX = XX;
+
+            ASSERTV(X.is<bdlt::Time>());
+            ASSERTV(XX == X.the<bdlt::Time>());
+
+            ASSERTV(0 == Util::parse(&mX,
+                                     str.c_str(),
+                                     u::BASIC));
+            ASSERTV(X.is<bdlt::TimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX = ZZ;
+
+            ASSERT(X.is<bdlt::TimeTz>());
+            ASSERT(ZZ == X.the<bdlt::TimeTz>());
+
+            ASSERTV(0 == Util::parse(&mX,
+                                     str.c_str(),
+                                     u::BASIC));
+            ASSERT(X.is<bdlt::TimeTz>());
+            ASSERT(EXPECTED == X.the<bdlt::TimeTz>());
+        }
+
+        if (verbose) cout << "\nInvalid strings." << endl;
+        {
+            const int             NUM_TIME_DATA = NUM_BASIC_BAD_TIME_DATA;
+            const BadTimeDataRow *TIME_DATA     = BASIC_BAD_TIME_DATA;
+
+            for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
+                const int   LINE   = TIME_DATA[ti].d_line;
+                const char *STRING = TIME_DATA[ti].d_invalid;
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                const ptrdiff_t LENGTH = bsl::strlen(STRING);
+
+                bsl::string bad(STRING, LENGTH);
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+            }
+
+            const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
+            const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
+
+            for (int ti = 0; ti < NUM_ZONE_DATA; ++ti) {
+                const int LINE = ZONE_DATA[ti].d_line;
+
+                // Initialize with a *valid* time string, then append an
+                // invalid zone designator.
+
+                bsl::string bad("12:26:52.726");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                static bool firstTime = true;
+                if (firstTime) {
+                    firstTime = false;
+
+                    const char *STRING = bad.data();
+                    ptrdiff_t   LENGTH = bad.length();
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, STRING, LENGTH));
+                    ASSERT(mX.is<bdlt::Time>());
+                    ASSERT(XX != mX.the<bdlt::Time>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, StrView(STRING, LENGTH)));
+                    ASSERT(mX.is<bdlt::Time>());
+                    ASSERT(XX != mX.the<bdlt::Time>());
+                }
+
+                // If 'ZONE_DATA[ti].d_invalid' contains nothing but digits,
+                // appending it to 'bad' simply extends the fractional second
+                // (so 'bad' remains valid).
+
+                if (containsOnlyDigits(ZONE_DATA[ti].d_invalid)) {
+                    continue;
+                }
+
+                bad.append(ZONE_DATA[ti].d_invalid);
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, bad.c_str()));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+            }
+
+            // again -- basic
+
+            for (int ti = 0; ti < 2 * NUM_ZONE_DATA; ++ti) {
+                const int zi     = ti % NUM_ZONE_DATA;
+                const int remove = ti / NUM_ZONE_DATA;
+                const int LINE   = ZONE_DATA[zi].d_line;
+                const char *ZONE = ZONE_DATA[zi].d_invalid;
+
+                // Initialize with a *valid* time string, then append an
+                // invalid zone designator.
+
+                bsl::string bad("122652.726");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                static bool firstTime = true;
+                if (firstTime) {
+                    firstTime = false;
+
+                    const char *STRING = bad.data();
+                    int         LENGTH = static_cast<int>(bad.length());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             STRING,
+                                             LENGTH,
+                                             u::BASIC));
+                    ASSERT(mX.is<bdlt::Time>());
+                    ASSERT(XX != mX.the<bdlt::Time>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             StrView(bad),
+                                             u::BASIC));
+                    ASSERT(mX.is<bdlt::Time>());
+                    ASSERT(XX != mX.the<bdlt::Time>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX,
+                                             bad.c_str(),
+                                             u::BASIC));
+                    ASSERT(mX.is<bdlt::Time>());
+                    ASSERT(XX != mX.the<bdlt::Time>());
+                }
+
+                // If 'ZONE_DATA[ti].d_invalid' contains nothing but digits,
+                // appending it to 'bad' simply extends the fractional second
+                // (so 'bad' remains valid).
+
+                if (containsOnlyDigits(ZONE)) {
+                    continue;
+                }
+
+                bad.append(ZONE);
+                u::removeCharFromString(&bad, ':', remove);
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         STRING,
+                                         LENGTH,
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         StrView(STRING, LENGTH),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX,
+                                         bad.c_str(),
+                                         u::BASIC));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+            }
+        }
+
+        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
+                          << endl;
+        {
+            const struct {
+                int         d_line;      // source line number
+
+                const char *d_input;     // input
+
+                int         d_hour;      // hour under test
+
+                int         d_min;       // minutes under test
+
+                int         d_sec;       // seconds under test
+
+                int         d_msec;      // milli seconds under test
+
+                int         d_usec;      // micro seconds under test
+
+                int         d_offset;    // UTC offset
+
+                bool        d_isTimeTz;  // flag indicating whether the result
+                                         // object is expected to contain
+                                         // 'TimeTz' or 'Time'  object
+            } DATA[] = {
+            // leap seconds
+            //LINE INPUT                    H   M   S   MS   US   OFF  DATETZ
+            //---- ------------------------ --  --  --  ---  ---  ---  ------
+            { L_,  "00:00:60.000",          00, 01, 00, 000, 000,   0, false },
+            { L_,  "22:59:60.999",          23, 00, 00, 999, 000,   0, false },
+            { L_,  "23:59:60.999",          00, 00, 00, 999, 000,   0, false },
+
+            // fractional seconds
+            { L_,  "00:00:00.0001",         00, 00, 00, 000, 100,   0, false },
+            { L_,  "00:00:00.0009",         00, 00, 00, 000, 900,   0, false },
+            { L_,  "00:00:00.00001",        00, 00, 00, 000,  10,   0, false },
+            { L_,  "00:00:00.00049",        00, 00, 00, 000, 490,   0, false },
+            { L_,  "00:00:00.00050",        00, 00, 00, 000, 500,   0, false },
+            { L_,  "00:00:00.00099",        00, 00, 00, 000, 990,   0, false },
+            { L_,  "00:00:00.0000001",      00, 00, 00, 000, 000,   0, false },
+            { L_,  "00:00:00.0000009",      00, 00, 00, 000, 001,   0, false },
+            { L_,  "00:00:00.00000001",     00, 00, 00, 000, 000,   0, false },
+            { L_,  "00:00:00.00000049",     00, 00, 00, 000, 000,   0, false },
+            { L_,  "00:00:00.00000050",     00, 00, 00, 000, 001,   0, false },
+            { L_,  "00:00:00.00000099",     00, 00, 00, 000, 001,   0, false },
+            { L_,  "00:00:00.9994",         00, 00, 00, 999, 400,   0, false },
+            { L_,  "00:00:00.9995",         00, 00, 00, 999, 500,   0, false },
+            { L_,  "00:00:00.9999",         00, 00, 00, 999, 900,   0, false },
+            { L_,  "00:00:59.9999",         00, 00, 59, 999, 900,   0, false },
+            { L_,  "23:59:59.9999",         23, 59, 59, 999, 900,   0, false },
+            { L_,  "00:00:00.9999994",      00, 00, 00, 999, 999,   0, false },
+            { L_,  "00:00:00.9999995",      00, 00,  1, 000, 000,   0, false },
+            { L_,  "00:00:00.9999999",      00, 00,  1, 000, 000,   0, false },
+            { L_,  "00:00:59.9999999",      00,  1, 00, 000, 000,   0, false },
+            { L_,  "23:59:59.9999999",      00, 00, 00, 000, 000,   0, false },
+
+            // omit fractional seconds
+            { L_,  "12:34:45",              12, 34, 45, 000, 000,   0, false },
+            { L_,  "12:34:45Z",             12, 34, 45, 000, 000,   0,  true },
+            { L_,  "12:34:45+00:30",        12, 34, 45, 000, 000,  30,  true },
+            { L_,  "00:00:00+00:30",        00, 00, 00, 000, 000,  30,  true },
+            { L_,  "12:34:45-01:30",        12, 34, 45, 000, 000, -90,  true },
+            { L_,  "23:59:59-01:30",        23, 59, 59, 000, 000, -90,  true },
+
+            { L_, "12:34:45.9999994Z",      12, 34, 45, 999, 999,   0,  true },
+            { L_, "12:34:45.9999994+00:30", 12, 34, 45, 999, 999,  30,  true },
+            { L_, "12:34:45.9999994-01:30", 12, 34, 45, 999, 999, -90,  true },
+            { L_, "12:34:45.9999995Z",      12, 34, 46, 000, 000,   0,  true },
+            { L_, "12:34:45.9999995+00:30", 12, 34, 46, 000, 000,  30,  true },
+            { L_, "12:34:45.9999995-01:30", 12, 34, 46, 000, 000, -90,  true },
+            { L_, "00:00:00.9999999Z",      00, 00, 01, 000, 000,   0,  true },
+            { L_, "00:00:00.9999999+00:30", 00, 00, 01, 000, 000,  30,  true },
+            { L_, "00:00:00.9999999-01:30", 00, 00, 01, 000, 000, -90,  true },
+            { L_, "12:34:60.9999994+00:30", 12, 35, 00, 999, 999,  30,  true },
+            { L_, "12:34:60.9999994-01:30", 12, 35, 00, 999, 999, -90,  true },
+            { L_, "23:59:60.9999999+00:30", 00, 00, 01, 000, 000,  30,  true },
+            { L_, "23:59:60.9999999-01:30", 00, 00, 01, 000, 000, -90,  true },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int tti = 0; tti < 2 * NUM_DATA; ++tti) {
+                const int   ti        = tti % NUM_DATA;
+                const int   remove    = tti / NUM_DATA;
+                const int   LINE      = DATA[ti].d_line;
+                const char *INPUT     = DATA[ti].d_input;
+                int         LENGTH    = static_cast<int>(bsl::strlen(INPUT));
+                const int   HOUR      = DATA[ti].d_hour;
+                const int   MIN       = DATA[ti].d_min;
+                const int   SEC       = DATA[ti].d_sec;
+                const int   MSEC      = DATA[ti].d_msec;
+                const int   USEC      = DATA[ti].d_usec;
+                const int   OFFSET    = DATA[ti].d_offset;
+                const bool  IS_TIMETZ = DATA[ti].d_isTimeTz;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                const bdlt::Time   EXPECTED_TIME(HOUR, MIN, SEC, MSEC, USEC);
+                const bdlt::TimeTz EXPECTED_TIMETZ(EXPECTED_TIME, OFFSET);
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, INPUT, LENGTH));
+
+                if (IS_TIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIME == X.the<bdlt::Time>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
+
+                if (IS_TIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIME == X.the<bdlt::Time>());
+                }
+
+                // repeat - basic
+
+                bsl::string str(INPUT, LENGTH);
+                u::removeCharFromString(&str, ':', 2 + remove);
+                INPUT = str.c_str();
+                LENGTH = static_cast<int>(str.length());
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         INPUT,
+                                         LENGTH,
+                                         u::BASIC));
+                if (IS_TIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIME == X.the<bdlt::Time>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         StrView(INPUT, LENGTH),
+                                         u::BASIC));
+
+                if (IS_TIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIME == X.the<bdlt::Time>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX,
+                                         str.c_str(),
+                                         u::BASIC));
+
+                if (IS_TIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIME == X.the<bdlt::Time>());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const char    *INPUT   = "01:23:45";
+            const char    *INPUTB  = "012345";
+            const int      LENGTH  = static_cast<int>(bsl::strlen(INPUT));
+            const int      LENGTHB = static_cast<int>(bsl::strlen(INPUTB));
+            const StrView  STRING_REF( INPUT,  LENGTH);
+            const StrView  STRING_REFB(INPUTB, LENGTHB);
+
+            if (veryVerbose) cout << "\t'Invalid result'" << endl;
+            {
+                Util::TimeOrTimeTz *NULL_PTR = 0;
+
+                ASSERT_PASS(Util::parse(     &mX, INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse(NULL_PTR, INPUT, LENGTH));
+
+                ASSERT_PASS(Util::parse(     &mX, STRING_REF));
+                ASSERT_FAIL(Util::parse(NULL_PTR, STRING_REF));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid result' - basic" << endl;
+            {
+                Util::TimeOrTimeTz *NULL_PTR = 0;
+
+                ASSERT_PASS(Util::parse(     &mX, INPUTB, LENGTHB, u::BASIC));
+                ASSERT_FAIL(Util::parse(NULL_PTR, INPUTB, LENGTHB, u::BASIC));
+
+
+                ASSERT_PASS(Util::parse(     &mX, STRING_REFB, u::BASIC));
+                ASSERT_FAIL(Util::parse(NULL_PTR, STRING_REFB, u::BASIC));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid input'" << endl;
+            {
+                const char    *NULL_PTR = 0;
+                const StrView  NULL_REF;
+
+                ASSERT_PASS(Util::parse(&mX,    INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse(&mX, NULL_PTR, LENGTH));
+
+                ASSERT_PASS(Util::parse(&mX, STRING_REF));
+                ASSERT_FAIL(Util::parse(&mX,   NULL_REF));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid input' - basic" << endl;
+            {
+                const char    *NULL_PTR = 0;
+                const StrView  NULL_REF;
+
+                ASSERT_PASS(Util::parse(&mX,   INPUTB, LENGTHB, u::BASIC));
+                ASSERT_FAIL(Util::parse(&mX, NULL_PTR, LENGTHB, u::BASIC));
+
+                ASSERT_PASS(Util::parse(&mX, STRING_REFB, u::BASIC));
+                ASSERT_FAIL(Util::parse(&mX,   NULL_REF,  u::BASIC));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid length'" << endl;
+            {
+                ASSERT_PASS(Util::parse(&mX, INPUT, LENGTH));
+                ASSERT_PASS(Util::parse(&mX, INPUT,      0));
+                ASSERT_FAIL(Util::parse(&mX, INPUT,     -1));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid length' - basic" << endl;
+            {
+                ASSERT_PASS(Util::parse(&mX, INPUTB, LENGTHB, u::BASIC));
+                ASSERT_PASS(Util::parse(&mX, INPUTB,       0, u::BASIC));
+                ASSERT_FAIL(Util::parse(&mX, INPUTB,      -1, u::BASIC));
+            }
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -7493,10 +7339,8 @@ if (veryVerbose) {
         //   int parse(DateOrDateTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        if (verbose) cout << endl
-                          << "PARSE 'DateOrDateTz'" << endl
-                          << "====================" << endl;
+        if (verbose) cout << "PARSE 'DateOrDateTz'\n"
+                             "====================\n";
 
         Util::DateOrDateTz        mX;
         const Util::DateOrDateTz& X = mX;
@@ -8610,9 +8454,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::parse(&mX, INPUTB,      -1, u::BASIC));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -8693,10 +8534,8 @@ if (veryVerbose) {
         //   int generateRaw(char*,const DatetimeOrDatetimeTz&, const Config&);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        if (verbose) cout << endl
-                          << "GENERATE 'DatetimeTz'" << endl
-                          << "=====================" << endl;
+        if (verbose) cout << "GENERATE 'DatetimeTz'\n"
+                             "=====================\n";
 
         typedef Util::DatetimeOrDatetimeTz TYPE;
 
@@ -9198,9 +9037,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -9278,10 +9114,8 @@ if (veryVerbose) {
         //   int generateRaw(char *, const TimeOrTimeTzTz&, const Config&);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        if (verbose) cout << endl
-                          << "GENERATE 'TimeOrTimeTz'" << endl
-                          << "=======================" << endl;
+        if (verbose) cout << "GENERATE 'TimeOrTimeTz'\n"
+                             "=======================\n";
 
         typedef Util::TimeOrTimeTz TYPE;
 
@@ -9709,9 +9543,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -9789,10 +9620,8 @@ if (veryVerbose) {
         //   int generateRaw(char *, const DateOrDateTz&, const Config&);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        if (verbose) cout << endl
-                          << "GENERATE 'DateOrDateTz'" << endl
-                          << "=======================" << endl;
+        if (verbose) cout << "GENERATE 'DateOrDateTz'\n"
+                             "=======================\n";
 
         typedef Util::DateOrDateTz TYPE;
 
@@ -10215,9 +10044,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -10305,10 +10131,8 @@ if (veryVerbose) {
         //   int parseRelaxed(DatetimeTz *, const bsl::string_view&);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_02
-        if (verbose) cout << endl
-                          << "PARSE: DATETIME & DATETIMETZ" << endl
-                          << "============================" << endl;
+        if (verbose) cout << "PARSE: DATETIME & DATETIMETZ\n"
+                             "============================\n";
 
         char buffer[Util::k_MAX_STRLEN];
 
@@ -10333,7 +10157,7 @@ if (veryVerbose) {
         const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
         const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
                                                              DEFAULT_CNFG_DATA;
-
+//@bdetdsplit CODE SLICING BEGIN
         if (verbose) cout << "\nValid ISO 8601 strings." << endl;
 
         for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
@@ -11148,6 +10972,7 @@ if (veryVerbose) {
             }  // loop over 'TIME_DATA'
         }  // loop over 'DATE_DATA'
 
+//@bdetdsplit CODE SLICING BREAK
         {
             // verify 't' and 'z' are accepted
 
@@ -12818,16 +12643,13 @@ if (veryVerbose) {
             const char      *INPUT  = "20131023T012345";
             const ptrdiff_t  LENGTH = bsl::strlen(INPUT);
 
-            const StrView                   stringRef(INPUT, LENGTH);
+            const StrView stringRef(INPUT, LENGTH);
             BSLA_MAYBE_UNUSED const StrView nullRef;
 
             bdlt::Datetime   result;
             bdlt::DatetimeTz resultTz;
-
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
+//@bdetdsplit CODE SLICING END
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -12903,10 +12725,8 @@ if (veryVerbose) {
         //   int parse(TimeTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "PARSE: TIME & TIMETZ" << endl
-                          << "====================" << endl;
+        if (verbose) cout << "PARSE: TIME & TIMETZ\n"
+                             "====================\n";
 
         char buffer[Util::k_MAX_STRLEN];
 
@@ -13702,9 +13522,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::parse(&resultTz, INPUT,     -1));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -13765,10 +13582,8 @@ if (veryVerbose) {
         //   int parse(TimeTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "PARSE: bsls::TimeInterval" << endl
-                          << "=========================" << endl;
+        if (verbose) cout << "PARSE: bsls::TimeInterval\n"
+                             "=========================\n";
 
         const bsls::TimeInterval XX(2, 4);  // A control, distinct from any
                                             // test data.
@@ -13847,9 +13662,6 @@ if (veryVerbose) {
                 ASSERTV(LINE, XX, X, XX == X);
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -13915,10 +13727,8 @@ if (veryVerbose) {
         //   int parse(DateTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "PARSE: DATE & DATETZ" << endl
-                          << "====================" << endl;
+        if (verbose) cout << "PARSE: DATE & DATETZ\n"
+                             "====================\n";
 
         char buffer[Util::k_MAX_STRLEN];
 
@@ -14493,9 +14303,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::parse(&resultTz, INPUT,     -1));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -14564,10 +14371,8 @@ if (veryVerbose) {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "GENERATE 'DatetimeTz'" << endl
-                          << "=====================" << endl;
+        if (verbose) cout << "GENERATE 'DatetimeTz'\n"
+                             "=====================\n";
 
         typedef bdlt::DatetimeTz TYPE;
 
@@ -14770,7 +14575,7 @@ if (veryVerbose) {
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                         // 'generate' to an 'ostream'
                         {
@@ -14907,7 +14712,7 @@ if (veryVerbose) {
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                         // 'generate' to an 'ostream'
                         {
@@ -15094,7 +14899,7 @@ if (veryVerbose) {
 
                 ASSERT_PASS(Util::generate(&mSP, X, C));
                 ASSERT_FAIL(Util::generate(  pp, X, C));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -15109,9 +14914,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -15177,10 +14979,8 @@ if (veryVerbose) {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "GENERATE 'TimeTz'" << endl
-                          << "=================" << endl;
+        if (verbose) cout << "GENERATE 'TimeTz'\n"
+                             "=================\n";
 
         typedef bdlt::TimeTz TYPE;
 
@@ -15356,7 +15156,7 @@ if (veryVerbose) {
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                     // 'generate' to an 'ostream'
                     {
@@ -15486,7 +15286,7 @@ if (veryVerbose) {
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                     // 'generate' to an 'ostream'
                     {
@@ -15666,7 +15466,7 @@ if (veryVerbose) {
 
                 ASSERT_PASS(Util::generate(&mP, X, C));
                 ASSERT_FAIL(Util::generate( pp, X, C));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -15681,9 +15481,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -15749,10 +15546,8 @@ if (veryVerbose) {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "GENERATE 'DateTz'" << endl
-                          << "=================" << endl;
+        if (verbose) cout << "GENERATE 'DateTz'\n"
+                             "=================\n";
 
         typedef bdlt::DateTz TYPE;
 
@@ -15922,7 +15717,7 @@ if (veryVerbose) {
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                     // 'generate' to an 'ostream'
                     {
@@ -16052,7 +15847,7 @@ if (veryVerbose) {
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                     // 'generate' to an 'ostream'
                     {
@@ -16232,7 +16027,7 @@ if (veryVerbose) {
 
                 ASSERT_PASS(Util::generate(&mP, X, C));
                 ASSERT_FAIL(Util::generate( pp, X, C));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -16247,9 +16042,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -16312,10 +16104,8 @@ if (veryVerbose) {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "GENERATE 'Datetime'" << endl
-                          << "===================" << endl;
+        if (verbose) cout << "GENERATE 'Datetime'\n"
+                             "===================\n";
 
         typedef bdlt::Datetime TYPE;
 
@@ -16497,7 +16287,7 @@ if (veryVerbose) {
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                     // 'generate' to an 'ostream'
                     {
@@ -16627,7 +16417,7 @@ if (veryVerbose) {
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                     // 'generate' to an 'ostream'
                     {
@@ -16709,7 +16499,7 @@ if (veryVerbose) {
 
                 ASSERT_PASS(Util::generate(&mP, X, C));
                 ASSERT_FAIL(Util::generate( pp, X, C));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -16724,9 +16514,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -16785,10 +16572,8 @@ if (veryVerbose) {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "GENERATE 'Time'" << endl
-                          << "===============" << endl;
+        if (verbose) cout << "GENERATE 'Time'\n"
+                             "===============\n";
 
         typedef bdlt::Time TYPE;
 
@@ -16939,7 +16724,7 @@ if (veryVerbose) {
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                 // 'generate' to an 'ostream'
                 {
@@ -17068,7 +16853,7 @@ if (veryVerbose) {
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                 // 'generate' to an 'ostream'
                 {
@@ -17148,7 +16933,7 @@ if (veryVerbose) {
 
                 ASSERT_PASS(Util::generate(&mP, X, C));
                 ASSERT_FAIL(Util::generate( pp, X, C));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -17163,9 +16948,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -17224,10 +17006,8 @@ if (veryVerbose) {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "GENERATE 'Date'" << endl
-                          << "===============" << endl;
+        if (verbose) cout << "GENERATE 'Date'\n"
+                             "===============\n";
 
         typedef bdlt::Date TYPE;
 
@@ -17376,7 +17156,7 @@ if (veryVerbose) {
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                 // 'generate' to an 'ostream'
                 {
@@ -17504,7 +17284,7 @@ if (veryVerbose) {
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                 // 'generate' to an 'ostream'
                 {
@@ -17584,7 +17364,7 @@ if (veryVerbose) {
 
                 ASSERT_PASS(Util::generate(&mP, X, C));
                 ASSERT_FAIL(Util::generate( pp, X, C));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -17599,9 +17379,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -17657,10 +17434,8 @@ if (veryVerbose) {
         //   int generateRaw(char *, const TimeInterval&, const Config&);
         // --------------------------------------------------------------------
 
-#ifdef U_TEST_PART_01
-        if (verbose) cout << endl
-                          << "GENERATE 'TimeInterval'" << endl
-                          << "=======================" << endl;
+        if (verbose) cout << "GENERATE 'TimeInterval'\n"
+                             "=======================\n";
 
         ASSERT(u::BASIC.basic());
         ASSERT(! u::BASIC.relaxed());
@@ -17789,7 +17564,7 @@ if (veryVerbose) {
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                 // 'generate' to an 'ostream'
                 {
@@ -17918,7 +17693,7 @@ if (veryVerbose) {
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
                 // 'generate' to an 'ostream'
                 {
@@ -17998,7 +17773,7 @@ if (veryVerbose) {
 
                 ASSERT_PASS(Util::generate(&mP, X, C));
                 ASSERT_FAIL(Util::generate( pp, X, C));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -18013,9 +17788,6 @@ if (veryVerbose) {
                 ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
-#else
-        U_TEST_CASE_SKIPPED
-#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
