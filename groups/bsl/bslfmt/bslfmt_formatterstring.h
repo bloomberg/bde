@@ -279,6 +279,73 @@ struct formatter<const t_CHAR *, t_CHAR>
     }
 };
 
+template <class t_CHAR, size_t t_SIZE>
+struct formatter<t_CHAR[t_SIZE], t_CHAR>
+: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+  public:
+    // TRAITS
+
+    // There will already be a standard library formatter taking a raw
+    // character pointer, so do not alias this into `std`.
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // ACCESSORS
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(const t_CHAR      *v,
+                                               t_FORMAT_CONTEXT&  fc) const
+    {
+        bsl::basic_string_view<t_CHAR> sv(v, t_SIZE);
+        return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(
+                                                                           sv,
+                                                                           fc);
+    }
+};
+
+template <class t_CHAR>
+struct formatter<std::basic_string<t_CHAR>, t_CHAR>
+: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+  public:
+    // TRAITS
+
+    // There will already be a standard library formatter taking a `std` string
+    // view, so do not alias this into `std`.
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    // ACCESSORS
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                     const std::basic_string<t_CHAR>& v,
+                                     t_FORMAT_CONTEXT&                fc) const
+    {
+        bsl::basic_string_view<t_CHAR> sv(v);
+        return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(
+                                                                           sv,
+                                                                           fc);
+    }
+};
+
+template <class t_CHAR>
+struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
+: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+  public:
+    // TRAITS
+
+    // We should alias its formatter from the `std` namespace, so DO NOT DEFINE
+    // the trait.
+    // BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20.
+
+    // ACCESSORS
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                     const bsl::basic_string<t_CHAR>& v,
+                                     t_FORMAT_CONTEXT&                fc) const
+    {
+        bsl::basic_string_view<t_CHAR> sv(v);
+        return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(
+                                                                           sv,
+                                                                           fc);
+    }
+};
 
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -333,20 +400,20 @@ struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
 
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-namespace std {
-// FORMATTER SPECIALIZATIONS
-
-/// This is a customisation of `std::formatter` for `bsl::string` and
-/// `bsl::wstring`. We cannot rely on the automatic promotion mechanism because
-/// we do not define bsl formatters for `bsl::string` or `bsl::wstring` (on the
-/// basis that the `string_view` formatter is used instead).
-template <class t_CHAR>
-struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
-: bsl::formatter<bsl::basic_string_view<t_CHAR>, t_CHAR> {
-};
-}  // close namespace std
-#endif
+//#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+//namespace std {
+//// FORMATTER SPECIALIZATIONS
+//
+///// This is a customisation of `std::formatter` for `bsl::string` and
+///// `bsl::wstring`. We cannot rely on the automatic promotion mechanism because
+///// we do not define bsl formatters for `bsl::string` or `bsl::wstring` (on the
+///// basis that the `string_view` formatter is used instead).
+//template <class t_CHAR>
+//struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
+//: bsl::formatter<bsl::basic_string_view<t_CHAR>, t_CHAR> {
+//};
+//}  // close namespace std
+//#endif
 
 #endif  // INCLUDED_BSLFMT_FORMATTERBASE
 

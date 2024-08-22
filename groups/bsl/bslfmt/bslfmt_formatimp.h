@@ -610,6 +610,9 @@ t_OUT Format_FormatImp<t_CHAR>::processImp(
             visit_format_arg(visitor, args.get(id));
             it = pc.begin();
             if (it != pc.end()) {
+                if (*it != '}') {
+                    BSLS_THROW(format_error("parsing terminated before }"));
+                }
                 // advance past the terminating }
                 ++it;
             }

@@ -273,6 +273,21 @@ struct Formatter_TestUtil_Impl {
      BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)                  arg1,
      BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)                  arg2);
 
+    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+    static bool testEvaluateNoOracle(
+                 bsl::string                                    *message,
+                 bsl::basic_string_view<t_CHAR>                  desiredResult,
+                 bsl::basic_string_view<t_CHAR>                  fmt,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)       value,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)      arg1,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)      arg2);
+
+    template <class t_TYPE>
+    static bool testParseFailure(
+                               bsl::string                    *message,
+                               bsl::basic_string_view<t_CHAR>  fmt,
+                               bool                            alsoTestOracle);
+
   private:
     // PRIVATE CLASS METHODS
     template <class t_TYPE, class t_ARG_1, class t_ARG_2>
@@ -300,6 +315,20 @@ struct Formatter_TestUtil<char> {
         BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)     value,
         BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)    arg1 = bsl::monostate(),
         BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)    arg2 = bsl::monostate());
+
+    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+    static bool testEvaluateNoOracle(
+          bsl::string                                *message,
+          bsl::basic_string_view<char>                desiredResult,
+          bsl::basic_string_view<char>                fmt,
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)   value,
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)  arg1 = bsl::monostate(),
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)  arg2 = bsl::monostate());
+
+    template <class t_TYPE>
+    static bool testParseFailure(bsl::string                  *message,
+                                 bsl::basic_string_view<char>  fmt,
+                                 bool                          alsoTestOracle);
 };
 
 template <>
@@ -314,6 +343,21 @@ struct Formatter_TestUtil<wchar_t> {
        BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)      value,
        BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)     arg1 = bsl::monostate(),
        BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)     arg2 = bsl::monostate());
+
+    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+    static bool testEvaluateNoOracle(
+          bsl::string                                *message,
+          bsl::basic_string_view<wchar_t>             desiredResult,
+          bsl::basic_string_view<wchar_t>             fmt,
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)   value,
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)  arg1 = bsl::monostate(),
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)  arg2 = bsl::monostate());
+
+    template <class t_TYPE>
+    static bool testParseFailure(
+                              bsl::string                     *message,
+                              bsl::basic_string_view<wchar_t>  fmt,
+                              bool                             alsoTestOracle);
 };
 
 // ============================================================================
@@ -344,9 +388,10 @@ bool Formatter_TestUtil_Impl<t_CHAR>::evaluateBslfmt(
     fmtStr.remove_prefix(1);
     mpc.advance_to(mpc.begin() + 1);
 
-    if (fmtStr.front() >= '1' && fmtStr.front() <= '9') {
+    if (fmtStr.front() != '0' && fmtStr.front() != ':' &&
+        fmtStr.front() != '}') {
         if (message)
-            *message = "For testing, value must be arg 0";
+            *message = "For testing, value must be arg 0 if specified";
         return false;
     }
 
@@ -372,6 +417,12 @@ bool Formatter_TestUtil_Impl<t_CHAR>::evaluateBslfmt(
     bsl::formatter<typename bsl::decay<t_TYPE>::type, t_CHAR> f;
 
     mpc.advance_to(f.parse(mpc));
+
+    if (mpc.begin() != mpc.end()) {
+        if (message)
+            *message = "Spec string has extra characters";
+        return false;
+    }
 
     Formatter_MockFormatContext<t_CHAR> mfc(value, arg1, arg2);
 
@@ -426,6 +477,118 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluate(
     return true;
 }
 
+template <class t_CHAR>
+template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluateNoOracle(
+     bsl::string                                                *message,
+     bsl::basic_string_view<t_CHAR>                              desiredResult,
+     bsl::basic_string_view<t_CHAR>                              fmt,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)                   value,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)                  arg1,
+     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)                  arg2)
+{
+    bsl::basic_string<t_CHAR> res_bde;
+
+    bool rv = evaluateBslfmt(message, &res_bde, fmt, value, arg1, arg2);
+
+    if (!rv)
+        return false;
+
+    if (desiredResult != res_bde) {
+        *message = "result does not match";
+        return false;
+    }
+
+    return true;
+}
+
+template <class t_CHAR>
+template <class t_TYPE>
+bool Formatter_TestUtil_Impl<t_CHAR>::testParseFailure(
+                                bsl::string                    *message,
+                                bsl::basic_string_view<t_CHAR>  fmtStr,
+                                bool                            alsoTestOracle)
+{
+    Formatter_MockParseContext<t_CHAR> mpc1(fmtStr, 3);
+
+    if (fmtStr.front() != '{') {
+        if (message)
+            *message = "opening brace missing";
+        return false;
+    }
+    fmtStr.remove_prefix(1);
+    mpc1.advance_to(mpc1.begin() + 1);
+
+    if (fmtStr.front() != '0' &&
+        fmtStr.front() != ':' &&
+        fmtStr.front() != '}') {
+        if (message)
+            *message = "For testing, value must be arg 0 if specified";
+        return false;
+    }
+
+    bool haveArgIds;
+
+    if (fmtStr.front() == '0') {
+        mpc1.check_arg_id(0);
+        fmtStr.remove_prefix(1);
+        mpc1.advance_to(mpc1.begin() + 1);
+        if (fmtStr.front() != ':' && fmtStr.front() != '}') {
+            if (message)
+                *message = "Missing ':' separator";
+            return false;
+        }
+        haveArgIds = true;
+    }
+    else {
+        (void) mpc1.next_arg_id();
+        haveArgIds = false;
+    }
+
+    if (fmtStr.front() == ':') {
+        fmtStr.remove_prefix(1);
+        mpc1.advance_to(mpc1.begin() + 1);
+    }
+
+    bsl::formatter<typename bsl::decay<t_TYPE>::type, t_CHAR> f1;
+
+    try {
+        mpc1.advance_to(f1.parse(mpc1));
+
+        if (message)
+            *message = "bslfmt parsing failed to fail";
+        return false;
+    }
+    catch (bsl::format_error) {
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+    if (alsoTestOracle) {
+        std::basic_format_parse_context<t_CHAR>                   spc(fmtStr);
+
+        if (haveArgIds) {
+            spc.check_arg_id(0);
+        }
+        else {
+            (void) spc.next_arg_id();
+        }
+        std::formatter<typename bsl::decay<t_TYPE>::type, t_CHAR> f2;
+
+        try {
+            spc.advance_to(f2.parse(spc));
+
+            if (message)
+            *message = "std parsing failed to fail";
+            return false;
+        }
+        catch (bsl::format_error) {
+        }
+    }
+#endif
+
+    return true;
+}
+
 
 template <class t_TYPE, class t_ARG_1, class t_ARG_2>
 bool Formatter_TestUtil<char>::testEvaluate(
@@ -446,6 +609,36 @@ bool Formatter_TestUtil<char>::testEvaluate(
 }
 
 template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+bool Formatter_TestUtil<char>::testEvaluateNoOracle(
+                     bsl::string                                *message,
+                     bsl::basic_string_view<char>                desiredResult,
+                     bsl::basic_string_view<char>                fmt,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)   value,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)  arg1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)  arg2)
+{
+    return Formatter_TestUtil_Impl<char>::testEvaluateNoOracle(
+                                 message,
+                                 desiredResult,
+                                 fmt,
+                                 BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
+                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
+                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
+}
+
+template <class t_TYPE>
+bool Formatter_TestUtil<char>::testParseFailure(
+                                  bsl::string                  *message,
+                                  bsl::basic_string_view<char>  fmt,
+                                  bool                          alsoTestOracle)
+{
+    return Formatter_TestUtil_Impl<char>::testParseFailure<t_TYPE>(
+                                                               message,
+                                                               fmt,
+                                                               alsoTestOracle);
+}
+
+template <class t_TYPE, class t_ARG_1, class t_ARG_2>
 bool Formatter_TestUtil<wchar_t>::testEvaluate(
                   bsl::string                                   *message,
                   bsl::basic_string_view<wchar_t>                desiredResult,
@@ -463,7 +656,35 @@ bool Formatter_TestUtil<wchar_t>::testEvaluate(
                                  BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
 }
 
+template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+bool Formatter_TestUtil<wchar_t>::testEvaluateNoOracle(
+                     bsl::string                                *message,
+                     bsl::basic_string_view<wchar_t>             desiredResult,
+                     bsl::basic_string_view<wchar_t>             fmt,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)   value,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)  arg1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)  arg2)
+{
+    return Formatter_TestUtil_Impl<wchar_t>::testEvaluate(
+                                 message,
+                                 desiredResult,
+                                 fmt,
+                                 BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
+                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
+                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
+}
 
+template <class t_TYPE>
+bool Formatter_TestUtil<wchar_t>::testParseFailure(
+                               bsl::string                     *message,
+                               bsl::basic_string_view<wchar_t>  fmt,
+                               bool                             alsoTestOracle)
+{
+    return Formatter_TestUtil_Impl<wchar_t>::testParseFailure<t_TYPE>(
+                                                               message,
+                                                               fmt,
+                                                               alsoTestOracle);
+}
 
                   // ----------------------------------------
                   // class Formatter_MockParseContext<t_CHAR>
