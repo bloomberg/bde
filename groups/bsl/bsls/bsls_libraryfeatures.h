@@ -1027,8 +1027,9 @@ BSLS_IDENT("$Id: $")
 // This macro is defined first for the following compiler versions:
 //
 //:   o GCC 12.1
-//:   o clang 15 when compiling against either:
-//:       o libc++ version 15, or
+//:   o clang 15 when compiling against libc++ version 15
+//:   o clang 16 when compiling against
+//:       o libc++ version 16, or
 //:       o libstdc++ version 12
 //:   o Microsoft Visual Studio 2022 17.2 / MSVC 19.32
 //
@@ -2110,7 +2111,12 @@ BSLS_IDENT("$Id: $")
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS                           1
   #endif
 
-  #if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 202110L
+  #if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 202110L &&             \
+      !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                   \
+        BSLS_PLATFORM_CMP_VERSION < 160000 &&                                 \
+        defined(BSLS_LIBRARYFEATURES_STDCPP_GNU))
+      // Clang 15 doesn't implement deferred instantiation of 'requires'
+      // clauses, which is necessary to build libstdc++ ranges.
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES                             1
   #endif
 
