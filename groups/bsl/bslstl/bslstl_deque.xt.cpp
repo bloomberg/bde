@@ -638,6 +638,7 @@ struct DefaultDataRow {
     const char *d_results;  // canonical equivalent spec
 };
 
+BSLA_MAYBE_UNUSED
 static
 const DefaultDataRow DEFAULT_DATA[] = {
     //line idx  spec                 results
