@@ -1,11 +1,13 @@
-// bslstl_function.10.t.cpp                                           -*-C++-*-
+// bslstl_function.xte.cpp                                            -*-C++-*-
 
 // This test driver part provides a "clean" translation unit for
 // 'bslstl::function' to isolate certain test cases that may be triggering an
 // error in 'gcc' or else may be exhibiting undefined behavior.  Some of these
-// tests fail to fail merely in the presence of other code, such as common code
-// that would normally be #included from the 'bslstl_function.00.t.cpp' test
-// driver part.
+// tests fail to fail merely in the presence of other code.
+//
+// This file has the '.xte.cpp' extension so that the 'bde_xt_cpp_splitter'
+// script picks it up and adds it as an extra test driver part in addition to
+// the parts generated from 'bslstl_function.x.t.cpp'.
 
 #include <bslstl_function.h>
 
