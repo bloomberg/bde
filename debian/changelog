@@ -1,5 +1,13 @@
-bsl-internal (4.13.0.0) unstable; urgency=low
+bsl-internal (4.13.1.0) unstable; urgency=low
 
+  * 589dcb93a Bumped version to 4.13.1.0
+  * ed849f973  bdlb_variant replace doNotCall with BSLS_ASSERT_INVOKE_NORETURN (DRQS 176399968) (#4915)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Aug 2024 16:03:46 -0400
+
+bsl-internal (4.13.0.0) git; urgency=low
+
+  * 564833452 Changelog for version 4.13.0.0
   * daad2226e Bumped version to 4.13.0.0
   * 1de8fbcfc Drqs 176332566/bdlmt multiqueuethreadpool external threadpool shutdown race (#4914)
   * 155950641 reduce warnings (#4908)
@@ -41,7 +49,7 @@ bsl-internal (4.13.0.0) unstable; urgency=low
   * 90d060da6 Fix memcpy UBs in datum. (#4863)
   * 9ae04457f Fix pmr detection on libc++. (#4862)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Aug 2024 15:52:12 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Aug 2024 15:55:42 -0400
 
 bsl-internal (4.12.0.1) git; urgency=low
 
