@@ -1048,78 +1048,6 @@ struct VariantImp_Traits {
         // Determines what the base type is.
 };
 
-                       // ===============================
-                       // class Variant_ReturnAnyTypeUtil
-                       // ===============================
-
-template <class TYPE>
-struct Variant_ReturnAnyTypeUtil {
-    // This 'struct' provides a function that returns an (invalid) instance of
-    // any type.  It is meant to allow clients to express:
-    //..
-    //  template <RESULT_TYPE>
-    //  RESULT_TYPE foo()
-    //  {
-    //      // ...
-    //
-    //      // The following 'return' is unreachable, but is required for
-    //      // compilation.
-    //
-    //      return Variant_ReturnAnyTypeUtil::doNotCall();
-    //  }
-    //..
-    // where 'RESULT_TYPE' may be 'void'.  Note that while such a return
-    // statement is not required by the C++ standard, the lack of such a
-    // return statement causes a warning (or error) with many compilers.
-
-    // CLASS METHODS
-    static TYPE doNotCall(TYPE *dummy);
-        // Return the specified '*dummy'.
-
-    static TYPE doNotCall();
-        // Return a 'TYPE' object.
-};
-
-template <>
-struct Variant_ReturnAnyTypeUtil<void> {
-    // This partial specialization of 'Variant_ReturnAnyTypeUtil' provides
-    // functions that do not have return value.
-
-    // CLASS METHODS
-    static void doNotCall();
-        // Do nothing.
-};
-
-template <class TYPE>
-struct Variant_ReturnAnyTypeUtil<TYPE&> {
-    // This partial specialization of 'Variant_ReturnAnyTypeUtil' provides a
-    // function that returns an lvalue reference.
-
-    // CLASS METHODS
-    static TYPE& lvalueRef(TYPE *dummy);
-        // Return an lvalue reference providing modifiable access to the
-        // specified '*dummy'.
-
-    static TYPE& doNotCall();
-        // Return a 'TYPE&' object.
-};
-
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-template <class TYPE>
-struct Variant_ReturnAnyTypeUtil<TYPE&&>
-    // This partial specialization of 'Variant_ReturnAnyTypeUtil' provides a
-    // function that returns an rvalue reference.
-{
-    // CLASS METHODS
-    static TYPE&& rvalueRef(TYPE *dummy);
-        // Return an rvalue reference providing modifiable access to the
-        // specified '*dummy'.
-
-    static TYPE&& doNotCall();
-        // Return a 'TYPE&&' object.
-};
-#endif
-
                        // ==============================
                        // class Variant_RawVisitorHelper
                        // ==============================
@@ -6363,71 +6291,6 @@ VariantImp_NoAllocatorBase<TYPES>::getAllocator() const
     return 0;
 }
 
-                       // -------------------------------
-                       // class Variant_ReturnAnyTypeUtil
-                       // -------------------------------
-
-// CLASS METHODS
-template <class TYPE>
-inline
-TYPE Variant_ReturnAnyTypeUtil<TYPE>::doNotCall(TYPE *dummy)
-{
-#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
-    return bslmf::MovableRefUtil::move(*dummy);
-#else
-    return *dummy;
-#endif
-}
-
-template <class TYPE>
-inline
-TYPE Variant_ReturnAnyTypeUtil<TYPE>::doNotCall()
-{
-    // Note that IBM xlC requires that we explicitly declare a temporary here,
-    // rather than cast the null pointer directly as a function argument.
-
-    typedef typename bsl::remove_reference<TYPE>::type UnrefType;
-
-    UnrefType *const ptr = 0;
-    return doNotCall(ptr);
-}
-
-inline
-void Variant_ReturnAnyTypeUtil<void>::doNotCall()
-{}
-
-template <class TYPE>
-inline
-TYPE& Variant_ReturnAnyTypeUtil<TYPE&>::lvalueRef(TYPE *dummy)
-{
-    return *dummy;
-}
-
-template <class TYPE>
-inline
-TYPE& Variant_ReturnAnyTypeUtil<TYPE&>::doNotCall()
-{
-    TYPE *const ptr = 0;
-    return lvalueRef(ptr);
-}
-
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-template <class TYPE>
-inline
-TYPE&& Variant_ReturnAnyTypeUtil<TYPE&&>::rvalueRef(TYPE *dummy)
-{
-    return bslmf::MovableRefUtil::move(*dummy);
-}
-
-template <class TYPE>
-inline
-TYPE&& Variant_ReturnAnyTypeUtil<TYPE&&>::doNotCall()
-{
-    TYPE *const ptr = 0;
-    return rvalueRef(ptr);
-}
-#endif
-
                        // ------------------------------
                        // class Variant_RawVisitorHelper
                        // ------------------------------
@@ -6488,9 +6351,7 @@ template <class RESULT_TYPE, class VISITOR>
 RESULT_TYPE
 Variant_RawVisitorHelper<RESULT_TYPE, VISITOR>::operator()(bslmf::Nil) const
 {
-    BSLS_ASSERT_OPT(false);
-
-    return Variant_ReturnAnyTypeUtil<RESULT_TYPE>::doNotCall();
+    BSLS_ASSERT_INVOKE_NORETURN("unreachable");
 }
 
                         // -----------------------
@@ -6698,7 +6559,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type)
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(0 == "'doApplyR' invoked on an unset variant");
+        BSLS_ASSERT_INVOKE_NORETURN("'doApplyR' invoked on an unset variant");
       } break;
       case 1: {
         return applyImpR<typename Base::Type1,
@@ -6801,13 +6662,9 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type)
                          RET_TYPE>(visitor);                          // RETURN
       } break;
       default: {
-        BSLS_ASSERT(0 == "Unreachable by design!");
+        BSLS_ASSERT_INVOKE_NORETURN("Unreachable by design!");
       } break;
     }
-
-    // Unreachable by design; return something to quiet compiler warnings.
-
-    return Variant_ReturnAnyTypeUtil<RET_TYPE>::doNotCall();
 }
 
 // PRIVATE ACCESSORS
@@ -6876,7 +6733,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type) const
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(0 == "'doApply' invoked on an unset variant");
+        BSLS_ASSERT_INVOKE_NORETURN("'doApply' invoked on an unset variant");
       } break;
       case 1: {
         applyImp<typename Base::Type1, VISITOR_REF>(visitor);
@@ -6939,7 +6796,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type) const
         applyImp<typename Base::Type20, VISITOR_REF>(visitor);
       } break;
       default: {
-        BSLS_ASSERT(0 == "Unreachable by design!");
+        BSLS_ASSERT_INVOKE_NORETURN("Unreachable by design!");
       } break;
     }
 }
@@ -6950,7 +6807,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type) const
 {
     switch (type) {
       case 0: {
-        BSLS_ASSERT(0 == "'doApplyR' invoked on an unset variant");
+        BSLS_ASSERT_INVOKE_NORETURN("'doApplyR' invoked on an unset variant");
       } break;
       case 1: {
         return applyImpR<typename Base::Type1,
@@ -7053,13 +6910,9 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type) const
                          RET_TYPE>(visitor);                          // RETURN
       } break;
       default: {
-        BSLS_ASSERT(0 == "Unreachable by design!");
+        BSLS_ASSERT_INVOKE_NORETURN("Unreachable by design!");
       } break;
     }
-
-    // Unreachable by design; return something to quiet compiler warnings.
-
-    return Variant_ReturnAnyTypeUtil<RET_TYPE>::doNotCall();
 }
 
 // CREATORS

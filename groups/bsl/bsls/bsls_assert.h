@@ -1802,7 +1802,12 @@ BSLS_IDENT("$Id: $")
 
 // 'BSLS_ASSERT_INVOKE_NORETURN' is always active and guaranteed to never
 // return (by calling 'bsls::Assert::failByAbort') even if the installed
-// handler does return.
+// handler does return.  Note that this macro expands into an infinite loop
+// (that will always terminate the program in its first iteration) in order to
+// suppress warnings even on platforms that do not understand the
+// '[[noreturn]]' attribute.  Therefore, this macro can be used to implement
+// code paths that are meant to be unreachable within functions having non-void
+// return types.
 #define BSLS_ASSERT_INVOKE_NORETURN(X) do {                                   \
         BloombergLP::bsls::AssertViolation violation(                         \
                                   X,                                          \
@@ -1810,7 +1815,7 @@ BSLS_IDENT("$Id: $")
                                   BSLS_ASSERTIMPUTIL_LINE,                    \
                                   BloombergLP::bsls::Assert::k_LEVEL_INVOKE); \
         BloombergLP::bsls::Assert::invokeHandlerNoReturn(violation);          \
-    } while (false)
+    } while (true)
 
                     // ===================================
                     // BSLS_ASSERT_NORETURN_INVOKE_HANDLER
