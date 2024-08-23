@@ -413,6 +413,7 @@ const int VB = 'B';
 const int VC = 'C';
 const int VD = 'D';
 const int VE = 'E';
+BSLA_MAYBE_UNUSED
 const int VF = 'F';
 const int VG = 'G';
 const int VH = 'H';
@@ -13443,6 +13444,7 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
             if (verbose)
                 printf("\t\t\tOn an object of length " ZU ".\n", li);
 
+#ifdef BDE_BUILD_TARGET_EXC
           int         throws = -1;
           const Int64 beforeInUse = oa.numBlocksInUse();
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
@@ -13476,6 +13478,7 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
                   beforeInUse == oa.numBlocksInUse());              // 5.
         }
     }
+#endif
 
     if (verbose) printf("\t\tWith 'primaryCopier' and 'clear'\n");
     {
