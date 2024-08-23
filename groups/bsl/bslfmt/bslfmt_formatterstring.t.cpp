@@ -129,6 +129,12 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL HELPER MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#define UTF8_LITERAL(...)                                                     \
+    static_cast<const char *>(static_cast<const void *>(u8##__VA_ARGS__))
+#else
+#define UTF8_LITERAL(EXPR) EXPR
+#endif
 
 #define TEST_PARSE_FAIL(type, fmtStr, useOracle)                               \
     {                                                                          \
@@ -144,14 +150,345 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 // ============================================================================
+//                     GLOBAL CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+#if defined(__GLIBC__) && __GLIBC__ <= 2
+static const bool k_ORACLE_SUPPORT_UNICODE = false;
+#else
+static const bool k_ORACLE_SUPPORT_UNICODE = true;
+#endif
+
+static const int k_FILLCHAR_EMPTY   = 0;
+static const int k_FILLCHAR_ASCII   = 1;
+static const int k_FILLCHAR_UNICODE = 2;
+static const int k_FILLCHAR_DOUBLE  = 3;
+static const int k_FILLCHAR_COUNT   = 4;
+
+static const char    *FILLERS_C[] = {UTF8_LITERAL(""),
+                                     UTF8_LITERAL("*"),
+                                     UTF8_LITERAL("\U00000401"),
+                                     UTF8_LITERAL("\U0001F680")};
+static const wchar_t *FILLERS_W[] = {L"", L"*", L"\U00000401", L"\U0001F680"};
+
+static const int k_FILL_NONE   = 0;
+static const int k_FILL_LEFT   = 1;
+static const int k_FILL_RIGHT  = 2;
+static const int k_FILL_MIDDLE = 3;
+static const int k_FILL_COUNT  = 4;
+
+static const char    *FILL_C[] = {UTF8_LITERAL(""),
+                                  UTF8_LITERAL(">"),
+                                  UTF8_LITERAL("<"),
+                                  UTF8_LITERAL("^")};
+static const wchar_t *FILL_W[] = {L"", L">", L"<", L"^"};
+
+static const int k_VALUE_NONE            = 0;
+static const int k_VALUE_ASCII           = 1;
+static const int k_VALUE_UNICODE         = 2;
+static const int k_VALUE_DOUBLE          = 3;
+static const int k_VALUE_UNICODE_COMPLEX = 4;
+static const int k_VALUE_COUNT           = 5;
+
+static const char    *VALUE_C[] = {UTF8_LITERAL(""),
+                                   UTF8_LITERAL("a"),
+                                   UTF8_LITERAL("\U00013000"),
+                                   UTF8_LITERAL("\U0001F600"),
+                                   UTF8_LITERAL("\U0000006e\U00000303")};
+static const wchar_t *VALUE_W[] = {L"",
+                                   L"a",
+                                   L"\U00013000",
+                                   L"\U0001F600",
+                                   L"\U0000006e\U00000303"};
+
+static const int k_ARG_VALUE         = 0;
+static const int k_ARG_NESTED_NON_ID = 1;
+static const int k_ARG_NESTED_ARG_ID = 2;
+static const int k_ARG_COUNT         = 2;
+
+
+
+// ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+
+int getFillWidth(int fillChar)
+{
+    switch (fillChar) {
+      case 0: {
+        return 1;
+      } break;
+      case 1: {
+        return 1;
+      } break;
+      case 2: {
+        return 1;
+      } break;
+      case 3: {
+        return 2;
+      } break;
+    }
+    return 0;
+}
+
+int getContentWidth(int contentChar)
+{
+    switch (contentChar) {
+      case 0: {
+        return 0;
+      } break;
+      case 1: {
+        return 1;
+      } break;
+      case 2: {
+        return 1;
+      } break;
+      case 3: {
+        return 2;
+      } break;
+      case 4: {
+        return 1;
+      } break;
+    }
+    return 0;
+}
 
 // ============================================================================
 //                     GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+
+
+
+
+template <class t_CHAR>
+struct ResultCalculator {
+};
+
+template<>
+struct ResultCalculator<char> {
+    static void calculate(bool        *isUnicodeSupportRequired,
+                          bsl::string *formatString,
+                          bsl::string *inputString,
+                          bsl::string *outputString,
+                          int          fillChar,
+                          int          fillType,
+                          int          contentType,
+                          int          argType,
+                          int          contentCopyCount,
+                          int          width,
+                          int          precision)
+    {
+        if (width == 0)
+            width = -1;
+        if (fillType == k_FILL_NONE)
+            fillChar = k_FILLCHAR_EMPTY;
+
+        *isUnicodeSupportRequired = false;
+
+        if (fillChar >= k_FILLCHAR_UNICODE)
+            *isUnicodeSupportRequired = true;
+
+        if (contentType >= k_VALUE_UNICODE)
+            *isUnicodeSupportRequired = true;
+
+        int         fillWidth = getFillWidth(fillChar);
+        int         contentWidth = getContentWidth(contentType);
+
+        std::string fmt;
+        std::string contentString;
+        std::string result;
+        std::string resultInfill;
+
+        int precisionLeft     = (precision < 0) ? 99 : precision;
+        int contentCopiesLeft = (contentCopyCount < 0) ? 99 : contentCopyCount;
+        int widthUsed         = 0;
+
+        while (precisionLeft > 0 && contentCopiesLeft > 0 &&
+               contentWidth <= precisionLeft) {
+            contentString += VALUE_C[contentType];
+            contentCopiesLeft--;
+            resultInfill += VALUE_C[contentType];
+            precisionLeft -= contentWidth;
+            widthUsed += contentWidth;
+        }
+
+        int padding = 0;
+        if (width > 0)
+            padding = bsl::max(0, width - widthUsed);
+
+        int leftPad = 0;
+        int rightPad = 0;
+
+        if (fillType == k_FILL_LEFT)
+            leftPad = padding;
+        if (fillType == k_FILL_MIDDLE)
+            leftPad = padding / 2;
+
+        if (fillType == k_FILL_RIGHT || fillType == k_FILL_NONE)
+            rightPad = padding;
+        if (fillType == k_FILL_MIDDLE)
+            rightPad = (padding+1) / 2;
+
+        for (int i = 0; i < leftPad; i++) {
+            const char *filler = FILLERS_C[fillChar];
+            if (fillChar == k_FILLCHAR_EMPTY)
+                filler = " ";
+            result += filler;
+        }
+
+        result += resultInfill;
+
+        for (int i = 0; i < rightPad; i++) {
+            const char *filler = FILLERS_C[fillChar];
+            if (fillChar == k_FILLCHAR_EMPTY)
+                filler = " ";
+            result += filler;
+        }
+
+        fmt = "{";
+        if (argType == k_ARG_NESTED_ARG_ID)
+            fmt += "0";
+        fmt += ":";
+        fmt += FILLERS_C[fillChar];
+        fmt += FILL_C[fillType];
+        if (width >= 0) {
+            if (argType == k_ARG_NESTED_ARG_ID)
+                fmt += "{1}";
+            else if (argType == k_ARG_NESTED_NON_ID)
+                fmt += "{}";
+            else fmt += bsl::to_string(width);
+        }
+        if (precision >= 0) {
+            fmt += ".";
+            if (argType == k_ARG_NESTED_ARG_ID)
+                fmt += "{2}";
+            else if (argType == k_ARG_NESTED_NON_ID)
+                fmt += "{}";
+            else fmt += bsl::to_string(precision);
+        }
+
+        fmt += "s}";
+
+        *formatString = fmt;
+        *inputString  = contentString;
+        *outputString = result;
+    }
+};
+
+template <>
+struct ResultCalculator<wchar_t> {
+    static void calculate(bool         *isUnicodeSupportRequired,
+                          bsl::wstring *formatString,
+                          bsl::wstring *inputString,
+                          bsl::wstring *outputString,
+                          int           fillChar,
+                          int           fillType,
+                          int           contentType,
+                          int           argType,
+                          int           contentCopyCount,
+                          int           width,
+                          int           precision)
+    {
+        if (width == 0)
+            width = -1;
+        if (fillType == k_FILL_NONE)
+            fillChar = k_FILLCHAR_EMPTY;
+
+        *isUnicodeSupportRequired = false;
+
+        if (fillChar >= k_FILLCHAR_UNICODE)
+            *isUnicodeSupportRequired = true;
+
+        if (contentType >= k_VALUE_UNICODE)
+            *isUnicodeSupportRequired = true;
+
+        int fillWidth    = getFillWidth(fillChar);
+        int contentWidth = getContentWidth(contentType);
+
+        std::wstring fmt;
+        std::wstring contentString;
+        std::wstring result;
+        std::wstring resultInfill;
+
+        int precisionLeft     = (precision < 0) ? 99 : precision;
+        int contentCopiesLeft = (contentCopyCount < 0) ? 99 : contentCopyCount;
+        int widthUsed         = 0;
+
+        while (precisionLeft > 0 && contentCopiesLeft > 0 &&
+               contentWidth <= precisionLeft) {
+            contentString += VALUE_W[contentType];
+            contentCopiesLeft--;
+            resultInfill += VALUE_W[contentType];
+            precisionLeft -= contentWidth;
+            widthUsed += contentWidth;
+        }
+
+        int padding = 0;
+        if (width > 0)
+            padding = bsl::max(0, width - widthUsed);
+
+        int leftPad  = 0;
+        int rightPad = 0;
+
+        if (fillType == k_FILL_LEFT)
+            leftPad = padding;
+        if (fillType == k_FILL_MIDDLE)
+            leftPad = padding / 2;
+
+        if (fillType == k_FILL_RIGHT || fillType == k_FILL_NONE)
+            rightPad = padding;
+        if (fillType == k_FILL_MIDDLE)
+            rightPad = (padding + 1) / 2;
+
+        for (int i = 0; i < leftPad; i++) {
+            const wchar_t *filler = FILLERS_W[fillChar];
+            if (fillChar == k_FILLCHAR_EMPTY)
+                filler = L" ";
+            result += filler;
+        }
+
+        result += resultInfill;
+
+        for (int i = 0; i < rightPad; i++) {
+            const wchar_t *filler = FILLERS_W[fillChar];
+            if (fillChar == k_FILLCHAR_EMPTY)
+                filler = L" ";
+            result += filler;
+        }
+
+        fmt = L"{";
+        if (argType == k_ARG_NESTED_ARG_ID)
+            fmt += L"0";
+        fmt += L":";
+        fmt += FILLERS_W[fillChar];
+        fmt += FILL_W[fillType];
+        if (width >= 0) {
+            if (argType == k_ARG_NESTED_ARG_ID)
+                fmt += L"{1}";
+            else if (argType == k_ARG_NESTED_NON_ID)
+                fmt += L"{}";
+            else
+                fmt += bsl::to_wstring(width);
+        }
+        if (precision >= 0) {
+            fmt += L".";
+            if (argType == k_ARG_NESTED_ARG_ID)
+                fmt += L"{2}";
+            else if (argType == k_ARG_NESTED_NON_ID)
+                fmt += L"{}";
+            else
+                fmt += bsl::to_wstring(precision);
+        }
+
+        fmt += L"s}";
+
+        *formatString = fmt;
+        *inputString  = contentString;
+        *outputString = result;
+    }
+};
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -165,6 +502,265 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
+      case 12: {
+        // -----------------------------------------------
+        // TESTING parse(PARSE_CONTEXT&);
+        //
+        // Testing:
+        //   parse(PARSE_CONTEXT&);
+        // -----------------------------------------------
+        if (verbose)
+            printf("\nTESTING parse(PARSE_CONTEXT&);"
+                   "\n==============================\n");
+
+        for (int fc = 0; fc < k_FILLCHAR_COUNT; fc++) {
+            for (int ft = 0; ft < k_FILL_COUNT; ft++) {
+                for (int ct = 0; ct < k_VALUE_COUNT; ct++) {
+                    for (int argType = 0; argType < k_ARG_COUNT; argType++) {
+                        for (int copies = -1; copies < 10; copies++) {
+                            for (int width = -1; width < 10; width++) {
+                                for (int prec = -1; prec < 10; prec++) {
+                                    bool        isUnicodeSupportRequired;
+                                    bsl::string formatString;
+                                    bsl::string inputString;
+                                    bsl::string outputString;
+                                    ResultCalculator<char>::calculate(
+                                                     &isUnicodeSupportRequired,
+                                                     &formatString,
+                                                     &inputString,
+                                                     &outputString,
+                                                     fc,
+                                                     ft,
+                                                     ct,
+                                                     argType,
+                                                     copies,
+                                                     width,
+                                                     prec);
+
+                                    bool testOracle =
+                                                   !isUnicodeSupportRequired ||
+                                                   k_ORACLE_SUPPORT_UNICODE;
+
+                                    bsl::string message;
+                                    bool        rv;
+
+                                    int arg2 = width;
+                                    if (argType == k_ARG_NESTED_NON_ID &&
+                                        width <= 0)
+                                        arg2 = prec;
+
+                                    char *input_cp = (char *)
+                                                         inputString.c_str();
+                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_cp,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    const char *input_ccp =
+                                                           inputString.c_str();
+                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_ccp,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    std::string input_ss = inputString.c_str();
+                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_ss,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    std::string_view input_sv = inputString;
+                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_sv,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    bsl::string input_bs = inputString.c_str();
+                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_bs,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    bsl::string_view input_bv = inputString;
+                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_bv,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int fc = 0; fc < k_FILLCHAR_COUNT; fc++) {
+            for (int ft = 0; ft < k_FILL_COUNT; ft++) {
+                for (int ct = 0; ct < k_VALUE_COUNT; ct++) {
+                    for (int argType = 0; argType < k_ARG_COUNT; argType++) {
+                        for (int copies = -1; copies < 10; copies++) {
+                            for (int width = -1; width < 10; width++) {
+                                for (int prec = -1; prec < 10; prec++) {
+                                    bool        isUnicodeSupportRequired;
+                                    bsl::wstring formatString;
+                                    bsl::wstring inputString;
+                                    bsl::wstring outputString;
+                                    ResultCalculator<wchar_t>::calculate(
+                                                     &isUnicodeSupportRequired,
+                                                     &formatString,
+                                                     &inputString,
+                                                     &outputString,
+                                                     fc,
+                                                     ft,
+                                                     ct,
+                                                     argType,
+                                                     copies,
+                                                     width,
+                                                     prec);
+
+                                    bool testOracle =
+                                                   !isUnicodeSupportRequired ||
+                                                   k_ORACLE_SUPPORT_UNICODE;
+
+                                    bsl::string message;
+                                    bool        rv;
+
+                                    int arg2 = width;
+                                    if (argType == k_ARG_NESTED_NON_ID &&
+                                        width <= 0)
+                                        arg2 = prec;
+
+                                    wchar_t *input_cp =
+                                                (wchar_t *)inputString.c_str();
+                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_cp,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    const wchar_t *input_ccp =
+                                                           inputString.c_str();
+                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_ccp,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    std::wstring input_ss = inputString.c_str();
+                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_ss,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    std::wstring_view input_sv = inputString;
+                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_sv,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    bsl::wstring input_bs = inputString.c_str();
+                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_bs,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    bsl::wstring_view input_bv = inputString;
+                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_bv,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+      } break;
       case 11: {
         // -----------------------------------------------
         // TESTING parse(PARSE_CONTEXT&);
@@ -939,8 +1535,53 @@ int main(int argc, char **argv)
 
         bool rv;
 
-        rv = bslfmt::Formatter_TestUtil<char>::testEvaluate(&message,
+        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat(
+                                                               &message,
+                                                               "**abcde***",
+                                                               true,
+                                                               "{0:*^{1}.{2}}",
+                                                               "abcdefghi",
+                                                               10,
+                                                               5);
+
+        ASSERTV(message.c_str(), rv);
+
+        rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat(
+                                                              &message,
+                                                              L"**abcde***",
+                                                              true,
+                                                              L"{0:*^{1}.{2}}",
+                                                              winput,
+                                                              10,
+                                                              5);
+
+        ASSERTV(message.c_str(), rv);
+
+        rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat(
+                                                               &message,
+                                                               "**abcde***",
+                                                               true,
+                                                               "{0:*^{1}.{2}}",
+                                                               "abcdefghi",
+                                                               10,
+                                                               5);
+
+        ASSERTV(message.c_str(), rv);
+
+        rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseVFormat(
+                                                              &message,
+                                                              L"**abcde***",
+                                                              true,
+                                                              L"{0:*^{1}.{2}}",
+                                                              winput,
+                                                              10,
+                                                              5);
+
+        ASSERTV(message.c_str(), rv);
+
+        rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(&message,
                                                             "**abcde***",
+                                                            true,
                                                             "{0:*^{1}.{2}}",
                                                             "abcdefghi",
                                                             10,
@@ -948,9 +1589,32 @@ int main(int argc, char **argv)
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluate(
+        rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
                                                               &message,
                                                               L"**abcde***",
+                                                              true,
+                                                              L"{0:*^{1}.{2}}",
+                                                              winput,
+                                                              10,
+                                                              5);
+
+        ASSERTV(message.c_str(), rv);
+
+        rv = bslfmt::Formatter_TestUtil<char>::testEvaluateVFormat(
+                                                               &message,
+                                                               "**abcde***",
+                                                               true,
+                                                               "{0:*^{1}.{2}}",
+                                                               "abcdefghi",
+                                                               10,
+                                                               5);
+
+        ASSERTV(message.c_str(), rv);
+
+        rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
+                                                              &message,
+                                                              L"**abcde***",
+                                                              true,
                                                               L"{0:*^{1}.{2}}",
                                                               winput,
                                                               10,

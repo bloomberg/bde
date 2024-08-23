@@ -380,6 +380,34 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
 
     FSS::postprocess(&outSpec->d_basicSplitter, context);
 
+    switch (outSpec->d_basicSplitter.postprocessedWidth().valueType()) {
+      case FormatterSpecification_NumericValue::e_DEFAULT: {
+      } break;
+      case FormatterSpecification_NumericValue::e_VALUE: {
+        if (outSpec->d_basicSplitter.postprocessedWidth().value() <= 0)
+            BSLS_THROW(
+                 bsl::format_error("Zero or negative width value"));  // RETURN
+      } break;
+      default: {
+        BSLS_THROW(
+             bsl::format_error("Failed to find valid width value"));  // RETURN
+      }
+    }
+
+    switch (outSpec->d_basicSplitter.postprocessedPrecision().valueType()) {
+      case FormatterSpecification_NumericValue::e_DEFAULT: {
+      } break;
+      case FormatterSpecification_NumericValue::e_VALUE: {
+        if (outSpec->d_basicSplitter.postprocessedPrecision().value() < 0)
+            BSLS_THROW(
+                     bsl::format_error("Negative precision value"));  // RETURN
+      } break;
+      default: {
+        BSLS_THROW(
+         bsl::format_error("Failed to find valid precision value"));  // RETURN
+      }
+    }
+
     outSpec->d_parsingStatus =
                             FormatterSpecificationStandard::e_PARSING_COMPLETE;
 }

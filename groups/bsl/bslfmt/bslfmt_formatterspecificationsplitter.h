@@ -418,21 +418,24 @@ void FormatterSpecification_NumericValue::parse(
                 BSLS_THROW(
                     bsl::format_error("Nested arg id non-numeric"));  // RETURN
         }
+        outValue->d_value = 0;
+        outValue->d_type  = e_DEFAULT;
     }
+    else {
+        // We know buffer holds only digits, so it is safe to call atoi. As we
+        // do not allow + or - the value must be non-negative.
+        outValue->d_value = value;
 
-    // We know buffer holds only digits, so it is safe to call atoi. As we do
-    // not allow + or - the value must be non-negative.
-    outValue->d_value = value;
-
-    if (isArgId) {
-        // Relative argument references must have a closing brace.
-        if (current == end || *current != '}')
-            BSLS_THROW(
+        if (isArgId) {
+            // Relative argument references must have a closing brace.
+            if (current == end || *current != '}')
+                BSLS_THROW(
                     bsl::format_error("Nested arg id missing '}'"));  // RETURN
-        ++current;
-    }
+            ++current;
+        }
 
-    outValue->d_type = isArgId ? e_ARG_ID : e_VALUE;
+        outValue->d_type = isArgId ? e_ARG_ID : e_VALUE;
+    }
 
     *start = current;
 

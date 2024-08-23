@@ -172,8 +172,9 @@ struct Formatter_StringBase {
             totalPadDisplayWidth = 0;
           } break;
           case FSNVAlue::e_VALUE: {
-            totalPadDisplayWidth = finalWidth.value() -
-                                   displayWidthUsedByInputString;
+            totalPadDisplayWidth = bsl::max(
+                           0,
+                           finalWidth.value() - displayWidthUsedByInputString);
           } break;
           default: {
             BSLS_THROW(bsl::format_error("Invalid precision specifier"));
@@ -184,22 +185,20 @@ struct Formatter_StringBase {
 
         int leftPadFillerCopies = 0, rightPadFillerCopies = 0;
 
+        // Note that, per the C++ spec, the fill character is always assumed to
+        // have a field width of one, regardless of its actual field width.
         switch (d_spec.alignment()) {
           case FSS::e_ALIGN_DEFAULT:
           case FSS::e_ALIGN_LEFT: {
             leftPadFillerCopies = 0;
-            rightPadFillerCopies = totalPadDisplayWidth /
-                                   final_spec.fillerCodePointDisplayWidth();
+            rightPadFillerCopies = totalPadDisplayWidth;
           } break;
           case FSS::e_ALIGN_MIDDLE: {
-            leftPadFillerCopies = (totalPadDisplayWidth / 2) /
-                                  final_spec.fillerCodePointDisplayWidth();
-            rightPadFillerCopies = ((totalPadDisplayWidth + 1) / 2) /
-                                   final_spec.fillerCodePointDisplayWidth();
+            leftPadFillerCopies = (totalPadDisplayWidth / 2);
+            rightPadFillerCopies = ((totalPadDisplayWidth + 1) / 2);
           } break;
           case FSS::e_ALIGN_RIGHT: {
-            leftPadFillerCopies = totalPadDisplayWidth /
-                                  final_spec.fillerCodePointDisplayWidth();
+            leftPadFillerCopies = totalPadDisplayWidth;
             rightPadFillerCopies = 0;
           } break;
           default: {
