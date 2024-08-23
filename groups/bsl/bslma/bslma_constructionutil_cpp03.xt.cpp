@@ -1,4 +1,4 @@
-// bslma_constructionutil_cpp03.t.cpp                                 -*-C++-*-
+// bslma_constructionutil_cpp03.xt.cpp                                -*-C++-*-
 
 // Automatically generated file.  **DO NOT EDIT**
 
@@ -16,21 +16,21 @@
 // program that tests nothing and is not '#include'd in the original.
 //
 // Generated on Thu Oct 21 10:11:37 2021
-// Command line: sim_cpp11_features.pl bslma_constructionutil.t.cpp
+// Command line: sim_cpp11_features.pl bslma_constructionutil.xt.cpp
 
-// Expanded test driver only when compiling bslma_constructionutil.cpp
-#ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_T_CPP
+// Expanded test driver only when compiling bslma_constructionutil.xt.cpp
+#ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_XT_CPP
 
 // No C++03 Expansion
 
-#else // if ! defined(COMPILING_BSLMA_CONSTRUCTIONUTIL_T_CPP)
+#else // if ! defined(COMPILING_BSLMA_CONSTRUCTIONUTIL_XT_CPP)
 
-// Trivial program when not compiling bslma_constructionutil.t.cpp
+// Trivial program when not compiling bslma_constructionutil.xt.cpp
 int main() {
     return -1;
 }
 
-#endif // defined(COMPILING_BSLMA_CONSTRUCTIONUTIL_T_CPP)
+#endif // defined(COMPILING_BSLMA_CONSTRUCTIONUTIL_XT_CPP)
 
 // ----------------------------------------------------------------------------
 // Copyright 2021 Bloomberg Finance L.P.
