@@ -2097,7 +2097,7 @@ int main(int argc, char *argv[])
                 {
                     // Double check that the table itself is right.
                     bdlt::Datetime dt(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND);
-                    bsl::time_t    tt;
+                    bsl::time_t    tt = 0;
 
                     int s = Util::convertToTimeT(&tt, dt);
                     ASSERTV(LINE, s, 0 == s);

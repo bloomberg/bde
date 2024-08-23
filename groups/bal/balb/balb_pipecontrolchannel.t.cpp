@@ -1392,7 +1392,18 @@ int main(int argc, char *argv[])
         }
         cout << "A\n" << flush;
 #ifndef BSLS_PLATFORM_OS_DARWIN
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+
         *(int*)10 = 10;
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic pop
+#endif
+
 #else
         _exit(1);
 #endif

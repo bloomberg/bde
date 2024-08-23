@@ -7681,8 +7681,6 @@ int main(int argc, char *argv[])
         cout << "    balber::BerDecoder: "
              << elapsed          << " seconds, "
              << (reps / elapsed) << " reps/sec\n";
-
-        delete[] inRequests;
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

@@ -4,6 +4,7 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>       // 'atoi'
@@ -19,6 +20,10 @@ using bsl::flush;
 using bsl::endl;
 using bsl::ends;
 using bsl::size_t;
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 
 // ============================================================================
 //                                  TEST PLAN

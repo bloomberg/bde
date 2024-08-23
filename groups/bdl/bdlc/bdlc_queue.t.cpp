@@ -26,6 +26,10 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------

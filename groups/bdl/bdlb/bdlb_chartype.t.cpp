@@ -3,6 +3,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_cctype.h>    // 'bsl::isprint', 'bsl::toupper', etc.
 #include <bsl_cstdlib.h>   // 'bsl::atoi'
 #include <bsl_cstring.h>   // 'bsl::memset'
@@ -11,6 +13,10 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 
 // ============================================================================
 //                             TEST PLAN

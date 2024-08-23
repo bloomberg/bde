@@ -256,7 +256,7 @@ void roundTripTestNonNumericValues()
         ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
 
         bsl::string result(oss.str());
-        Type decoded;
+        Type decoded = -NAN_P;
         ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
         if (VALUE != VALUE) { // A NaN
             ASSERTV(LINE, VALUE, result, decoded, decoded != decoded);

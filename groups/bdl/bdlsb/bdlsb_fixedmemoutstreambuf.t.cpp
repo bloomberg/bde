@@ -4,6 +4,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
@@ -17,6 +18,10 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 
 //=============================================================================
 //                              TEST PLAN
