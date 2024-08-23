@@ -407,16 +407,17 @@ int MultiQueueThreadPool_Queue::resume()
     }
 
     if (!d_list.empty()) {
+        ++d_multiQueueThreadPool_p->d_numActiveQueues;
+
         int status = d_multiQueueThreadPool_p->d_threadPool_p->
                                                     enqueueJob(d_processingCb);
 
         if (0 != status) {
+            --d_multiQueueThreadPool_p->d_numActiveQueues;
             return 1;                                                 // RETURN
         }
 
         d_runState = e_SCHEDULED;
-
-        ++d_multiQueueThreadPool_p->d_numActiveQueues;
     }
     else {
         d_runState = e_NOT_SCHEDULED;
@@ -472,11 +473,11 @@ void MultiQueueThreadPool::deleteQueueCb(
 
     d_queuePool.releaseObject(queue);
 
+    --d_numActiveQueues;
+
     if (completionSignal) {
         completionSignal->arrive();
     }
-
-    --d_numActiveQueues;
 }
 
 // CREATORS

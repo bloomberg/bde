@@ -114,6 +114,8 @@ using namespace BloombergLP;
 // [30] DRQS 140150365: resume fails immediately after pause
 // [31] DRQS 140403279: pause can deadlock with delete and create
 // [32] DRQS 143578129: 'numElements' stress test
+// [34] DRQS 176332566: external threadpool shutdown race
+// [35] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -1499,7 +1501,7 @@ int main(int argc, char *argv[]) {
     bslma::DefaultAllocatorGuard dGuard(&da);
 
     switch (test) { case 0:
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1579,6 +1581,44 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // DRQS 176332566: external threadpool shutdown race
+        //
+        // Concerns:
+        //: 1 Deleting a MQTP using an external thread pool does not have a
+        //:   race condition with jobs in the thread pool.
+        //
+        // Plan:
+        //: 1 Stress test 'bdlmt::MultiQueueThreadPool' deletion when using
+        //:   an external threadpool.
+        //
+        // Testing:
+        //   DRQS 176332566: external threadpool shutdown race
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 176332566: external threadpool shutdown race\n"
+                 << "=================================================\n";
+        }
+
+        for (int i = 0; i < 1000; ++i) {
+            bslmt::ThreadAttributes defaultAttrs;
+            bdlmt::ThreadPool underlyingPool(defaultAttrs, 2, 2, 0);
+            underlyingPool.start();
+
+            // need to allocate to see data race with 'delete'
+            bdlmt::MultiQueueThreadPool *pool =
+                              new bdlmt::MultiQueueThreadPool(&underlyingPool);
+
+            pool->start();
+            int q = pool->createQueue();
+            pool->enqueueJob(q, noop);
+            pool->shutdown();
+
+            delete pool;
+        }
       }  break;
       case 33: {
         // --------------------------------------------------------------------
