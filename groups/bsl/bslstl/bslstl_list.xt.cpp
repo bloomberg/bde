@@ -13444,39 +13444,39 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
             if (verbose)
                 printf("\t\t\tOn an object of length " ZU ".\n", li);
 
-          int         throws = -1;
-          const Int64 beforeInUse = oa.numBlocksInUse();
-          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-            ++throws;
+            int         throws = -1;
+            const Int64 beforeInUse = oa.numBlocksInUse();
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                ++throws;
 
-            if (oa.numBlocksInUse() != beforeInUse) {
-                int jj = 0;  (void)jj;
-                ++jj;    // someplace to break point
-            }
+                if (oa.numBlocksInUse() != beforeInUse) {
+                    int jj = 0;  (void)jj;
+                    ++jj;    // someplace to break point
+                }
 
-            Obj mX(xoa);  const Obj& X = mX;                        // 1.
+                Obj mX(xoa);  const Obj& X = mX;                        // 1.
 
-            const TYPE *elemAddrs[NUM_TRIALS];
+                const TYPE *elemAddrs[NUM_TRIALS];
 
-            for (size_t i = 0; i < li; ++i) {                       // 2.
-                ExceptionProctor proctor(&mX, L_);
-                primaryCopier(&mX, VALUES[i % NUM_VALUES]);
-                elemAddrs[i] = bsls::Util::addressOf(X.back());
-                proctor.release();
-            }
+                for (size_t i = 0; i < li; ++i) {                       // 2.
+                    ExceptionProctor proctor(&mX, L_);
+                    primaryCopier(&mX, VALUES[i % NUM_VALUES]);
+                    elemAddrs[i] = bsls::Util::addressOf(X.back());
+                    proctor.release();
+                }
 
-            ASSERTV(li, li == X.size());                            // 3.
-            const_iterator it = X.begin();
+                ASSERTV(li, li == X.size());                            // 3.
+                const_iterator it = X.begin();
 
-            for (unsigned i = 0; i < li; ++it, ++i) {
-                ASSERTV(li, i, VALUES[i % NUM_VALUES] == *it);
-                ASSERTV(li, i, elemAddrs[i] == bsls::Util::addressOf(*it));
-            }
-          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                  // 4.
-          ASSERTV(li, oa.numBlocksInUse() - beforeInUse,
-                  beforeInUse == oa.numBlocksInUse());              // 5.
+                for (unsigned i = 0; i < li; ++it, ++i) {
+                    ASSERTV(li, i, VALUES[i % NUM_VALUES] == *it);
+                    ASSERTV(li, i, elemAddrs[i] == bsls::Util::addressOf(*it));
+                }
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                  // 4.
+            ASSERTV(li, oa.numBlocksInUse() - beforeInUse,
+                    beforeInUse == oa.numBlocksInUse());              // 5.
+            (void)throws;
         }
-        (void)throws;
     }
 
     if (verbose) printf("\t\tWith 'primaryCopier' and 'clear'\n");
