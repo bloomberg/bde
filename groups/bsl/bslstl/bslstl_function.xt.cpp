@@ -84,6 +84,8 @@ using namespace bsl;
 // ============================================================================
 //                                TEST PLAN
 // ----------------------------------------------------------------------------
+//@bdetdsplit SILENCE WARNINGS: UNUSED
+//
 //@bdetdsplit PARTS (syntax version 1.0.0)
 //@
 //@# This test driver will be split into multiple parts for faster compilation
