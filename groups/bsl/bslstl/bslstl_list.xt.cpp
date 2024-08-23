@@ -13444,7 +13444,6 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
             if (verbose)
                 printf("\t\t\tOn an object of length " ZU ".\n", li);
 
-#ifdef BDE_BUILD_TARGET_EXC
           int         throws = -1;
           const Int64 beforeInUse = oa.numBlocksInUse();
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
@@ -13477,8 +13476,8 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
           ASSERTV(li, oa.numBlocksInUse() - beforeInUse,
                   beforeInUse == oa.numBlocksInUse());              // 5.
         }
+        (void)throws;
     }
-#endif
 
     if (verbose) printf("\t\tWith 'primaryCopier' and 'clear'\n");
     {
