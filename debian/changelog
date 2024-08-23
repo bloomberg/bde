@@ -1,5 +1,51 @@
-bsl-internal (4.12.0.1) unstable; urgency=low
+bsl-internal (4.13.0.0) unstable; urgency=low
 
+  * daad2226e Bumped version to 4.13.0.0
+  * 1de8fbcfc Drqs 176332566/bdlmt multiqueuethreadpool external threadpool shutdown race (#4914)
+  * 155950641 reduce warnings (#4908)
+  * d5cd7541d Resplit bdlt_iso8601util tests as .xt.cpp. (#4913)
+  * 50a8af11d disable ranges on clang 15 + libstdc++ (DRQS 176388196) (#4912)
+  * e28f1d8aa Merge pull request #4910 from afeher/drqs-176400828-fix-ranges-on-macos
+  * 0c2b22bda suppress -Warray-bounds in bdlc_indexclerk (DRQS 176376910) (#4907)
+  * 87696e5e2 Fix race in bdlb::GuidUtil::generateNonSecure (#4904)
+  * ecb48eeaa correct gcc-12 warnings (#4905)
+  * 1bfed5e8f Remove AIX dpkg config (#4903)
+  * f01916122 Merge pull request #4898 from afeher/drqs-176135254-fix-overaligned-allocation-support
+  * 8e1d27a19 Fix hashtable test driver on cpp03. (#4900)
+  * f37874162 bdlb_randomdevice: get Windows using ::BCryptGenRandom from DLL (#4874)
+  * 6c8f88132 Split bslstl_hashtable test driver. (#4861)
+  * 4643ebff1 Update bsl::bitset constructor to accept unsigned long long (DRQS 176226577) (#4889)
+  * 971302f72 bslmt_throttle.t.cpp: fix UB in negative testing (#4891)
+  * 6de1639a8 Fix integer overflow UB in bdlt_date. (#4894)
+  * bd18fc341 Switch to BDEBLL (#4892)
+  * 716a44bb1 Fix bdlsb_overflowmemoutput UB. (#4887)
+  * f21f33036 Fix cpp03 file from DRQS 176233812 (#4890)
+  * 1b693a397 Optimize BSLMT_ONCE_DO for common case of already being done - {DRQS 172850109} (#4416)
+  * 0e96d09ba Merge pull request #4880 from afeher/drqs-175319912-modernize-use-override-in-bslx
+  * e44da2a54 Remove unevaluated lambdas from bdlb::NullableValue (DRQS 176233812) (#4884)
+  * 9b4ee7e52 Fix memcpy UB in bdlsb_overflowmemoutstreambuf. (#4881)
+  * 5a100f8d4 correct ubsan issue (#4886)
+  * 31c725940 Fix implementation of 'bsltf::ArgumentType::reset' (#4882)
+  * ca603efb7 Merge pull request #4879 from afeher/drqs-175319912-modernize-use-override-in-bslstl
+  * aa1137aa6 Merge pull request #4854 from afeher/DRQS_175774676-use-native-traits-when-present-istriviallydefaultconstructible
+  * e9ade4c2a Merge pull request #4878 from afeher/drqs-175319912-modernize-use-override-in-bsls
+  * 0b0bdde44 Merge pull request #4877 from afeher/drqs-175319912-modernize-use-override-in-bslmt
+  * 746d878dc Merge pull request #4876 from afeher/drqs-175319912-modernize-use-override-in-bslmf
+  * f75bffdf0 Merge pull request #4875 from afeher/drqs-175319912-modernize-use-override-in-bslma
+  * 5ade5e6e9 Merge pull request #4872 from afeher/drqs-175319912-bdl-modernize-use-override
+  * fe5bb419f Merge pull request #4873 from afeher/drqs-175319912-modernize-use-override-in-ball
+  * 6ec108c97 Merge pull request #4871 from afeher/drqs-175319912-bal-except-ball-modernize-use-override
+  * cf0beb5ae Merge pull request #4870 from afeher/drqs-175319912-bbl-modernize-use-override
+  * c0ec53e54 optional<Incomplete> second try (DRQS 173457570) (#4860)
+  * 40fa3544f reduce warnings (#4867)
+  * 90d060da6 Fix memcpy UBs in datum. (#4863)
+  * 9ae04457f Fix pmr detection on libc++. (#4862)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Aug 2024 15:52:12 -0400
+
+bsl-internal (4.12.0.1) git; urgency=low
+
+  * 03dd7c252 Changelog for version 4.12.0.1
   * 3be660995 Bdls filesystemutil remove socket drqs 176123156 (#4850)
   * b397b332e Avoid call to deprecated 'delete' method in 'bslma_polymorphicallocator.t.cpp' (#4853)
   * ef3e9ab9c 'bdldd::BlobUtilHexDumper' API improvements.  DRQS 175544483 (#4787)
@@ -16,7 +62,7 @@ bsl-internal (4.12.0.1) unstable; urgency=low
   * 0e4cc510f reduce warnings (#4844)
   * 0cb9f2989 Add static_cast to supress warning in bdlde_base64decoder (#4843)
 
- -- Bill Chapman <bchapman2@bloomberg.net>  Fri, 2 Aug 2024 11:13:12 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 5 Aug 2024 22:50:23 +0000
 
 bsl-internal (4.12.0.0) git; urgency=low
 
