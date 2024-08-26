@@ -89,9 +89,15 @@
 
 #include <bdldfp_decimal.h>
 
+#include <bslma_allocator.h>
+#include <bslma_allocatorutil.h>
+#include <bslma_bslallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
 #include <bdlb_nullablevalue.h>
 
 #include <bslmf_assert.h>
+
 #include <bsls_review.h>
 
 #include <bsls_assert.h>
@@ -109,13 +115,20 @@ class DatumMaker {
     // This concrete mechanism class provides "sugar" for easily creating
     // 'bdld::Datum' objects for testing.
 
-    // DATA
-    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
+  public:
+    // TYPES
+    typedef bsl::allocator<> AllocatorType;
 
+  private:
+    // DATA
+    AllocatorType d_allocator;  // allocator of dynamic memory
+
+private:
     // NOT IMPLEMENTED
     DatumMaker(const DatumMaker&);
     DatumMaker& operator=(const DatumMaker&);
 
+    // PRIVATE ACCESSORS
     template <class T> void operator()(T *) const;
         // This overload precludes an implicit (and unintended) conversion to
         // 'bool'.  This (unimplemented) function template should not be
@@ -2298,15 +2311,21 @@ class DatumMaker {
 
   public:
     // CREATORS
-    explicit DatumMaker(bslma::Allocator *basicAllocator);
-        // Create a new 'DatumMaker' object using the specified
-        // 'basicAllocator' to supply memory for created 'bdld::Datum'
-        // objects.
+    explicit DatumMaker(const AllocatorType& allocator);
+        // Create a new 'DatumMaker' object that uses the specified 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory
+        // for the created 'bdld::Datum' objects.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object (the one supplied at
-        // construction time.
+        // !DEPRECATED!: Use 'get_allocator()' instead.
+        //
+        // Return 'get_allocator().mechanism()'.
+
+    AllocatorType get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 
     bdld::Datum operator()() const;
         // Return a 'bdld::Datum' having a null value.
@@ -7617,17 +7636,22 @@ void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder *builder,
 
 // CREATORS
 inline
-DatumMaker::DatumMaker(bslma::Allocator *basicAllocator)
-: d_allocator_p(basicAllocator)
+DatumMaker::DatumMaker(const AllocatorType& allocator)
+: d_allocator(allocator)
 {
-    BSLS_ASSERT(basicAllocator);
 }
 
 // ACCESSORS
 inline
 bslma::Allocator *DatumMaker::allocator() const
 {
-    return d_allocator_p;
+    return get_allocator().mechanism();
+}
+
+inline
+DatumMaker::AllocatorType DatumMaker::get_allocator() const
+{
+    return d_allocator;
 }
 
 inline
@@ -7657,7 +7681,7 @@ bdld::Datum DatumMaker::operator()(double value) const
 inline
 bdld::Datum DatumMaker::operator()(const bslstl::StringRef& value) const
 {
-    return bdld::Datum::copyString(value, d_allocator_p);
+    return bdld::Datum::copyString(value, d_allocator);
 }
 
 inline
@@ -7677,7 +7701,7 @@ bdld::Datum DatumMaker::operator()(const bdld::DatumError& value) const
 {
     return bdld::Datum::createError(value.code(),
                                     value.message(),
-                                    d_allocator_p);
+                                    d_allocator);
 }
 
 inline
@@ -7695,25 +7719,25 @@ bdld::Datum DatumMaker::operator()(const bdlt::Time& value) const
 inline
 bdld::Datum DatumMaker::operator()(const bdlt::Datetime& value) const
 {
-    return bdld::Datum::createDatetime(value, d_allocator_p);
+    return bdld::Datum::createDatetime(value, d_allocator);
 }
 
 inline
 bdld::Datum DatumMaker::operator()(const bdlt::DatetimeInterval& value) const
 {
-    return bdld::Datum::createDatetimeInterval(value, d_allocator_p);
+    return bdld::Datum::createDatetimeInterval(value, d_allocator);
 }
 
 inline
 bdld::Datum DatumMaker::operator()(bdldfp::Decimal64 value) const
 {
-    return bdld::Datum::createDecimal64(value, d_allocator_p);
+    return bdld::Datum::createDecimal64(value, d_allocator);
 }
 
 inline
 bdld::Datum DatumMaker::operator()(bsls::Types::Int64 value) const
 {
-    return bdld::Datum::createInteger64(value, d_allocator_p);
+    return bdld::Datum::createInteger64(value, d_allocator);
 }
 
 inline
@@ -7731,7 +7755,7 @@ bdld::Datum DatumMaker::operator()(const bdld::Datum& value) const
 inline
 bdld::Datum DatumMaker::operator()(const bdld::DatumArrayRef& value) const
 {
-    return bdld::Datum::createArrayReference(value, d_allocator_p);
+    return bdld::Datum::createArrayReference(value, d_allocator);
 }
 
 inline
@@ -7766,7 +7790,7 @@ bdld::Datum DatumMaker::operator()(
 inline
 bdld::Datum DatumMaker::bin(const void *pointer, bsl::size_t size) const
 {
-    return bdld::Datum::copyBinary(pointer, size, d_allocator_p);
+    return bdld::Datum::copyBinary(pointer, size, d_allocator);
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -7775,7 +7799,7 @@ inline
 bdld::Datum DatumMaker::a(const ELEMENTS&... elements) const
 {
     const int numElements = sizeof...(ELEMENTS);
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements...);
     return builder.commit();
 }
@@ -7784,7 +7808,7 @@ inline
 bdld::Datum DatumMaker::a() const
 {
     const int numElements =  0u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder);
     return builder.commit();
 }
@@ -7795,7 +7819,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01
                           ) const
 {
     const int numElements =  1u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01);
     return builder.commit();
 }
@@ -7808,7 +7832,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements =  2u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02);
     return builder.commit();
@@ -7824,7 +7848,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements =  3u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03);
@@ -7843,7 +7867,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements =  4u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -7865,7 +7889,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements =  5u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -7890,7 +7914,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements =  6u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -7918,7 +7942,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements =  7u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -7949,7 +7973,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements =  8u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -7983,7 +8007,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements =  9u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -8020,7 +8044,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements = 10u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -8060,7 +8084,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements = 11u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -8103,7 +8127,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements = 12u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -8149,7 +8173,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements = 13u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -8198,7 +8222,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements = 14u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -8250,7 +8274,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements = 15u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -8305,7 +8329,7 @@ bdld::Datum DatumMaker::a(const ELEMENTS_01& elements_01,
                           ) const
 {
     const int numElements = 16u;
-    bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
+    bdld::DatumArrayBuilder builder(numElements, d_allocator);
     pushBackHelper(&builder, elements_01,
                              elements_02,
                              elements_03,
@@ -8342,7 +8366,7 @@ bdld::Datum DatumMaker::m(const ENTRIES&... entries) const
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries...);
     return builder.commit();
 }
@@ -8355,7 +8379,7 @@ bdld::Datum DatumMaker::m() const
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder);
     return builder.commit();
 }
@@ -8372,7 +8396,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02);
     return builder.commit();
@@ -8394,7 +8418,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8422,7 +8446,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8456,7 +8480,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8496,7 +8520,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8542,7 +8566,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8594,7 +8618,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8652,7 +8676,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8716,7 +8740,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8786,7 +8810,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8862,7 +8886,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -8944,7 +8968,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9032,7 +9056,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9126,7 +9150,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9226,7 +9250,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9332,7 +9356,7 @@ bdld::Datum DatumMaker::m(const ENTRIES_01& entries_01,
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9384,7 +9408,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES&... entries) const
     // See: https://connect.microsoft.com/VisualStudio/feedback/details/1523001
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries...);
     return builder.commit();
 }
@@ -9396,7 +9420,7 @@ bdld::Datum DatumMaker::mok() const
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder);
     return builder.commit();
 }
@@ -9412,7 +9436,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02);
     return builder.commit();
@@ -9433,7 +9457,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9460,7 +9484,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9493,7 +9517,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9532,7 +9556,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9577,7 +9601,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9628,7 +9652,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9685,7 +9709,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9748,7 +9772,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9817,7 +9841,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9892,7 +9916,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -9973,7 +9997,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -10060,7 +10084,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -10153,7 +10177,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -10252,7 +10276,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -10357,7 +10381,7 @@ bdld::Datum DatumMaker::mok(const ENTRIES_01& entries_01,
 
     BSLMF_ASSERT(0 == numArguments % 2);
 
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
+    bdld::DatumMapOwningKeysBuilder builder(d_allocator);
     pushBackHelper(&builder, entries_01,
                              entries_02,
                              entries_03,
@@ -10411,7 +10435,7 @@ bdld::Datum DatumMaker::im(const ENTRIES&... entries) const
     BSLMF_ASSERT(0 == numArguments % 2);
 
     const int mapElements = numArguments / 2;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, entries...);
     return builder.commit();
 }
@@ -10420,7 +10444,7 @@ inline
 bdld::Datum DatumMaker::im() const
 {
     const int mapElements = 0;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder);
     return builder.commit();
 }
@@ -10432,7 +10456,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 1;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01);
     return builder.commit();
 }
@@ -10447,7 +10471,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 2;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02);
     return builder.commit();
@@ -10466,7 +10490,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 3;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03);
@@ -10489,7 +10513,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 4;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10516,7 +10540,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 5;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10547,7 +10571,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 6;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10582,7 +10606,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 7;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10621,7 +10645,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 8;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10664,7 +10688,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 9;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10711,7 +10735,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 10;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10762,7 +10786,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 11;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10817,7 +10841,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 12;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10876,7 +10900,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 13;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -10939,7 +10963,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 14;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -11006,7 +11030,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 15;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -11077,7 +11101,7 @@ bdld::Datum DatumMaker::im(int             key_01,
                            ) const
 {
     const int mapElements = 16;
-    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator);
     pushBackHelper(&builder, key_01, entry_01,
                              key_02, entry_02,
                              key_03, entry_03,
@@ -11102,7 +11126,7 @@ bdld::Datum DatumMaker::im(int             key_01,
 inline
 bdld::Datum DatumMaker::ref(const bslstl::StringRef& string) const
 {
-    return bdld::Datum::createStringRef(string, d_allocator_p);
+    return bdld::Datum::createStringRef(string, d_allocator);
 }
 
 }  // close package namespace

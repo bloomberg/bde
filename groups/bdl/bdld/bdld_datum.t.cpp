@@ -203,7 +203,7 @@ using bdldfp::Decimal64;
 // [19] char *createUninitializedString(Datum&, SizeType, Allocator *);
 // [29] const char *dataTypeToAscii(Datum::DataType);
 // [ 3] void destroy(const Datum&, bslma::Allocator *);
-// [27] void disposeUninitializedArray(Datum *, basicAllocator *);
+// [27] void disposeUninitializedArray(Datum *, AllocatorType);
 // [28] void disposeUninitializedMap(DatumMutableMapRef *, ...);
 // [28] void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
 //
@@ -211,7 +211,7 @@ using bdldfp::Decimal64;
 // [ 7] Datum& operator=(const Datum& rhs) = default;
 //
 // ACCESSORS
-// [23] Datum clone(bslma::Allocator *basicAllocator) const;
+// [23] Datum clone(AllocatorType) const;
 // [16] bool isArray() const;
 // [ 3] bool isBoolean() const;
 // [ 3] bool isBinary() const;
@@ -4419,39 +4419,6 @@ int main(int argc, char *argv[])
             Datum::disposeUninitializedMap(map, &oa);
             ASSERT(0 == oa.numBytesInUse());
         }
-
-#ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) cout << "\nNegative Testing.\n";
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
-            bslma::Allocator     *nullAllocPtr =
-                                            static_cast<bslma::Allocator *>(0);
-            (void)nullAllocPtr;
-
-            if (verbose) cout << "\tTesting 'DatumMutableMapRef'.\n";
-            {
-                DatumMutableMapRef map;
-                Datum::createUninitializedMap(&map, 0, &oa);
-
-                ASSERT_SAFE_FAIL(Datum::disposeUninitializedMap(map,
-                                                                nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::disposeUninitializedMap(map, &oa));
-            }
-
-            if (verbose) cout << "\tTesting 'DatumMutableMapOwningKeysRef'.\n";
-            {
-                DatumMutableMapOwningKeysRef map;
-                Datum::createUninitializedMap(&map, 0, 0, &oa);
-
-                ASSERT_SAFE_FAIL(Datum::disposeUninitializedMap(map,
-                                                                nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::disposeUninitializedMap(map, &oa));
-            }
-            ASSERT(0 == oa.status());
-         }
-#endif  // Exceptions supported
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -4474,7 +4441,7 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones.  (C-2)
         //
         // Testing:
-        //   void disposeUninitializedArray(Datum *, basicAllocator *);
+        //   void disposeUninitializedArray(Datum *, AllocatorType);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'disposeUninitializedArray'"
                              "\n===================================\n";
@@ -4492,25 +4459,6 @@ int main(int argc, char *argv[])
             Datum::disposeUninitializedArray(array, &oa);
             ASSERT(0 == oa.numBytesInUse());
         }
-
-        if (verbose) cout << "\nNegative testing.\n";
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
-            bslma::Allocator     *nullAllocPtr =
-                                            static_cast<bslma::Allocator *>(0);
-            (void)nullAllocPtr;
-
-            DatumMutableArrayRef array;
-            Datum::createUninitializedArray(&array, 0, &oa);
-
-            ASSERT_SAFE_FAIL(Datum::disposeUninitializedArray(array,
-                                                              nullAllocPtr));
-            ASSERT_SAFE_PASS(Datum::disposeUninitializedArray(array, &oa));
-
-            ASSERT(0 == oa.status());
-         }
       } break;
       case 26: {
         // --------------------------------------------------------------------
@@ -4982,7 +4930,7 @@ int main(int argc, char *argv[])
         //:   deep copy of the referenced data.  (C-3)
         //
         // Testing:
-        //   Datum clone(bslma::Allocator *basicAllocator) const;
+        //   Datum clone(AllocatorType) const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'clone' METHOD"
                              "\n======================\n";
@@ -6145,23 +6093,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
             ASSERT(0 == ca.status());
         }
-
-        if (verbose) cout << "\nNegative testing.\n";
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
-            bslma::Allocator     *nullAllocPtr =
-                                            static_cast<bslma::Allocator *>(0);
-            (void)nullAllocPtr;
-
-            const Datum D = Datum::createNull();
-
-            ASSERT_FAIL(D.clone(nullAllocPtr));
-            ASSERT_PASS(D.clone(&oa));
-
-            ASSERT(0 == oa.status());
-         }
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -7434,19 +7365,12 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
-            bslma::Allocator *nullAllocPtr =
-                                            static_cast<bslma::Allocator *>(0);
-            (void)nullAllocPtr;
-
             Datum  mD;
             Datum *nullDatumPtr = static_cast<Datum *>(0);  (void)nullDatumPtr;
 
             ASSERT_FAIL(Datum::createUninitializedString(nullDatumPtr,
                                                          0,
                                                          &oa));
-            ASSERT_FAIL(Datum::createUninitializedString(&mD,
-                                                         0,
-                                                         nullAllocPtr));
             ASSERT_PASS(Datum::createUninitializedString(&mD, 0, &oa));
 
             Datum::destroy(mD, &oa);
@@ -7982,10 +7906,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
-            bslma::Allocator *nullAllocPtr =
-                                            static_cast<bslma::Allocator *>(0);
-            (void)nullAllocPtr;
-
             if (verbose) cout << "\tTesting 'createUninitializedMap' with a "
                                                     "map with external keys\n";
             {
@@ -7997,9 +7917,6 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Datum::createUninitializedMap(nullRefPtr,
                                                           0,
                                                           &oa));
-                ASSERT_FAIL(Datum::createUninitializedMap(&map,
-                                                          0,
-                                                          nullAllocPtr));
                 ASSERT_PASS(Datum::createUninitializedMap(&map,
                                                           0,
                                                           &oa));
@@ -8019,10 +7936,6 @@ int main(int argc, char *argv[])
                                                           0,
                                                           0,
                                                           &oa));
-                ASSERT_FAIL(Datum::createUninitializedMap(&map,
-                                                          0,
-                                                          0,
-                                                          nullAllocPtr));
                 ASSERT_PASS(Datum::createUninitializedMap(&map,
                                                           0,
                                                           0,
@@ -8288,10 +8201,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
-            bslma::Allocator *nullAllocPtr =
-                                            static_cast<bslma::Allocator *>(0);
-            (void)nullAllocPtr;
-
             if (verbose) cout << "\tTesting 'createUninitializedIntMap' with "
                                                   "a map with external keys\n";
             {
@@ -8303,9 +8212,6 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Datum::createUninitializedIntMap(nullRefPtr,
                                                              0,
                                                              &oa));
-                ASSERT_FAIL(Datum::createUninitializedIntMap(&map,
-                                                             0,
-                                                             nullAllocPtr));
                 ASSERT_PASS(Datum::createUninitializedIntMap(&map,
                                                              0,
                                                              &oa));
@@ -8585,10 +8491,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
-            bslma::Allocator *nullAllocPtr =
-                                            static_cast<bslma::Allocator *>(0);
-            (void)nullAllocPtr;
-
             const Datum  D            = Datum::createNull();
             const Datum *nullDatumPtr = static_cast<Datum *>(0);
             (void)nullDatumPtr;
@@ -8605,19 +8507,6 @@ int main(int argc, char *argv[])
                                                              &oa));
                 ASSERT_SAFE_PASS(Datum::createArrayReference(&D, 0, &oa));
                 ASSERT_SAFE_PASS(Datum::createArrayReference(&D, 1, &oa));
-                ASSERT_SAFE_FAIL(Datum::createArrayReference(&D,
-                                                             1,
-                                                             nullAllocPtr));
-            }
-
-            if (verbose) cout << "\tTesting 'createArrayReference("
-                                      "const DatumArrayRef&, Allocator *)'.\n";
-            {
-                const DatumArrayRef arrayRef(&D, 0);
-
-                ASSERT_SAFE_FAIL(Datum::createArrayReference(arrayRef,
-                                                             nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::createArrayReference(arrayRef, &oa));
             }
 
             if (verbose) cout << "\tTesting 'createUninitializedArray'\n";
@@ -8630,9 +8519,6 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Datum::createUninitializedArray(nullRefPtr,
                                                             0,
                                                             &oa));
-                ASSERT_FAIL(Datum::createUninitializedArray(&array,
-                                                            0,
-                                                            nullAllocPtr));
                 ASSERT_PASS(Datum::createUninitializedArray(&array,
                                                             0,
                                                             &oa));
@@ -10416,12 +10302,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting value constructor.\n";
         {
-            DatumMapEntry                           data;
+            DatumMapEntry                          data;
             DatumMutableMapOwningKeysRef::SizeType size;
-            char                                    keys;
-            bool                                    sorted;
+            DatumMutableMapOwningKeysRef::SizeType allocatedSize = 0;
+            char                                   keys;
+            bool                                   sorted;
             const DatumMutableMapOwningKeysRef      obj(&data,
                                                         &size,
+                                                        allocatedSize,
                                                         &keys,
                                                         &sorted);
 
@@ -10549,7 +10437,7 @@ int main(int argc, char *argv[])
         {
             Datum                          data;
             DatumMutableArrayRef::SizeType size = 1;
-            const DatumMutableArrayRef     obj(&data, &size);
+            const DatumMutableArrayRef     obj(&data, &size, 1);
 
             ASSERT(&data == obj.data());
             ASSERT(&size == obj.length());
@@ -13296,50 +13184,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         ta("test", veryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
-            bslma::Allocator *nullAllocPtr =
-                                            static_cast<bslma::Allocator *>(0);
-            (void)nullAllocPtr;
-
-            if (verbose) cout << "\tTesting 'createDatetime'.\n";
-            {
-                bdlt::Datetime temp;
-
-                ASSERT_FAIL(Datum::createDatetime(temp, nullAllocPtr));
-                ASSERT_PASS(Datum::destroy(
-                                       Datum::createDatetime(temp, &ta), &ta));
-            }
-
-            if (verbose) cout << "\tTesting 'createDatetimeInterval'.\n";
-            {
-                bdlt::DatetimeInterval temp;
-
-                ASSERT_FAIL(Datum::createDatetimeInterval(temp, nullAllocPtr));
-
-                ASSERT_PASS(Datum::destroy(
-                               Datum::createDatetimeInterval(temp, &ta), &ta));
-            }
-
-            if (verbose) cout << "\tTesting 'createError'.\n";
-            {
-                const int       CODE = 1;
-                const StringRef MESSAGE("temp");
-
-                ASSERT_FAIL(Datum::createError(CODE,
-                                               MESSAGE,
-                                               nullAllocPtr));
-                ASSERT_PASS(Datum::destroy(
-                                 Datum::createError(CODE, MESSAGE, &ta), &ta));
-            }
-
-            if (verbose) cout << "\tTesting 'createInteger64'.\n";
-            {
-                bsls::Types::Int64 temp = 1;
-
-                ASSERT_FAIL(Datum::createInteger64(temp, nullAllocPtr));
-                ASSERT_PASS(Datum::destroy(
-                                      Datum::createInteger64(temp, &ta), &ta));
-            }
-
             if (verbose) cout << "\tTesting 'createStringRef("
                                     "const char *, SizeType, Allocator *)'.\n";
             {
@@ -13354,11 +13198,6 @@ int main(int argc, char *argv[])
                                                         &ta));
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp, 0,      &ta));
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp, LENGTH, &ta));
-
-                // Allocator check.
-                ASSERT_SAFE_FAIL(Datum::createStringRef(temp,
-                                                        LENGTH,
-                                                        nullAllocPtr));
             }
 
             if (verbose) cout << "\tTesting 'createStringRef("
@@ -13370,16 +13209,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(Datum::createStringRef(nullCharPtr, &ta));
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp,        &ta));
-                ASSERT_SAFE_FAIL(Datum::createStringRef(temp, nullAllocPtr));
-            }
-
-            if (verbose) cout << "\tTesting 'createStringRef("
-                                          "const StringRef&, Allocator *)'.\n";
-            {
-                const bslstl::StringRef temp("temp");
-
-                ASSERT_SAFE_FAIL(Datum::createStringRef(temp, nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::createStringRef(temp, &ta));
             }
 
             if (verbose) cout << "\tTesting 'createUdt'.\n";
@@ -13410,10 +13239,6 @@ int main(int argc, char *argv[])
                                            &ta));
                 ASSERT_PASS(Datum::destroy(Datum::copyBinary(VALUE, SIZE, &ta),
                                            &ta));
-
-                // Allocator check.
-
-                ASSERT_FAIL(Datum::copyBinary(VALUE, SIZE, nullAllocPtr));
             }
 
             if (verbose) cout << "\tTesting 'copyString'.\n";
@@ -13428,18 +13253,6 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Datum::copyString(nullCharPtr, LEN, &ta));
                 ASSERT_PASS(Datum::copyString(temp,        0,   &ta));
                 ASSERT_PASS(Datum::copyString(temp,        LEN, &ta));
-
-                // Allocator check.
-
-                ASSERT_FAIL(Datum::copyString(temp, LEN, nullAllocPtr));
-            }
-
-            if (verbose) cout << "\tTesting 'destroy'.\n";
-            {
-                const Datum temp = Datum::createNull();
-
-                ASSERT_FAIL(Datum::destroy(temp, nullAllocPtr));
-                ASSERT_PASS(Datum::destroy(temp, &ta));
             }
 
             if (verbose) cout << "\tTesting 'theBinary'.\n";
