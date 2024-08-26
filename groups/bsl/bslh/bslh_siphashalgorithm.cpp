@@ -121,13 +121,9 @@ static u64 u8to64_le(const u8* p)
 {
     BSLS_ASSERT(p);
 
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
-    return *reinterpret_cast<const u64 *>(p);  // Ignore alignment.
-#else
     u64 ret;
     memcpy(&ret, p, sizeof(ret));
     return BSLS_BYTEORDER_LE_U64_TO_HOST(ret);
-#endif
 }
 
 
