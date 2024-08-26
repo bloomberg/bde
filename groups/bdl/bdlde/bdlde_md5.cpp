@@ -536,8 +536,14 @@ Md5::~Md5()
 // MANIPULATORS
 void Md5::update(const void *data, int length)
 {
-    BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(data || !length);
+    if (0 == length) {
+        // Nothing to update with.  This early return also avoids a UB of
+        // possibly calling `memcpy` with null as second argument.
+        return;                                                       // RETURN
+    }
+
+    BSLS_ASSERT(0 < length);
+    BSLS_ASSERT(data);
 
     const unsigned char *input = (const unsigned char *)data;
 
