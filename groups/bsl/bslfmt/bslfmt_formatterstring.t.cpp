@@ -262,7 +262,6 @@ void aSsErT(bool condition, const char *message, int line)
         bsl::string errorMsg;                                                 \
         bool        rv;                                                       \
                                                                               \
-        const type *dummyArg1 = 0;                                            \
         rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<const type *> \
                                                               (&errorMsg,     \
                                                                useOracle,     \
@@ -272,7 +271,6 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        type *dummyArg2 = 0;                                                  \
         rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<type *>       \
                                                               (&errorMsg,     \
                                                                useOracle,     \
@@ -282,7 +280,6 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        type dummyArg3[10];                                                   \
         rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<type[10]>     \
                                                               (&errorMsg,     \
                                                                useOracle,     \
@@ -292,9 +289,8 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        bsl::basic_string<type> dummyArg4;                                    \
         rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
-                                                    <bsl::basic_string<type>> \
+                                                    <bsl::basic_string<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
                                                                fmtStr);       \
@@ -303,9 +299,8 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        std::basic_string<type> dummyArg5;                                    \
         rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
-                                                    <std::basic_string<type>> \
+                                                    <std::basic_string<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
                                                                fmtStr);       \
@@ -314,9 +309,8 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        bsl::basic_string_view<type> dummyArg6;                               \
         rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
-                                               <bsl::basic_string_view<type>> \
+                                               <bsl::basic_string_view<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
                                                                fmtStr);       \
@@ -325,9 +319,8 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        TEST_STD_STRING_VIEW<type> dummyArg7;                                 \
         rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
-                                                 <TEST_STD_STRING_VIEW<type>> \
+                                                 <TEST_STD_STRING_VIEW<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
                                                                fmtStr);       \
@@ -341,7 +334,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-#if defined(__GLIBC__) && __GLIBC__ <= 2
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 13
 static const bool k_ORACLE_SUPPORT_UNICODE = false;
 #else
 static const bool k_ORACLE_SUPPORT_UNICODE = true;
@@ -853,7 +846,8 @@ int main(int argc, char **argv)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-                                    std::string_view input_sv = inputString;
+                                    std::string_view input_sv =
+                                                           inputString.c_str();
                                     rv = bslfmt::Formatter_TestUtil<char>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
@@ -980,7 +974,8 @@ int main(int argc, char **argv)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-                                    std::wstring_view input_sv = inputString;
+                                    std::wstring_view input_sv =
+                                                           inputString.c_str();
                                     rv = bslfmt::Formatter_TestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
@@ -1193,7 +1188,7 @@ int main(int argc, char **argv)
         TEST_PARSE_SUCCESS_F(char,     "{0:*^{1}.{1}}"         , true);
         TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*^{1}.{1}}"         , true);
 
-#if defined(__GLIBC__) && __GLIBC__ <= 2
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 13
         #define TPS TEST_PARSE_SUCCESS_VF
         bool oracle_uni = false;
 #else
