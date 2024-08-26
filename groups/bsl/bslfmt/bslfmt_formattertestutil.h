@@ -290,9 +290,9 @@ struct Formatter_TestUtil_Impl {
 
     template <class t_TYPE>
     static bool testParseFailure(
-                               bsl::string                    *message,
-                               bsl::basic_string_view<t_CHAR>  fmt,
-                               bool                            alsoTestOracle);
+                                bsl::string                    *message,
+                                bool                            alsoTestOracle,
+                                bsl::basic_string_view<t_CHAR>  fmt);
 
     template <class t_TYPE, class t_ARG_1, class t_ARG_2>
     static bool testParseFormat(
@@ -391,8 +391,8 @@ struct Formatter_TestUtil<char> {
 
     template <class t_TYPE>
     static bool testParseFailure(bsl::string                  *message,
-                                 bsl::basic_string_view<char>  fmt,
-                                 bool                          alsoTestOracle);
+                                 bool                          alsoTestOracle,
+                                 bsl::basic_string_view<char>  fmt);
 
     template <class t_TYPE, class t_ARG_1, class t_ARG_2>
     static bool testParseFormat(
@@ -437,8 +437,8 @@ struct Formatter_TestUtil<wchar_t> {
     template <class t_TYPE>
     static bool testParseFailure(
                               bsl::string                     *message,
-                              bsl::basic_string_view<wchar_t>  fmt,
-                              bool                             alsoTestOracle);
+                              bool                             alsoTestOracle,
+                              bsl::basic_string_view<wchar_t>  fmt);
 
     template <class t_TYPE, class t_ARG_1, class t_ARG_2>
     static bool testParseFormat(
@@ -512,13 +512,19 @@ bool Formatter_TestUtil_Impl<t_CHAR>::evaluateBslfmt(
 {
     Formatter_MockParseContext<t_CHAR> mpc(fmtStr, 3);
 
-    if (fmtStr.front() != '{') {
+    if (fmtStr.size() == 0 || fmtStr.front() != '{') {
         if (message)
             *message = "opening brace missing";
         return false;
     }
     fmtStr.remove_prefix(1);
     mpc.advance_to(mpc.begin() + 1);
+
+    if (fmtStr.size() == 0) {
+        if (message)
+            *message = "format string too short.";
+        return false;
+    }
 
     if (fmtStr.front() != '0' && fmtStr.front() != ':' &&
         fmtStr.front() != '}') {
@@ -531,6 +537,11 @@ bool Formatter_TestUtil_Impl<t_CHAR>::evaluateBslfmt(
         mpc.check_arg_id(0);
         fmtStr.remove_prefix(1);
         mpc.advance_to(mpc.begin() + 1);
+        if (fmtStr.size() == 0) {
+            if (message)
+                *message = "format string too short.";
+            return false;
+        }
         if (fmtStr.front() != ':' && fmtStr.front() != '}') {
             if (message)
                 *message = "Missing ':' separator";
@@ -539,6 +550,12 @@ bool Formatter_TestUtil_Impl<t_CHAR>::evaluateBslfmt(
     }
     else {
         mpc.next_arg_id();
+    }
+
+    if (fmtStr.size() == 0) {
+        if (message)
+            *message = "format string too short.";
+        return false;
     }
 
     if (fmtStr.front() == ':') {
@@ -659,18 +676,24 @@ template <class t_CHAR>
 template <class t_TYPE>
 bool Formatter_TestUtil_Impl<t_CHAR>::testParseFailure(
                                 bsl::string                    *message,
-                                bsl::basic_string_view<t_CHAR>  fmtStr,
-                                bool                            alsoTestOracle)
+                                bool                            alsoTestOracle,
+                                bsl::basic_string_view<t_CHAR>  fmtStr)
 {
     Formatter_MockParseContext<t_CHAR> mpc1(fmtStr, 3);
 
-    if (fmtStr.front() != '{') {
+    if (fmtStr.size() == 0 || fmtStr.front() != '{') {
         if (message)
             *message = "opening brace missing";
         return false;
     }
     fmtStr.remove_prefix(1);
     mpc1.advance_to(mpc1.begin() + 1);
+
+    if (fmtStr.size() == 0) {
+        if (message)
+            *message = "format string too short.";
+        return false;
+    }
 
     if (fmtStr.front() != '0' &&
         fmtStr.front() != ':' &&
@@ -686,6 +709,11 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testParseFailure(
         mpc1.check_arg_id(0);
         fmtStr.remove_prefix(1);
         mpc1.advance_to(mpc1.begin() + 1);
+        if (fmtStr.size() == 0) {
+            if (message)
+                *message = "format string too short.";
+            return false;
+        }
         if (fmtStr.front() != ':' && fmtStr.front() != '}') {
             if (message)
                 *message = "Missing ':' separator";
@@ -696,6 +724,12 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testParseFailure(
     else {
         (void) mpc1.next_arg_id();
         haveArgIds = false;
+    }
+
+    if (fmtStr.size() == 0) {
+        if (message)
+            *message = "format string too short.";
+        return false;
     }
 
     if (fmtStr.front() == ':') {
@@ -776,13 +810,19 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testParseVFormat(
 {
     Formatter_MockParseContext<t_CHAR> mpc1(fmtStr, 3);
 
-    if (fmtStr.front() != '{') {
+    if (fmtStr.size() == 0 || fmtStr.front() != '{') {
         if (message)
             *message = "opening brace missing";
         return false;
     }
     fmtStr.remove_prefix(1);
     mpc1.advance_to(mpc1.begin() + 1);
+
+    if (fmtStr.size() == 0) {
+        if (message)
+            *message = "format string too short.";
+        return false;
+    }
 
     if (fmtStr.front() != '0' && fmtStr.front() != ':' &&
         fmtStr.front() != '}') {
@@ -797,6 +837,11 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testParseVFormat(
         mpc1.check_arg_id(0);
         fmtStr.remove_prefix(1);
         mpc1.advance_to(mpc1.begin() + 1);
+        if (fmtStr.size() == 0) {
+            if (message)
+            *message = "format string too short.";
+            return false;
+        }
         if (fmtStr.front() != ':' && fmtStr.front() != '}') {
             if (message)
                 *message = "Missing ':' separator";
@@ -807,6 +852,12 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testParseVFormat(
     else {
         (void)mpc1.next_arg_id();
         haveArgIds = false;
+    }
+
+    if (fmtStr.size() == 0) {
+        if (message)
+            *message = "format string too short.";
+        return false;
     }
 
     if (fmtStr.front() == ':') {
@@ -901,13 +952,13 @@ bool Formatter_TestUtil<char>::testEvaluateVFormat(
 template <class t_TYPE>
 bool Formatter_TestUtil<char>::testParseFailure(
                                   bsl::string                  *message,
-                                  bsl::basic_string_view<char>  fmt,
-                                  bool                          alsoTestOracle)
+                                  bool                          alsoTestOracle,
+                                  bsl::basic_string_view<char>  fmt)
 {
     return Formatter_TestUtil_Impl<char>::testParseFailure<t_TYPE>(
-                                                               message,
-                                                               fmt,
-                                                               alsoTestOracle);
+                                                                message,
+                                                                alsoTestOracle,
+                                                                fmt);
 }
 
 template <class t_TYPE, class t_ARG_1, class t_ARG_2>
@@ -983,13 +1034,13 @@ bool Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
 template <class t_TYPE>
 bool Formatter_TestUtil<wchar_t>::testParseFailure(
                                bsl::string                     *message,
-                               bsl::basic_string_view<wchar_t>  fmt,
-                               bool                             alsoTestOracle)
+                               bool                             alsoTestOracle,
+                               bsl::basic_string_view<wchar_t>  fmt)
 {
     return Formatter_TestUtil_Impl<wchar_t>::testParseFailure<t_TYPE>(
-                                                               message,
-                                                               fmt,
-                                                               alsoTestOracle);
+                                                                message,
+                                                                alsoTestOracle,
+                                                                fmt);
 }
 
 template <class t_TYPE, class t_ARG_1, class t_ARG_2>

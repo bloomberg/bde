@@ -377,14 +377,16 @@ struct formatter<FormattableType, t_CHAR> {
 
 #if 0
 #include <iostream>
-//#include <Windows.h>
-//#include <io.h>
+#include <Windows.h>
+#include <io.h>
 #include <fcntl.h>
 #include <locale>
 
 void dummy()
 {
     SetConsoleOutputCP(65001);
+
+    const char8_t * random = u8"\U0001F600";
 
     const char8_t *ufills[] = {u8"",
                               u8"*<",
@@ -400,14 +402,16 @@ void dummy()
                               "\\U0001F600<",
                               "\\U0001F600>",
                               "\\U0001F600^"};
+    const char *cafills[] =
+        {"", "*<", "*>", "*^", "\\xF0\\x9F\\x98\\x80<", "\\xF0\\x9F\\x98\\x80>", "\\xF0\\x9F\\x98\\x80^"};
 
-    const char8_t *uwidths[] = {u8"", u8"1", u8"5", u8"10"};
-    const char *awidths[] = {"", "1", "5", "10"};
+    const char8_t *uwidths[] = {u8"", u8"5"};
+    const char *awidths[] = {"", "5"};
 
     const char8_t *uprecisions[] =
-                                {u8"", u8".0", u8".1", u8".2", u8".3"};
+                                {u8"", u8".0", u8".3"};
     const char *aprecisions[] =
-                                {"", ".0", ".1", ".2", ".3", ".8"};
+                                {"", ".0", ".8"};
 
     const char8_t *uinputs[] = {
         u8"",
@@ -425,59 +429,106 @@ void dummy()
 
     int lines = 0;
 
+    std::string aprev = "unknown";
+
+    for (int at = 0; at < 3; at++) {
+    
     for (int f = 0; f < sizeof(ufills) / sizeof(char8_t *); f++) {
-        for (int w = 0; w < sizeof(uwidths) / sizeof(char8_t *); w++) {
-            for (int p = 0; p < sizeof(uprecisions) / sizeof(char8_t *); p++) {
-                for (int i = 0; i < sizeof(uinputs) / sizeof(char8_t *); i++) {
-                    std::string afmt  = "{:";
+            for (int w = 0; w < sizeof(uwidths) / sizeof(char8_t *); w++) {
+                for (int p = 0; p < sizeof(uprecisions) / sizeof(char8_t *);
+                     p++) {
+                    //for (int i = 0;
+                    // i < sizeof(uinputs) / sizeof(char8_t *); i++) {
+                    int         i    = 0;
+
+                    std::string afmt = "{";
+                    if (at == 2)
+                        afmt += "0";
+                    afmt += ":";
+
                     afmt += (const char *)afills[f];
-                    afmt += (const char *)awidths[w];
-                    afmt += (const char *)aprecisions[p];
+
+                    if (at == 0 && awidths[w] != "") {
+                        afmt += (const char *)awidths[w];
+                    }
+                    if (at == 1 && awidths[w] != "") {
+                        afmt += "{}";
+                    }
+                    if (at == 2 && awidths[w] != "") {
+                        afmt += "{1}";
+                    }
+
+                    if (at == 0 && aprecisions[p] != "") {
+                        afmt += (const char *)aprecisions[p];
+                    }
+                    if (at == 1 && aprecisions[p] != "") {
+                        afmt += ".{}";
+                    }
+                    if (at == 2 && aprecisions[p] != "") {
+                        afmt += ".{1}";
+                    }
+                    
                     afmt += "}";
-                    std::string afmti = (const char *)ainputs[i];
-                    std::string ufmt  = "{:";
-                    ufmt += (const char *)ufills[f];
-                    ufmt += (const char *)uwidths[w];
-                    ufmt += (const char *)uprecisions[p];
-                    ufmt += "}";
-                    std::string ufmti = (const char *)uinputs[i];
 
-                    std::string result = std::vformat(
-                                                  ufmt,
-                                                  std::make_format_args(ufmti));
+                    std::string cafmt = "{";
+                    if (at == 2)
+                        cafmt += "0";
+                    cafmt += ":";
 
-                    //for (int j = 0; j < result.size(); j++) {
-                    //    std::cout << j << ": " << (int)result[j] << std::endl;
-                    //}
-                    //if (lines < 99999)
-                    //    std::cout << afmt << " " << afmti << " " << result
-                    //              << std::endl;
+                    cafmt += (const char *)cafills[f];
+
+                    if (at == 0 && awidths[w] != "") {
+                        cafmt += (const char *)awidths[w];
+                    }
+                    if (at == 1 && awidths[w] != "") {
+                        cafmt += "{}";
+                    }
+                    if (at == 2 && awidths[w] != "") {
+                        cafmt += "{1}";
+                    }
+
+                    if (at == 0 && aprecisions[p] != "") {
+                        cafmt += (const char *)aprecisions[p];
+                    }
+                    if (at == 1 && aprecisions[p] != "") {
+                        cafmt += ".{}";
+                    }
+                    if (at == 2 && aprecisions[p] != "") {
+                        cafmt += ".{1}";
+                    }
+
+                    cafmt += "}";
+
+
+
                     std::string::size_type pos;
                     bool                   unicode = false;
-                    while ((pos = result.find(
-                                    (const char *)u8"\u006e\u0303")) !=
-                           std::string::npos) {
-                        result.replace(pos,
-                                       sizeof(u8"\u006e\u0303") - 1,
-                                       "\\u006e\\u0303");
+
+                    if (f > 3)
                         unicode = true;
+                    if (afmt != aprev) {
+                        std::string qafmt = std::format("\"{}\"", afmt);
+                        std::string cqafmt = std::format(" \"{}\"", cafmt);
+                        std::string wqafmt = std::format("L\"{}\"", afmt);
+                        if (lines < 99999 && unicode)
+                            std::cout
+                                << std::format("        TPS(char,    "
+                                               "{:32}, oracle_uni);\n",
+                                               cqafmt)
+                                << std::format("        TPS(wchar_t, "
+                                               "{:32}, oracle_uni);",
+                                               wqafmt)
+                                << std::endl;
                     }
-                    while ((pos = result.find(
-                                    (const char *)u8"\U0001F600")) !=
-                           std::string::npos) {
-                        result.replace(
-                                    pos,
-                                    sizeof(u8"\U0001F600") - 1,
-                                    "\\U0001F600");
-                        unicode = true;
-                    }
-                    if (lines < 99999 && unicode)
-                        std::cout << afmt << " " << afmti << " " << result
-                                  << std::endl;
+
+                    aprev = afmt;
                     //for (int j = 0; j < result.size(); j++) {
-                    //    std::cout << j << ": " << (int)result[j] << std::endl;
+                    //    std::cout << j << ":
+                    //    " << (int)result[j] << std::endl;
                     //}
-                    if (unicode) lines++;
+                    if (unicode)
+                        lines++;
+                        //}
                 }
             }
         }
@@ -497,8 +548,8 @@ void dummy()
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-        // dummy();
-        // return 0;
+         //dummy();
+         //return 0;
 
     int        aaa     = sizeof(char);
     int        bbb     = sizeof(wchar_t);

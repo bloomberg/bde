@@ -9,7 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <bslfmt_formatimp.h> // Testing only
+#include <bslfmt_formatimp.h> // Testing only (`bsl::format` - breathing test)
+
 #include <bslfmt_formattertestutil.h> // Testing only
 
 using namespace BloombergLP;
@@ -136,12 +137,118 @@ void aSsErT(bool condition, const char *message, int line)
 #define UTF8_LITERAL(EXPR) EXPR
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+#define TEST_STD_STRING_VIEW std::basic_string_view
+#else
+#define TEST_STD_STRING_VIEW bsl::basic_string_view
+#endif
+
 #define TEST_PARSE_FAIL(type, fmtStr, useOracle)                               \
     {                                                                          \
         bsl::string errorMsg;                                                  \
         bool rv;                                                               \
         rv = bslfmt::Formatter_TestUtil<type>::                                \
-                 testParseFailure<const type *>(&errorMsg, fmtStr, useOracle); \
+                 testParseFailure<const type *>(&errorMsg, useOracle, fmtStr); \
+        if (!rv) {                                                             \
+            bsl::basic_string<type> formatStr(fmtStr);                         \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
+        }                                                                      \
+    }
+
+
+
+#define TEST_PARSE_SUCCESS(type, fmtStr, useOracle)                            \
+    {                                                                          \
+        bsl::string errorMsg;                                                  \
+        bool rv;                                                               \
+                                                                               \
+        const type *dummyArg1 = 0;                                             \
+        rv = bslfmt::Formatter_TestUtil<type>::                                \
+                 testParseFormat(&errorMsg,                                    \
+                                  useOracle,                                   \
+                                  fmtStr,                                      \
+                                  dummyArg1,                                   \
+                                  0,                                           \
+                                  0);                                          \
+        if (!rv) {                                                             \
+            bsl::basic_string<type> formatStr(fmtStr);                         \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
+        }                                                                      \
+                                                                               \
+        type *dummyArg2 = 0;                                                   \
+        rv = bslfmt::Formatter_TestUtil<type>::                                \
+                 testParseFormat(&errorMsg,                                    \
+                                  useOracle,                                   \
+                                  fmtStr,                                      \
+                                  dummyArg2,                                   \
+                                  0,                                           \
+                                  0);                                          \
+        if (!rv) {                                                             \
+            bsl::basic_string<type> formatStr(fmtStr);                         \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
+        }                                                                      \
+                                                                               \
+                                                                               \
+        type dummyArg3[10];                                                    \
+        rv = bslfmt::Formatter_TestUtil<type>::                                \
+                 testParseFormat(&errorMsg,                                    \
+                                  useOracle,                                   \
+                                  fmtStr,                                      \
+                                  dummyArg3,                                   \
+                                  0,                                           \
+                                  0);                                          \
+        if (!rv) {                                                             \
+            bsl::basic_string<type> formatStr(fmtStr);                         \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
+        }                                                                      \
+                                                                               \
+        bsl::basic_string<type> dummyArg4;                                     \
+        rv = bslfmt::Formatter_TestUtil<type>::                                \
+                 testParseFormat(&errorMsg,                                    \
+                                  useOracle,                                   \
+                                  fmtStr,                                      \
+                                  dummyArg4,                                   \
+                                  0,                                           \
+                                  0);                                          \
+        if (!rv) {                                                             \
+            bsl::basic_string<type> formatStr(fmtStr);                         \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
+        }                                                                      \
+                                                                               \
+        std::basic_string<type> dummyArg5;                                     \
+        rv = bslfmt::Formatter_TestUtil<type>::                                \
+                 testParseFormat(&errorMsg,                                    \
+                                  useOracle,                                   \
+                                  fmtStr,                                      \
+                                  dummyArg5,                                   \
+                                  0,                                           \
+                                  0);                                          \
+        if (!rv) {                                                             \
+            bsl::basic_string<type> formatStr(fmtStr);                         \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
+        }                                                                      \
+                                                                               \
+        bsl::basic_string_view<type> dummyArg6;                                \
+        rv = bslfmt::Formatter_TestUtil<type>::                                \
+                 testParseFormat(&errorMsg,                                    \
+                                  useOracle,                                   \
+                                  fmtStr,                                      \
+                                  dummyArg6,                                   \
+                                  0,                                           \
+                                  0);                                          \
+        if (!rv) {                                                             \
+            bsl::basic_string<type> formatStr(fmtStr);                         \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
+        }                                                                      \
+                                                                               \
+        TEST_STD_STRING_VIEW<type> dummyArg7;                                  \
+        rv = bslfmt::Formatter_TestUtil<type>::                                \
+                 testParseFormat(&errorMsg,                                    \
+                                  useOracle,                                   \
+                                  fmtStr,                                      \
+                                  dummyArg7,                                   \
+                                  0,                                           \
+                                  0);                                          \
         if (!rv) {                                                             \
             bsl::basic_string<type> formatStr(fmtStr);                         \
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
@@ -501,12 +608,86 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 12: {
-        // -----------------------------------------------
-        // TESTING parse(PARSE_CONTEXT&);
+      case 13: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //: 1 Use test contexts to format a single string.
         //
         // Testing:
-        //   parse(PARSE_CONTEXT&);
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+///Example: Formatting a basic string
+/// - - - - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`, so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to test this formatter's ability to a substring with padding
+// and minimum width.
+//
+//..
+        bslfmt::Formatter_MockParseContext<char> mpc("*<5.3s", 1);
+
+        bsl::formatter<const char *, char> f;
+        mpc.advance_to(f.parse(mpc));
+
+        const char *value = "abcdefghij";
+
+        bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+
+        mfc.advance_to(bsl::as_const(f).format(value, mfc));
+
+        ASSERT("abc**" == mfc.finalString());
+//..
+//
+      } break;
+      case 12: {
+        // -----------------------------------------------
+        // TESTING format(VALUE, FORMAT_CONTEXT&);
+        //
+        // Concerns:
+        //: 1 After parsing a valid format spec, `format` will correctly format
+        //:   a valid string type.
+        //:
+        //: 2 Valid format strings will not generate a parse error
+        //
+        // Plan:
+        //: 1 Construct format specifications corresponding to multiple
+        //:   precisions, widths and fills.
+        //:
+        //: 2 Construct input strings of various lenghts, containing both ascii
+        //:   and unicode.
+        //:
+        //: 3 Verify that, for each of the specificaitons and inputs
+        //:   constructed in steps 1 and 2 the result of the `format` function
+        //:   matches an independently calculated result.
+        //:
+        //: 4 Verify that, for each of the specificaitons and inputs
+        //:   constructed in steps 1 and 2 the result of the `format` function
+        //:   matches the result from calling `std::format` where supported on the
+        //:   platform.
+        //:
+        //: 5 Repeat steps 1-4 for all of the supported string types:
+        //:   - char *
+        //:   - const char *
+        //:   - std::string_view
+        //:   - bsl::string_view
+        //:   - std::string
+        //:   - bsl::string
+        //:
+        //: 6 Repeat step 5 for the wchar_t equivalent types.
+        //
+        // Testing:
+        //   format(VALUE, FORMAT_CONTEXT&);
         // -----------------------------------------------
         if (verbose)
             printf("\nTESTING parse(PARSE_CONTEXT&);"
@@ -772,6 +953,19 @@ int main(int argc, char **argv)
         // -----------------------------------------------
         // TESTING parse(PARSE_CONTEXT&);
         //
+        // Concerns:
+        //: 1 Invalid format specs will generate a parse error
+        //:
+        //: 2 Valid format specs will not generate a parse error
+        //
+        // Plan:
+        //: 1 Construct format specs corresponding to each of the known error
+        //:   conditions and verify that they result in a parse error. (C-1)
+        //:
+        //: 2 Construct format specs containing different combinations of
+        //:   valid specification components and verify that they correctly
+        //:   parse. (C-2)
+        //
         // Testing:
         //   parse(PARSE_CONTEXT&);
         // -----------------------------------------------
@@ -851,6 +1045,129 @@ int main(int argc, char **argv)
         TEST_PARSE_FAIL(char,     "{0:*<{3}.{2}s}",   false);
         TEST_PARSE_FAIL(wchar_t, L"{0:*<{1}.{3}s}",   false);
         TEST_PARSE_FAIL(wchar_t, L"{0:*<{3}.{2}s}",   false);
+
+        // A selection of valid format strings (non-unicode)
+        TEST_PARSE_SUCCESS(char,     "{:}"                   , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:}"                   , true);
+        TEST_PARSE_SUCCESS(char,     "{:.0}"                 , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:.0}"                 , true);
+        TEST_PARSE_SUCCESS(char,     "{:.8}"                 , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:.8}"                 , true);
+        TEST_PARSE_SUCCESS(char,     "{:5}"                  , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:5}"                  , true);
+        TEST_PARSE_SUCCESS(char,     "{:5.0}"                , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:5.0}"                , true);
+        TEST_PARSE_SUCCESS(char,     "{:5.8}"                , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:5.8}"                , true);
+        TEST_PARSE_SUCCESS(char,     "{:*<}"                 , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*<}"                 , true);
+        TEST_PARSE_SUCCESS(char,     "{:*<.0}"               , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*<.0}"               , true);
+        TEST_PARSE_SUCCESS(char,     "{:*<.8}"               , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*<.8}"               , true);
+        TEST_PARSE_SUCCESS(char,     "{:*<5}"                , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*<5}"                , true);
+        TEST_PARSE_SUCCESS(char,     "{:*<5.0}"              , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*<5.0}"              , true);
+        TEST_PARSE_SUCCESS(char,     "{:*<5.8}"              , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*<5.8}"              , true);
+        TEST_PARSE_SUCCESS(char,     "{:*>}"                 , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*>}"                 , true);
+        TEST_PARSE_SUCCESS(char,     "{:*>.0}"               , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*>.0}"               , true);
+        TEST_PARSE_SUCCESS(char,     "{:*>.8}"               , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*>.8}"               , true);
+        TEST_PARSE_SUCCESS(char,     "{:*>5}"                , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*>5}"                , true);
+        TEST_PARSE_SUCCESS(char,     "{:*>5.0}"              , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*>5.0}"              , true);
+        TEST_PARSE_SUCCESS(char,     "{:*>5.8}"              , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*>5.8}"              , true);
+        TEST_PARSE_SUCCESS(char,     "{:*^}"                 , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*^}"                 , true);
+        TEST_PARSE_SUCCESS(char,     "{:*^.0}"               , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*^.0}"               , true);
+        TEST_PARSE_SUCCESS(char,     "{:*^.8}"               , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*^.8}"               , true);
+        TEST_PARSE_SUCCESS(char,     "{:*^5}"                , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*^5}"                , true);
+        TEST_PARSE_SUCCESS(char,     "{:*^5.0}"              , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*^5.0}"              , true);
+        TEST_PARSE_SUCCESS(char,     "{:*^5.8}"              , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*^5.8}"              , true);
+        TEST_PARSE_SUCCESS(char,     "{:{}.{}}"              , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:{}.{}}"              , true);
+        TEST_PARSE_SUCCESS(char,     "{:*<{}.{}}"            , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*<{}.{}}"            , true);
+        TEST_PARSE_SUCCESS(char,     "{:*>{}.{}}"            , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*>{}.{}}"            , true);
+        TEST_PARSE_SUCCESS(char,     "{:*^{}.{}}"            , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{:*^{}.{}}"            , true);
+        TEST_PARSE_SUCCESS(char,     "{0:{1}.{1}}"           , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{0:{1}.{1}}"           , true);
+        TEST_PARSE_SUCCESS(char,     "{0:*<{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{0:*<{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS(char,     "{0:*>{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{0:*>{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS(char,     "{0:*^{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS(wchar_t, L"{0:*^{1}.{1}}"         , true);
+
+        bool oracle_uni = k_ORACLE_SUPPORT_UNICODE;
+
+        #define TPS TEST_PARSE_SUCCESS
+
+        // A selection of vaid format strings (unicode)
+        TPS(char,     "{:\xF0\x9F\x98\x80<}"         , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<}"               , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<.0}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<.0}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<.8}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<.8}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<5}"        , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<5}"              , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<5.0}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<5.0}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<5.8}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<5.8}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>}"         , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>}"               , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>.0}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>.0}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>.8}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>.8}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>5}"        , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>5}"              , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>5.0}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>5.0}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>5.8}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>5.8}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^}"         , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^}"               , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^.0}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^.0}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^.8}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^.8}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^5}"        , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^5}"              , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^5.0}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^5.0}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^5.8}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^5.8}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<{}.{}}"    , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<{}.{}}"          , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>{}.{}}"    , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>{}.{}}"          , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^{}.{}}"    , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^{}.{}}"          , oracle_uni);
+        TPS(char,     "{0:\xF0\x9F\x98\x80<{1}.{1}}" , oracle_uni);
+        TPS(wchar_t, L"{0:\U0001F600<{1}.{1}}"       , oracle_uni);
+        TPS(char,     "{0:\xF0\x9F\x98\x80>{1}.{1}}" , oracle_uni);
+        TPS(wchar_t, L"{0:\U0001F600>{1}.{1}}"       , oracle_uni);
+        TPS(char,     "{0:\xF0\x9F\x98\x80^{1}.{1}}" , oracle_uni);
+        TPS(wchar_t, L"{0:\U0001F600^{1}.{1}}"       , oracle_uni);
+
+        #undef TPS
+
       } break;
       case 10: {
         // -----------------------------------------------

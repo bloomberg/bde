@@ -249,8 +249,8 @@ class Format_FormatArg_ImpUtils {
     // CLASS METHODS
 
     /// Replace the members of the specified `out` parameter by
-    // `basic_format_arg` objects constructed from the members of the specified
-    // `fmt_args` parameter.
+    /// `basic_format_arg` objects constructed from the members of the specified
+    /// `fmt_args` parameter.
     template <class t_CONTEXT, class... t_FMTARGS>
     static void makeFormatArgArray(
       bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
