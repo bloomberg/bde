@@ -2929,7 +2929,6 @@ struct TestDriver {
     // CONSTANTS
     static
     const bool s_typeIsMoveEnabled =
-            bsl::is_nothrow_move_constructible<TYPE>::value ||
             bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
             bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
             bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value ||
@@ -15256,7 +15255,7 @@ void TestDriver<TYPE, ALLOC>::testCase7()
     const size_t     NUM_VALUES = VALUES.size();
 
     const bool NOT_MOVABLE = !(bslmf::IsBitwiseMoveable<TYPE>::value ||
-                                                          s_typeIsMoveEnabled);
+                              bsl::is_nothrow_move_constructible<TYPE>::value);
 
         // if moveable, moves do not count as allocs
     const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
@@ -15461,8 +15460,9 @@ void TestDriver<TYPE, ALLOC>::testCase7()
                         // one allocation (irrespective of 'noexcept' traits).
 
                         const Int64 STRETCH_ALLOC = TYPE_ALLOC
-                                                  ? s_typeIsMoveEnabled ? 1 : 2
-                                                  : 0;
+                            ? bsl::is_nothrow_move_constructible<TYPE>::value
+                                ? 1 : 2
+                            : 0;
 
                         // Additional allocations for buffer if capacity grows,
                         // and potentially for copying elements on growth if
@@ -16675,7 +16675,7 @@ void TestDriver<TYPE, ALLOC>::testCase2a()
     const int        NUM_VALUES = 5;         // TBD: fix this
 
     const int IS_NOT_MOVABLE = !(bslmf::IsBitwiseMoveable<TYPE>::value ||
-                                                          s_typeIsMoveEnabled);
+                              bsl::is_nothrow_move_constructible<TYPE>::value);
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
 
