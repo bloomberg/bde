@@ -293,7 +293,6 @@ struct ResultCalculator<char> {
         if (contentType >= k_VALUE_UNICODE)
             *isUnicodeSupportRequired = true;
 
-        int         fillWidth = getFillWidth(fillChar);
         int         contentWidth = getContentWidth(contentType);
 
         std::string fmt;
@@ -404,7 +403,6 @@ struct ResultCalculator<wchar_t> {
         if (contentType >= k_VALUE_UNICODE)
             *isUnicodeSupportRequired = true;
 
-        int fillWidth    = getFillWidth(fillChar);
         int contentWidth = getContentWidth(contentType);
 
         std::wstring fmt;
@@ -498,6 +496,7 @@ int main(int argc, char **argv)
     const int  test        = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose     = argc > 2;
     const bool veryVerbose = argc > 3;
+    (void) veryVerbose;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -549,8 +548,8 @@ int main(int argc, char **argv)
                                         width <= 0)
                                         arg2 = prec;
 
-                                    char *input_cp = (char *)
-                                                         inputString.c_str();
+                                    char *input_cp = const_cast<char *>
+                                                         (inputString.c_str());
                                     rv = bslfmt::Formatter_TestUtil<char>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
@@ -590,6 +589,8 @@ int main(int argc, char **argv)
                                             message.c_str(),
                                             rv);
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
                                     std::string_view input_sv = inputString;
                                     rv = bslfmt::Formatter_TestUtil<char>::
                                         testEvaluateVFormat(&message,
@@ -602,6 +603,8 @@ int main(int argc, char **argv)
                                     ASSERTV(formatString.c_str(),
                                             message.c_str(),
                                             rv);
+
+#endif
 
                                     bsl::string input_bs = inputString.c_str();
                                     rv = bslfmt::Formatter_TestUtil<char>::
@@ -672,8 +675,8 @@ int main(int argc, char **argv)
                                         width <= 0)
                                         arg2 = prec;
 
-                                    wchar_t *input_cp =
-                                                (wchar_t *)inputString.c_str();
+                                    wchar_t *input_cp = const_cast<wchar_t *>(
+                                                          inputString.c_str());
                                     rv = bslfmt::Formatter_TestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
@@ -713,6 +716,8 @@ int main(int argc, char **argv)
                                             message.c_str(),
                                             rv);
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
                                     std::wstring_view input_sv = inputString;
                                     rv = bslfmt::Formatter_TestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
@@ -725,6 +730,8 @@ int main(int argc, char **argv)
                                     ASSERTV(formatString.c_str(),
                                             message.c_str(),
                                             rv);
+
+#endif
 
                                     bsl::wstring input_bs = inputString.c_str();
                                     rv = bslfmt::Formatter_TestUtil<wchar_t>::
@@ -771,9 +778,6 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nTESTING parse(PARSE_CONTEXT&);"
                    "\n==============================\n");
-
-        typedef char C;
-        typedef wchar_t W;
 
         // Bad fill character
         // Note can only test '{' as '}' closes the parse string.
@@ -940,6 +944,7 @@ int main(int argc, char **argv)
             bsl::swap(dummy_c, dummy2_c);
             bsl::swap(dummy_w, dummy2_w);
         }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
             bsl::formatter<std::basic_string_view<C>, C> dummy_c;
             bsl::formatter<std::basic_string_view<W>, W> dummy_w;
@@ -948,6 +953,7 @@ int main(int argc, char **argv)
             bsl::swap(dummy_c, dummy2_c);
             bsl::swap(dummy_w, dummy2_w);
         }
+#endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         if (verbose)
@@ -1091,6 +1097,7 @@ int main(int argc, char **argv)
             bsl::swap(dummy_c, dummy2_c);
             bsl::swap(dummy_w, dummy2_w);
         }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
             bsl::formatter<std::basic_string_view<C>, C> dummy_c;
             bsl::formatter<std::basic_string_view<W>, W> dummy_w;
@@ -1099,6 +1106,7 @@ int main(int argc, char **argv)
             bsl::swap(dummy_c, dummy2_c);
             bsl::swap(dummy_w, dummy2_w);
         }
+#endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         if (verbose)
@@ -1242,6 +1250,7 @@ int main(int argc, char **argv)
             (void)copy_c;
             (void)copy_w;
         }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
             bsl::formatter<std::basic_string_view<C>, C> dummy_c;
             bsl::formatter<std::basic_string_view<W>, W> dummy_w;
@@ -1250,6 +1259,7 @@ int main(int argc, char **argv)
             (void)copy_c;
             (void)copy_w;
         }
+#endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         if (verbose)
@@ -1411,12 +1421,14 @@ int main(int argc, char **argv)
             (void)dummy_c;
             (void)dummy_w;
         }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
             bsl::formatter<std::basic_string_view<char>, char>       dummy_c;
             bsl::formatter<std::basic_string_view<wchar_t>, wchar_t> dummy_w;
             (void)dummy_c;
             (void)dummy_w;
         }
+#endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         if (verbose)
@@ -1537,7 +1549,6 @@ int main(int argc, char **argv)
 
         rv = bslfmt::Formatter_TestUtil<char>::testParseFormat(
                                                                &message,
-                                                               "**abcde***",
                                                                true,
                                                                "{0:*^{1}.{2}}",
                                                                "abcdefghi",
@@ -1548,7 +1559,6 @@ int main(int argc, char **argv)
 
         rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat(
                                                               &message,
-                                                              L"**abcde***",
                                                               true,
                                                               L"{0:*^{1}.{2}}",
                                                               winput,
@@ -1557,25 +1567,17 @@ int main(int argc, char **argv)
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat(
+        rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<char *>(
                                                                &message,
-                                                               "**abcde***",
                                                                true,
-                                                               "{0:*^{1}.{2}}",
-                                                               "abcdefghi",
-                                                               10,
-                                                               5);
+                                                               "{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseVFormat(
+        rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseVFormat<wchar_t *>(
                                                               &message,
-                                                              L"**abcde***",
                                                               true,
-                                                              L"{0:*^{1}.{2}}",
-                                                              winput,
-                                                              10,
-                                                              5);
+                                                              L"{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 

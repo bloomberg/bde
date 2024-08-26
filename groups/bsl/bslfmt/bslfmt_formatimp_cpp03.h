@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Jul 15 14:45:16 2024
+// Generated on Mon Aug 26 12:00:04 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 
 #ifdef COMPILING_BSLFMT_FORMATIMP_H
@@ -3052,6 +3052,9 @@ t_OUT Format_FormatImp<t_CHAR>::processImp(
             visit_format_arg(visitor, args.get(id));
             it = pc.begin();
             if (it != pc.end()) {
+                if (*it != '}') {
+                    BSLS_THROW(format_error("parsing terminated before }"));
+                }
                 // advance past the terminating }
                 ++it;
             }

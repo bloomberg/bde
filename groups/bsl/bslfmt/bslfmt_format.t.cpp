@@ -375,9 +375,10 @@ struct formatter<FormattableType, t_CHAR> {
 #endif
 }  // close namespace bsl
 
+#if 0
 #include <iostream>
-#include <Windows.h>
-#include <io.h>
+//#include <Windows.h>
+//#include <io.h>
 #include <fcntl.h>
 #include <locale>
 
@@ -489,14 +490,15 @@ void dummy()
 
     std::cout << "\nlines=" << lines << std::endl;
 }
+#endif
 
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-        dummy();
-        return 0;
+        // dummy();
+        // return 0;
 
     int        aaa     = sizeof(char);
     int        bbb     = sizeof(wchar_t);
