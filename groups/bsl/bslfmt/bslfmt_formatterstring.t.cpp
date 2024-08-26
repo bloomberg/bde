@@ -157,7 +157,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 
-#define TEST_PARSE_SUCCESS(type, fmtStr, useOracle)                            \
+#define TEST_PARSE_SUCCESS_F(type, fmtStr, useOracle)                          \
     {                                                                          \
         bsl::string errorMsg;                                                  \
         bool rv;                                                               \
@@ -255,6 +255,87 @@ void aSsErT(bool condition, const char *message, int line)
         }                                                                      \
     }
 
+
+
+#define TEST_PARSE_SUCCESS_VF(type, fmtStr, useOracle)                        \
+    {                                                                         \
+        bsl::string errorMsg;                                                 \
+        bool        rv;                                                       \
+                                                                              \
+        const type *dummyArg1 = 0;                                            \
+        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<const type *> \
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        type *dummyArg2 = 0;                                                  \
+        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<type *>       \
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        type dummyArg3[10];                                                   \
+        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<type[10]>     \
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        bsl::basic_string<type> dummyArg4;                                    \
+        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
+                                                    <bsl::basic_string<type>> \
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        std::basic_string<type> dummyArg5;                                    \
+        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
+                                                    <std::basic_string<type>> \
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        bsl::basic_string_view<type> dummyArg6;                               \
+        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
+                                               <bsl::basic_string_view<type>> \
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        TEST_STD_STRING_VIEW<type> dummyArg7;                                 \
+        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
+                                                 <TEST_STD_STRING_VIEW<type>> \
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+    }
 
 // ============================================================================
 //                     GLOBAL CONSTANTS FOR TESTING
@@ -1047,74 +1128,78 @@ int main(int argc, char **argv)
         TEST_PARSE_FAIL(wchar_t, L"{0:*<{3}.{2}s}",   false);
 
         // A selection of valid format strings (non-unicode)
-        TEST_PARSE_SUCCESS(char,     "{:}"                   , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:}"                   , true);
-        TEST_PARSE_SUCCESS(char,     "{:.0}"                 , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:.0}"                 , true);
-        TEST_PARSE_SUCCESS(char,     "{:.8}"                 , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:.8}"                 , true);
-        TEST_PARSE_SUCCESS(char,     "{:5}"                  , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:5}"                  , true);
-        TEST_PARSE_SUCCESS(char,     "{:5.0}"                , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:5.0}"                , true);
-        TEST_PARSE_SUCCESS(char,     "{:5.8}"                , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:5.8}"                , true);
-        TEST_PARSE_SUCCESS(char,     "{:*<}"                 , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*<}"                 , true);
-        TEST_PARSE_SUCCESS(char,     "{:*<.0}"               , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*<.0}"               , true);
-        TEST_PARSE_SUCCESS(char,     "{:*<.8}"               , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*<.8}"               , true);
-        TEST_PARSE_SUCCESS(char,     "{:*<5}"                , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*<5}"                , true);
-        TEST_PARSE_SUCCESS(char,     "{:*<5.0}"              , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*<5.0}"              , true);
-        TEST_PARSE_SUCCESS(char,     "{:*<5.8}"              , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*<5.8}"              , true);
-        TEST_PARSE_SUCCESS(char,     "{:*>}"                 , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*>}"                 , true);
-        TEST_PARSE_SUCCESS(char,     "{:*>.0}"               , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*>.0}"               , true);
-        TEST_PARSE_SUCCESS(char,     "{:*>.8}"               , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*>.8}"               , true);
-        TEST_PARSE_SUCCESS(char,     "{:*>5}"                , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*>5}"                , true);
-        TEST_PARSE_SUCCESS(char,     "{:*>5.0}"              , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*>5.0}"              , true);
-        TEST_PARSE_SUCCESS(char,     "{:*>5.8}"              , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*>5.8}"              , true);
-        TEST_PARSE_SUCCESS(char,     "{:*^}"                 , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*^}"                 , true);
-        TEST_PARSE_SUCCESS(char,     "{:*^.0}"               , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*^.0}"               , true);
-        TEST_PARSE_SUCCESS(char,     "{:*^.8}"               , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*^.8}"               , true);
-        TEST_PARSE_SUCCESS(char,     "{:*^5}"                , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*^5}"                , true);
-        TEST_PARSE_SUCCESS(char,     "{:*^5.0}"              , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*^5.0}"              , true);
-        TEST_PARSE_SUCCESS(char,     "{:*^5.8}"              , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*^5.8}"              , true);
-        TEST_PARSE_SUCCESS(char,     "{:{}.{}}"              , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:{}.{}}"              , true);
-        TEST_PARSE_SUCCESS(char,     "{:*<{}.{}}"            , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*<{}.{}}"            , true);
-        TEST_PARSE_SUCCESS(char,     "{:*>{}.{}}"            , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*>{}.{}}"            , true);
-        TEST_PARSE_SUCCESS(char,     "{:*^{}.{}}"            , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{:*^{}.{}}"            , true);
-        TEST_PARSE_SUCCESS(char,     "{0:{1}.{1}}"           , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{0:{1}.{1}}"           , true);
-        TEST_PARSE_SUCCESS(char,     "{0:*<{1}.{1}}"         , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{0:*<{1}.{1}}"         , true);
-        TEST_PARSE_SUCCESS(char,     "{0:*>{1}.{1}}"         , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{0:*>{1}.{1}}"         , true);
-        TEST_PARSE_SUCCESS(char,     "{0:*^{1}.{1}}"         , true);
-        TEST_PARSE_SUCCESS(wchar_t, L"{0:*^{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:}"                   , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:}"                   , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:.0}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:.0}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:.8}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:.8}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:5}"                  , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:5}"                  , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:5.0}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:5.0}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:5.8}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:5.8}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<.0}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<.0}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<.8}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<.8}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<5}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<5}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>.0}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>.0}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>.8}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>.8}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>5}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>5}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^.0}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^.0}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^.8}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^.8}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^5}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^5}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:{}.{}}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:{}.{}}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(char,     "{0:{1}.{1}}"           , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{0:{1}.{1}}"           , true);
+        TEST_PARSE_SUCCESS_F(char,     "{0:*<{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*<{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(char,     "{0:*>{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*>{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(char,     "{0:*^{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*^{1}.{1}}"         , true);
 
-        bool oracle_uni = k_ORACLE_SUPPORT_UNICODE;
-
-        #define TPS TEST_PARSE_SUCCESS
+#if defined(__GLIBC__) && __GLIBC__ <= 2
+        #define TPS TEST_PARSE_SUCCESS_VF
+        bool oracle_uni = false;
+#else
+        #define TPS TEST_PARSE_SUCCESS_F
+        bool oracle_uni = true;
+#endif
 
         // A selection of vaid format strings (unicode)
         TPS(char,     "{:\xF0\x9F\x98\x80<}"         , oracle_uni);
