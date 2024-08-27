@@ -23,8 +23,9 @@ bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::SemaphoreImpl(int count)
 {
     int result = ::sem_init(&d_sem, 0, count);
 
-    (void) result;
-    BSLS_ASSERT_OPT(result != -1);
+    if (-1 == result) {
+        BSLS_ASSERT_INVOKE_NORETURN("'sem_init' failed");
+    }
 }
 
 // MANIPULATORS

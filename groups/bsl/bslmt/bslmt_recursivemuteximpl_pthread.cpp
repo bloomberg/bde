@@ -28,7 +28,9 @@ bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::RecursiveMutexImpl()
     d_lockCount = 0;
 #endif
     int result = pthread_mutex_init(&d_lock, &attribute);  (void)result;
-    BSLS_ASSERT_OPT(0 == result);
+    if (result) {
+        BSLS_ASSERT_INVOKE_NORETURN("'pthread_mutex_init' failed");
+    }
     pthread_mutexattr_destroy(&attribute);
 }
 

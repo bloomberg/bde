@@ -182,8 +182,9 @@ bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::RWMutexImpl()
 
     // pthread_rwlock_init should not return a failure code.
 
-    BSLS_ASSERT_OPT(0 == rc);
-    (void) rc;    // suppress 'unused variable' warnings
+    if (rc) {
+        BSLS_ASSERT_INVOKE_NORETURN("'pthread_rwlock_init' failed");
+    }
 }
 
 inline

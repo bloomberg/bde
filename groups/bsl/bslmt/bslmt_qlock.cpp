@@ -113,9 +113,10 @@ TlsKey *initializeSemaphoreTLSKey()
 {
     TlsKey *key = new (semaphoreAllocator()) TlsKey;
 
-    BSLA_MAYBE_UNUSED int rc =
-                bslmt::ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
-    BSLS_ASSERT_OPT(rc == 0);
+    int rc = bslmt::ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
+    if (rc) {
+        BSLS_ASSERT_INVOKE_NORETURN("'createKey' failed");
+    }
 
     void *oldKey =
                bsls::AtomicOperations::testAndSwapPtr(&s_semaphoreKey, 0, key);

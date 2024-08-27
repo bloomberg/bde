@@ -120,8 +120,9 @@ inline
 bslmt::MutexImpl<bslmt::Platform::PosixThreads>::MutexImpl()
 {
     const int status = pthread_mutex_init(&d_lock, 0);
-    (void) status;
-    BSLS_ASSERT_OPT(0 == status);
+    if (status) {
+        BSLS_ASSERT_INVOKE_NORETURN("'pthread_mutex_init' failed");
+    }
 }
 
 // MANIPULATORS

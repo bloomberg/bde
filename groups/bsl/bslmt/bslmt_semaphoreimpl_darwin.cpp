@@ -71,7 +71,9 @@ bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::SemaphoreImpl(
                              count);
     } while (d_sem_p == SEM_FAILED && (errno == EEXIST || errno == EINTR));
 
-    BSLS_ASSERT_OPT(d_sem_p != SEM_FAILED);
+    if (d_sem_p == SEM_FAILED) {
+        BSLS_ASSERT_INVOKE_NORETURN("'sem_open' failed");
+    }
 
     // At this point the current thread is the sole owner of the semaphore with
     // this name.  No other thread can create a semaphore with the same name

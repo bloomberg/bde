@@ -154,7 +154,9 @@ bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::SemaphoreImpl(int count)
     // maintained in 'd_resources'.
 
     d_handle = CreateSemaphoreA(NULL, 0, INT_MAX, NULL);
-    BSLS_ASSERT_OPT(NULL != d_handle);
+    if (NULL == d_handle) {
+        BSLS_ASSERT_INVOKE_NORETURN("'CreateSemaphoreA' failed");
+    }
 }
 
 inline
