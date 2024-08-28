@@ -1293,6 +1293,25 @@ class Datum {
     friend bsl::ostream& operator<<(bsl::ostream& stream, const Datum& rhs);
 
     // PRIVATE ACCESSORS
+    void safeDeallocateBytes(const AllocatorType& allocator,
+                             bsl::size_t          nBytes) const;
+        // Using the specified 'allocator' deallocate the specified 'nBytes'
+        // allocated for the value of this object.  The behavior is undefined
+        // unless '0 == nBytes' when '0 == this->allocatedPtr<void>()'.  The
+        // behavior is also undefined unless the non-null value of
+        // 'this->allocatedPtr<void>()' has been obtained by
+        // 'AllocUtil::allocateBytes' from 'allocator'.
+
+    void safeDeallocateBytes(const AllocatorType& allocator,
+                             bsl::size_t          nBytes,
+                             bsl::size_t          alignment) const;
+        // Using the specified 'allocator' deallocate the specified 'nBytes'
+        // allocated for the value of this object with the specified
+        // 'alignment'.  The behavior is undefined unless '0 == nBytes' when
+        // '0 == this->allocatedPtr<void>()'.  The behavior is also undefined
+        // unless the non-null value of 'this->allocatedPtr<void>()' has been
+        // obtained by 'AllocUtil::allocateBytes' from 'allocator'.
+
     template <class t_TYPE>
     t_TYPE *allocatedPtr() const;
         // Return the pointer to the first byte of the memory allocated by this
@@ -3292,7 +3311,30 @@ const void* Datum::theInlineStorage() const
 // This section contains all methods that are common for all platforms, but may
 // have platform-specific implementation.
 
-// PRIVATE CLASS METHODS
+// PRIVATE ACCESSORS
+inline
+void Datum::safeDeallocateBytes(const AllocatorType& allocator,
+                                bsl::size_t          nBytes) const
+{
+    void *ptr = allocatedPtr<void>();
+
+    if (ptr) {
+        AllocUtil::deallocateBytes(allocator, ptr, nBytes);
+    }
+}
+
+inline
+void Datum::safeDeallocateBytes(const AllocatorType& allocator,
+                                bsl::size_t          nBytes,
+                                bsl::size_t          alignment) const
+{
+    void *ptr = allocatedPtr<void>();
+
+    if (ptr) {
+        AllocUtil::deallocateBytes(allocator, ptr, nBytes, alignment);
+    }
+}
+
 template <class t_TYPE>
 inline
 t_TYPE *Datum::allocatedPtr() const
@@ -3303,8 +3345,6 @@ t_TYPE *Datum::allocatedPtr() const
     return static_cast<t_TYPE *>(d_as.d_ptr);
 #endif  // end - 64 bit
 }
-
-// PRIVATE ACCESSORS
 inline
 Datum::InternalDataType Datum::internalType() const
 {
@@ -3862,34 +3902,40 @@ inline
 void Datum::disposeUninitializedArray(const DatumMutableArrayRef& array,
                                       const AllocatorType&        allocator)
 {
-    AllocUtil::deallocateBytes(allocator,
-                               array.allocatedPtr(),
-                               array.capacity());
+    void *ptr = array.allocatedPtr();
+
+    if (ptr) {
+        AllocUtil::deallocateBytes(allocator, ptr, array.capacity());
+    }
 }
 
 inline
 void Datum::disposeUninitializedIntMap(const DatumMutableIntMapRef& map,
                                        const AllocatorType&         allocator)
 {
-    Datum_IntMapHeader *hdr =
-              static_cast<Datum_IntMapHeader*>(static_cast<void*>(map.size()));
+    void *ptr = map.allocatedPtr();
 
-    AllocUtil::deallocateBytes(
+    if (ptr) {
+        Datum_IntMapHeader *hdr = static_cast<Datum_IntMapHeader*>(ptr);
+
+        AllocUtil::deallocateBytes(
                              allocator,
-                             map.allocatedPtr(),
+                             ptr,
                              (hdr->d_capacity + 1) * sizeof(DatumIntMapEntry));
+    }
 }
 
 inline
 void Datum::disposeUninitializedMap(const DatumMutableMapRef& map,
                                     const AllocatorType&      allocator)
 {
-    Datum_MapHeader *hdr =
-                 static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
+    void *ptr = map.allocatedPtr();
 
-    AllocUtil::deallocateBytes(allocator,
-                               map.allocatedPtr(),
-                               hdr->d_allocatedSize);
+    if (ptr) {
+        Datum_MapHeader *hdr = static_cast<Datum_MapHeader*>(ptr);
+
+        AllocUtil::deallocateBytes(allocator, ptr, hdr->d_allocatedSize);
+    }
 }
 
 inline
@@ -3897,12 +3943,13 @@ void Datum::disposeUninitializedMap(
                                  const DatumMutableMapOwningKeysRef& map,
                                  const AllocatorType&                allocator)
 {
-    Datum_MapHeader *hdr =
-                 static_cast<Datum_MapHeader*>(static_cast<void*>(map.size()));
+    void *ptr = map.allocatedPtr();
 
-    AllocUtil::deallocateBytes(allocator,
-                               map.allocatedPtr(),
-                               hdr->d_allocatedSize);
+    if (ptr) {
+        Datum_MapHeader *hdr = static_cast<Datum_MapHeader*>(ptr);
+
+        AllocUtil::deallocateBytes(allocator, ptr, hdr->d_allocatedSize);
+    }
 }
 
 // ACCESSORS
