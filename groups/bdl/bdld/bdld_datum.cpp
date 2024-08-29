@@ -1251,34 +1251,28 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
             for (SizeType i = 0; i < values.size(); ++i) {
                 destroy(values[i].value(), allocator);
             }
-            AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr<void>(),
-                                       value.theMapAllocNumBytes());
+            value.safeDeallocateBytes(allocator, value.theMapAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_INT_MAP: {
             DatumIntMapRef values = value.theIntMap();
             for (SizeType i = 0; i < values.size(); ++i) {
                 destroy(values[i].value(), allocator);
             }
-            AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr<void>(),
-                                       value.theIntMapAllocNumBytes());
+            value.safeDeallocateBytes(allocator,
+                                      value.theIntMapAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_ERROR_ALLOC: {
-            AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr<void>(),
-                                       value.theErrorAllocNumBytes(),
-                                       sizeof(int));
+            value.safeDeallocateBytes(allocator,
+                                      value.theErrorAllocNumBytes(),
+                                      sizeof(int));
           } break;
           case e_EXTENDED_INTERNAL_SREF_ALLOC: {
-            AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr<void>(),
-                                       sizeof(SizeType) + sizeof(const char*));
+            value.safeDeallocateBytes(allocator,
+                                      sizeof(SizeType) + sizeof(const char*));
           } break;
           case e_EXTENDED_INTERNAL_AREF_ALLOC: {
-            AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr<void>(),
-                                       sizeof(SizeType) + sizeof(Datum *));
+            value.safeDeallocateBytes(allocator,
+                                      sizeof(SizeType) + sizeof(Datum *));
           } break;
           case e_EXTENDED_INTERNAL_DATETIME_ALLOC: {
             AllocUtil::deallocateObject(allocator,
@@ -1296,9 +1290,8 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
                                      value.allocatedPtr<bsls::Types::Int64>());
           } break;
           case e_EXTENDED_INTERNAL_BINARY_ALLOC: {
-            AllocUtil::deallocateBytes(allocator,
-                                       value.allocatedPtr<void>(),
-                                       value.theBinaryAllocNumBytes());
+            value.safeDeallocateBytes(allocator,
+                                      value.theBinaryAllocNumBytes());
           } break;
           case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
             AllocUtil::deallocateObject(
@@ -1315,15 +1308,13 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
         for (SizeType i = 0; i < values.length(); ++i) {
             destroy(values[i], allocator);
         }
-        AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr<void>(),
-                                   value.theInternalArrayAllocNumBytes());
+        value.safeDeallocateBytes(allocator,
+                                  value.theInternalArrayAllocNumBytes());
       } break;
       case e_INTERNAL_STRING: {
-        AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr<void>(),
-                                   value.theInternalStringAllocNumBytes(),
-                                   sizeof(SizeType));
+        value.safeDeallocateBytes(allocator,
+                                  value.theInternalStringAllocNumBytes(),
+                                  sizeof(SizeType));
       } break;
       default: {
         // Other enumerators require no destruction.
@@ -1338,42 +1329,32 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
         for (SizeType i = 0; i < values.size(); ++i) {
             destroy(values[i].value(), allocator);
         }
-        AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr<void>(),
-                                   value.theMapAllocNumBytes());
+        value.safeDeallocateBytes(allocator, value.theMapAllocNumBytes());
       } break;
       case e_INTERNAL_INT_MAP: {
         DatumIntMapRef values = value.theIntMap();
         for (SizeType i = 0; i < values.size(); ++i) {
             destroy(values[i].value(), allocator);
         }
-        AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr<void>(),
-                                   value.theIntMapAllocNumBytes());
+        value.safeDeallocateBytes(allocator, value.theIntMapAllocNumBytes());
       } break;
       case e_INTERNAL_ARRAY: {
         DatumArrayRef values = value.theArray();
         for (SizeType i = 0; i < values.length(); ++i) {
             destroy(values[i], allocator);
         }
-        AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr<void>(),
-                                   value.theInternalArrayAllocNumBytes());
+        value.safeDeallocateBytes(allocator,
+                                  value.theInternalArrayAllocNumBytes());
       } break;
       case e_INTERNAL_BINARY_ALLOC: {
-        AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr<void>(),
-                                   value.theBinaryAllocNumBytes());
+        value.safeDeallocateBytes(allocator, value.theBinaryAllocNumBytes());
       } break;
       case e_INTERNAL_ERROR_ALLOC: {
-        AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr<void>(),
-                                   value.theErrorAllocNumBytes());
+        value.safeDeallocateBytes(allocator, value.theErrorAllocNumBytes());
       } break;
       case e_INTERNAL_STRING: {
-        AllocUtil::deallocateBytes(allocator,
-                                   value.allocatedPtr<void>(),
-                                   value.theInternalStringAllocNumBytes());
+        value.safeDeallocateBytes(allocator,
+                                  value.theInternalStringAllocNumBytes());
       } break;
       default: {
       } break; // Other enumerators require no special handling.
