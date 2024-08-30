@@ -144,10 +144,14 @@ BSLS_IDENT("$Id: $")
                        // Set macros as appropriate
                        // =========================
 
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
-    defined(BSLS_PLATFORM_CMP_HP)    ||                                      \
-    defined(BSLS_PLATFORM_CMP_IBM)
+
+#if defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLA_PRINTF(fmt, arg) __attribute__((format(gnu_printf, fmt, arg)))
+
+    #define BSLA_PRINTF_IS_ACTIVE 1
+#elif defined(BSLS_PLATFORM_CMP_CLANG) ||                                     \
+      defined(BSLS_PLATFORM_CMP_HP)    ||                                     \
+      defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLA_PRINTF(fmt, arg) __attribute__((format(printf, fmt, arg)))
 
     #define BSLA_PRINTF_IS_ACTIVE 1
