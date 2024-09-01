@@ -23,9 +23,9 @@ BSLS_IDENT("$Id: $")
 // when trying to link an executable with incompatible libraries.  This
 // component defines type names that indicate two build target parameters.
 // These parameters determine whether the build was exception-enabled (which is
-// the case unless overridden by defining the 'BDE_BUILD_TARGET_NO_EXC' macro),
+// the case unless overridden by defining the `BDE_BUILD_TARGET_NO_EXC` macro),
 // and whether it was multi-threaded (which is enabled unless overridden by
-// defining the 'BDE_BUILD_TARGET_NO_MT' macro).  The types defined by this
+// defining the `BDE_BUILD_TARGET_NO_MT` macro).  The types defined by this
 // component should not be used directly.  This component also documents macros
 // that can be used to disable checks that are performed elsewhere.
 //
@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // By design, programs using BDE fail to build if support for a C++ standard
 // version is requested but the compiler's support for that standard is not
 // sufficiently stable (possibly causing issues at runtime that are very
-// difficult to debug).  We provide the macro 'BDE_BUILD_SKIP_VERSION_CHECKS'
+// difficult to debug).  We provide the macro `BDE_BUILD_SKIP_VERSION_CHECKS`
 // to disable these checks for the purpose of testing and experimenting with
 // different compiler configurations.  This macro should **not** be defined for
 // integrated production builds such as dpkg, as doing so may result in
@@ -49,62 +49,62 @@ BSLS_IDENT("$Id: $")
 //
 ///Deprecation Control Macros
 ///--------------------------
-// In addition to the 'BDE_BUILD_TARGET_*' macros that determine the link-time
+// In addition to the `BDE_BUILD_TARGET_*` macros that determine the link-time
 // compatibility of different libraries built on BDE, this component documents
 // a macro that determines whether deprecated interfaces are available to
 // programs built on BDE:
 //
-//: 'BDE_OMIT_DEPRECATED':
+//: `BDE_OMIT_DEPRECATED`:
 //:     This macro, if defined, indicates that all code deprecated before BDE
 //:     3.2 will be either omitted from a build of the library (if the code has
-//:     not been updated to use 'bsls_deprecate'), or identified to the
+//:     not been updated to use `bsls_deprecate`), or identified to the
 //:     compiler as deprecated (if the code has been updated to use
-//:     'bsls_deprecate').  New uses of this macro are not supported; use
-//:     'bsls_deprecate' instead.
+//:     `bsls_deprecate`).  New uses of this macro are not supported; use
+//:     `bsls_deprecate` instead.
 //
-// In addition to 'BDE_OMIT_DEPRECATED', there are two other macros that also
+// In addition to `BDE_OMIT_DEPRECATED`, there are two other macros that also
 // determine whether deprecated interfaces are available to programs built on
 // BDE:
 //
-//: 'BDE_OMIT_INTERNAL_DEPRECATED':
+//: `BDE_OMIT_INTERNAL_DEPRECATED`:
 //:     This macro, if defined, indicates that all internal-only code
 //:     deprecated before BDE 3.2 will be either omitted from a build of the
-//:     library (if the code has not been updated to use 'bsls_deprecate'), or
+//:     library (if the code has not been updated to use `bsls_deprecate`), or
 //:     identified to the compiler as deprecated (if the code has been updated
-//:     to use 'bsls_deprecate').  This category consists almost entirely of
+//:     to use `bsls_deprecate`).  This category consists almost entirely of
 //:     code that was already deprecated at the time of a component's initial
 //:     release to open-source.  New uses of this macro are not supported; use
-//:     'bsls_deprecate' instead.
+//:     `bsls_deprecate` instead.
 //:
-//: 'BDE_OPENSOURCE_PUBLICATION':
+//: `BDE_OPENSOURCE_PUBLICATION`:
 //:     This macro marks code that is not deprecated, but is nevertheless
 //:     excluded from the open-source release of BDE.  This category consists
 //:     primarily of code that exists to support STLPort containers, which were
 //:     not included in the open-source release, or that documents backward
 //:     compatibility access to the package-prefix versions of non-deprecated
-//:     symbols in BSL.  'BDE_OPENSOURCE_PUBLICATION' exists for purposes of
+//:     symbols in BSL.  `BDE_OPENSOURCE_PUBLICATION` exists for purposes of
 //:     documentation only, and should not be defined for any build of the
 //:     library.  In particular, there is no guarantee that the library will
-//:     build or will function correctly if 'BDE_OPENSOURCE_PUBLICATION' is
+//:     build or will function correctly if `BDE_OPENSOURCE_PUBLICATION` is
 //:     defined.
 //
-// Together with 'BDE_OMIT_DEPRECATED', these macros divide the BDE codebase
+// Together with `BDE_OMIT_DEPRECATED`, these macros divide the BDE codebase
 // into four categories:
-//..
-//  +-----------------------------------------+------------------------------+
-//  | CATEGORY                                | LABEL                        |
-//  +=========================================+==============================+
-//  | universally distributed code            | no label                     |
-//  +-----------------------------------------+------------------------------+
-//  | Bloomberg-only code                     | BDE_OPENSOURCE_PUBLICATION   |
-//  +-----------------------------------------+------------------------------+
-//  | universally distributed code deprecated | BDE_OMIT_DEPRECATED          |
-//  | before BDE 3.2                          |                              |
-//  +-----------------------------------------+------------------------------+
-//  | Bloomberg-only code deprecated before   | BDE_OMIT_INTERNAL_DEPRECATED |
-//  | BDE 3.2                                 |                              |
-//  +-----------------------------------------+------------------------------+
-//..
+// ```
+// +-----------------------------------------+------------------------------+
+// | CATEGORY                                | LABEL                        |
+// +=========================================+==============================+
+// | universally distributed code            | no label                     |
+// +-----------------------------------------+------------------------------+
+// | Bloomberg-only code                     | BDE_OPENSOURCE_PUBLICATION   |
+// +-----------------------------------------+------------------------------+
+// | universally distributed code deprecated | BDE_OMIT_DEPRECATED          |
+// | before BDE 3.2                          |                              |
+// +-----------------------------------------+------------------------------+
+// | Bloomberg-only code deprecated before   | BDE_OMIT_INTERNAL_DEPRECATED |
+// | BDE 3.2                                 |                              |
+// +-----------------------------------------+------------------------------+
+// ```
 // By default, all code in BDE is both current and universally distributed.
 // All code that is deprecated, excluded from our open-source distribution, or
 // both, is surrounded with conditional compilation macros to allow test builds

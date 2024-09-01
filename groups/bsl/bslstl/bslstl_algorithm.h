@@ -14,15 +14,15 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsl+bslhdrs
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_algorithm.h>' instead.  This component provides a namespace for
+// `<bsl_algorithm.h>` instead.  This component provides a namespace for
 // implementations for standard algorithms that are not provided by the
-// underlying standard library implementation.  For example, 'any_of' is a
+// underlying standard library implementation.  For example, `any_of` is a
 // C++11 algorithm, and it is provided here for code using C++03.
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+bslhdrs' package.  Use
-// 'bsl_algorithm.h' directly.
+// This component is for use by the `bsl+bslhdrs` package.  Use
+// `bsl_algorithm.h` directly.
 
 #include <bslscm_version.h>
 #include <bsls_assert.h>
@@ -43,12 +43,16 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslstl {
 
+/// Provide a namespace for implementing helper routines for algorithm
+/// implementations.
 struct AlgorithmUtil {
-    // Provide a namespace for implementing helper routines for algorithm
-    // implementations.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Copy the specified `count` elements from the specified `first`
+    /// to the specified `result`.   Return an iterator pointing past
+    /// the last copied element in the output range.
     template <class t_INPUT_ITERATOR, class t_SIZE, class t_OUTPUT_ITERATOR>
     static
     t_OUTPUT_ITERATOR copyNImp(t_INPUT_ITERATOR               first,
@@ -63,28 +67,26 @@ struct AlgorithmUtil {
                                t_SIZE                                 count,
                                t_OUTPUT_ITERATOR                      result,
                                const bsl::random_access_iterator_tag&);
-        // Copy the specified 'count' elements from the specified 'first'
-        // to the specified 'result'.   Return an iterator pointing past
-        // the last copied element in the output range.
 
   public:
     // CLASS FUNCTIONS
+
+    /// Erase all the elements in the specified container `container` that
+    /// satisfy the specified predicate `predicate`.  Return the number of
+    /// elements erased.
     template <class CONTAINER, class PREDICATE>
     static
     typename CONTAINER::size_type
     containerEraseIf(CONTAINER& container, PREDICATE predicate);
-        // Erase all the elements in the specified container 'container' that
-        // satisfy the specified predicate 'predicate'.  Return the number of
-        // elements erased.
 
+    /// Copy the specified `count` elements from the specified `first`
+    /// to the specified `result`.   Return an iterator pointing past
+    /// the last copied element in the output range.
     template <class t_INPUT_ITERATOR, class t_SIZE, class t_OUTPUT_ITERATOR>
     static
     t_OUTPUT_ITERATOR copyN(t_INPUT_ITERATOR  first,
                             t_SIZE            count,
                             t_OUTPUT_ITERATOR result);
-        // Copy the specified 'count' elements from the specified 'first'
-        // to the specified 'result'.   Return an iterator pointing past
-        // the last copied element in the output range.
 };
 
 }  // close package namespace

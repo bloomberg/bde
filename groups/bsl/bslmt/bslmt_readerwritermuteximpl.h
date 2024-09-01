@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmt_readerwriterlock
 //
 //@DESCRIPTION: This component defines an efficient multi-reader/single-writer
-// lock mechanism, 'bslmt::ReaderWriterMutexImpl'.  It is designed to allow
+// lock mechanism, `bslmt::ReaderWriterMutexImpl`.  It is designed to allow
 // concurrent *read* access to a shared resource while still controlling
 // *write* access.
 //
@@ -49,9 +49,9 @@ namespace bslmt {
                        // class ReaderWriterMutexImpl
                        // ===========================
 
+/// This class provides a multi-reader/single-writer lock mechanism.
 template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
 class ReaderWriterMutexImpl {
-    // This class provides a multi-reader/single-writer lock mechanism.
 
     // CLASS DATA
     static const bsls::Types::Int64 k_READER_MASK       = 0x00000000ffffffffLL;
@@ -85,72 +85,75 @@ class ReaderWriterMutexImpl {
 
   public:
     // CREATORS
+
+    /// Construct a reader/writer lock initialized to an unlocked state.
     ReaderWriterMutexImpl();
-        // Construct a reader/writer lock initialized to an unlocked state.
 
     //! ~ReaderWriterMutexImpl();
         // Destroy this object
 
     // MANIPULATORS
+
+    /// Lock this reader-writer mutex for reading.  If there are no active
+    /// or pending write locks, lock this mutex for reading and return
+    /// immediately.  Otherwise, block until the read lock on this mutex is
+    /// acquired.  Use `unlockRead` or `unlock` to release the lock on this
+    /// mutex.  The behavior is undefined if this method is called from a
+    /// thread that already has a lock on this mutex.
     void lockRead();
-        // Lock this reader-writer mutex for reading.  If there are no active
-        // or pending write locks, lock this mutex for reading and return
-        // immediately.  Otherwise, block until the read lock on this mutex is
-        // acquired.  Use 'unlockRead' or 'unlock' to release the lock on this
-        // mutex.  The behavior is undefined if this method is called from a
-        // thread that already has a lock on this mutex.
 
+    /// Lock this reader-writer mutex for writing.  If there are no active
+    /// or pending locks on this mutex, lock this mutex for writing and
+    /// return immediately.  Otherwise, block until the write lock on this
+    /// mutex is acquired.  Use `unlockWrite` or `unlock` to release the
+    /// lock on this mutex.  The behavior is undefined if this method is
+    /// called from a thread that already has a lock on this mutex.
     void lockWrite();
-        // Lock this reader-writer mutex for writing.  If there are no active
-        // or pending locks on this mutex, lock this mutex for writing and
-        // return immediately.  Otherwise, block until the write lock on this
-        // mutex is acquired.  Use 'unlockWrite' or 'unlock' to release the
-        // lock on this mutex.  The behavior is undefined if this method is
-        // called from a thread that already has a lock on this mutex.
 
+    /// Attempt to lock this reader-writer mutex for reading.  Immediately
+    /// return 0 on success, and a non-zero value if there are active or
+    /// pending writers.  If successful, `unlockRead` or `unlock` must be
+    /// used to release the lock on this mutex.  The behavior is undefined
+    /// if this method is called from a thread that already has a lock on
+    /// this mutex.
     int tryLockRead();
-        // Attempt to lock this reader-writer mutex for reading.  Immediately
-        // return 0 on success, and a non-zero value if there are active or
-        // pending writers.  If successful, 'unlockRead' or 'unlock' must be
-        // used to release the lock on this mutex.  The behavior is undefined
-        // if this method is called from a thread that already has a lock on
-        // this mutex.
 
+    /// Attempt to lock this reader-writer mutex for writing.  Immediately
+    /// return 0 on success, and a non-zero value if there are active or
+    /// pending locks on this mutex.  If successful, `unlockWrite` or
+    /// `unlock` must be used to release the lock on this mutex.  The
+    /// behavior is undefined if this method is called from a thread that
+    /// already has a lock on this mutex.
     int tryLockWrite();
-        // Attempt to lock this reader-writer mutex for writing.  Immediately
-        // return 0 on success, and a non-zero value if there are active or
-        // pending locks on this mutex.  If successful, 'unlockWrite' or
-        // 'unlock' must be used to release the lock on this mutex.  The
-        // behavior is undefined if this method is called from a thread that
-        // already has a lock on this mutex.
 
+    /// Release the lock that the calling thread holds on this reader-writer
+    /// mutex.  The behavior is undefined unless the calling thread
+    /// currently has a lock on this mutex.
     void unlock();
-        // Release the lock that the calling thread holds on this reader-writer
-        // mutex.  The behavior is undefined unless the calling thread
-        // currently has a lock on this mutex.
 
+    /// Release the read lock that the calling thread holds on this
+    /// reader-writer mutex.  The behavior is undefined unless the calling
+    /// thread currently has a read lock on this mutex.
     void unlockRead();
-        // Release the read lock that the calling thread holds on this
-        // reader-writer mutex.  The behavior is undefined unless the calling
-        // thread currently has a read lock on this mutex.
 
+    /// Release the write lock that the calling thread holds on this
+    /// reader-writer mutex.  The behavior is undefined unless the calling
+    /// thread currently has a write lock on this mutex.
     void unlockWrite();
-        // Release the write lock that the calling thread holds on this
-        // reader-writer mutex.  The behavior is undefined unless the calling
-        // thread currently has a write lock on this mutex.
 
     // ACCESSORS
+
+    /// Return `true` if this reader-write mutex is currently read locked or
+    /// write locked, and `false` otherwise.
     bool isLocked() const;
-        // Return 'true' if this reader-write mutex is currently read locked or
-        // write locked, and 'false' otherwise.
 
+    /// Return `true` if this reader-write mutex is currently read locked,
+    /// and `false` otherwise.
     bool isLockedRead() const;
-        // Return 'true' if this reader-write mutex is currently read locked,
-        // and 'false' otherwise.
 
+    /// Return `true` if this reader-write mutex is currently write locked,
+    /// and `false` otherwise.
     bool isLockedWrite() const;
-        // Return 'true' if this reader-write mutex is currently write locked,
-        // and 'false' otherwise.
 };
 
 // ============================================================================

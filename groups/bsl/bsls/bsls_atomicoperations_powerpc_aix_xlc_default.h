@@ -13,8 +13,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides default base classes necessary to
 // implement atomics on the AIX PowerPC platform with the xlC compiler.  The
-// classes are for private use only.  See 'bsls_atomicoperations' and
-// 'bsls_atomic' for the public interface to atomics.
+// classes are for private use only.  See `bsls_atomicoperations` and
+// `bsls_atomic` for the public interface to atomics.
 
 #include <bsls_atomicoperations_default.h>
 #include <bsls_platform.h>

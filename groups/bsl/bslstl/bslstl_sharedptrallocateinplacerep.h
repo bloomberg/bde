@@ -5,35 +5,35 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide an in-place implementation of 'bslma::SharedPtrRep'.
+//@PURPOSE: Provide an in-place implementation of `bslma::SharedPtrRep`.
 //
 //@CLASSES:
-//  bslstl::SharedPtrAllocateInplaceRep: in-place 'shared_ptr' implementation
+//  bslstl::SharedPtrAllocateInplaceRep: in-place `shared_ptr` implementation
 //
 //@CANONICAL_HEADER: bsl_memory.h
 //
 //@SEE_ALSO: bslma_sharedptrrep, bslma_sharedptrinplacerep, bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides a class template,
-// 'bslstl::SharedPtrAllocateInplaceRep', proving a concrete implementation of
-// 'bslma::SharedPtrRep' for managing objects of the parameterized 'TYPE' that
+// `bslstl::SharedPtrAllocateInplaceRep`, proving a concrete implementation of
+// `bslma::SharedPtrRep` for managing objects of the parameterized `TYPE` that
 // are stored in-place in the representation, and are allocated by an allocator
 // that satisfies the requirements of an Allocator type in the C++11 standard.
 // Thus, only one memory allocation is required to create both the
 // representation and the managed object.  When all references to the in-place
-// object are released (using 'releaseRef'), the destructor of 'TYPE' is
+// object are released (using `releaseRef`), the destructor of `TYPE` is
 // invoked.
 //
 ///Thread Safety
 ///-------------
-// 'bslstl::SharedPtrAllocateInplaceRep' is thread-safe provided that
-// 'disposeObject' and 'disposeRep' are not called explicitly, meaning that all
-// non-creator operations other than 'disposeObject' and 'disposeRep' on a
+// `bslstl::SharedPtrAllocateInplaceRep` is thread-safe provided that
+// `disposeObject` and `disposeRep` are not called explicitly, meaning that all
+// non-creator operations other than `disposeObject` and `disposeRep` on a
 // given instance can be safely invoked simultaneously from multiple threads
-// ('disposeObject' and 'disposeRep' are meant to be invoked only by
-// 'releaseRef' and 'releaseWeakRef').  Note that there is no thread safety
+// (`disposeObject` and `disposeRep` are meant to be invoked only by
+// `releaseRef` and `releaseWeakRef`).  Note that there is no thread safety
 // guarantees for operations on the managed object contained in
-// 'bslstl::SharedPtrAllocateInplaceRep'.
+// `bslstl::SharedPtrAllocateInplaceRep`.
 
 #include <bslscm_version.h>
 
@@ -63,12 +63,12 @@ namespace bslstl {
                  // class SharedPtrAllocateInplaceRep
                  // =================================
 
+/// This class provides a concrete implementation of the `SharedPtrRep`
+/// protocol for in-place instances of the (template parameter) `TYPE`.
+/// Upon destruction of this object, the destructor of `TYPE` is invoked on
+/// the shared object.
 template <class TYPE, class ALLOCATOR>
 class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
-    // This class provides a concrete implementation of the 'SharedPtrRep'
-    // protocol for in-place instances of the (template parameter) 'TYPE'.
-    // Upon destruction of this object, the destructor of 'TYPE' is invoked on
-    // the shared object.
 
     // PRIVATE TYPES
     typedef typename bsl::allocator_traits<ALLOCATOR>::
@@ -95,67 +95,71 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
     SharedPtrAllocateInplaceRep& operator=(const SharedPtrAllocateInplaceRep&);
 
     // PRIVATE CREATORS
+
+    /// Create a `SharedPtrAllocateInplaceRep` object having uninitialized
+    /// storage for an in-place instance of the parameterized `TYPE`.  Use
+    /// the specified `basicAllocator` to supply memory and, upon a call to
+    /// `disposeObject`, to destroy the inplace object, and upon a call to
+    /// `disposeRep` to destroy the copy the allocator and reclaim storage
+    /// for this object.
     explicit SharedPtrAllocateInplaceRep(
                                        const ReboundAllocator& basicAllocator);
-        // Create a 'SharedPtrAllocateInplaceRep' object having uninitialized
-        // storage for an in-place instance of the parameterized 'TYPE'.  Use
-        // the specified 'basicAllocator' to supply memory and, upon a call to
-        // 'disposeObject', to destroy the inplace object, and upon a call to
-        // 'disposeRep' to destroy the copy the allocator and reclaim storage
-        // for this object.
 
+    /// The destructor for this object should never be called.  The in-place
+    /// `TYPE` object will be destroyed by a call to `disposeObject` and the
+    /// stored allocator for this object will be destroyed by a call to
+    /// `disposeRep`, which will then reclaim the storage occupied by this
+    /// object.
     ~SharedPtrAllocateInplaceRep() BSLS_KEYWORD_OVERRIDE;  // = delete
-        // The destructor for this object should never be called.  The in-place
-        // 'TYPE' object will be destroyed by a call to 'disposeObject' and the
-        // stored allocator for this object will be destroyed by a call to
-        // 'disposeRep', which will then reclaim the storage occupied by this
-        // object.
 
   public:
     // CLASS METHODS
+
+    /// Create a `SharedPtrAllocateInplaceRep` object having storage for an
+    /// in-place uninitialized object of (template parameter) `TYPE`, and
+    /// return its address.  Use the specified `basicAllocator` to supply
+    /// memory and, upon a call to `disposeRep`, to destroy this
+    /// representation (and the in-place shared object).  Note that the
+    /// function members `ptr` and `originalPtr` will return the address of
+    /// an uninitialized object.  This object should be explicitly
+    /// initialized by the caller, and it is undefined behavior to call
+    /// `disposeRep` until this object has been successfully constructed.
     static SharedPtrAllocateInplaceRep *makeRep(
                                               ReboundAllocator basicAllocator);
-        // Create a 'SharedPtrAllocateInplaceRep' object having storage for an
-        // in-place uninitialized object of (template parameter) 'TYPE', and
-        // return its address.  Use the specified 'basicAllocator' to supply
-        // memory and, upon a call to 'disposeRep', to destroy this
-        // representation (and the in-place shared object).  Note that the
-        // function members 'ptr' and 'originalPtr' will return the address of
-        // an uninitialized object.  This object should be explicitly
-        // initialized by the caller, and it is undefined behavior to call
-        // 'disposeRep' until this object has been successfully constructed.
 
     // MANIPULATORS
+
+    /// Destroy the object being referred to by this representation.  This
+    /// method is automatically invoked by `releaseRef` when the number of
+    /// shared references reaches zero and should not be explicitly invoked
+    /// otherwise.
     void disposeObject() BSLS_KEYWORD_OVERRIDE;
-        // Destroy the object being referred to by this representation.  This
-        // method is automatically invoked by 'releaseRef' when the number of
-        // shared references reaches zero and should not be explicitly invoked
-        // otherwise.
 
+    /// Destroy this representation object and deallocate the associated
+    /// memory.  This method is automatically invoked by `releaseRef` and
+    /// `releaseWeakRef` when the number of weak references and the number
+    /// of shared references both reach zero and should not be explicitly
+    /// invoked otherwise.  The behavior is undefined unless `disposeObject`
+    /// has already been called for this representation.  Note that this
+    /// method effectively serves as the representation object's destructor.
     void disposeRep() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this representation object and deallocate the associated
-        // memory.  This method is automatically invoked by 'releaseRef' and
-        // 'releaseWeakRef' when the number of weak references and the number
-        // of shared references both reach zero and should not be explicitly
-        // invoked otherwise.  The behavior is undefined unless 'disposeObject'
-        // has already been called for this representation.  Note that this
-        // method effectively serves as the representation object's destructor.
 
+    /// Ignore the specified `type` and return a null pointer.  Note that
+    /// there is no facility for the user to supply a deleter for an
+    /// in-place representation for a shared pointer.
     void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
-        // Ignore the specified 'type' and return a null pointer.  Note that
-        // there is no facility for the user to supply a deleter for an
-        // in-place representation for a shared pointer.
 
+    /// Return the address of the modifiable shared object to which this
+    /// object refers.  Note that in order to return a pointer to a
+    /// modifiable object, this function cannot be `const` qualified as the
+    /// referenced object is stored internally as a data member.
     TYPE *ptr();
-        // Return the address of the modifiable shared object to which this
-        // object refers.  Note that in order to return a pointer to a
-        // modifiable object, this function cannot be 'const' qualified as the
-        // referenced object is stored internally as a data member.
 
     // ACCESSORS
+
+    /// Return the (untyped) address of the modifiable shared object to
+    /// which this object refers.
     void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
-        // Return the (untyped) address of the modifiable shared object to
-        // which this object refers.
 };
 
 
@@ -163,13 +167,13 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
                 // class SharedPtrArrayAllocateInplaceRep
                 // ======================================
 
+/// This class provides a concrete implementation of the `SharedPtrRep`
+/// protocol for in-place instances of the (template parameter) `TYPE`,
+/// which must be an array.  Upon destruction of this object, each element
+/// of the array is destructed.
 template <class TYPE, class ALLOCATOR>
 class SharedPtrArrayAllocateInplaceRep
                                     : public BloombergLP::bslma::SharedPtrRep {
-    // This class provides a concrete implementation of the 'SharedPtrRep'
-    // protocol for in-place instances of the (template parameter) 'TYPE',
-    // which must be an array.  Upon destruction of this object, each element
-    // of the array is destructed.
 
   private:
     // PRIVATE TYPES
@@ -196,92 +200,99 @@ class SharedPtrArrayAllocateInplaceRep
                                       const SharedPtrArrayAllocateInplaceRep&);
 
     // PRIVATE CLASS METHODS
+
+    /// Return the offset (in bytes) from the start of the object to the
+    /// first element of the array stored at the end of the object.
     static size_t offset_of_first_element();
-        // Return the offset (in bytes) from the start of the object to the
-        // first element of the array stored at the end of the object.
 
     // PRIVATE CREATORS
+
+    /// Create a `SharedPtrArrayAllocateInplaceRep` object having
+    /// uninitialized storage for an in-place instance of the parameterized
+    /// `TYPE` containing the specified `numElements` number of elements.
+    /// Use the specified `basicAllocator` to supply memory and, upon a call
+    /// to `disposeObject`, to destroy the inplace object , and upon a call
+    /// to `disposeRep` to destroy the copy the allocator and reclaim
+    /// storage for this object, pointed to by the specified `allocatedPtr`.
     explicit SharedPtrArrayAllocateInplaceRep(size_t            numElements,
                                        const ReboundAllocator&  basicAllocator,
                                        char                    *allocatedPtr);
-        // Create a 'SharedPtrArrayAllocateInplaceRep' object having
-        // uninitialized storage for an in-place instance of the parameterized
-        // 'TYPE' containing the specified 'numElements' number of elements.
-        // Use the specified 'basicAllocator' to supply memory and, upon a call
-        // to 'disposeObject', to destroy the inplace object , and upon a call
-        // to 'disposeRep' to destroy the copy the allocator and reclaim
-        // storage for this object, pointed to by the specified 'allocatedPtr'.
 
+    /// The destructor for this object should never be called.  The in-place
+    /// `TYPE` object will be destroyed by a call to `disposeObject` and the
+    /// stored allocator for this object will be destroyed by a call to
+    /// `disposeRep`, which will then reclaim the storage occupied by this
+    /// object.
     ~SharedPtrArrayAllocateInplaceRep() BSLS_KEYWORD_OVERRIDE;  // = delete
-        // The destructor for this object should never be called.  The in-place
-        // 'TYPE' object will be destroyed by a call to 'disposeObject' and the
-        // stored allocator for this object will be destroyed by a call to
-        // 'disposeRep', which will then reclaim the storage occupied by this
-        // object.
 
     // PRIVATE ACCESSORS
+
+    /// Return a const pointer to the first element of the array stored at
+    /// the end of the object.
     const element_type *get_pointer_to_first_element() const;
-        // Return a const pointer to the first element of the array stored at
-        // the end of the object.
 
     // PRIVATE MANIPULATORS
+
+    /// Return a pointer to the first element of the array stored at the end
+    /// of the object.
     element_type *get_pointer_to_first_element();
-        // Return a pointer to the first element of the array stored at the end
-        // of the object.
 
   public:
     // CLASS METHODS
-    static size_t alloc_size(size_t numElements);
-        // Return the size (in bytes) for an allocation to hold an object of
-        // type 'SharedPtrArrayAllocateInplaceRep<T[]>' containing the
-        // specified 'numElements' number of elements.
 
+    /// Return the size (in bytes) for an allocation to hold an object of
+    /// type `SharedPtrArrayAllocateInplaceRep<T[]>` containing the
+    /// specified `numElements` number of elements.
+    static size_t alloc_size(size_t numElements);
+
+    /// Create a `SharedPtrArrayAllocateInplaceRep` object having storage
+    /// for an in-place uninitialized sized array of (template parameter)
+    /// `TYPE` containing space for the specified `numElements` number of
+    /// elements, and return its address.  Use the specified
+    /// `basicAllocator` to supply memory and, upon a call to `disposeRep`,
+    /// to destroy this representation (and the in-place shared object).
+    /// Note that the function members `ptr` and `originalPtr` will return
+    /// the address of an uninitialized array.  This object should be
+    /// explicitly initialized by the caller, and it is undefined behavior
+    /// to call `disposeRep` until this object has been successfully
+    /// constructed.
     static SharedPtrArrayAllocateInplaceRep *makeRep(
                                                ReboundAllocator basicAllocator,
                                                size_t           numElements);
-        // Create a 'SharedPtrArrayAllocateInplaceRep' object having storage
-        // for an in-place uninitialized sized array of (template parameter)
-        // 'TYPE' containing space for the specified 'numElements' number of
-        // elements, and return its address.  Use the specified
-        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
-        // to destroy this representation (and the in-place shared object).
-        // Note that the function members 'ptr' and 'originalPtr' will return
-        // the address of an uninitialized array.  This object should be
-        // explicitly initialized by the caller, and it is undefined behavior
-        // to call 'disposeRep' until this object has been successfully
-        // constructed.
 
     // MANIPULATORS
+
+    /// Destroy the object being referred to by this representation.  This
+    /// method is automatically invoked by `releaseRef` when the number of
+    /// shared references reaches zero and should not be explicitly invoked
+    /// otherwise.
     void disposeObject() BSLS_KEYWORD_OVERRIDE;
-        // Destroy the object being referred to by this representation.  This
-        // method is automatically invoked by 'releaseRef' when the number of
-        // shared references reaches zero and should not be explicitly invoked
-        // otherwise.
 
+    /// Destroy this representation object and deallocate the associated
+    /// memory.  This method is automatically invoked by `releaseRef` and
+    /// `releaseWeakRef` when the number of weak references and the number
+    /// of shared references both reach zero and should not be explicitly
+    /// invoked otherwise.  The behavior is undefined unless `disposeObject`
+    /// has already been called for this representation.  Note that this
+    /// method effectively serves as the representation object's destructor.
     void disposeRep() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this representation object and deallocate the associated
-        // memory.  This method is automatically invoked by 'releaseRef' and
-        // 'releaseWeakRef' when the number of weak references and the number
-        // of shared references both reach zero and should not be explicitly
-        // invoked otherwise.  The behavior is undefined unless 'disposeObject'
-        // has already been called for this representation.  Note that this
-        // method effectively serves as the representation object's destructor.
 
+    /// Ignore the specified `type` and return a null pointer.  Note that
+    /// there is no facility for the user to supply a deleter for an
+    /// in-place representation for a shared pointer.
     void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
-        // Ignore the specified 'type' and return a null pointer.  Note that
-        // there is no facility for the user to supply a deleter for an
-        // in-place representation for a shared pointer.
 
+    /// Return the address of the modifiable shared object to which this
+    /// object refers.  Note that in order to return a pointer to a
+    /// modifiable object, this function cannot be `const` qualified as the
+    /// referenced object is stored internally.
     element_type *ptr();
-        // Return the address of the modifiable shared object to which this
-        // object refers.  Note that in order to return a pointer to a
-        // modifiable object, this function cannot be 'const' qualified as the
-        // referenced object is stored internally.
 
     // ACCESSORS
+
+    /// Return the (untyped) address of the modifiable shared object to
+    /// which this object refers.
     void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
-        // Return the (untyped) address of the modifiable shared object to
-        // which this object refers.
 };
 
 // ============================================================================

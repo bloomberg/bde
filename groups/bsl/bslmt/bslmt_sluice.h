@@ -12,29 +12,29 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_conditionimpl_win32
 //
-//@DESCRIPTION: This component provides a "sluice" class, 'bslmt::Sluice'.  A
+//@DESCRIPTION: This component provides a "sluice" class, `bslmt::Sluice`.  A
 // sluice is useful for controlling the release of threads from a common
-// synchronization point.  One or more threads may "enter" a 'bslmt::Sluice'
-// object (via the 'enter' method), and then wait to be released (via either
-// the 'wait' or 'timedWait' method).  Either one waiting thread (via the
-// 'signalOne' method), or all waiting threads (via the 'signalAll' method),
-// may be signaled for release.  In either case, 'bslmt::Sluice' provides a
+// synchronization point.  One or more threads may "enter" a `bslmt::Sluice`
+// object (via the `enter` method), and then wait to be released (via either
+// the `wait` or `timedWait` method).  Either one waiting thread (via the
+// `signalOne` method), or all waiting threads (via the `signalAll` method),
+// may be signaled for release.  In either case, `bslmt::Sluice` provides a
 // guarantee against starvation; newly-entering threads will not indefinitely
 // prevent threads that previously entered from being signaled.
 //
 ///Supported Clock-Types
 ///---------------------
-// 'bsls::SystemClockType' supplies the enumeration indicating the system clock
+// `bsls::SystemClockType` supplies the enumeration indicating the system clock
 // on which timeouts supplied to other methods should be based.  If the clock
-// type indicated at construction is 'bsls::SystemClockType::e_REALTIME', the
-// 'absTime' argument passed to the 'timedWait' method should be expressed as
+// type indicated at construction is `bsls::SystemClockType::e_REALTIME`, the
+// `absTime` argument passed to the `timedWait` method should be expressed as
 // an *absolute* offset since 00:00:00 UTC, January 1, 1970 (which matches the
-// epoch used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.
+// epoch used in `bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)`.
 // If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the 'absTime' argument passed to the
-// 'timedWait' method should be expressed as an *absolute* offset since the
+// `bsls::SystemClockType::e_MONOTONIC`, the `absTime` argument passed to the
+// `timedWait` method should be expressed as an *absolute* offset since the
 // epoch of this clock (which matches the epoch used in
-// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// `bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)`.
 //
 ///Usage
 ///-----
@@ -42,37 +42,37 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// 'bslmt::Sluice' is intended to be used to implement other synchronization
-// mechanisms.  In particular, the functionality provided by 'bslmt::Sluice' is
+// `bslmt::Sluice` is intended to be used to implement other synchronization
+// mechanisms.  In particular, the functionality provided by `bslmt::Sluice` is
 // useful for implementing a condition variable:
-//..
-//  class MyCondition {
-//      // This class implements a condition variable based on 'bslmt::Sluice'.
+// ```
+// class MyCondition {
+//     // This class implements a condition variable based on 'bslmt::Sluice'.
 //
-//      // DATA
-//      bslmt::Sluice d_waitSluice;  // sluice object
+//     // DATA
+//     bslmt::Sluice d_waitSluice;  // sluice object
 //
-//    public:
-//      // MANIPULATORS
-//      void wait(bslmt::Mutex *mutex)
-//      {
-//          const void *token = d_waitSluice.enter();
-//          mutex->unlock();
-//          d_waitSluice.wait(token);
-//          mutex->lock();
-//      }
+//   public:
+//     // MANIPULATORS
+//     void wait(bslmt::Mutex *mutex)
+//     {
+//         const void *token = d_waitSluice.enter();
+//         mutex->unlock();
+//         d_waitSluice.wait(token);
+//         mutex->lock();
+//     }
 //
-//      void signal()
-//      {
-//          d_waitSluice.signalOne();
-//      }
+//     void signal()
+//     {
+//         d_waitSluice.signalOne();
+//     }
 //
-//      void broadcast()
-//      {
-//          d_waitSluice.signalAll();
-//      }
-//  };
-//..
+//     void broadcast()
+//     {
+//         d_waitSluice.signalAll();
+//     }
+// };
+// ```
 
 #include <bslscm_version.h>
 
@@ -99,21 +99,22 @@ namespace bslmt {
                                // class Sluice
                                // ============
 
+/// This class controls the release of threads from a common synchronization
+/// point.  One or more threads may "enter" a `Sluice` object, and then wait
+/// to be released.  Either one waiting thread (via the `signalOne` method),
+/// or all waiting threads (via the `signalAll` method), may be signaled for
+/// release.  In any case, `Sluice` provides a guarantee against starvation.
 class Sluice {
-    // This class controls the release of threads from a common synchronization
-    // point.  One or more threads may "enter" a 'Sluice' object, and then wait
-    // to be released.  Either one waiting thread (via the 'signalOne' method),
-    // or all waiting threads (via the 'signalAll' method), may be signaled for
-    // release.  In any case, 'Sluice' provides a guarantee against starvation.
 
   private:
     // PRIVATE TYPES
+
+    /// This object represents one "generation" in a sluice.  A generation
+    /// begins when a thread enters the sluice, and ends (ceases accepting
+    /// new entering threads) when `signalOne` or `signalAll` is invoked.
+    /// The last thread in the generation to invoke `wait` is responsible
+    /// for returning the descriptor to the pool.
     struct GenerationDescriptor {
-        // This object represents one "generation" in a sluice.  A generation
-        // begins when a thread enters the sluice, and ends (ceases accepting
-        // new entering threads) when 'signalOne' or 'signalAll' is invoked.
-        // The last thread in the generation to invoke 'wait' is responsible
-        // for returning the descriptor to the pool.
 
         // DATA
         int                   d_numThreads;   // number of threads entered, but
@@ -128,9 +129,10 @@ class Sluice {
                                               // descriptor in the pool
 
         // CREATORS
+
+        /// Create a generation descriptor object with the specified
+        /// `clockType`.
         explicit GenerationDescriptor(bsls::SystemClockType::Enum clockType);
-            // Create a generation descriptor object with the specified
-            // 'clockType'.
     };
 
     // DATA
@@ -162,104 +164,108 @@ class Sluice {
 
   public:
     // TYPES
+
+    /// The value `timedWait` returns when a timeout occurs.
     enum { e_TIMED_OUT = TimedSemaphore::e_TIMED_OUT };
-        // The value 'timedWait' returns when a timeout occurs.
 
     // CREATORS
+
+    /// Create a sluice.  Optionally specify a `clockType` indicating the
+    /// type of the system clock against which the `bsls::TimeInterval`
+    /// `absTime` timeouts passed to the `timedWait` method are to be
+    /// interpreted (see {Supported Clock-Types} in the component
+    /// documentation).  If `clockType` is not specified then the realtime
+    /// system clock is used.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     explicit
     Sluice(bslma::Allocator *basicAllocator = 0);
     explicit
     Sluice(bsls::SystemClockType::Enum  clockType,
            bslma::Allocator            *basicAllocator = 0);
-        // Create a sluice.  Optionally specify a 'clockType' indicating the
-        // type of the system clock against which the 'bsls::TimeInterval'
-        // 'absTime' timeouts passed to the 'timedWait' method are to be
-        // interpreted (see {Supported Clock-Types} in the component
-        // documentation).  If 'clockType' is not specified then the realtime
-        // system clock is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Create a sluice.  Use the realtime system clock as the clock against
+    /// which the `absTime` timeouts passed to the `timedWait` methods are
+    /// interpreted (see {Supported Clock-Types} in the component-level
+    /// documentation).  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     explicit
     Sluice(const bsl::chrono::system_clock&,
            bslma::Allocator                 *basicAllocator = 0);
-        // Create a sluice.  Use the realtime system clock as the clock against
-        // which the 'absTime' timeouts passed to the 'timedWait' methods are
-        // interpreted (see {Supported Clock-Types} in the component-level
-        // documentation).  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a sluice.  Use the monotonic system clock as the clock
+    /// against which the `absTime` timeouts passed to the `timedWait`
+    /// methods are interpreted (see {Supported Clock-Types} in the
+    /// component-level documentation).  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit
     Sluice(const bsl::chrono::steady_clock&,
            bslma::Allocator                 *basicAllocator = 0);
-        // Create a sluice.  Use the monotonic system clock as the clock
-        // against which the 'absTime' timeouts passed to the 'timedWait'
-        // methods are interpreted (see {Supported Clock-Types} in the
-        // component-level documentation).  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 #endif
 
+    /// Destroy this sluice.
     ~Sluice();
-        // Destroy this sluice.
 
     // MANIPULATORS
+
+    /// Enter this sluice, and return the token on which the calling thread
+    /// must subsequently wait.  The behavior is undefined unless `wait` or
+    /// `timedWait` is invoked with the token before this sluice is
+    /// destroyed.
     const void *enter();
-        // Enter this sluice, and return the token on which the calling thread
-        // must subsequently wait.  The behavior is undefined unless 'wait' or
-        // 'timedWait' is invoked with the token before this sluice is
-        // destroyed.
 
+    /// Signal all threads that have entered this sluice and have not yet
+    /// been released.
     void signalAll();
-        // Signal all threads that have entered this sluice and have not yet
-        // been released.
 
+    /// Signal one thread that has entered this sluice and has not yet been
+    /// released.
     void signalOne();
-        // Signal one thread that has entered this sluice and has not yet been
-        // released.
 
+    /// Wait for the specified `token` to be signaled, or until the
+    /// specified `absTime` timeout expires.  `absTime` is an *absolute*
+    /// time represented as an interval from some epoch, which is determined
+    /// by the clock indicated at construction (see {Supported Clock-Types}
+    /// in the component-level documentation).  Return 0 on success, and
+    /// `e_TIMED_OUT` on timeout.  Any other value indicates that an error
+    /// has occurred.  Errors are unrecoverable.  After an error, the sluice
+    /// may be destroyed, but any other use has undefined behavior.  The
+    /// `token` is released whether or not a timeout occurred.  The behavior
+    /// is undefined unless `token` was obtained from a call to `enter` by
+    /// this thread, and was not subsequently released (via a call to
+    /// `timedWait` or `wait`).
     int timedWait(const void *token, const bsls::TimeInterval& absTime);
-        // Wait for the specified 'token' to be signaled, or until the
-        // specified 'absTime' timeout expires.  'absTime' is an *absolute*
-        // time represented as an interval from some epoch, which is determined
-        // by the clock indicated at construction (see {Supported Clock-Types}
-        // in the component-level documentation).  Return 0 on success, and
-        // 'e_TIMED_OUT' on timeout.  Any other value indicates that an error
-        // has occurred.  Errors are unrecoverable.  After an error, the sluice
-        // may be destroyed, but any other use has undefined behavior.  The
-        // 'token' is released whether or not a timeout occurred.  The behavior
-        // is undefined unless 'token' was obtained from a call to 'enter' by
-        // this thread, and was not subsequently released (via a call to
-        // 'timedWait' or 'wait').
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Wait for the specified `token` to be signaled, or until the
+    /// specified `absTime` timeout expires.  `absTime` is an *absolute*
+    /// time represented as an interval from some epoch, which is determined
+    /// by the clock associated with the time point.  Return 0 on success,
+    /// and `e_TIMED_OUT` on timeout.  Any other value indicates that an
+    /// error has occurred.  Errors are unrecoverable.  After an error, the
+    /// sluice may be destroyed, but any other use has undefined behavior.
+    /// The `token` is released whether or not a timeout occurred.  The
+    /// behavior is undefined unless `token` was obtained from a call to
+    /// `enter` by this thread, and was not subsequently released (via a
+    /// call to `timedWait` or `wait`).
     template <class CLOCK, class DURATION>
     int timedWait(const void                                      *token,
                   const bsl::chrono::time_point<CLOCK, DURATION>&  absTime);
-        // Wait for the specified 'token' to be signaled, or until the
-        // specified 'absTime' timeout expires.  'absTime' is an *absolute*
-        // time represented as an interval from some epoch, which is determined
-        // by the clock associated with the time point.  Return 0 on success,
-        // and 'e_TIMED_OUT' on timeout.  Any other value indicates that an
-        // error has occurred.  Errors are unrecoverable.  After an error, the
-        // sluice may be destroyed, but any other use has undefined behavior.
-        // The 'token' is released whether or not a timeout occurred.  The
-        // behavior is undefined unless 'token' was obtained from a call to
-        // 'enter' by this thread, and was not subsequently released (via a
-        // call to 'timedWait' or 'wait').
 #endif
 
+    /// Wait for the specified `token` to be signaled, and release the
+    /// `token`.  The behavior is undefined unless `token` was obtained from
+    /// a call to `enter` by this thread, and was not subsequently released
+    /// (via a call to `timedWait` or `wait`).
     void wait(const void *token);
-        // Wait for the specified 'token' to be signaled, and release the
-        // 'token'.  The behavior is undefined unless 'token' was obtained from
-        // a call to 'enter' by this thread, and was not subsequently released
-        // (via a call to 'timedWait' or 'wait').
 
     // ACCESSORS
+
+    /// Return the clock type used for timeouts.
     bsls::SystemClockType::Enum clockType() const;
-        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace

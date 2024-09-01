@@ -9,11 +9,11 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::negation: forms the logical NOT of the specified type trait
-//  bsl::negation_v: the result value of the 'negation' meta-function
+//  bsl::negation_v: the result value of the `negation` meta-function
 //
 //@DESCRIPTION: This component makes available the functionality provided by
-// the 'std::negation' meta-function in all C++ language modes -
-// 'std::negation' is available only starting from C++17.
+// the `std::negation` meta-function in all C++ language modes -
+// `std::negation` is available only starting from C++17.
 
 #include <bslscm_version.h>
 

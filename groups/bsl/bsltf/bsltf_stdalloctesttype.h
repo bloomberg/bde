@@ -13,24 +13,24 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'StdAllocTestType', that takes a standard
+// (value-semantic) attribute class, `StdAllocTestType`, that takes a standard
 // allocator type as a template argument and uses an object of that type to
 // allocate memory.  Note that this class does NOT set the trait
-// 'bslma::UsesBslmaAllocator', but the trait will automatically be 'true' if
-// 'ALLOC' is convertible from 'bslma::Allocator *' (e.g., if it is an
-// instantiation of 'bsl::allocator').  Furthermore, this class is not
+// `bslma::UsesBslmaAllocator`, but the trait will automatically be `true` if
+// `ALLOC` is convertible from `bslma::Allocator *` (e.g., if it is an
+// instantiation of `bsl::allocator`).  Furthermore, this class is not
 // bitwise-moveable, and will assert on destruction if it has been moved.  This
 // class is primarily provided to facilitate testing of templates by defining a
 // simple type representative of user-defined types using a standard allocator.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the object's value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the object's value
 //
 ///Usage
 ///-----
@@ -40,54 +40,54 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to print the supported traits of this test type.
 //
-// First, we create a function template 'printTypeTraits' with a parameterized
-// 'TYPE':
-//..
-//  template <class TYPE>
-//  void printTypeTraits()
-//      // Prints the traits of the parameterized 'TYPE' to the console.
-//  {
-//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
-//          printf("Type defines bslma::UsesBslmaAllocator.\n");
-//      }
-//      else {
-//          printf("Type does not define bslma::UsesBslmaAllocator.\n");
-//      }
+// First, we create a function template `printTypeTraits` with a parameterized
+// `TYPE`:
+// ```
+// template <class TYPE>
+// void printTypeTraits()
+//     // Prints the traits of the parameterized 'TYPE' to the console.
+// {
+//     if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//         printf("Type defines bslma::UsesBslmaAllocator.\n");
+//     }
+//     else {
+//         printf("Type does not define bslma::UsesBslmaAllocator.\n");
+//     }
 //
-//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
-//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
-//      }
-//      else {
-//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
-//      }
-//  }
-//..
+//     if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//         printf("Type defines bslmf::IsBitwiseMoveable.\n");
+//     }
+//     else {
+//         printf("Type does not define bslmf::IsBitwiseMoveable.\n");
+//     }
+// }
+// ```
 // Next, we create an STL-style allocator:
-//..
-//  template <class TYPE>
-//  struct StlAllocator {
-//      // An STL-compliant allocator type.
+// ```
+// template <class TYPE>
+// struct StlAllocator {
+//     // An STL-compliant allocator type.
 //
-//      typedef TYPE value_type;
+//     typedef TYPE value_type;
 //
-//      TYPE *allocate(std::size_t);
-//      void deallocate(TYPE *, std::size_t);
-//  };
-//..
-// Now, we invoke the 'printTypeTraits' function template using 'AllocTestType'
-// as the parameterized 'TYPE', using both 'bsl::allocator' and 'StlAllocator'
-// as the 'ALLOC' parameter:
-//..
-//  printTypeTraits<StdAllocTestType<bsl::allocator<int> > >();
-//  printTypeTraits<StdAllocTestType<StlAllocator<int> > >();
-//..
+//     TYPE *allocate(std::size_t);
+//     void deallocate(TYPE *, std::size_t);
+// };
+// ```
+// Now, we invoke the `printTypeTraits` function template using `AllocTestType`
+// as the parameterized `TYPE`, using both `bsl::allocator` and `StlAllocator`
+// as the `ALLOC` parameter:
+// ```
+// printTypeTraits<StdAllocTestType<bsl::allocator<int> > >();
+// printTypeTraits<StdAllocTestType<StlAllocator<int> > >();
+// ```
 // Finally, we observe the console output:
-//..
-//  Type defines bslma::UsesBslmaAllocator.
-//  Type does not define bslmf::IsBitwiseMoveable.
-//  Type does not bslma::UsesBslmaAllocator.
-//  Type does not define bslmf::IsBitwiseMoveable.
-//..
+// ```
+// Type defines bslma::UsesBslmaAllocator.
+// Type does not define bslmf::IsBitwiseMoveable.
+// Type does not bslma::UsesBslmaAllocator.
+// Type does not define bslmf::IsBitwiseMoveable.
+// ```
 
 #include <bslscm_version.h>
 
@@ -107,18 +107,18 @@ namespace bsltf {
                         // class StdAllocTestType
                         // ======================
 
+/// This unconstrained (value-semantic) attribute class uses a standard
+/// allocator of (template parameter) type `ALLOC` to allocate memory.  This
+/// class does NOT define the type trait `bslma::UsesBslmaAllocator`, but
+/// the trait will be `true` if `ALLOC` is convertible from
+/// `bslma::Allocator *` (e.g., if it is an instantiation of
+/// `bsl::allocator`).  This class is primarily provided to facilitate
+/// testing of templates by defining a simple type representative of
+/// user-defined types using a standard allocator.  See the Attributes
+/// section under @DESCRIPTION in the component-level documentation for
+/// information on the class attributes.
 template <class ALLOC>
 class StdAllocTestType {
-    // This unconstrained (value-semantic) attribute class uses a standard
-    // allocator of (template parameter) type 'ALLOC' to allocate memory.  This
-    // class does NOT define the type trait 'bslma::UsesBslmaAllocator', but
-    // the trait will be 'true' if 'ALLOC' is convertible from
-    // 'bslma::Allocator *' (e.g., if it is an instantiation of
-    // 'bsl::allocator').  This class is primarily provided to facilitate
-    // testing of templates by defining a simple type representative of
-    // user-defined types using a standard allocator.  See the Attributes
-    // section under @DESCRIPTION in the component-level documentation for
-    // information on the class attributes.
 
     // DATA
     int                     *d_data_p;      // pointer to the data value
@@ -129,79 +129,84 @@ class StdAllocTestType {
                                             // object is not bit-wise moved)
 
     // PRIVATE MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.  The
+    /// allocator will be copied from `rhs` if the specified
+    /// `propagateAlloc` argument has type `bsl::true_type`; otherwise the
+    /// allocator for this object will remain unchanged.
     void assignImp(const StdAllocTestType& rhs, bsl::true_type propagateAlloc);
     void assignImp(const StdAllocTestType& rhs,
                    bsl::false_type         propagateAlloc);
-        // Assign to this object the value of the specified 'rhs' object.  The
-        // allocator will be copied from 'rhs' if the specified
-        // 'propagateAlloc' argument has type 'bsl::true_type'; otherwise the
-        // allocator for this object will remain unchanged.
 
   public:
     // TYPES
     typedef ALLOC allocator_type;           // needed by 'uses_allocator' trait
 
     // CREATORS
+
+    /// Create a `StdAllocTestType` object having the (default) attribute
+    /// values:
+    /// ```
+    /// data() == 0
+    /// ```
+    /// Optionally specify a `stdAllocator` used to supply memory.  If
+    /// an allocator is not supplied, a default-constructed object of the
+    /// template parameter type `ALLOC` is used.
     explicit StdAllocTestType(const ALLOC& stdAllocator = ALLOC());
-        // Create a 'StdAllocTestType' object having the (default) attribute
-        // values:
-        //..
-        //  data() == 0
-        //..
-        // Optionally specify a 'stdAllocator' used to supply memory.  If
-        // an allocator is not supplied, a default-constructed object of the
-        // template parameter type 'ALLOC' is used.
 
+    /// Create a `StdAllocTestType` object having the specified `data`
+    /// attribute value.  Optionally specify a `stdAllocator` used to
+    /// supply memory.  If `basicAllocator` is not supplied, a default
+    /// constructed object of (template parameter) type `ALLOC` is used.
     explicit StdAllocTestType(int value, const ALLOC& stdAllocator = ALLOC());
-        // Create a 'StdAllocTestType' object having the specified 'data'
-        // attribute value.  Optionally specify a 'stdAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied, a default
-        // constructed object of (template parameter) type 'ALLOC' is used.
 
+    /// Create a `StdAllocTestType` object having the same value as the
+    /// specified `original` object.  Optionally specify a `stdAllocator`
+    /// used to supply memory.  If `basicAllocator` is not supplied, a
+    /// default constructed object of (template parameter) type `ALLOC` is
+    /// used.
     StdAllocTestType(const StdAllocTestType& original);
     StdAllocTestType(const StdAllocTestType& original,
                      const ALLOC&            stdAllocator);
-        // Create a 'StdAllocTestType' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'stdAllocator'
-        // used to supply memory.  If 'basicAllocator' is not supplied, a
-        // default constructed object of (template parameter) type 'ALLOC' is
-        // used.
 
+    /// Destroy this object.
     ~StdAllocTestType();
-        // Destroy this object.
 
     // MANIPULATORS
-    StdAllocTestType& operator=(const StdAllocTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    StdAllocTestType& operator=(const StdAllocTestType& rhs);
+
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     const ALLOC& allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `AllocTestType` objects have the same
+/// if their `data` attributes are the same.
 template <class ALLOC>
 bool operator==(const StdAllocTestType<ALLOC>& lhs,
                 const StdAllocTestType<ALLOC>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'AllocTestType' objects have the same
-    // if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `AllocTestType` objects do not
+/// have the same value if their `data` attributes are not the same.
 template <class ALLOC>
 bool operator!=(const StdAllocTestType<ALLOC>& lhs,
                 const StdAllocTestType<ALLOC>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'AllocTestType' objects do not
-    // have the same value if their 'data' attributes are not the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

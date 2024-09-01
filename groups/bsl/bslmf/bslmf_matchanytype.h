@@ -9,86 +9,86 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bslmf::MatchAnyType: generic type to which any type can be converted
-//  bslmf::TypeRep: meta-function for providing a reference to 't_TYPE'
+//  bslmf::TypeRep: meta-function for providing a reference to `t_TYPE`
 //
-//@DESCRIPTION: 'bslmf::MatchAnyType' is a type to which any type can be
+//@DESCRIPTION: `bslmf::MatchAnyType` is a type to which any type can be
 // implicitly converted.  This is useful for creating an overloaded function
 // that is a catch-all for all types not explicitly provided for in other
 // overloaded functions with the same name.
 //
-// 'bslmf::TypeRep' allows one to create a reference to a type.  In complex
+// `bslmf::TypeRep` allows one to create a reference to a type.  In complex
 // template programming, one is often dealing with unknown types, about the
 // constructors of which one knows nothing.  One often needs an object of the
 // given type, but since nothing is known about the constructors, one can't
-// just construct and object of the type.  'bslmf::TypeRep' allows one to
-// create a reference to the type.  Note that the 'rep' function in
-// 'bslmf::TypeRep' is not implemented, it must never be called at run time.
+// just construct and object of the type.  `bslmf::TypeRep` allows one to
+// create a reference to the type.  Note that the `rep` function in
+// `bslmf::TypeRep` is not implemented, it must never be called at run time.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: 'bslmf::MatchAnyType'
+///Example 1: `bslmf::MatchAnyType`
 /// - - - - - - - - - - - - - - - -
-//..
-//  struct X { };
-//  struct Y { };
-//  struct Z : public Y { };
+// ```
+// struct X { };
+// struct Y { };
+// struct Z : public Y { };
 //
-//  inline bool isY(const bslmf::MatchAnyType&) { return false; }
-//  inline bool isY(const Y&)              { return true;  }
+// inline bool isY(const bslmf::MatchAnyType&) { return false; }
+// inline bool isY(const Y&)              { return true;  }
 //
-//  assert(! isY(X()));
-//  assert(  isY(Y()));
-//  assert(  isY(Z()));
-//  assert(! isY(int()));
-//  assert(! isY(4));
-//  assert(! isY(4.0));
-//  assert(! isY("The king is a fink!"));
+// assert(! isY(X()));
+// assert(  isY(Y()));
+// assert(  isY(Z()));
+// assert(! isY(int()));
+// assert(! isY(4));
+// assert(! isY(4.0));
+// assert(! isY("The king is a fink!"));
 //
-//  X x;
-//  Y y;
-//  Z z;
-//  assert(! isY(x));
-//  assert(  isY(y));
-//  assert(  isY(z));
-//..
+// X x;
+// Y y;
+// Z z;
+// assert(! isY(x));
+// assert(  isY(y));
+// assert(  isY(z));
+// ```
 //
-///Example 2: 'bslmf::TypeRep'
+///Example 2: `bslmf::TypeRep`
 ///- - - - - - - - - - - - - -
-//..
-//  struct X {};
-//  struct Y {};
+// ```
+// struct X {};
+// struct Y {};
 //
-//  struct HasHorridCtorX : public X {
-//      HasHorridCtorX(int, double, X, char, char *, void *) {}
-//          // It's inconvenient to actually create an object of this type
-//          // because the constructor takes so many arguments.  It's also
-//          // impossible because the c'tor is undefined.
-//  };
-//  struct HasHorridCtorY : public Y {
-//      HasHorridCtorY(int, double, X, char, char *, void *) {}
-//          // It's inconvenient to actually create an object of this type
-//          // because the constructor takes so many arguments.  It's also
-//          // impossible because the c'tor is undefined.
-//  };
+// struct HasHorridCtorX : public X {
+//     HasHorridCtorX(int, double, X, char, char *, void *) {}
+//         // It's inconvenient to actually create an object of this type
+//         // because the constructor takes so many arguments.  It's also
+//         // impossible because the c'tor is undefined.
+// };
+// struct HasHorridCtorY : public Y {
+//     HasHorridCtorY(int, double, X, char, char *, void *) {}
+//         // It's inconvenient to actually create an object of this type
+//         // because the constructor takes so many arguments.  It's also
+//         // impossible because the c'tor is undefined.
+// };
 //
-//  template <int i>
-//  struct MyMetaInt { char d_array[i + 1]; };
+// template <int i>
+// struct MyMetaInt { char d_array[i + 1]; };
 //
-//  #define METAINT_TO_UINT(mymetaint)   (sizeof(mymetaint) - 1)
+// #define METAINT_TO_UINT(mymetaint)   (sizeof(mymetaint) - 1)
 //
-//  MyMetaInt<1> isX(const X&);
-//  MyMetaInt<0> isX(const bslmf::MatchAnyType&);
+// MyMetaInt<1> isX(const X&);
+// MyMetaInt<0> isX(const bslmf::MatchAnyType&);
 //
-//  assert(1 == METAINT_TO_UINT(isX(X())));
-//  assert(0 == METAINT_TO_UINT(isX(Y())));
-//  assert(1 == METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorX>::rep())));
-//  assert(0 == METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorY>::rep())));
-//  assert(0 == METAINT_TO_UINT(isX(3)));
-//  assert(0 == METAINT_TO_UINT(isX(3.0)));
-//  assert(0 == METAINT_TO_UINT(isX("The king is a fink!")));
-//..
+// assert(1 == METAINT_TO_UINT(isX(X())));
+// assert(0 == METAINT_TO_UINT(isX(Y())));
+// assert(1 == METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorX>::rep())));
+// assert(0 == METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorY>::rep())));
+// assert(0 == METAINT_TO_UINT(isX(3)));
+// assert(0 == METAINT_TO_UINT(isX(3.0)));
+// assert(0 == METAINT_TO_UINT(isX("The king is a fink!")));
+// ```
 
 #include <bslscm_version.h>
 
@@ -104,8 +104,8 @@ namespace bslmf {
                         // class MatchAnyType
                         // ==================
 
+/// Any type can be converted into this type.
 struct MatchAnyType {
-    // Any type can be converted into this type.
 
     template <class t_TYPE>
     MatchAnyType(const t_TYPE&)
@@ -115,14 +115,14 @@ struct MatchAnyType {
     // non-'const' version of this constructor is not necessary and will cause
     // some compilers to complain of ambiguities.
 
+    /// This constructor will match any volatile lvalue.  According to the
+    /// standard, it should NOT match an rvalue.  A non-`const` version of
+    /// this constructor is not necessary and will cause some compilers to
+    /// complain of ambiguities.
     template <class t_TYPE>
     MatchAnyType(const volatile t_TYPE&)
     {
     }                                                               // IMPLICIT
-        // This constructor will match any volatile lvalue.  According to the
-        // standard, it should NOT match an rvalue.  A non-'const' version of
-        // this constructor is not necessary and will cause some compilers to
-        // complain of ambiguities.
 };
 
                         // =============
@@ -130,15 +130,16 @@ struct MatchAnyType {
                         // =============
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+/// Generate a reference to `t_TYPE` for use in meta-functions.
 template <class t_TYPE>
 struct TypeRep {
-    // Generate a reference to 't_TYPE' for use in meta-functions.
 
     //    static t_TYPE&& rep();
+
+    /// Provide a reference to a `t_TYPE` object.  This function has no body
+    /// and must never be called at run time.  Thus, it does not matter if
+    /// `t_TYPE` has a default constructor or not.
     static typename bsl::add_rvalue_reference<t_TYPE>::type rep();
-        // Provide a reference to a 't_TYPE' object.  This function has no body
-        // and must never be called at run time.  Thus, it does not matter if
-        // 't_TYPE' has a default constructor or not.
 };
 #else
 template <class t_TYPE>
@@ -173,11 +174,11 @@ struct TypeRep<t_TYPE&> {
 #ifdef bslmf_TypeRep
 #undef bslmf_TypeRep
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeRep bslmf::TypeRep
-    // This alias is defined for backward compatibility.
 
+/// This alias is defined for backward compatibility.
 typedef bslmf::MatchAnyType bslmf_AnyType;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

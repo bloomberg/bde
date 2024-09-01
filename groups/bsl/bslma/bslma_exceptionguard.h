@@ -12,24 +12,24 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_testallocator
 //
-//@DESCRIPTION: This component provides a class, 'bslma::ExceptionGuard', that
+//@DESCRIPTION: This component provides a class, `bslma::ExceptionGuard`, that
 // can be used to ASSERT if an object changes state when a method fails by
 // throwing an exception.  This is often used to validate the strong exception
 // safety guarantee in a test driver, usually with the test support macros
-// provided by the component 'bslma_testallocator', such as
-// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN'.  The object under test must be
+// provided by the component `bslma_testallocator`, such as
+// `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN`.  The object under test must be
 // CopyConstructible, and support the extended copy constructor taking an
 // allocator.  Note that this may be a generalised STL allocator, conforming to
 // the Allocator requirements of the C++ standard, rather than just a
-// 'bslma::Allocator'.  This allows for testing standard library components
-// such as those in 'bsl'.
+// `bslma::Allocator`.  This allows for testing standard library components
+// such as those in `bsl`.
 //
 // As the constructor must make a copy of the object under test, this class
 // should not be used in a test driver until after the extended copy
 // constructor has been proven tested.  Similarly, the destructor asserts that
-// the value has not changed using 'operator==', which should also be confirmed
+// the value has not changed using `operator==`, which should also be confirmed
 // as correct before relying on this class in a test driver.  Finally, the
-// 'resetvalue' method should not be used prior to validating the copy-
+// `resetvalue` method should not be used prior to validating the copy-
 // assignment operator.
 //
 ///Usage
@@ -50,15 +50,15 @@ class Allocator;
                             // class ExceptionGuard
                             // ====================
 
+/// This class provide a mechanism to verify the strong exception guarantee
+/// in exception-throwing code.  On construction, this class stores the a
+/// copy of an object of the parameterized type `OBJECT` and the address of
+/// that object.  On destruction, if `release` was not invoked, it will
+/// verify the value of the object is the same as the value of the copy
+/// create on construction.  This class requires the copy constructor and
+/// `operator ==` to be tested before use.
 template <class OBJECT>
 class ExceptionGuard {
-    // This class provide a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores the a
-    // copy of an object of the parameterized type 'OBJECT' and the address of
-    // that object.  On destruction, if 'release' was not invoked, it will
-    // verify the value of the object is the same as the value of the copy
-    // create on construction.  This class requires the copy constructor and
-    // 'operator ==' to be tested before use.
 
     // DATA
     int           d_line;      // the line number at construction
@@ -67,34 +67,36 @@ class ExceptionGuard {
 
   public:
     // CREATORS
+
+    /// Create the exception guard for the specified `object` at the
+    /// specified `line` number.  Optionally, specify `basicAllocator` used
+    /// to supply memory.
     ExceptionGuard(const OBJECT *object,
                    int           line,
                    Allocator    *basicAllocator = 0);
-        // Create the exception guard for the specified 'object' at the
-        // specified 'line' number.  Optionally, specify 'basicAllocator' used
-        // to supply memory.
 
+    /// Create the exception guard for the specified `object` at the
+    /// specified `line` number.  Optionally, specify `basicAllocator` used
+    /// to supply memory.
     template <class ALLOCATOR>
     ExceptionGuard(const OBJECT     *object,
                    int               line,
                    const ALLOCATOR&  basicAllocator);
-        // Create the exception guard for the specified 'object' at the
-        // specified 'line' number.  Optionally, specify 'basicAllocator' used
-        // to supply memory.
 
+    /// Destroy the exception guard.  If the guard was not released, verify
+    /// that the state of the object supplied at construction has not
+    /// change.
     ~ExceptionGuard();
-        // Destroy the exception guard.  If the guard was not released, verify
-        // that the state of the object supplied at construction has not
-        // change.
 
     // MANIPULATORS
-    void release();
-        // Release the guard from verifying the state of the object.
 
+    /// Release the guard from verifying the state of the object.
+    void release();
+
+    /// Reset the expected state of the guarded object, if an exception
+    /// should propagate past this guard, to the specified `value`, which is
+    /// set from the specified `line`.
     void resetValue(const OBJECT& value, int line);
-        // Reset the expected state of the guarded object, if an exception
-        // should propagate past this guard, to the specified 'value', which is
-        // set from the specified 'line'.
 };
 
 // ============================================================================

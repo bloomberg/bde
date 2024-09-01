@@ -14,17 +14,17 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a set of traits that identify and
 // describe a platform's concurrency properties.  For example, the
-// 'ThreadPolicy' trait is ascribed a "value" (i.e., POSIX or Win32)
+// `ThreadPolicy` trait is ascribed a "value" (i.e., POSIX or Win32)
 // appropriate for each supported platform.  The various concurrency traits are
-// actually types declared in the 'Platform' 'struct'.  These types are
+// actually types declared in the `Platform` `struct`.  These types are
 // intended to be used in specializing template implementations or to enable
 // function overloading based on the prevalent system's characteristics.
 //
-// This component also defines a 'SemaphorePolicy' trait used for selecting a
+// This component also defines a `SemaphorePolicy` trait used for selecting a
 // semaphore implementation.  Differences among POSIX implementations lead to
-// different semaphore policies for the same 'ThreadPolicy'.
+// different semaphore policies for the same `ThreadPolicy`.
 //
-// Finally, this component defines a 'TimedSemaphorePolicy' trait used for
+// Finally, this component defines a `TimedSemaphorePolicy` trait used for
 // selecting a timed-semaphore implementation.  POSIX platforms that do not
 // have a native timed-wait for semaphores require a custom (pthread-based)
 // implementation.
@@ -41,8 +41,8 @@ namespace bslmt {
                               // class Platform
                               // ==============
 
+/// This `struct` provides a namespace for concurrency trait definitions.
 struct Platform {
-    // This 'struct' provides a namespace for concurrency trait definitions.
 
                        // 'ThreadPolicy' trait
 

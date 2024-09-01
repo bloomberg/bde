@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsls_fuzztest
 //
 //@DESCRIPTION: This component implements an exception class,
-// 'bsls::FuzzTestPreconditionException', that provides a mechanism to convey
+// `bsls::FuzzTestPreconditionException`, that provides a mechanism to convey
 // context information from a failing precondition to a test handler.  The
 // context that is captured consists of the program source of the failing
 // expression, the name of the file containing the assertion, the line number
@@ -22,42 +22,42 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// First we write a macro to act as a precondition testing 'assert' facility
-// that will throw an exception of type 'bsls::FuzzTestPreconditionException'
+// First we write a macro to act as a precondition testing `assert` facility
+// that will throw an exception of type `bsls::FuzzTestPreconditionException`
 // if the asserted expression fails.  The thrown exception will capture the
 // source-code of the expression, the filename and line number of the failing
 // expression.
-//..
-//  #define TEST_PRECONDITION(EXPRESSION)                                    \$
-//      if (!(EXPRESSION)) {                                                 \$
-//          bsls::AssertViolation violation(#EXPRESSION,                     \$
-//                                          __FILE__,                        \$
-//                                          __LINE__,                        \$
-//                                          "LEVEL");                        \$
-//          throw bsls::FuzzTestPreconditionException(violation);            \$
-//      }
-//..
+// ```
+// #define TEST_PRECONDITION(EXPRESSION)                                    \$
+//     if (!(EXPRESSION)) {                                                 \$
+//         bsls::AssertViolation violation(#EXPRESSION,                     \$
+//                                         __FILE__,                        \$
+//                                         __LINE__,                        \$
+//                                         "LEVEL");                        \$
+//         throw bsls::FuzzTestPreconditionException(violation);            \$
+//     }
+// ```
 // Next we use the macro inside a try-block, so that we can catch the exception
 // thrown if the tested expression fails.
-//..
-//      try {
-//          void *p = NULL;
-//          TEST_PRECONDITION(0 != p);
-//      }
-//..
+// ```
+//     try {
+//         void *p = NULL;
+//         TEST_PRECONDITION(0 != p);
+//     }
+// ```
 // If the assertion fails, catch the exception and confirm that it correctly
 // recorded the context of where the assertion failed.
-//..
-//      catch (const bsls::FuzzTestPreconditionException& exception) {
-//          assert(0  == strcmp("0 != p",
-//                              exception.assertViolation().comment()));
-//          assert(0  == strcmp(__FILE__,
-//                              exception.assertViolation().fileName()));
-//          assert(11 == __LINE__ - exception.assertViolation().lineNumber());
-//          assert(0  == strcmp("LEVEL",
-//                              exception.assertViolation().assertLevel()));
-//      }
-//..
+// ```
+//     catch (const bsls::FuzzTestPreconditionException& exception) {
+//         assert(0  == strcmp("0 != p",
+//                             exception.assertViolation().comment()));
+//         assert(0  == strcmp(__FILE__,
+//                             exception.assertViolation().fileName()));
+//         assert(11 == __LINE__ - exception.assertViolation().lineNumber());
+//         assert(0  == strcmp("LEVEL",
+//                             exception.assertViolation().assertLevel()));
+//     }
+// ```
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -71,11 +71,11 @@ namespace bsls {
                          // class FuzzTestPreconditionException
                          // ===================================
 
+/// This class is an implementation detail of the `bsls` fuzz testing
+/// framework and should not be used directly in user code.  It implements
+/// an immutable mechanism to communicate to a test-case handler information
+/// about the context of a precondition that fails.
 class FuzzTestPreconditionException {
-    // This class is an implementation detail of the 'bsls' fuzz testing
-    // framework and should not be used directly in user code.  It implements
-    // an immutable mechanism to communicate to a test-case handler information
-    // about the context of a precondition that fails.
 
   private:
     // DATA
@@ -89,10 +89,11 @@ class FuzzTestPreconditionException {
 
   public:
     // CREATORS
+
+    /// Create a `FuzzTestPreconditionException` object with the specified
+    /// `assertViolation`.
     explicit BSLS_KEYWORD_CONSTEXPR
     FuzzTestPreconditionException(const AssertViolation& assertViolation);
-        // Create a 'FuzzTestPreconditionException' object with the specified
-        // 'assertViolation'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     // To avoid warnings about future incompatibility due to the deleted copy
@@ -100,22 +101,23 @@ class FuzzTestPreconditionException {
     // generated.  For consistency the destructor was also placed here and
     // declared to be explicitly generated.
 
+    /// Create a `FuzzTestPreconditionException` object that is a copy of
+    /// the specified `original`, having the same value for the
+    /// `assertViolation` attribute.  Note that this trivial constructor's
+    /// definition is compiler generated.
     FuzzTestPreconditionException(
                       const FuzzTestPreconditionException& original) = default;
-        // Create a 'FuzzTestPreconditionException' object that is a copy of
-        // the specified 'original', having the same value for the
-        // 'assertViolation' attribute.  Note that this trivial constructor's
-        // definition is compiler generated.
 
+    /// Destroy this object.  Note that this trivial destructor's definition
+    /// is compiler generated.
     ~FuzzTestPreconditionException() = default;
-        // Destroy this object.  Note that this trivial destructor's definition
-        // is compiler generated.
 #endif
 
     // ACCESSORS
+
+    /// Return an `AssertViolation` containing the details of the
+    /// precondition that has failed.
     const AssertViolation& assertViolation() const;
-        // Return an 'AssertViolation' containing the details of the
-        // precondition that has failed.
 };
 
 // ============================================================================

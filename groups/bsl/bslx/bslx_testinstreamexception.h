@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple exception object for testing
 // exceptions during unexternalization operations.  The exception object
-// 'bslx::TestInStreamException' contains information about an
+// `bslx::TestInStreamException` contains information about an
 // unexternalization request, which can be queried by the "catcher" of the
 // exception.
 //
@@ -24,20 +24,20 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1:  Throw and Catch
 ///- - - - - - - - - - - - - -
-// In the following example, the 'bslx::TestInStreamException' object is
-// thrown, caught, and examined.   First, set up a 'try' block and throw the
+// In the following example, the `bslx::TestInStreamException` object is
+// thrown, caught, and examined.   First, set up a `try` block and throw the
 // exception with the indication that the exception occurred during
-// unexternalization of an 'unsigned int':
-//..
-//  try {
-//      throw TestInStreamException(bslx::TypeCode::e_UINT32);
-//..
+// unexternalization of an `unsigned int`:
+// ```
+// try {
+//     throw TestInStreamException(bslx::TypeCode::e_UINT32);
+// ```
 // Then, catch the exception and verify the indicated cause of the exception:
-//..
-//  } catch (const bslx::TestInStreamException& e) {
-//      assert(bslx::TypeCode::e_UINT32 == e.dataType());
-//  }
-//..
+// ```
+// } catch (const bslx::TestInStreamException& e) {
+//     assert(bslx::TypeCode::e_UINT32 == e.dataType());
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -50,27 +50,29 @@ namespace bslx {
                         // class TestInStreamException
                         // ===========================
 
+/// This class defines an exception object for unexternalization operations.
+/// Instances of this class contain information about an unexternalization
+/// request.
 class TestInStreamException {
-    // This class defines an exception object for unexternalization operations.
-    // Instances of this class contain information about an unexternalization
-    // request.
 
     // DATA
     TypeCode::Enum d_dataType;  // type of the input data requested
 
   public:
     // CREATORS
+
+    /// Create an exception object initialized with the specified `type`.
     explicit TestInStreamException(TypeCode::Enum type);
-        // Create an exception object initialized with the specified 'type'.
 
     //! ~TestInStreamException() = default;
         // Destroy this object.  Note that this method's definition is compiler
         // generated.
 
     // ACCESSORS
+
+    /// Return the type code that was supplied at construction of this
+    /// exception object.
     TypeCode::Enum dataType() const;
-        // Return the type code that was supplied at construction of this
-        // exception object.
 };
 
 // ============================================================================

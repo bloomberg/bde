@@ -11,7 +11,7 @@
 //
 //@DESCRIPTION: This header provides declarations for those top-level names in
 // this component that are intended to be usable in name only.  See above for
-// the declared names, and see 'bslma_allocator.h' for documentation of those
+// the declared names, and see `bslma_allocator.h` for documentation of those
 // names.
 
 

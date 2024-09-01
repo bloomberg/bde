@@ -6,26 +6,26 @@
 
 //@PURPOSE: Provide facilities for debugging BDE with gtest.
 //
-//@DESCRIPTION: The 'bslim_gtestutil' component provides utitlities to
+//@DESCRIPTION: The `bslim_gtestutil` component provides utitlities to
 // facilitate testing with Google Test (GTest).
 //
 ///Usage
 ///-----
-// Suppose we have a string 'str' that we want to output:
-//..
-//  bsl::string str =
-//                 "No matter where you go, There you are! -- Buckaroo Banzai";
-//..
-// Call 'PrintTo', passing the string and a pointer to a 'bsl::ostream':
-//..
-//  PrintTo(str, &cout);
-//  cout << endl;
-//..
+// Suppose we have a string `str` that we want to output:
+// ```
+// bsl::string str =
+//                "No matter where you go, There you are! -- Buckaroo Banzai";
+// ```
+// Call `PrintTo`, passing the string and a pointer to a `bsl::ostream`:
+// ```
+// PrintTo(str, &cout);
+// cout << endl;
+// ```
 // Which results in the string being streamed to standard output, surrounded by
 // double quotes:
-//..
-//  "No matter where you go, There you are! -- Buckaroo Banzai"
-//..
+// ```
+// "No matter where you go, There you are! -- Buckaroo Banzai"
+// ```
 
 #include <bslscm_version.h>
 
@@ -41,25 +41,26 @@ namespace internal {
                       // bslim_Gtestutil_TestingStreamHolder
                       // ===================================
 
+/// This `class` serves as a type in the `testing` namespace to be passed to
+/// an unqualified call to `PrintTo`.  By supplying
+/// `bslim_Gtestutil_TestingStreamHolder(&stream)`, which is implicitly
+/// convertible to `bsl::ostream *`, we supply an argument in the `testing`
+/// namespace in the `UniversalPrint` call within the
+/// `bsl::PrintTo(const optional<TYPE>&, ...)` call below, which will affect
+/// ADL to draw in `UniversalPrint` declarations from the `testing`
+/// namespace into consideration.  For detailed discussion, see
+/// `IMPLEMENTATION NOTE` in the implementation file.
 class bslim_Gtestutil_TestingStreamHolder {
-    // This 'class' serves as a type in the 'testing' namespace to be passed to
-    // an unqualified call to 'PrintTo'.  By supplying
-    // 'bslim_Gtestutil_TestingStreamHolder(&stream)', which is implicitly
-    // convertible to 'bsl::ostream *', we supply an argument in the 'testing'
-    // namespace in the 'UniversalPrint' call within the
-    // 'bsl::PrintTo(const optional<TYPE>&, ...)' call below, which will affect
-    // ADL to draw in 'UniversalPrint' declarations from the 'testing'
-    // namespace into consideration.  For detailed discussion, see
-    // 'IMPLEMENTATION NOTE' in the implementation file.
 
     // DATA
     bsl::ostream *d_stream_p;
 
   public:
     // CREATORS
+
+    /// Create an object bound to the specified `stream`.
     explicit
     bslim_Gtestutil_TestingStreamHolder(bsl::ostream *stream);
-        // Create an object bound to the specified 'stream'.
 
     // bslim_Gtestutil_TestingStreamHolder(
     //                   const bslim_Gtestutil_TestingStreamHolder&) = default;
@@ -69,8 +70,9 @@ class bslim_Gtestutil_TestingStreamHolder {
     //                   const bslim_Gtestutil_TestingStreamHolder&) = default;
 
     // ACCESSORS
+
+    /// Implicitly return a pointer to the stream this object is bound to.
     operator bsl::ostream *() const;
-        // Implicitly return a pointer to the stream this object is bound to.
 };
 
 }  // close namespace internal
@@ -79,22 +81,23 @@ class bslim_Gtestutil_TestingStreamHolder {
 namespace bsl {
 
 // FREE FUNCTIONS
+
+/// Write the specified `value` to the specified `*stream`, surrounded by
+/// double quotes.
 void PrintTo(const string& value, ostream *stream);
-    // Write the specified 'value' to the specified '*stream', surrounded by
-    // double quotes.
 
+/// Write the specified `value` to the specified `*stream`, surrounded by
+/// double quotes, writing non-printable characters with '\x...' escapes.
 void PrintTo(const wstring& value, ostream *stream);
-    // Write the specified 'value' to the specified '*stream', surrounded by
-    // double quotes, writing non-printable characters with '\x...' escapes.
 
+/// Write the specified `value` to the specified `*stream`, surrounded by
+/// double quotes.
 void PrintTo(const BloombergLP::bslstl::StringRef& value, ostream *stream);
-    // Write the specified 'value' to the specified '*stream', surrounded by
-    // double quotes.
 
+/// Write the specified `value` to the specified `*stream`, surrounded by
+/// double quotes.
 template <class TYPE>
 void PrintTo(const optional<TYPE>& value, ostream *stream);
-    // Write the specified 'value' to the specified '*stream', surrounded by
-    // double quotes.
 
 // ============================================================================
 //                           INLINE DEFINITIONS

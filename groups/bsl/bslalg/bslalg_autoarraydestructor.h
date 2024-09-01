@@ -16,9 +16,9 @@ BSLS_IDENT("$Id: $")
 // (in-place) sequence of otherwise-unmanaged instances of a user-defined type.
 // If not explicitly released, all objects managed by the proctor object are
 // automatically destroyed by the proctor's destructor, using the
-// 'bslalg_arraydestructionprimitives'.
+// `bslalg_arraydestructionprimitives`.
 //
-// In most instances, 'bslma::AutoDestructor' can also be used, but this
+// In most instances, `bslma::AutoDestructor` can also be used, but this
 // component is more useful in cases where it is simpler to think in terms of
 // two pointers at the ends of the array being managed, rather than an origin
 // and offset.
@@ -29,139 +29,139 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Managing an Array Under Construction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// In most instances, the use of a 'bslalg::AutoArrayDestructor' could be
-// handled by a 'bslma::AutoDeallocator', but sometimes it is conceptually
+// In most instances, the use of a `bslalg::AutoArrayDestructor` could be
+// handled by a `bslma::AutoDeallocator`, but sometimes it is conceptually
 // clearer to frame the problem in terms of a pair of pointers rather than a
 // pointer and an offset.
 //
-// Suppose we have a class, 'UsageType' that allocates a block of memory upon
-// construction, and whose constructor takes a 'char'.  Suppose we want to
+// Suppose we have a class, `UsageType` that allocates a block of memory upon
+// construction, and whose constructor takes a `char`.  Suppose we want to
 // create an array of elements of such objects in an exception-safe manner.
 //
-// First, we create the type 'UsageType':
-//..
-//                               // ===============
-//                               // class UsageType
-//                               // ===============
+// First, we create the type `UsageType`:
+// ```
+//                              // ===============
+//                              // class UsageType
+//                              // ===============
 //
-//  class UsageType {
-//      // This test type contains a 'char' in some allocated storage.  It has
-//      // no traits other than using a 'bslma' allocator.
+// /// This test type contains a 'char' in some allocated storage.  It has
+// /// no traits other than using a 'bslma' allocator.
+// class UsageType {
 //
-//      char             *d_data_p;         // managed single char
-//      bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
+//     char             *d_data_p;         // managed single char
+//     bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
 //
-//    public:
-//      // CREATORS
-//      explicit UsageType(char c, bslma::Allocator *basicAllocator = 0)
-//      : d_data_p(0)
-//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
-//      {
-//          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-//          *d_data_p = c;
-//      }
+//   public:
+//     // CREATORS
+//     explicit UsageType(char c, bslma::Allocator *basicAllocator = 0)
+//     : d_data_p(0)
+//     , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//     {
+//         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+//         *d_data_p = c;
+//     }
 //
-//      ~UsageType()
-//      {
-//          *d_data_p = '_';
-//          d_allocator_p->deallocate(d_data_p);
-//          d_data_p = 0;
-//      }
+//     ~UsageType()
+//     {
+//         *d_data_p = '_';
+//         d_allocator_p->deallocate(d_data_p);
+//         d_data_p = 0;
+//     }
 //
-//      // ACCESSORS
-//      char datum() const
-//      {
-//          return *d_data_p;
-//      }
-//  };
+//     // ACCESSORS
+//     char datum() const
+//     {
+//         return *d_data_p;
+//     }
+// };
 //
-//  namespace BloombergLP {
-//  namespace bslma {
+// namespace BloombergLP {
+// namespace bslma {
 //
-//  template <>
-//  struct UsesBslmaAllocator<UsageType> : bsl::true_type {};
+// template <>
+// struct UsesBslmaAllocator<UsageType> : bsl::true_type {};
 //
-//  }  // close package namespace
-//  }  // close enterprise namespace
-//..
-// Then, in 'main', we create a 'TestAllocator' to supply memory (and to verify
+// }  // close package namespace
+// }  // close enterprise namespace
+// ```
+// Then, in `main`, we create a `TestAllocator` to supply memory (and to verify
 // that no memory is leaked):
-//..
-//  bslma::TestAllocator ta;
-//..
+// ```
+// bslma::TestAllocator ta;
+// ```
 // Next, we create the pointer for our array:
-//..
-//  UsageType *array;
-//..
+// ```
+// UsageType *array;
+// ```
 // Then, we declare a string of characters we will use to initialize the
-// 'UsageType' objects in our array.
-//..
-//  const char   *DATA = "Hello";
-//  const size_t  DATA_LEN = std::strlen(DATA);
-//..
+// `UsageType` objects in our array.
+// ```
+// const char   *DATA = "Hello";
+// const size_t  DATA_LEN = std::strlen(DATA);
+// ```
 // Next, we verify that even right after exceptions have been thrown and
 // caught, no memory is outstanding:
-//..
-//  assert(0 == ta.numBlocksInUse());
-//..
+// ```
+// assert(0 == ta.numBlocksInUse());
+// ```
 // Then, we allocate our array and create a guard to free it if a subsequent
 // allocation throws an exception:
-//..
-//  array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
-//  bslma::DeallocatorProctor<bslma::Allocator> arrayProctor(array, &ta);
-//..
-// Next, we establish an 'AutoArrayDestructor' on 'array' to destroy any valid
-// elements in 'array' if an exception is thrown:
-//..
-//  bslalg::AutoArrayDestructor<UsageType,> arrayElementProctor(array, array);
-//..
-// Notice that we pass 'arrayElementProctor' pointers to the beginning and end
+// ```
+// array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
+// bslma::DeallocatorProctor<bslma::Allocator> arrayProctor(array, &ta);
+// ```
+// Next, we establish an `AutoArrayDestructor` on `array` to destroy any valid
+// elements in `array` if an exception is thrown:
+// ```
+// bslalg::AutoArrayDestructor<UsageType,> arrayElementProctor(array, array);
+// ```
+// Notice that we pass `arrayElementProctor` pointers to the beginning and end
 // of the range to be guarded (we start with an empty range since no elements
 // have been constructed yet).
 //
-// Then, we iterate through the valid chars in 'DATA' and use them to construct
+// Then, we iterate through the valid chars in `DATA` and use them to construct
 // the elements of the array:
-//..
-//  UsageType *resultElement = array;
-//  for (const char *nextChar = DATA; *nextChar; ++nextChar) {
-//..
-// Next, construct the next element of 'array':
-//..
-//      new (resultElement++) UsageType(*nextChar, &ta);
-//..
-// Now, move the end of 'arrayElementProctor' to cover the most recently
+// ```
+// UsageType *resultElement = array;
+// for (const char *nextChar = DATA; *nextChar; ++nextChar) {
+// ```
+// Next, construct the next element of `array`:
+// ```
+//     new (resultElement++) UsageType(*nextChar, &ta);
+// ```
+// Now, move the end of `arrayElementProctor` to cover the most recently
 // constructed element:
-//..
-//      arrayElementProctor.moveEnd(1);
-//  }
-//..
+// ```
+//     arrayElementProctor.moveEnd(1);
+// }
+// ```
 // At this point, we have successfully created our array.
 //
 // Then, release the guards so they won't destroy our work when they go out of
 // scope:
-//..
-//  arrayProctor.release();
-//  arrayElementProctor.release();
-//..
+// ```
+// arrayProctor.release();
+// arrayElementProctor.release();
+// ```
 // Next, exit the exception testing block:
 //
 // Then, verify that the array we have created is as expected:
-//..
-//  assert('H' == array[0].datum());
-//  assert('e' == array[1].datum());
-//  assert('l' == array[2].datum());
-//  assert('l' == array[3].datum());
-//  assert('o' == array[4].datum());
-//..
+// ```
+// assert('H' == array[0].datum());
+// assert('e' == array[1].datum());
+// assert('l' == array[2].datum());
+// assert('l' == array[3].datum());
+// assert('o' == array[4].datum());
+// ```
 // Finally, destroy & free our work and verify that no memory is leaked:
-//..
-//  for (size_t i = 0; i < DATA_LEN; ++i) {
-//      array[i].~UsageType();
-//  }
-//  ta.deallocate(array);
+// ```
+// for (size_t i = 0; i < DATA_LEN; ++i) {
+//     array[i].~UsageType();
+// }
+// ta.deallocate(array);
 //
-//  assert(0 == ta.numBlocksInUse());
-//..
+// assert(0 == ta.numBlocksInUse());
+// ```
 
 #include <bslscm_version.h>
 
@@ -181,13 +181,13 @@ namespace bslalg {
                         // class AutoArrayDestructor
                         // =========================
 
+/// This `class` provides a specialized proctor object that, upon
+/// destruction and unless the `release` method has been called, destroys
+/// the elements in a segment of an array of parameterized type
+/// `OBJECT_TYPE`.  The elements destroyed are delimited by the "guarded"
+/// range `[ begin(), end() )`.
 template <class OBJECT_TYPE, class ALLOCATOR = bsl::allocator<OBJECT_TYPE> >
 class AutoArrayDestructor {
-    // This 'class' provides a specialized proctor object that, upon
-    // destruction and unless the 'release' method has been called, destroys
-    // the elements in a segment of an array of parameterized type
-    // 'OBJECT_TYPE'.  The elements destroyed are delimited by the "guarded"
-    // range '[ begin(), end() )'.
 
     // DATA
     OBJECT_TYPE *d_begin_p;    // address of first element in guarded range
@@ -205,32 +205,34 @@ class AutoArrayDestructor {
     typedef std::ptrdiff_t difference_type;
 
     // CREATORS
+
+    /// Create an array exception guard object for the sequence of elements
+    /// of the parameterized `OBJECT_TYPE` delimited by the range specified
+    /// by `[ begin, end )`.  The behavior is undefined unless
+    /// `begin <= end` and each element in the range `[ begin, end )` has
+    /// been initialized.
     AutoArrayDestructor(OBJECT_TYPE *begin, OBJECT_TYPE *end,
                         ALLOCATOR allocator = ALLOCATOR());
-        // Create an array exception guard object for the sequence of elements
-        // of the parameterized 'OBJECT_TYPE' delimited by the range specified
-        // by '[ begin, end )'.  The behavior is undefined unless
-        // 'begin <= end' and each element in the range '[ begin, end )' has
-        // been initialized.
 
+    /// Call the destructor on each of the elements of the parameterized
+    /// `OBJECT_TYPE` delimited by the range `[ begin(), end() )` and
+    /// destroy this array exception guard.
     ~AutoArrayDestructor();
-        // Call the destructor on each of the elements of the parameterized
-        // 'OBJECT_TYPE' delimited by the range '[ begin(), end() )' and
-        // destroy this array exception guard.
 
     // MANIPULATORS
+
+    /// Move the begin pointer by the specified `offset`, and return the new
+    /// begin pointer.
     OBJECT_TYPE *moveBegin(difference_type offset = -1);
-        // Move the begin pointer by the specified 'offset', and return the new
-        // begin pointer.
 
+    /// Move the end pointer by the specified `offset`, and return the new
+    /// end pointer.
     OBJECT_TYPE *moveEnd(difference_type offset = 1);
-        // Move the end pointer by the specified 'offset', and return the new
-        // end pointer.
 
+    /// Set the range of elements guarded by this object to be empty.  Note
+    /// that `begin() == end()` following this operation, but the specific
+    /// value is unspecified.
     void release();
-        // Set the range of elements guarded by this object to be empty.  Note
-        // that 'begin() == end()' following this operation, but the specific
-        // value is unspecified.
 };
 
 // ============================================================================
@@ -308,8 +310,8 @@ void AutoArrayDestructor<OBJECT_TYPE, ALLOCATOR>::release()
 #ifdef bslalg_AutoArrayDestructor
 #undef bslalg_AutoArrayDestructor
 #endif
+/// This alias is defined for backward compatibility.
 #define bslalg_AutoArrayDestructor bslalg::AutoArrayDestructor
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

@@ -16,13 +16,13 @@ BSLS_IDENT("$Id: $")
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED: list user types
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR: list of typical types
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD: list of atypical types
-//  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL: list all 'bslmf' types
+//  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL: list all `bslmf` types
 //
 //@SEE_ALSO: bsltf_simpletesttype, bslstl_map
 //
 //@DESCRIPTION: When testing a container template having a type parameter, we
 // need to ensure that the template supports its contractually specified
-// categories of parameter types.  The 'bsltf' package provides a
+// categories of parameter types.  The `bsltf` package provides a
 // representative set of types intended for testing that can be used as
 // template parameters for doing this kind of verification.
 //
@@ -32,464 +32,461 @@ BSLS_IDENT("$Id: $")
 // for constructing an object and getting an object's value.  This
 // inconsistency makes writing generic code rather difficult.
 //
-// This component provides a solution with a utility 'struct',
-// 'TemplateTestFacility', that defines two class method templates, 'create'
-// and 'getIdentifier', that respectively have consistent syntaxes for creating
+// This component provides a solution with a utility `struct`,
+// `TemplateTestFacility`, that defines two class method templates, `create`
+// and `getIdentifier`, that respectively have consistent syntaxes for creating
 // objects and getting a integer value representing the state of objects of a
 // parameterized type.
 //
 // This component also provides a macro,
-// 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE', that serves as a convenient way
+// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`, that serves as a convenient way
 // to instantiate and invoke a template (for testing) having a type parameter
 // for a specified list of types.  In addition, this component provides a set
 // of macros referring to commonly useful lists of types intended for testing
-// that can be used as arguments to 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.
+// that can be used as arguments to `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`.
 //
 // The utilities and macros provided by this component, along with the types
-// defined in the 'bsltf' package, are explained in more detail in the
+// defined in the `bsltf` package, are explained in more detail in the
 // following sections.
 //
-///'TemplateTestFacility'
+///`TemplateTestFacility`
 ///----------------------
-// The 'TemplateTestFacility' 'struct' provides the following static (class)
+// The `TemplateTestFacility` `struct` provides the following static (class)
 // method templates to construct objects and get the states of objects of a
 // supported parameterized type (supported types are those types intended for
-// testing defined in the 'bsltf' package):
+// testing defined in the `bsltf` package):
 //
-//: o 'create':    Return an object of the parameterized 'TYPE' whose value is
-//:                uniquely associated with a specified integer identifier.
+// * `create`:    Return an object of the parameterized `TYPE` whose value is
+//                uniquely associated with a specified integer identifier.
 //
-//: o 'getIdentifier': Return the integer identifier used to create a specified
-//:                    object of the parameterized 'TYPE'.
+// * `getIdentifier`: Return the integer identifier used to create a specified
+//                    object of the parameterized `TYPE`.
 //
 ///Macros and Test Types
 ///---------------------
-// The 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro instantiates a
+// The `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro instantiates a
 // specified class template for a specified list of types and call a specified
 // class method of each instantiation.  The macro takes in arguments in the
 // following order:
 //
-//: o The name of the class template to be instantiated
-//:
-//: o The name of the class method to be invoked
-//:
-//: o The names of the types for which the class template will be instantiated
-//:   (up to 20)
+// * The name of the class template to be instantiated
+// * The name of the class method to be invoked
+// * The names of the types for which the class template will be instantiated
+//   (up to 20)
 //
 // This component also defines a set of macros, each providing a list of types,
 // that can be used as the last argument to
-// 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.  The following is a brief
+// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`.  The following is a brief
 // synopsis of these macros (note that all macros names have the
-// 'BSLTF_TEMPLATETESTFACILITY_' prefix, which is omitted for layout
+// `BSLTF_TEMPLATETESTFACILITY_` prefix, which is omitted for layout
 // efficiency):
 //
-//: o 'TEST_TYPES_PRIMITIVE':     list of primitive types
-//: o 'TEST_TYPES_USER_DEFINED':  list of user-defined types
-//: o 'TEST_TYPES_REGULAR':       list of typically used types
-//: o 'TEST_TYPES_AWKWARD':       list of types with odd behaviors
-//: o 'TEST_TYPES_ALL':           list of all of the types
+// * `TEST_TYPES_PRIMITIVE`:     list of primitive types
+// * `TEST_TYPES_USER_DEFINED`:  list of user-defined types
+// * `TEST_TYPES_REGULAR`:       list of typically used types
+// * `TEST_TYPES_AWKWARD`:       list of types with odd behaviors
+// * `TEST_TYPES_ALL`:           list of all of the types
 //
-// The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE' macro refers to a
+// The `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE` macro refers to a
 // representative set of primitive types that are useful for testing:
-//..
-//  Type                                Description
-//  ----                                -----------
-//  signed char                         signed character
+// ```
+// Type                                Description
+// ----                                -----------
+// signed char                         signed character
 //
-//  size_t                              signed integral type
+// size_t                              signed integral type
 //
-//  TemplateTestFacility::ObjectPtr     pointer to an object
+// TemplateTestFacility::ObjectPtr     pointer to an object
 //
-//  TemplateTestFacility::FunctionPtr   pointer to a function
+// TemplateTestFacility::FunctionPtr   pointer to a function
 //
-//  TemplateTestFacility::MethodPtr     pointer to a method
-//..
-// The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED' macro refers to a
+// TemplateTestFacility::MethodPtr     pointer to a method
+// ```
+// The `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED` macro refers to a
 // representative set of user-defined types that are useful for testing (note
-// that all types described here belong to the 'bsltf' namespace, which is not
+// that all types described here belong to the `bsltf` namespace, which is not
 // explicitly qualified for layout efficiency):
-//..
-//  Type                                Description
-//  ----                                -----------
-//  EnumeratedTestType::Enum            an enumeration
+// ```
+// Type                                Description
+// ----                                -----------
+// EnumeratedTestType::Enum            an enumeration
 //
-//  UnionTestType                       a union
+// UnionTestType                       a union
 //
-//  SimpleTestType                      class with no special traits defined
+// SimpleTestType                      class with no special traits defined
 //
-//  AllocTestType                       class that allocates memory, defines
-//                                      the 'bslma::UsesBslmaAllocator'
-//                                      trait, and ensures it is not bitwise
-//                                      moved
+// AllocTestType                       class that allocates memory, defines
+//                                     the 'bslma::UsesBslmaAllocator'
+//                                     trait, and ensures it is not bitwise
+//                                     moved
 //
-//  NonOptionalAllocTestType            class that allocates memory, defines
-//                                      the 'bslma::UsesBslmaAllocator'
-//                                      trait, ensures it is not bitwise
-//                                      moved, and does not have default ctor.
+// NonOptionalAllocTestType            class that allocates memory, defines
+//                                     the 'bslma::UsesBslmaAllocator'
+//                                     trait, ensures it is not bitwise
+//                                     moved, and does not have default ctor.
 //
-//  MovableTestType                     class that has both move and copy
-//                                      semantics, and ensures it is not
-//                                      bitwise moved
+// MovableTestType                     class that has both move and copy
+//                                     semantics, and ensures it is not
+//                                     bitwise moved
 //
-//  MovableAllocTestType                class that has both move and copy
-//                                      semantics, allocates memory, defines
-//                                      the 'bslma::UsesBslmaAllocator'
-//                                      trait, and ensures it is not bitwise
-//                                      moved
+// MovableAllocTestType                class that has both move and copy
+//                                     semantics, allocates memory, defines
+//                                     the 'bslma::UsesBslmaAllocator'
+//                                     trait, and ensures it is not bitwise
+//                                     moved
 //
-//  MoveOnlyAllocTestType               class that has only move semantics,
-//                                      allocates memory, defines the
-//                                      'bslma::UsesBslmaAllocator'
-//                                      trait, and ensures it is not bitwise
-//                                      moved
+// MoveOnlyAllocTestType               class that has only move semantics,
+//                                     allocates memory, defines the
+//                                     'bslma::UsesBslmaAllocator'
+//                                     trait, and ensures it is not bitwise
+//                                     moved
 //
-//  BitwiseCopyableTestType             class that is bitwise-copyable and
-//                                      defines the
-//                                      'bsl::is_trivially_copyable'
-//                                      trait
+// BitwiseCopyableTestType             class that is bitwise-copyable and
+//                                     defines the
+//                                     'bsl::is_trivially_copyable'
+//                                     trait
 //
-//  BitwiseMoveableTestType             class that is bitwise-moveable and
-//                                      defines the
-//                                      'bslmf::IsBitwiseMoveable'
-//                                      trait
+// BitwiseMoveableTestType             class that is bitwise-moveable and
+//                                     defines the
+//                                     'bslmf::IsBitwiseMoveable'
+//                                     trait
 //
-//  AllocatingBitwiseMoveableTestType   class that allocates memory, is
-//                                      bitwisemoveable, and defines the
-//                                      'bslma::UsesBslmaAllocator'
-//                                      and 'bslmf::IsBitwiseMoveable'
-//                                      traits
+// AllocatingBitwiseMoveableTestType   class that allocates memory, is
+//                                     bitwisemoveable, and defines the
+//                                     'bslma::UsesBslmaAllocator'
+//                                     and 'bslmf::IsBitwiseMoveable'
+//                                     traits
 //
-//  NonTypicalOverloadsTestType         class that defines and assert on
-//                                      invocation of certain
-//                                      non-typically-overloaded operators
-//                                      ('operator new', 'operator delete',
-//                                      'operator&') to ensure that they are
-//                                      not called
+// NonTypicalOverloadsTestType         class that defines and assert on
+//                                     invocation of certain
+//                                     non-typically-overloaded operators
+//                                     ('operator new', 'operator delete',
+//                                     'operator&') to ensure that they are
+//                                     not called
 //
-//  EmplacableTestType                  class that takes <= 14 non-allocating
-//                                      arguments and is used to ensure that
-//                                      arguments are forwarded correctly
-//                                      from functions and methods taking
-//                                      variable number of arguments and their
-//                                      analagous in C++03 environments.
+// EmplacableTestType                  class that takes <= 14 non-allocating
+//                                     arguments and is used to ensure that
+//                                     arguments are forwarded correctly
+//                                     from functions and methods taking
+//                                     variable number of arguments and their
+//                                     analagous in C++03 environments.
 //
-//  AllocEmplacableTestType             class that takes up to 14 allocating
-//                                      arguments and is used to ensure that
-//                                      arguments are forwarded correctly
-//                                      from functions and methods taking
-//                                      variable number of arguments and their
-//                                      analagous in C++03 environments.
-//..
+// AllocEmplacableTestType             class that takes up to 14 allocating
+//                                     arguments and is used to ensure that
+//                                     arguments are forwarded correctly
+//                                     from functions and methods taking
+//                                     variable number of arguments and their
+//                                     analagous in C++03 environments.
+// ```
 //
-// The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' macro refers to the
+// The `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR` macro refers to the
 // union of the types provided by
-// 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE' and
-// 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED'.  These types are
+// `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE` and
+// `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED`.  These types are
 // designed to work within the regular operating conditions of a typical
 // template.  Typically, a test driver for a template instantiates its tests
-// (using the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro) for all of the
-// types referred by 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR'.
+// (using the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro) for all of the
+// types referred by `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR`.
 //
-// The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD' macro refers to a set of
+// The `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD` macro refers to a set of
 // types that have certain attributes that make them unlikely to work for all
 // of the operations of a template.  Typically, not all methods of a template
 // are instantiable with these types, so these types are most often used
 // independently in tests explicitly designed for a (single) type.
-//..
-//  Type                                Description
-//  ----                                -----------
-//  NonAssignableTestType               class having no assignment operator
+// ```
+// Type                                Description
+// ----                                -----------
+// NonAssignableTestType               class having no assignment operator
 //
-//  NonCopyConstructibleTestType        class having no copy constructor (Note
-//                                      that this class can not be created with
-//                                      'TemplateTestFacility::create' because
-//                                      the class method returns the newly
-//                                      constructed object by value.)
+// NonCopyConstructibleTestType        class having no copy constructor (Note
+//                                     that this class can not be created with
+//                                     'TemplateTestFacility::create' because
+//                                     the class method returns the newly
+//                                     constructed object by value.)
 //
-//  NonDefaultConstructibleTestType     class having no default constructor
+// NonDefaultConstructibleTestType     class having no default constructor
 //
-//  NonEqualComparableTestType          class having no equality-comparison
-//                                      operators
-//..
-// The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL' refers to all the test types
-// provided in the 'bsltf' package.
+// NonEqualComparableTestType          class having no equality-comparison
+//                                     operators
+// ```
+// The `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL` refers to all the test types
+// provided in the `bsltf` package.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' Macro
+///Example 1: Using the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` Macro
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to use
-// 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' to call a class method of a
+// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` to call a class method of a
 // template for a list of types.
 //
-// First, we define a 'struct' template 'TestTemplate' taking in a
-// parameterized 'TYPE' that has a class method, 'printTypeName':
-//..
-//  template <class TYPE>
-//  struct TestTemplate {
-//      // This 'struct' provides a namespace for a simple test method.
+// First, we define a `struct` template `TestTemplate` taking in a
+// parameterized `TYPE` that has a class method, `printTypeName`:
+// ```
+// template <class TYPE>
+// struct TestTemplate {
+//     // This 'struct' provides a namespace for a simple test method.
 //
-//      // CLASS METHODS
-//      static void printTypeName();
-//          // Prints the name of the parameterized 'TYPE' to the console.
-//  };
+//     // CLASS METHODS
+//     static void printTypeName();
+//         // Prints the name of the parameterized 'TYPE' to the console.
+// };
 //
-//  template <>
-//  void TestTemplate<int>::printTypeName()
-//  {
-//      printf("int\n");
-//  }
+// template <>
+// void TestTemplate<int>::printTypeName()
+// {
+//     printf("int\n");
+// }
 //
-//  template <>
-//  void TestTemplate<char>::printTypeName()
-//  {
-//      printf("char\n");
-//  }
+// template <>
+// void TestTemplate<char>::printTypeName()
+// {
+//     printf("char\n");
+// }
 //
-//  template <>
-//  void TestTemplate<double>::printTypeName()
-//  {
-//      printf("double\n");
-//  }
-//..
-// Now, we can instantiate the 'TestTemplate' class for each of the types
-// 'int', 'char', and 'double', and call the 'printTypeName' class method of
-// each instantiation using the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'
+// template <>
+// void TestTemplate<double>::printTypeName()
+// {
+//     printf("double\n");
+// }
+// ```
+// Now, we can instantiate the `TestTemplate` class for each of the types
+// `int`, `char`, and `double`, and call the `printTypeName` class method of
+// each instantiation using the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`
 // macro:
-//..
-//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestTemplate,
-//                                           printTypeName,
-//                                           int, char, double);
-//..
+// ```
+// BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestTemplate,
+//                                          printTypeName,
+//                                          int, char, double);
+// ```
 // Finally, we observe the console output:
-//..
-//  int
-//  char
-//  double
-//..
+// ```
+// int
+// char
+// double
+// ```
 //
 ///Example 2: Writing a Type Independent Test Driver
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we demonstrate using the 'TemplateTestFacility' 'struct'
+// In this example, we demonstrate using the `TemplateTestFacility` `struct`
 // and the macros provided by this component to test the default constructor
 // and primary manipulator of a class template in the context of a typical
 // BDE-style test driver.  Note that a goal of the demonstrated test is to
 // validate the class template with a broad range of types emulating those with
 // which the template might be instantiated.
 //
-// First, we define a simple class template, 'MyNullableValue', that we will
+// First, we define a simple class template, `MyNullableValue`, that we will
 // later need to test:
-//..
-//  template <class TYPE>
-//  class MyNullableValue {
-//      // This (value-semantic) class template extends the parameterized
-//      // 'TYPE' to include the notion of a "null" value.
+// ```
+// template <class TYPE>
+// class MyNullableValue {
+//     // This (value-semantic) class template extends the parameterized
+//     // 'TYPE' to include the notion of a "null" value.
 //
-//      // DATA
-//      TYPE d_value;     // non-null value
-//      bool d_nullFlag;  // flag to indicate if the value is null
+//     // DATA
+//     TYPE d_value;     // non-null value
+//     bool d_nullFlag;  // flag to indicate if the value is null
 //
-//    public:
-//      MyNullableValue()
-//          // Create a 'MyNullableValue' that initially has a value of null.
-//      : d_nullFlag(true)
-//      {
-//      }
+//   public:
+//     MyNullableValue()
+//         // Create a 'MyNullableValue' that initially has a value of null.
+//     : d_nullFlag(true)
+//     {
+//     }
 //
-//      bool isNull() const
-//          // Return 'true' if this object is null, and 'false' otherwise.
-//      {
-//          return d_nullFlag;
-//      }
+//     bool isNull() const
+//         // Return 'true' if this object is null, and 'false' otherwise.
+//     {
+//         return d_nullFlag;
+//     }
 //
-//      void makeNull()
-//          // Set this object to the null value.
-//      {
-//          d_nullFlag = true;
-//      }
+//     void makeNull()
+//         // Set this object to the null value.
+//     {
+//         d_nullFlag = true;
+//     }
 //
-//      const TYPE& value() const {
-//          // Return a reference providing non-modifiable access to the
-//          // underlying object of the parameterized 'TYPE'.  The behavior is
-//          // undefined if the object is null.
-//          return d_value;
-//      }
+//     const TYPE& value() const {
+//         // Return a reference providing non-modifiable access to the
+//         // underlying object of the parameterized 'TYPE'.  The behavior is
+//         // undefined if the object is null.
+//         return d_value;
+//     }
 //
-//      void makeValue(const TYPE& value)
-//          // Set the value of this object to be that of the specified 'value'
-//          // of the parameterized 'TYPE'.
-//      {
-//          d_nullFlag = false;
-//          d_value = value;
-//      }
-//  };
-//..
+//     void makeValue(const TYPE& value)
+//         // Set the value of this object to be that of the specified 'value'
+//         // of the parameterized 'TYPE'.
+//     {
+//         d_nullFlag = false;
+//         d_value = value;
+//     }
+// };
+// ```
 // Then, we define some aliases for the micros that will be used by the test
 // driver:
-//..
-//  #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
-//  #define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
-//..
-// Next, we define a 'struct' template, 'MyTestDriver', that provides a
-// namespace containing the test cases (here, only 'testCase2' is defined for
+// ```
+// #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+// #define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+// ```
+// Next, we define a `struct` template, `MyTestDriver`, that provides a
+// namespace containing the test cases (here, only `testCase2` is defined for
 // brevity) of the test driver:
-//..
-//  template <class TYPE>
-//  struct MyTestDriver {
-//      // This 'struct' provides a namespace for the class methods used to
-//      // implement the test driver.
+// ```
+// template <class TYPE>
+// struct MyTestDriver {
+//     // This 'struct' provides a namespace for the class methods used to
+//     // implement the test driver.
 //
-//      // TYPES
-//      typedef MyNullableValue<TYPE> Obj;
-//          // This 'typedef' provides an alias to the type under testing.
+//     // TYPES
+//     typedef MyNullableValue<TYPE> Obj;
+//         // This 'typedef' provides an alias to the type under testing.
 //
-//      static void testCase2();
-//          // Test primary manipulators.
-//  };
-//..
-// Now, we define the implementation of 'MyTestDriver::testCase2':
-//..
-//  template <class TYPE>
-//  void MyTestDriver<TYPE>::testCase2()
-//  {
-//      // --------------------------------------------------------------------
-//      // DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR
-//      //   Ensure that we can use the default constructor to create an
-//      //   object (having the default-constructed value), use the primary
-//      //   manipulators to put that object into any state relevant for
-//      //   thorough testing, and use the destructor to destroy it safely.
-//      //
-//      // Concerns:
-//      //: 1 An object created using the default constructor (with or without
-//      //:   a supplied allocator) has the contractually specified value.
-//      //:
-//      //: 2 The 'makeValue' method sets the value of a object to any
-//      //:   specified value.
-//      //:
-//      //: 3 The 'makeNull' method set the value of a object to null.
-//      //:
-//      //: 4 Objects of different values can coexist.
-//      //:
-//      //: 5 The destructor does not modify other objects.
-//      //
-//      // Plan:
-//      //: 1 Default-construct an object and use the (as yet unproven) salient
-//      //:   attribute accessors to verify that the value of the object is the
-//      //:   null value.  (C-1)
-//      //:
-//      //: 2 Default-construct another object, and use the 'makeValue' method,
-//      //:   to set the value of the object to a non-null value.  Use the (as
-//      //:   yet unproven) salient attribute accessors to verify that the new
-//      //:   object has the expected value and the object created in P-1 still
-//      //:   has the same value.  (C-2, 4)
-//      //:
-//      //: 3 Using the loop-based approach, for each identifier in a range of
-//      //:   integer identifiers:
-//      //:
-//      //:   1 Default-construct a modifiable object, 'mL', and use the (as
-//      //:     yet unproven) salient attribute accessors to verify the value
-//      //:     of the default constructed object is the null value.  (C-1)
-//      //:
-//      //:   2 Create an object of the parameterized 'TYPE', 'LV', using the
-//      //:     'TemplateTestFacility::create' class method template,
-//      //:     specifying the integer loop identifier.
-//      //:
-//      //:   3 Use the 'makeValue' method to set the value of 'mL' to 'LV'.
-//      //:     Use the (as yet unproven) salient attribute accessors to verify
-//      //:     'mL' has the expected value.  (C-2)
-//      //:
-//      //:   4 Invoke the 'makeNull' method of 'mL'.  Use the attribute
-//      //:     accessors to verify the value of the object is now null.  (C-3)
-//      //:
-//      //: 4 Create an object in a nested block.  Below the block, verify the
-//      //:   objects created in P-1 and P-2 still have the same value.  (C-5)
-//      //
-//      // Testing:
-//      //   MyNullableValue();
-//      //   ~MyNullableValue();
-//      //   void makeNull();
-//      //   void MakeValue(const TYPE& value);
-//      // --------------------------------------------------------------------
+//     static void testCase2();
+//         // Test primary manipulators.
+// };
+// ```
+// Now, we define the implementation of `MyTestDriver::testCase2`:
+// ```
+// template <class TYPE>
+// void MyTestDriver<TYPE>::testCase2()
+// {
+//     // --------------------------------------------------------------------
+//     // DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR
+//     //   Ensure that we can use the default constructor to create an
+//     //   object (having the default-constructed value), use the primary
+//     //   manipulators to put that object into any state relevant for
+//     //   thorough testing, and use the destructor to destroy it safely.
+//     //
+//     // Concerns:
+//     //: 1 An object created using the default constructor (with or without
+//     //:   a supplied allocator) has the contractually specified value.
+//     //:
+//     //: 2 The 'makeValue' method sets the value of a object to any
+//     //:   specified value.
+//     //:
+//     //: 3 The 'makeNull' method set the value of a object to null.
+//     //:
+//     //: 4 Objects of different values can coexist.
+//     //:
+//     //: 5 The destructor does not modify other objects.
+//     //
+//     // Plan:
+//     //: 1 Default-construct an object and use the (as yet unproven) salient
+//     //:   attribute accessors to verify that the value of the object is the
+//     //:   null value.  (C-1)
+//     //:
+//     //: 2 Default-construct another object, and use the 'makeValue' method,
+//     //:   to set the value of the object to a non-null value.  Use the (as
+//     //:   yet unproven) salient attribute accessors to verify that the new
+//     //:   object has the expected value and the object created in P-1 still
+//     //:   has the same value.  (C-2, 4)
+//     //:
+//     //: 3 Using the loop-based approach, for each identifier in a range of
+//     //:   integer identifiers:
+//     //:
+//     //:   1 Default-construct a modifiable object, 'mL', and use the (as
+//     //:     yet unproven) salient attribute accessors to verify the value
+//     //:     of the default constructed object is the null value.  (C-1)
+//     //:
+//     //:   2 Create an object of the parameterized 'TYPE', 'LV', using the
+//     //:     'TemplateTestFacility::create' class method template,
+//     //:     specifying the integer loop identifier.
+//     //:
+//     //:   3 Use the 'makeValue' method to set the value of 'mL' to 'LV'.
+//     //:     Use the (as yet unproven) salient attribute accessors to verify
+//     //:     'mL' has the expected value.  (C-2)
+//     //:
+//     //:   4 Invoke the 'makeNull' method of 'mL'.  Use the attribute
+//     //:     accessors to verify the value of the object is now null.  (C-3)
+//     //:
+//     //: 4 Create an object in a nested block.  Below the block, verify the
+//     //:   objects created in P-1 and P-2 still have the same value.  (C-5)
+//     //
+//     // Testing:
+//     //   MyNullableValue();
+//     //   ~MyNullableValue();
+//     //   void makeNull();
+//     //   void MakeValue(const TYPE& value);
+//     // --------------------------------------------------------------------
 //
-//      if (verbose)
-//                  printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR"
-//                         "\n============================================\n");
+//     if (verbose)
+//                 printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR"
+//                        "\n============================================\n");
 //
 //
-//      if (verbose) printf("\nTesting default constructor.\n");
+//     if (verbose) printf("\nTesting default constructor.\n");
 //
-//      Obj mW; const Obj& W = mW;
-//      assert(true == W.isNull());
+//     Obj mW; const Obj& W = mW;
+//     assert(true == W.isNull());
 //
-//      Obj mX; const Obj& X = mX;
-//      const TYPE XV = TemplateTestFacility::create<TYPE>(1);
-//      mX.makeValue(XV);
-//      assert(1 == TemplateTestFacility::getIdentifier<TYPE>(X.value()));
+//     Obj mX; const Obj& X = mX;
+//     const TYPE XV = TemplateTestFacility::create<TYPE>(1);
+//     mX.makeValue(XV);
+//     assert(1 == TemplateTestFacility::getIdentifier<TYPE>(X.value()));
 //
-//      if (verbose) printf("\nTesting primary manipulators.\n");
+//     if (verbose) printf("\nTesting primary manipulators.\n");
 //
-//      for (size_t ti = 0; ti < 10; ++ti) {
+//     for (size_t ti = 0; ti < 10; ++ti) {
 //
-//          if (veryVerbose) { T_ P(ti) }
+//         if (veryVerbose) { T_ P(ti) }
 //
-//          Obj mL; const Obj& L = mL;
-//          assert(true == L.isNull());
+//         Obj mL; const Obj& L = mL;
+//         assert(true == L.isNull());
 //
-//          const TYPE LV = TemplateTestFacility::create<TYPE>(ti);
+//         const TYPE LV = TemplateTestFacility::create<TYPE>(ti);
 //
-//          mL.makeValue(LV);
-//          assert(false == L.isNull());
-//          assert(LV == L.value());
+//         mL.makeValue(LV);
+//         assert(false == L.isNull());
+//         assert(LV == L.value());
 //
-//          mL.makeNull();
-//          assert(true == L.isNull());
-//      }
+//         mL.makeNull();
+//         assert(true == L.isNull());
+//     }
 //
-//      if (verbose) printf("\nTesting destructor.\n");
-//      {
-//          Obj Z;
-//      }
+//     if (verbose) printf("\nTesting destructor.\n");
+//     {
+//         Obj Z;
+//     }
 //
-//      assert(true == W.isNull());
-//      assert(XV == X.value());
-//  }
-//..
-// Notice that, we create objects of the parameterized 'TYPE' using the
-// 'TemplateTestFacility::create' class method template specifying an integer
+//     assert(true == W.isNull());
+//     assert(XV == X.value());
+// }
+// ```
+// Notice that, we create objects of the parameterized `TYPE` using the
+// `TemplateTestFacility::create` class method template specifying an integer
 // identifier; the created object has a value that is uniquely associated with
 // the integer identifier.
 //
-// Also notice that we verified that an object of the parameterized 'TYPE' has
+// Also notice that we verified that an object of the parameterized `TYPE` has
 // the expected value in two ways:
 //
-//: 1 By equal comparing (1) the integer identifier returned from calling the
-//:   'TemplateTestFacility::getIdentifier' class method template (specifying
-//:   the object), and (2) the integer identifier uniquely associated with the
-//:   expected state of the object.
-//:
-//: 2 By directly using the equality-comparison operator for the parameterized
-//:   'TYPE'.  Note that the equality-comparison operator is defined for all
-//:   types intended for testing in the 'bsltf' package except for
-//:   'bsltf::NonEqualComparableTestType'.
+// 1. By equal comparing (1) the integer identifier returned from calling the
+//    `TemplateTestFacility::getIdentifier` class method template (specifying
+//    the object), and (2) the integer identifier uniquely associated with the
+//    expected state of the object.
+// 2. By directly using the equality-comparison operator for the parameterized
+//    `TYPE`.  Note that the equality-comparison operator is defined for all
+//    types intended for testing in the `bsltf` package except for
+//    `bsltf::NonEqualComparableTestType`.
 //
-// Finally, we use the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro to
-// instantiate 'MyTestDriver' for each of the types listed in
-// 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' and invoke the 'testCase2'
+// Finally, we use the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro to
+// instantiate `MyTestDriver` for each of the types listed in
+// `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR` and invoke the `testCase2`
 // class method of each instantiation:
-//..
-//  case 2: {
-//    // ----------------------------------------------------------------------
-//    // DEFAULT CTOR & PRIMARY MANIPULATORS
-//    // ----------------------------------------------------------------------
+// ```
+// case 2: {
+//   // ----------------------------------------------------------------------
+//   // DEFAULT CTOR & PRIMARY MANIPULATORS
+//   // ----------------------------------------------------------------------
 //
-//    if (verbose) printf("\nDEFAULT CTOR & PRIMARY MANIPULATORS"
-//                        "\n===================================\n");
+//   if (verbose) printf("\nDEFAULT CTOR & PRIMARY MANIPULATORS"
+//                       "\n===================================\n");
 //
-//    RUN_EACH_TYPE(MyTestDriver, testCase2, TEST_TYPES_REGULAR);
-//  } break;
-//..
+//   RUN_EACH_TYPE(MyTestDriver, testCase2, TEST_TYPES_REGULAR);
+// } break;
+// ```
 
 #include <bslscm_version.h>
 
@@ -539,18 +536,19 @@ namespace bsltf {
                         // class TemplateTestFacility_StubClass
                         // ====================================
 
+/// This class provides a single method template, `method`, that simply
+/// returns the parameterized integer `IDENTIFIER`.  Note that the purpose
+/// of this class is to serve as a stub class and method to be referred by
+/// `TemplateTestFacility::ObjectPtr` and `TemplateTestFacility::MethodPtr`
+/// respectively.
 class TemplateTestFacility_StubClass {
-    // This class provides a single method template, 'method', that simply
-    // returns the parameterized integer 'IDENTIFIER'.  Note that the purpose
-    // of this class is to serve as a stub class and method to be referred by
-    // 'TemplateTestFacility::ObjectPtr' and 'TemplateTestFacility::MethodPtr'
-    // respectively.
 
   public:
     // MANIPULATORS
+
+    /// Return the parameterized `IDENTIFIER`.
     template <int IDENTIFIER>
     int method();
-        // Return the parameterized 'IDENTIFIER'.
 };
 
                         // ========================================
@@ -577,77 +575,79 @@ class TemplateTestFacility_CompareHelper {
                         // struct TemplateTestFacility
                         // ===========================
 
+/// This `struct` provides a namespace that contains three aliases for types
+/// intended to be used as template parameters for testing templates.  The
+/// namespace also contain two class method templates, `create` and
+/// `getIdentifier`, that respectively provides a consistent interface to
+/// (1) create a specified object of a parameterized type from an integer
+/// identifier and (2) get the identifier value of a specified object.  The
+/// identifier value returned from the `getIdentifier` method is undefined
+/// unless the specified object was originally created with the `create`
+/// class method template.
 struct TemplateTestFacility {
-    // This 'struct' provides a namespace that contains three aliases for types
-    // intended to be used as template parameters for testing templates.  The
-    // namespace also contain two class method templates, 'create' and
-    // 'getIdentifier', that respectively provides a consistent interface to
-    // (1) create a specified object of a parameterized type from an integer
-    // identifier and (2) get the identifier value of a specified object.  The
-    // identifier value returned from the 'getIdentifier' method is undefined
-    // unless the specified object was originally created with the 'create'
-    // class method template.
 
   private:
+    /// Return a pointer to a null-terminated string that will parse as
+    /// having the same value as the specified `identifier`.  The behavior
+    /// is undefined unless `0 <= identifier < 128`.
     static const char* nullTerminatedStringForIdentifier(int identifier);
-        // Return a pointer to a null-terminated string that will parse as
-        // having the same value as the specified 'identifier'.  The behavior
-        // is undefined unless '0 <= identifier < 128'.
 
   public:
     // PUBLIC TYPES
+
+    /// This `typedef` is an alias for a pointer to a
+    /// `TemplateTestFacility_StubClass` object.
     typedef TemplateTestFacility_StubClass *ObjectPtr;
-        // This 'typedef' is an alias for a pointer to a
-        // 'TemplateTestFacility_StubClass' object.
 
+    /// This `typedef` is an alias for a pointer to a function pointer.
     typedef void (*FunctionPtr) ();
-        // This 'typedef' is an alias for a pointer to a function pointer.
 
+    /// This `typedef` is an alias for a pointer to a method of
+    /// `TemplateTestFacility_StubClass` taking no arguments and returning
+    /// an `int`.
     typedef int (TemplateTestFacility_StubClass::*MethodPtr) ();
-        // This 'typedef' is an alias for a pointer to a method of
-        // 'TemplateTestFacility_StubClass' taking no arguments and returning
-        // an 'int'.
 
     // CLASS METHODS
+
+    /// Return a new object of the parameterized `TYPE` whose state is
+    /// unique for the specified `identifier`.  The behavior is undefined
+    /// unless `0 <= value < 128` and `TYPE` is contained in the macro
+    /// `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL`.
     template <class TYPE>
     static TYPE create(int identifier);
-        // Return a new object of the parameterized 'TYPE' whose state is
-        // unique for the specified 'identifier'.  The behavior is undefined
-        // unless '0 <= value < 128' and 'TYPE' is contained in the macro
-        // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 
+    /// Create an object of the parameterized `TYPE` at the specified
+    /// `address` whose state is unique for the specified `identifier`.  The
+    /// behavior is undefined unless `0 <= identifier < 128` and `TYPE` is
+    /// contained in the macro `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL`.
     template <class TYPE, class ALLOCATOR>
     static void emplace(TYPE *address, int identifier, ALLOCATOR allocator);
     template <class TYPE, class ALLOCATOR>
     static void emplace(TYPE *address, int identifier, ALLOCATOR *allocator);
-        // Create an object of the parameterized 'TYPE' at the specified
-        // 'address' whose state is unique for the specified 'identifier'.  The
-        // behavior is undefined unless '0 <= identifier < 128' and 'TYPE' is
-        // contained in the macro 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 
+    /// Create a pointer to the parameterized `TYPE` at the specified
+    /// `address` whose value is unique for the specified `identifier`.  The
+    /// behavior is undefined unless `0 <= identifier < 128`.  Note that no
+    /// object is created at the address of the returned pointer, nor is it
+    /// guaranteed to be a valid address for an object (or function).  Also
+    /// note that the same address may be returned for different allocators,
+    /// and is guaranteed to be unique only with respect to the `identifier`
+    /// value.
     template <class TYPE, class ALLOCATOR>
     static void emplace(TYPE **address, int identifier, ALLOCATOR allocator);
     template <class TYPE, class ALLOCATOR>
     static void emplace(TYPE **address, int identifier, ALLOCATOR *allocator);
-        // Create a pointer to the parameterized 'TYPE' at the specified
-        // 'address' whose value is unique for the specified 'identifier'.  The
-        // behavior is undefined unless '0 <= identifier < 128'.  Note that no
-        // object is created at the address of the returned pointer, nor is it
-        // guaranteed to be a valid address for an object (or function).  Also
-        // note that the same address may be returned for different allocators,
-        // and is guaranteed to be unique only with respect to the 'identifier'
-        // value.
 
+    /// Create at the specified `address` a pointer to a null-terminated
+    /// string that will parse as having the same value as the specified
+    /// `identifier`.  The specified `allocator` is not used.  The behavior
+    /// is undefined unless `0 <= identifier < 128`.
     template <class ALLOCATOR>
     static void
     emplace(const char **address, int identifier, ALLOCATOR allocator);
     template <class ALLOCATOR>
     static void
     emplace(const char **address, int identifier, ALLOCATOR *allocator);
-        // Create at the specified 'address' a pointer to a null-terminated
-        // string that will parse as having the same value as the specified
-        // 'identifier'.  The specified 'allocator' is not used.  The behavior
-        // is undefined unless '0 <= identifier < 128'.
 
     template <class ALLOCATOR>
     static void emplace(char *address, int identifier, ALLOCATOR allocator);
@@ -666,13 +666,14 @@ struct TemplateTestFacility {
     template <class ALLOCATOR>
     static void
     emplace(unsigned char *address, int identifier, ALLOCATOR *allocator);
+
+    /// Set the character object at the specified `address` to the value of
+    /// the specified `identifier`.  The specified `allocator` is not used.
+    /// The behavior is undefined unless `0 <= identifier < 128`.  Note that
+    /// these overloads are needed only to avoid narrowing conversion
+    /// warnings that will occur in lower-level utilities when using this
+    /// test facility.
     template <class ALLOCATOR>
-        // Set the character object at the specified 'address' to the value of
-        // the specified 'identifier'.  The specified 'allocator' is not used.
-        // The behavior is undefined unless '0 <= identifier < 128'.  Note that
-        // these overloads are needed only to avoid narrowing conversion
-        // warnings that will occur in lower-level utilities when using this
-        // test facility.
 
     static void
     emplace(EmplacableTestType *address, int identifier, ALLOCATOR allocator);
@@ -691,6 +692,9 @@ struct TemplateTestFacility {
             int                      identifier,
             ALLOCATOR               *allocator);
 
+    /// Set the enumeration at the specified `address` to the value of the
+    /// specified `identifier`.  The specified `allocator` is not used.  The
+    /// behavior is undefined unless `0 <= identifier < 128`.
     template <class ALLOCATOR>
     static void emplace(EnumeratedTestType::Enum *address,
                         int                       identifier,
@@ -699,64 +703,66 @@ struct TemplateTestFacility {
     static void emplace(EnumeratedTestType::Enum *address,
                         int                       identifier,
                         ALLOCATOR                *allocator);
-        // Set the enumeration at the specified 'address' to the value of the
-        // specified 'identifier'.  The specified 'allocator' is not used.  The
-        // behavior is undefined unless '0 <= identifier < 128'.
 
+    /// Set the pointer-to-method at the specified `address` to the value of
+    /// the specified `identifier`.  The specified `allocator` is not used.
+    /// The behavior is undefined unless `0 <= identifier < 128`.
     template <class ALLOCATOR>
     static void
     emplace(MethodPtr *address, int identifier, ALLOCATOR allocator);
     template <class ALLOCATOR>
     static void
     emplace(MethodPtr *address, int identifier, ALLOCATOR *allocator);
-        // Set the pointer-to-method at the specified 'address' to the value of
-        // the specified 'identifier'.  The specified 'allocator' is not used.
-        // The behavior is undefined unless '0 <= identifier < 128'.
 
+    /// Return the integer identifier that uniquely identifies the specified
+    /// `object`.  The behavior is undefined unless `object` could be
+    /// created from the `TemplateTestFacility::create` class method
+    /// template.
     template <class TYPE>
     static int getIdentifier(const TYPE& object);
-        // Return the integer identifier that uniquely identifies the specified
-        // 'object'.  The behavior is undefined unless 'object' could be
-        // created from the 'TemplateTestFacility::create' class method
-        // template.
 
+    /// Return the integer identifier that uniquely identifies the specified
+    /// `object`.  The behavior is undefined unless `object` was created by
+    /// a call to the `TemplateTestFacility::create` class method template,
+    /// or is a copy of such an object.
     template <class TYPE>
     static int getIdentifier(TYPE*const& object);
-        // Return the integer identifier that uniquely identifies the specified
-        // 'object'.  The behavior is undefined unless 'object' was created by
-        // a call to the 'TemplateTestFacility::create' class method template,
-        // or is a copy of such an object.
 
+    /// Return the integer identifier that uniquely identifies the specified
+    /// `object`.  The behavior is undefined unless `object` could be
+    /// created from the `TemplateTestFacility::create` class method
+    /// template.
     static int getIdentifier(const char*const& object);
-        // Return the integer identifier that uniquely identifies the specified
-        // 'object'.  The behavior is undefined unless 'object' could be
-        // created from the 'TemplateTestFacility::create' class method
-        // template.
 
+    /// Return the integer identifier that uniquely identifies the specified
+    /// `object`.  The behavior is undefined unless `object` could be
+    /// created from the `TemplateTestFacility::create` class method
+    /// template.
     template <class ALLOC>
     static int getIdentifier(const StdAllocTestType<ALLOC>& object);
-        // Return the integer identifier that uniquely identifies the specified
-        // 'object'.  The behavior is undefined unless 'object' could be
-        // created from the 'TemplateTestFacility::create' class method
-        // template.
 
+    /// Return the moved-from state of the specified `object, or `e_UNKNOWN'
+    /// if (template parameter) `TYPE` does not support such a query.
     template <class TYPE>
     static bsltf::MoveState::Enum getMovedFromState(const TYPE& object);
-        // Return the moved-from state of the specified 'object, or 'e_UNKNOWN'
-        // if (template parameter) 'TYPE' does not support such a query.
 
+    /// Return the moved-into state of the specified `object, or `e_UNKNOWN'
+    /// if (template parameter) `TYPE` does not support such a query.
     template <class TYPE>
     static bsltf::MoveState::Enum getMovedIntoState(const TYPE& object);
-        // Return the moved-into state of the specified 'object, or 'e_UNKNOWN'
-        // if (template parameter) 'TYPE' does not support such a query.
 
+    /// Set the moved-into state of the specified 'object to the specified
+    /// `value` if (template parameter) `TYPE` does supports move states.
     template <class TYPE>
     static void setMovedIntoState(TYPE *object, bsltf::MoveState::Enum value);
-        // Set the moved-into state of the specified 'object to the specified
-        // 'value' if (template parameter) 'TYPE' does supports move states.
 };
 
 // FREE FUNCTIONS
+
+/// Print the value of the specified `obj` to the console.  Note that this
+/// free function is provided to allow `bsls_bsltestutil` to support these
+/// types intended for testing.  See the component-level documentation for
+/// `bsls_bsltestutil` for more details.
 void debugprint(const AllocTestType& obj);
 void debugprint(const NonOptionalAllocTestType& obj);
 void debugprint(const AllocBitwiseMoveableTestType& obj);
@@ -777,15 +783,14 @@ void debugprint(const SimpleTestType& obj);
 template <class ALLOC> void debugprint(const StdAllocTestType<ALLOC>& obj);
 void debugprint(const UnionTestType& obj);
 void debugprint(const WellBehavedMoveOnlyAllocTestType& obj);
-    // Print the value of the specified 'obj' to the console.  Note that this
-    // free function is provided to allow 'bsls_bsltestutil' to support these
-    // types intended for testing.  See the component-level documentation for
-    // 'bsls_bsltestutil' for more details.
 
                        // =================
                        // Macro Definitions
                        // =================
 
+/// This macro refers to all of the primitive test types defined in this
+/// package.  Note that it can be used as the last argument to the
+/// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro.
 #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE                       \
         signed char,                                                          \
         size_t,                                                               \
@@ -793,10 +798,10 @@ void debugprint(const WellBehavedMoveOnlyAllocTestType& obj);
         bsltf::TemplateTestFacility::ObjectPtr,                               \
         bsltf::TemplateTestFacility::FunctionPtr,                             \
         bsltf::TemplateTestFacility::MethodPtr
-    // This macro refers to all of the primitive test types defined in this
-    // package.  Note that it can be used as the last argument to the
-    // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.
 
+/// This macro refers to all of the user-defined test types defined in this
+/// package.  Note that the macro can be used as the last argument to the
+/// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro.
 #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED                    \
     bsltf::EnumeratedTestType::Enum,                                          \
     bsltf::UnionTestType,                                                     \
@@ -808,16 +813,13 @@ void debugprint(const WellBehavedMoveOnlyAllocTestType& obj);
     bsltf::MovableTestType,                                                   \
     bsltf::MovableAllocTestType,                                              \
     bsltf::NonTypicalOverloadsTestType
-    // This macro refers to all of the user-defined test types defined in this
-    // package.  Note that the macro can be used as the last argument to the
-    // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.
 
+/// This macro refers to all of the regular test types defined in this
+/// package.  Note that the macro can be used as the last argument to the
+/// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro.
 #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR                         \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,                      \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED
-    // This macro refers to all of the regular test types defined in this
-    // package.  Note that the macro can be used as the last argument to the
-    // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.
 
 #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD                         \
         bsltf::NonAssignableTestType,                                         \
@@ -835,12 +837,12 @@ void debugprint(const WellBehavedMoveOnlyAllocTestType& obj);
     // package.  Note that the macro can be used as the last argument to the
     // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.
 
+/// This macro refers to all of the test types defined in this package.
+/// Note that the macro can be used as the last argument to the
+/// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro.
 #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL                             \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,                        \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD
-    // This macro refers to all of the test types defined in this package.
-    // Note that the macro can be used as the last argument to the
-    // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.
 
 
 #define BSLTF_TEMPLATETESTFACILITY_NUM_ARGS_IMPL(X20, X19, X18, X17, X16,     \

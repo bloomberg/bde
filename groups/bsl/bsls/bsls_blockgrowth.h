@@ -21,97 +21,97 @@ BSLS_IDENT("$Id: $")
 // This component supports two memory block growth strategies:
 //
 //: GEOMETRIC GROWTH: A container, pool or allocator that employs this
-//:   strategy, as indicated by the enumerator 'BSLS_GEOMETRIC', grows its
+//:   strategy, as indicated by the enumerator `BSLS_GEOMETRIC`, grows its
 //:   buffer geometrically.
 //:
 //: CONSTANT GROWTH: A container, pool or allocator that employs this strategy,
-//:   as indicated by the enumerator 'BSLS_CONSTANT', locks the buffer growth.
+//:   as indicated by the enumerator `BSLS_CONSTANT`, locks the buffer growth.
 //:   The new buffer is always the same size as the current buffer.
 //
 ///Usage
 ///-----
 // Memory block growth strategies are often used in memory managers and
 // containers to control memory usage.  First of all, suppose we have a
-// 'my_BlockList' class that manages a link list of memory blocks:
-//..
-//  class my_BlockList {
-//      // ...
-//  };
-//..
-// We can then create a memory manager class 'my_SequentialPool' that manages a
+// `my_BlockList` class that manages a link list of memory blocks:
+// ```
+// class my_BlockList {
+//     // ...
+// };
+// ```
+// We can then create a memory manager class `my_SequentialPool` that manages a
 // pool of memory:
-//..
-//  class my_SequentialPool {
-//      // This class implements a memory pool that dispenses (heterogeneous)
-//      // blocks of memory (of varying, user-specified-sizes) from a sequence
-//      // of dynamically allocated buffers.
+// ```
+// class my_SequentialPool {
+//     // This class implements a memory pool that dispenses (heterogeneous)
+//     // blocks of memory (of varying, user-specified-sizes) from a sequence
+//     // of dynamically allocated buffers.
 //
-//      // DATA
-//      char         *d_currentBuffer_p;    // pointer to current buffer
+//     // DATA
+//     char         *d_currentBuffer_p;    // pointer to current buffer
 //
-//      int           d_currentBufferSize;  // size of current buffer
+//     int           d_currentBufferSize;  // size of current buffer
 //
-//      bsls::BlockGrowth::Strategy
-//                    d_growthStrategy;     // growth strategy
+//     bsls::BlockGrowth::Strategy
+//                   d_growthStrategy;     // growth strategy
 //
-//      my_BlockList  d_blockList;          // manager for all allocated memory
-//                                          // blocks
+//     my_BlockList  d_blockList;          // manager for all allocated memory
+//                                         // blocks
 //
-//      // NOT IMPLEMENTED
-//      my_SequentialPool(const my_SequentialPool&);
-//      my_SequentialPool& operator=(const my_SequentialPool&);
+//     // NOT IMPLEMENTED
+//     my_SequentialPool(const my_SequentialPool&);
+//     my_SequentialPool& operator=(const my_SequentialPool&);
 //
-//    private:
-//      // PRIVATE MANIPULATORS
-//      int calculateNextSize(int size);
-//          // Return the next buffer size sufficient to satisfy a memory
-//          // allocation request of the specified 'size' (in bytes).
+//   private:
+//     // PRIVATE MANIPULATORS
+//     int calculateNextSize(int size);
+//         // Return the next buffer size sufficient to satisfy a memory
+//         // allocation request of the specified 'size' (in bytes).
 //
-//    public:
-//      // CREATORS
-//      my_SequentialPool(bsls::BlockGrowth::Strategy  strategy);
-//          // Create a pool with the specified memory block growth 'strategy'.
+//   public:
+//     // CREATORS
+//     my_SequentialPool(bsls::BlockGrowth::Strategy  strategy);
+//         // Create a pool with the specified memory block growth 'strategy'.
 //
-//      // ...
+//     // ...
 //
-//      // MANIPULATORS
-//      void *allocate(int size);
-//          // Return the address of a contiguous block of memory of the
-//          // specified 'size' (in bytes).  If the pool cannot return the
-//          // requested number of bytes, 'std::bad_alloc' will be thrown in an
-//          // exception-enabled build, or the program will be aborted.  The
-//          // behavior is undefined unless 'size > 0'.
-//  };
-//..
+//     // MANIPULATORS
+//     void *allocate(int size);
+//         // Return the address of a contiguous block of memory of the
+//         // specified 'size' (in bytes).  If the pool cannot return the
+//         // requested number of bytes, 'std::bad_alloc' will be thrown in an
+//         // exception-enabled build, or the program will be aborted.  The
+//         // behavior is undefined unless 'size > 0'.
+// };
+// ```
 // The implementation for the rest of the class is elided as the function
-// 'calculateNextSize' alone is sufficient to illustrate the use of this
+// `calculateNextSize` alone is sufficient to illustrate the use of this
 // component:
-//..
-//  // PRIVATE MANIPULATORS
-//  int my_SequentialPool::calculateNextSize(int size)
-//  {
-//      if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
-//          return d_currentBufferSize;
-//      }
-//..
+// ```
+// // PRIVATE MANIPULATORS
+// int my_SequentialPool::calculateNextSize(int size)
+// {
+//     if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
+//         return d_currentBufferSize;
+//     }
+// ```
 // Note that, if the growth strategy in effect is constant growth
-// ('BSLS_CONSTANT'), the size of the internal buffers will always be the same.
-// If 'size' is greater than the buffer size, the implementation of 'allocate'
-// will return a block having the exact 'size' from the internal block list:
-//..
-//  int nextSize = d_currentBufferSize;
+// (`BSLS_CONSTANT`), the size of the internal buffers will always be the same.
+// If `size` is greater than the buffer size, the implementation of `allocate`
+// will return a block having the exact `size` from the internal block list:
+// ```
+// int nextSize = d_currentBufferSize;
 //
-//  do {
-//      nextSize *= 2;  // growth factor of 2
-//  } while (nextSize < size);
-//..
+// do {
+//     nextSize *= 2;  // growth factor of 2
+// } while (nextSize < size);
+// ```
 // Note that, if the growth strategy in effect is geometric growth
-// ('BSLS_GEOMETRIC'), the size of the internal buffer grows geometrically by a
+// (`BSLS_GEOMETRIC`), the size of the internal buffer grows geometrically by a
 // factor of 2:
-//..
-//      return nextSize;
-//  }
-//..
+// ```
+//     return nextSize;
+// }
+// ```
 
 namespace BloombergLP {
 
@@ -121,9 +121,9 @@ namespace bsls {
                         // struct BlockGrowth
                         // ==================
 
+/// This struct provides a namespace for memory block growth strategies for
+/// pools, allocators, containers, etc.
 struct BlockGrowth {
-    // This struct provides a namespace for memory block growth strategies for
-    // pools, allocators, containers, etc.
 
     // TYPES
     enum Strategy {
@@ -134,10 +134,11 @@ struct BlockGrowth {
     };
 
     // CLASS METHODS
+
+    /// Return the string representation of the specified enumerator
+    /// `value`.  The string representation of `value` matches its
+    /// corresponding enumerator name with the `BSLS_` prefix elided.
     static const char *toAscii(BlockGrowth::Strategy value);
-        // Return the string representation of the specified enumerator
-        // 'value'.  The string representation of 'value' matches its
-        // corresponding enumerator name with the 'BSLS_' prefix elided.
 };
 
 }  // close package namespace
@@ -147,8 +148,8 @@ struct BlockGrowth {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bsls::BlockGrowth bsls_BlockGrowth;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

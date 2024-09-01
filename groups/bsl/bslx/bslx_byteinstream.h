@@ -13,24 +13,24 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslx_byteoutstream
 //
 //@DESCRIPTION: This component implements a byte-array-based input stream
-// class, 'bslx::ByteInStream', that provides platform-independent input
+// class, `bslx::ByteInStream`, that provides platform-independent input
 // methods ("unexternalization") on values, and arrays of values, of
-// fundamental types, and on 'bsl::string'.
+// fundamental types, and on `bsl::string`.
 //
-// The 'bslx::ByteInStream' type reads from a user-supplied buffer directly,
+// The `bslx::ByteInStream` type reads from a user-supplied buffer directly,
 // with no data copying or assumption of ownership.  The user must therefore
 // make sure that the lifetime and visibility of the buffer is sufficient to
 // satisfy the needs of the input stream.
 //
 // This component is intended to be used in conjunction with the
-// 'bslx_byteoutstream' "externalization" component.  Each input method of
-// 'bslx::ByteInStream' reads either a value or a homogeneous array of values
+// `bslx_byteoutstream` "externalization" component.  Each input method of
+// `bslx::ByteInStream` reads either a value or a homogeneous array of values
 // of a fundamental type, in a format that was written by the corresponding
-// 'bslx::ByteOutStream' method.  In general, the user of this component cannot
+// `bslx::ByteOutStream` method.  In general, the user of this component cannot
 // rely on being able to read data that was written by any mechanism other than
-// 'bslx::ByteOutStream'.
+// `bslx::ByteOutStream`.
 //
-// The supported types and required content are listed in the 'bslx'
+// The supported types and required content are listed in the `bslx`
 // package-level documentation under "Supported Types".
 //
 // Note that input streams can be *invalidated* explicitly and queried for
@@ -45,274 +45,274 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Unexternalization
 /// - - - - - - - - - - - - - - - - -
-// Suppose we wish to implement a (deliberately simple) 'MyPerson' class as a
+// Suppose we wish to implement a (deliberately simple) `MyPerson` class as a
 // value-semantic object that supports BDEX externalization and
 // unexternalization.  In addition to whatever data and methods that we choose
 // to put into our design, we must supply three methods having specific names
 // and signatures in order to comply with the BDEX protocol: a class method
-// 'maxSupportedBdexVersion', an accessor (i.e., a 'const' method)
-// 'bdexStreamOut', and a manipulator (i.e., a non-'const' method)
-// 'bdexStreamIn'.  This example shows how to implement those three methods.
+// `maxSupportedBdexVersion`, an accessor (i.e., a `const` method)
+// `bdexStreamOut`, and a manipulator (i.e., a non-`const` method)
+// `bdexStreamIn`.  This example shows how to implement those three methods.
 //
 // In this example we will not worry overly about "good design" of the
-// 'MyPerson' component, and we will declare but not implement illustrative
+// `MyPerson` component, and we will declare but not implement illustrative
 // methods and free operators, except for the three required BDEX methods,
 // which are implemented in full.  In particular, we will not make explicit use
-// of 'bslma' allocators; a more complete design would do so:
+// of `bslma` allocators; a more complete design would do so:
 //
-// First, we implement 'MyPerson':
-//..
-//  class MyPerson {
-//      bsl::string d_firstName;
-//      bsl::string d_lastName;
-//      int         d_age;
+// First, we implement `MyPerson`:
+// ```
+// class MyPerson {
+//     bsl::string d_firstName;
+//     bsl::string d_lastName;
+//     int         d_age;
 //
-//      friend bool operator==(const MyPerson&, const MyPerson&);
+//     friend bool operator==(const MyPerson&, const MyPerson&);
 //
-//    public:
-//      // CLASS METHODS
-//      static int maxSupportedBdexVersion(int versionSelector);
-//          // Return the maximum valid BDEX format version, as indicated by
-//          // the specified 'versionSelector', to be passed to the
-//          // 'bdexStreamOut' method.  Note that it is highly recommended that
-//          // 'versionSelector' be formatted as "YYYYMMDD", a date
-//          // representation.  Also note that 'versionSelector' should be a
-//          // *compile*-time-chosen value that selects a format version
-//          // supported by both externalizer and unexternalizer.  See the
-//          // 'bslx' package-level documentation for more information on BDEX
-//          // streaming of value-semantic types and containers.
+//   public:
+//     // CLASS METHODS
+//     static int maxSupportedBdexVersion(int versionSelector);
+//         // Return the maximum valid BDEX format version, as indicated by
+//         // the specified 'versionSelector', to be passed to the
+//         // 'bdexStreamOut' method.  Note that it is highly recommended that
+//         // 'versionSelector' be formatted as "YYYYMMDD", a date
+//         // representation.  Also note that 'versionSelector' should be a
+//         // *compile*-time-chosen value that selects a format version
+//         // supported by both externalizer and unexternalizer.  See the
+//         // 'bslx' package-level documentation for more information on BDEX
+//         // streaming of value-semantic types and containers.
 //
-//      // CREATORS
-//      MyPerson();
-//          // Create a default person.
+//     // CREATORS
+//     MyPerson();
+//         // Create a default person.
 //
-//      MyPerson(const char *firstName, const char *lastName, int age);
-//          // Create a person having the specified 'firstName', 'lastName',
-//          // and 'age'.
+//     MyPerson(const char *firstName, const char *lastName, int age);
+//         // Create a person having the specified 'firstName', 'lastName',
+//         // and 'age'.
 //
-//      MyPerson(const MyPerson& original);
-//          // Create a person having the value of the specified 'original'
-//          // person.
+//     MyPerson(const MyPerson& original);
+//         // Create a person having the value of the specified 'original'
+//         // person.
 //
-//      ~MyPerson();
-//          // Destroy this object.
+//     ~MyPerson();
+//         // Destroy this object.
 //
-//      // MANIPULATORS
-//      MyPerson& operator=(const MyPerson& rhs);
-//          // Assign to this person the value of the specified 'rhs' person,
-//          // and return a reference to this person.
+//     // MANIPULATORS
+//     MyPerson& operator=(const MyPerson& rhs);
+//         // Assign to this person the value of the specified 'rhs' person,
+//         // and return a reference to this person.
 //
-//      template <class STREAM>
-//      STREAM& bdexStreamIn(STREAM& stream, int version);
-//          // Assign to this object the value read from the specified input
-//          // 'stream' using the specified 'version' format, and return a
-//          // reference to 'stream'.  If 'stream' is initially invalid, this
-//          // operation has no effect.  If 'version' is not supported, this
-//          // object is unaltered and 'stream' is invalidated, but otherwise
-//          // unmodified.  If 'version' is supported but 'stream' becomes
-//          // invalid during this operation, this object has an undefined, but
-//          // valid, state.  Note that no version is read from 'stream'.  See
-//          // the 'bslx' package-level documentation for more information on
-//          // BDEX streaming of value-semantic types and containers.
+//     template <class STREAM>
+//     STREAM& bdexStreamIn(STREAM& stream, int version);
+//         // Assign to this object the value read from the specified input
+//         // 'stream' using the specified 'version' format, and return a
+//         // reference to 'stream'.  If 'stream' is initially invalid, this
+//         // operation has no effect.  If 'version' is not supported, this
+//         // object is unaltered and 'stream' is invalidated, but otherwise
+//         // unmodified.  If 'version' is supported but 'stream' becomes
+//         // invalid during this operation, this object has an undefined, but
+//         // valid, state.  Note that no version is read from 'stream'.  See
+//         // the 'bslx' package-level documentation for more information on
+//         // BDEX streaming of value-semantic types and containers.
 //
-//      //...
+//     //...
 //
-//      // ACCESSORS
-//      int age() const;
-//          // Return the age of this person.
+//     // ACCESSORS
+//     int age() const;
+//         // Return the age of this person.
 //
-//      template <class STREAM>
-//      STREAM& bdexStreamOut(STREAM& stream, int version) const;
-//          // Write the value of this object, using the specified 'version'
-//          // format, to the specified output 'stream', and return a reference
-//          // to 'stream'.  If 'stream' is initially invalid, this operation
-//          // has no effect.  If 'version' is not supported, 'stream' is
-//          // invalidated, but otherwise unmodified.  Note that 'version' is
-//          // not written to 'stream'.  See the 'bslx' package-level
-//          // documentation for more information on BDEX streaming of
-//          // value-semantic types and containers.
+//     template <class STREAM>
+//     STREAM& bdexStreamOut(STREAM& stream, int version) const;
+//         // Write the value of this object, using the specified 'version'
+//         // format, to the specified output 'stream', and return a reference
+//         // to 'stream'.  If 'stream' is initially invalid, this operation
+//         // has no effect.  If 'version' is not supported, 'stream' is
+//         // invalidated, but otherwise unmodified.  Note that 'version' is
+//         // not written to 'stream'.  See the 'bslx' package-level
+//         // documentation for more information on BDEX streaming of
+//         // value-semantic types and containers.
 //
-//      const bsl::string& firstName() const;
-//          // Return the first name of this person.
+//     const bsl::string& firstName() const;
+//         // Return the first name of this person.
 //
-//      const bsl::string& lastName() const;
-//          // Return the last name of this person.
+//     const bsl::string& lastName() const;
+//         // Return the last name of this person.
 //
-//      //...
+//     //...
 //
-//  };
+// };
 //
-//  // FREE OPERATORS
-//  bool operator==(const MyPerson& lhs, const MyPerson& rhs);
-//      // Return 'true' if the specified 'lhs' and 'rhs' person objects have
-//      // the same value, and 'false' otherwise.  Two person objects have the
-//      // same value if they have the same first name, last name, and age.
+// // FREE OPERATORS
+// bool operator==(const MyPerson& lhs, const MyPerson& rhs);
+//     // Return 'true' if the specified 'lhs' and 'rhs' person objects have
+//     // the same value, and 'false' otherwise.  Two person objects have the
+//     // same value if they have the same first name, last name, and age.
 //
-//  bool operator!=(const MyPerson& lhs, const MyPerson& rhs);
-//      // Return 'true' if the specified 'lhs' and 'rhs' person objects do not
-//      // have the same value, and 'false' otherwise.  Two person objects
-//      // differ in value if they differ in first name, last name, or age.
+// bool operator!=(const MyPerson& lhs, const MyPerson& rhs);
+//     // Return 'true' if the specified 'lhs' and 'rhs' person objects do not
+//     // have the same value, and 'false' otherwise.  Two person objects
+//     // differ in value if they differ in first name, last name, or age.
 //
-//  // ========================================================================
-//  //                  INLINE FUNCTION DEFINITIONS
-//  // ========================================================================
+// // ========================================================================
+// //                  INLINE FUNCTION DEFINITIONS
+// // ========================================================================
 //
-//  // CLASS METHODS
-//  inline
-//  int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
-//      return 1;
-//  }
+// // CLASS METHODS
+// inline
+// int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
+//     return 1;
+// }
 //
-//  // CREATORS
-//  inline
-//  MyPerson::MyPerson()
-//  : d_firstName("")
-//  , d_lastName("")
-//  , d_age(0)
-//  {
-//  }
+// // CREATORS
+// inline
+// MyPerson::MyPerson()
+// : d_firstName("")
+// , d_lastName("")
+// , d_age(0)
+// {
+// }
 //
-//  inline
-//  MyPerson::MyPerson(const char *firstName, const char *lastName, int age)
-//  : d_firstName(firstName)
-//  , d_lastName(lastName)
-//  , d_age(age)
-//  {
-//  }
+// inline
+// MyPerson::MyPerson(const char *firstName, const char *lastName, int age)
+// : d_firstName(firstName)
+// , d_lastName(lastName)
+// , d_age(age)
+// {
+// }
 //
-//  inline
-//  MyPerson::~MyPerson()
-//  {
-//  }
+// inline
+// MyPerson::~MyPerson()
+// {
+// }
 //
-//  template <class STREAM>
-//  STREAM& MyPerson::bdexStreamIn(STREAM& stream, int version)
-//  {
-//      if (stream) {
-//          switch (version) {  // switch on the 'bslx' version
-//            case 1: {
-//              stream.getString(d_firstName);
-//              if (!stream) {
-//                  d_firstName = "stream error";  // *might* be corrupted;
-//                                                 //  value for testing
-//                  return stream;                                    // RETURN
-//              }
-//              stream.getString(d_lastName);
-//              if (!stream) {
-//                  d_lastName = "stream error";  // *might* be corrupted;
+// template <class STREAM>
+// STREAM& MyPerson::bdexStreamIn(STREAM& stream, int version)
+// {
+//     if (stream) {
+//         switch (version) {  // switch on the 'bslx' version
+//           case 1: {
+//             stream.getString(d_firstName);
+//             if (!stream) {
+//                 d_firstName = "stream error";  // *might* be corrupted;
 //                                                //  value for testing
-//                  return stream;                                    // RETURN
-//              }
-//              stream.getInt32(d_age);
-//              if (!stream) {
-//                  d_age = 999;     // *might* be corrupted; value for testing
-//                  return stream;                                    // RETURN
-//              }
-//            } break;
-//            default: {
-//              stream.invalidate();
-//            }
-//          }
-//      }
-//      return stream;
-//  }
+//                 return stream;                                    // RETURN
+//             }
+//             stream.getString(d_lastName);
+//             if (!stream) {
+//                 d_lastName = "stream error";  // *might* be corrupted;
+//                                               //  value for testing
+//                 return stream;                                    // RETURN
+//             }
+//             stream.getInt32(d_age);
+//             if (!stream) {
+//                 d_age = 999;     // *might* be corrupted; value for testing
+//                 return stream;                                    // RETURN
+//             }
+//           } break;
+//           default: {
+//             stream.invalidate();
+//           }
+//         }
+//     }
+//     return stream;
+// }
 //
-//  // ACCESSORS
-//  inline
-//  int MyPerson::age() const
-//  {
-//      return d_age;
-//  }
+// // ACCESSORS
+// inline
+// int MyPerson::age() const
+// {
+//     return d_age;
+// }
 //
-//  template <class STREAM>
-//  STREAM& MyPerson::bdexStreamOut(STREAM& stream, int version) const
-//  {
-//      switch (version) {
-//        case 1: {
-//          stream.putString(d_firstName);
-//          stream.putString(d_lastName);
-//          stream.putInt32(d_age);
-//        } break;
-//        default: {
-//          stream.invalidate();
-//        } break;
-//      }
-//      return stream;
-//  }
+// template <class STREAM>
+// STREAM& MyPerson::bdexStreamOut(STREAM& stream, int version) const
+// {
+//     switch (version) {
+//       case 1: {
+//         stream.putString(d_firstName);
+//         stream.putString(d_lastName);
+//         stream.putInt32(d_age);
+//       } break;
+//       default: {
+//         stream.invalidate();
+//       } break;
+//     }
+//     return stream;
+// }
 //
-//  inline
-//  const bsl::string& MyPerson::firstName() const
-//  {
-//      return d_firstName;
-//  }
+// inline
+// const bsl::string& MyPerson::firstName() const
+// {
+//     return d_firstName;
+// }
 //
-//  inline
-//  const bsl::string& MyPerson::lastName() const
-//  {
-//      return d_lastName;
-//  }
+// inline
+// const bsl::string& MyPerson::lastName() const
+// {
+//     return d_lastName;
+// }
 //
-//  // FREE OPERATORS
-//  inline
-//  bool operator==(const MyPerson& lhs, const MyPerson& rhs)
-//  {
-//      return lhs.d_firstName == rhs.d_firstName &&
-//             lhs.d_lastName  == rhs.d_lastName  &&
-//             lhs.d_age       == rhs.d_age;
-//  }
+// // FREE OPERATORS
+// inline
+// bool operator==(const MyPerson& lhs, const MyPerson& rhs)
+// {
+//     return lhs.d_firstName == rhs.d_firstName &&
+//            lhs.d_lastName  == rhs.d_lastName  &&
+//            lhs.d_age       == rhs.d_age;
+// }
 //
-//  inline
-//  bool operator!=(const MyPerson& lhs, const MyPerson& rhs)
-//  {
-//      return !(lhs == rhs);
-//  }
-//..
-// Then, we can exercise the new 'MyPerson' value-semantic class by
-// externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith' and a 'bslx::ByteOutStream' 'outStream':
-//..
-//  MyPerson            janeSmith("Jane", "Smith", 42);
-//  bslx::ByteOutStream outStream(20131127);
-//  const int           VERSION = 1;
-//  outStream.putVersion(VERSION);
-//  janeSmith.bdexStreamOut(outStream, VERSION);
-//  assert(outStream.isValid());
-//..
-// Next, create a 'MyPerson' 'janeCopy' initialized to the default value, and
-// assert that 'janeCopy' is different from 'janeSmith':
-//..
-//  MyPerson janeCopy;
-//  assert(janeCopy != janeSmith);
-//..
-// Then, create a 'bslx::ByteInStream' 'inStream' initialized with the buffer
-// from the 'bslx::ByteOutStream' object 'outStream' and unexternalize this
-// data into 'janeCopy':
-//..
-//  bslx::ByteInStream inStream(outStream.data(), outStream.length());
-//  int                version;
-//  inStream.getVersion(version);
-//  janeCopy.bdexStreamIn(inStream, version);
-//  assert(inStream.isValid());
-//..
-// Finally, 'assert' the obtained values are as expected and display the
-// results to 'bsl::stdout':
-//..
-//  assert(version  == VERSION);
-//  assert(janeCopy == janeSmith);
+// inline
+// bool operator!=(const MyPerson& lhs, const MyPerson& rhs)
+// {
+//     return !(lhs == rhs);
+// }
+// ```
+// Then, we can exercise the new `MyPerson` value-semantic class by
+// externalizing and reconstituting an object.  First, create a `MyPerson`
+// `janeSmith` and a `bslx::ByteOutStream` `outStream`:
+// ```
+// MyPerson            janeSmith("Jane", "Smith", 42);
+// bslx::ByteOutStream outStream(20131127);
+// const int           VERSION = 1;
+// outStream.putVersion(VERSION);
+// janeSmith.bdexStreamOut(outStream, VERSION);
+// assert(outStream.isValid());
+// ```
+// Next, create a `MyPerson` `janeCopy` initialized to the default value, and
+// assert that `janeCopy` is different from `janeSmith`:
+// ```
+// MyPerson janeCopy;
+// assert(janeCopy != janeSmith);
+// ```
+// Then, create a `bslx::ByteInStream` `inStream` initialized with the buffer
+// from the `bslx::ByteOutStream` object `outStream` and unexternalize this
+// data into `janeCopy`:
+// ```
+// bslx::ByteInStream inStream(outStream.data(), outStream.length());
+// int                version;
+// inStream.getVersion(version);
+// janeCopy.bdexStreamIn(inStream, version);
+// assert(inStream.isValid());
+// ```
+// Finally, `assert` the obtained values are as expected and display the
+// results to `bsl::stdout`:
+// ```
+// assert(version  == VERSION);
+// assert(janeCopy == janeSmith);
 //
-//  if (janeCopy == janeSmith) {
-//      bsl::cout << "Successfully serialized and de-serialized Jane Smith:"
-//                << "\n\tFirstName: " << janeCopy.firstName()
-//                << "\n\tLastName : " << janeCopy.lastName()
-//                << "\n\tAge      : " << janeCopy.age() << bsl::endl;
-//  }
-//  else {
-//      bsl::cout << "Serialization unsuccessful.  'janeCopy' holds:"
-//                << "\n\tFirstName: " << janeCopy.firstName()
-//                << "\n\tLastName : " << janeCopy.lastName()
-//                << "\n\tAge      : " << janeCopy.age() << bsl::endl;
-//  }
-//..
+// if (janeCopy == janeSmith) {
+//     bsl::cout << "Successfully serialized and de-serialized Jane Smith:"
+//               << "\n\tFirstName: " << janeCopy.firstName()
+//               << "\n\tLastName : " << janeCopy.lastName()
+//               << "\n\tAge      : " << janeCopy.age() << bsl::endl;
+// }
+// else {
+//     bsl::cout << "Serialization unsuccessful.  'janeCopy' holds:"
+//               << "\n\tFirstName: " << janeCopy.firstName()
+//               << "\n\tLastName : " << janeCopy.lastName()
+//               << "\n\tAge      : " << janeCopy.age() << bsl::endl;
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -335,16 +335,16 @@ namespace bslx {
                          // class ByteInStream
                          // ==================
 
+/// This class provides input methods to unexternalize values, and C-style
+/// arrays of values, of the fundamental integral and floating-point types,
+/// as well as `bsl::string` values, using a byte format documented in the
+/// `bslx_byteoutstream` component.  In particular, each `get` method of
+/// this class is guaranteed to read stream data written by the
+/// corresponding `put` method of `bslx::ByteOutStream`.  Note that
+/// attempting to read beyond the end of a stream will automatically
+/// invalidate the stream.  See the `bslx` package-level documentation for
+/// the definition of the BDEX `InStream` protocol.
 class ByteInStream {
-    // This class provides input methods to unexternalize values, and C-style
-    // arrays of values, of the fundamental integral and floating-point types,
-    // as well as 'bsl::string' values, using a byte format documented in the
-    // 'bslx_byteoutstream' component.  In particular, each 'get' method of
-    // this class is guaranteed to read stream data written by the
-    // corresponding 'put' method of 'bslx::ByteOutStream'.  Note that
-    // attempting to read beyond the end of a stream will automatically
-    // invalidate the stream.  See the 'bslx' package-level documentation for
-    // the definition of the BDEX 'InStream' protocol.
 
     // DATA
     const char  *d_buffer;     // bytes to be unexternalized
@@ -368,548 +368,552 @@ class ByteInStream {
 
   public:
     // CREATORS
+
+    /// Create an empty input byte stream.  Note that the constructed object
+    /// is useless until a buffer is set with the `reset` method.
     explicit ByteInStream();
-        // Create an empty input byte stream.  Note that the constructed object
-        // is useless until a buffer is set with the 'reset' method.
 
+    /// Create an input byte stream containing the specified initial
+    /// `numBytes` from the specified `buffer`.  The behavior is undefined
+    /// unless `0 == numBytes` if `0 == buffer`.
     ByteInStream(const char *buffer, bsl::size_t numBytes);
-        // Create an input byte stream containing the specified initial
-        // 'numBytes' from the specified 'buffer'.  The behavior is undefined
-        // unless '0 == numBytes' if '0 == buffer'.
 
+    /// Create an input byte stream containing the specified `srcData`.
     explicit ByteInStream(const bslstl::StringRef& srcData);
-        // Create an input byte stream containing the specified 'srcData'.
 
+    /// Destroy this object.
     ~ByteInStream();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// If the most-significant bit of the one byte of this stream at the
+    /// current cursor location is set, assign to the specified `length` the
+    /// four-byte, two's complement integer (in host byte order) comprised
+    /// of the four bytes of this stream at the current cursor location (in
+    /// network byte order) with the most-significant bit unset; otherwise,
+    /// assign to `length` the one-byte, two's complement integer comprised
+    /// of the one byte of this stream at the current cursor location.
+    /// Update the cursor location and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `length` is undefined.
+    /// Note that the value will be zero-extended.
     ByteInStream& getLength(int& length);
-        // If the most-significant bit of the one byte of this stream at the
-        // current cursor location is set, assign to the specified 'length' the
-        // four-byte, two's complement integer (in host byte order) comprised
-        // of the four bytes of this stream at the current cursor location (in
-        // network byte order) with the most-significant bit unset; otherwise,
-        // assign to 'length' the one-byte, two's complement integer comprised
-        // of the one byte of this stream at the current cursor location.
-        // Update the cursor location and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'length' is undefined.
-        // Note that the value will be zero-extended.
 
+    /// Assign to the specified `version` the one-byte, two's complement
+    /// unsigned integer comprised of the one byte of this stream at the
+    /// current cursor location, update the cursor location, and return a
+    /// reference to this stream.  If this stream is initially invalid, this
+    /// operation has no effect.  If this function otherwise fails to
+    /// extract a valid value, this stream is marked invalid and the value
+    /// of `version` is undefined.  Note that the value will be
+    /// zero-extended.
     ByteInStream& getVersion(int& version);
-        // Assign to the specified 'version' the one-byte, two's complement
-        // unsigned integer comprised of the one byte of this stream at the
-        // current cursor location, update the cursor location, and return a
-        // reference to this stream.  If this stream is initially invalid, this
-        // operation has no effect.  If this function otherwise fails to
-        // extract a valid value, this stream is marked invalid and the value
-        // of 'version' is undefined.  Note that the value will be
-        // zero-extended.
 
+    /// Put this input stream in an invalid state.  This function has no
+    /// effect if this stream is already invalid.  Note that this function
+    /// should be called whenever a value extracted from this stream is
+    /// determined to be invalid, inconsistent, or otherwise incorrect.
     void invalidate();
-        // Put this input stream in an invalid state.  This function has no
-        // effect if this stream is already invalid.  Note that this function
-        // should be called whenever a value extracted from this stream is
-        // determined to be invalid, inconsistent, or otherwise incorrect.
 
+    /// Set the index of the next byte to be extracted from this stream to 0
+    /// (i.e., the beginning of the stream) and validate this stream if it
+    /// is currently invalid.
     void reset();
-        // Set the index of the next byte to be extracted from this stream to 0
-        // (i.e., the beginning of the stream) and validate this stream if it
-        // is currently invalid.
 
+    /// Reset this stream to extract from the specified `buffer` containing
+    /// the specified `numBytes`, set the index of the next byte to be
+    /// extracted to 0 (i.e., the beginning of the stream), and validate
+    /// this stream if it is currently invalid.  The behavior is undefined
+    /// unless `0 == numBytes` if `0 == buffer`.
     void reset(const char *buffer, bsl::size_t numBytes);
-        // Reset this stream to extract from the specified 'buffer' containing
-        // the specified 'numBytes', set the index of the next byte to be
-        // extracted to 0 (i.e., the beginning of the stream), and validate
-        // this stream if it is currently invalid.  The behavior is undefined
-        // unless '0 == numBytes' if '0 == buffer'.
 
+    /// Reset this stream to extract from the specified `srcData`, set the
+    /// index of the next byte to be extracted to 0 (i.e., the beginning of
+    /// the stream), and validate this stream if it is currently invalid.
     void reset(const bslstl::StringRef& srcData);
-        // Reset this stream to extract from the specified 'srcData', set the
-        // index of the next byte to be extracted to 0 (i.e., the beginning of
-        // the stream), and validate this stream if it is currently invalid.
 
                       // *** scalar integer values ***
 
+    /// Assign to the specified `variable` the eight-byte, two's complement
+    /// integer (in host byte order) comprised of the eight bytes of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be sign-extended.
     ByteInStream& getInt64(bsls::Types::Int64& variable);
-        // Assign to the specified 'variable' the eight-byte, two's complement
-        // integer (in host byte order) comprised of the eight bytes of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be sign-extended.
 
+    /// Assign to the specified `variable` the eight-byte, two's complement
+    /// unsigned integer (in host byte order) comprised of the eight bytes
+    /// of this stream at the current cursor location (in network byte
+    /// order), update the cursor location, and return a reference to this
+    /// stream.  If this stream is initially invalid, this operation has no
+    /// effect.  If this function otherwise fails to extract a valid value,
+    /// this stream is marked invalid and the value of `variable` is
+    /// undefined.  Note that the value will be zero-extended.
     ByteInStream& getUint64(bsls::Types::Uint64& variable);
-        // Assign to the specified 'variable' the eight-byte, two's complement
-        // unsigned integer (in host byte order) comprised of the eight bytes
-        // of this stream at the current cursor location (in network byte
-        // order), update the cursor location, and return a reference to this
-        // stream.  If this stream is initially invalid, this operation has no
-        // effect.  If this function otherwise fails to extract a valid value,
-        // this stream is marked invalid and the value of 'variable' is
-        // undefined.  Note that the value will be zero-extended.
 
+    /// Assign to the specified `variable` the seven-byte, two's complement
+    /// integer (in host byte order) comprised of the seven bytes of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be sign-extended.
     ByteInStream& getInt56(bsls::Types::Int64& variable);
-        // Assign to the specified 'variable' the seven-byte, two's complement
-        // integer (in host byte order) comprised of the seven bytes of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be sign-extended.
 
+    /// Assign to the specified `variable` the seven-byte, two's complement
+    /// unsigned integer (in host byte order) comprised of the seven bytes
+    /// of this stream at the current cursor location (in network byte
+    /// order), update the cursor location, and return a reference to this
+    /// stream.  If this stream is initially invalid, this operation has no
+    /// effect.  If this function otherwise fails to extract a valid value,
+    /// this stream is marked invalid and the value of `variable` is
+    /// undefined.  Note that the value will be zero-extended.
     ByteInStream& getUint56(bsls::Types::Uint64& variable);
-        // Assign to the specified 'variable' the seven-byte, two's complement
-        // unsigned integer (in host byte order) comprised of the seven bytes
-        // of this stream at the current cursor location (in network byte
-        // order), update the cursor location, and return a reference to this
-        // stream.  If this stream is initially invalid, this operation has no
-        // effect.  If this function otherwise fails to extract a valid value,
-        // this stream is marked invalid and the value of 'variable' is
-        // undefined.  Note that the value will be zero-extended.
 
+    /// Assign to the specified `variable` the six-byte, two's complement
+    /// integer (in host byte order) comprised of the six bytes of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be sign-extended.
     ByteInStream& getInt48(bsls::Types::Int64& variable);
-        // Assign to the specified 'variable' the six-byte, two's complement
-        // integer (in host byte order) comprised of the six bytes of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be sign-extended.
 
+    /// Assign to the specified `variable` the six-byte, two's complement
+    /// unsigned integer (in host byte order) comprised of the six bytes of
+    /// this stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be zero-extended.
     ByteInStream& getUint48(bsls::Types::Uint64& variable);
-        // Assign to the specified 'variable' the six-byte, two's complement
-        // unsigned integer (in host byte order) comprised of the six bytes of
-        // this stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be zero-extended.
 
+    /// Assign to the specified `variable` the five-byte, two's complement
+    /// integer (in host byte order) comprised of the five bytes of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be sign-extended.
     ByteInStream& getInt40(bsls::Types::Int64& variable);
-        // Assign to the specified 'variable' the five-byte, two's complement
-        // integer (in host byte order) comprised of the five bytes of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be sign-extended.
 
+    /// Assign to the specified `variable` the five-byte, two's complement
+    /// unsigned integer (in host byte order) comprised of the five bytes of
+    /// this stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be zero-extended.
     ByteInStream& getUint40(bsls::Types::Uint64& variable);
-        // Assign to the specified 'variable' the five-byte, two's complement
-        // unsigned integer (in host byte order) comprised of the five bytes of
-        // this stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be zero-extended.
 
+    /// Assign to the specified `variable` the four-byte, two's complement
+    /// integer (in host byte order) comprised of the four bytes of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be sign-extended.
     ByteInStream& getInt32(int& variable);
-        // Assign to the specified 'variable' the four-byte, two's complement
-        // integer (in host byte order) comprised of the four bytes of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be sign-extended.
 
+    /// Assign to the specified `variable` the four-byte, two's complement
+    /// unsigned integer (in host byte order) comprised of the four bytes of
+    /// this stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be zero-extended.
     ByteInStream& getUint32(unsigned int& variable);
-        // Assign to the specified 'variable' the four-byte, two's complement
-        // unsigned integer (in host byte order) comprised of the four bytes of
-        // this stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be zero-extended.
 
+    /// Assign to the specified `variable` the three-byte, two's complement
+    /// integer (in host byte order) comprised of the three bytes of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be sign-extended.
     ByteInStream& getInt24(int& variable);
-        // Assign to the specified 'variable' the three-byte, two's complement
-        // integer (in host byte order) comprised of the three bytes of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be sign-extended.
 
+    /// Assign to the specified `variable` the three-byte, two's complement
+    /// unsigned integer (in host byte order) comprised of the three bytes
+    /// of this stream at the current cursor location (in network byte
+    /// order), update the cursor location, and return a reference to this
+    /// stream.  If this stream is initially invalid, this operation has no
+    /// effect.  If this function otherwise fails to extract a valid value,
+    /// this stream is marked invalid and the value of `variable` is
+    /// undefined.  Note that the value will be zero-extended.
     ByteInStream& getUint24(unsigned int& variable);
-        // Assign to the specified 'variable' the three-byte, two's complement
-        // unsigned integer (in host byte order) comprised of the three bytes
-        // of this stream at the current cursor location (in network byte
-        // order), update the cursor location, and return a reference to this
-        // stream.  If this stream is initially invalid, this operation has no
-        // effect.  If this function otherwise fails to extract a valid value,
-        // this stream is marked invalid and the value of 'variable' is
-        // undefined.  Note that the value will be zero-extended.
 
+    /// Assign to the specified `variable` the two-byte, two's complement
+    /// integer (in host byte order) comprised of the two bytes of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be sign-extended.
     ByteInStream& getInt16(short& variable);
-        // Assign to the specified 'variable' the two-byte, two's complement
-        // integer (in host byte order) comprised of the two bytes of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be sign-extended.
 
+    /// Assign to the specified `variable` the two-byte, two's complement
+    /// unsigned integer (in host byte order) comprised of the two bytes of
+    /// this stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variable` is undefined.
+    /// Note that the value will be zero-extended.
     ByteInStream& getUint16(unsigned short& variable);
-        // Assign to the specified 'variable' the two-byte, two's complement
-        // unsigned integer (in host byte order) comprised of the two bytes of
-        // this stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variable' is undefined.
-        // Note that the value will be zero-extended.
 
+    /// Assign to the specified `variable` the one-byte, two's complement
+    /// integer comprised of the one byte of this stream at the current
+    /// cursor location, update the cursor location, and return a reference
+    /// to this stream.  If this stream is initially invalid, this operation
+    /// has no effect.  If this function otherwise fails to extract a valid
+    /// value, this stream is marked invalid and the value of `variable` is
+    /// undefined.  Note that the value will be sign-extended.
     ByteInStream& getInt8(char&        variable);
     ByteInStream& getInt8(signed char& variable);
-        // Assign to the specified 'variable' the one-byte, two's complement
-        // integer comprised of the one byte of this stream at the current
-        // cursor location, update the cursor location, and return a reference
-        // to this stream.  If this stream is initially invalid, this operation
-        // has no effect.  If this function otherwise fails to extract a valid
-        // value, this stream is marked invalid and the value of 'variable' is
-        // undefined.  Note that the value will be sign-extended.
 
+    /// Assign to the specified `variable` the one-byte, two's complement
+    /// unsigned integer comprised of the one byte of this stream at the
+    /// current cursor location, update the cursor location, and return a
+    /// reference to this stream.  If this stream is initially invalid, this
+    /// operation has no effect.  If this function otherwise fails to
+    /// extract a valid value, this stream is marked invalid and the value
+    /// of `variable` is undefined.  Note that the value will be
+    /// zero-extended.
     ByteInStream& getUint8(char&          variable);
     ByteInStream& getUint8(unsigned char& variable);
-        // Assign to the specified 'variable' the one-byte, two's complement
-        // unsigned integer comprised of the one byte of this stream at the
-        // current cursor location, update the cursor location, and return a
-        // reference to this stream.  If this stream is initially invalid, this
-        // operation has no effect.  If this function otherwise fails to
-        // extract a valid value, this stream is marked invalid and the value
-        // of 'variable' is undefined.  Note that the value will be
-        // zero-extended.
 
                       // *** scalar floating-point values ***
 
+    /// Assign to the specified `variable` the eight-byte IEEE
+    /// double-precision floating-point number (in host byte order)
+    /// comprised of the eight bytes of this stream at the current cursor
+    /// location (in network byte order), update the cursor location, and
+    /// return a reference to this stream.  If this stream is initially
+    /// invalid, this operation has no effect.  If this function otherwise
+    /// fails to extract a valid value, this stream is marked invalid and
+    /// the value of `variable` is undefined.
     ByteInStream& getFloat64(double& variable);
-        // Assign to the specified 'variable' the eight-byte IEEE
-        // double-precision floating-point number (in host byte order)
-        // comprised of the eight bytes of this stream at the current cursor
-        // location (in network byte order), update the cursor location, and
-        // return a reference to this stream.  If this stream is initially
-        // invalid, this operation has no effect.  If this function otherwise
-        // fails to extract a valid value, this stream is marked invalid and
-        // the value of 'variable' is undefined.
 
+    /// Assign to the specified `variable` the four-byte IEEE
+    /// single-precision floating-point number (in host byte order)
+    /// comprised of the four bytes of this stream at the current cursor
+    /// location (in network byte order), update the cursor location, and
+    /// return a reference to this stream.  If this stream is initially
+    /// invalid, this operation has no effect.  If this function otherwise
+    /// fails to extract a valid value, this stream is marked invalid and
+    /// the value of `variable` is undefined.
     ByteInStream& getFloat32(float& variable);
-        // Assign to the specified 'variable' the four-byte IEEE
-        // single-precision floating-point number (in host byte order)
-        // comprised of the four bytes of this stream at the current cursor
-        // location (in network byte order), update the cursor location, and
-        // return a reference to this stream.  If this stream is initially
-        // invalid, this operation has no effect.  If this function otherwise
-        // fails to extract a valid value, this stream is marked invalid and
-        // the value of 'variable' is undefined.
 
                       // *** string values ***
 
+    /// Assign to the specified `variable` the string comprised of the
+    /// length of the string (see `getLength`) and the string data (see
+    /// `getUint8`), update the cursor location, and return a reference to
+    /// this stream.  If this stream is initially invalid, this operation
+    /// has no effect.  If this function otherwise fails to extract a valid
+    /// value, this stream is marked invalid and the value of `variable` is
+    /// undefined.
     ByteInStream& getString(bsl::string& variable);
-        // Assign to the specified 'variable' the string comprised of the
-        // length of the string (see 'getLength') and the string data (see
-        // 'getUint8'), update the cursor location, and return a reference to
-        // this stream.  If this stream is initially invalid, this operation
-        // has no effect.  If this function otherwise fails to extract a valid
-        // value, this stream is marked invalid and the value of 'variable' is
-        // undefined.
 
                       // *** arrays of integer values ***
 
+    /// Assign to the specified `variables` the consecutive eight-byte,
+    /// two's complement integers (in host byte order) comprised of each of
+    /// the specified `numVariables` eight-byte sequences of this stream at
+    /// the current cursor location (in network byte order), update the
+    /// cursor location, and return a reference to this stream.  If this
+    /// stream is initially invalid, this operation has no effect.  If this
+    /// function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variables` is undefined.  The
+    /// behavior is undefined unless `0 <= numVariables` and `variables` has
+    /// sufficient capacity.  Note that each of the values will be
+    /// sign-extended.
     ByteInStream& getArrayInt64(bsls::Types::Int64 *variables,
                                 int                 numVariables);
-        // Assign to the specified 'variables' the consecutive eight-byte,
-        // two's complement integers (in host byte order) comprised of each of
-        // the specified 'numVariables' eight-byte sequences of this stream at
-        // the current cursor location (in network byte order), update the
-        // cursor location, and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  If this
-        // function otherwise fails to extract a valid value, this stream is
-        // marked invalid and the value of 'variables' is undefined.  The
-        // behavior is undefined unless '0 <= numVariables' and 'variables' has
-        // sufficient capacity.  Note that each of the values will be
-        // sign-extended.
 
+    /// Assign to the specified `variables` the consecutive eight-byte,
+    /// two's complement unsigned integers (in host byte order) comprised of
+    /// each of the specified `numVariables` eight-byte sequences of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variables` is undefined.
+    /// The behavior is undefined unless `0 <= numVariables` and `variables`
+    /// has sufficient capacity.  Note that each of the values will be
+    /// zero-extended.
     ByteInStream& getArrayUint64(bsls::Types::Uint64 *variables,
                                  int                  numVariables);
-        // Assign to the specified 'variables' the consecutive eight-byte,
-        // two's complement unsigned integers (in host byte order) comprised of
-        // each of the specified 'numVariables' eight-byte sequences of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variables' is undefined.
-        // The behavior is undefined unless '0 <= numVariables' and 'variables'
-        // has sufficient capacity.  Note that each of the values will be
-        // zero-extended.
 
+    /// Assign to the specified `variables` the consecutive seven-byte,
+    /// two's complement integers (in host byte order) comprised of each of
+    /// the specified `numVariables` seven-byte sequences of this stream at
+    /// the current cursor location (in network byte order), update the
+    /// cursor location, and return a reference to this stream.  If this
+    /// stream is initially invalid, this operation has no effect.  If this
+    /// function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variables` is undefined.  The
+    /// behavior is undefined unless `0 <= numVariables` and `variables` has
+    /// sufficient capacity.  Note that each of the values will be
+    /// sign-extended.
     ByteInStream& getArrayInt56(bsls::Types::Int64 *variables,
                                 int                 numVariables);
-        // Assign to the specified 'variables' the consecutive seven-byte,
-        // two's complement integers (in host byte order) comprised of each of
-        // the specified 'numVariables' seven-byte sequences of this stream at
-        // the current cursor location (in network byte order), update the
-        // cursor location, and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  If this
-        // function otherwise fails to extract a valid value, this stream is
-        // marked invalid and the value of 'variables' is undefined.  The
-        // behavior is undefined unless '0 <= numVariables' and 'variables' has
-        // sufficient capacity.  Note that each of the values will be
-        // sign-extended.
 
+    /// Assign to the specified `variables` the consecutive seven-byte,
+    /// two's complement unsigned integers (in host byte order) comprised of
+    /// each of the specified `numVariables` seven-byte sequences of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variables` is undefined.
+    /// The behavior is undefined unless `0 <= numVariables` and `variables`
+    /// has sufficient capacity.  Note that each of the values will be
+    /// zero-extended.
     ByteInStream& getArrayUint56(bsls::Types::Uint64 *variables,
                                  int                  numVariables);
-        // Assign to the specified 'variables' the consecutive seven-byte,
-        // two's complement unsigned integers (in host byte order) comprised of
-        // each of the specified 'numVariables' seven-byte sequences of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variables' is undefined.
-        // The behavior is undefined unless '0 <= numVariables' and 'variables'
-        // has sufficient capacity.  Note that each of the values will be
-        // zero-extended.
 
+    /// Assign to the specified `variables` the consecutive six-byte, two's
+    /// complement integers (in host byte order) comprised of each of the
+    /// specified `numVariables` six-byte sequences of this stream at the
+    /// current cursor location (in network byte order), update the cursor
+    /// location, and return a reference to this stream.  If this stream is
+    /// initially invalid, this operation has no effect.  If this function
+    /// otherwise fails to extract a valid value, this stream is marked
+    /// invalid and the value of `variables` is undefined.  The behavior is
+    /// undefined unless `0 <= numVariables` and `variables` has sufficient
+    /// capacity.  Note that each of the values will be sign-extended.
     ByteInStream& getArrayInt48(bsls::Types::Int64 *variables,
                                 int                 numVariables);
-        // Assign to the specified 'variables' the consecutive six-byte, two's
-        // complement integers (in host byte order) comprised of each of the
-        // specified 'numVariables' six-byte sequences of this stream at the
-        // current cursor location (in network byte order), update the cursor
-        // location, and return a reference to this stream.  If this stream is
-        // initially invalid, this operation has no effect.  If this function
-        // otherwise fails to extract a valid value, this stream is marked
-        // invalid and the value of 'variables' is undefined.  The behavior is
-        // undefined unless '0 <= numVariables' and 'variables' has sufficient
-        // capacity.  Note that each of the values will be sign-extended.
 
+    /// Assign to the specified `variables` the consecutive six-byte, two's
+    /// complement unsigned integers (in host byte order) comprised of each
+    /// of the specified `numVariables` six-byte sequences of this stream at
+    /// the current cursor location (in network byte order), update the
+    /// cursor location, and return a reference to this stream.  If this
+    /// stream is initially invalid, this operation has no effect.  If this
+    /// function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variables` is undefined.  The
+    /// behavior is undefined unless `0 <= numVariables` and `variables` has
+    /// sufficient capacity.  Note that each of the values will be
+    /// zero-extended.
     ByteInStream& getArrayUint48(bsls::Types::Uint64 *variables,
                                  int                  numVariables);
-        // Assign to the specified 'variables' the consecutive six-byte, two's
-        // complement unsigned integers (in host byte order) comprised of each
-        // of the specified 'numVariables' six-byte sequences of this stream at
-        // the current cursor location (in network byte order), update the
-        // cursor location, and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  If this
-        // function otherwise fails to extract a valid value, this stream is
-        // marked invalid and the value of 'variables' is undefined.  The
-        // behavior is undefined unless '0 <= numVariables' and 'variables' has
-        // sufficient capacity.  Note that each of the values will be
-        // zero-extended.
 
+    /// Assign to the specified `variables` the consecutive five-byte, two's
+    /// complement integers (in host byte order) comprised of each of the
+    /// specified `numVariables` five-byte sequences of this stream at the
+    /// current cursor location (in network byte order), update the cursor
+    /// location, and return a reference to this stream.  If this stream is
+    /// initially invalid, this operation has no effect.  If this function
+    /// otherwise fails to extract a valid value, this stream is marked
+    /// invalid and the value of `variables` is undefined.  The behavior is
+    /// undefined unless `0 <= numVariables` and `variables` has sufficient
+    /// capacity.  Note that each of the values will be sign-extended.
     ByteInStream& getArrayInt40(bsls::Types::Int64 *variables,
                                 int                 numVariables);
-        // Assign to the specified 'variables' the consecutive five-byte, two's
-        // complement integers (in host byte order) comprised of each of the
-        // specified 'numVariables' five-byte sequences of this stream at the
-        // current cursor location (in network byte order), update the cursor
-        // location, and return a reference to this stream.  If this stream is
-        // initially invalid, this operation has no effect.  If this function
-        // otherwise fails to extract a valid value, this stream is marked
-        // invalid and the value of 'variables' is undefined.  The behavior is
-        // undefined unless '0 <= numVariables' and 'variables' has sufficient
-        // capacity.  Note that each of the values will be sign-extended.
 
+    /// Assign to the specified `variables` the consecutive five-byte, two's
+    /// complement unsigned integers (in host byte order) comprised of each
+    /// of the specified `numVariables` five-byte sequences of this stream
+    /// at the current cursor location (in network byte order), update the
+    /// cursor location, and return a reference to this stream.  If this
+    /// stream is initially invalid, this operation has no effect.  If this
+    /// function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variables` is undefined.  The
+    /// behavior is undefined unless `0 <= numVariables` and `variables` has
+    /// sufficient capacity.  Note that each of the values will be
+    /// zero-extended.
     ByteInStream& getArrayUint40(bsls::Types::Uint64 *variables,
                                  int                  numVariables);
-        // Assign to the specified 'variables' the consecutive five-byte, two's
-        // complement unsigned integers (in host byte order) comprised of each
-        // of the specified 'numVariables' five-byte sequences of this stream
-        // at the current cursor location (in network byte order), update the
-        // cursor location, and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  If this
-        // function otherwise fails to extract a valid value, this stream is
-        // marked invalid and the value of 'variables' is undefined.  The
-        // behavior is undefined unless '0 <= numVariables' and 'variables' has
-        // sufficient capacity.  Note that each of the values will be
-        // zero-extended.
 
+    /// Assign to the specified `variables` the consecutive four-byte, two's
+    /// complement integers (in host byte order) comprised of each of the
+    /// specified `numVariables` four-byte sequences of this stream at the
+    /// current cursor location (in network byte order), update the cursor
+    /// location, and return a reference to this stream.  If this stream is
+    /// initially invalid, this operation has no effect.  If this function
+    /// otherwise fails to extract a valid value, this stream is marked
+    /// invalid and the value of `variables` is undefined.  The behavior is
+    /// undefined unless `0 <= numVariables` and `variables` has sufficient
+    /// capacity.  Note that each of the values will be sign-extended.
     ByteInStream& getArrayInt32(int *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive four-byte, two's
-        // complement integers (in host byte order) comprised of each of the
-        // specified 'numVariables' four-byte sequences of this stream at the
-        // current cursor location (in network byte order), update the cursor
-        // location, and return a reference to this stream.  If this stream is
-        // initially invalid, this operation has no effect.  If this function
-        // otherwise fails to extract a valid value, this stream is marked
-        // invalid and the value of 'variables' is undefined.  The behavior is
-        // undefined unless '0 <= numVariables' and 'variables' has sufficient
-        // capacity.  Note that each of the values will be sign-extended.
 
+    /// Assign to the specified `variables` the consecutive four-byte, two's
+    /// complement unsigned integers (in host byte order) comprised of each
+    /// of the specified `numVariables` four-byte sequences of this stream
+    /// at the current cursor location (in network byte order), update the
+    /// cursor location, and return a reference to this stream.  If this
+    /// stream is initially invalid, this operation has no effect.  If this
+    /// function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variables` is undefined.  The
+    /// behavior is undefined unless `0 <= numVariables` and `variables` has
+    /// sufficient capacity.  Note that each of the values will be
+    /// zero-extended.
     ByteInStream& getArrayUint32(unsigned int *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive four-byte, two's
-        // complement unsigned integers (in host byte order) comprised of each
-        // of the specified 'numVariables' four-byte sequences of this stream
-        // at the current cursor location (in network byte order), update the
-        // cursor location, and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  If this
-        // function otherwise fails to extract a valid value, this stream is
-        // marked invalid and the value of 'variables' is undefined.  The
-        // behavior is undefined unless '0 <= numVariables' and 'variables' has
-        // sufficient capacity.  Note that each of the values will be
-        // zero-extended.
 
+    /// Assign to the specified `variables` the consecutive three-byte,
+    /// two's complement integers (in host byte order) comprised of each of
+    /// the specified `numVariables` three-byte sequences of this stream at
+    /// the current cursor location (in network byte order), update the
+    /// cursor location, and return a reference to this stream.  If this
+    /// stream is initially invalid, this operation has no effect.  If this
+    /// function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variables` is undefined.  The
+    /// behavior is undefined unless `0 <= numValues` and `variables` has
+    /// sufficient capacity.  Note that each of the values will be
+    /// sign-extended.
     ByteInStream& getArrayInt24(int *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive three-byte,
-        // two's complement integers (in host byte order) comprised of each of
-        // the specified 'numVariables' three-byte sequences of this stream at
-        // the current cursor location (in network byte order), update the
-        // cursor location, and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  If this
-        // function otherwise fails to extract a valid value, this stream is
-        // marked invalid and the value of 'variables' is undefined.  The
-        // behavior is undefined unless '0 <= numValues' and 'variables' has
-        // sufficient capacity.  Note that each of the values will be
-        // sign-extended.
 
+    /// Assign to the specified `variables` the consecutive three-byte,
+    /// two's complement unsigned integers (in host byte order) comprised of
+    /// each of the specified `numVariables` three-byte sequences of this
+    /// stream at the current cursor location (in network byte order),
+    /// update the cursor location, and return a reference to this stream.
+    /// If this stream is initially invalid, this operation has no effect.
+    /// If this function otherwise fails to extract a valid value, this
+    /// stream is marked invalid and the value of `variables` is undefined.
+    /// The behavior is undefined unless `0 <= numVariables` and `variables`
+    /// has sufficient capacity.  Note that each of the values will be
+    /// zero-extended.
     ByteInStream& getArrayUint24(unsigned int *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive three-byte,
-        // two's complement unsigned integers (in host byte order) comprised of
-        // each of the specified 'numVariables' three-byte sequences of this
-        // stream at the current cursor location (in network byte order),
-        // update the cursor location, and return a reference to this stream.
-        // If this stream is initially invalid, this operation has no effect.
-        // If this function otherwise fails to extract a valid value, this
-        // stream is marked invalid and the value of 'variables' is undefined.
-        // The behavior is undefined unless '0 <= numVariables' and 'variables'
-        // has sufficient capacity.  Note that each of the values will be
-        // zero-extended.
 
+    /// Assign to the specified `variables` the consecutive two-byte, two's
+    /// complement integers (in host byte order) comprised of each of the
+    /// specified `numVariables` two-byte sequences of this stream at the
+    /// current cursor location (in network byte order), update the cursor
+    /// location, and return a reference to this stream.  If this stream is
+    /// initially invalid, this operation has no effect.  If this function
+    /// otherwise fails to extract a valid value, this stream is marked
+    /// invalid and the value of `variables` is undefined.  The behavior is
+    /// undefined unless `0 <= numVariables` and `variables` has sufficient
+    /// capacity.  Note that each of the values will be sign-extended.
     ByteInStream& getArrayInt16(short *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive two-byte, two's
-        // complement integers (in host byte order) comprised of each of the
-        // specified 'numVariables' two-byte sequences of this stream at the
-        // current cursor location (in network byte order), update the cursor
-        // location, and return a reference to this stream.  If this stream is
-        // initially invalid, this operation has no effect.  If this function
-        // otherwise fails to extract a valid value, this stream is marked
-        // invalid and the value of 'variables' is undefined.  The behavior is
-        // undefined unless '0 <= numVariables' and 'variables' has sufficient
-        // capacity.  Note that each of the values will be sign-extended.
 
+    /// Assign to the specified `variables` the consecutive two-byte, two's
+    /// complement unsigned integers (in host byte order) comprised of each
+    /// of the specified `numVariables` two-byte sequences of this stream at
+    /// the current cursor location (in network byte order), update the
+    /// cursor location, and return a reference to this stream.  If this
+    /// stream is initially invalid, this operation has no effect.  If this
+    /// function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variables` is undefined.  The
+    /// behavior is undefined unless `0 <= numVariables` and `variables` has
+    /// sufficient capacity.  Note that each of the values will be
+    /// zero-extended.
     ByteInStream& getArrayUint16(unsigned short *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive two-byte, two's
-        // complement unsigned integers (in host byte order) comprised of each
-        // of the specified 'numVariables' two-byte sequences of this stream at
-        // the current cursor location (in network byte order), update the
-        // cursor location, and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  If this
-        // function otherwise fails to extract a valid value, this stream is
-        // marked invalid and the value of 'variables' is undefined.  The
-        // behavior is undefined unless '0 <= numVariables' and 'variables' has
-        // sufficient capacity.  Note that each of the values will be
-        // zero-extended.
 
+    /// Assign to the specified `variables` the consecutive one-byte, two's
+    /// complement integers comprised of each of the specified
+    /// `numVariables` one-byte sequences of this stream at the current
+    /// cursor location, update the cursor location, and return a reference
+    /// to this stream.  If this stream is initially invalid, this operation
+    /// has no effect.  If this function otherwise fails to extract a valid
+    /// value, this stream is marked invalid and the value of `variables` is
+    /// undefined.  The behavior is undefined unless `0 <= numVariables` and
+    /// `variables` has sufficient capacity.  Note that each of the values
+    /// will be sign-extended.
     ByteInStream& getArrayInt8(char *variables,        int numVariables);
     ByteInStream& getArrayInt8(signed char *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive one-byte, two's
-        // complement integers comprised of each of the specified
-        // 'numVariables' one-byte sequences of this stream at the current
-        // cursor location, update the cursor location, and return a reference
-        // to this stream.  If this stream is initially invalid, this operation
-        // has no effect.  If this function otherwise fails to extract a valid
-        // value, this stream is marked invalid and the value of 'variables' is
-        // undefined.  The behavior is undefined unless '0 <= numVariables' and
-        // 'variables' has sufficient capacity.  Note that each of the values
-        // will be sign-extended.
 
+    /// Assign to the specified `variables` the consecutive one-byte, two's
+    /// complement unsigned integers comprised of each of the specified
+    /// `numVariables` one-byte sequences of this stream at the current
+    /// cursor location, update the cursor location, and return a reference
+    /// to this stream.  If this stream is initially invalid, this operation
+    /// has no effect.  If this function otherwise fails to extract a valid
+    /// value, this stream is marked invalid and the value of `variables` is
+    /// undefined.  The behavior is undefined unless `0 <= numVariables` and
+    /// `variables` has sufficient capacity.  Note that each of the values
+    /// will be zero-extended.
     ByteInStream& getArrayUint8(char *variables,          int numVariables);
     ByteInStream& getArrayUint8(unsigned char *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive one-byte, two's
-        // complement unsigned integers comprised of each of the specified
-        // 'numVariables' one-byte sequences of this stream at the current
-        // cursor location, update the cursor location, and return a reference
-        // to this stream.  If this stream is initially invalid, this operation
-        // has no effect.  If this function otherwise fails to extract a valid
-        // value, this stream is marked invalid and the value of 'variables' is
-        // undefined.  The behavior is undefined unless '0 <= numVariables' and
-        // 'variables' has sufficient capacity.  Note that each of the values
-        // will be zero-extended.
 
                       // *** arrays of floating-point values ***
 
+    /// Assign to the specified `variables` the consecutive eight-byte IEEE
+    /// double-precision floating-point numbers (in host byte order)
+    /// comprised of each of the specified `numVariables` eight-byte
+    /// sequences of this stream at the current cursor location (in network
+    /// byte order), update the cursor location, and return a reference to
+    /// this stream.  If this stream is initially invalid, this operation
+    /// has no effect.  If this function otherwise fails to extract a valid
+    /// value, this stream is marked invalid and the value of `variables` is
+    /// undefined.  The behavior is undefined unless `0 <= numVariables` and
+    /// `variables` has sufficient capacity.
     ByteInStream& getArrayFloat64(double *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive eight-byte IEEE
-        // double-precision floating-point numbers (in host byte order)
-        // comprised of each of the specified 'numVariables' eight-byte
-        // sequences of this stream at the current cursor location (in network
-        // byte order), update the cursor location, and return a reference to
-        // this stream.  If this stream is initially invalid, this operation
-        // has no effect.  If this function otherwise fails to extract a valid
-        // value, this stream is marked invalid and the value of 'variables' is
-        // undefined.  The behavior is undefined unless '0 <= numVariables' and
-        // 'variables' has sufficient capacity.
 
+    /// Assign to the specified `variables` the consecutive four-byte IEEE
+    /// single-precision floating-point numbers (in host byte order)
+    /// comprised of each of the specified `numVariables` four-byte
+    /// sequences of this stream at the current cursor location (in network
+    /// byte order), update the cursor location, and return a reference to
+    /// this stream.  If this stream is initially invalid, this operation
+    /// has no effect.  If this function otherwise fails to extract a valid
+    /// value, this stream is marked invalid and the value of `variables` is
+    /// undefined.  The behavior is undefined unless `0 <= numVariables` and
+    /// `variables` has sufficient capacity.
     ByteInStream& getArrayFloat32(float *variables, int numVariables);
-        // Assign to the specified 'variables' the consecutive four-byte IEEE
-        // single-precision floating-point numbers (in host byte order)
-        // comprised of each of the specified 'numVariables' four-byte
-        // sequences of this stream at the current cursor location (in network
-        // byte order), update the cursor location, and return a reference to
-        // this stream.  If this stream is initially invalid, this operation
-        // has no effect.  If this function otherwise fails to extract a valid
-        // value, this stream is marked invalid and the value of 'variables' is
-        // undefined.  The behavior is undefined unless '0 <= numVariables' and
-        // 'variables' has sufficient capacity.
 
     // ACCESSORS
+
+    /// Return a non-zero value if this stream is valid, and 0 otherwise.
+    /// An invalid stream is a stream for which an input operation was
+    /// detected to have failed.
     operator const void *() const;
-        // Return a non-zero value if this stream is valid, and 0 otherwise.
-        // An invalid stream is a stream for which an input operation was
-        // detected to have failed.
 
+    /// Return the index of the next byte to be extracted from this stream.
     bsl::size_t cursor() const;
-        // Return the index of the next byte to be extracted from this stream.
 
+    /// Return the address of the contiguous, non-modifiable external memory
+    /// buffer of this stream.  The behavior of accessing elements outside
+    /// the range `[ data() .. data() + (length() - 1) ]` is undefined.
     const char *data() const;
-        // Return the address of the contiguous, non-modifiable external memory
-        // buffer of this stream.  The behavior of accessing elements outside
-        // the range '[ data() .. data() + (length() - 1) ]' is undefined.
 
+    /// Return `true` if this stream is empty, and `false` otherwise.  Note
+    /// that this function enables higher-level types to verify that, after
+    /// successfully reading all expected data, no data remains.
     bool isEmpty() const;
-        // Return 'true' if this stream is empty, and 'false' otherwise.  Note
-        // that this function enables higher-level types to verify that, after
-        // successfully reading all expected data, no data remains.
 
+    /// Return `true` if this stream is valid, and `false` otherwise.  An
+    /// invalid stream is a stream in which insufficient or invalid data was
+    /// detected during an extraction operation.  Note that an empty stream
+    /// will be valid unless an extraction attempt or explicit invalidation
+    /// causes it to be otherwise.
     bool isValid() const;
-        // Return 'true' if this stream is valid, and 'false' otherwise.  An
-        // invalid stream is a stream in which insufficient or invalid data was
-        // detected during an extraction operation.  Note that an empty stream
-        // will be valid unless an extraction attempt or explicit invalidation
-        // causes it to be otherwise.
 
+    /// Return the total number of bytes stored in the external memory
+    /// buffer.
     bsl::size_t length() const;
-        // Return the total number of bytes stored in the external memory
-        // buffer.
 };
 
 // FREE OPERATORS
+
+/// Write the specified `object` to the specified output `stream` in some
+/// reasonable (multi-line) format, and return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream&       stream,
                          const ByteInStream& object);
-    // Write the specified 'object' to the specified output 'stream' in some
-    // reasonable (multi-line) format, and return a reference to 'stream'.
 
+/// Read the specified `value` from the specified input `stream` following
+/// the requirements of the BDEX protocol (see the `bslx` package-level
+/// documentation), and return a reference to  `stream`.  The behavior is
+/// undefined unless `TYPE` is BDEX-compliant.
 template <class TYPE>
 ByteInStream& operator>>(ByteInStream& stream, TYPE& value);
-    // Read the specified 'value' from the specified input 'stream' following
-    // the requirements of the BDEX protocol (see the 'bslx' package-level
-    // documentation), and return a reference to  'stream'.  The behavior is
-    // undefined unless 'TYPE' is BDEX-compliant.
 
 // ============================================================================
 //                           INLINE DEFINITIONS

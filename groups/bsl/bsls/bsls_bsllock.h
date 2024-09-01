@@ -5,101 +5,101 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a platform-independent mutex for use below 'bslmt'.
+//@PURPOSE: Provide a platform-independent mutex for use below `bslmt`.
 //
 //@CLASSES:
 //  bsls::BslLock: platform-independent mutex
-//  bsls::BslLockGuard: RAII mechanism for locking/unlocking a 'BslLock'
+//  bsls::BslLockGuard: RAII mechanism for locking/unlocking a `BslLock`
 //
 //@SEE_ALSO: bslmt_mutex
 //
 //@DESCRIPTION: This component provides a mutually exclusive lock primitive
 // ("mutex") by wrapping a suitable platform-specific mechanism.  The
-// 'bsls::BslLock' class provides 'lock' and 'unlock' operations.  Note that
-// 'bsls::BslLock' is not intended for direct client use; see 'bslmt_mutex'
-// instead.  Also note that 'bsls::BslLock' is not recursive.
+// `bsls::BslLock` class provides `lock` and `unlock` operations.  Note that
+// `bsls::BslLock` is not intended for direct client use; see `bslmt_mutex`
+// instead.  Also note that `bsls::BslLock` is not recursive.
 //
-// This component also provides the 'bsls::BslLockGuard' class, a mechanism
+// This component also provides the `bsls::BslLockGuard` class, a mechanism
 // that follows the RAII idiom for automatically acquiring and releasing the
-// lock on an associated 'bsls::BslLock' object.  To ensure exception safety,
-// client code should make use of a 'bsls::BslLockGuard' object wherever
+// lock on an associated `bsls::BslLock` object.  To ensure exception safety,
+// client code should make use of a `bsls::BslLockGuard` object wherever
 // appropriate rather than calling the methods on the associated
-// 'bsls::BslLock' object directly.
+// `bsls::BslLock` object directly.
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Using 'bsls::BslLock' to Make a 'class' Thread-Safe
+///Example 1: Using `bsls::BslLock` to Make a `class` Thread-Safe
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we illustrate the use of 'bsls::BslLock' and
-// 'bsls::BslLockGuard' to write a thread-safe class.
+// In this example we illustrate the use of `bsls::BslLock` and
+// `bsls::BslLockGuard` to write a thread-safe class.
 //
-// First, we provide an elided definition of the 'my_Account' class.  Note the
-// 'd_lock' data member of type 'bsls::BslLock':
-//..
-//  class my_Account {
-//      // This 'class' implements a very simplistic bank account.  It is meant
-//      // for illustrative purposes only.
+// First, we provide an elided definition of the `my_Account` class.  Note the
+// `d_lock` data member of type `bsls::BslLock`:
+// ```
+// class my_Account {
+//     // This 'class' implements a very simplistic bank account.  It is meant
+//     // for illustrative purposes only.
 //
-//      // DATA
-//      double                d_money;  // amount of money in the account
-//      mutable bsls::BslLock d_lock;   // ensure exclusive access to 'd_money'
+//     // DATA
+//     double                d_money;  // amount of money in the account
+//     mutable bsls::BslLock d_lock;   // ensure exclusive access to 'd_money'
 //
-//    // ...
+//   // ...
 //
-//    public:
+//   public:
 //
-//      // ...
+//     // ...
 //
-//      // MANIPULATORS
-//      void deposit(double amount);
-//          // Atomically deposit the specified 'amount' of money into this
-//          // account.  The behavior is undefined unless 'amount >= 0.0'.
+//     // MANIPULATORS
+//     void deposit(double amount);
+//         // Atomically deposit the specified 'amount' of money into this
+//         // account.  The behavior is undefined unless 'amount >= 0.0'.
 //
-//      int withdraw(double amount);
-//          // Atomically withdraw the specified 'amount' of money from this
-//          // account.  Return 0 on success, and a non-zero value otherwise.
-//          // The behavior is undefined unless 'amount >= 0.0'.
+//     int withdraw(double amount);
+//         // Atomically withdraw the specified 'amount' of money from this
+//         // account.  Return 0 on success, and a non-zero value otherwise.
+//         // The behavior is undefined unless 'amount >= 0.0'.
 //
-//      // ...
-//  };
-//..
-// Next, we show the implementation of the two 'my_Account' manipulators
-// show-casing the use of 'bsls::BslLock' and 'bsls::BslLockGuard':
-//..
-//  // MANIPULATORS
-//  void my_Account::deposit(double amount)
-//  {
-//..
-// Here, we use the interface of 'bsls::BslLock' directly.  However, wherever
-// appropriate, a 'bsls::BslLockGuard' object should be used instead to ensure
+//     // ...
+// };
+// ```
+// Next, we show the implementation of the two `my_Account` manipulators
+// show-casing the use of `bsls::BslLock` and `bsls::BslLockGuard`:
+// ```
+// // MANIPULATORS
+// void my_Account::deposit(double amount)
+// {
+// ```
+// Here, we use the interface of `bsls::BslLock` directly.  However, wherever
+// appropriate, a `bsls::BslLockGuard` object should be used instead to ensure
 // that an acquired lock is always properly released, even if an exception is
 // thrown:
-//..
-//      d_lock.lock();  // consider using 'bsls::BslLockGuard' (see 'withdraw')
-//      d_money += amount;
-//      d_lock.unlock();
-//  }
-//..
-// In contrast, 'withdraw' uses a 'bsls::BslLockGuard' to automatically acquire
+// ```
+//     d_lock.lock();  // consider using 'bsls::BslLockGuard' (see 'withdraw')
+//     d_money += amount;
+//     d_lock.unlock();
+// }
+// ```
+// In contrast, `withdraw` uses a `bsls::BslLockGuard` to automatically acquire
 // and release the lock.  The lock is acquired as a side-effect of the
-// construction of 'guard', and released when 'guard' is destroyed upon
+// construction of `guard`, and released when `guard` is destroyed upon
 // returning from the function:
-//..
-//  int my_Account::withdraw(double amount)
-//  {
-//      bsls::BslLockGuard guard(&d_lock);  // a very good practice
+// ```
+// int my_Account::withdraw(double amount)
+// {
+//     bsls::BslLockGuard guard(&d_lock);  // a very good practice
 //
-//      if (amount <= d_money) {
-//          d_money -= amount;
-//          return 0;
-//      }
-//      else {
-//          return -1;
-//      }
-//  }
-//..
+//     if (amount <= d_money) {
+//         d_money -= amount;
+//         return 0;
+//     }
+//     else {
+//         return -1;
+//     }
+// }
+// ```
 
 #include <bsls_platform.h>
 
@@ -126,11 +126,11 @@ namespace bsls {
                               // class BslLock
                               // =============
 
+/// This `class` implements a light-weight, portable wrapper of an OS-level
+/// mutex to support intra-process synchronization.  The mutex implemented
+/// by this class is *non*-recursive.  Note that `BslLock` is *not* intended
+/// for direct use by client code; it is meant for internal use only.
 class BslLock {
-    // This 'class' implements a light-weight, portable wrapper of an OS-level
-    // mutex to support intra-process synchronization.  The mutex implemented
-    // by this class is *non*-recursive.  Note that 'BslLock' is *not* intended
-    // for direct use by client code; it is meant for internal use only.
 
     // DATA
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -146,39 +146,41 @@ class BslLock {
 
   public:
     // CREATORS
-    BslLock();
-        // Create a lock object initialized to the unlocked state.
 
+    /// Create a lock object initialized to the unlocked state.
+    BslLock();
+
+    /// Destroy this lock object.  The behavior is undefined unless this
+    /// object is in the unlocked state.
     ~BslLock();
-        // Destroy this lock object.  The behavior is undefined unless this
-        // object is in the unlocked state.
 
     // MANIPULATORS
-    void lock();
-        // Acquire the lock on this object.  If the lock on this object is
-        // currently held by another thread, then suspend execution of the
-        // calling thread until the lock can be acquired.  The behavior is
-        // undefined unless the calling thread does not already hold the lock
-        // on this object.  Note that deadlock may result if this method is
-        // invoked while the calling thread holds the lock on the object.
 
+    /// Acquire the lock on this object.  If the lock on this object is
+    /// currently held by another thread, then suspend execution of the
+    /// calling thread until the lock can be acquired.  The behavior is
+    /// undefined unless the calling thread does not already hold the lock
+    /// on this object.  Note that deadlock may result if this method is
+    /// invoked while the calling thread holds the lock on the object.
+    void lock();
+
+    /// Release the lock on this object that was previously acquired through
+    /// a call to `lock`, enabling another thread to acquire the lock.  The
+    /// behavior is undefined unless the calling thread holds the lock on
+    /// this object.
     void unlock();
-        // Release the lock on this object that was previously acquired through
-        // a call to 'lock', enabling another thread to acquire the lock.  The
-        // behavior is undefined unless the calling thread holds the lock on
-        // this object.
 };
 
                            // ==================
                            // class BslLockGuard
                            // ==================
 
+/// This `class` implements a guard for automatically acquiring and
+/// releasing the lock on an associated `bsls::BslLock` object.  This
+/// mechanism follows the RAII idiom whereby the lock on the `BslLock`
+/// associated with a guard object is acquired upon construction and
+/// released upon destruction.
 class BslLockGuard {
-    // This 'class' implements a guard for automatically acquiring and
-    // releasing the lock on an associated 'bsls::BslLock' object.  This
-    // mechanism follows the RAII idiom whereby the lock on the 'BslLock'
-    // associated with a guard object is acquired upon construction and
-    // released upon destruction.
 
     // DATA
     BslLock *d_lock_p;  // lock guarded by this object (held, not owned)
@@ -190,28 +192,30 @@ class BslLockGuard {
 
   public:
     // CREATORS
-    explicit BslLockGuard(BslLock *lock);
-        // Create a guard object that conditionally manages the specified
-        // 'lock', and acquires the lock on 'lock' by invoking its 'lock'
-        // method.  The behavior is undefined unless the calling thread does
-        // not already hold the lock on 'lock'.  Note that deadlock may result
-        // if a guard is created for 'lock' while the calling thread holds the
-        // lock on 'lock'.  Also note that 'lock' must remain valid throughout
-        // the lifetime of this guard, or until 'release' is called.
 
+    /// Create a guard object that conditionally manages the specified
+    /// `lock`, and acquires the lock on `lock` by invoking its `lock`
+    /// method.  The behavior is undefined unless the calling thread does
+    /// not already hold the lock on `lock`.  Note that deadlock may result
+    /// if a guard is created for `lock` while the calling thread holds the
+    /// lock on `lock`.  Also note that `lock` must remain valid throughout
+    /// the lifetime of this guard, or until `release` is called.
+    explicit BslLockGuard(BslLock *lock);
+
+    /// Destroy this guard object and release the lock on the object it
+    /// manages (if any) by invoking the `unlock` method of the object that
+    /// was supplied at construction of this guard.  If no lock is currently
+    /// being managed, this method has no effect.  Note that if this guard
+    /// object currently manages a lock, this method assumes the behavior of
+    /// `BslLock::unlock`.
     ~BslLockGuard();
-        // Destroy this guard object and release the lock on the object it
-        // manages (if any) by invoking the 'unlock' method of the object that
-        // was supplied at construction of this guard.  If no lock is currently
-        // being managed, this method has no effect.  Note that if this guard
-        // object currently manages a lock, this method assumes the behavior of
-        // 'BslLock::unlock'.
 
     // MANIPULATORS
+
+    /// Release from management, with no effect, the object currently
+    /// managed by this guard, if any.  Note that `unlock` is *not* called
+    /// on the managed object upon its release.
     void release();
-        // Release from management, with no effect, the object currently
-        // managed by this guard, if any.  Note that 'unlock' is *not* called
-        // on the managed object upon its release.
 };
 
 // ============================================================================

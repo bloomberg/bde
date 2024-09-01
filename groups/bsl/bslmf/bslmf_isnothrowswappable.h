@@ -14,23 +14,23 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_integralconstant
 //
 //@DESCRIPTION: This component defines a metafunction,
-// 'bsl::is_nothrow_swappable', and a variable template
-// 'bsl::is_nothrow_swappable_v' that represents the result value of the
-// 'bsl::is_nothrow_swappable' metafunction, which may be used to query whether
-// 'swap(x,y);' is well-formed.  Note that this is only implemented for C++11
+// `bsl::is_nothrow_swappable`, and a variable template
+// `bsl::is_nothrow_swappable_v` that represents the result value of the
+// `bsl::is_nothrow_swappable` metafunction, which may be used to query whether
+// `swap(x,y);` is well-formed.  Note that this is only implemented for C++11
 // and above.
 //
-// 'bsl::is_nothrow_swappable' meets the requirements of the
-// 'is_nothrow_swappable' template defined in the C++17 standard.
+// `bsl::is_nothrow_swappable` meets the requirements of the
+// `is_nothrow_swappable` template defined in the C++17 standard.
 //
-// Note that the template variable 'is_nothrow_swappable_v' is defined in the
+// Note that the template variable `is_nothrow_swappable_v` is defined in the
 // C++17 standard as an inline variable.  If the current compiler supports the
-// inline variable C++17 compiler feature, 'bsl::is_nothrow_swappable_v' is
-// defined as an 'inline constexpr bool' variable.  Otherwise, if the compiler
+// inline variable C++17 compiler feature, `bsl::is_nothrow_swappable_v` is
+// defined as an `inline constexpr bool` variable.  Otherwise, if the compiler
 // supports the variable templates C++14 compiler feature,
-// 'bsl::is_nothrow_swappable_v' is defined as a non-inline 'constexpr bool'
-// variable.  See 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in the
+// `bsl::is_nothrow_swappable_v` is defined as a non-inline `constexpr bool`
+// variable.  See `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in the
 // bsls_compilerfeatures component for details.
 //
 ///Usage
@@ -42,35 +42,35 @@ BSLS_IDENT("$Id: $")
 // Suppose that we want to assert whether a particular type is nothrow
 // swappable.
 //
-// First, we create two 'struct's -- one nothrow swappable and one not.
-//..
-//  struct MyType1 {
-//      // trivial so swappable
-//  };
+// First, we create two `struct`s -- one nothrow swappable and one not.
+// ```
+// struct MyType1 {
+//     // trivial so swappable
+// };
 //
-//  struct MyType2 {
-//      // private assignement, so not swappable
-//    private:
-//      // NOT IMPLEMENTED
-//      MyType2& operator=(const MyType2&);
-//          // Assignment operator made private to prevent swappability.
-//  };
-//..
-// Now, we instantiate the 'bsl::is_nothrow_swappable' template for each of the
-// 'struct's and assert the 'value' static data member of each instantiation:
-//..
-//  assert(true  == bsl::is_nothrow_swappable<MyType1>::value);
-//  assert(false == bsl::is_nothrow_swappable<MyType2>::value);
-//..
+// struct MyType2 {
+//     // private assignement, so not swappable
+//   private:
+//     // NOT IMPLEMENTED
+//     MyType2& operator=(const MyType2&);
+//         // Assignment operator made private to prevent swappability.
+// };
+// ```
+// Now, we instantiate the `bsl::is_nothrow_swappable` template for each of the
+// `struct`s and assert the `value` static data member of each instantiation:
+// ```
+// assert(true  == bsl::is_nothrow_swappable<MyType1>::value);
+// assert(false == bsl::is_nothrow_swappable<MyType2>::value);
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_nothrow_swappable_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(true  == bsl::is_nothrow_swappable_v<MyType1>);
-//  assert(false == bsl::is_nothrow_swappable_v<MyType2>);
-//#endif
-//..
+// `bsl::is_nothrow_swappable_v` variable as follows:
+// ```
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//   assert(true  == bsl::is_nothrow_swappable_v<MyType1>);
+//   assert(false == bsl::is_nothrow_swappable_v<MyType2>);
+// #endif
+// ```
 
 #include <bslscm_version.h>
 

@@ -5,70 +5,70 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a C++20-compatible 'basic_syncbuf' class template.
+//@PURPOSE: Provide a C++20-compatible `basic_syncbuf` class template.
 //
 //@CLASSES:
-//  bsl::basic_syncbuf: C++20-compatible 'basic_syncbuf' class template.
-//  bsl::syncbuf: C++20-compatible 'syncbuf' class.
-//  bsl::wsyncbuf: C++20-compatible 'wsyncbuf' class.
+//  bsl::basic_syncbuf: C++20-compatible `basic_syncbuf` class template.
+//  bsl::syncbuf: C++20-compatible `syncbuf` class.
+//  bsl::wsyncbuf: C++20-compatible `wsyncbuf` class.
 //
 //@CANONICAL_HEADER: bsl_syncstream.h
 //
 //@SEE_ALSO: bslstl_osyncstream
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_syncstream.h>' instead.
+// `<bsl_syncstream.h>` instead.
 //
-// This component defines a class template, 'bsl::basic_syncbuf', that is a
-// wrapper for a 'bsl::basic_streambuf' (provided at construction time as a
+// This component defines a class template, `bsl::basic_syncbuf`, that is a
+// wrapper for a `bsl::basic_streambuf` (provided at construction time as a
 // pointer).  It accumulates output in its own internal buffer, and atomically
 // transmits its entire contents to the wrapped buffer on destruction and when
 // explicitly requested, so that they appear as a contiguous sequence of
 // characters.  It guarantees that there are no data races and no interleaving
 // of characters sent to the wrapped buffer as long as all other outputs made
 // to the same buffer are made through, possibly different, instances of
-// 'bsl::basic_syncbuf'.
+// `bsl::basic_syncbuf`.
 //
-// Each 'bsl::basic_syncbuf' has the associated "emit-on-sync" boolean flag
-// that is 'false' after the object construction and its value can be changed
-// using the 'set_emit_on_sync' member function call.  If this flag has value
-// 'true', the 'emit' function is called by each 'sync' call.
+// Each `bsl::basic_syncbuf` has the associated "emit-on-sync" boolean flag
+// that is `false` after the object construction and its value can be changed
+// using the `set_emit_on_sync` member function call.  If this flag has value
+// `true`, the `emit` function is called by each `sync` call.
 //
-// Types 'bsl::syncbuf' and 'bsl::wsyncbuf' are aliases for
-// 'bsl::basic_syncbuf<char>' and 'bsl::basic_syncbuf<wchar_t>', respectively.
+// Types `bsl::syncbuf` and `bsl::wsyncbuf` are aliases for
+// `bsl::basic_syncbuf<char>` and `bsl::basic_syncbuf<wchar_t>`, respectively.
 //
 ///Usage
 ///-----
 // This section illustrates possible use of this component.  But note that this
-// component is not intended for direct usage - usually 'osyncstream' should be
+// component is not intended for direct usage - usually `osyncstream` should be
 // used instead.
 //
-///Example 1: Usage with existing 'ostream'
+///Example 1: Usage with existing `ostream`
 /// - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates temporary replacement of the underlying
-// 'streambuf' within the existing 'ostream' object.
-//..
-//  void writeSync(bsl::ostream& os)
-//      // Write atomically to the specified 'os' output stream.
-//  {
-//      // Temporarily replace the underlying 'streambuf'
-//      bsl::syncbuf buf(os.rdbuf());
-//      os.rdbuf(&buf);
+// `streambuf` within the existing `ostream` object.
+// ```
+// void writeSync(bsl::ostream& os)
+//     // Write atomically to the specified 'os' output stream.
+// {
+//     // Temporarily replace the underlying 'streambuf'
+//     bsl::syncbuf buf(os.rdbuf());
+//     os.rdbuf(&buf);
 //
-//      // Write to the 'syncbuf'
-//      os << "Hello, ";
-//      os << "World!\n";
+//     // Write to the 'syncbuf'
+//     os << "Hello, ";
+//     os << "World!\n";
 //
-//      // Restore the underlying 'streambuf'
-//      os.rdbuf(buf.get_wrapped());
+//     // Restore the underlying 'streambuf'
+//     os.rdbuf(buf.get_wrapped());
 //
-//      // The accumulated output will be atomically flushed/emitted here
-//  }
-//..
+//     // The accumulated output will be atomically flushed/emitted here
+// }
+// ```
 // Now call the function:
-//..
-//  writeSync(bsl::cout);
-//..
+// ```
+// writeSync(bsl::cout);
+// ```
 
 #include <bslscm_version.h>
 
@@ -103,29 +103,30 @@ typedef BloombergLP::bsls::BslLock SyncBuf_Mutex;
                             // class basic_syncbuf
                             // ===================
 
+/// This class implements a standard stream buffer providing an internal
+/// buffer to accumulate the written data in order to atomically transmit
+/// its entire contents to the wrapped buffer on destruction (or `emit`
+/// call).
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_syncbuf : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>,
                       public BloombergLP::bslstl::SyncBufBase {
-    // This class implements a standard stream buffer providing an internal
-    // buffer to accumulate the written data in order to atomically transmit
-    // its entire contents to the wrapped buffer on destruction (or 'emit'
-    // call).
 
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
 
     // PRIVATE MANIPULATORS
-    bool emitInternal() BSLS_KEYWORD_OVERRIDE;
-        // This function is a private alias for 'emit'. Note that this virtual
-        // function implementation is private because the base class is
-        // deliberately not a template (see 'bslstl_syncbufbase') and we don't
-        // want to expose this method directly to users.
 
+    /// This function is a private alias for `emit`. Note that this virtual
+    /// function implementation is private because the base class is
+    /// deliberately not a template (see `bslstl_syncbufbase`) and we don't
+    /// want to expose this method directly to users.
+    bool emitInternal() BSLS_KEYWORD_OVERRIDE;
+
+    /// This function is a private alias for `set_emit_on_sync`. Note that
+    /// this virtual function implementation is private because the base
+    /// class is deliberately not a template (see `bslstl_syncbufbase`) and
+    /// we don't want to expose this method directly to users.
     void setEmitOnSync(bool value) BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // This function is a private alias for 'set_emit_on_sync'. Note that
-        // this virtual function implementation is private because the base
-        // class is deliberately not a template (see 'bslstl_syncbufbase') and
-        // we don't want to expose this method directly to users.
 
   public:
     // TYPES
@@ -140,77 +141,85 @@ class basic_syncbuf : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>,
 
   private:
     // DATA
+
+    // wrapped buffer
     streambuf_type                                     *d_wrapped_p;
-        // wrapped buffer
+
+    // mutex for `emit`
     SyncBuf_Mutex                                      *d_mutex_p;
-        // mutex for 'emit'
+
+    // "emit-on-sync" flag
     bool                                                d_emit_on_sync;
-        // "emit-on-sync" flag
+
+    // sync call was requested
     bool                                                d_needs_sync;
-        // sync call was requested
+
+    // internal buffer
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>  d_buff;
-        // internal buffer
 
   public:
     // CREATORS
-    explicit basic_syncbuf(const ALLOCATOR& allocator = ALLOCATOR());
-        // Create a 'basic_syncbuf' object without a wrapped buffer.
-        // Optionally specify an 'allocator' used to supply memory.
 
+    /// Create a `basic_syncbuf` object without a wrapped buffer.
+    /// Optionally specify an `allocator` used to supply memory.
+    explicit basic_syncbuf(const ALLOCATOR& allocator = ALLOCATOR());
+
+    /// Create a `basic_syncbuf` object.  Set the specified `wrapped` as a
+    /// wrapped buffer.  Optionally specify an `allocator` used to supply
+    /// memory.
     explicit basic_syncbuf(streambuf_type   *wrapped,
                            const ALLOCATOR&  allocator = ALLOCATOR());
-        // Create a 'basic_syncbuf' object.  Set the specified 'wrapped' as a
-        // wrapped buffer.  Optionally specify an 'allocator' used to supply
-        // memory.
 
+    /// Call `emit`.  Any exceptions thrown by `emit` are ignored.
     ~basic_syncbuf() BSLS_KEYWORD_OVERRIDE;
-        // Call 'emit'.  Any exceptions thrown by 'emit' are ignored.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    /// Create a `basic_syncbuf` object having the same value as the
+    /// specified `original` object by moving the contents of `original` to
+    /// the newly-created object.  Optionally specify an `allocator` used
+    /// to supply memory.  `original.get_wrapped() == nullptr` after the
+    /// call.
     basic_syncbuf(basic_syncbuf&& original);
     basic_syncbuf(basic_syncbuf&& original, const ALLOCATOR& allocator);
-        // Create a 'basic_syncbuf' object having the same value as the
-        // specified 'original' object by moving the contents of 'original' to
-        // the newly-created object.  Optionally specify an 'allocator' used
-        // to supply memory.  'original.get_wrapped() == nullptr' after the
-        // call.
 #endif
 
     // MANIPULATORS
-    bool emit();
-        // Atomically transfer any characters buffered by this object to the
-        // wrapped stream buffer, so that it appears in the output stream as a
-        // contiguous sequence of characters.  The wrapped stream buffer is
-        // flushed if and only if a call was made to 'sync' since the most
-        // recent call to 'emit' or construction.  Return 'true' if
-        // 'get_wrapped() != nullptr', and all of the characters in the
-        // associated output were successfully transferred, and the flush (if
-        // any) succeeded; return 'false' otherwise.
 
+    /// Atomically transfer any characters buffered by this object to the
+    /// wrapped stream buffer, so that it appears in the output stream as a
+    /// contiguous sequence of characters.  The wrapped stream buffer is
+    /// flushed if and only if a call was made to `sync` since the most
+    /// recent call to `emit` or construction.  Return `true` if
+    /// `get_wrapped() != nullptr`, and all of the characters in the
+    /// associated output were successfully transferred, and the flush (if
+    /// any) succeeded; return `false` otherwise.
+    bool emit();
+
+    /// Call the `emit` function by each `sync` call if the specified
+    /// `value` is `true`.
     void set_emit_on_sync(bool value) BSLS_KEYWORD_NOEXCEPT;
-        // Call the 'emit' function by each 'sync' call if the specified
-        // 'value' is 'true'.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    /// Call `emit()` then assign to this object the value of the specified
+    /// `original`, and return a reference providing modifiable access to
+    /// this object.  The contents of `original` are move-assigned to this
+    /// object.  `original.get_wrapped() == nullptr` after the call.
     basic_syncbuf& operator=(basic_syncbuf&& original);
-        // Call 'emit()' then assign to this object the value of the specified
-        // 'original', and return a reference providing modifiable access to
-        // this object.  The contents of 'original' are move-assigned to this
-        // object.  'original.get_wrapped() == nullptr' after the call.
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  The behavior is undefined unless either
+    /// `*this` and `other` allocators compare equal or
+    /// `propagate_on_container_swap` is `true`.
     void swap(basic_syncbuf& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  The behavior is undefined unless either
-        // '*this' and 'other' allocators compare equal or
-        // 'propagate_on_container_swap' is 'true'.
 #endif
 
     // ACCESSORS
-    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the allocator used to supply memory.
 
+    /// Return the allocator used to supply memory.
+    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return the wrapped buffer supplied at construction.
     streambuf_type *get_wrapped() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the wrapped buffer supplied at construction.
 
   protected:
     // PROTECTED MANIPULATORS
@@ -221,10 +230,10 @@ class basic_syncbuf : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>,
         // buffer and return 'traits_type::to_int_type(character)'.  Return
         // 'traits_type::eof()' otherwise.
 
+    /// Request the wrapped streambuf flush on the next `emit` call, then
+    /// call `emit` if the "emit-on-sync" flag is `true`.  Return 0 on
+    /// success and -1 if the `emit` call has failed.
     int sync() BSLS_KEYWORD_OVERRIDE;
-        // Request the wrapped streambuf flush on the next 'emit' call, then
-        // call 'emit' if the "emit-on-sync" flag is 'true'.  Return 0 on
-        // success and -1 if the 'emit' call has failed.
 
     std::streamsize xsputn(const char_type *inputString, std::streamsize count)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -241,14 +250,15 @@ typedef basic_syncbuf<wchar_t> wsyncbuf;
                             // class SyncBuf_MutexUtil
                             // =======================
 
+/// Internal mutex-related utils.
 struct SyncBuf_MutexUtil {
-    // Internal mutex-related utils.
 
     // CLASS METHODS
+
+    /// Return address of a mutex associated the specified `streambuf`
+    /// object (address).  The behavior is undefined unless `streambuf` is
+    /// not null and points to `basic_streambuf<...>` object.
     static SyncBuf_Mutex *get(void *streambuf) BSLS_KEYWORD_NOEXCEPT;
-        // Return address of a mutex associated the specified 'streambuf'
-        // object (address).  The behavior is undefined unless 'streambuf' is
-        // not null and points to 'basic_streambuf<...>' object.
 };
 
                             // -------------------
@@ -455,12 +465,12 @@ std::streamsize basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::xsputn(
 
 // FREE FUNCTIONS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+/// Swap the specified `a` with the specified `b` using `a.swap(b)`
+/// expression.
 template <class CHAR, class TRAITS, class ALLOCATOR>
 inline
 void swap(basic_syncbuf<CHAR,TRAITS,ALLOCATOR>& a,
           basic_syncbuf<CHAR,TRAITS,ALLOCATOR>& b)
-    // Swap the specified 'a' with the specified 'b' using 'a.swap(b)'
-    // expression.
 {
     a.swap(b);
 }

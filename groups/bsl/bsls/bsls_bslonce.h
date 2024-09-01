@@ -9,69 +9,69 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //   bsls::BslOnce: statically initializable gate-keeper for a once-block
-//   bsls::BslOnceGuard: guard for safely using 'bsls::BslOnce'
+//   bsls::BslOnceGuard: guard for safely using `bsls::BslOnce`
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a pair of classes, 'bsls::BslOnce'
-// and 'bsls::BslOnceGuard', which give the caller a way to run a block of
+//@DESCRIPTION: This component provides a pair of classes, `bsls::BslOnce`
+// and `bsls::BslOnceGuard`, which give the caller a way to run a block of
 // code exactly once within the current process, particularly in the presence
 // of multiple threads.  The typical purpose of this one-time execution is the
 // initialization of a singleton on first use.
 //
-// [!WARNING!] Clients outside of 'bsl' should *not* use this component.
+// [**WARNING**] Clients outside of `bsl` should *not* use this component.
 // Because of its location in the hierarchy, this component guards critical
 // sections using a spin-lock.  Equivalent components that are more robust and
-// efficient will be provided at a higher level (see 'bslmt_once').
+// efficient will be provided at a higher level (see `bslmt_once`).
 //
-// A 'bsls::BslOnce' object can be statically initialized using the
-// 'BSLS_BSLONCE_INITIALIZER' macro.
+// A `bsls::BslOnce` object can be statically initialized using the
+// `BSLS_BSLONCE_INITIALIZER` macro.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bsls::BslOnce' to Perform a Singleton Initialization
+///Example 1: Using `bsls::BslOnce` to Perform a Singleton Initialization
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following example demonstrates using 'bsls::BslOnce' to initialize a
+// The following example demonstrates using `bsls::BslOnce` to initialize a
 // singleton object.
 //
-// First we declare a 'struct', 'MySingleton', whose definition is elided:
-//..
-//  struct MySingleton {
+// First we declare a `struct`, `MySingleton`, whose definition is elided:
+// ```
+// struct MySingleton {
 //
-//    // PUBLIC DATA
-//    int d_exampleData;
+//   // PUBLIC DATA
+//   int d_exampleData;
 //
-//    // ...
-//  };
-//..
+//   // ...
+// };
+// ```
 // Notice that the data members are public because we want to avoid dynamic
 // runtime initialize (i.e., initialization at run-time before the start of
-// 'main') when an object of this type is declared in a static context.
+// `main`) when an object of this type is declared in a static context.
 //
-// Now we implement a function 'getSingleton' that returns a singleton object.
-// 'getSingleton' uses 'BslOnce' to ensure the singleton is initialized only
+// Now we implement a function `getSingleton` that returns a singleton object.
+// `getSingleton` uses `BslOnce` to ensure the singleton is initialized only
 // once, and that the singleton is initialized before the function returns:
-//..
-//  MySingleton *getSingleton()
-//      // Return a reference to a modifiable singleton object.
-//  {
-//     static MySingleton singleton = { 0 };
-//     static BslOnce     once      = BSLS_BSLONCE_INITIALIZER;
+// ```
+// MySingleton *getSingleton()
+//     // Return a reference to a modifiable singleton object.
+// {
+//    static MySingleton singleton = { 0 };
+//    static BslOnce     once      = BSLS_BSLONCE_INITIALIZER;
 //
-//     BslOnceGuard onceGuard;
-//     if (onceGuard.enter(&once)) {
-//       // Initialize 'singleton'.  Note that this code is executed exactly
-//       // once.
+//    BslOnceGuard onceGuard;
+//    if (onceGuard.enter(&once)) {
+//      // Initialize 'singleton'.  Note that this code is executed exactly
+//      // once.
 //
-//     }
-//     return &singleton;
-//  }
-//..
-// Notice that 'BslOnce' must be initialized to 'BSLS_BSLONCE_INITIALIZER', and
-// that 'singleton' is a function scoped static variable to avoid allocating
-// it on the 'heap' (which might be reported as leaked memory).
+//    }
+//    return &singleton;
+// }
+// ```
+// Notice that `BslOnce` must be initialized to `BSLS_BSLONCE_INITIALIZER`, and
+// that `singleton` is a function scoped static variable to avoid allocating
+// it on the `heap` (which might be reported as leaked memory).
 
 #include <bsls_atomicoperations.h>
 
@@ -96,13 +96,13 @@ namespace bsls {
                         // class BslOnce
                         // =============
 
+/// Use this macro to initialize an object of type `bsls::Once`.  E.g.:
+/// ```
+/// bsls::Once once = BSLS_BSLONCE_INITIALIZER;
+/// ```
+/// Note that we use an unlikely arbitrary value to permit effectively
+/// asserting a `BslOnce` for correct initialization.
 #define BSLS_BSLONCE_INITIALIZER { { 0xdead } }
-    // Use this macro to initialize an object of type 'bsls::Once'.  E.g.:
-    //..
-    //  bsls::Once once = BSLS_BSLONCE_INITIALIZER;
-    //..
-    // Note that we use an unlikely arbitrary value to permit effectively
-    // asserting a 'BslOnce' for correct initialization.
 
 
 struct BslOnce {
@@ -135,36 +135,38 @@ struct BslOnce {
      };
 
     // PRIVATE MANIPULATORS
+
+    /// Enter the one-time block of code.  Return `true` if the one-time
+    /// block of code has been entered, and `false` if the one-time block of
+    /// code has already been executed.  If this function returns `false`
+    /// then the thread of execution in which `enter` returned `true` has
+    /// already called `leave` -- i.e., the one-time block of code is
+    /// guaranteed to have *completed* execution.  The behavior is undefined
+    /// unless this object was originally initialized to
+    /// `BSLS_BSLONCE_INITIALIZER`.  Note that this private variant of
+    /// `enter` does not perform a test before attempting to acquire the
+    /// spin-lock, and is meant to be implemented out of line (so that the
+    /// expected path of `enter` may be more easily inlined).
     bool doEnter();
-        // Enter the one-time block of code.  Return 'true' if the one-time
-        // block of code has been entered, and 'false' if the one-time block of
-        // code has already been executed.  If this function returns 'false'
-        // then the thread of execution in which 'enter' returned 'true' has
-        // already called 'leave' -- i.e., the one-time block of code is
-        // guaranteed to have *completed* execution.  The behavior is undefined
-        // unless this object was originally initialized to
-        // 'BSLS_BSLONCE_INITIALIZER'.  Note that this private variant of
-        // 'enter' does not perform a test before attempting to acquire the
-        // spin-lock, and is meant to be implemented out of line (so that the
-        // expected path of 'enter' may be more easily inlined).
 
   public:
     // MANIPULATORS
-    bool enter();
-        // Enter the one-time block of code.  Return 'true' if the one-time
-        // block of code has been entered, and 'false' if the one-time block of
-        // code has already been executed.  If this function returns 'false'
-        // then the thread of execution in which 'enter' returned 'true' has
-        // already called 'leave' -- i.e., the one-time block of code is
-        // guaranteed to have *completed* execution.  The behavior is undefined
-        // unless this object was originally initialized to
-        // 'BSLS_BSLONCE_INITIALIZER'.  Note that a successful 'enter' locks a
-        // spin-lock; it is imperative that 'leave' be called quickly.
 
+    /// Enter the one-time block of code.  Return `true` if the one-time
+    /// block of code has been entered, and `false` if the one-time block of
+    /// code has already been executed.  If this function returns `false`
+    /// then the thread of execution in which `enter` returned `true` has
+    /// already called `leave` -- i.e., the one-time block of code is
+    /// guaranteed to have *completed* execution.  The behavior is undefined
+    /// unless this object was originally initialized to
+    /// `BSLS_BSLONCE_INITIALIZER`.  Note that a successful `enter` locks a
+    /// spin-lock; it is imperative that `leave` be called quickly.
+    bool enter();
+
+    /// Exit the one-time block of code.  The behavior is undefined unless
+    /// the caller had previously called `enter`, and `enter` had returned
+    /// `true`.
     void leave();
-        // Exit the one-time block of code.  The behavior is undefined unless
-        // the caller had previously called 'enter', and 'enter' had returned
-        // 'true'.
 };
 
 
@@ -172,9 +174,9 @@ struct BslOnce {
                         // class BslOnceGuard
                         // ==================
 
+/// This class provides a guard for managing a `BslOnce` for the purpose of
+/// executing a block of code (only) once.
 class BslOnceGuard {
-    // This class provides a guard for managing a 'BslOnce' for the purpose of
-    // executing a block of code (only) once.
 
   private:
 
@@ -188,31 +190,33 @@ class BslOnceGuard {
 
   public:
     // CREATORS
-    BslOnceGuard();
-        // Create a guard to manage a block of code that is executed once.
 
+    /// Create a guard to manage a block of code that is executed once.
+    BslOnceGuard();
+
+    /// Destroy this guard, and if `enter` had been called on this object
+    /// without a subsequent call to `leave`, then call `leave` to signal
+    /// the completion of the one-time block of code.
     ~BslOnceGuard();
-        // Destroy this guard, and if 'enter' had been called on this object
-        // without a subsequent call to 'leave', then call 'leave' to signal
-        // the completion of the one-time block of code.
 
     // MANIPULATORS
-    bool enter(BslOnce *once);
-        // Enter the one-time block of code that is managed by the specified
-        // 'once'.  Return 'true' if the one-time block of code has been
-        // entered, and 'false' if the one-time block of code has already been
-        // executed.  If this function returns 'false' then the thread of
-        // execution in which 'enter' returned 'true' has already called
-        // 'leave' -- i.e., the one-time block of code is guaranteed to have
-        // *completed* execution.  The behavior is undefined unless 'once' was
-        // originally initialized to 'BSLS_BSLONCE_INITIALIZER'.  Note that a
-        // successful 'enter' locks a spin-lock; it is imperative that 'leave'
-        // be called quickly.
 
+    /// Enter the one-time block of code that is managed by the specified
+    /// `once`.  Return `true` if the one-time block of code has been
+    /// entered, and `false` if the one-time block of code has already been
+    /// executed.  If this function returns `false` then the thread of
+    /// execution in which `enter` returned `true` has already called
+    /// `leave` -- i.e., the one-time block of code is guaranteed to have
+    /// *completed* execution.  The behavior is undefined unless `once` was
+    /// originally initialized to `BSLS_BSLONCE_INITIALIZER`.  Note that a
+    /// successful `enter` locks a spin-lock; it is imperative that `leave`
+    /// be called quickly.
+    bool enter(BslOnce *once);
+
+    /// Exit the one-time block of code.  The behavior is undefined unless
+    /// the caller had previously called `enter`, and `enter` had returned
+    /// `true`.
     void leave();
-        // Exit the one-time block of code.  The behavior is undefined unless
-        // the caller had previously called 'enter', and 'enter' had returned
-        // 'true'.
 };
 
 

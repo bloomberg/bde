@@ -12,46 +12,46 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::compose1: create an unary function object adaptor
 //  bsl::compose2: create a binary function object adaptor
-//  bsl::select1st: select 'first' value of a pair
-//  bsl::select2nd: select 'second' value of a pair
+//  bsl::select1st: select `first` value of a pair
+//  bsl::select2nd: select `second` value of a pair
 //
 //@CANONICAL_HEADER: bsl_functional.h
 //
 //@SEE_ALSO: bsl_functional
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_functional.h>' directly.  This component provides a namespace for
+// `<bsl_functional.h>` directly.  This component provides a namespace for
 // functional extensions that are not specified in the C++ standard.  This
 // provides backward compatibility for code using extensions that STLPort
 // provides.
 //
 // Note that the classes in this component are based on STLPort's
 // implementation, with copyright notice as follows:
-//..
-//-----------------------------------------------------------------------------
+// ```
+// -----------------------------------------------------------------------------
 //
-// Copyright (c) 1994
-// Hewlett-Packard Company
+//  Copyright (c) 1994
+//  Hewlett-Packard Company
 //
-// Copyright (c) 1996-1998
-// Silicon Graphics Computer Systems, Inc.
+//  Copyright (c) 1996-1998
+//  Silicon Graphics Computer Systems, Inc.
 //
-// Copyright (c) 1997
-// Moscow Center for SPARC Technology
+//  Copyright (c) 1997
+//  Moscow Center for SPARC Technology
 //
-// Copyright (c) 1999
-// Boris Fomitchev
+//  Copyright (c) 1999
+//  Boris Fomitchev
 //
-// This material is provided "as is", with absolutely no warranty expressed
-// or implied.  Any use is at your own risk.
+//  This material is provided "as is", with absolutely no warranty expressed
+//  or implied.  Any use is at your own risk.
 //
-// Permission to use or copy this software for any purpose is hereby granted
-// without fee, provided the above notices are retained on all copies.
-// Permission to modify the code and to distribute modified code is granted,
-// provided the above notices are retained, and a notice that the code was
-// modified is included with the above copyright notice.
-//-----------------------------------------------------------------------------
-//..
+//  Permission to use or copy this software for any purpose is hereby granted
+//  without fee, provided the above notices are retained on all copies.
+//  Permission to modify the code and to distribute modified code is granted,
+//  provided the above notices are retained, and a notice that the code was
+//  modified is included with the above copyright notice.
+// -----------------------------------------------------------------------------
+// ```
 //
 ///Usage
 ///-----
@@ -86,12 +86,12 @@ namespace bsl {
                     // class bsl::unary_compose
                     // ========================
 
+/// This class provides a function object adaptor for two other functors.
+/// When given two adaptable unary functions `f` and `g`, and when `g`s
+/// return type is convertible to `f`s argument type, this class can be used
+/// to create a function object `h` that is equivalent to `f(g(x))`.
 template <class OPERATION1, class OPERATION2>
 class unary_compose
-    // This class provides a function object adaptor for two other functors.
-    // When given two adaptable unary functions 'f' and 'g', and when 'g's
-    // return type is convertible to 'f's argument type, this class can be used
-    // to create a function object 'h' that is equivalent to 'f(g(x))'.
 {
   public:
     // public type names
@@ -122,13 +122,13 @@ class unary_compose
                     // class bsl::binary_compose
                     // =========================
 
+/// This class provides a function object adaptor for three other functors.
+/// When given two adaptable unary functions `g1` and `g2`, and a third
+/// adaptable binary function `f`, and if `g1` and `g2`s argument type is
+/// convertible to `f`s argument type, this class can be used to create a
+/// function object `h` that is equivalent to `f(g1(x), g2(x))`.
 template <class OPERATION1, class OPERATION2, class OPERATION3>
 class binary_compose
-    // This class provides a function object adaptor for three other functors.
-    // When given two adaptable unary functions 'g1' and 'g2', and a third
-    // adaptable binary function 'f', and if 'g1' and 'g2's argument type is
-    // convertible to 'f's argument type, this class can be used to create a
-    // function object 'h' that is equivalent to 'f(g1(x), g2(x))'.
 {
   public:
     // public type names
@@ -167,10 +167,10 @@ class binary_compose
                     // class bsl::select1st
                     // ====================
 
+/// public type names
 template <class PAIR>
 struct select1st
 {
-    // public type names
     typedef          PAIR             argument_type;
     typedef typename PAIR::first_type result_type;
 
@@ -188,10 +188,10 @@ struct select1st
                     // class bsl::select2nd
                     // ====================
 
+/// public type names
 template <class PAIR>
 struct select2nd
 {
-    // public type names
     typedef          PAIR              argument_type;
     typedef typename PAIR::second_type result_type;
 
@@ -206,27 +206,28 @@ struct select2nd
 };
 
 // FREE FUNCTIONS
+
+/// Return an `unary_compose` function object constructed using the
+/// specified `fn1` and `fn2` unary functions.  The returned function object
+/// is equivalent to `fn1(fn2(x))`.
 template <class OPERATION1, class OPERATION2>
 inline
 unary_compose<OPERATION1, OPERATION2>
 compose1(const OPERATION1& fn1, const OPERATION2& fn2)
-    // Return an 'unary_compose' function object constructed using the
-    // specified 'fn1' and 'fn2' unary functions.  The returned function object
-    // is equivalent to 'fn1(fn2(x))'.
 {
     return unary_compose<OPERATION1, OPERATION2>(fn1, fn2);
 }
 
+/// Return a `binary_compose` function object constructed using the
+/// specified `fn1` binary function, and the specified `fn2` and `fn3` unary
+/// functions.  The returned function object is equivalent to
+/// `fn1(fn2(x), fn3(x))`.
 template <class OPERATION1, class OPERATION2, class OPERATION3>
 inline
 binary_compose<OPERATION1, OPERATION2, OPERATION3>
 compose2(const OPERATION1& fn1,
          const OPERATION2& fn2,
          const OPERATION3& fn3)
-    // Return a 'binary_compose' function object constructed using the
-    // specified 'fn1' binary function, and the specified 'fn2' and 'fn3' unary
-    // functions.  The returned function object is equivalent to
-    // 'fn1(fn2(x), fn3(x))'.
 {
     return binary_compose<OPERATION1, OPERATION2, OPERATION3>(fn1, fn2, fn3);
 }
@@ -235,19 +236,20 @@ compose2(const OPERATION1& fn1,
                     // class bsl::StringComparator
                     // ===========================
 
+/// This class is a functor that provides comparison between two
+/// `const char *` strings.
 struct StringComparator
-    // This class is a functor that provides comparison between two
-    // 'const char *' strings.
 {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(StringComparator,
                                    bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return `true` if the specified strings `a` and `b` have the same
+    /// value, and return `false` otherwise.  Two strings have the same
+    /// value if the result of `std::strcmp` returns 0.
     bool operator()(const char *a, const char *b) const
-        // Return 'true' if the specified strings 'a' and 'b' have the same
-        // value, and return 'false' otherwise.  Two strings have the same
-        // value if the result of 'std::strcmp' returns 0.
     {
 
         return 0 == std::strcmp(a, b);
@@ -258,20 +260,20 @@ struct StringComparator
                     // class bsl::ComparatorSelector
                     // =============================
 
+/// This meta-function selects the appropriate implementation for comparing
+/// the parameterized `TYPE`.  This generic template uses the
+/// `std::equal_to` functor.
 template <class HASH_KEY>
 struct ComparatorSelector
-    // This meta-function selects the appropriate implementation for comparing
-    // the parameterized 'TYPE'.  This generic template uses the
-    // 'std::equal_to' functor.
 {
     // TYPES
     typedef bsl::equal_to<HASH_KEY> Type;
 };
 
+/// This meta-function is specialized for `const char *`, and uses the
+/// `StringComparator` functor to compare the string values.
 template <>
 struct ComparatorSelector<const char *>
-    // This meta-function is specialized for 'const char *', and uses the
-    // 'StringComparator' functor to compare the string values.
 {
     // TYPES
     typedef StringComparator Type;
@@ -286,9 +288,9 @@ namespace bslstp {
                     // class bslstp::Identity
                     // ======================
 
+/// An identity function.
 template <class TYPE>
 struct Identity {
-    // An identity function.
 
     // TYPES
     typedef TYPE argument_type;
@@ -298,8 +300,9 @@ struct Identity {
     BSLMF_NESTED_TRAIT_DECLARATION(Identity, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a const reference to the specified `x`.
     const TYPE& operator()(const TYPE& x) const;
-        // Return a const reference to the specified 'x'.
 };
 
 //=============================================================================

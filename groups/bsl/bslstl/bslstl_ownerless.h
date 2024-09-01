@@ -8,64 +8,64 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide an ordering for shared and weak pointers.
 //
 //@CLASSES:
-//  bsl::owner_less: ordering comparator for 'shared_ptr' and 'weak_ptr'
+//  bsl::owner_less: ordering comparator for `shared_ptr` and `weak_ptr`
 //
 //@CANONICAL_HEADER: bsl_memory.h
 //
 //@SEE_ALSO: bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides the C+11 standard binary comparison
-// functor, 'bsl::owner_less', that determines the order of two smart pointer
-// objects by the relative order of the address of their 'bslma::SharedPtrRep'
+// functor, `bsl::owner_less`, that determines the order of two smart pointer
+// objects by the relative order of the address of their `bslma::SharedPtrRep`
 // data.  Note that this class is an empty POD type.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'owner_less<void>'
+///Example 1: Basic Use of `owner_less<void>`
 /// - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need a map accepting shared pointers as keys.  We also expect
 // that this container will be accessible from multiple threads and some of
 // them will store weak versions of smart pointers to break reference cycles.
 // To avoid excessive conversions we can use a transparent comparator to
-// enable heterogeneous lookup with 'bsl::weak_ptr' objects as parameters for
+// enable heterogeneous lookup with `bsl::weak_ptr` objects as parameters for
 // search functions.
 //
 // First, we create a container and populate it:
-//..
-//      typedef bsl::map<bsl::shared_ptr<int>, int, bsl::owner_less<void> >
-//                                                                         Map;
-//      Map                  container;
+// ```
+//     typedef bsl::map<bsl::shared_ptr<int>, int, bsl::owner_less<void> >
+//                                                                        Map;
+//     Map                  container;
 //
-//      bsl::shared_ptr<int> sharedPtr1 = bsl::make_shared<int>(1);
-//      bsl::shared_ptr<int> sharedPtr2 = bsl::make_shared<int>(2);
-//      bsl::weak_ptr<int>   weakPtr1(sharedPtr1);
+//     bsl::shared_ptr<int> sharedPtr1 = bsl::make_shared<int>(1);
+//     bsl::shared_ptr<int> sharedPtr2 = bsl::make_shared<int>(2);
+//     bsl::weak_ptr<int>   weakPtr1(sharedPtr1);
 //
-//      container[sharedPtr1] = 1;
-//      container[sharedPtr2] = 2;
-//..
+//     container[sharedPtr1] = 1;
+//     container[sharedPtr2] = 2;
+// ```
 // Now, we make sure, that shared pointers can be used to perform lookup:
-//..
-//      Map::const_iterator iter = container.find(sharedPtr1);
-//      assert(container.end() != iter        );
-//      assert(1               == iter->second);
+// ```
+//     Map::const_iterator iter = container.find(sharedPtr1);
+//     assert(container.end() != iter        );
+//     assert(1               == iter->second);
 //
-//      iter = container.find(sharedPtr2);
-//      assert(container.end() != iter);
-//      assert(2               == iter->second);
-//..
+//     iter = container.find(sharedPtr2);
+//     assert(container.end() != iter);
+//     assert(2               == iter->second);
+// ```
 // Finally, we simulate the situation of accessing the container from another
 // thread and perform lookup using weak pointers:
-//..
-//      iter = container.find(weakPtr1);
-//      assert(container.end() != iter        );
-//      assert(1               == iter->second);
+// ```
+//     iter = container.find(weakPtr1);
+//     assert(container.end() != iter        );
+//     assert(1               == iter->second);
 //
-//      bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
-//      iter = container.find(weakPtr3);
-//      assert(container.end() == iter);
-//..
+//     bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
+//     iter = container.find(weakPtr3);
+//     assert(container.end() == iter);
+// ```
 
 #include <bslscm_version.h>
 
@@ -122,16 +122,17 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
     bool operator()(const shared_ptr<ELEMENT_TYPE>& a,
                     const weak_ptr<ELEMENT_TYPE>&   b) const
                                                          BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return `true` if the address of the
+    /// `BloombergLP::bslma::SharedPtrRep` object used by the specified `a`
+    /// is ordered before the address of the
+    /// `BloombergLP::bslma::SharedPtrRep` object used by the specified `b`
+    /// under the total ordering supplied by
+    /// `std::less<BloombergLP::bslma::SharedPtrRep *>`, and `false`
+    /// otherwise.
     bool operator()(const weak_ptr<ELEMENT_TYPE>&   a,
                     const shared_ptr<ELEMENT_TYPE>& b) const
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
-        // is ordered before the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'b'
-        // under the total ordering supplied by
-        // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
-        // otherwise.
 };
 
 template <class ELEMENT_TYPE>
@@ -167,24 +168,26 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
     bool operator()(const shared_ptr<ELEMENT_TYPE>& a,
                     const weak_ptr<ELEMENT_TYPE>&   b) const
                                                          BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return `true` if the address of the
+    /// `BloombergLP::bslma::SharedPtrRep` object used by the specified `a`
+    /// is ordered before the address of the
+    /// `BloombergLP::bslma::SharedPtrRep` object used by the specified `b`
+    /// under the total ordering supplied by
+    /// `std::less<BloombergLP::bslma::SharedPtrRep *>`, and `false`
+    /// otherwise.
     bool operator()(const weak_ptr<ELEMENT_TYPE>&   a,
                     const shared_ptr<ELEMENT_TYPE>& b) const
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
-        // is ordered before the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'b'
-        // under the total ordering supplied by
-        // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
-        // otherwise.
 };
 
 template<>
 struct owner_less<void> {
 
     // TYPES
+
+    /// Type alias indicating this is a transparent comparator.
     typedef void is_transparent;
-        // Type alias indicating this is a transparent comparator.
 
     // CREATORS
     //! owner_less() = default;
@@ -217,17 +220,18 @@ struct owner_less<void> {
     bool operator()(const weak_ptr<  ELEMENT_TYPE_A> &a,
                     const shared_ptr<ELEMENT_TYPE_B> &b) const
                                                          BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return `true` if the address of the
+    /// `BloombergLP::bslma::SharedPtrRep` object used by the specified `a`
+    /// is ordered before the address of the
+    /// `BloombergLP::bslma::SharedPtrRep` object used by the specified `b`
+    /// under the total ordering supplied by
+    /// `std::less<BloombergLP::bslma::SharedPtrRep *>`, and `false`
+    /// otherwise.
     template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
     bool operator()(const weak_ptr<ELEMENT_TYPE_A> &a,
                     const weak_ptr<ELEMENT_TYPE_B> &b) const
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
-        // is ordered before the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'b'
-        // under the total ordering supplied by
-        // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
-        // otherwise.
 };
 
 // ============================================================================

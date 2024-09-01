@@ -5,15 +5,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide 'hashAppend' for 'std::tuple'.
+//@PURPOSE: Provide `hashAppend` for `std::tuple`.
 //
 //@DESCRIPTION: This component provides a free function template,
-// 'bslh::hashAppend', overloaded for the 'std::tuple' class template.
-// Including this function allows for 'std::tuple' types (and types that
+// `bslh::hashAppend`, overloaded for the `std::tuple` class template.
+// Including this function allows for `std::tuple` types (and types that
 // contain them) to be used as keys in BDE hashed containers.
 //
 // Note that use of this component requires that the language standard be 2011
-// or later, as that is when 'std::tuple' first appears.
+// or later, as that is when `std::tuple` first appears.
 //
 ///Usage
 ///-----
@@ -23,37 +23,37 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - -
 // Suppose one must compute has that combines the hashes of several integer
 // values, each of a different type:
-//..
-//  char  c = 'a';
-//  short s = static_cast<short>(1);
-//  int   i = 2;
-//  long  l = 3L;
-//..
+// ```
+// char  c = 'a';
+// short s = static_cast<short>(1);
+// int   i = 2;
+// long  l = 3L;
+// ```
 // First, we can make that calculation by repeated invocations of a
 // 'bslh::DefaultHashAlogorithm object:
-//..
-//  bslh::DefaultHashAlgorithm hasherS;
-//  hasherS(&c, sizeof(char));
-//  hasherS(&s, sizeof(short));
-//  hasherS(&i, sizeof(int));
-//  hasherS(&l, sizeof(long));
+// ```
+// bslh::DefaultHashAlgorithm hasherS;
+// hasherS(&c, sizeof(char));
+// hasherS(&s, sizeof(short));
+// hasherS(&i, sizeof(int));
+// hasherS(&l, sizeof(long));
 //
 // bslh::DefaultHashAlgorithm::result_type hashS = hasherS.computeHash();
-//..
+// ```
 // Now, the same calculation can be expressed more concisely if those same
-// values are contained in a single 'std::tuple' object.
-//..
-//  std::tuple<char, short, int, long> t = std::make_tuple(c, s, i, l);
+// values are contained in a single `std::tuple` object.
+// ```
+// std::tuple<char, short, int, long> t = std::make_tuple(c, s, i, l);
 //
-//  bslh::DefaultHashAlgorithm hasherT;
-//  bslh::hashAppend(hasherT, t);
+// bslh::DefaultHashAlgorithm hasherT;
+// bslh::hashAppend(hasherT, t);
 //
-//  bslh::DefaultHashAlgorithm::result_type hashT = hasherT.computeHash();
-//..
+// bslh::DefaultHashAlgorithm::result_type hashT = hasherT.computeHash();
+// ```
 // Finally, we confirm that we computed the same result.
-//..
-//  assert(hashS == hashT);
-//..
+// ```
+// assert(hashS == hashT);
+// ```
 
 #include <bslscm_version.h>
 
@@ -78,14 +78,15 @@ template <std::size_t BACK_INDEX, class HASH_ALGORITHM, class TUPLE_TYPE>
 struct hashTuple_Util
 {
     // CLASS METHODS
+
+    /// Invoke the (appropriate) `hashAppend` function using the specified
+    /// `algorithm` and the "current" element of the specified `input` tuple
+    /// and then visit the next element.  The index of the current element
+    /// is the size of (template parameter) `TUPLE_TYPE` minus (template
+    /// parameter) `BACK_INDEX`.  `BACK_INDEX` is reduced on each recursion
+    /// and eventually, when `BACK_INDEX` is 0, a "do nothing" function is
+    /// called to stop the recursion.
     static void visit(HASH_ALGORITHM& algorithm, const TUPLE_TYPE& input);
-        // Invoke the (appropriate) 'hashAppend' function using the specified
-        // 'algorithm' and the "current" element of the specified 'input' tuple
-        // and then visit the next element.  The index of the current element
-        // is the size of (template parameter) 'TUPLE_TYPE' minus (template
-        // parameter) 'BACK_INDEX'.  'BACK_INDEX' is reduced on each recursion
-        // and eventually, when 'BACK_INDEX' is 0, a "do nothing" function is
-        // called to stop the recursion.
 };
 
             // The partial specialization that stops the recursion.
@@ -94,19 +95,21 @@ template <class HASH_ALGORITHM, class TUPLE_TYPE>
 struct hashTuple_Util<0, HASH_ALGORITHM, TUPLE_TYPE>
 {
     // CLASS METHODS
+
+    /// Do nothing -- ignore the specified `algorithm`, ignore the specified
+    /// `input`, do not try to visit the "next" element -- and return.  Note
+    /// that this function is called only after the last element of `input`
+    /// has been visited.
     static void visit(HASH_ALGORITHM& algorithm, const TUPLE_TYPE& input);
-        // Do nothing -- ignore the specified 'algorithm', ignore the specified
-        // 'input', do not try to visit the "next" element -- and return.  Note
-        // that this function is called only after the last element of 'input'
-        // has been visited.
 };
 
 // FREE FUNCTIONS
+
+/// Invoke `hashAppend`, with the specified `algorithm`, on each element of
+/// the specified `input` in order of increasing index as defined by
+/// `std::get`.
 template <class HASH_ALGORITHM, class ... TYPE>
 void hashAppend(HASH_ALGORITHM& algorithm, const std::tuple<TYPE ...> &input);
-    // Invoke 'hashAppend', with the specified 'algorithm', on each element of
-    // the specified 'input' in order of increasing index as defined by
-    // 'std::get'.
 
 // ============================================================================
 //                          INLINE DEFINITIONS

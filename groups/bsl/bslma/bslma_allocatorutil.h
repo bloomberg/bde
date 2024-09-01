@@ -12,15 +12,15 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_aatypeutil, bslma_allocatortraits
 //
-//@DESCRIPTION: This component provides a namespace 'struct',
-// 'bslma::AllocatorUtil', with functions that operate on both raw pointers to
-// 'bslma::Allocator' or derived classes and objects of C++11 compliant
-// allocator classes.  The functions in this utility 'struct' also free the
+//@DESCRIPTION: This component provides a namespace `struct`,
+// `bslma::AllocatorUtil`, with functions that operate on both raw pointers to
+// `bslma::Allocator` or derived classes and objects of C++11 compliant
+// allocator classes.  The functions in this utility `struct` also free the
 // user from worrying about rebinding the allocator and creating copies of
-// rebound allocators.  Operations provided include 'allocateBytes' and
-// 'deallocateBytes' to acquire and free raw bytes; 'allocateObject' and
-// 'deallocateObject' to aquire and free uninitialized object storages; and
-// 'newObject' and 'deleteObject' to allocate+construct and destroy+deallocate
+// rebound allocators.  Operations provided include `allocateBytes` and
+// `deallocateBytes` to acquire and free raw bytes; `allocateObject` and
+// `deallocateObject` to aquire and free uninitialized object storages; and
+// `newObject` and `deleteObject` to allocate+construct and destroy+deallocate
 // full objects.  There are also operations for conditionally assigning or
 // swapping allocator objects themselves, depending on the allocator's
 // propagation traits.
@@ -31,286 +31,286 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Future-proofing Member Construction
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This example shows how we construct an AA member variable, using
-// 'bslma::AllocatorUtil::adapt' so that it is both self-documenting and robust
+// `bslma::AllocatorUtil::adapt` so that it is both self-documenting and robust
 // in case the member type is modernized from *legacy-AA* (using
-// 'bslma::Allocator *' directly in its interface) to *bsl-AA* (using
-// 'bsl::allocator' in its interface).
+// `bslma::Allocator *` directly in its interface) to *bsl-AA* (using
+// `bsl::allocator` in its interface).
 //
-// First, we define a class, 'Data1', that has a legacy-AA interface:
-//..
-//  class Data1 {
-//      // Legacy-AA data class.
+// First, we define a class, `Data1`, that has a legacy-AA interface:
+// ```
+// class Data1 {
+//     // Legacy-AA data class.
 //
-//      bslma::Allocator *d_allocator_p;
-//      // ...
+//     bslma::Allocator *d_allocator_p;
+//     // ...
 //
-//    public:
-//      explicit Data1(bslma::Allocator *basicAllocator = 0)
-//          : d_allocator_p(basicAllocator) { /* ... */ }
+//   public:
+//     explicit Data1(bslma::Allocator *basicAllocator = 0)
+//         : d_allocator_p(basicAllocator) { /* ... */ }
 //
-//      bslma::Allocator *allocator() const { return d_allocator_p; }
-//  };
-//..
-// Next, we define a class, 'MyClass1', that has a member of type 'Data1'.
-// 'MyClass' uses a modern, bsl-AA interface:
-//..
-//  class MyClass1 {
-//      bsl::allocator<char> d_allocator;
-//      Data1                d_data;
+//     bslma::Allocator *allocator() const { return d_allocator_p; }
+// };
+// ```
+// Next, we define a class, `MyClass1`, that has a member of type `Data1`.
+// `MyClass` uses a modern, bsl-AA interface:
+// ```
+// class MyClass1 {
+//     bsl::allocator<char> d_allocator;
+//     Data1                d_data;
 //
-//    public:
-//      typedef bsl::allocator<char> allocator_type;
+//   public:
+//     typedef bsl::allocator<char> allocator_type;
 //
-//      explicit MyClass1(const allocator_type& allocator = allocator_type());
+//     explicit MyClass1(const allocator_type& allocator = allocator_type());
 //
-//      const Data1& data() const { return d_data; }
-//      allocator_type get_allocator() const { return d_allocator; }
-//  };
-//..
-// Next, we define the constructor for 'MyClass1'.  Since 'MyClass1' uses
-// 'bsl::allocator' and the 'Data1' uses 'bslma::Allocator *', we employ
-// 'bslma::AllocatorUtil::adapt' to obtain an allocator suitable for passing to
-// the constructor for 'd_data':
-//..
-//  MyClass1::MyClass1(const allocator_type& allocator)
-//      : d_allocator(allocator)
-//      , d_data(bslma::AllocatorUtil::adapt(allocator))
-//  {
-//  }
-//..
-// Next, assume that we update our 'Data' class from legacy-AA to bsl-AA
-// (renamed from 'Data1' to 'Data2' for illustrative purposes):
-//..
-//  class Data2 {
-//      // Bsl-AA data class.
+//     const Data1& data() const { return d_data; }
+//     allocator_type get_allocator() const { return d_allocator; }
+// };
+// ```
+// Next, we define the constructor for `MyClass1`.  Since `MyClass1` uses
+// `bsl::allocator` and the `Data1` uses `bslma::Allocator *`, we employ
+// `bslma::AllocatorUtil::adapt` to obtain an allocator suitable for passing to
+// the constructor for `d_data`:
+// ```
+// MyClass1::MyClass1(const allocator_type& allocator)
+//     : d_allocator(allocator)
+//     , d_data(bslma::AllocatorUtil::adapt(allocator))
+// {
+// }
+// ```
+// Next, assume that we update our `Data` class from legacy-AA to bsl-AA
+// (renamed from `Data1` to `Data2` for illustrative purposes):
+// ```
+// class Data2 {
+//     // Bsl-AA data class.
 //
-//      bsl::allocator<int> d_allocator;
-//      // ...
+//     bsl::allocator<int> d_allocator;
+//     // ...
 //
-//    public:
-//      typedef bsl::allocator<int> allocator_type;
+//   public:
+//     typedef bsl::allocator<int> allocator_type;
 //
-//      explicit Data2(const allocator_type& allocator = allocator_type())
-//          : d_allocator(allocator) { /* ... */ }
+//     explicit Data2(const allocator_type& allocator = allocator_type())
+//         : d_allocator(allocator) { /* ... */ }
 //
-//      allocator_type get_allocator() const { return d_allocator; }
-//  };
-//..
-// Now, we notice that **nothing** about 'MyClass' needs to change, not even
-// the way its constructor passes an allocator to 'd_data':
-//..
-//  class MyClass2 {
-//      bsl::allocator<char> d_allocator;
-//      Data2                d_data;
+//     allocator_type get_allocator() const { return d_allocator; }
+// };
+// ```
+// Now, we notice that **nothing** about `MyClass` needs to change, not even
+// the way its constructor passes an allocator to `d_data`:
+// ```
+// class MyClass2 {
+//     bsl::allocator<char> d_allocator;
+//     Data2                d_data;
 //
-//    public:
-//      typedef bsl::allocator<char> allocator_type;
+//   public:
+//     typedef bsl::allocator<char> allocator_type;
 //
-//      explicit MyClass2(const allocator_type& allocator = allocator_type());
+//     explicit MyClass2(const allocator_type& allocator = allocator_type());
 //
-//      const Data2& data() const { return d_data; }
-//      allocator_type get_allocator() const { return d_allocator; }
-//  };
+//     const Data2& data() const { return d_data; }
+//     allocator_type get_allocator() const { return d_allocator; }
+// };
 //
-//  MyClass2::MyClass2(const allocator_type& allocator)
-//      : d_allocator(allocator)
-//      , d_data(bslma::AllocatorUtil::adapt(allocator))
-//  {
-//  }
-//..
-// Finally, we test both versions of 'MyClass' and show that the allocator that
-// is passed to the 'MyClass' constructor gets forwarded to its data member:
-//..
-//  int main()
-//  {
-//      bslma::TestAllocator ta;
-//      bsl::allocator<char> alloc(&ta);
+// MyClass2::MyClass2(const allocator_type& allocator)
+//     : d_allocator(allocator)
+//     , d_data(bslma::AllocatorUtil::adapt(allocator))
+// {
+// }
+// ```
+// Finally, we test both versions of `MyClass` and show that the allocator that
+// is passed to the `MyClass` constructor gets forwarded to its data member:
+// ```
+// int main()
+// {
+//     bslma::TestAllocator ta;
+//     bsl::allocator<char> alloc(&ta);
 //
-//      MyClass1 obj1(alloc);
-//      assert(&ta == obj1.data().allocator());
+//     MyClass1 obj1(alloc);
+//     assert(&ta == obj1.data().allocator());
 //
-//      MyClass2 obj2(alloc);
-//      assert(alloc == obj2.data().get_allocator());
-//  }
-//..
+//     MyClass2 obj2(alloc);
+//     assert(alloc == obj2.data().get_allocator());
+// }
+// ```
 //
 ///Example 2: Building an AA object on the heap
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows how we can allocate a *bsl-AA* object from an allocator
 // and construct the object, passing the allocator along, in one step.
 //
-// First, we define a simple class, 'BslAAType', that uses 'bsl::allocator' to
+// First, we define a simple class, `BslAAType`, that uses `bsl::allocator` to
 // allocate memory (i.e., it is *bsl-AA*):
-//..
-//  #include <bslma_bslallocator.h>
-//  class BslAAType {
-//      bsl::allocator<> d_allocator;
-//      int              d_value;
+// ```
+// #include <bslma_bslallocator.h>
+// class BslAAType {
+//     bsl::allocator<> d_allocator;
+//     int              d_value;
 //
-//    public:
-//      typedef bsl::allocator<> allocator_type;
+//   public:
+//     typedef bsl::allocator<> allocator_type;
 //
-//      explicit BslAAType(const allocator_type& a = allocator_type())
-//          : d_allocator(a), d_value(0) { }
-//      explicit BslAAType(int v, const allocator_type& a = allocator_type())
-//          : d_allocator(a), d_value(v) { }
+//     explicit BslAAType(const allocator_type& a = allocator_type())
+//         : d_allocator(a), d_value(0) { }
+//     explicit BslAAType(int v, const allocator_type& a = allocator_type())
+//         : d_allocator(a), d_value(v) { }
 //
-//      allocator_type get_allocator() const { return d_allocator; }
-//      int            value()         const { return d_value;     }
-//  };
-//..
-// Now we can use 'bslma::AllocatorUtil::newObject' to, in a single operation,
-// allocate and construct an 'BslAAType' object.  We can see that the right
+//     allocator_type get_allocator() const { return d_allocator; }
+//     int            value()         const { return d_value;     }
+// };
+// ```
+// Now we can use `bslma::AllocatorUtil::newObject` to, in a single operation,
+// allocate and construct an `BslAAType` object.  We can see that the right
 // allocator and value are passed to the new object:
-//..
-//  #include <bslma_testallocator.h>
-//  int main()
-//  {
-//      bslma::TestAllocator ta;
-//      BslAAType *p = bslma::AllocatorUtil::newObject<BslAAType>(&ta, 77);
-//      assert(sizeof(BslAAType) == ta.numBytesInUse());
-//      assert(77 == p->value());
-//      assert(&ta == p->get_allocator().mechanism());
-//..
-// Finally, we use 'deleteObject' to destroy and return the object to the
+// ```
+// #include <bslma_testallocator.h>
+// int main()
+// {
+//     bslma::TestAllocator ta;
+//     BslAAType *p = bslma::AllocatorUtil::newObject<BslAAType>(&ta, 77);
+//     assert(sizeof(BslAAType) == ta.numBytesInUse());
+//     assert(77 == p->value());
+//     assert(&ta == p->get_allocator().mechanism());
+// ```
+// Finally, we use `deleteObject` to destroy and return the object to the
 // allocator:
-//..
-//      bslma::AllocatorUtil::deleteObject(&ta, p);
-//      assert(0 == ta.numBytesInUse());
-//  }
-//..
+// ```
+//     bslma::AllocatorUtil::deleteObject(&ta, p);
+//     assert(0 == ta.numBytesInUse());
+// }
+// ```
 //
 ///Example 3: Safe container swap
 ///- - - - - - - - - - - - - - -
-// In this example, we see how 'bslma::AllocatorUtil::swap' can be used to swap
+// In this example, we see how `bslma::AllocatorUtil::swap` can be used to swap
 // allocators without the risk of calling a non-existant swap.
 //
-// First, we create a class, 'StdAAType', that uses any valid STL-compatible
+// First, we create a class, `StdAAType`, that uses any valid STL-compatible
 // allocator (i.e., it is *stl-AA*).  Note that this class has non-default copy
 // constructor and assignment operations (whose implementation is not shown)
-// and a non-default 'swap' operation:
-//..
-//  template <class t_TYPE, class t_ALLOCATOR = bsl::allocator<t_TYPE> >
-//  class StlAAType {
-//      t_ALLOCATOR  d_allocator;
-//      t_TYPE      *d_value_p;
+// and a non-default `swap` operation:
+// ```
+// template <class t_TYPE, class t_ALLOCATOR = bsl::allocator<t_TYPE> >
+// class StlAAType {
+//     t_ALLOCATOR  d_allocator;
+//     t_TYPE      *d_value_p;
 //
-//    public:
-//      typedef t_ALLOCATOR allocator_type;
+//   public:
+//     typedef t_ALLOCATOR allocator_type;
 //
-//      explicit StlAAType(const allocator_type& a = allocator_type())
-//          : d_allocator(a)
-//          , d_value_p(bslma::AllocatorUtil::newObject<t_TYPE>(a)) { }
-//      explicit StlAAType(const t_TYPE&           v,
-//                         const allocator_type& a = allocator_type())
-//          : d_allocator(a)
-//          , d_value_p(bslma::AllocatorUtil::newObject<t_TYPE>(a, v)) { }
+//     explicit StlAAType(const allocator_type& a = allocator_type())
+//         : d_allocator(a)
+//         , d_value_p(bslma::AllocatorUtil::newObject<t_TYPE>(a)) { }
+//     explicit StlAAType(const t_TYPE&           v,
+//                        const allocator_type& a = allocator_type())
+//         : d_allocator(a)
+//         , d_value_p(bslma::AllocatorUtil::newObject<t_TYPE>(a, v)) { }
 //
-//      StlAAType(const StlAAType&);
+//     StlAAType(const StlAAType&);
 //
-//      ~StlAAType() {
-//          bslma::AllocatorUtil::deleteObject(d_allocator, d_value_p);
-//      }
+//     ~StlAAType() {
+//         bslma::AllocatorUtil::deleteObject(d_allocator, d_value_p);
+//     }
 //
-//      StlAAType operator=(const StlAAType&);
+//     StlAAType operator=(const StlAAType&);
 //
-//      void swap(StlAAType& other);
+//     void swap(StlAAType& other);
 //
-//      allocator_type get_allocator() const { return d_allocator; }
-//      const t_TYPE&    value()         const { return *d_value_p;  }
-//  };
+//     allocator_type get_allocator() const { return d_allocator; }
+//     const t_TYPE&    value()         const { return *d_value_p;  }
+// };
 //
-//  template <class t_TYPE, class t_ALLOCATOR>
-//  inline void swap(StlAAType<t_TYPE, t_ALLOCATOR>& a,
-//                   StlAAType<t_TYPE, t_ALLOCATOR>& b)
-//  {
-//      a.swap(b);
-//  }
-//..
-// Next, we write the 'swap' member function.  This function should follow our
+// template <class t_TYPE, class t_ALLOCATOR>
+// inline void swap(StlAAType<t_TYPE, t_ALLOCATOR>& a,
+//                  StlAAType<t_TYPE, t_ALLOCATOR>& b)
+// {
+//     a.swap(b);
+// }
+// ```
+// Next, we write the `swap` member function.  This function should follow our
 // standard AA rule for member swap: if the allocators compare equal or if the
 // allocators should propagate on swap, then perform a fast swap, moving only
 // pointers and (possibly) allocators, rather than copying elements; otherwise
 // revert to element-by-element swap:
-//..
-//  template <class t_TYPE, class t_ALLOCATOR>
-//  void StlAAType<t_TYPE, t_ALLOCATOR>::swap(StlAAType& other)
-//  {
-//      typedef typename
-//          bsl::allocator_traits<allocator_type>::propagate_on_container_swap
-//          Propagate;
+// ```
+// template <class t_TYPE, class t_ALLOCATOR>
+// void StlAAType<t_TYPE, t_ALLOCATOR>::swap(StlAAType& other)
+// {
+//     typedef typename
+//         bsl::allocator_traits<allocator_type>::propagate_on_container_swap
+//         Propagate;
 //
-//      using std::swap;
+//     using std::swap;
 //
-//      if (Propagate::value || d_allocator == other.d_allocator) {
-//          // Swap allocators and pointers, but not individual elements.
-//          bslma::AllocatorUtil::swap(&d_allocator, &other.d_allocator,
-//                                     Propagate());
-//          swap(d_value_p, other.d_value_p);
-//      }
-//      else
-//      {
-//          // Swap element values
-//          swap(*d_value_p, *other.d_value_p);
-//      }
-//  }
-//..
-// Note that, in the above implementation of 'swap', that we swap the
-// allocators using 'bslma::AllocatorUtil::swap' instead of calling 'swap'
-// directly.  If the 't_ALLOCATOR' type does not propagate on container
+//     if (Propagate::value || d_allocator == other.d_allocator) {
+//         // Swap allocators and pointers, but not individual elements.
+//         bslma::AllocatorUtil::swap(&d_allocator, &other.d_allocator,
+//                                    Propagate());
+//         swap(d_value_p, other.d_value_p);
+//     }
+//     else
+//     {
+//         // Swap element values
+//         swap(*d_value_p, *other.d_value_p);
+//     }
+// }
+// ```
+// Note that, in the above implementation of `swap`, that we swap the
+// allocators using `bslma::AllocatorUtil::swap` instead of calling `swap`
+// directly.  If the `t_ALLOCATOR` type does not propagate on container
 // assignment or swap, the allocator itself is not required to support
 // assignment or swap.  By using this utility, we avoid trying to compile a
-// call to allocator 'swap' when it is not needed.
+// call to allocator `swap` when it is not needed.
 //
-// Next, we'll define an allocator that illustrates this point.  Our 'MyAlloc'
+// Next, we'll define an allocator that illustrates this point.  Our `MyAlloc`
 // allocator does not support allocator propogation and deletes the assignment
 // operators (thus also disabling swap):
-//..
-//  #include <bsls_keyword.h>
-//  template <class t_TYPE>
-//  class MyAlloc {
-//      bsl::allocator<t_TYPE> d_imp;
+// ```
+// #include <bsls_keyword.h>
+// template <class t_TYPE>
+// class MyAlloc {
+//     bsl::allocator<t_TYPE> d_imp;
 //
-//      // Disable assignment
-//      MyAlloc operator=(const MyAlloc&) BSLS_KEYWORD_DELETED;
+//     // Disable assignment
+//     MyAlloc operator=(const MyAlloc&) BSLS_KEYWORD_DELETED;
 //
-//    public:
-//      typedef t_TYPE value_type;
+//   public:
+//     typedef t_TYPE value_type;
 //
-//      MyAlloc() { }
-//      MyAlloc(bslma::Allocator *allocPtr) : d_imp(allocPtr) { }   // IMPLICIT
-//      template <class U>
-//      MyAlloc(const MyAlloc<U>& other) : d_imp(other.d_imp) { }
+//     MyAlloc() { }
+//     MyAlloc(bslma::Allocator *allocPtr) : d_imp(allocPtr) { }   // IMPLICIT
+//     template <class U>
+//     MyAlloc(const MyAlloc<U>& other) : d_imp(other.d_imp) { }
 //
-//      t_TYPE *allocate(std::size_t n) { return d_imp.allocate(n); }
-//      void deallocate(t_TYPE* p, std::size_t n) { d_imp.deallocate(p, n); }
+//     t_TYPE *allocate(std::size_t n) { return d_imp.allocate(n); }
+//     void deallocate(t_TYPE* p, std::size_t n) { d_imp.deallocate(p, n); }
 //
-//      template <class T2>
-//      friend bool operator==(const MyAlloc& a, const MyAlloc<T2>& b)
-//          { return a.d_imp == b.d_imp; }
-//      template <class T2>
-//      friend bool operator!=(const MyAlloc& a, const MyAlloc<T2>& b)
-//          { return a.d_imp != b.d_imp; }
-//  };
-//..
-// Finally, we create two 'StlAAType' objects with the same allocator and show
+//     template <class T2>
+//     friend bool operator==(const MyAlloc& a, const MyAlloc<T2>& b)
+//         { return a.d_imp == b.d_imp; }
+//     template <class T2>
+//     friend bool operator!=(const MyAlloc& a, const MyAlloc<T2>& b)
+//         { return a.d_imp != b.d_imp; }
+// };
+// ```
+// Finally, we create two `StlAAType` objects with the same allocator and show
 // that they can be swapped even though the allocator type cannot be swapped:
-//..
-//  int main()
-//  {
-//      MyAlloc<int> alloc;
+// ```
+// int main()
+// {
+//     MyAlloc<int> alloc;
 //
-//      StlAAType<int, MyAlloc<int> > objA(1, alloc), objB(2, alloc);
-//      assert(alloc == objA.get_allocator());
-//      assert(alloc == objB.get_allocator());
-//      assert(1 == objA.value());
-//      assert(2 == objB.value());
+//     StlAAType<int, MyAlloc<int> > objA(1, alloc), objB(2, alloc);
+//     assert(alloc == objA.get_allocator());
+//     assert(alloc == objB.get_allocator());
+//     assert(1 == objA.value());
+//     assert(2 == objB.value());
 //
-//      objA.swap(objB);
-//      assert(2 == objA.value());
-//      assert(1 == objB.value());
-//  }
-//..
+//     objA.swap(objB);
+//     assert(2 == objA.value());
+//     assert(1 == objB.value());
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -356,8 +356,8 @@ struct AllocatorUtil_Traits;
                         // class AllocatorUtil
                         // ===================
 
+/// Namespace for utility functions on allocators
 struct AllocatorUtil {
-    // Namespace for utility functions on allocators
 
   private:
     // PRIVATE CONSTANTS
@@ -369,6 +369,10 @@ struct AllocatorUtil {
     static long matchBslAlloc(void *,                 ...);
         // DECLARED BUT NOT DEFINED
 
+    /// Return the specified `nbytes` raw bytes having the specified
+    /// `alignment` allocated from the specified `allocator`.  If
+    /// `alignment` is larger than the largest supported alignment, the
+    /// behavior is determined by the allocator.
     template <class t_TYPE>
     static
     void *allocateBytesImp(
@@ -386,11 +390,12 @@ struct AllocatorUtil {
     allocateBytesImp(const t_ALLOCATOR&          allocator,
                      std::size_t                 nbytes,
                      std::size_t                 alignment);
-        // Return the specified 'nbytes' raw bytes having the specified
-        // 'alignment' allocated from the specified 'allocator'.  If
-        // 'alignment' is larger than the largest supported alignment, the
-        // behavior is determined by the allocator.
 
+    /// Return, to the specified `allocator`, the block of raw memory at the
+    /// specified `p` address having the specified `nbytes` size and the
+    /// specified `alignment`.  The behavior is undefined unless `p` refers
+    /// to a block having the same size and alignment allocated from a copy
+    /// of `allocator` and not yet deallocated.
     template <class t_TYPE>
     static void
     deallocateBytesImp(const bsl::polymorphic_allocator<t_TYPE>&  allocator,
@@ -409,11 +414,6 @@ struct AllocatorUtil {
         typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer p,
         std::size_t                                              nbytes,
         std::size_t                                              alignment);
-        // Return, to the specified 'allocator', the block of raw memory at the
-        // specified 'p' address having the specified 'nbytes' size and the
-        // specified 'alignment'.  The behavior is undefined unless 'p' refers
-        // to a block having the same size and alignment allocated from a copy
-        // of 'allocator' and not yet deallocated.
 
     template <class t_ALLOCATOR, class t_POINTER, class t_VALUE_TYPE>
     static void deallocateObjectImp(const t_ALLOCATOR&  allocator,
@@ -426,23 +426,30 @@ struct AllocatorUtil {
                                 t_POINTER           p,
                                 const t_VALUE_TYPE& );
 
+    /// Return `true` if the specified `alignment` is a (positive) power of
+    /// two; otherwise return false.
     static bool isPowerOf2(std::size_t alignment);
-        // Return 'true' if the specified 'alignment' is a (positive) power of
-        // two; otherwise return false.
 
     // PRIVATE TYPES
+
+    /// Metafunction derives from `true_type` if (template argument)
+    /// `t_ALLOC` is derived from any specialization of `bsl::allocator`;
+    /// else derives from `false_type`.
     template <class t_ALLOC>
     struct IsDerivedFromBslAllocator
         : bsl::integral_constant<bool,
                                  1 == sizeof(matchBslAlloc((t_ALLOC *) 0, 0))>
     {
-        // Metafunction derives from 'true_type' if (template argument)
-        // 't_ALLOC' is derived from any specialization of 'bsl::allocator';
-        // else derives from 'false_type'.
     };
 
   public:
     // CLASS METHODS
+
+    /// Return the specified `from` allocator adapted to a type most likely
+    /// to be usable for initializing another AA object.  Specifically,
+    /// return `from.mechanism()` if `from` is a specialization of
+    /// `bsl::allocator` (or a class derived from `bsl::allocator`);
+    /// otherwise return `from` unchanged.
     template <class t_ALLOC>
     static typename bsl::enable_if<
         ! IsDerivedFromBslAllocator<t_ALLOC>::value,
@@ -450,38 +457,44 @@ struct AllocatorUtil {
     adapt(const t_ALLOC& from);
     template <class t_TYPE>
     static bslma::Allocator *adapt(const bsl::allocator<t_TYPE>& from);
-        // Return the specified 'from' allocator adapted to a type most likely
-        // to be usable for initializing another AA object.  Specifically,
-        // return 'from.mechanism()' if 'from' is a specialization of
-        // 'bsl::allocator' (or a class derived from 'bsl::allocator');
-        // otherwise return 'from' unchanged.
 
+    /// Return a pointer to a block of raw memory allocated from the
+    /// specified `allocator` having the specified `nbytes` size and
+    /// optionally specified `alignment`.  If `alignment` is larger than the
+    /// largest supported alignment, either the block will be aligned to the
+    /// maximum supported alignment or an exception will be thrown.  The
+    /// specific choice of behavior is determined by the allocator: for
+    /// polymorphic allocators the behavior is determined by the memory
+    /// resource, whereas for non-polymorphic allocators, the alignment is
+    /// always truncated to the maximum non-extended alignment.
     template <class t_ALLOCATOR>
     static typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer
     allocateBytes(const t_ALLOCATOR& allocator,
                   std::size_t        nbytes,
                   std::size_t        alignment = k_MAX_ALIGNMENT);
-        // Return a pointer to a block of raw memory allocated from the
-        // specified 'allocator' having the specified 'nbytes' size and
-        // optionally specified 'alignment'.  If 'alignment' is larger than the
-        // largest supported alignment, either the block will be aligned to the
-        // maximum supported alignment or an exception will be thrown.  The
-        // specific choice of behavior is determined by the allocator: for
-        // polymorphic allocators the behavior is determined by the memory
-        // resource, whereas for non-polymorphic allocators, the alignment is
-        // always truncated to the maximum non-extended alignment.
 
+    /// Return a pointer to a block of raw memory allocated from the
+    /// specified `allocator` having a size and alignment appropriate for an
+    /// object of (templatize parameter) `t_TYPE`.  Optionally specify `n`
+    /// for the number of objects; otherwise space for a single object is
+    /// allocated.  Since `t_TYPE` cannot be deduced from the function
+    /// parameters, it must be supplied explicitly (in `<>` brackets) by the
+    /// caller.
     template <class t_TYPE, class t_ALLOCATOR>
     static typename AllocatorUtil_Traits<t_ALLOCATOR, t_TYPE>::pointer
     allocateObject(const t_ALLOCATOR& allocator, std::size_t n = 1);
-        // Return a pointer to a block of raw memory allocated from the
-        // specified 'allocator' having a size and alignment appropriate for an
-        // object of (templatize parameter) 't_TYPE'.  Optionally specify 'n'
-        // for the number of objects; otherwise space for a single object is
-        // allocated.  Since 't_TYPE' cannot be deduced from the function
-        // parameters, it must be supplied explicitly (in '<>' brackets) by the
-        // caller.
 
+    /// If the specified `allowed` tag is `bsl::true_type` assign the
+    /// allocator object at the specified `lhs` address the value of the
+    /// specified `rhs`; otherwise, do nothing, and, in both cases, return a
+    /// modifiable reference to `*lhs`.  The `t_TYPE` template parameter is
+    /// typically an allocator type and the `allowed` flag is typically a
+    /// propagation trait dependant on the calling context, such as
+    /// `propagate_on_container_copy_assignment` or
+    /// `propagate_on_container_move_assignment`.  Instantiation will fail
+    /// if `allowed` is `true_type` and `t_TYPE` lacks a publically
+    /// accessible copy assignment operator.  The behavior is undefined
+    /// unless `allowed` is `true_type` or `*lhs == rhs` before the call.
     template <class t_TYPE>
     static t_TYPE& assign(t_TYPE         *lhs,
                           const t_TYPE&   rhs,
@@ -490,18 +503,12 @@ struct AllocatorUtil {
     static t_TYPE& assign(t_TYPE          *lhs,
                           const t_TYPE&    rhs,
                           bsl::false_type  allowed);
-        // If the specified 'allowed' tag is 'bsl::true_type' assign the
-        // allocator object at the specified 'lhs' address the value of the
-        // specified 'rhs'; otherwise, do nothing, and, in both cases, return a
-        // modifiable reference to '*lhs'.  The 't_TYPE' template parameter is
-        // typically an allocator type and the 'allowed' flag is typically a
-        // propagation trait dependant on the calling context, such as
-        // 'propagate_on_container_copy_assignment' or
-        // 'propagate_on_container_move_assignment'.  Instantiation will fail
-        // if 'allowed' is 'true_type' and 't_TYPE' lacks a publically
-        // accessible copy assignment operator.  The behavior is undefined
-        // unless 'allowed' is 'true_type' or '*lhs == rhs' before the call.
 
+    /// Return to the specified allocator the block raw memory at the
+    /// specified `p` address having the specified `nbytes` size and
+    /// optionally specified `alignment`.  The behavior is undefined unless
+    /// `p` refers to a block having the same size and alignment previously
+    /// allocated from a copy of `allocator` and not yet deallocated.
     template <class t_ALLOCATOR>
     static void deallocateBytes(
         const t_ALLOCATOR&                                       allocator,
@@ -509,39 +516,34 @@ struct AllocatorUtil {
         std::size_t                                              nbytes,
         std::size_t                                              alignment
                                                             = k_MAX_ALIGNMENT);
-        // Return to the specified allocator the block raw memory at the
-        // specified 'p' address having the specified 'nbytes' size and
-        // optionally specified 'alignment'.  The behavior is undefined unless
-        // 'p' refers to a block having the same size and alignment previously
-        // allocated from a copy of 'allocator' and not yet deallocated.
 
+    /// Return to the specified `allocator` a block of raw memory at the
+    /// specified `p` address that is suitably sized and aligned to hold an
+    /// object of (templatize parameter) `t_TYPE`.  Optionally specify `n`
+    /// for the number of objects; otherwise a single object is assumed.
+    /// The behavior is undefined unless `p` refers to a block with the same
+    /// type and number of objects previously allocated from a copy of
+    /// `allocator` and not yet deallocated.
     template <class t_ALLOCATOR, class t_POINTER>
     static void deallocateObject(const t_ALLOCATOR& allocator,
                                  t_POINTER          p,
                                  std::size_t        n = 1);
-        // Return to the specified 'allocator' a block of raw memory at the
-        // specified 'p' address that is suitably sized and aligned to hold an
-        // object of (templatize parameter) 't_TYPE'.  Optionally specify 'n'
-        // for the number of objects; otherwise a single object is assumed.
-        // The behavior is undefined unless 'p' refers to a block with the same
-        // type and number of objects previously allocated from a copy of
-        // 'allocator' and not yet deallocated.
 
+    /// Destroy the object at the specified `p` address and return the block
+    /// of memory at `p` to the specified `allocator`.  The behavior is
+    /// undefined unless `p` refers to a fully constructed object allocated
+    /// from a copy of `allocator` and not yet destroyed or deallocated.
     template <class t_ALLOCATOR, class t_POINTER>
     static void deleteObject(const t_ALLOCATOR& allocator, t_POINTER p);
-        // Destroy the object at the specified 'p' address and return the block
-        // of memory at 'p' to the specified 'allocator'.  The behavior is
-        // undefined unless 'p' refers to a fully constructed object allocated
-        // from a copy of 'allocator' and not yet destroyed or deallocated.
 
+    /// Return an object of (template parameter) `t_TYPE` allocated from the
+    /// specified `allocator` and constructed with no arguments except that,
+    /// for scoped allocator types such as `bsl::allocator` and
+    /// `bsl::polymorphic_allocator`, `allocator` may be passed to the
+    /// `t_TYPE` constructor (i.e., if `t_TYPE` is AA).
     template <class t_TYPE, class t_ALLOCATOR>
     static typename AllocatorUtil_Traits<t_ALLOCATOR, t_TYPE>::pointer
     newObject(const t_ALLOCATOR& allocator);
-        // Return an object of (template parameter) 't_TYPE' allocated from the
-        // specified 'allocator' and constructed with no arguments except that,
-        // for scoped allocator types such as 'bsl::allocator' and
-        // 'bsl::polymorphic_allocator', 'allocator' may be passed to the
-        // 't_TYPE' constructor (i.e., if 't_TYPE' is AA).
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 # ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -552,38 +554,39 @@ struct AllocatorUtil {
               t_ARG1&            argument1,
               t_ARGS&&...        arguments);
 # endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+    /// Return an object of (template parameter) `t_TYPE` allocated from the
+    /// specified `allocator` and constructed from the specified `argument1`
+    /// and other specified `arguments`.  For scoped allocator types such as
+    /// `bsl::allocator` and `bsl::polymorphic_allocator`, `allocator` may
+    /// be passed to the `t_TYPE` constructor as an additional argument
+    /// (i.e., if `t_TYPE` is AA).  Note that, in C++03, perfect forwarding
+    /// is limited such that any lvalue reference in the `arguments`
+    /// parameter pack is const-qualified when forwarded to the
+    /// `TARGET_TYPE` constructor; only `argument1` can be forwarded as an
+    /// unqualified lvalue.
     template <class t_TYPE, class t_ALLOCATOR, class t_ARG1, class... t_ARGS>
     static typename AllocatorUtil_Traits<t_ALLOCATOR, t_TYPE>::pointer
     newObject(const t_ALLOCATOR&                        allocator,
               BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG1) argument1,
               t_ARGS&&...                               arguments);
-        // Return an object of (template parameter) 't_TYPE' allocated from the
-        // specified 'allocator' and constructed from the specified 'argument1'
-        // and other specified 'arguments'.  For scoped allocator types such as
-        // 'bsl::allocator' and 'bsl::polymorphic_allocator', 'allocator' may
-        // be passed to the 't_TYPE' constructor as an additional argument
-        // (i.e., if 't_TYPE' is AA).  Note that, in C++03, perfect forwarding
-        // is limited such that any lvalue reference in the 'arguments'
-        // parameter pack is const-qualified when forwarded to the
-        // 'TARGET_TYPE' constructor; only 'argument1' can be forwarded as an
-        // unqualified lvalue.
 #endif
 
+    /// If the specified `allowed` tag is `bsl::true_type`, swap the values
+    /// of allocators at the specified `pa` and `pb` addresses using ADL
+    /// swap (with `std::swap` in scope); otherwise, do nothing.  The
+    /// `t_TYPE` template parameter is typically an allocator type and the
+    /// `allowed` flag is typically a propagation trait dependant on the
+    /// calling context, such as `propagate_on_container_swap`.
+    /// Instantiation will fail if `allowed` is `false_type` and `t_TYPE` is
+    /// not swappable (i.e., because it lacks a publically available
+    /// assignment operator).  The behavior is undefined unless `allowed` is
+    /// `true_type` or '*pa ==
+    /// *pb' before the call.
     template <class t_TYPE>
     static void swap(t_TYPE *pa, t_TYPE *pb, bsl::false_type allowed);
     template <class t_TYPE>
     static void swap(t_TYPE *pa, t_TYPE *pb, bsl::true_type  allowed);
-        // If the specified 'allowed' tag is 'bsl::true_type', swap the values
-        // of allocators at the specified 'pa' and 'pb' addresses using ADL
-        // swap (with 'std::swap' in scope); otherwise, do nothing.  The
-        // 't_TYPE' template parameter is typically an allocator type and the
-        // 'allowed' flag is typically a propagation trait dependant on the
-        // calling context, such as 'propagate_on_container_swap'.
-        // Instantiation will fail if 'allowed' is 'false_type' and 't_TYPE' is
-        // not swappable (i.e., because it lacks a publically available
-        // assignment operator).  The behavior is undefined unless 'allowed' is
-        // 'true_type' or '*pa ==
-        // *pb' before the call.
 };
 
 // ============================================================================
@@ -594,25 +597,30 @@ struct AllocatorUtil {
                     // class AllocatorUtil_Traits
                     // --------------------------
 
+/// Extend the notion of `allocator_traits` to apply to both standard
+/// allocator and to pointer-to-memory-resource types.  If the (template
+/// parameter) `t_ALLOCATOR` is a non-pointer type (i.e., an allocator
+/// class), then inherits from
+/// `bsl::allocator_traits<t_ALLOCATOR>::rebind_traits<t_TYPE>`.  However,
+/// if `t_ALLOCATOR` is a pointer type, then inherits from
+/// `bsl::allocator_traits<bsl::allocator<t_TYPE>>` for pointers to classes
+/// derived from `bslma::Allocator` and from
+/// `bsl::allocator_traits<bsl::polymorphic_allocator<t_TYPE>>` for pointers
+/// to other classes derived from `bsl::memory_resource`.  This primary
+/// template is for non-pointer `t_ALLOCATOR` template arguments.
 template <class t_ALLOCATOR, class t_TYPE>
 struct AllocatorUtil_Traits
     : bsl::allocator_traits<t_ALLOCATOR>::template rebind_traits<t_TYPE> {
-    // Extend the notion of 'allocator_traits' to apply to both standard
-    // allocator and to pointer-to-memory-resource types.  If the (template
-    // parameter) 't_ALLOCATOR' is a non-pointer type (i.e., an allocator
-    // class), then inherits from
-    // 'bsl::allocator_traits<t_ALLOCATOR>::rebind_traits<t_TYPE>'.  However,
-    // if 't_ALLOCATOR' is a pointer type, then inherits from
-    // 'bsl::allocator_traits<bsl::allocator<t_TYPE>>' for pointers to classes
-    // derived from 'bslma::Allocator' and from
-    // 'bsl::allocator_traits<bsl::polymorphic_allocator<t_TYPE>>' for pointers
-    // to other classes derived from 'bsl::memory_resource'.  This primary
-    // template is for non-pointer 't_ALLOCATOR' template arguments.
 
     BSLMF_ASSERT(! bsl::is_const<t_TYPE>::value);
     BSLMF_ASSERT(! bsl::is_volatile<t_TYPE>::value);
 };
 
+/// This specialization is for allocators expressed as a pointer to class
+/// derived from `bsl::memory_resource`.  The base class will be
+/// `bsl::allocator_traits<bsl::allocator<t_TYPE>>` if `t_MEMORY_RSRC` is
+/// derived from `bsl::Allocator`; otherwise the base class will be
+/// `bsl::allocator_traits<bsl::polymorphic_allocator<t_TYPE>>`.
 template <class t_MEMORY_RSRC, class t_TYPE>
 struct AllocatorUtil_Traits<t_MEMORY_RSRC *, t_TYPE> : bsl::allocator_traits<
     typename bsl::conditional<
@@ -621,11 +629,6 @@ struct AllocatorUtil_Traits<t_MEMORY_RSRC *, t_TYPE> : bsl::allocator_traits<
             bsl::polymorphic_allocator<t_TYPE> >::type
     >
 {
-    // This specialization is for allocators expressed as a pointer to class
-    // derived from 'bsl::memory_resource'.  The base class will be
-    // 'bsl::allocator_traits<bsl::allocator<t_TYPE>>' if 't_MEMORY_RSRC' is
-    // derived from 'bsl::Allocator'; otherwise the base class will be
-    // 'bsl::allocator_traits<bsl::polymorphic_allocator<t_TYPE>>'.
 
     // MANDATES
     BSLMF_ASSERT((bsl::is_convertible<t_MEMORY_RSRC *,

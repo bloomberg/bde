@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as having STL-like iterators.
 //
-//@DEPRECATED: Use 'bslalg_hasstliterators' instead.
+//@DEPRECATED: Use `bslalg_hasstliterators` instead.
 //
 //@CLASSES:
 //  bslalg::TypeTraitHasStlIterators: has STL-like iterators
@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitHasStlIterators', which allows the trait
-// 'bslalg::HasStlIterators' to be declared using the (deprecated)
-// 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the 'bslalg_hasstliterators'
+// `bslalg::TypeTraitHasStlIterators`, which allows the trait
+// `bslalg::HasStlIterators` to be declared using the (deprecated)
+// `BSLALG_DECLARE_NESTED_TRAITS` macro.  See the `bslalg_hasstliterators`
 // component for details of this trait.
 //
 ///Usage
@@ -38,17 +38,17 @@ namespace bslalg {
                         // struct TypeTraitHasStlIterators
                         //================================
 
+/// A `TYPE` with this trait defines (at minimum) the nested types
+/// `iterator` and `const_iterator` and the functions `begin()` and `end()`
+/// having the standard STL semantics.
 struct TypeTraitHasStlIterators {
-    // A 'TYPE' with this trait defines (at minimum) the nested types
-    // 'iterator' and 'const_iterator' and the functions 'begin()' and 'end()'
-    // having the standard STL semantics.
 
+    /// This class template ties the `bslalg::TypeTraitHasStlIterators`
+    /// trait tag to the `bslmf::HasStlIterators` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, HasStlIterators>
     {
-        // This class template ties the 'bslalg::TypeTraitHasStlIterators'
-        // trait tag to the 'bslmf::HasStlIterators' trait metafunction.
     };
 
     template <class TYPE>
@@ -62,8 +62,8 @@ struct TypeTraitHasStlIterators {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslalg::TypeTraitHasStlIterators bslalg_TypeTraitHasStlIterators;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

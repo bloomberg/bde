@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_MAYBE_UNUSED:           suppress compiler warnings on unused entities
-//  BSLA_MAYBE_UNUSED_IS_ACTIVE: defined if 'BSLA_MAYBE_UNUSED' is active
+//  BSLA_MAYBE_UNUSED_IS_ACTIVE: defined if `BSLA_MAYBE_UNUSED` is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -19,16 +19,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_MAYBE_UNUSED':
+//: `BSLA_MAYBE_UNUSED`:
 //:    This annotation indicates that the so-annotated function, variable, or
 //:    type is possibly unused and the compiler should not generate a warning
 //:    for the unused identifier.
 //:
-//: 'BSLA_MAYBE_UNUSED_IS_ACTIVE':
-//:     The macro 'BSLA_MAYBE_UNUSED_IS_ACTIVE' is defined if
-//:     'BSLA_MAYBE_UNUSED' expands to something with the desired effect;
-//:      otherwise 'BSLA_MAYBE_UNUSED_IS_ACTIVE' is not defined and
-//:     'BSLA_MAYBE_UNUSED' expands to nothing.
+//: `BSLA_MAYBE_UNUSED_IS_ACTIVE`:
+//:     The macro `BSLA_MAYBE_UNUSED_IS_ACTIVE` is defined if
+//:     `BSLA_MAYBE_UNUSED` expands to something with the desired effect;
+//:      otherwise `BSLA_MAYBE_UNUSED_IS_ACTIVE` is not defined and
+//:     `BSLA_MAYBE_UNUSED` expands to nothing.
 //
 ///Usage
 ///-----
@@ -36,53 +36,53 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: "Unused" Warnings
 /// - - - - - - - - - - - - - -
-// First, we define a namespace, 'warn', within the unnamed namespace with a
+// First, we define a namespace, `warn`, within the unnamed namespace with a
 // type, a function, and a variable in it.  They are unused:
-//..
-//  namespace {
-//  namespace warn {
+// ```
+// namespace {
+// namespace warn {
 //
-//  double x;
+// double x;
 //
-//  struct ResultRec {
-//      double d_x;
-//      double d_y;
-//  };
+// struct ResultRec {
+//     double d_x;
+//     double d_y;
+// };
 //
-//  int quadratic(double *zeroA,
-//                double *zeroB,
-//                double *zeroC,
-//                double cubeFactor,
-//                double a,
-//                double b,
-//                double c)
-//      // Solve the quadratic function for the specified 'a', 'b', and 'c',
-//      // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
-//      // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
-//      // to those solutions and return 0 otherwise.  The specified
-//      // 'cubeFactor' and 'zeroC' are unused for now but will be used in
-//      // future expansion of the function to handle cubic polynomials.
-//  {
-//      typedef int UnusedTypedef;
+// int quadratic(double *zeroA,
+//               double *zeroB,
+//               double *zeroC,
+//               double cubeFactor,
+//               double a,
+//               double b,
+//               double c)
+//     // Solve the quadratic function for the specified 'a', 'b', and 'c',
+//     // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
+//     // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
+//     // to those solutions and return 0 otherwise.  The specified
+//     // 'cubeFactor' and 'zeroC' are unused for now but will be used in
+//     // future expansion of the function to handle cubic polynomials.
+// {
+//     typedef int UnusedTypedef;
 //
-//      const double discriminant = b * b - 4 * a * c;
-//      if (discriminant < 0 || 0.0 == a) {
-//          *zeroA = *zeroB = 0.0;
-//          return -1;                                                // RETURN
-//      }
+//     const double discriminant = b * b - 4 * a * c;
+//     if (discriminant < 0 || 0.0 == a) {
+//         *zeroA = *zeroB = 0.0;
+//         return -1;                                                // RETURN
+//     }
 //
-//      const double root = ::sqrt(discriminant);
-//      *zeroA = (-b + root) / (2 * a);
-//      *zeroB = (-b - root) / (2 * a);
+//     const double root = ::sqrt(discriminant);
+//     *zeroA = (-b + root) / (2 * a);
+//     *zeroB = (-b - root) / (2 * a);
 //
-//      return 0;
-//  }
+//     return 0;
+// }
 //
-//  }  // close namespace warn
-//  }  // close unnamed namespace
-//..
+// }  // close namespace warn
+// }  // close unnamed namespace
+// ```
 // Then, we observe the warnings:
-//..
+// ```
 // .../bsla_maybeunused.t.cpp:145:21: warning: typedef 'UnusedTypedef' locally
 // defined but not used [-Wunused-local-typedefs]
 //          typedef int UnusedTypedef;
@@ -104,67 +104,67 @@ BSLS_IDENT("$Id: $")
 // but not used [-Wunused-variable]
 //      double x;
 //             ^
-//..
+// ```
 // Note that none of the compilers currently in use by the development team
-// issue a warning on the unused 'warn::ResultRec', but some in the future
-// might.  In the meantime, 'BSLA_MAYBE_UNUSED' is tolerated on type
+// issue a warning on the unused `warn::ResultRec`, but some in the future
+// might.  In the meantime, `BSLA_MAYBE_UNUSED` is tolerated on type
 // declarations without resulting in a syntax error.
 //
-// Next, we define a namespace, 'nowarn', within the unused namespace with
-// exactly the same unused entities, using the 'BSLA_MAYBE_UNUSED' annotation
+// Next, we define a namespace, `nowarn`, within the unused namespace with
+// exactly the same unused entities, using the `BSLA_MAYBE_UNUSED` annotation
 // to silence the warnings:
-//..
-//  namespace {
-//  namespace nowarn {
+// ```
+// namespace {
+// namespace nowarn {
 //
-//  struct BSLA_MAYBE_UNUSED ResultRec {
-//      double d_x;
-//      double d_y;
-//  };
+// struct BSLA_MAYBE_UNUSED ResultRec {
+//     double d_x;
+//     double d_y;
+// };
 //
-//  BSLA_MAYBE_UNUSED double x;
+// BSLA_MAYBE_UNUSED double x;
 //
-//  BSLA_MAYBE_UNUSED int quadratic(double                   *zeroA,
-//                                  double                   *zeroB,
-//                                  BSLA_MAYBE_UNUSED double *zeroC,
-//                                  BSLA_MAYBE_UNUSED double  cubeFactor,
-//                                  double                    a,
-//                                  double                    b,
-//                                  double                    c);
-//      // Solve the quadratic function for the specified 'a', 'b', and 'c',
-//      // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
-//      // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
-//      // to those solutions and return 0 otherwise.  The specified
-//      // 'cubeFactor' and 'zeroC' are unused for now but will be used in
-//      // future expansion of the function to handle cubic polynomials.
+// BSLA_MAYBE_UNUSED int quadratic(double                   *zeroA,
+//                                 double                   *zeroB,
+//                                 BSLA_MAYBE_UNUSED double *zeroC,
+//                                 BSLA_MAYBE_UNUSED double  cubeFactor,
+//                                 double                    a,
+//                                 double                    b,
+//                                 double                    c);
+//     // Solve the quadratic function for the specified 'a', 'b', and 'c',
+//     // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
+//     // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
+//     // to those solutions and return 0 otherwise.  The specified
+//     // 'cubeFactor' and 'zeroC' are unused for now but will be used in
+//     // future expansion of the function to handle cubic polynomials.
 //
-//  int quadratic(double                   *zeroA,
-//                double                   *zeroB,
-//                BSLA_MAYBE_UNUSED double *zeroC,
-//                BSLA_MAYBE_UNUSED double  cubeFactor,
-//                double                    a,
-//                double                    b,
-//                double                    c)
-//  {
-//      BSLA_MAYBE_UNUSED typedef int UnusedTypedef;
+// int quadratic(double                   *zeroA,
+//               double                   *zeroB,
+//               BSLA_MAYBE_UNUSED double *zeroC,
+//               BSLA_MAYBE_UNUSED double  cubeFactor,
+//               double                    a,
+//               double                    b,
+//               double                    c)
+// {
+//     BSLA_MAYBE_UNUSED typedef int UnusedTypedef;
 //
-//      const double discriminant = b * b - 4 * a * c;
-//      if (discriminant < 0 || 0.0 == a) {
-//          *zeroA = *zeroB = 0.0;
-//          return -1;                                                // RETURN
-//      }
+//     const double discriminant = b * b - 4 * a * c;
+//     if (discriminant < 0 || 0.0 == a) {
+//         *zeroA = *zeroB = 0.0;
+//         return -1;                                                // RETURN
+//     }
 //
-//      const double root = ::sqrt(discriminant);
-//      *zeroA = (-b + root) / (2 * a);
-//      *zeroB = (-b - root) / (2 * a);
+//     const double root = ::sqrt(discriminant);
+//     *zeroA = (-b + root) / (2 * a);
+//     *zeroB = (-b - root) / (2 * a);
 //
-//      return 0;
-//  }
+//     return 0;
+// }
 //
-//  }  // close namespace nowarn
-//  }  // close unnamed namespace
-//..
-// Finally, we observe that the warnings for the 'nowarn' namespace are
+// }  // close namespace nowarn
+// }  // close unnamed namespace
+// ```
+// Finally, we observe that the warnings for the `nowarn` namespace are
 // suppressed.
 
 #include <bsls_compilerfeatures.h>

@@ -10,60 +10,60 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::Types: namespace for platform-neutral type names
 //
-//@DESCRIPTION: This component provides a namespace for a set of 'typedef's
+//@DESCRIPTION: This component provides a namespace for a set of `typedef`s
 // that provide a stable, portable interface to platform-dependent types.  In
 // particular, this component supplies portable typenames for signed and
-// unsigned 64-bit integers ('bsls::Types::Int64' and 'bsls::Types::Uint64',
+// unsigned 64-bit integers (`bsls::Types::Int64` and `bsls::Types::Uint64`,
 // respectively), as well as the preferred integral type denoting the number of
 // elements in a container, and the number of bytes in a single block of memory
-// supplied by an allocator ('bsls::Types::size_type').
+// supplied by an allocator (`bsls::Types::size_type`).
 //
 ///Usage
 ///-----
 // The following illustrates how some of the types supplied by this component
 // might be used.
 //
-// 'bsls::Types::Int64' and 'bsls::Types::Uint64' identify the preferred
+// `bsls::Types::Int64` and `bsls::Types::Uint64` identify the preferred
 // fundamental types denoting signed and unsigned 64-bit integers,
 // respectively:
-//..
-//  bsls::Types::Uint64 stimulus = 787000000000ULL;
-//..
-// Clients can use these types in the same way as an 'int'.  Clients can also
+// ```
+// bsls::Types::Uint64 stimulus = 787000000000ULL;
+// ```
+// Clients can use these types in the same way as an `int`.  Clients can also
 // mix usage with other fundamental integral types:
-//..
-//  bsls::Types::Uint64 nationalDebt = 1000000000000ULL;
-//  nationalDebt += stimulus;
+// ```
+// bsls::Types::Uint64 nationalDebt = 1000000000000ULL;
+// nationalDebt += stimulus;
 //
-//  unsigned int deficitReduction = 1000000000;
-//  nationalDebt -= deficitReduction;
+// unsigned int deficitReduction = 1000000000;
+// nationalDebt -= deficitReduction;
 //
-//  std::cout << "National Debt Level: " << nationalDebt << std::endl;
-//..
-// 'bsls::Types::size_type' identifies the preferred integral type denoting the
+// std::cout << "National Debt Level: " << nationalDebt << std::endl;
+// ```
+// `bsls::Types::size_type` identifies the preferred integral type denoting the
 // number of elements in a container, and the number of bytes in a single block
 // of memory supplied by an allocator.  For example, a typical use is as a
-// 'typedef' in an STL container:
-//..
-//  class vector {
+// `typedef` in an STL container:
+// ```
+// class vector {
 //
-//      // ...
+//     // ...
 //
-//    public:
-//      typedef bsls::Types::size_type size_type;
+//   public:
+//     typedef bsls::Types::size_type size_type;
 //
-//      // ...
-//  };
-//..
+//     // ...
+// };
+// ```
 // Note that Standard Library facilities that work with numeric types can be
-// used with 'bsls::Types' as well.  For example, the following code finds out
-// some facts about 'bsls::Types::Int64' in a platform-independent way:
-//..
-//  std::cout << "Min Int64 value: "
-//            << std::numeric_limits<bsls::Types::Int64>::min() << std::endl
-//            << "Max Int64 value: "
-//            << std::numeric_limits<bsls::Types::Int64>::max() << std::endl;
-//..
+// used with `bsls::Types` as well.  For example, the following code finds out
+// some facts about `bsls::Types::Int64` in a platform-independent way:
+// ```
+// std::cout << "Min Int64 value: "
+//           << std::numeric_limits<bsls::Types::Int64>::min() << std::endl
+//           << "Max Int64 value: "
+//           << std::numeric_limits<bsls::Types::Int64>::max() << std::endl;
+// ```
 
 #include <cstddef>
 
@@ -75,25 +75,28 @@ namespace bsls {
                           // struct Types
                           // ============
 
+/// Provide a namespace for a suite of `typedef`s that encapsulate
+/// platform-dependent types.
 struct Types{
-    // Provide a namespace for a suite of 'typedef's that encapsulate
-    // platform-dependent types.
 
     // TYPES
+
+    /// The alias `size_type` refers to the preferred type for denoting a
+    /// number of elements in either `bslma` allocators or container types.
     typedef std::size_t size_type;
-        // The alias 'size_type' refers to the preferred type for denoting a
-        // number of elements in either 'bslma' allocators or container types.
 
     typedef std::size_t    UintPtr;
+
+    /// The aliases `UintPtr` and `IntPtr` are guaranteed to have the same
+    /// size as pointers.
     typedef std::ptrdiff_t IntPtr;
-        // The aliases 'UintPtr' and 'IntPtr' are guaranteed to have the same
-        // size as pointers.
 
     typedef          long long Int64;
+
+    /// The aliases `Int64` and `Uint64` stand for the appropriate types
+    /// that define signed and unsigned 64-bit integers, respectively, for
+    /// the appropriate supported platforms.
     typedef unsigned long long Uint64;
-        // The aliases 'Int64' and 'Uint64' stand for the appropriate types
-        // that define signed and unsigned 64-bit integers, respectively, for
-        // the appropriate supported platforms.
 };
 
 }  // close package namespace
@@ -103,8 +106,8 @@ struct Types{
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bsls::Types bsls_Types;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

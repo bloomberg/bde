@@ -5,17 +5,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a 'NameOf' type for displaying template type at run-time.
+//@PURPOSE: Provide a `NameOf` type for displaying template type at run-time.
 //
 //@CLASSES:
 //  bsls::NameOf: template class to return name of template parameter
 //
 //@FREE FUNCTIONS
-//  bsls::nameOfType(const TYPE&): template function to return name of 'TYPE'
+//  bsls::nameOfType(const TYPE&): template function to return name of `TYPE`
 //
 //@DESCRIPTION: This component provides a template class,
-// 'bsls::NameOf<TYPE>', which can implicitly cast to a 'const char *' which
-// will point to a description of 'TYPE'.
+// `bsls::NameOf<TYPE>`, which can implicitly cast to a `const char *` which
+// will point to a description of `TYPE`.
 //
 ///Usage
 ///-----
@@ -23,131 +23,131 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1:
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, your test driver must have the following 'using' statements so that
-// the template class 'NameOf' and the template function 'nameOfType' can be
+// First, your test driver must have the following `using` statements so that
+// the template class `NameOf` and the template function `nameOfType` can be
 // referred to concisely, without having to qualify them with namespaces on
-// each call.  Note that if you've already said 'using namespace BloombergLP'
-// you don't have to give the 'BloombergLP::' qualifiers here:
-//..
-//  using BloombergLP::bsls::NameOf;
-//  using BloombergLP::bsls::nameOfType;
-//..
+// each call.  Note that if you've already said `using namespace BloombergLP`
+// you don't have to give the `BloombergLP::` qualifiers here:
+// ```
+// using BloombergLP::bsls::NameOf;
+// using BloombergLP::bsls::nameOfType;
+// ```
 // Next, we define some types in the unnamed namespace:
-//..
-//  namespace {
+// ```
+// namespace {
 //
-//  struct MyType {
-//      int  d_i;
-//      char d_c;
-//  };
+// struct MyType {
+//     int  d_i;
+//     char d_c;
+// };
 //
-//  union MyUnion {
-//      int  d_i;
-//      char d_buffer[100];
-//  };
+// union MyUnion {
+//     int  d_i;
+//     char d_buffer[100];
+// };
 //
-//  }  // close unnamed namespace
-//..
-// Next, we see that the 'NameOf' template class, when created with a type, can
-// be implicitly cast to a 'const char *' which points to a description of the
+// }  // close unnamed namespace
+// ```
+// Next, we see that the `NameOf` template class, when created with a type, can
+// be implicitly cast to a `const char *` which points to a description of the
 // type.
-//..
-//  assert(!std::strcmp("double", NameOf<double>()));
-//  assert(!std::strcmp("int",    NameOf<int>()));
-//..
-// Then, we see that when 'NameOf' is passed a 'typedef' or template parameter,
+// ```
+// assert(!std::strcmp("double", NameOf<double>()));
+// assert(!std::strcmp("int",    NameOf<int>()));
+// ```
+// Then, we see that when `NameOf` is passed a `typedef` or template parameter,
 // it resolves it to the original type:
-//..
-//  typedef int Woof;
+// ```
+// typedef int Woof;
 //
-//  assert(!std::strcmp("int",    NameOf<Woof>()));
-//..
-// Next, we introduce the 'nameOfType' template function, which takes as any
-// variable as an argument, and returns a 'const char *' pointing to a
+// assert(!std::strcmp("int",    NameOf<Woof>()));
+// ```
+// Next, we introduce the `nameOfType` template function, which takes as any
+// variable as an argument, and returns a `const char *` pointing to a
 // description of the type of the variable.
-//..
-//  int ii = 2;
+// ```
+// int ii = 2;
 //
-//  assert(!std::strcmp("int",    nameOfType(ii)));
-//..
-// Then, we see that 'NameOf' and 'nameOfType' will strip 'BloombergLP::'
+// assert(!std::strcmp("int",    nameOfType(ii)));
+// ```
+// Then, we see that `NameOf` and `nameOfType` will strip `BloombergLP::`
 // namespace qualifiers, as well as anonymous namespace qualifiers.
-//..
-//  typedef BloombergLP::bsls::Stopwatch SW;
+// ```
+// typedef BloombergLP::bsls::Stopwatch SW;
 //
-//  const SW      sw;
-//  const MyType  mt = { 2, 'a' };
-//  MyUnion       mu;
-//  mu.d_i = 7;
+// const SW      sw;
+// const MyType  mt = { 2, 'a' };
+// MyUnion       mu;
+// mu.d_i = 7;
 //
-//  assert(!std::strcmp("bsls::Stopwatch", NameOf<SW>()));
-//  assert(!std::strcmp("bsls::Stopwatch",
-//                                    NameOf<BloombergLP::bsls::Stopwatch>()));
-//  assert(!std::strcmp("bsls::Stopwatch", nameOfType(sw)));
+// assert(!std::strcmp("bsls::Stopwatch", NameOf<SW>()));
+// assert(!std::strcmp("bsls::Stopwatch",
+//                                   NameOf<BloombergLP::bsls::Stopwatch>()));
+// assert(!std::strcmp("bsls::Stopwatch", nameOfType(sw)));
 //
-//  assert(!std::strcmp("MyType",          NameOf<MyType>()));
-//  assert(!std::strcmp("MyType",          nameOfType(mt)));
+// assert(!std::strcmp("MyType",          NameOf<MyType>()));
+// assert(!std::strcmp("MyType",          nameOfType(mt)));
 //
-//  assert(!std::strcmp("MyUnion",         NameOf<MyUnion>()));
-//  assert(!std::strcmp("MyUnion",         nameOfType(mu)));
-//..
+// assert(!std::strcmp("MyUnion",         NameOf<MyUnion>()));
+// assert(!std::strcmp("MyUnion",         nameOfType(mu)));
+// ```
 // There is a problem with template code not knowing how to implicitly cast the
-// 'NameOf' type to 'const char *' for initializing or comparing with
-// 'std::string's.  To facilitate, 'NameOf' provides a 'const char *' 'name'
-// accessor, to avoid the user having to do a more verbose 'static cast'.
-//..
-//  const std::string swName = "bsls::Stopwatch";
-//  assert(swName == static_cast<const char *>(NameOf<SW>()));
-//  assert(swName == NameOf<SW>().name());
+// `NameOf` type to `const char *` for initializing or comparing with
+// `std::string`s.  To facilitate, `NameOf` provides a `const char *` `name`
+// accessor, to avoid the user having to do a more verbose `static cast`.
+// ```
+// const std::string swName = "bsls::Stopwatch";
+// assert(swName == static_cast<const char *>(NameOf<SW>()));
+// assert(swName == NameOf<SW>().name());
 //
-//  const std::string swNameB = NameOf<SW>().name();
-//  assert(swNameB == swName);
+// const std::string swNameB = NameOf<SW>().name();
+// assert(swNameB == swName);
 //
-//  printf("NameOf<SW>() = \"%s\"\n", NameOf<SW>().name());
-//  printf("NameOfType(4 + 3) = \"%s\"\n", nameOfType(4 + 3));
-//..
-// Note that 'nameOfType' naturally returns a 'const char *' and needs no help
-// casting.  Note also that 'bsls::debugprint' is able to figure out how to
-// cast 'NameOf' directly to 'const char *' with no problems, as can iostreams,
-// so there is no problem with putting a 'NameOf' in a 'LOOP_ASSERT' or
-// 'ASSERTV'.  It is anticipated that displaying by the BDE 'ASSERTV',
-// 'LOOP_ASSERT, and 'P' macros will be the primary use of this component.
-//..
-//  printf("NameOf<double>() = ");
-//  BloombergLP::bsls::debugprint(NameOf<double>());
-//  printf("\n");
+// printf("NameOf<SW>() = \"%s\"\n", NameOf<SW>().name());
+// printf("NameOfType(4 + 3) = \"%s\"\n", nameOfType(4 + 3));
+// ```
+// Note that `nameOfType` naturally returns a `const char *` and needs no help
+// casting.  Note also that `bsls::debugprint` is able to figure out how to
+// cast `NameOf` directly to `const char *` with no problems, as can iostreams,
+// so there is no problem with putting a `NameOf` in a `LOOP_ASSERT` or
+// `ASSERTV`.  It is anticipated that displaying by the BDE `ASSERTV`,
+// `LOOP_ASSERT, and `P' macros will be the primary use of this component.
+// ```
+// printf("NameOf<double>() = ");
+// BloombergLP::bsls::debugprint(NameOf<double>());
+// printf("\n");
 //
-//  typedef double DTYPE;
-//  DTYPE x = 7.3;
+// typedef double DTYPE;
+// DTYPE x = 7.3;
 //
-//  LOOP_ASSERT(NameOf<DTYPE>(), x > 7);
+// LOOP_ASSERT(NameOf<DTYPE>(), x > 7);
 //
-//  std::string myStr;              // Assign, not init, of string doesn't need
-//  myStr = NameOf<DTYPE>();        // '.name()'.
-//  assert("double" == myStr);
-//..
+// std::string myStr;              // Assign, not init, of string doesn't need
+// myStr = NameOf<DTYPE>();        // '.name()'.
+// assert("double" == myStr);
+// ```
 // Which produces:
-//..
-//  NameOf<SW>() = "bsls::Stopwatch"
-//..
-// Finally, we see that 'NameOf' and 'nameOfType' will simplify
-// 'std::basic_string<...>' declarations to 'std::string'.
-//..
-//  const std::string s = "std::string";
+// ```
+// NameOf<SW>() = "bsls::Stopwatch"
+// ```
+// Finally, we see that `NameOf` and `nameOfType` will simplify
+// `std::basic_string<...>` declarations to `std::string`.
+// ```
+// const std::string s = "std::string";
 //
-//  assert(s == NameOf<std::basic_string<char> >().name());
-//  assert(s == NameOf<std::string>().name());
-//  assert(s == nameOfType(s));
+// assert(s == NameOf<std::basic_string<char> >().name());
+// assert(s == NameOf<std::string>().name());
+// assert(s == nameOfType(s));
 //
-//  typedef NameOf<std::string> Nos;
+// typedef NameOf<std::string> Nos;
 //
-//  const std::string s2 = "bsls::NameOf<std::string>";
+// const std::string s2 = "bsls::NameOf<std::string>";
 //
-//  assert(s2 == NameOf<NameOf<std::basic_string<char> > >().name());
-//  assert(s2 == NameOf<NameOf<std::string> >().name());
-//  assert(s2 == NameOf<Nos>().name());
-//  assert(s2 == nameOfType(Nos()));
-//..
+// assert(s2 == NameOf<NameOf<std::basic_string<char> > >().name());
+// assert(s2 == NameOf<NameOf<std::string> >().name());
+// assert(s2 == NameOf<Nos>().name());
+// assert(s2 == nameOfType(Nos()));
+// ```
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
@@ -161,9 +161,9 @@ namespace bsls {
                         // class bsls::NameOf_Base
                         // =======================
 
+/// This `class` provide non-template implementation code for the `NameOf`
+/// template class.
 class NameOf_Base {
-    // This 'class' provide non-template implementation code for the 'NameOf'
-    // template class.
 
   protected:
     // PROTECTED TYPES
@@ -187,44 +187,47 @@ class NameOf_Base {
 #endif
 
     // PROTECTED CLASS METHOD
+
+    /// Initialize the specified `buffer` with the type name contained in
+    /// the specified `functionName`, where `functionName` is the function
+    /// name of the `NameOf` constructor.  Return either a pointer to
+    /// `buffer`, or if `buffer` couldn't be properly initialized,
+    /// `functionName`.
     static const char *initBuffer(char       *buffer,
                                   const char *functionName);
-        // Initialize the specified 'buffer' with the type name contained in
-        // the specified 'functionName', where 'functionName' is the function
-        // name of the 'NameOf' constructor.  Return either a pointer to
-        // 'buffer', or if 'buffer' couldn't be properly initialized,
-        // 'functionName'.
 };
 
                             // ==================
                             // class bsls::NameOf
                             // ==================
 
+/// This `class` provides a means to display the type name of its template
+/// parameter `TYPE`.  An instance of this `class` can be implicitly (or
+/// explicitly via the `name` accessor) cast to a `const char *` which will
+/// point to a buffer containing the description of the type.  Note that all
+/// instances of a given type will refer to the same character buffer
+/// containing the name.
 template <class TYPE>
 class NameOf : public NameOf_Base {
-    // This 'class' provides a means to display the type name of its template
-    // parameter 'TYPE'.  An instance of this 'class' can be implicitly (or
-    // explicitly via the 'name' accessor) cast to a 'const char *' which will
-    // point to a buffer containing the description of the type.  Note that all
-    // instances of a given type will refer to the same character buffer
-    // containing the name.
 
     // CLASS DATA
     static bsls::AtomicPointer<const char> s_buffer_p;
 
   public:
     // CREATOR
+
+    /// Initialize the base class of this object to the name of `TYPE`.
     NameOf();
-        // Initialize the base class of this object to the name of 'TYPE'.
 
     // ACCESSOR
-    operator const char *() const;
-        // Return a pointer to the a string containing the name of 'TYPE'.
 
+    /// Return a pointer to the a string containing the name of `TYPE`.
+    operator const char *() const;
+
+    /// Return a pointer to the a string containing the name of `TYPE`, this
+    /// serves as a convenient way to explicitly cast the return value to a
+    /// `const char *`.
     const char *name() const;
-        // Return a pointer to the a string containing the name of 'TYPE', this
-        // serves as a convenient way to explicitly cast the return value to a
-        // 'const char *'.
 };
 
 // ============================================================================
@@ -240,9 +243,10 @@ template <class TYPE>
 bsls::AtomicPointer<const char> NameOf<TYPE>::s_buffer_p;
 
 // CREATOR
+
+/// Initialize the base class of this object to name of `TYPE`.
 template <class TYPE>
 NameOf<TYPE>::NameOf()
-    // Initialize the base class of this object to name of 'TYPE'.
 {
     // It is important to ensure that no two threads are initializing the same
     // buffer at the same time.
@@ -298,9 +302,10 @@ const char *NameOf<TYPE>::name() const
 }
 
 // FREE FUNCTIONS
+
+/// Return the name of the type of the object passed to this function.
 template <class TYPE>
 const char *nameOfType(const TYPE&)
-    // Return the name of the type of the object passed to this function.
 {
     return NameOf<TYPE>();
 }

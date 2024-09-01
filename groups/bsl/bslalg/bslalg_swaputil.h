@@ -5,97 +5,97 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a simple to use 'swap' algorithm.
+//@PURPOSE: Provide a simple to use `swap` algorithm.
 //
 //@CLASSES:
-//  bslalg::SwapUtil: namespace for the 'swap' utility function.
+//  bslalg::SwapUtil: namespace for the `swap` utility function.
 //
 //@SEE_ALSO: bsl_algorithm
 //
 //@DESCRIPTION: This component provides a namespace for a utility function that
 // swaps the value of two objects of the same type.  Using this utility is
-// intended to be a simpler alternative to using the standard 'swap' algorithm
-// directly.  The standard 'swap' algorithm is provided in the 'bsl' namespace
+// intended to be a simpler alternative to using the standard `swap` algorithm
+// directly.  The standard `swap` algorithm is provided in the `bsl` namespace
 // in a generic form and overloaded for specific classes in the namespaces of
-// those classes.  When the 'swap' algorithm is used, its specific
+// those classes.  When the `swap` algorithm is used, its specific
 // implementation is supposed to be found by Argument Dependent Lookup (ADL).
-// Finding the proper 'swap' function with ADL requires bringing the
-// 'bsl::swap' into the current scope with the 'using' directive and then
-// calling a 'swap' function without the namespace qualification.  The 'swap'
+// Finding the proper `swap` function with ADL requires bringing the
+// `bsl::swap` into the current scope with the `using` directive and then
+// calling a `swap` function without the namespace qualification.  The `swap`
 // utility static function provided by this component relieves the end-user
-// from a need to remember those details of the proper usage of the 'swap'
+// from a need to remember those details of the proper usage of the `swap`
 // algorithm.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bslalg::SwapUtil::swap'
+///Example 1: Using `bslalg::SwapUtil::swap`
 ///- - - - - - - - - - - - - - - - - - - - -
-// In this example we define a type 'Container' and use 'bslalg::SwapUtil' to
-// both implement a user-defined 'swap' for 'Container', and swap two container
+// In this example we define a type `Container` and use `bslalg::SwapUtil` to
+// both implement a user-defined `swap` for `Container`, and swap two container
 // objects.
 //
-// We start by defining a class 'Container' in the 'xyz' namespace.  Further we
-// assume that 'Container' has some expensive-to-copy data, so we provide a
-// custom 'swap' algorithm to efficiently swap the data between a two objects
-// this class by defining a 'swap' method and a 'swap' free function.
-//..
-//  namespace xyz {
+// We start by defining a class `Container` in the `xyz` namespace.  Further we
+// assume that `Container` has some expensive-to-copy data, so we provide a
+// custom `swap` algorithm to efficiently swap the data between a two objects
+// this class by defining a `swap` method and a `swap` free function.
+// ```
+// namespace xyz {
 //
-//  class Container {
-//    private:
-//      int d_expensiveData;
+// class Container {
+//   private:
+//     int d_expensiveData;
 //
-//    public:
-//      void swap(Container& other);
-//          // Swap the value of 'this' object with the value of the specified
-//          // 'other' object.  This method provides the no-throw
-//          // exception-safety guarantee.
-//  };
+//   public:
+//     void swap(Container& other);
+//         // Swap the value of 'this' object with the value of the specified
+//         // 'other' object.  This method provides the no-throw
+//         // exception-safety guarantee.
+// };
 //
-//  void swap(Container& a, Container& b);
-//      // Swap the values of the specified 'a' and 'b' objects.  This function
-//      // provides the no-throw exception-safety guarantee.
-//..
-// Note that the free function 'swap' is overloaded in the namespace of the
-// class 'Container', which is 'xyz'.
+// void swap(Container& a, Container& b);
+//     // Swap the values of the specified 'a' and 'b' objects.  This function
+//     // provides the no-throw exception-safety guarantee.
+// ```
+// Note that the free function `swap` is overloaded in the namespace of the
+// class `Container`, which is `xyz`.
 //
-// Next, we implemented the 'swap' method using the 'bslalg::SwapUtil::swap' to
+// Next, we implemented the `swap` method using the `bslalg::SwapUtil::swap` to
 // swap the individual data elements:
-//..
-//  inline
-//  void Container::swap(Container& other)
-//  {
-//      bslalg::SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
+// ```
+// inline
+// void Container::swap(Container& other)
+// {
+//     bslalg::SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
 //
-//      // Equivalent to:
-//      // using bsl::swap;
-//      // swap(d_expensiveData, other.d_expensiveData);
-//  }
-//..
-// Notice that calling 'bslalg::SwapUtil::swap' is equivalent to making the
-// 'bsl::swap' available in the current scope by doing 'using bsl::swap' and
-// making a subsequent call to an unqualified 'swap' function.
+//     // Equivalent to:
+//     // using bsl::swap;
+//     // swap(d_expensiveData, other.d_expensiveData);
+// }
+// ```
+// Notice that calling `bslalg::SwapUtil::swap` is equivalent to making the
+// `bsl::swap` available in the current scope by doing `using bsl::swap` and
+// making a subsequent call to an unqualified `swap` function.
 //
-// Then, we implement the 'swap' free function:
-//..
-//  inline
-//  void swap(Container& a, Container& b)
-//  {
-//      a.swap(b);
-//  }
+// Then, we implement the `swap` free function:
+// ```
+// inline
+// void swap(Container& a, Container& b)
+// {
+//     a.swap(b);
+// }
 //
-//  }  // close namespace xyz
-//..
-// Finally we can use 'bslalg::SwapUtil::swap' to swap two objects of class
-// 'xyz::Container':
-//..
-//  xyz::Container c1, c2;
+// }  // close namespace xyz
+// ```
+// Finally we can use `bslalg::SwapUtil::swap` to swap two objects of class
+// `xyz::Container`:
+// ```
+// xyz::Container c1, c2;
 //
-//  bslalg::SwapUtil::swap(&c1, &c2);
-//..
-// The above code correctly calls the 'xyz::swap' overload for the 'Container'
+// bslalg::SwapUtil::swap(&c1, &c2);
+// ```
+// The above code correctly calls the `xyz::swap` overload for the `Container`
 // class.
 
 #include <bslscm_version.h>
@@ -124,18 +124,19 @@ namespace bslalg {
                            // struct SwapUtil
                            // ===============
 
+/// This class provides a namespace for the `swap` utility method.
 class SwapUtil {
-    // This class provides a namespace for the 'swap' utility method.
 
   public:
     // CLASS METHODS
+
+    /// Exchange the values of the specified `a` and `b` objects using
+    /// either a `swap` free function overloaded for type `T`, in the
+    /// namespace of type `T` if it's available, and the default generic
+    /// `bsl::swap` otherwise.
     template <class T>
     static
     void swap(T *a, T *b);
-        // Exchange the values of the specified 'a' and 'b' objects using
-        // either a 'swap' free function overloaded for type 'T', in the
-        // namespace of type 'T' if it's available, and the default generic
-        // 'bsl::swap' otherwise.
 };
 
 // ============================================================================
@@ -170,8 +171,8 @@ void SwapUtil::swap(T *a, T *b)
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslalg::SwapUtil bslalg_SwapUtil;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

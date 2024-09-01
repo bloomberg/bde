@@ -11,12 +11,12 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsAccessibleBaseOf: meta-function for detecting derived classes
 //
 //@DESCRIPTION: This component provides a meta-function,
-// 'bslmf::IsAccessibleBaseOf', that determines whether one class is an
+// `bslmf::IsAccessibleBaseOf`, that determines whether one class is an
 // accessible base class of another class.  The static constant
-// 'bslmf::IsAccessibleBaseOf::value' is 'true' if the template parameter
-// 't_BASE' class is an accessible base class of, or the same class as, the
-// template parameter 't_DERIVED'.  Otherwise,
-// 'bslmf::IsAccessibleBaseOf::value' is 'false'.  The specific cases of
+// `bslmf::IsAccessibleBaseOf::value` is `true` if the template parameter
+// `t_BASE` class is an accessible base class of, or the same class as, the
+// template parameter `t_DERIVED`.  Otherwise,
+// `bslmf::IsAccessibleBaseOf::value` is `false`.  The specific cases of
 // private, protected, and ambiguous inheritance are not supported for versions
 // of C++ prior to 11.
 //
@@ -27,43 +27,43 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Base And Derived Classes
 ///- - - - - - - - - - - - - - - - - -
 // Define two classes, one inheriting from the other.
-//..
-//  struct Base
-//  {};
+// ```
+// struct Base
+// {};
 //
-//  struct Derived : Base
-//  {};
-//..
-// Evaluate 'bslmf::IsAccessibleBaseOf::value'.
-//..
-//  void example1()
-//  {
-//      assert((true  == bslmf::IsAccessibleBaseOf<Base,    Derived>::value));
-//      assert((true  == bslmf::IsAccessibleBaseOf<Base,    Base>   ::value));
-//      assert((true  == bslmf::IsAccessibleBaseOf<Derived, Derived>::value));
-//      assert((false == bslmf::IsAccessibleBaseOf<Derived, Base>   ::value));
-//  }
-//..
+// struct Derived : Base
+// {};
+// ```
+// Evaluate `bslmf::IsAccessibleBaseOf::value`.
+// ```
+// void example1()
+// {
+//     assert((true  == bslmf::IsAccessibleBaseOf<Base,    Derived>::value));
+//     assert((true  == bslmf::IsAccessibleBaseOf<Base,    Base>   ::value));
+//     assert((true  == bslmf::IsAccessibleBaseOf<Derived, Derived>::value));
+//     assert((false == bslmf::IsAccessibleBaseOf<Derived, Base>   ::value));
+// }
+// ```
 ///Example 2: Unrelated Classes
 /// - - - - - - - - - - - - - -
 // Define two classes, one inheriting privately from the other.
-//..
-//  class Unrelated
-//  {};
+// ```
+// class Unrelated
+// {};
 //
-//  class Unrelated2
-//  {};
-//..
-// Evaluate 'bslmf::IsAccessibleBaseOf::value'.  Note that 'Derived' is not
-// *observably* derived from 'Base', so std::is_base_of would evaluate 'true',
-// but 'bslmf::IsAccessibleBaseOf' evaluates 'false'.
-//..
-//  void example2()
-//  {
-//      assert((false ==
-//              bslmf::IsAccessibleBaseOf<Unrelated, Unrelated2>::value));
-//  }
-//..
+// class Unrelated2
+// {};
+// ```
+// Evaluate `bslmf::IsAccessibleBaseOf::value`.  Note that `Derived` is not
+// *observably* derived from `Base`, so std::is_base_of would evaluate `true`,
+// but `bslmf::IsAccessibleBaseOf` evaluates `false`.
+// ```
+// void example2()
+// {
+//     assert((false ==
+//             bslmf::IsAccessibleBaseOf<Unrelated, Unrelated2>::value));
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -79,6 +79,11 @@ namespace bslmf {
                           // class IsAccessibleBaseOf
                           // ========================
 
+/// This `struct` template provides a type trait to determine if one class
+/// is an accessible base class of another class.  Note that, while similar
+/// to `std::is_base_of`, when the derived relationship is via private,
+/// protected, or ambiguous inheritance `IsAccessibleBaseOf` evaluates to
+/// false.
 template <class t_BASE, class t_DERIVED>
 class IsAccessibleBaseOf
 : public bsl::integral_constant<
@@ -88,11 +93,6 @@ class IsAccessibleBaseOf
           bsl::is_convertible<
               typename bsl::remove_cv<t_DERIVED>::type *,
               typename bsl::remove_cv<t_BASE>::type *>::value> {
-    // This 'struct' template provides a type trait to determine if one class
-    // is an accessible base class of another class.  Note that, while similar
-    // to 'std::is_base_of', when the derived relationship is via private,
-    // protected, or ambiguous inheritance 'IsAccessibleBaseOf' evaluates to
-    // false.
 };
 
 }  // close package namespace

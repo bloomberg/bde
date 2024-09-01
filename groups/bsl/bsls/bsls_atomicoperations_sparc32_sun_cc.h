@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Sun Sparc platform in 32bit mode with SunCC compiler.  The classes
-// are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
+// are for private use only.  See `bsls_atomicoperations` and `bsls_atomic` for
 // the public interface to atomics.
 
 #include <bsls_atomicoperations_default.h>

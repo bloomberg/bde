@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitNil'.  All types have this trait.
+// `bslalg::TypeTraitNil`.  All types have this trait.
 //
 ///Usage
 ///-----
@@ -37,15 +37,15 @@ namespace bslalg {
                             // TypeTraitNil
                             //=============
 
+/// Nil trait -- every type has this trait.
 struct TypeTraitNil
 {
-    // Nil trait -- every type has this trait.
 
+    /// This meta-function returns `true_type` for any type that is queried
+    /// for the nil trait.
     template <class TYPE>
     struct NestedTraitDeclaration
     {
-        // This meta-function returns 'true_type' for any type that is queried
-        // for the nil trait.
     };
 
     template <class TYPE>
@@ -62,8 +62,8 @@ struct TypeTraitNil
 #ifdef bslalg_TypeTraitNil
 #undef bslalg_TypeTraitNil
 #endif
+/// This alias is defined for backward compatibility.
 #define bslalg_TypeTraitNil bslalg::TypeTraitNil
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

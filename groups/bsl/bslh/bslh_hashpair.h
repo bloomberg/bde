@@ -5,11 +5,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide 'hashAppend' for 'std::pair'.
+//@PURPOSE: Provide `hashAppend` for `std::pair`.
 //
 //@DESCRIPTION: This component provides a free function template,
-// 'bslh::hashAppend', overloaded for the 'std::pair' class template.
-// Including this function allows for 'std::pair' types (and types that contain
+// `bslh::hashAppend`, overloaded for the `std::pair` class template.
+// Including this function allows for `std::pair` types (and types that contain
 // them) to be used as keys in BDE hashed containers.
 //
 ///Usage
@@ -20,33 +20,33 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - -
 // Suppose one must compute has that combines the hashes of several integer
 // values, each of a different type:
-//..
-//  char  c = 'a';
-//  short s = static_cast<short>(1);
-//..
+// ```
+// char  c = 'a';
+// short s = static_cast<short>(1);
+// ```
 // First, we can make that calculation by repeated invocations of a
 // 'bslh::DefaultHashAlogorithm object:
-//..
-//  bslh::DefaultHashAlgorithm hasherS;
-//  hasherS(&c, sizeof(char));
-//  hasherS(&s, sizeof(short));
+// ```
+// bslh::DefaultHashAlgorithm hasherS;
+// hasherS(&c, sizeof(char));
+// hasherS(&s, sizeof(short));
 //
-//  bslh::DefaultHashAlgorithm::result_type hashS = hasherS.computeHash();
-//..
+// bslh::DefaultHashAlgorithm::result_type hashS = hasherS.computeHash();
+// ```
 // Now, the same calculation can also be be made if those same values are
-// contained in a single 'std::pair' object.
-//..
-//  std::pair<char, short> t = std::make_pair(c, s);
+// contained in a single `std::pair` object.
+// ```
+// std::pair<char, short> t = std::make_pair(c, s);
 //
-//  bslh::DefaultHashAlgorithm hasherT;
-//  bslh::hashAppend(hasherT, t);
+// bslh::DefaultHashAlgorithm hasherT;
+// bslh::hashAppend(hasherT, t);
 //
-//  bslh::DefaultHashAlgorithm::result_type hashT = hasherT.computeHash();
-//..
+// bslh::DefaultHashAlgorithm::result_type hashT = hasherT.computeHash();
+// ```
 // Finally, we confirm that we computed the same result.
-//..
-//  assert(hashS == hashT);
-//..
+// ```
+// assert(hashS == hashT);
+// ```
 
 #include <bslscm_version.h>
 
@@ -58,12 +58,13 @@ namespace BloombergLP {
 namespace bslh {
 
 // FREE FUNCTIONS
+
+/// Invoke the (appropriate) `hashAppend` function, with the specified
+/// `algorithm` on the `first` and `second` members, in that order, of the
+/// specified `input` pair.
 template <class HASH_ALGORITHM, class TYPE1, class TYPE2>
 void
 hashAppend(HASH_ALGORITHM& algorithm, const std::pair<TYPE1, TYPE2>& input);
-    // Invoke the (appropriate) 'hashAppend' function, with the specified
-    // 'algorithm' on the 'first' and 'second' members, in that order, of the
-    // specified 'input' pair.
 
 // ============================================================================
 //                          INLINE DEFINITIONS

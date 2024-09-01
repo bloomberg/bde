@@ -9,35 +9,35 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::uses_allocator: meta-fn to check if a type uses a certain allocator
-//  bsl::uses_allocator_v: the result value of 'bsl::uses_allocator'
+//  bsl::uses_allocator_v: the result value of `bsl::uses_allocator`
 //
 //@SEE_ALSO: bslmf_isconvertible
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::uses_allocator',
+//@DESCRIPTION: This component defines a meta-function, `bsl::uses_allocator`,
 // that may be used to query whether a given type uses a given allocator type.
 //
-// 'bsl::uses_allocator' meets the requirements of the 'uses_allocator'
+// `bsl::uses_allocator` meets the requirements of the `uses_allocator`
 // template defined in the C++11 standard [allocator.uses.trait], in addition
 // to providing a welcome availability in both C++03 and C++11 compilation
 // environments.
 //
-// A type 'T' uses an allocator type 'A' if 'A' has a nested alias named
-// 'allocator_type' and 'A' is convertible to 'allocator_type' (as defined in
-// the 'bslmf_isconvertible' component).  If a type 'T' uses an allocator type
-// 'A', then 'T' has a constructor that takes either 1) 'allocator_arg_t' as a
-// first argument and 'A' as a second argument, or 2) 'A' as the last argument.
-// Alternatively, the 'uses_allocator' template may be specialized for a type
-// 'T' that does not have a nested alias named 'allocator_type', where 'T' can
-// be constructed with 'A' as detailed above.
+// A type `T` uses an allocator type `A` if `A` has a nested alias named
+// `allocator_type` and `A` is convertible to `allocator_type` (as defined in
+// the `bslmf_isconvertible` component).  If a type `T` uses an allocator type
+// `A`, then `T` has a constructor that takes either 1) `allocator_arg_t` as a
+// first argument and `A` as a second argument, or 2) `A` as the last argument.
+// Alternatively, the `uses_allocator` template may be specialized for a type
+// `T` that does not have a nested alias named `allocator_type`, where `T` can
+// be constructed with `A` as detailed above.
 //
-// Note that the template variable 'uses_allocator_v' is defined in the C++17
+// Note that the template variable `uses_allocator_v` is defined in the C++17
 // standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::uses_allocator_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::uses_allocator_v' is
-// defined as a non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// variable C++17 compiler feature, `bsl::uses_allocator_v` is defined as an
+// `inline constexpr bool` variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, `bsl::uses_allocator_v` is
+// defined as a non-inline `constexpr bool` variable.  See
+// `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in
 // bsls_compilerfeatures component for details.
 //
 ///Usage
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Determine If a Type Uses an Allocator
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 //
-//..
+// ```
 // template <class CONTAINER>
 // class ContainerAdaptor {
 //     // ...
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 //
 //     // ...
 // };
-//..
+// ```
 //
 
 #include <bslscm_version.h>
@@ -88,21 +88,21 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
+/// This `struct` template derives from `bsl::false_type` when the (template
+/// parameter) type `t_TYPE` does not have a nested alias `allocator_type`.
 template <class t_TYPE, class t_ALLOC, class = void>
 struct UsesAllocator_Imp : bsl::false_type {
-    // This 'struct' template derives from 'bsl::false_type' when the (template
-    // parameter) type 't_TYPE' does not have a nested alias 'allocator_type'.
 };
 
+/// This `struct` template derives from `bsl::true_type` when the (template
+/// parameter) `t_TYPE` has a nested alias `allocator_type` and the
+/// (template parameter) type `t_ALLOC` is convertible to
+/// `t_TYPE::allocator_type`, and `bsl::false_type` otherwise.
 template <class t_TYPE, class t_ALLOC>
 struct UsesAllocator_Imp<t_TYPE,
                          t_ALLOC,
                          BSLMF_VOIDTYPE(typename t_TYPE::allocator_type)>
 : bsl::is_convertible<t_ALLOC, typename t_TYPE::allocator_type>::type {
-    // This 'struct' template derives from 'bsl::true_type' when the (template
-    // parameter) 't_TYPE' has a nested alias 'allocator_type' and the
-    // (template parameter) type 't_ALLOC' is convertible to
-    // 't_TYPE::allocator_type', and 'bsl::false_type' otherwise.
 };
 
 }  // close package namespace
@@ -114,23 +114,23 @@ namespace bsl {
                         // struct uses_allocator
                         // =====================
 
+/// This `struct` template implements a meta-function to determine whether a
+/// (template parameter) `t_TYPE` uses a given (template parameter)
+/// `t_ALLOCATOR_TYPE`.  This `struct` derives from `bsl::true_type` if
+/// `t_TYPE` uses `t_ALLOCATOR_TYPE` and from `bsl::false_type` otherwise.
+/// This meta-function has the same syntax as the `uses_allocator`
+/// meta-function defined in the C++11 standard [allocator.uses.trait].
 template <class t_TYPE, class t_ALLOCATOR_TYPE>
 struct uses_allocator
 : BloombergLP::bslmf::UsesAllocator_Imp<t_TYPE, t_ALLOCATOR_TYPE>::type {
-    // This 'struct' template implements a meta-function to determine whether a
-    // (template parameter) 't_TYPE' uses a given (template parameter)
-    // 't_ALLOCATOR_TYPE'.  This 'struct' derives from 'bsl::true_type' if
-    // 't_TYPE' uses 't_ALLOCATOR_TYPE' and from 'bsl::false_type' otherwise.
-    // This meta-function has the same syntax as the 'uses_allocator'
-    // meta-function defined in the C++11 standard [allocator.uses.trait].
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// This template variable represents the result value of the
+/// `bsl::uses_allocator` meta-function.
 template <class t_TYPE, class t_ALLOCATOR_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool uses_allocator_v =
                                uses_allocator<t_TYPE, t_ALLOCATOR_TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::uses_allocator' meta-function.
 #endif
 
 

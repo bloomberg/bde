@@ -5,21 +5,21 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide test utilities for components above 'bsl'.
+//@PURPOSE: Provide test utilities for components above `bsl`.
 //
 //@CLASSES:
 //
 //@MACROS:
-//  BSLIM_TESTUTIL_ASSERT(X): record and print error if '!X'
-//  BSLIM_TESTUTIL_LOOP_ASSERT(I, X): print arguments if '!X'
-//  BSLIM_TESTUTIL_LOOP2_ASSERT(I, J, X): print arguments if '!X'
-//  BSLIM_TESTUTIL_LOOP3_ASSERT(I, J, K, X): print arguments if '!X'
-//  BSLIM_TESTUTIL_LOOP4_ASSERT(I, J, K, L, X): print arguments if '!X'
-//  BSLIM_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X): print arguments if '!X'
-//  BSLIM_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print arguments if '!X'
-//  BSLIM_TESTUTIL_LOOP7_ASSERT(I, J, K, L, M, N,O, X): print arguments if '!X'
-//  BSLIM_TESTUTIL_LOOP8_ASSERT(I, J, K, L,M,N,O,V, X): print arguments if '!X'
-//  BSLIM_TESTUTIL_ASSERTV(..., X): print generic arguments if '!X'
+//  BSLIM_TESTUTIL_ASSERT(X): record and print error if `!X`
+//  BSLIM_TESTUTIL_LOOP_ASSERT(I, X): print arguments if `!X`
+//  BSLIM_TESTUTIL_LOOP2_ASSERT(I, J, X): print arguments if `!X`
+//  BSLIM_TESTUTIL_LOOP3_ASSERT(I, J, K, X): print arguments if `!X`
+//  BSLIM_TESTUTIL_LOOP4_ASSERT(I, J, K, L, X): print arguments if `!X`
+//  BSLIM_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X): print arguments if `!X`
+//  BSLIM_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print arguments if `!X`
+//  BSLIM_TESTUTIL_LOOP7_ASSERT(I, J, K, L, M, N,O, X): print arguments if `!X`
+//  BSLIM_TESTUTIL_LOOP8_ASSERT(I, J, K, L,M,N,O,V, X): print arguments if `!X`
+//  BSLIM_TESTUTIL_ASSERTV(..., X): print generic arguments if `!X`
 //  BSLIM_TESTUTIL_Q(X): quote identifier literally
 //  BSLIM_TESTUTIL_P(X): print identifier and value
 //  BSLIM_TESTUTIL_P_(X): print identifier and value without '\n'
@@ -29,15 +29,15 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsls_bsltestutil
 //
 //@DESCRIPTION: This component provides the standard print macros used in
-// BDE-style test drivers ('ASSERT', 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L',
-// and 'T') for components above the 'bsl' package group.
+// BDE-style test drivers (`ASSERT`, `LOOP_ASSERT`, `ASSERTV`, `P`, `Q`, `L`,
+// and `T`) for components above the `bsl` package group.
 //
 // This component also defines a set of overloads for the insertion operator
-// ('<<') to support the streaming of test types defined in the 'bsltf'
-// package.  These overloads are required for test drivers above the 'bsl'
-// package group in order to print objects of the 'bsltf' types to 'bsl::cout'.
+// (`<<`) to support the streaming of test types defined in the `bsltf`
+// package.  These overloads are required for test drivers above the `bsl`
+// package group in order to print objects of the `bsltf` types to `bsl::cout`.
 //
-// This component also defines a pair of methods, 'setFunc' and 'callFunc',
+// This component also defines a pair of methods, `setFunc` and `callFunc`,
 // that allow a test driver to set and call a function by going through another
 // compilation unit to preclude the optimizer from inlining the function call.
 
@@ -247,25 +247,25 @@ BSLS_IDENT("$Id: $")
     BSLIM_TESTUTIL_LOOPN_ASSERT(                                              \
                              BSLIM_TESTUTIL_NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
+/// Quote identifier literally.
 #define BSLIM_TESTUTIL_Q(X)                                                   \
     bsl::cout << "<| " #X " |>" << bsl::endl;
-    // Quote identifier literally.
 
+/// Print identifier and its value.
 #define BSLIM_TESTUTIL_P(X)                                                   \
     bsl::cout << #X " = " << BSLIM_TESTUTIL_DEBUG_REP(X) << bsl::endl;
-    // Print identifier and its value.
 
+/// `P(X)` without '\n'
 #define BSLIM_TESTUTIL_P_(X)                                                  \
     bsl::cout << #X " = " << BSLIM_TESTUTIL_DEBUG_REP(X) << ", " << bsl::flush;
-    // 'P(X)' without '\n'
 
+/// current Line number
 #define BSLIM_TESTUTIL_L_                                                     \
     __LINE__
-    // current Line number
 
+/// Print tab (w/o newline).
 #define BSLIM_TESTUTIL_T_                                                     \
     bsl::cout << "\t" << bsl::flush;
-    // Print tab (w/o newline).
 
 namespace BloombergLP {
 namespace bslim {
@@ -274,45 +274,47 @@ namespace bslim {
                         // class TestUtil
                         // ==============
 
+/// This `struct` provides a namespace for a suite of utility functions that
+/// facilitate the creation of BDE-style test drivers.
 struct TestUtil {
-    // This 'struct' provides a namespace for a suite of utility functions that
-    // facilitate the creation of BDE-style test drivers.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Return `ptr` without modification.  Note that this is NOT an inline
+    /// function, so that if the caller is not in the same module, the
+    /// compiler has no way of knowing that it's an identity transform.
     static void *identityPtr(void *ptr);
-        // Return 'ptr' without modification.  Note that this is NOT an inline
-        // function, so that if the caller is not in the same module, the
-        // compiler has no way of knowing that it's an identity transform.
 
   public:
     // CLASS METHODS
+
+    /// Return `true` if the specified `lhs` has the same value as the
+    /// specified `rhs`, and `false` otherwise.  Optionally specify an
+    /// `errorStream` on which, if `lhs` and `rhs` are not the same', a
+    /// description of how the two strings differ will be written.  If
+    /// `errorStream` is not supplied, `stdout` is used.
     static bool compareText(bslstl::StringRef lhs,
                             bslstl::StringRef rhs,
                             bsl::ostream&     errorStream = bsl::cout);
-        // Return 'true' if the specified 'lhs' has the same value as the
-        // specified 'rhs', and 'false' otherwise.  Optionally specify an
-        // 'errorStream' on which, if 'lhs' and 'rhs' are not the same', a
-        // description of how the two strings differ will be written.  If
-        // 'errorStream' is not supplied, 'stdout' is used.
 
+    /// Return the specified `functionPtr` (expected to be a static function
+    /// pointer) without modification.  The value of `functionPtr` is
+    /// transformed through `identityPtr` so that if the caller is in a
+    /// different module, the compiler will have no way of knowing that this
+    /// is an identity transform and thus no way of inlining the call.
+    ///
+    /// Note: the Windows optimizer is still able to inline the call, it may
+    /// be comparing the result of this function with the argument and
+    /// branching to inline on equality and call on inequality, so the
+    /// Windows optimizer has to be turned off with
+    /// `# pragma optimize("", off)`.
+    ///
+    /// Also note that even with an optimizer that can't figure out that
+    /// this is an identity transform, there is still the possibility of
+    /// chaining the call.
     template <class FUNCTION_PTR>
     static FUNCTION_PTR makeFunctionCallNonInline(FUNCTION_PTR functionPtr);
-        // Return the specified 'functionPtr' (expected to be a static function
-        // pointer) without modification.  The value of 'functionPtr' is
-        // transformed through 'identityPtr' so that if the caller is in a
-        // different module, the compiler will have no way of knowing that this
-        // is an identity transform and thus no way of inlining the call.
-        //
-        // Note: the Windows optimizer is still able to inline the call, it may
-        // be comparing the result of this function with the argument and
-        // branching to inline on equality and call on inequality, so the
-        // Windows optimizer has to be turned off with
-        // '# pragma optimize("", off)'.
-        //
-        // Also note that even with an optimizer that can't figure out that
-        // this is an identity transform, there is still the possibility of
-        // chaining the call.
 
     template <class T>
     static const T& debugRep(const T& arg) { return arg; }

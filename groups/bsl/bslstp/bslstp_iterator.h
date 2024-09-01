@@ -14,7 +14,7 @@
 //
 // Note that the functions in this component are based on STLPort's
 // implementation, with copyright notice as follows:
-//..
+// ```
 /*
  *
  * Copyright (c) 1994
@@ -39,11 +39,11 @@
  * modified is included with the above copyright notice.
  *
  */
-//..
+// ```
 //
-///Usage
-///-----
-// This component is for internal use only.
+// /Usage
+// /-----
+//  This component is for internal use only.
 
 #ifdef BDE_OPENSOURCE_PUBLICATION // STP
 #error "bslstp_iterator is not for publication"

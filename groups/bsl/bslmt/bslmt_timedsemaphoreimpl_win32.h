@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bslmt::TimedSemaphore'.
+//@PURPOSE: Provide a win32 implementation of `bslmt::TimedSemaphore`.
 //
 //@CLASSES:
 //  bslmt::TimedSemaphoreImpl<Win32TimedSemaphore>: win32 specialization
@@ -13,32 +13,32 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmt_timedsemaphore
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bslmt::TimedSemaphore' for Windows (win32),
-// 'bslmt::TimedSemaphoreImpl<Win32TimedSemaphore>', via the template
+// `bslmt::TimedSemaphore` for Windows (win32),
+// `bslmt::TimedSemaphoreImpl<Win32TimedSemaphore>`, via the template
 // specialization:
-//..
-//  bslmt::TimedSemaphoreImpl<Platform::Win32Threads>
-//..
+// ```
+// bslmt::TimedSemaphoreImpl<Platform::Win32Threads>
+// ```
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bslmt::TimedSemaphore'.
+// should instead use `bslmt::TimedSemaphore`.
 //
 ///Supported Clock-Types
 ///---------------------
-// 'bsls::SystemClockType' supplies the enumeration indicating the system clock
+// `bsls::SystemClockType` supplies the enumeration indicating the system clock
 // on which timeouts supplied to other methods should be based.  If the clock
-// type indicated at construction is 'bsls::SystemClockType::e_REALTIME', the
-// 'absTime' argument passed to the 'timedWait' method should be expressed as
+// type indicated at construction is `bsls::SystemClockType::e_REALTIME`, the
+// `absTime` argument passed to the `timedWait` method should be expressed as
 // an *absolute* offset since 00:00:00 UTC, January 1, 1970 (which matches the
-// epoch used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.
+// epoch used in `bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)`.
 // If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the 'absTime' argument passed to the
-// 'timedWait' method should be expressed as an *absolute* offset since the
+// `bsls::SystemClockType::e_MONOTONIC`, the `absTime` argument passed to the
+// `timedWait` method should be expressed as an *absolute* offset since the
 // epoch of this clock (which matches the epoch used in
-// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// `bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)`.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

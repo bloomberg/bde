@@ -14,40 +14,40 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_integralconstant, bslmf_nestedtraitdeclaration
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_copy_constructible' and a template variable
-// 'bsl::is_copy_constructible_v', that represents the result value of the
-// 'bsl::is_copy_constructible' meta-function, that may be used to query
+// `bsl::is_copy_constructible` and a template variable
+// `bsl::is_copy_constructible_v`, that represents the result value of the
+// `bsl::is_copy_constructible` meta-function, that may be used to query
 // whether a type is copy constructible.
 //
-// 'bsl::is_copy_constructible' has the same syntax as the
-// 'is_copy_constructible' template from the C++11 standard [meta.unary.prop].
-// Indeed, in C++11 compilation environments, 'bsl::is_copy_constructible'
+// `bsl::is_copy_constructible` has the same syntax as the
+// `is_copy_constructible` template from the C++11 standard [meta.unary.prop].
+// Indeed, in C++11 compilation environments, `bsl::is_copy_constructible`
 // simply forwards to the native implementation, which can determine the
 // correct value for all types without requiring specialization; in C++03
-// environments, 'bsl::is_copy_construcible' provides welcome backward
-// compatibility but returns 'true' for all user-defined types and requires
+// environments, `bsl::is_copy_construcible` provides welcome backward
+// compatibility but returns `true` for all user-defined types and requires
 // explicit specialization for types that are not copy constructible (e.g.,
 // move-only types).
 //
-// Note that the 'bsl::is_copy_constructible' trait cannot be declared as a
-// nested trait because the default value of the trait is 'true' and nested
-// traits work properly only for traits that have default value 'false'.  In
-// order to indicate that a certain type 'T' is not copy constructible, the
+// Note that the `bsl::is_copy_constructible` trait cannot be declared as a
+// nested trait because the default value of the trait is `true` and nested
+// traits work properly only for traits that have default value `false`.  In
+// order to indicate that a certain type `T` is not copy constructible, the
 // following idiom should be used:
-//..
-//   namespace bsl {
-//       template <>
-//       struct is_copy_constructible<T> : false_type { };
-//   }
-//..
-// Also note that the template variable 'is_copy_constructible_v' is defined in
+// ```
+//  namespace bsl {
+//      template <>
+//      struct is_copy_constructible<T> : false_type { };
+//  }
+// ```
+// Also note that the template variable `is_copy_constructible_v` is defined in
 // the C++17 standard as an inline variable.  If the current compiler supports
-// the inline variable C++17 compiler feature, 'bsl::is_copy_constructible_v'
-// is defined as an 'inline constexpr bool' variable.  Otherwise, if the
+// the inline variable C++17 compiler feature, `bsl::is_copy_constructible_v`
+// is defined as an `inline constexpr bool` variable.  Otherwise, if the
 // compiler supports the variable templates C++14 compiler feature,
-// 'bsl::is_copy_constructible_v' is defined as a non-inline 'constexpr bool'
-// variable.  See 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// `bsl::is_copy_constructible_v` is defined as a non-inline `constexpr bool`
+// variable.  See `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in
 // bsls_compilerfeatures component for details.
 
 #include <bslscm_version.h>
@@ -81,19 +81,19 @@ namespace bsl {
                         // struct is_copy_constructible
                         // ============================
 
+/// This `struct` template implements a meta-function to determine whether
+/// the (template parameter) `t_TYPE` is copy constructible.  This `struct`
+/// derives from `bsl::true_type` if the `t_TYPE` is copy constructible, and
+/// from `bsl::false_type` otherwise.  This meta-function has the same
+/// syntax as the `is_copy_constructible` meta-function defined in the C++11
+/// standard [meta.unary.prop]; on C++03 platforms, however, this
+/// meta-function defaults to `true_type` for all types that are not
+/// explicitly declared to have the `bslmf::IsNonCopyable` trait using the
+/// `BSLMF_NESTED_TRAIT_DECLARATION` macro.  To mark a type as non-copyable,
+/// `bslmf::IsNonCopyable` must be specialized (for that type) to inherit
+/// from `bsl::true_type`.
 template <class t_TYPE>
 struct is_copy_constructible;
-    // This 'struct' template implements a meta-function to determine whether
-    // the (template parameter) 't_TYPE' is copy constructible.  This 'struct'
-    // derives from 'bsl::true_type' if the 't_TYPE' is copy constructible, and
-    // from 'bsl::false_type' otherwise.  This meta-function has the same
-    // syntax as the 'is_copy_constructible' meta-function defined in the C++11
-    // standard [meta.unary.prop]; on C++03 platforms, however, this
-    // meta-function defaults to 'true_type' for all types that are not
-    // explicitly declared to have the 'bslmf::IsNonCopyable' trait using the
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.  To mark a type as non-copyable,
-    // 'bslmf::IsNonCopyable' must be specialized (for that type) to inherit
-    // from 'bsl::true_type'.
 
 }  // close namespace bsl
 
@@ -128,22 +128,22 @@ namespace bsl {
 // The implementation below preemptively implements the expected resolution of
 // that issue on all platforms.
 
+/// This specialization largely defers to the native trait on supported
+/// C++11 compilers.  See {Implementation Notes} above.
 template <class t_TYPE>
 struct is_copy_constructible
 : bsl::integral_constant<bool,
                          (bsl::is_array<t_TYPE>::value
                               ? false
                               : std::is_copy_constructible<t_TYPE>::value)> {
-    // This specialization largely defers to the native trait on supported
-    // C++11 compilers.  See {Implementation Notes} above.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// This template variable represents the result value of the
+/// `bsl::is_copy_constructible` meta-function.
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_copy_constructible_v =
                                           is_copy_constructible<t_TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_copy_constructible' meta-function.
 #endif
 
 }  // close namespace bsl

@@ -17,9 +17,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides meta-functions for determining the
 // traits of a member function pointer.  Two meta-functions are provided:
-// 'bslmf::IsMemberFunctionPointer', and 'bslmf::MemberFunctionPointerTraits'.
-// 'bslmf::IsMemberFunctionPointer' tests if a given type is a supported member
-// function pointer.  'bslmf::MemberFunctionPointerTraits' determines the
+// `bslmf::IsMemberFunctionPointer`, and `bslmf::MemberFunctionPointerTraits`.
+// `bslmf::IsMemberFunctionPointer` tests if a given type is a supported member
+// function pointer.  `bslmf::MemberFunctionPointerTraits` determines the
 // traits of a member function type, including the type of the object that it
 // is a member of, its result type, and the type of its list of arguments.
 //
@@ -28,58 +28,58 @@ BSLS_IDENT("$Id: $")
 // are supported on all platforms by this component.  When variadic templates
 // are available, any number of arguments are supported.  C-style elipses are
 // not supported by this component at all.  To identify all member function
-// pointers see {'bslmf_ismemberfunctionpointer'}.
+// pointers see {`bslmf_ismemberfunctionpointer`}.
 //
 ///Usage
 ///-----
 // Define the following function types:
-//..
-//  typedef void (*VoidFunc0)();
-//..
-// and the following 'struct' with the following members:
-//..
-//  struct MyTestClass {
-//      static void voidFunc0() {}
-//      int func1(int) { return 0; }
-//      int func2(int, int) { return 1; }
-//  };
-//..
-// In order to deduce the types of 'voidFunc0' and 'func1', we will use the C++
+// ```
+// typedef void (*VoidFunc0)();
+// ```
+// and the following `struct` with the following members:
+// ```
+// struct MyTestClass {
+//     static void voidFunc0() {}
+//     int func1(int) { return 0; }
+//     int func2(int, int) { return 1; }
+// };
+// ```
+// In order to deduce the types of `voidFunc0` and `func1`, we will use the C++
 // template system to get two auxiliary functions:
-//..
-//  template <class t_TYPE>
-//  void checkNotMemberFunctionPointer(t_TYPE object)
-//  {
-//      assert(0 == bslmf::IsMemberFunctionPointer<t_TYPE>::value);
-//  }
+// ```
+// template <class t_TYPE>
+// void checkNotMemberFunctionPointer(t_TYPE object)
+// {
+//     assert(0 == bslmf::IsMemberFunctionPointer<t_TYPE>::value);
+// }
 //
-//  template <class t_BSLMF_RETURN, class t_ARGS, class t_TYPE>
-//  void checkMemberFunctionPointer(t_TYPE object)
-//  {
-//      assert(1 == bslmf::IsMemberFunctionPointer<t_TYPE>::value);
-//      typedef typename bslmf::MemberFunctionPointerTraits<t_TYPE>::ResultType
-//          ResultType;
-//      typedef typename
-//                     bslmf::MemberFunctionPointerTraits<t_TYPE>::ArgumentList
-//          ArgumentList;
-//      assert(1 == (bsl::is_same<ResultType, t_BSLMF_RETURN>::value));
-//      assert(1 == (bsl::is_same<ArgumentList, t_ARGS>::value));
-//  }
-//..
+// template <class t_BSLMF_RETURN, class t_ARGS, class t_TYPE>
+// void checkMemberFunctionPointer(t_TYPE object)
+// {
+//     assert(1 == bslmf::IsMemberFunctionPointer<t_TYPE>::value);
+//     typedef typename bslmf::MemberFunctionPointerTraits<t_TYPE>::ResultType
+//         ResultType;
+//     typedef typename
+//                    bslmf::MemberFunctionPointerTraits<t_TYPE>::ArgumentList
+//         ArgumentList;
+//     assert(1 == (bsl::is_same<ResultType, t_BSLMF_RETURN>::value));
+//     assert(1 == (bsl::is_same<ArgumentList, t_ARGS>::value));
+// }
+// ```
 // The following program should compile and run without errors:
-//..
-//  void usageExample()
-//  {
-//      assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
-//      assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
+// ```
+// void usageExample()
+// {
+//     assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
+//     assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
 //
-//      checkNotMemberFunctionPointer(&MyTestClass::voidFunc0);
-//      checkMemberFunctionPointer<int, bslmf::TypeList1<int> >(
-//                                                        &MyTestClass::func1);
-//      checkMemberFunctionPointer<int, bslmf::TypeList2<int, int> >(
-//                                                        &MyTestClass::func2);
-//  }
-//..
+//     checkNotMemberFunctionPointer(&MyTestClass::voidFunc0);
+//     checkMemberFunctionPointer<int, bslmf::TypeList1<int> >(
+//                                                       &MyTestClass::func1);
+//     checkMemberFunctionPointer<int, bslmf::TypeList2<int, int> >(
+//                                                       &MyTestClass::func2);
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -94,36 +94,36 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
+/// Forward declaration.
 template <class t_PROTOTYPE, class t_TEST_PROTOTYPE>
 struct MemberFunctionPointerTraits_Imp;
-    // Forward declaration.
 
                      // =================================
                      // class MemberFunctionPointerTraits
                      // =================================
 
+/// This metafunction determines the traits of a member function type,
+/// including the type of the object that it is a member of, its result
+/// type, and the type of its list of arguments.
 template <class t_PROTOTYPE>
 struct MemberFunctionPointerTraits
 : public MemberFunctionPointerTraits_Imp<
       typename bsl::remove_cv<t_PROTOTYPE>::type,
       typename bsl::remove_cv<t_PROTOTYPE>::type> {
-    // This metafunction determines the traits of a member function type,
-    // including the type of the object that it is a member of, its result
-    // type, and the type of its list of arguments.
 };
 
                        // =============================
                        // class IsMemberFunctionPointer
                        // =============================
 
+/// This template determines if the specified `t_PROTOTYPE` is a member
+/// function pointer.  `value` is defined as 1 if the specified
+/// `t_PROTOTYPE` is a member function, and a zero value otherwise.
 template <class t_PROTOTYPE>
 struct IsMemberFunctionPointer
 : bsl::integral_constant<
       bool,
       MemberFunctionPointerTraits<t_PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
-    // This template determines if the specified 't_PROTOTYPE' is a member
-    // function pointer.  'value' is defined as 1 if the specified
-    // 't_PROTOTYPE' is a member function, and a zero value otherwise.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use. ----
@@ -155,18 +155,19 @@ struct IsMemberFunctionPointer
                 // -------------------------------------------
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES  // $var-args=14
+
+/// This `class` determines whether the specified `t_PROTOTYPE` is a
+/// `const`, `volatile` or `noexcept` member function of the specified
+/// `t_TYPE`.  The `Type` member will be a correctly const and/or volatile
+/// qualified version of `t_TYPE`.  This metafunction is necessary because
+/// some old compilers do not correctly dispatch to the correct partial
+/// specialization of `MemberFunctionPointerTraits_Imp` based on
+/// cv-qualification of the member-function pointer.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
           class... t_ARGS>
 class MemberFunctionPointerTraits_ClassType {
-    // This 'class' determines whether the specified 't_PROTOTYPE' is a
-    // 'const', 'volatile' or 'noexcept' member function of the specified
-    // 't_TYPE'.  The 'Type' member will be a correctly const and/or volatile
-    // qualified version of 't_TYPE'.  This metafunction is necessary because
-    // some old compilers do not correctly dispatch to the correct partial
-    // specialization of 'MemberFunctionPointerTraits_Imp' based on
-    // cv-qualification of the member-function pointer.
 
     typedef Tag<0> NonCVTag;            // non-'const', non-'volatile'
     typedef Tag<1> ConstTag;            // 'const'
@@ -205,13 +206,13 @@ class MemberFunctionPointerTraits_ClassType {
         IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((t_PROTOTYPE)0)) & 2) != 0
     };
 
+    /// Depending on `IS_CONST`, add or do not add a const qualifier to
+    /// `t_TYPE`.
     typedef typename If<IS_CONST, const t_TYPE, t_TYPE>::Type CType;
-        // Depending on 'IS_CONST', add or do not add a const qualifier to
-        // 't_TYPE'.
 
+    /// Depending on `IS_VOLATILE`, add or do not add a volatile qualifier
+    /// to `t_TYPE`.
     typedef typename If<IS_VOLATILE, volatile CType, CType>::Type Type;
-        // Depending on 'IS_VOLATILE', add or do not add a volatile qualifier
-        // to 't_TYPE'.
 };
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1338,15 +1339,15 @@ class MemberFunctionPointerTraits_ClassType {
                    // class MemberFunctionPointerTraits_Imp
                    // -------------------------------------
 
+/// Implementation of `MemberFunctionPointerTraits`, containing the actual
+/// traits types.  This primary template is instantiated when `t_PROTOTYPE`
+/// does not match a pointer-to-member-function type.  In actual use,
+/// `t_PROTOTYPE` and `t_TEST_PROTOTYPE` are the same, but specializations
+/// treat `t_PROTOTYPE` as an opaque type and `t_TEST_PROTOTYPE` as a
+/// pattern match.  This redundancy is needed to work around some old
+/// compiler bugs.
 template <class t_PROTOTYPE, class t_TEST_PROTOTYPE>
 struct MemberFunctionPointerTraits_Imp {
-    // Implementation of 'MemberFunctionPointerTraits', containing the actual
-    // traits types.  This primary template is instantiated when 't_PROTOTYPE'
-    // does not match a pointer-to-member-function type.  In actual use,
-    // 't_PROTOTYPE' and 't_TEST_PROTOTYPE' are the same, but specializations
-    // treat 't_PROTOTYPE' as an opaque type and 't_TEST_PROTOTYPE' as a
-    // pattern match.  This redundancy is needed to work around some old
-    // compiler bugs.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 0
@@ -1355,15 +1356,16 @@ struct MemberFunctionPointerTraits_Imp {
 
 // SPECIALIZATIONS
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES  // $var-args=14
+
+/// Specialization to determine the traits of member functions.  A modern
+/// compiler will match only non-cv member functions, but some older
+/// compilers might match this to any member function.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
           class... t_ARGS>
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)> {
-    // Specialization to determine the traits of member functions.  A modern
-    // compiler will match only non-cv member functions, but some older
-    // compilers might match this to any member function.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -1380,6 +1382,9 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of member functions.  A modern
+/// compiler will match only const member functions, but some older
+/// compilers might match this to any member function.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -1387,9 +1392,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            const> {
-    // Specialization to determine the traits of member functions.  A modern
-    // compiler will match only const member functions, but some older
-    // compilers might match this to any member function.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -1406,6 +1408,9 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of member functions.  A modern
+/// compiler will match only volatile member functions, but some older
+/// compilers might match this to any member function.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -1413,9 +1418,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) volatile> {
-    // Specialization to determine the traits of member functions.  A modern
-    // compiler will match only volatile member functions, but some older
-    // compilers might match this to any member function.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -1433,6 +1435,9 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of member functions.  A modern
+/// compiler will match only const volatile member functions, but some older
+/// compilers might match this to any member function.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -1440,9 +1445,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            const volatile> {
-    // Specialization to determine the traits of member functions.  A modern
-    // compiler will match only const volatile member functions, but some older
-    // compilers might match this to any member function.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4422,6 +4424,9 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
+/// Specialization to determine the traits of member functions.  A modern
+/// compiler will match only non-cv member functions, but some older
+/// compilers might match this to any member function.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4429,9 +4434,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            noexcept> {
-    // Specialization to determine the traits of member functions.  A modern
-    // compiler will match only non-cv member functions, but some older
-    // compilers might match this to any member function.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4448,6 +4450,9 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of member functions.  A modern
+/// compiler will match only const member functions, but some older
+/// compilers might match this to any member function.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4455,9 +4460,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            const noexcept> {
-    // Specialization to determine the traits of member functions.  A modern
-    // compiler will match only const member functions, but some older
-    // compilers might match this to any member function.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4474,6 +4476,9 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of member functions.  A modern
+/// compiler will match only volatile member functions, but some older
+/// compilers might match this to any member function.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4481,9 +4486,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) volatile noexcept> {
-    // Specialization to determine the traits of member functions.  A modern
-    // compiler will match only volatile member functions, but some older
-    // compilers might match this to any member function.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4501,6 +4503,9 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of member functions.  A modern
+/// compiler will match only const volatile member functions, but some older
+/// compilers might match this to any member function.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4508,9 +4513,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            const volatile noexcept> {
-    // Specialization to determine the traits of member functions.  A modern
-    // compiler will match only const volatile member functions, but some older
-    // compilers might match this to any member function.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4530,6 +4532,10 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 
+/// Specialization to determine the traits of a pointer to lvalref-qualified
+/// member function.  The workarounds for older compilers are not needed
+/// because only more modern compilers support ref-qualified member
+/// functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4537,10 +4543,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)&> {
-    // Specialization to determine the traits of a pointer to lvalref-qualified
-    // member function.  The workarounds for older compilers are not needed
-    // because only more modern compilers support ref-qualified member
-    // functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4553,6 +4555,10 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to const
+/// lvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4560,10 +4566,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            const&> {
-    // Specialization to determine the traits of a pointer to const
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4576,6 +4578,10 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to volatile
+/// lvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4583,10 +4589,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) volatile&> {
-    // Specialization to determine the traits of a pointer to volatile
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4599,6 +4601,10 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to const volatile
+/// lvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4606,10 +4612,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            const volatile&> {
-    // Specialization to determine the traits of a pointer to const volatile
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4624,6 +4626,10 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
+/// Specialization to determine the traits of a pointer to lvalref-qualified
+/// member function.  The workarounds for older compilers are not needed
+/// because only more modern compilers support ref-qualified member
+/// functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4631,10 +4637,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) &
                                            noexcept> {
-    // Specialization to determine the traits of a pointer to lvalref-qualified
-    // member function.  The workarounds for older compilers are not needed
-    // because only more modern compilers support ref-qualified member
-    // functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4647,6 +4649,10 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to const
+/// lvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4654,10 +4660,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) const & noexcept> {
-    // Specialization to determine the traits of a pointer to const
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4670,6 +4672,10 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to volatile
+/// lvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4677,10 +4683,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) volatile & noexcept> {
-    // Specialization to determine the traits of a pointer to volatile
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4693,6 +4695,10 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to const volatile
+/// lvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4700,10 +4706,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) const volatile & noexcept> {
-    // Specialization to determine the traits of a pointer to const volatile
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4718,6 +4720,10 @@ struct MemberFunctionPointerTraits_Imp<
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
+/// Specialization to determine the traits of a pointer to rvalref-qualified
+/// member function.  The workarounds for older compilers are not needed
+/// because only more modern compilers support ref-qualified member
+/// functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4725,10 +4731,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) &&> {
-    // Specialization to determine the traits of a pointer to rvalref-qualified
-    // member function.  The workarounds for older compilers are not needed
-    // because only more modern compilers support ref-qualified member
-    // functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4741,6 +4743,10 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to const
+/// rvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4748,10 +4754,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            const&&> {
-    // Specialization to determine the traits of a pointer to const
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4764,6 +4766,10 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to volatile
+/// rvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4771,10 +4777,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) volatile&&> {
-    // Specialization to determine the traits of a pointer to volatile
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4787,6 +4789,10 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to const volatile
+/// rvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4794,10 +4800,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...)
                                            const volatile&&> {
-    // Specialization to determine the traits of a pointer to const volatile
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4812,6 +4814,10 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
+/// Specialization to determine the traits of a pointer to rvalref-qualified
+/// member function.  The workarounds for older compilers are not needed
+/// because only more modern compilers support ref-qualified member
+/// functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4819,10 +4825,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
                                        t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) &&
                                            noexcept> {
-    // Specialization to determine the traits of a pointer to rvalref-qualified
-    // member function.  The workarounds for older compilers are not needed
-    // because only more modern compilers support ref-qualified member
-    // functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4835,6 +4837,10 @@ struct MemberFunctionPointerTraits_Imp<t_PROTOTYPE,
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to const
+/// rvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4842,10 +4848,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) const && noexcept> {
-    // Specialization to determine the traits of a pointer to const
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4858,6 +4860,10 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to volatile
+/// rvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4865,10 +4871,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) volatile && noexcept> {
-    // Specialization to determine the traits of a pointer to volatile
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4881,6 +4883,10 @@ struct MemberFunctionPointerTraits_Imp<
     typedef typename TypeList<t_ARGS...>::Type ArgumentList;
 };
 
+/// Specialization to determine the traits of a pointer to const volatile
+/// rvalref-qualified member function.  The workarounds for older compilers
+/// are not needed because only more modern compilers support ref-qualified
+/// member functions.
 template <class    t_PROTOTYPE,
           class    t_BSLMF_RETURN,
           class    t_TYPE,
@@ -4888,10 +4894,6 @@ template <class    t_PROTOTYPE,
 struct MemberFunctionPointerTraits_Imp<
     t_PROTOTYPE,
     t_BSLMF_RETURN (t_TYPE::*)(t_ARGS...) const volatile && noexcept> {
-    // Specialization to determine the traits of a pointer to const volatile
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 1,
@@ -4917,21 +4919,21 @@ struct MemberFunctionPointerTraits_Imp<
 #ifdef bslmf_MemberFunctionPointerTraits
 #undef bslmf_MemberFunctionPointerTraits
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_MemberFunctionPointerTraits bslmf::MemberFunctionPointerTraits
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_IsMemberFunctionPointer
 #undef bslmf_IsMemberFunctionPointer
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_IsMemberFunctionPointer bslmf::IsMemberFunctionPointer
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_MemberFunctionPointerTraitsImp
 #undef bslmf_MemberFunctionPointerTraitsImp
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_MemberFunctionPointerTraitsImp  \
         bslmf::MemberFunctionPointerTraits_Imp
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

@@ -12,8 +12,8 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_alignmentutil
 //
-//@DESCRIPTION: This component provides a namespace, 'bsls::Alignment', for
-// enumerating alignment strategies, and provides a function, 'toAscii', that
+//@DESCRIPTION: This component provides a namespace, `bsls::Alignment`, for
+// enumerating alignment strategies, and provides a function, `toAscii`, that
 // converts each of the enumerators to its corresponding string representation.
 //
 ///Alignment Strategy
@@ -21,30 +21,28 @@ BSLS_IDENT("$Id: $")
 // This component supports three alignment strategies: 1) MAXIMUM ALIGNMENT,
 // 2) NATURAL ALIGNMENT, and 3) 1-BYTE ALIGNMENT.
 //
-//: 1 MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
-//:   'BSLS_MAXIMUM', specifies that a memory block be aligned as per the
-//:   *most* restrictive alignment requirement on the host platform.
-//:
-//: 2 NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
-//:   'BSLS_NATURAL', specifies that a memory block be aligned based on the
-//:   size (in bytes) of that block.  An object of a fundamental type ('int',
-//:   etc.) is *naturally* *aligned* when its size evenly divides its address.
-//:   An object of an aggregate type has natural alignment if the alignment of
-//:   the most-restrictively aligned sub-object evenly divides the address of
-//:   the aggregate.  Natural alignment is always at least as restrictive as
-//:   the compiler's required alignment.
-//:
-//: 3 1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
-//:   'BSLS_BYTEALIGNED', specifies that a memory block may be aligned
-//:   arbitrarily on any 1-byte boundary.  This is the *least* restrictive
-//:   alignment requirement.
+// 1. MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
+//    `BSLS_MAXIMUM`, specifies that a memory block be aligned as per the
+//    *most* restrictive alignment requirement on the host platform.
+// 2. NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
+//    `BSLS_NATURAL`, specifies that a memory block be aligned based on the
+//    size (in bytes) of that block.  An object of a fundamental type (`int`,
+//    etc.) is *naturally* *aligned* when its size evenly divides its address.
+//    An object of an aggregate type has natural alignment if the alignment of
+//    the most-restrictively aligned sub-object evenly divides the address of
+//    the aggregate.  Natural alignment is always at least as restrictive as
+//    the compiler's required alignment.
+// 3. 1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
+//    `BSLS_BYTEALIGNED`, specifies that a memory block may be aligned
+//    arbitrarily on any 1-byte boundary.  This is the *least* restrictive
+//    alignment requirement.
 //
 ///Usage
 ///-----
-// Suppose that we want to create a static function, 'allocateFromBuffer', that
+// Suppose that we want to create a static function, `allocateFromBuffer`, that
 // takes a buffer, the size of the buffer, a cursor indicating a position
 // within the buffer, an allocation request size, and a memory alignment
-// strategy; 'allocateFromBuffer' returns a pointer to a block of memory,
+// strategy; `allocateFromBuffer` returns a pointer to a block of memory,
 // wholly contained within the buffer, having the specified size and alignment.
 // As a side-effect, the cursor is updated to refer to the next available free
 // byte in the buffer.  Such a function could be used by a memory manager to
@@ -52,110 +50,110 @@ BSLS_IDENT("$Id: $")
 // this function indicate which alignment strategy to use based on their
 // specific requirements.
 //
-// Our 'allocateFromBuffer' function depends on an alignment utility,
-// 'my_AlignmentUtil', whose minimal interface is limited to that required by
-// this usage example.  (See the 'bsls_alignmentutil' component for a more
+// Our `allocateFromBuffer` function depends on an alignment utility,
+// `my_AlignmentUtil`, whose minimal interface is limited to that required by
+// this usage example.  (See the `bsls_alignmentutil` component for a more
 // realistic alignment utility.):
-//..
-//  struct my_AlignmentUtil {
-//      // This 'struct' provides a namespace for basic types and utilities
-//      // related to memory alignment.
+// ```
+// struct my_AlignmentUtil {
+//     // This 'struct' provides a namespace for basic types and utilities
+//     // related to memory alignment.
 //
-//      // TYPES
-//      enum {
-//          MY_MAX_PLATFORM_ALIGNMENT = 8
-//      };
-//          // Provide the *minimal* value that satisfies the alignment
-//          // requirements for *all* types on the host platform.  Note that 8
-//          // is used for illustration purposes only; an actual implementation
-//          // would employ template meta-programming to deduce the value at
-//          // compile time.
+//     // TYPES
+//     enum {
+//         MY_MAX_PLATFORM_ALIGNMENT = 8
+//     };
+//         // Provide the *minimal* value that satisfies the alignment
+//         // requirements for *all* types on the host platform.  Note that 8
+//         // is used for illustration purposes only; an actual implementation
+//         // would employ template meta-programming to deduce the value at
+//         // compile time.
 //
-//      // CLASS METHODS
-//      static int calculateAlignmentFromSize(int size);
-//          // Calculate a usable alignment for a memory block of the specified
-//          // 'size' (in bytes) in the absence of compile-time knowledge of
-//          // the block's alignment requirements.  Return the largest power of
-//          // two that evenly divides 'size', up to a maximum of
-//          // 'MY_MAX_PLATFORM_ALIGNMENT'.  It is guaranteed that a block of
-//          // 'size' bytes can be safely aligned on the return value.   The
-//          // behavior is undefined unless '0 < size'.
+//     // CLASS METHODS
+//     static int calculateAlignmentFromSize(int size);
+//         // Calculate a usable alignment for a memory block of the specified
+//         // 'size' (in bytes) in the absence of compile-time knowledge of
+//         // the block's alignment requirements.  Return the largest power of
+//         // two that evenly divides 'size', up to a maximum of
+//         // 'MY_MAX_PLATFORM_ALIGNMENT'.  It is guaranteed that a block of
+//         // 'size' bytes can be safely aligned on the return value.   The
+//         // behavior is undefined unless '0 < size'.
 //
-//      static int calculateAlignmentOffset(const void *address,
-//                                          int         alignment);
-//          // Return the smallest non-negative offset (in bytes) that, when
-//          // added to the specified 'address', yields the specified
-//          // 'alignment'.  The behavior is undefined unless '0 != alignment'
-//          // and 'alignment' is a non-negative, integral power of 2.
-//  };
-//..
-// The definition of our 'allocateFromBuffer' function is as follows:
-//..
-//  static void *allocateFromBuffer(int                       *cursor,
-//                                  char                      *buffer,
-//                                  int                        bufferSize,
-//                                  int                        size,
-//                                  bsls::Alignment::Strategy  strategy)
-//      // Allocate a memory block of the specified 'size' (in bytes) from the
-//      // specified 'buffer' having the specified 'bufferSize' at the
-//      // specified 'cursor' position, using the specified alignment
-//      // 'strategy'.  Return the address of the allocated memory block if
-//      // 'buffer' contains sufficient available memory, and 0 otherwise.  The
-//      // 'cursor' is set to the first byte position immediately after the
-//      // allocated memory (which might be 1 byte past the end of 'buffer') if
-//      // there is sufficient memory, and is not modified otherwise.  The
-//      // behavior is undefined unless '0 <= bufferSize', '0 < size', and
-//      // 'cursor' refers to a valid position in 'buffer'.
-//  {
-//..
+//     static int calculateAlignmentOffset(const void *address,
+//                                         int         alignment);
+//         // Return the smallest non-negative offset (in bytes) that, when
+//         // added to the specified 'address', yields the specified
+//         // 'alignment'.  The behavior is undefined unless '0 != alignment'
+//         // and 'alignment' is a non-negative, integral power of 2.
+// };
+// ```
+// The definition of our `allocateFromBuffer` function is as follows:
+// ```
+// static void *allocateFromBuffer(int                       *cursor,
+//                                 char                      *buffer,
+//                                 int                        bufferSize,
+//                                 int                        size,
+//                                 bsls::Alignment::Strategy  strategy)
+//     // Allocate a memory block of the specified 'size' (in bytes) from the
+//     // specified 'buffer' having the specified 'bufferSize' at the
+//     // specified 'cursor' position, using the specified alignment
+//     // 'strategy'.  Return the address of the allocated memory block if
+//     // 'buffer' contains sufficient available memory, and 0 otherwise.  The
+//     // 'cursor' is set to the first byte position immediately after the
+//     // allocated memory (which might be 1 byte past the end of 'buffer') if
+//     // there is sufficient memory, and is not modified otherwise.  The
+//     // behavior is undefined unless '0 <= bufferSize', '0 < size', and
+//     // 'cursor' refers to a valid position in 'buffer'.
+// {
+// ```
 // First we assert the function pre-conditions:
-//..
-//      assert(cursor);
-//      assert(buffer);
-//      assert(0 <= bufferSize);
-//      assert(0 < size);
-//..
-// Then, based on the alignment 'strategy', we calculate the alignment value
+// ```
+//     assert(cursor);
+//     assert(buffer);
+//     assert(0 <= bufferSize);
+//     assert(0 < size);
+// ```
+// Then, based on the alignment `strategy`, we calculate the alignment value
 // that can satisfy the allocation request.  In the case of
-// 'bsls::Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
-// 'bsls::Alignment::BSLS_MAXIMUM', we use the platform-dependent
-// 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value; and for
-// 'bsls::Alignment::BSLS_BYTEALIGNED', we simply use 1:
-//..
-//      const int alignment =
-//                         strategy == bsls::Alignment::BSLS_NATURAL
-//                         ? my_AlignmentUtil::calculateAlignmentFromSize(size)
-//                         : strategy == bsls::Alignment::BSLS_MAXIMUM
-//                           ? my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT
-//                           : 1;
-//..
-// Now we calculate the offset from the current 'cursor' value that can satisfy
-// the 'alignment' requirements:
-//..
-//      const int offset = my_AlignmentUtil::calculateAlignmentOffset(
-//                                                            buffer + *cursor,
-//                                                            alignment);
+// `bsls::Alignment::BSLS_NATURAL`, we calculate the alignment from `size`; for
+// `bsls::Alignment::BSLS_MAXIMUM`, we use the platform-dependent
+// `my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT` value; and for
+// `bsls::Alignment::BSLS_BYTEALIGNED`, we simply use 1:
+// ```
+//     const int alignment =
+//                        strategy == bsls::Alignment::BSLS_NATURAL
+//                        ? my_AlignmentUtil::calculateAlignmentFromSize(size)
+//                        : strategy == bsls::Alignment::BSLS_MAXIMUM
+//                          ? my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT
+//                          : 1;
+// ```
+// Now we calculate the offset from the current `cursor` value that can satisfy
+// the `alignment` requirements:
+// ```
+//     const int offset = my_AlignmentUtil::calculateAlignmentOffset(
+//                                                           buffer + *cursor,
+//                                                           alignment);
 //
-//..
-// Next we check if the available free memory in 'buffer' can satisfy the
+// ```
+// Next we check if the available free memory in `buffer` can satisfy the
 // allocation request; 0 is returned if the request cannot be satisfied:
-//..
-//      if (*cursor + offset + size > bufferSize) {
-//          return 0;                                                 // RETURN
-//      }
+// ```
+//     if (*cursor + offset + size > bufferSize) {
+//         return 0;                                                 // RETURN
+//     }
 //
-//      void *result = &buffer[*cursor + offset];
-//      *cursor += offset + size;
+//     void *result = &buffer[*cursor + offset];
+//     *cursor += offset + size;
 //
-//..
+// ```
 // Finally, return the address of the correctly aligned memory block:
-//..
-//      return result;
-//  }
-//..
-// The 'allocateFromBuffer' function may be used by a memory manager that needs
+// ```
+//     return result;
+// }
+// ```
+// The `allocateFromBuffer` function may be used by a memory manager that needs
 // to appropriately align memory blocks that are allocated from
-// internally-managed buffers.  For an example, see the 'bslma_bufferimputil'
+// internally-managed buffers.  For an example, see the `bslma_bufferimputil`
 // component.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -189,25 +187,25 @@ namespace bsls {
                         // struct Alignment
                         // ================
 
+/// This `struct` provides a namespace for enumerating the set of strategies
+/// for aligning arbitrary blocks of memory.
 struct Alignment {
-    // This 'struct' provides a namespace for enumerating the set of strategies
-    // for aligning arbitrary blocks of memory.
 
     // TYPES
     enum Strategy {
         // Types of alignment strategy.
 
+        /// Align memory block based on the most restrictive alignment
+        /// requirements of the host platform.
         BSLS_MAXIMUM = 0,
-            // Align memory block based on the most restrictive alignment
-            // requirements of the host platform.
 
+        /// Align memory block on an address that is the largest power of
+        /// two that evenly divides the size (in bytes) of the block.
         BSLS_NATURAL = 1,
-            // Align memory block on an address that is the largest power of
-            // two that evenly divides the size (in bytes) of the block.
 
+        /// Align memory block based on the least restrictive alignment
+        /// requirements of the host platform (1-byte aligned).
         BSLS_BYTEALIGNED = 2
-            // Align memory block based on the least restrictive alignment
-            // requirements of the host platform (1-byte aligned).
     };
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -220,83 +218,84 @@ struct Alignment {
         MAX_ALIGNMENT = AlignmentUtil::BSLS_MAX_ALIGNMENT
     };
 
+    /// Primitive type with most stringent alignment requirement.
+    ///
+    /// DEPRECATED: Replaced by `AlignmentUtil::MaxAlignedType`.
     typedef AlignmentUtil::MaxAlignedType MaxAlignedType;
-        // Primitive type with most stringent alignment requirement.
-        //
-        // DEPRECATED: Replaced by 'AlignmentUtil::MaxAlignedType'.
 
+    /// `struct` with most stringent alignment requirement.
+    ///
+    /// DEPRECATED: Replaced by `Alignment::MaxAlignedType`.
     struct Align {
-        // 'struct' with most stringent alignment requirement.
-        //
-        // DEPRECATED: Replaced by 'Alignment::MaxAlignedType'.
 
         MaxAlignedType d_align;
     };
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
+
+    /// Return the string representation of the specified enumerator
+    /// `value`.  The string representation of `value` matches its
+    /// corresponding enumerator name with the "BSLS_" prefix elided.  For
+    /// example:
+    /// ```
+    /// bsl::cout << Alignment::toAscii(Alignment::BSLS_NATURAL);
+    /// ```
+    /// will print the following on standard output:
+    /// ```
+    /// NATURAL
+    /// ```
     static const char *toAscii(Alignment::Strategy value);
-        // Return the string representation of the specified enumerator
-        // 'value'.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "BSLS_" prefix elided.  For
-        // example:
-        //..
-        //  bsl::cout << Alignment::toAscii(Alignment::BSLS_NATURAL);
-        //..
-        // will print the following on standard output:
-        //..
-        //  NATURAL
-        //..
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    /// Calculate a usable alignment for an object of specified `size` bytes
+    /// in the absence of compile-time knowledge of the object's alignment
+    /// requirements.  Return the largest power of two that evenly divides
+    /// size, up to a maximum of `MAX_ALIGNMENT`.  It is guaranteed that an
+    /// object of `size` bytes can be safely aligned on this return value.
+    /// Depending on the machine architecture and compiler options, the
+    /// returned alignment may be more than required for two reasons:
+    /// ```
+    ///   1. The object may be composed entirely of elements, such as
+    ///      'char', which have minimal alignment restrictions.
+    ///
+    ///   2. The architecture may have lenient alignment requirements.
+    ///      Even if this is the case, aligning on a stricter boundary may
+    ///      improve performance.
+    /// ```
+    /// The behavior is undefined unless `0 < size`.
+    ///
+    /// DEPRECATED: Replaced by `AlignmentUtil::calculateAlignmentFromSize`.
     static int calculateAlignmentFromSize(int size);
-        // Calculate a usable alignment for an object of specified 'size' bytes
-        // in the absence of compile-time knowledge of the object's alignment
-        // requirements.  Return the largest power of two that evenly divides
-        // size, up to a maximum of 'MAX_ALIGNMENT'.  It is guaranteed that an
-        // object of 'size' bytes can be safely aligned on this return value.
-        // Depending on the machine architecture and compiler options, the
-        // returned alignment may be more than required for two reasons:
-        //..
-        //    1. The object may be composed entirely of elements, such as
-        //       'char', which have minimal alignment restrictions.
-        //
-        //    2. The architecture may have lenient alignment requirements.
-        //       Even if this is the case, aligning on a stricter boundary may
-        //       improve performance.
-        //..
-        // The behavior is undefined unless '0 < size'.
-        //
-        // DEPRECATED: Replaced by 'AlignmentUtil::calculateAlignmentFromSize'.
 
+    /// Return the smallest non-negative offset in bytes that, when added to
+    /// the specified `address`, yields the specified `alignment`.  The
+    /// behavior is undefined unless `0 < alignment` and `alignment` is a
+    /// power of 2.
+    ///
+    /// DEPRECATED: Replaced by `AlignmentUtil::calculateAlignmentOffset`.
     static int calculateAlignmentOffset(const void *address, int alignment);
-        // Return the smallest non-negative offset in bytes that, when added to
-        // the specified 'address', yields the specified 'alignment'.  The
-        // behavior is undefined unless '0 < alignment' and 'alignment' is a
-        // power of 2.
-        //
-        // DEPRECATED: Replaced by 'AlignmentUtil::calculateAlignmentOffset'.
 
+    /// Return `true` if the specified `address` is aligned on a 2-byte
+    /// boundary (i.e., the integer value of `address` is divisible by 2),
+    /// and `false` otherwise.
+    ///
+    /// DEPRECATED: Replaced by `AlignmentUtil::is2ByteAligned`.
     static bool is2ByteAligned(const void *address);
-        // Return 'true' if the specified 'address' is aligned on a 2-byte
-        // boundary (i.e., the integer value of 'address' is divisible by 2),
-        // and 'false' otherwise.
-        //
-        // DEPRECATED: Replaced by 'AlignmentUtil::is2ByteAligned'.
 
+    /// Return `true` if the specified `address` is aligned on a 4-byte
+    /// boundary (i.e., the integer value of `address` is divisible by 4),
+    /// and `false` otherwise.
+    ///
+    /// DEPRECATED: Replaced by `AlignmentUtil::is4ByteAligned`.
     static bool is4ByteAligned(const void *address);
-        // Return 'true' if the specified 'address' is aligned on a 4-byte
-        // boundary (i.e., the integer value of 'address' is divisible by 4),
-        // and 'false' otherwise.
-        //
-        // DEPRECATED: Replaced by 'AlignmentUtil::is4ByteAligned'.
 
+    /// Return `true` if the specified `address` is aligned on an 8-byte
+    /// boundary (i.e., the integer value of `address` is divisible by 8),
+    /// and `false` otherwise.
+    ///
+    /// DEPRECATED: Replaced by `AlignmentUtil::is8ByteAligned`.
     static bool is8ByteAligned(const void *address);
-        // Return 'true' if the specified 'address' is aligned on an 8-byte
-        // boundary (i.e., the integer value of 'address' is divisible by 8),
-        // and 'false' otherwise.
-        //
-        // DEPRECATED: Replaced by 'AlignmentUtil::is8ByteAligned'.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
@@ -355,8 +354,8 @@ bool Alignment::is8ByteAligned(const void *address)
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bsls::Alignment bsls_Alignment;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

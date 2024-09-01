@@ -14,128 +14,128 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_deque
 //
-//@DESCRIPTION: This component defines a single class template, 'bsl::list',
+//@DESCRIPTION: This component defines a single class template, `bsl::list`,
 // implementing the standard container holding a sequence of elements (of a
-// template parameter type, 'VALUE').  All list operations involving a single
+// template parameter type, `VALUE`).  All list operations involving a single
 // element are constant-time, including insertion and removal of an element
 // anywhere in the list.  Operations that do not change the number of elements
 // are performed without calling constructors, destructors, swap, or assignment
 // on the individual elements.  (I.e., they are performed by
-// pointer-manipulation alone.)  A 'list' does not provide random access to its
-// elements; although access to the first and last elements of a 'list' is
+// pointer-manipulation alone.)  A `list` does not provide random access to its
+// elements; although access to the first and last elements of a `list` is
 // constant-time, other elements can be accessed only by traversing the list
 // (forwards or backwards) from the beginning or end.
 //
-// An instantiation of 'list' is an allocator-aware, in-core value-semantic
+// An instantiation of `list` is an allocator-aware, in-core value-semantic
 // type whose salient attributes are its size (number of elements) and the
-// sequence of its contained element values (in order).  If 'list' is
+// sequence of its contained element values (in order).  If `list` is
 // instantiated with a type that is not itself value-semantic, then it will not
 // retain all of its value-semantic qualities.  In particular, if a type cannot
-// be tested for equality, then a 'list' containing that type cannot be tested
-// for equality.  It is even possible to instantiate 'list' with a type that
-// does not have a copy-constructor, in which case the 'list' will not be
+// be tested for equality, then a `list` containing that type cannot be tested
+// for equality.  It is even possible to instantiate `list` with a type that
+// does not have a copy-constructor, in which case the `list` will not be
 // copyable.
 //
-// A 'list' meets the requirements of a sequence container with bidirectional
-// iterators in the C++ standard [23.3].  The 'list' implemented here adheres
+// A `list` meets the requirements of a sequence container with bidirectional
+// iterators in the C++ standard [23.3].  The `list` implemented here adheres
 // to the C++11 standard when compiled with a C++11 compiler, and makes the
 // best approximation when compiled with a C++03 compiler.  In particular, for
-// C++03 we emulate move semantics, but limit forwarding (in 'emplace') to
-// 'const' lvalues, and make no effort to emulate 'noexcept' or
+// C++03 we emulate move semantics, but limit forwarding (in `emplace`) to
+// `const` lvalues, and make no effort to emulate `noexcept` or
 // initializer-lists.
 //
-///Requirements on 'VALUE'
+///Requirements on `VALUE`
 ///-----------------------
-// A 'list' is a fully Value-Semantic Type (see {'bsldoc_glossary'}) only if
-// the supplied 'VALUE' template parameter is itself fully value-semantic.  It
-// is possible to instantiate a 'list' with a 'VALUE' parameter argument that
+// A `list` is a fully Value-Semantic Type (see {`bsldoc_glossary`}) only if
+// the supplied `VALUE` template parameter is itself fully value-semantic.  It
+// is possible to instantiate a `list` with a `VALUE` parameter argument that
 // does not provide a full set of value-semantic operations, but then some
 // methods of the container may not be instantiable.  The following
 // terminology, adopted from the C++11 standard, is used in the function
-// documentation of 'list' to describe a function's requirements for the
-// 'VALUE' template parameter.  These terms are also defined in sections
+// documentation of `list` to describe a function's requirements for the
+// `VALUE` template parameter.  These terms are also defined in sections
 // [utility.arg.requirements] and [container.requirements.general] of the C++11
 // standard.
 //
 ///Memory Allocation
 ///-----------------
-// The type supplied as a list's 'ALLOCATOR' template parameter determines how
-// that list will allocate memory.  The 'list' template supports allocators
+// The type supplied as a list's `ALLOCATOR` template parameter determines how
+// that list will allocate memory.  The `list` template supports allocators
 // meeting the requirements of the C++11 standard [17.6.3.5]; in addition, it
-// supports scoped-allocators derived from the 'bslma::Allocator' memory
-// allocation protocol.  Clients intending to use 'bslma'-style allocators
-// should use the template's default 'ALLOCATOR' type: The default type for the
-// 'ALLOCATOR' template parameter, 'bsl::allocator', provides a C++11
-// standard-compatible adapter for a 'bslma::Allocator' object.
+// supports scoped-allocators derived from the `bslma::Allocator` memory
+// allocation protocol.  Clients intending to use `bslma`-style allocators
+// should use the template's default `ALLOCATOR` type: The default type for the
+// `ALLOCATOR` template parameter, `bsl::allocator`, provides a C++11
+// standard-compatible adapter for a `bslma::Allocator` object.
 //
-///'bslma'-Style Allocators
+///`bslma`-Style Allocators
 /// - - - - - - - - - - - -
-// If the (template parameter) type 'ALLOCATOR' of a 'list' instantiation is
-// 'bsl::allocator', then objects of that list type will conform to the
-// standard behavior of a 'bslma'-allocator-enabled type.  Such a list accepts
-// an optional 'bslma::Allocator' argument at construction.  If the address of
-// a 'bslma::Allocator' object is explicitly supplied at construction, the list
+// If the (template parameter) type `ALLOCATOR` of a `list` instantiation is
+// `bsl::allocator`, then objects of that list type will conform to the
+// standard behavior of a `bslma`-allocator-enabled type.  Such a list accepts
+// an optional `bslma::Allocator` argument at construction.  If the address of
+// a `bslma::Allocator` object is explicitly supplied at construction, the list
 // uses it to supply memory for the list throughout its lifetime; otherwise,
 // the list will use the default allocator installed at the time of the list's
-// construction (see 'bslma_default').  In addition to directly allocating
-// memory from the indicated 'bslma::Allocator', a list supplies that
+// construction (see `bslma_default`).  In addition to directly allocating
+// memory from the indicated `bslma::Allocator`, a list supplies that
 // allocator's address to the constructors of contained objects of the
-// (template parameter) 'VALUE' type if it defines the
-// 'bslma::UsesBslmaAllocator' trait.
+// (template parameter) `VALUE` type if it defines the
+// `bslma::UsesBslmaAllocator` trait.
 //
 ///Comparators and Strict Weak Ordering
 /// - - - - - - - - - - - - - - - - - -
-// A comparator function 'comp(a, b)' defines a *strict* *weak* *ordering* if
-//: o 'comp(a, b)' && 'comp(b, c)' implies 'comp(a, c)'
-//: o 'comp(a, b)' implies '!comp(b, a)'
-//: o '!comp(a, b)' does not imply that 'comp(b, a)'
+// A comparator function `comp(a, b)` defines a *strict* *weak* *ordering* if
+// * `comp(a, b)` && `comp(b, c)` implies `comp(a, c)`
+// * `comp(a, b)` implies `!comp(b, a)`
+// * `!comp(a, b)` does not imply that `comp(b, a)`
 //
 ///Glossary
 ///--------
-//..
-//  Legend
-//  ------
-//  'X'    - denotes an allocator-aware container type (e.g., 'list')
-//  'T'    - 'value_type' associated with 'X'
-//  'A'    - type of the allocator used by 'X'
-//  'm'    - lvalue of type 'A' (allocator)
-//  'p',   - address ('T *') of uninitialized storage for a 'T' within an 'X'
-//  'rv'   - rvalue of type (non-'const') 'T&&'
-//  'v'    - rvalue or lvalue of type (possibly 'const') 'T'
-//  'args' - 0 or more arguments
-//..
+// ```
+// Legend
+// ------
+// 'X'    - denotes an allocator-aware container type (e.g., 'list')
+// 'T'    - 'value_type' associated with 'X'
+// 'A'    - type of the allocator used by 'X'
+// 'm'    - lvalue of type 'A' (allocator)
+// 'p',   - address ('T *') of uninitialized storage for a 'T' within an 'X'
+// 'rv'   - rvalue of type (non-'const') 'T&&'
+// 'v'    - rvalue or lvalue of type (possibly 'const') 'T'
+// 'args' - 0 or more arguments
+// ```
 // The following terms are used to more precisely specify the requirements on
 // template parameter types in function-level documentation.
 //
-//: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
-//:   is 'default-insertable' into 'X' means that the following expression is
+//: *default-insertable*: `T` has a default constructor.  More precisely, `T`
+//:   is `default-insertable` into `X` means that the following expression is
 //:   well-formed:
-//:   'allocator_traits<A>::construct(m, p)'
+//:   `allocator_traits<A>::construct(m, p)`
 //:
-//: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
-//:   (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//: *move-insertable*: `T` provides a constructor that takes an rvalue of type
+//:   (non-`const`) `T`.  More precisely, `T` is `move-insertable` into `X`
 //:   means that the following expression is well-formed:
-//:   'allocator_traits<A>::construct(m, p, rv)'
+//:   `allocator_traits<A>::construct(m, p, rv)`
 //:
-//: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
-//:   rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
-//:   'copy-insertable' into 'X' means that the following expression is
+//: *copy-insertable*: `T` provides a constructor that takes an lvalue or
+//:   rvalue of type (possibly `const`) `T`.  More precisely, `T` is
+//:   `copy-insertable` into `X` means that the following expression is
 //:   well-formed:
-//:   'allocator_traits<A>::construct(m, p, v)'
+//:   `allocator_traits<A>::construct(m, p, v)`
 //:
-//: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
-//:   of type (non-'const') 'T'.
+//: *move-assignable*: `T` provides an assignment operator that takes an rvalue
+//:   of type (non-`const`) `T`.
 //:
-//: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
-//:   or rvalue of type (possibly 'const') 'T'.
+//: *copy-assignable*: `T` provides an assignment operator that takes an lvalue
+//:   or rvalue of type (possibly `const`) `T`.
 //:
-//: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
-//:   'args' means that the following expression is well-formed:
-//:   'allocator_traits<A>::construct(m, p, args)'
+//: *emplace-constructible*: `T` is `emplace-constructible` into `X` from
+//:   `args` means that the following expression is well-formed:
+//:   `allocator_traits<A>::construct(m, p, args)`
 //:
-//: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
-//:   from 'X' means that the following expression is well-formed:
-//:   'allocator_traits<A>::destroy(m, p)'
+//: *erasable*: `T` provides a destructor.  More precisely, `T` is `erasable`
+//:   from `X` means that the following expression is well-formed:
+//:   `allocator_traits<A>::destroy(m, p)`
 //:
 //: *equality-comparable*: The type provides an equality-comparison operator
 //:   that defines an equivalence relationship and is both reflexive and
@@ -144,144 +144,144 @@ BSLS_IDENT("$Id: $")
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances
-// of 'list':
-//..
-//  Legend
-//  ------
-//  'V'             - template parameter 'VALUE' type of the list
-//  'A'             - template parameter 'ALLOCATOR' type of the list
-//  'a', 'b'        - distinct objects of type 'list<V>'
-//  'k'             - unsigned integral constant
-//  'ra','rb'       - distinct modifiable rvalue objects of type 'list<V>&&'
-//  'n', 'm'        - number of elements in 'a' and 'b', respectively
-//  'al'            - an STL-style memory allocator
-//  'i1', 'i2'      - two iterators defining a sequence of 'V' objects
-//  'v'             - an object of type 'V'
-//  'rv'            - modifiable rvalue object of type 'V&&'
-//  'p1', 'p2'      - two iterators belonging to 'a'
-//  's1', 's2'      - two iterators belonging to 'b'
-//  'pred'          - a unary predicate
-//  'binary_pred'   - a binary predicate
-//  'comp'          - a binary predicate implementing a strict-weak ordering
-//  'args...'       - a variadic list of (up to 10) arguments
-//  '{*}'           - C++11-style initializer list of length 'ni'
-//  distance(i1,i2) - the number of elements in the range '[i1 .. i2)'
+// of `list`:
+// ```
+// Legend
+// ------
+// 'V'             - template parameter 'VALUE' type of the list
+// 'A'             - template parameter 'ALLOCATOR' type of the list
+// 'a', 'b'        - distinct objects of type 'list<V>'
+// 'k'             - unsigned integral constant
+// 'ra','rb'       - distinct modifiable rvalue objects of type 'list<V>&&'
+// 'n', 'm'        - number of elements in 'a' and 'b', respectively
+// 'al'            - an STL-style memory allocator
+// 'i1', 'i2'      - two iterators defining a sequence of 'V' objects
+// 'v'             - an object of type 'V'
+// 'rv'            - modifiable rvalue object of type 'V&&'
+// 'p1', 'p2'      - two iterators belonging to 'a'
+// 's1', 's2'      - two iterators belonging to 'b'
+// 'pred'          - a unary predicate
+// 'binary_pred'   - a binary predicate
+// 'comp'          - a binary predicate implementing a strict-weak ordering
+// 'args...'       - a variadic list of (up to 10) arguments
+// '{*}'           - C++11-style initializer list of length 'ni'
+// distance(i1,i2) - the number of elements in the range '[i1 .. i2)'
 //
-//  +----------------------------------------------------+--------------------+
-//  | Operation                                          | Complexity         |
-//  +====================================================+====================+
-//  | list<V> a;    (default construction)               | O[1]               |
-//  | list<V> a(al);                                     |                    |
-//  +----------------------------------------------------+--------------------+
-//  | list<V> a(b); (copy construction)                  | O[m]               |
-//  | list<V> a(b, al);                                  |                    |
-//  +----------------------------------------------------+--------------------+
-//  | list<V> a(rb); (move construction)                 | O[1]               |
-//  | list<V> a(rb, al);                                 | O[1] if 'a' and 'b'|
-//  |                                                    | use the same       |
-//  |                                                    | allocator,         |
-//  |                                                    | O[m]     otherwise |
-//  +----------------------------------------------------+--------------------+
-//  | list<V> a(k);                                      | O[k]               |
-//  | list<V> a(k, v);                                   |                    |
-//  | list<V> a(k, v, al);                               |                    |
-//  +----------------------------------------------------+--------------------+
-//  | list<V> a(i1, i2);                                 | O[distance(i1, i2)]|
-//  | list<V> a(i1, i2, al);                             |                    |
-//  +----------------------------------------------------+--------------------+
-//  | list<V> a({*}, al = A())                           | O[ni]              |
-//  +----------------------------------------------------+--------------------+
-//  | a.~list<V>(); (destruction)                        | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a = b;                (copy assignment)            | O[max(n, m)]       |
-//  +----------------------------------------------------+--------------------+
-//  | a = {*};              (copy assignment)            | O[max(n, ni)]      |
-//  +----------------------------------------------------+--------------------+
-//  | a = rb;               (move assignment)            | O[1] if 'a' and 'b'|
-//  |                                                    | use the same       |
-//  |                                                    | allocator,         |
-//  |                                                    | O[max(n, m)]       |
-//  |                                                    | otherwise          |
-//  +----------------------------------------------------+--------------------+
-//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
-//  | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
-//  +----------------------------------------------------+--------------------+
-//  | a == b, a != b                                     | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a < b, a <= b, a > b, a >= b                       | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.swap(b), swap(a, b)                              | O[1] if 'a' and 'b'|
-//  |                                                    | use the same       |
-//  |                                                    | allocator,         |
-//  |                                                    | O[n + m] otherwise |
-//  +----------------------------------------------------+--------------------+
-//  | a.size()                                           | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.max_size()                                       | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.empty()                                          | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.get_allocator()                                  | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.emplace(p1, args...)                             | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, v)                                    | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, k, v)                                 | O[k]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, i1, i2)                               | O[distance(i1, i2)]|
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, rv)                                   | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, {*})                                  | O[ni]              |
-//  +----------------------------------------------------+--------------------|
-//  | a.erase(p1)                                        | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.erase(p1, p2)                                    | O[distance(p1, p2)]|
-//  +----------------------------------------------------+--------------------+
-//  | a.clear()                                          | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.assign(i1,i2)                                    | O[distance(i1, i2)]|
-//  +----------------------------------------------------+--------------------+
-//  | a.assign(k, v)                                     | O[max(n, k)]       |
-//  +----------------------------------------------------+--------------------+
-//  | a.assign({*})                                      | O[max(n, ni)]      |
-//  +----------------------------------------------------+--------------------+
-//  | a.front(), a.back()                                | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.emplace_front(args...), a.emplace_back(args...)  | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.push_front(v),                                   |                    |
-//  | a.push_back(v)                                     | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.push_front(rv),                                  |                    |
-//  | a.push_back(rv)                                    | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.pop_front(), a.pop_back()                        | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.resize(k), a.resize(k, v)                        | O[k]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.splice(p, b),  a.splice(p, b, s1)                | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.splice(p, rb), a.splice(p, rb, s1)               | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.splice(p, b, s1, s2)                             | O[distance(s1, s2)]|
-//  +----------------------------------------------------+--------------------+
-//  | a.splice(p, rb, s1, s2)                            | O[distance(s1, s2)]|
-//  +----------------------------------------------------+--------------------+
-//  | a.remove(t), a.remove_if(pred)                     | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.unique(), a.unique(binary_pred)                  | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.merge(b),  a.merge(b, comp)                      | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.merge(rb), a.merge(rb, comp)                     | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.sort(), a.sort(comp)                             | O[n*log(n)]        |
-//  +----------------------------------------------------+--------------------+
-//  | a.reverse()                                        | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//..
+// +----------------------------------------------------+--------------------+
+// | Operation                                          | Complexity         |
+// +====================================================+====================+
+// | list<V> a;    (default construction)               | O[1]               |
+// | list<V> a(al);                                     |                    |
+// +----------------------------------------------------+--------------------+
+// | list<V> a(b); (copy construction)                  | O[m]               |
+// | list<V> a(b, al);                                  |                    |
+// +----------------------------------------------------+--------------------+
+// | list<V> a(rb); (move construction)                 | O[1]               |
+// | list<V> a(rb, al);                                 | O[1] if 'a' and 'b'|
+// |                                                    | use the same       |
+// |                                                    | allocator,         |
+// |                                                    | O[m]     otherwise |
+// +----------------------------------------------------+--------------------+
+// | list<V> a(k);                                      | O[k]               |
+// | list<V> a(k, v);                                   |                    |
+// | list<V> a(k, v, al);                               |                    |
+// +----------------------------------------------------+--------------------+
+// | list<V> a(i1, i2);                                 | O[distance(i1, i2)]|
+// | list<V> a(i1, i2, al);                             |                    |
+// +----------------------------------------------------+--------------------+
+// | list<V> a({*}, al = A())                           | O[ni]              |
+// +----------------------------------------------------+--------------------+
+// | a.~list<V>(); (destruction)                        | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | a = b;                (copy assignment)            | O[max(n, m)]       |
+// +----------------------------------------------------+--------------------+
+// | a = {*};              (copy assignment)            | O[max(n, ni)]      |
+// +----------------------------------------------------+--------------------+
+// | a = rb;               (move assignment)            | O[1] if 'a' and 'b'|
+// |                                                    | use the same       |
+// |                                                    | allocator,         |
+// |                                                    | O[max(n, m)]       |
+// |                                                    | otherwise          |
+// +----------------------------------------------------+--------------------+
+// | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+// | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
+// +----------------------------------------------------+--------------------+
+// | a == b, a != b                                     | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | a < b, a <= b, a > b, a >= b                       | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | a.swap(b), swap(a, b)                              | O[1] if 'a' and 'b'|
+// |                                                    | use the same       |
+// |                                                    | allocator,         |
+// |                                                    | O[n + m] otherwise |
+// +----------------------------------------------------+--------------------+
+// | a.size()                                           | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.max_size()                                       | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.empty()                                          | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.get_allocator()                                  | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.emplace(p1, args...)                             | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.insert(p1, v)                                    | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.insert(p1, k, v)                                 | O[k]               |
+// +----------------------------------------------------+--------------------+
+// | a.insert(p1, i1, i2)                               | O[distance(i1, i2)]|
+// +----------------------------------------------------+--------------------+
+// | a.insert(p1, rv)                                   | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.insert(p1, {*})                                  | O[ni]              |
+// +----------------------------------------------------+--------------------|
+// | a.erase(p1)                                        | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.erase(p1, p2)                                    | O[distance(p1, p2)]|
+// +----------------------------------------------------+--------------------+
+// | a.clear()                                          | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | a.assign(i1,i2)                                    | O[distance(i1, i2)]|
+// +----------------------------------------------------+--------------------+
+// | a.assign(k, v)                                     | O[max(n, k)]       |
+// +----------------------------------------------------+--------------------+
+// | a.assign({*})                                      | O[max(n, ni)]      |
+// +----------------------------------------------------+--------------------+
+// | a.front(), a.back()                                | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.emplace_front(args...), a.emplace_back(args...)  | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.push_front(v),                                   |                    |
+// | a.push_back(v)                                     | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.push_front(rv),                                  |                    |
+// | a.push_back(rv)                                    | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.pop_front(), a.pop_back()                        | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.resize(k), a.resize(k, v)                        | O[k]               |
+// +----------------------------------------------------+--------------------+
+// | a.splice(p, b),  a.splice(p, b, s1)                | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.splice(p, rb), a.splice(p, rb, s1)               | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.splice(p, b, s1, s2)                             | O[distance(s1, s2)]|
+// +----------------------------------------------------+--------------------+
+// | a.splice(p, rb, s1, s2)                            | O[distance(s1, s2)]|
+// +----------------------------------------------------+--------------------+
+// | a.remove(t), a.remove_if(pred)                     | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | a.unique(), a.unique(binary_pred)                  | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | a.merge(b),  a.merge(b, comp)                      | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | a.merge(rb), a.merge(rb, comp)                     | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | a.sort(), a.sort(comp)                             | O[n*log(n)]        |
+// +----------------------------------------------------+--------------------+
+// | a.reverse()                                        | O[n]               |
+// +----------------------------------------------------+--------------------+
+// ```
 //
 ///Usage
 ///-----
@@ -301,275 +301,275 @@ BSLS_IDENT("$Id: $")
 // in the list.  Our test data set has been selected such that there are 10
 // stars in the set, of which 4 are sufficiently bright as to pass our filter.
 //
-// First, we define the class 'Star' that encapsulates a single tuple, and
-// provides accessors functions 'x', 'y', and 'brightness', file I/O functions
-// 'read' and 'write', and free operators '==', '!=', and '<':
-//..
-//  #include <cstdio>
-//  using namespace std;
+// First, we define the class `Star` that encapsulates a single tuple, and
+// provides accessors functions `x`, `y`, and `brightness`, file I/O functions
+// `read` and `write`, and free operators `==`, `!=`, and `<`:
+// ```
+// #include <cstdio>
+// using namespace std;
 //
-//  class Star
-//      // This class represents a star as seen through a digital telescope.
-//  {
-//      // DATA
-//      double d_x, d_y;     // coordinates
+// class Star
+//     // This class represents a star as seen through a digital telescope.
+// {
+//     // DATA
+//     double d_x, d_y;     // coordinates
 //
-//      int    d_brightness; // brightness on a scale of 0 to 100
+//     int    d_brightness; // brightness on a scale of 0 to 100
 //
-//  public:
-//      // CREATORS
-//      Star()
-//          // Create a 'Star' object located at coordinates '(0, 0)' having
-//          // '0' brightness.
-//      : d_x(0), d_y(0), d_brightness(0)
-//      {
-//      }
+// public:
+//     // CREATORS
+//     Star()
+//         // Create a 'Star' object located at coordinates '(0, 0)' having
+//         // '0' brightness.
+//     : d_x(0), d_y(0), d_brightness(0)
+//     {
+//     }
 //
-//      Star(double x, double y, int b)
-//          // Create a 'Star' object located at the specified coordinates
-//          // '(x, y)' having the specified 'b' brightness.
-//      : d_x(x), d_y(y), d_brightness(b)
-//      {
-//      }
+//     Star(double x, double y, int b)
+//         // Create a 'Star' object located at the specified coordinates
+//         // '(x, y)' having the specified 'b' brightness.
+//     : d_x(x), d_y(y), d_brightness(b)
+//     {
+//     }
 //
-//      // Compiler-generated copy construction, assignment, and destructor
-//      // Star(const Star&) = default;
-//      // Star& operator=(const Star&) = default;
-//      // ~Star() = default;
+//     // Compiler-generated copy construction, assignment, and destructor
+//     // Star(const Star&) = default;
+//     // Star& operator=(const Star&) = default;
+//     // ~Star() = default;
 //
-//      // MANIPULATORS
-//      bool read(FILE *input);
-//          // Read x, y, and brightness from the specified 'input' file.
-//          // Return 'true' if the read succeeded and 'false' otherwise.
+//     // MANIPULATORS
+//     bool read(FILE *input);
+//         // Read x, y, and brightness from the specified 'input' file.
+//         // Return 'true' if the read succeeded and 'false' otherwise.
 //
-//      void write(FILE *output) const;
-//          // Write x, y, and brightness to the specified 'output' file
-//          // followed by a newline.
+//     void write(FILE *output) const;
+//         // Write x, y, and brightness to the specified 'output' file
+//         // followed by a newline.
 //
-//      // ACCESSORS
-//      double x() const
-//          // Return the x coordinate of this 'Star' object.
-//      {
-//          return d_x;
-//      }
+//     // ACCESSORS
+//     double x() const
+//         // Return the x coordinate of this 'Star' object.
+//     {
+//         return d_x;
+//     }
 //
-//      double y() const
-//          // Return the y coordinate of this 'Star' object.
-//      {
-//          return d_y;
-//      }
+//     double y() const
+//         // Return the y coordinate of this 'Star' object.
+//     {
+//         return d_y;
+//     }
 //
-//      int brightness() const
-//          // Return the brightness of this 'Star' object.
-//      {
-//          return d_brightness;
-//      }
-//  };
+//     int brightness() const
+//         // Return the brightness of this 'Star' object.
+//     {
+//         return d_brightness;
+//     }
+// };
 //
-//  // FREE FUNCTIONS
-//  bool operator==(const Star& lhs, const Star& rhs);
-//  bool operator!=(const Star& lhs, const Star& rhs);
-//  bool operator< (const Star& lhs, const Star& rhs);
-//..
-// Then, we define a 'readData' method that reads a file of data points and
+// // FREE FUNCTIONS
+// bool operator==(const Star& lhs, const Star& rhs);
+// bool operator!=(const Star& lhs, const Star& rhs);
+// bool operator< (const Star& lhs, const Star& rhs);
+// ```
+// Then, we define a `readData` method that reads a file of data points and
 // appends each onto a list.  The stars are stored in the data file in
 // ascending sorted order by x and y coordinates.
-//..
-//  void readData(list<Star> *starList, FILE *input)
-//  {
-//      Star s;
-//      while (s.read(input)) {
-//          starList->push_back(s);
-//      }
-//  }
-//..
-// Now, we define the 'filter' method, which is responsible for removing stars
+// ```
+// void readData(list<Star> *starList, FILE *input)
+// {
+//     Star s;
+//     while (s.read(input)) {
+//         starList->push_back(s);
+//     }
+// }
+// ```
+// Now, we define the `filter` method, which is responsible for removing stars
 // with a brightness of less than 75 from the data set.  It does this by
 // iterating over the list and erasing any element that does not pass the
-// filter.  The list object features a fast 'erase' member function.  The
-// return value of 'erase' is an iterator to the element immediately following
+// filter.  The list object features a fast `erase` member function.  The
+// return value of `erase` is an iterator to the element immediately following
 // the erased element:
-//..
-//  void filter(list<Star> *starList)
-//  {
-//      static const int threshold = 75;
+// ```
+// void filter(list<Star> *starList)
+// {
+//     static const int threshold = 75;
 //
-//      list<Star>::iterator i = starList->begin();
-//      while (i != starList->end()) {
-//          if (i->brightness() < threshold) {
-//              i = starList->erase(i);  // Erase and advance to next element.
-//          }
-//          else {
-//              ++i;  // Advance to next element without erasing
-//          }
-//      }
-//  }
-//..
+//     list<Star>::iterator i = starList->begin();
+//     while (i != starList->end()) {
+//         if (i->brightness() < threshold) {
+//             i = starList->erase(i);  // Erase and advance to next element.
+//         }
+//         else {
+//             ++i;  // Advance to next element without erasing
+//         }
+//     }
+// }
+// ```
 // Finally, we use the methods defined in above steps to put together our
 // program to find twinkle stars:
-//..
-//  int usageExample1(int verbose)
-//  {
-//      FILE *input = fopen("star_data1.txt", "r");  // Open input file.
-//      assert(input);
+// ```
+// int usageExample1(int verbose)
+// {
+//     FILE *input = fopen("star_data1.txt", "r");  // Open input file.
+//     assert(input);
 //
-//      list<Star> starList;                         // Define a list of stars.
-//      assert(starList.empty());                    // A list should be empty
-//                                                   // after default
-//                                                   // construction.
+//     list<Star> starList;                         // Define a list of stars.
+//     assert(starList.empty());                    // A list should be empty
+//                                                  // after default
+//                                                  // construction.
 //
-//      readData(&starList, input);                  // Read input to the list.
-//      assert(10 == starList.size());               // Verify correct reading.
-//      fclose(input);                               // Close input file.
+//     readData(&starList, input);                  // Read input to the list.
+//     assert(10 == starList.size());               // Verify correct reading.
+//     fclose(input);                               // Close input file.
 //
-//      filter(&starList);                           // Pick twinkle stars.
-//      assert(4 == starList.size());                // Verify correct filter.
+//     filter(&starList);                           // Pick twinkle stars.
+//     assert(4 == starList.size());                // Verify correct filter.
 //
-//      // Print out twinkle stars.
-//      if (verbose) {
-//          for (list<Star>::const_iterator i = starList.begin();
-//               i != starList.end(); ++i) {
-//              i->write(stdout);
-//          }
-//      }
-//      return 0;
-//  }
-//..
+//     // Print out twinkle stars.
+//     if (verbose) {
+//         for (list<Star>::const_iterator i = starList.begin();
+//              i != starList.end(); ++i) {
+//             i->write(stdout);
+//         }
+//     }
+//     return 0;
+// }
+// ```
 //
 ///Example 2: Combine Two Star Surveys
 ///- - - - - - - - - - - - - - - - - -
 // In the second example, we want to combine the results from two star surveys
-// into a single list, using the same 'Star' class defined in the first usage
+// into a single list, using the same `Star` class defined in the first usage
 // example.
 //
 // First, we begin by reading both lists and filtering them.  (Our test data is
 // selected so that the second data file contains 8 stars of which 3 are
 // sufficiently bright as to pass our filter:
-//..
-//  int usageExample2(int verbose)
-//  {
-//      FILE *input = fopen("star_data1.txt", "r");  // Open first input file.
-//      assert(input);
+// ```
+// int usageExample2(int verbose)
+// {
+//     FILE *input = fopen("star_data1.txt", "r");  // Open first input file.
+//     assert(input);
 //
-//      list<Star> starList1;                        // Define first star list.
-//      assert(starList1.empty());
+//     list<Star> starList1;                        // Define first star list.
+//     assert(starList1.empty());
 //
-//      readData(&starList1, input);                 // Read input into list.
-//      assert(10 == starList1.size());
-//      fclose(input);                               // Close first input file.
+//     readData(&starList1, input);                 // Read input into list.
+//     assert(10 == starList1.size());
+//     fclose(input);                               // Close first input file.
 //
-//      input = fopen("star_data2.txt", "r");        // Open second input file.
-//      assert(input);
+//     input = fopen("star_data2.txt", "r");        // Open second input file.
+//     assert(input);
 //
-//      list<Star> starList2;                        // Define second list.
-//      assert(starList2.empty());
+//     list<Star> starList2;                        // Define second list.
+//     assert(starList2.empty());
 //
-//      readData(&starList2, input);                 // Read input into list.
-//      assert(8 == starList2.size());
-//      fclose(input);                               // Close input file.
+//     readData(&starList2, input);                 // Read input into list.
+//     assert(8 == starList2.size());
+//     fclose(input);                               // Close input file.
 //
-//      filter(&starList1);                          // Pick twinkle stars from
-//                                                   // the first star list.
-//      assert(4 == starList1.size());
+//     filter(&starList1);                          // Pick twinkle stars from
+//                                                  // the first star list.
+//     assert(4 == starList1.size());
 //
-//      filter(&starList2);                          // Pick twinkle stars from
-//                                                   // the second star list.
-//      assert(3 == starList2.size());
-//..
-// Then, we combine the two lists, 'starList1' and 'starList2'.  One way to do
+//     filter(&starList2);                          // Pick twinkle stars from
+//                                                  // the second star list.
+//     assert(3 == starList2.size());
+// ```
+// Then, we combine the two lists, `starList1` and `starList2`.  One way to do
 // this is to simply insert the second list at the end of the first:
-//..
-//      list<Star> tmp1(starList1);  // Make a copy of the first list
-//      list<Star> tmp2(starList2);  // Make a copy of the second list
-//      tmp1.insert(tmp1.end(), tmp2.begin(), tmp2.end());
-//      assert(7 == tmp1.size());    // Verify combined size.
-//      assert(3 == tmp2.size());    // 'tmp2' should be unchanged.
-//..
+// ```
+//     list<Star> tmp1(starList1);  // Make a copy of the first list
+//     list<Star> tmp2(starList2);  // Make a copy of the second list
+//     tmp1.insert(tmp1.end(), tmp2.begin(), tmp2.end());
+//     assert(7 == tmp1.size());    // Verify combined size.
+//     assert(3 == tmp2.size());    // 'tmp2' should be unchanged.
+// ```
 // Next, let's have a closer look of the above code and see if we can improve
-// the combination performance.  The above 'insert' method appends a copy of
-// each element in 'tmp2' onto the end of 'tmp1'.  This copy is unnecessary
-// because we have no need for 'tmp2' after the lists have been combined.  A
-// faster and less-memory-intensive technique is to use the 'splice' function,
+// the combination performance.  The above `insert` method appends a copy of
+// each element in `tmp2` onto the end of `tmp1`.  This copy is unnecessary
+// because we have no need for `tmp2` after the lists have been combined.  A
+// faster and less-memory-intensive technique is to use the `splice` function,
 // which *moves* rather than *copies* elements from one list to another:
-//..
-//      tmp1 = starList1;
-//      tmp2 = starList2;
-//      tmp1.splice(tmp1.begin(), tmp2);
-//      assert(7 == tmp1.size());    // Verify combined size.
-//      assert(0 == tmp2.size());    // 'tmp2' should be emptied by the splice.
-//..
+// ```
+//     tmp1 = starList1;
+//     tmp2 = starList2;
+//     tmp1.splice(tmp1.begin(), tmp2);
+//     assert(7 == tmp1.size());    // Verify combined size.
+//     assert(0 == tmp2.size());    // 'tmp2' should be emptied by the splice.
+// ```
 // Notice that, while the original lists were sorted in ascending order
 // (because the data files were originally sorted), the combined list is no
-// longer sorted.  To fix it, we sort 'tmp1' using the 'sort' member function:
-//..
-//      tmp1.sort();
-//..
+// longer sorted.  To fix it, we sort `tmp1` using the `sort` member function:
+// ```
+//     tmp1.sort();
+// ```
 // Then, we suggest a third, and also the best approach to combine two lists,
 // which is to take advantage of the fact that the lists were originally
-// sorted, using the 'merge' function:
-//..
-//      starList1.merge(starList2);     // Merge 'starList2' into 'starList1'.
-//      assert(7 == starList1.size());  // Verify combined size.
-//      assert(0 == starList2.size());  // starList2 should be emptied by the
-//                                      // merge.
-//..
+// sorted, using the `merge` function:
+// ```
+//     starList1.merge(starList2);     // Merge 'starList2' into 'starList1'.
+//     assert(7 == starList1.size());  // Verify combined size.
+//     assert(0 == starList2.size());  // starList2 should be emptied by the
+//                                     // merge.
+// ```
 // Now, since the two star surveys may overlap, we want to eliminate
-// duplicates.  We accomplish this by using the 'unique' member function:
-//..
-//      starList1.unique();             // Eliminate duplicates in 'starList1'.
-//      assert(6 == starList1.size());  // Verify size after elimination.
-//..
+// duplicates.  We accomplish this by using the `unique` member function:
+// ```
+//     starList1.unique();             // Eliminate duplicates in 'starList1'.
+//     assert(6 == starList1.size());  // Verify size after elimination.
+// ```
 // Finally, we print the result:
-//..
-//      if (verbose) {
-//          for (list<Star>::const_iterator i = starList1.begin();
-//               i != starList1.end(); ++i) {
-//              i->write(stdout);
-//          }
-//      }
-//      return 0;
-//  }
-//..
-// For completeness, the implementations of the 'read', 'write', and comparison
-// functions for class 'Star' are shown below:
-//..
-//  bool Star::read(FILE *input)
-//  {
-//      int ret = fscanf(input, "%lf %lf %d", &d_x, &d_y, &d_brightness);
-//      return 3 == ret;
-//  }
+// ```
+//     if (verbose) {
+//         for (list<Star>::const_iterator i = starList1.begin();
+//              i != starList1.end(); ++i) {
+//             i->write(stdout);
+//         }
+//     }
+//     return 0;
+// }
+// ```
+// For completeness, the implementations of the `read`, `write`, and comparison
+// functions for class `Star` are shown below:
+// ```
+// bool Star::read(FILE *input)
+// {
+//     int ret = fscanf(input, "%lf %lf %d", &d_x, &d_y, &d_brightness);
+//     return 3 == ret;
+// }
 //
-//  void Star::write(FILE *output) const
-//  {
-//      fprintf(output, "%f %f %d\n", d_x, d_y, d_brightness);
-//  }
+// void Star::write(FILE *output) const
+// {
+//     fprintf(output, "%f %f %d\n", d_x, d_y, d_brightness);
+// }
 //
-//  bool operator==(const Star& lhs, const Star& rhs)
-//  {
-//      return lhs.x() == rhs.x()
-//          && lhs.y() == rhs.y()
-//          && lhs.brightness() == rhs.brightness();
-//  }
+// bool operator==(const Star& lhs, const Star& rhs)
+// {
+//     return lhs.x() == rhs.x()
+//         && lhs.y() == rhs.y()
+//         && lhs.brightness() == rhs.brightness();
+// }
 //
-//  bool operator!=(const Star& lhs, const Star& rhs)
-//  {
-//      return ! (lhs == rhs);
-//  }
+// bool operator!=(const Star& lhs, const Star& rhs)
+// {
+//     return ! (lhs == rhs);
+// }
 //
-//  bool operator<(const Star& lhs, const Star& rhs)
-//  {
-//      if (lhs.x() < rhs.x())
-//          return true;
-//      else if (rhs.x() < lhs.x())
-//          return false;
-//      else if (lhs.y() < rhs.y())
-//          return true;
-//      else if (rhs.y() < lhs.y())
-//          return true;
-//      else
-//          return lhs.brightness() < rhs.brightness();
-//  }
-//..
+// bool operator<(const Star& lhs, const Star& rhs)
+// {
+//     if (lhs.x() < rhs.x())
+//         return true;
+//     else if (rhs.x() < lhs.x())
+//         return false;
+//     else if (lhs.y() < rhs.y())
+//         return true;
+//     else if (rhs.y() < lhs.y())
+//         return true;
+//     else
+//         return lhs.brightness() < rhs.brightness();
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -632,13 +632,13 @@ namespace bsl {
                         // struct bsl::List_Node
                         // =====================
 
+/// PRIVATE CLASS TEMPLATE.  For use only by `bsl::list` implementation.
+/// An instance of `List_Node<T>` is a single node in a doubly-linked list
+/// used to implement `bsl::list<T,A>`, for a given element type `T` and
+/// allocator type `A`.  Note that an instantiation of this `class` for a
+/// given `bsl::list` is independent of the allocator type.
 template <class VALUE>
 class List_Node {
-    // PRIVATE CLASS TEMPLATE.  For use only by 'bsl::list' implementation.
-    // An instance of 'List_Node<T>' is a single node in a doubly-linked list
-    // used to implement 'bsl::list<T,A>', for a given element type 'T' and
-    // allocator type 'A'.  Note that an instantiation of this 'class' for a
-    // given 'bsl::list' is independent of the allocator type.
 
     // DATA
     List_Node *d_prev_p;   // pointer to the previous node in the list
@@ -701,9 +701,10 @@ class List_Iterator {
 
   private:
     // PRIVATE ACCESSORS
+
+    /// Return an iterator providing modifiable access to the list element
+    /// that this list iterator refers to.
     NcIter unconst() const;
-        // Return an iterator providing modifiable access to the list element
-        // that this list iterator refers to.
 
   public:
     // PUBLIC TYPES
@@ -714,26 +715,27 @@ class List_Iterator {
     typedef VALUE&                            reference;
 
     // CREATORS
+
+    /// Create a singular iterator (i.e., one that cannot be incremented,
+    /// decremented, or dereferenced until assigned a non-singular value).
     List_Iterator();
-        // Create a singular iterator (i.e., one that cannot be incremented,
-        // decremented, or dereferenced until assigned a non-singular value).
 
+    /// Create an iterator that references the value pointed to by the
+    /// specified `nodePtr`.  If `0 == nodePtr` the iterator will be
+    /// singular.
     explicit List_Iterator(Node *nodePtr);
-        // Create an iterator that references the value pointed to by the
-        // specified 'nodePtr'.  If '0 == nodePtr' the iterator will be
-        // singular.
 
+    /// Create an iterator that has the same value as the specified `other`
+    /// iterator.  If the (template parameter) type `VALUE` is not
+    /// `const`-qualified, then this constructor is the copy constructor;
+    /// otherwise, the copy constructor is implicitly generated.  Note that
+    /// this method is marked "IMPLICIT" in case it is not the copy
+    /// constructor.
+    ///
+    /// Note that this means that a `List_Iterator<const VALUE>` can be copy
+    /// constructed or assigned to from a `List_Iterator<VALUE>`, but not
+    /// vice-versa.
     List_Iterator(const NcIter& other);                             // IMPLICIT
-        // Create an iterator that has the same value as the specified 'other'
-        // iterator.  If the (template parameter) type 'VALUE' is not
-        // 'const'-qualified, then this constructor is the copy constructor;
-        // otherwise, the copy constructor is implicitly generated.  Note that
-        // this method is marked "IMPLICIT" in case it is not the copy
-        // constructor.
-        //
-        // Note that this means that a 'List_Iterator<const VALUE>' can be copy
-        // constructed or assigned to from a 'List_Iterator<VALUE>', but not
-        // vice-versa.
 
     // Compiler-generated copy constructor, destructor, and copy-assignment
     // operator:
@@ -742,66 +744,69 @@ class List_Iterator {
     //: o List_Iterator& operator=(const List_Iterator&) = default;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    /// Default compiler-generated destructor.
     ~List_Iterator() = default;
-        // Default compiler-generated destructor.
 
+    /// Default compiler-generated copy-assignment operator.
     List_Iterator& operator=(const List_Iterator&) = default;
-        // Default compiler-generated copy-assignment operator.
 #endif
 
     // MANIPULATORS
+
+    /// Advance this iterator to the next element in the list and return its
+    /// new value.  The behavior is undefined unless this iterator is in the
+    /// range `[begin() .. end())` for some list (i.e., the iterator is not
+    /// singular, is not `end()`, and has not been invalidated).
     List_Iterator& operator++();
-        // Advance this iterator to the next element in the list and return its
-        // new value.  The behavior is undefined unless this iterator is in the
-        // range '[begin() .. end())' for some list (i.e., the iterator is not
-        // singular, is not 'end()', and has not been invalidated).
 
+    /// Regress this iterator to the previous element in the list and return
+    /// its new value.  The behavior is undefined unless this iterator is in
+    /// the range `(begin() .. end()]` for some list (i.e., the iterator is
+    /// not singular, is not `begin()`, and has not been invalidated).
     List_Iterator& operator--();
-        // Regress this iterator to the previous element in the list and return
-        // its new value.  The behavior is undefined unless this iterator is in
-        // the range '(begin() .. end()]' for some list (i.e., the iterator is
-        // not singular, is not 'begin()', and has not been invalidated).
 
+    /// Advance this iterator to the next element in the list and return its
+    /// previous value.  The behavior is undefined unless this iterator is
+    /// in the range `[begin() .. end())` for some list (i.e., the iterator
+    /// is not singular, is not `end()`, and has not been invalidated).
     List_Iterator operator++(int);
-        // Advance this iterator to the next element in the list and return its
-        // previous value.  The behavior is undefined unless this iterator is
-        // in the range '[begin() .. end())' for some list (i.e., the iterator
-        // is not singular, is not 'end()', and has not been invalidated).
 
+    /// Regress this iterator to the previous element in the list and return
+    /// its previous value.  The behavior is undefined unless this iterator
+    /// is in the range `(begin() .. end()]` for some list (i.e., the
+    /// iterator is not singular, is not `begin()`, and has not been
+    /// invalidated).
     List_Iterator operator--(int);
-        // Regress this iterator to the previous element in the list and return
-        // its previous value.  The behavior is undefined unless this iterator
-        // is in the range '(begin() .. end()]' for some list (i.e., the
-        // iterator is not singular, is not 'begin()', and has not been
-        // invalidated).
 
     // ACCESSORS
-    reference operator*() const;
-        // Return a reference providing modifiable access to the element
-        // referenced by this iterator.  The behavior is undefined unless this
-        // iterator is in the range '[begin() .. end())' for some list (i.e.,
-        // the iterator is not singular, is not 'end()', and has not been
-        // invalidated).
 
+    /// Return a reference providing modifiable access to the element
+    /// referenced by this iterator.  The behavior is undefined unless this
+    /// iterator is in the range `[begin() .. end())` for some list (i.e.,
+    /// the iterator is not singular, is not `end()`, and has not been
+    /// invalidated).
+    reference operator*() const;
+
+    /// Return a pointer providing modifiable access to the element
+    /// referenced by this iterator.  The behavior is undefined unless this
+    /// iterator is in the range `[begin() .. end())` for some list (i.e.,
+    /// the iterator is not singular, is not `end()`, and has not been
+    /// invalidated).
     pointer operator->() const;
-        // Return a pointer providing modifiable access to the element
-        // referenced by this iterator.  The behavior is undefined unless this
-        // iterator is in the range '[begin() .. end())' for some list (i.e.,
-        // the iterator is not singular, is not 'end()', and has not been
-        // invalidated).
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` iterators have the same
+/// value, and `false` otherwise.  Two iterators have the same value if both
+/// refer to the same element of the same list or both are the `end()`
+/// iterator of the same list.  The behavior is undefined unless both `lhs`
+/// and `rhs` refer to the same list.  Note that the different types `T1`
+/// and `T2` are to facilitate comparisons between `const` and non-`const`
+/// iterators and there will be a compilation error if `T1` and `T2` differ
+/// in any way other than `const`-ness.
 template <class T1, class T2>
 bool operator==(List_Iterator<T1> lhs, List_Iterator<T2> rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators have the same
-    // value, and 'false' otherwise.  Two iterators have the same value if both
-    // refer to the same element of the same list or both are the 'end()'
-    // iterator of the same list.  The behavior is undefined unless both 'lhs'
-    // and 'rhs' refer to the same list.  Note that the different types 'T1'
-    // and 'T2' are to facilitate comparisons between 'const' and non-'const'
-    // iterators and there will be a compilation error if 'T1' and 'T2' differ
-    // in any way other than 'const'-ness.
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class T1, class T2>
@@ -820,42 +825,43 @@ bool operator!=(List_Iterator<T1> lhs, List_Iterator<T2> rhs);
                          // struct List_DefaultLessThan
                          // ===========================
 
+/// Binary predicate type for comparing two `VALUE` objects using
+/// `operator<`.  This operation is usually, but not always, the same as
+/// that provided by `std::less<VALUE>`.  The standard requires that certain
+/// functions use `operator<`, which means that divergent specializations of
+/// `std::less` are to be ignored.
 template <class VALUE>
 struct List_DefaultLessThan {
-    // Binary predicate type for comparing two 'VALUE' objects using
-    // 'operator<'.  This operation is usually, but not always, the same as
-    // that provided by 'std::less<VALUE>'.  The standard requires that certain
-    // functions use 'operator<', which means that divergent specializations of
-    // 'std::less' are to be ignored.
 
     // ACCESSORS
+
+    /// Return `true` if the value of the specified `lhs` is less than that
+    /// of the specified `rhs`, and `false` otherwise.
     bool operator()(const VALUE& lhs, const VALUE& rhs) const;
-        // Return 'true' if the value of the specified 'lhs' is less than that
-        // of the specified 'rhs', and 'false' otherwise.
 };
 
                         // ==============================
                         // class List_AllocAndSizeWrapper
                         // ==============================
 
+/// This struct is a wrapper around the allocator and size data members of a
+/// `list`.  It takes advantage of the empty-base optimization (EBO) so that
+/// if the allocator is stateless, it takes up no space.
+///
+/// TBD: This struct should eventually be replaced by the use of a general
+/// EBO-enabled component that provides a `pair`-like interface.  (A
+/// properly-optimized `tuple` would do the job.)
 template <class VALUE, class ALLOCATOR>
 class List_AllocAndSizeWrapper : public allocator_traits<ALLOCATOR>::
                     template rebind_traits<List_Node<VALUE> >::allocator_type {
-    // This struct is a wrapper around the allocator and size data members of a
-    // 'list'.  It takes advantage of the empty-base optimization (EBO) so that
-    // if the allocator is stateless, it takes up no space.
-    //
-    // TBD: This struct should eventually be replaced by the use of a general
-    // EBO-enabled component that provides a 'pair'-like interface.  (A
-    // properly-optimized 'tuple' would do the job.)
 
     // PRIVATE TYPES
     typedef List_Node<VALUE>                      Node;
 
+    /// Alias for the allocator traits type associated with the `bsl::list`
+    /// container.
     typedef typename allocator_traits<ALLOCATOR>::template rebind_traits<Node>
                                                   AllocTraits;
-        // Alias for the allocator traits type associated with the 'bsl::list'
-        // container.
 
     typedef typename AllocTraits::allocator_type  NodeAlloc;    // base class
 
@@ -872,44 +878,47 @@ class List_AllocAndSizeWrapper : public allocator_traits<ALLOCATOR>::
 
   public:
     // CREATORS
+
+    /// Create an allocator and size wrapper having the specified
+    /// `basicAllocator` and (initial) `size`.
     List_AllocAndSizeWrapper(const NodeAlloc& basicAllocator,
                              size_type        size);
-        // Create an allocator and size wrapper having the specified
-        // 'basicAllocator' and (initial) 'size'.
 
     // ~List_AllocAndSizeWrapper() = default;
 
     // MANIPULATORS
+
+    /// Return a reference providing modifiable access to the `size` field
+    /// of this object.
     size_type& size();
-        // Return a reference providing modifiable access to the 'size' field
-        // of this object.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the `size`
+    /// field of this object.
     const size_type& size() const;
-        // Return a reference providing non-modifiable access to the 'size'
-        // field of this object.
 };
 
+/// Forward declaration required by `List_NodeProctor`.
 template <class VALUE, class ALLOCATOR>
 class list;
-    // Forward declaration required by 'List_NodeProctor'.
 
                             // ======================
                             // class List_NodeProctor
                             // ======================
 
+/// This class provides a proctor to free a node containing an uninitialized
+/// `VALUE` object in the event that an exception is thrown.
 template <class VALUE, class ALLOCATOR>
 class List_NodeProctor {
-    // This class provides a proctor to free a node containing an uninitialized
-    // 'VALUE' object in the event that an exception is thrown.
 
     // PRIVATE TYPES
     typedef List_Node<VALUE>                      Node;
 
+    /// Alias for the allocator traits type associated with the `bsl::list`
+    /// container.
     typedef typename allocator_traits<ALLOCATOR>::template rebind_traits<Node>
                                                   AllocTraits;
-        // Alias for the allocator traits type associated with the 'bsl::list'
-        // container.
 
   public:
     // PUBLIC TYPES
@@ -931,57 +940,60 @@ class List_NodeProctor {
 
   public:
     // CREATORS
-    List_NodeProctor(list<VALUE, ALLOCATOR> *listPtr, NodePtr nodePtr);
-        // Create a node proctor object that will use the specified list
-        // 'listPtr' to free the specified 'nodePtr'.  The behavior is
-        // undefined unless 'nodePtr' was allocated by the allocator of
-        // '*listPtr'.
 
+    /// Create a node proctor object that will use the specified list
+    /// `listPtr` to free the specified `nodePtr`.  The behavior is
+    /// undefined unless `nodePtr` was allocated by the allocator of
+    /// `*listPtr`.
+    List_NodeProctor(list<VALUE, ALLOCATOR> *listPtr, NodePtr nodePtr);
+
+    /// Destroy this node proctor, and free the node it contains unless the
+    /// `release` method has been called before.  Note that the `d_value`
+    /// field of the node is not destroyed.
     ~List_NodeProctor();
-        // Destroy this node proctor, and free the node it contains unless the
-        // 'release' method has been called before.  Note that the 'd_value'
-        // field of the node is not destroyed.
 
     // MANIPULATORS
+
+    /// Detach the node contained in this proctor from the proctor.  After
+    /// calling this `release` method, the proctor no longer frees any node
+    /// upon its destruction.
     void release();
-        // Detach the node contained in this proctor from the proctor.  After
-        // calling this 'release' method, the proctor no longer frees any node
-        // upon its destruction.
 };
 
                             // ===============
                             // class bsl::list
                             // ===============
 
+/// This class template implements a value-semantic container type holding a
+/// sequence of elements of the (template parameter) `VALUE` type.
 template <class VALUE, class ALLOCATOR = bsl::allocator<VALUE> >
 class list {
-    // This class template implements a value-semantic container type holding a
-    // sequence of elements of the (template parameter) 'VALUE' type.
 
     // PRIVATE TYPES
+
+    /// Default comparator.
     typedef List_DefaultLessThan<VALUE>           DefaultLessThan;
-        // Default comparator.
 
+    /// Alias for the node type in this list.
     typedef List_Node<VALUE>                      Node;
-        // Alias for the node type in this list.
 
+    /// Proctor for guarding a newly allocated node.
     typedef List_NodeProctor<VALUE, ALLOCATOR>    NodeProctor;
-        // Proctor for guarding a newly allocated node.
 
+    /// Alias for the allocator traits type associated with this container.
     typedef typename allocator_traits<ALLOCATOR>::template rebind_traits<Node>
                                                   AllocTraits;
-        // Alias for the allocator traits type associated with this container.
 
+    /// Alias for the utility associated with movable references.
     typedef BloombergLP::bslmf::MovableRefUtil    MoveUtil;
-        // Alias for the utility associated with movable references.
 
+    /// Alias for the wrapper containing the (usually stateless) allocator
+    /// and number of elements stored in this container.
     typedef List_AllocAndSizeWrapper<VALUE, ALLOCATOR>
                                                   AllocAndSizeWrapper;
-        // Alias for the wrapper containing the (usually stateless) allocator
-        // and number of elements stored in this container.
 
+    /// Base class of `List_AllocAndSizeWrapper` containing the allocator.
     typedef typename AllocTraits::allocator_type  NodeAlloc;
-        // Base class of 'List_AllocAndSizeWrapper' containing the allocator.
 
     // In C++11 'NodePtr' would be generalized as follows:
     // 'typedef pointer_traits<VoidPtr>::template rebind<List_Node> NodePtr;'
@@ -1015,155 +1027,179 @@ class list {
     friend class List_NodeProctor<VALUE, ALLOCATOR>;
 
     // PRIVATE MANIPULATORS
+
+    /// Return a reference providing modifiable access to the allocator used
+    /// to allocate nodes.
     NodeAlloc& allocatorImp();
-        // Return a reference providing modifiable access to the allocator used
-        // to allocate nodes.
 
+    /// Return a pointer to a node allocated from the container's allocator.
+    /// Before returning, the node's pointers are zeroed, but the
+    /// constructor of the `value_type` is not called.
     NodePtr allocateNode();
-        // Return a pointer to a node allocated from the container's allocator.
-        // Before returning, the node's pointers are zeroed, but the
-        // constructor of the 'value_type' is not called.
 
+    /// Create the sentinel node of this list.  The sentinel node does not
+    /// hold a value.  When first created, its forward and backward pointers
+    /// point to itself, creating a circular linked list.  This function
+    /// also sets this list's size to 0.
     void createSentinel();
-        // Create the sentinel node of this list.  The sentinel node does not
-        // hold a value.  When first created, its forward and backward pointers
-        // point to itself, creating a circular linked list.  This function
-        // also sets this list's size to 0.
 
+    /// Destroy the value part of the specified `node` and free the node's
+    /// memory.  Do not do any pointer fix-up of the node or its neighbors,
+    /// and do not update `sizeRef`.  The behavior is undefined unless
+    /// `node` was allocated using the allocator of this list.
     void deleteNode(NodePtr node);
-        // Destroy the value part of the specified 'node' and free the node's
-        // memory.  Do not do any pointer fix-up of the node or its neighbors,
-        // and do not update 'sizeRef'.  The behavior is undefined unless
-        // 'node' was allocated using the allocator of this list.
 
+    /// Erase all elements and deallocate the sentinel node, leaving this
+    /// list in an invalid but destructible state (i.e., with `size == -1`).
     void destroyAll();
-        // Erase all elements and deallocate the sentinel node, leaving this
-        // list in an invalid but destructible state (i.e., with 'size == -1').
 
+    /// Zero out the pointers and deallocate the node pointed to by the
+    /// specified `node`.  The behavior is undefined unless `node` was
+    /// allocated using the allocator of this list.  Note that `node`s
+    /// destructor is not called, and, importantly, the value field of
+    /// `node` is not destroyed.
     void freeNode(NodePtr node);
-        // Zero out the pointers and deallocate the node pointed to by the
-        // specified 'node'.  The behavior is undefined unless 'node' was
-        // allocated using the allocator of this list.  Note that 'node's
-        // destructor is not called, and, importantly, the value field of
-        // 'node' is not destroyed.
 
+    /// Insert the specified `node` prior to the specified `position` in
+    /// this list.  The behavior is undefined unless `node` was allocated
+    /// using the allocator of this list and `position` is in the range
+    /// `[begin() .. end()]`.
     iterator insertNode(const_iterator position, NodePtr node);
-        // Insert the specified 'node' prior to the specified 'position' in
-        // this list.  The behavior is undefined unless 'node' was allocated
-        // using the allocator of this list and 'position' is in the range
-        // '[begin() .. end()]'.
 
+    /// Modify the forward pointer of the specified `prev` to point to the
+    /// specified `next` and the backward pointer of `next` to point to
+    /// `prev`.  The behavior is undefined unless `prev` and `next` point to
+    /// nodes created with `allocateNode`.
     void linkNodes(NodePtr prev, NodePtr next);
-        // Modify the forward pointer of the specified 'prev' to point to the
-        // specified 'next' and the backward pointer of 'next' to point to
-        // 'prev'.  The behavior is undefined unless 'prev' and 'next' point to
-        // nodes created with 'allocateNode'.
 
+    /// Given a specified pair of nodes `node1` and `finish` specifying the
+    /// range `[node1 .. finish)`, with the specified `node2` pointing
+    /// somewhere in the middle of the sequence, merge sequence
+    /// `[node2 .. finish)` into `[node1 .. node2)`, and return a pointer to
+    /// the beginning of the merged sequence, using the specified
+    /// `comparator` to determine order.  If an exception is thrown, all
+    /// nodes remain in this list, but their order is unspecified.  If any
+    /// nodes in the range `[node1 .. node2)` compare equivalent to any
+    /// nodes in the range `[node2 .. finish)`, the nodes from
+    /// `[node1 .. node2)` will be merged first.  The behavior is undefined
+    /// unless `[node1 .. node2)` and `[node2 .. finish)` each describe a
+    /// contiguous sequence of nodes.
     template <class COMPARE>
     NodePtr mergeImp(NodePtr node1,
                      NodePtr node2,
                      NodePtr finish,
                      COMPARE comparator);
-        // Given a specified pair of nodes 'node1' and 'finish' specifying the
-        // range '[node1 .. finish)', with the specified 'node2' pointing
-        // somewhere in the middle of the sequence, merge sequence
-        // '[node2 .. finish)' into '[node1 .. node2)', and return a pointer to
-        // the beginning of the merged sequence, using the specified
-        // 'comparator' to determine order.  If an exception is thrown, all
-        // nodes remain in this list, but their order is unspecified.  If any
-        // nodes in the range '[node1 .. node2)' compare equivalent to any
-        // nodes in the range '[node2 .. finish)', the nodes from
-        // '[node1 .. node2)' will be merged first.  The behavior is undefined
-        // unless '[node1 .. node2)' and '[node2 .. finish)' each describe a
-        // contiguous sequence of nodes.
 
+    /// Efficiently exchange the value of this object with that of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless this
+    /// object was created with the same allocator as `other`.
     void quickSwap(list *other);
-        // Efficiently exchange the value of this object with that of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
 
+    /// Return a reference providing modifiable access to the data element
+    /// holding the size of this list.
     typename AllocTraits::size_type& sizeRef() BSLS_KEYWORD_NOEXCEPT;
-        // Return a reference providing modifiable access to the data element
-        // holding the size of this list.
 
+    /// Sort the sequence of the specified `size` nodes starting with the
+    /// specified `*nodePtrPtr`, and modify `*nodePtrPtr` to refer to the
+    /// first node of the sorted sequence.  Return the pointer to the node
+    /// following the sequence of nodes to be sorted.  Use the specified
+    /// `comparator` to compare `VALUE` type objects.  If an exception is
+    /// thrown, all nodes remain properly linked, but their order is
+    /// unspecified.  The behavior is undefined unless `*nodePtrPtr` begins
+    /// a sequence of at least `size` nodes, none of which is the sentinel
+    /// node, and `0 < size`.
     template <class COMPARE>
     NodePtr sortImp(NodePtr        *nodePtrPtr,
                     size_type       size,
                     const COMPARE&  comparator);
-        // Sort the sequence of the specified 'size' nodes starting with the
-        // specified '*nodePtrPtr', and modify '*nodePtrPtr' to refer to the
-        // first node of the sorted sequence.  Return the pointer to the node
-        // following the sequence of nodes to be sorted.  Use the specified
-        // 'comparator' to compare 'VALUE' type objects.  If an exception is
-        // thrown, all nodes remain properly linked, but their order is
-        // unspecified.  The behavior is undefined unless '*nodePtrPtr' begins
-        // a sequence of at least 'size' nodes, none of which is the sentinel
-        // node, and '0 < size'.
 
     // PRIVATE ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the allocator
+    /// used to allocate nodes.
     const NodeAlloc& allocatorImp() const;
-        // Return a reference providing non-modifiable access to the allocator
-        // used to allocate nodes.
 
+    /// Return a pointer providing modifiable access to the first node in
+    /// this list or the sentinel node if this list is empty.
     NodePtr headNode() const;
-        // Return a pointer providing modifiable access to the first node in
-        // this list or the sentinel node if this list is empty.
 
+    /// Return a reference providing non-modifiable access to the data
+    /// element holding the size of this list.
     const typename AllocTraits::size_type& sizeRef() const
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Return a reference providing non-modifiable access to the data
-        // element holding the size of this list.
 
   public:
     // CREATORS
+
+    /// Create an empty list.  A default-constructed object of the (template
+    /// parameter) type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator`, the currently installed default allocator is used.
     list();
-        // Create an empty list.  A default-constructed object of the (template
-        // parameter) type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator', the currently installed default allocator is used.
 
+    /// Create an empty list.  Use the specified `basicAllocator` to supply
+    /// memory.  If the type `ALLOCATOR` is `bsl::allocator` (the default),
+    /// then `basicAllocator` shall be convertible to `bslma::Allocator *`.
     explicit list(const ALLOCATOR& basicAllocator);
-        // Create an empty list.  Use the specified 'basicAllocator' to supply
-        // memory.  If the type 'ALLOCATOR' is 'bsl::allocator' (the default),
-        // then 'basicAllocator' shall be convertible to 'bslma::Allocator *'.
 
+    /// Create a list of the specified `numElements` size whose every
+    /// element is default-constructed.  A default-constructed object of the
+    /// (template parameter) type `ALLOCATOR` is used.  If the type
+    /// `ALLOCATOR` is `bsl::allocator`, the currently installed default
+    /// allocator is used.  Throw `bsl::length_error` if
+    /// `numElements > max_size()`.  This method requires that the (template
+    /// parameter) `VALUE` be `default-insertable` into this list (see
+    /// {Requirements on `VALUE`}).
     explicit list(size_type numElements);
-        // Create a list of the specified 'numElements' size whose every
-        // element is default-constructed.  A default-constructed object of the
-        // (template parameter) type 'ALLOCATOR' is used.  If the type
-        // 'ALLOCATOR' is 'bsl::allocator', the currently installed default
-        // allocator is used.  Throw 'bsl::length_error' if
-        // 'numElements > max_size()'.  This method requires that the (template
-        // parameter) 'VALUE' be 'default-insertable' into this list (see
-        // {Requirements on 'VALUE'}).
 
+    /// Create a list of the specified `numElements` size whose every
+    /// element is default-constructed.  Use the specified `basicAllocator`
+    /// to supply memory.  If the type `ALLOCATOR` is `bsl::allocator` (the
+    /// default), then `basicAllocator` shall be convertible to
+    /// `bslma::Allocator *`.  Throw `bsl::length_error` if
+    /// `numElements > max_size()`.  This method requires that the (template
+    /// parameter) `VALUE` be `default-insertable` into this list (see
+    /// {Requirements on `VALUE`}).
     list(size_type        numElements,
          const ALLOCATOR& basicAllocator);
-        // Create a list of the specified 'numElements' size whose every
-        // element is default-constructed.  Use the specified 'basicAllocator'
-        // to supply memory.  If the type 'ALLOCATOR' is 'bsl::allocator' (the
-        // default), then 'basicAllocator' shall be convertible to
-        // 'bslma::Allocator *'.  Throw 'bsl::length_error' if
-        // 'numElements > max_size()'.  This method requires that the (template
-        // parameter) 'VALUE' be 'default-insertable' into this list (see
-        // {Requirements on 'VALUE'}).
 
+    /// Create a list of the specified `numElements` size whose every
+    /// element has the specified `value`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` (the default), then `basicAllocator`, if supplied,
+    /// shall be convertible to `bslma::Allocator *`.  If the type
+    /// `ALLOCATOR` is `bsl::allocator` and `basicAllocator` is not
+    /// supplied, the currently installed default allocator is used.  Throw
+    /// `bsl::length_error` if `numElements > max_size()`.  This method
+    /// requires that the (template parameter) `VALUE` be `copy-insertable`
+    /// into this list (see {Requirements on `VALUE`}).
     list(size_type         numElements,
          const value_type& value,
          const ALLOCATOR&  basicAllocator = ALLOCATOR());
-        // Create a list of the specified 'numElements' size whose every
-        // element has the specified 'value'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
-        // shall be convertible to 'bslma::Allocator *'.  If the type
-        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator is used.  Throw
-        // 'bsl::length_error' if 'numElements > max_size()'.  This method
-        // requires that the (template parameter) 'VALUE' be 'copy-insertable'
-        // into this list (see {Requirements on 'VALUE'}).
 
+    /// Create a list initially containing copies of the values in the range
+    /// starting at the specified `first` and ending immediately before the
+    /// specified `last` iterators of the (template parameter) type
+    /// `INPUT_ITERATOR`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is not supplied, a
+    /// default-constructed object of the (template parameter) type
+    /// `ALLOCATOR` is used.  If the type `ALLOCATOR` is `bsl::allocator`
+    /// (the default), then `basicAllocator`, if supplied, shall be
+    /// convertible to `bslma::Allocator *`.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used.  Throw `bsl::length_error` if
+    /// the number of elements in `[first .. last)` exceeds the size
+    /// returned by `max_size`.  The (template parameter) type
+    /// `INPUT_ITERATOR` shall meet the requirements of an input iterator
+    /// defined in the C++11 standard [input.iterators] providing access to
+    /// values of a type convertible to `value_type`, and `value_type` must
+    /// be `emplace-constructible` from `*i` into this list, where `i` is a
+    /// dereferenceable iterator in the range `[first .. last)` (see
+    /// {Requirements on `VALUE`}).  The behavior is undefined unless
+    /// `first` and `last` refer to a sequence of valid values where `first`
+    /// is at a position at or before `last`.
     template <class INPUT_ITERATOR>
     list(INPUT_ITERATOR   first,
          INPUT_ITERATOR   last,
@@ -1172,27 +1208,6 @@ class list {
                  !is_arithmetic<INPUT_ITERATOR>::value &&
                  !is_enum<INPUT_ITERATOR>::value
          >::type * = 0)
-        // Create a list initially containing copies of the values in the range
-        // starting at the specified 'first' and ending immediately before the
-        // specified 'last' iterators of the (template parameter) type
-        // 'INPUT_ITERATOR'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // (the default), then 'basicAllocator', if supplied, shall be
-        // convertible to 'bslma::Allocator *'.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used.  Throw 'bsl::length_error' if
-        // the number of elements in '[first .. last)' exceeds the size
-        // returned by 'max_size'.  The (template parameter) type
-        // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
-        // defined in the C++11 standard [input.iterators] providing access to
-        // values of a type convertible to 'value_type', and 'value_type' must
-        // be 'emplace-constructible' from '*i' into this list, where 'i' is a
-        // dereferenceable iterator in the range '[first .. last)' (see
-        // {Requirements on 'VALUE'}).  The behavior is undefined unless
-        // 'first' and 'last' refer to a sequence of valid values where 'first'
-        // is at a position at or before 'last'.
     : d_alloc_and_size(basicAllocator, size_type(-1))
     {
         // MS Visual Studio 2008 compiler requires that a function using
@@ -1209,44 +1224,44 @@ class list {
         quickSwap(&tmp);
     }
 
+    /// Create a list having the same value as the specified `original`
+    /// object.  Use the allocator returned by
+    /// 'bsl::allocator_traits<ALLOCATOR>::
+    /// select_on_container_copy_construction(original.get_allocator())' to
+    /// allocate memory.  This method requires that the (template parameter)
+    /// type `VALUE` be `copy-insertable` into this list (see {Requirements
+    /// on `VALUE`}).
     list(const list& original);
-        // Create a list having the same value as the specified 'original'
-        // object.  Use the allocator returned by
-        // 'bsl::allocator_traits<ALLOCATOR>::
-        // select_on_container_copy_construction(original.get_allocator())' to
-        // allocate memory.  This method requires that the (template parameter)
-        // type 'VALUE' be 'copy-insertable' into this list (see {Requirements
-        // on 'VALUE'}).
 
+    /// Create a list that has the same value as the specified `original`
+    /// object.  Use the specified `basicAllocator` to supply memory.  This
+    /// method requires that the (template parameter) `VALUE` be
+    /// `copy-insertable` into this list (see {Requirements on `VALUE`}).
+    /// Note that a `bslma::Allocator *` can be supplied for
+    /// `basicAllocator` if the (template parameter) type `ALLOCATOR` is
+    /// `bsl::allocator` (the default).
     list(const list&                                    original,
          const typename type_identity<ALLOCATOR>::type& basicAllocator);
-        // Create a list that has the same value as the specified 'original'
-        // object.  Use the specified 'basicAllocator' to supply memory.  This
-        // method requires that the (template parameter) 'VALUE' be
-        // 'copy-insertable' into this list (see {Requirements on 'VALUE'}).
-        // Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
-        // 'bsl::allocator' (the default).
 
+    /// Create a list having the same value as the specified `original`
+    /// object by moving (in constant time) the contents of `original` to
+    /// the new list.  The allocator associated with `original` is
+    /// propagated for use in the newly-created list.  `original` is left in
+    /// a valid but unspecified state.
     list(BloombergLP::bslmf::MovableRef<list> original);            // IMPLICIT
-        // Create a list having the same value as the specified 'original'
-        // object by moving (in constant time) the contents of 'original' to
-        // the new list.  The allocator associated with 'original' is
-        // propagated for use in the newly-created list.  'original' is left in
-        // a valid but unspecified state.
 
+    /// Create a list having the same value as the specified `original`
+    /// object that uses the specified `basicAllocator` to supply memory.
+    /// The contents of `original` are moved (in constant time) to the new
+    /// list if `basicAllocator == original.get_allocator()`, and are move-
+    /// inserted (in linear time) using `basicAllocator` otherwise.
+    /// `original` is left in a valid but unspecified state.  This method
+    /// requires that the (template parameter) `VALUE` be `move-insertable`
+    /// into this list (see {Requirements on `VALUE`}).  Note that a
+    /// `bslma::Allocator *` can be supplied for `basicAllocator` if the
+    /// (template parameter) `ALLOCATOR` is `bsl::allocator` (the default).
     list(BloombergLP::bslmf::MovableRef<list>           original,
          const typename type_identity<ALLOCATOR>::type& basicAllocator);
-        // Create a list having the same value as the specified 'original'
-        // object that uses the specified 'basicAllocator' to supply memory.
-        // The contents of 'original' are moved (in constant time) to the new
-        // list if 'basicAllocator == original.get_allocator()', and are move-
-        // inserted (in linear time) using 'basicAllocator' otherwise.
-        // 'original' is left in a valid but unspecified state.  This method
-        // requires that the (template parameter) 'VALUE' be 'move-insertable'
-        // into this list (see {Requirements on 'VALUE'}).  Note that a
-        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
-        // (template parameter) 'ALLOCATOR' is 'bsl::allocator' (the default).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     list(std::initializer_list<value_type> values,
@@ -1265,25 +1280,25 @@ class list {
         // (see {Requirements on 'VALUE'}).
 #endif
 
+    /// Destroy this list by calling the destructor for each element and
+    /// deallocating all allocated storage.
     ~list();
-        // Destroy this list by calling the destructor for each element and
-        // deallocating all allocated storage.
 
     // MANIPULATORS
 
                             // *** assignment ***
 
+    /// Assign to this object the value of the specified `rhs` object,
+    /// propagate to this object the allocator of `rhs` if the `ALLOCATOR`
+    /// type has trait `propagate_on_container_copy_assignment`, and return
+    /// a reference providing modifiable access to this object.  If an
+    /// exception is thrown, `*this` is left in a valid but unspecified
+    /// state.  This method requires that the (template parameter) type
+    /// `VALUE` be `copy-assignable` and `copy-insertable` into this list.
+    /// Note that, to the extent possible, existing elements of this list
+    /// are copy-assigned to, to minimize the number of nodes that need to
+    /// be copy-inserted or erased.
     list& operator=(const list& rhs);
-        // Assign to this object the value of the specified 'rhs' object,
-        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
-        // type has trait 'propagate_on_container_copy_assignment', and return
-        // a reference providing modifiable access to this object.  If an
-        // exception is thrown, '*this' is left in a valid but unspecified
-        // state.  This method requires that the (template parameter) type
-        // 'VALUE' be 'copy-assignable' and 'copy-insertable' into this list.
-        // Note that, to the extent possible, existing elements of this list
-        // are copy-assigned to, to minimize the number of nodes that need to
-        // be copy-inserted or erased.
 
     list& operator=(BloombergLP::bslmf::MovableRef<list> rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
@@ -1303,17 +1318,31 @@ class list {
         // 'move-insertable' into this list (see {Requirements on 'VALUE'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Assign to this list, in order, the sequence of values in the
+    /// specified `rhs` initializer list, and return a reference providing
+    /// modifiable access to this list.  This method requires that the
+    /// (template parameter) type `VALUE` be `copy-assignable` and
+    /// `copy-insertable` into this list.  Note that, to the extent
+    /// possible, existing elements of this list are copy-assigned to, to
+    /// minimize the number of nodes that need to be copy-inserted or
+    /// erased.
     list& operator=(std::initializer_list<value_type> rhs);
-        // Assign to this list, in order, the sequence of values in the
-        // specified 'rhs' initializer list, and return a reference providing
-        // modifiable access to this list.  This method requires that the
-        // (template parameter) type 'VALUE' be 'copy-assignable' and
-        // 'copy-insertable' into this list.  Note that, to the extent
-        // possible, existing elements of this list are copy-assigned to, to
-        // minimize the number of nodes that need to be copy-inserted or
-        // erased.
 #endif
 
+    /// Assign to this list the sequence of values, in order, of the
+    /// elements of the specified range `[first .. last)`.  The (template
+    /// parameter) type `INPUT_ITERATOR` shall meet the requirements of an
+    /// input iterator defined in the C++11 standard [24.2.3] providing
+    /// access to values of a type convertible to `value_type`, and
+    /// `value_type` must be `emplace-constructible` from `*i` into this
+    /// list, where `i` is a dereferenceable iterator in the range
+    /// `[first .. last)`.  The behavior is undefined unless `first` and
+    /// `last` refer to a sequence of valid values where `first` is at a
+    /// position at or before `last`.  Note that, to the extent possible,
+    /// existing elements of this list are copy-assigned to, to minimize the
+    /// number of nodes that need to be copy-inserted or erased.  If an
+    /// exception is thrown, `*this` is left in a valid but unspecified
+    /// state.
     template <class INPUT_ITERATOR>
     void assign(INPUT_ITERATOR first,
                 INPUT_ITERATOR last,
@@ -1321,20 +1350,6 @@ class list {
                     !is_arithmetic<INPUT_ITERATOR>::value &&
                     !is_enum<INPUT_ITERATOR>::value
                 >::type * = 0)
-        // Assign to this list the sequence of values, in order, of the
-        // elements of the specified range '[first .. last)'.  The (template
-        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
-        // input iterator defined in the C++11 standard [24.2.3] providing
-        // access to values of a type convertible to 'value_type', and
-        // 'value_type' must be 'emplace-constructible' from '*i' into this
-        // list, where 'i' is a dereferenceable iterator in the range
-        // '[first .. last)'.  The behavior is undefined unless 'first' and
-        // 'last' refer to a sequence of valid values where 'first' is at a
-        // position at or before 'last'.  Note that, to the extent possible,
-        // existing elements of this list are copy-assigned to, to minimize the
-        // number of nodes that need to be copy-inserted or erased.  If an
-        // exception is thrown, '*this' is left in a valid but unspecified
-        // state.
     {
         // MS Visual Studio 2008 compiler requires that a function using
         // enable_if be in-place inline.
@@ -1353,216 +1368,231 @@ class list {
         }
     }
 
+    /// Replace the contents of this list with the specified `numElements`
+    /// copies of the specified `value`.  Note that, to the extent possible,
+    /// existing elements of this list are copy-assigned to, to minimize the
+    /// number of nodes that need to be copy-inserted or erased.
     void assign(size_type numElements, const value_type& value);
-        // Replace the contents of this list with the specified 'numElements'
-        // copies of the specified 'value'.  Note that, to the extent possible,
-        // existing elements of this list are copy-assigned to, to minimize the
-        // number of nodes that need to be copy-inserted or erased.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Assign to this list, in order, the sequence of values in the
+    /// specified `values` initializer list.  This method requires that the
+    /// (template parameter) type `VALUE` be `copy-assignable` and
+    /// `copy-insertable` into this list.  Note that, to the extent
+    /// possible, existing elements of this list are copy-assigned to, to
+    /// minimize the number of nodes that need to be copy-inserted or
+    /// erased.
     void assign(std::initializer_list<value_type> values);
-        // Assign to this list, in order, the sequence of values in the
-        // specified 'values' initializer list.  This method requires that the
-        // (template parameter) type 'VALUE' be 'copy-assignable' and
-        // 'copy-insertable' into this list.  Note that, to the extent
-        // possible, existing elements of this list are copy-assigned to, to
-        // minimize the number of nodes that need to be copy-inserted or
-        // erased.
 #endif
 
                               // *** iterators ***
 
+    /// Return an iterator providing modifiable access to the first element
+    /// in this list, and the past-the-end iterator if this list is empty.
     iterator begin() BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing modifiable access to the first element
-        // in this list, and the past-the-end iterator if this list is empty.
 
+    /// Return the past-the-end (forward) iterator providing modifiable
+    /// access to this list.
     iterator end() BSLS_KEYWORD_NOEXCEPT;
-        // Return the past-the-end (forward) iterator providing modifiable
-        // access to this list.
 
+    /// Return a reverse iterator providing modifiable access to the last
+    /// element in this list, and the past-the-end reverse iterator if this
+    /// list is empty.
     reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing modifiable access to the last
-        // element in this list, and the past-the-end reverse iterator if this
-        // list is empty.
 
+    /// Return the past-the-end reverse iterator providing modifiable access
+    /// to this list.
     reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
-        // Return the past-the-end reverse iterator providing modifiable access
-        // to this list.
 
                             // *** modify size ***
 
+    /// Remove all the elements from this list.
     void clear() BSLS_KEYWORD_NOEXCEPT;
-        // Remove all the elements from this list.
 
+    /// Change the size of this list to the specified `newSize`.  Erase
+    /// `size() - newSize` elements at the back if `newSize < size()`.
+    /// Append `newSize - size()` elements at the back having the optionally
+    /// specified `value` if `newSize > size()`; if `value` is not
+    /// specified, default-constructed objects of the (template parameter)
+    /// `VALUE` are emplaced.  This method has no effect if
+    /// `newSize == size()`.  Throw `bsl::length_error` if
+    /// `newSize > max_size()`.
     void resize(size_type newSize);
     void resize(size_type newSize, const value_type& value);
-        // Change the size of this list to the specified 'newSize'.  Erase
-        // 'size() - newSize' elements at the back if 'newSize < size()'.
-        // Append 'newSize - size()' elements at the back having the optionally
-        // specified 'value' if 'newSize > size()'; if 'value' is not
-        // specified, default-constructed objects of the (template parameter)
-        // 'VALUE' are emplaced.  This method has no effect if
-        // 'newSize == size()'.  Throw 'bsl::length_error' if
-        // 'newSize > max_size()'.
 
                            // *** element access ***
 
+    /// Return a reference providing modifiable access to the last element
+    /// of this list.  The behavior is undefined unless this list contains
+    /// at least one element.
     reference back();
-        // Return a reference providing modifiable access to the last element
-        // of this list.  The behavior is undefined unless this list contains
-        // at least one element.
 
+    /// Return a reference providing modifiable access to the first element
+    /// of this list.  The behavior is undefined unless this list contains
+    /// at least one element.
     reference front();
-        // Return a reference providing modifiable access to the first element
-        // of this list.  The behavior is undefined unless this list contains
-        // at least one element.
 
                                 // *** end erase ***
 
+    /// Remove and destroy the last element of this list.  The behavior is
+    /// undefined unless this list contains at least one element.
     void pop_back();
-        // Remove and destroy the last element of this list.  The behavior is
-        // undefined unless this list contains at least one element.
 
+    /// Remove and destroy the first element of this list.  The behavior is
+    /// undefined unless this list contains at least one element.
     void pop_front();
-        // Remove and destroy the first element of this list.  The behavior is
-        // undefined unless this list contains at least one element.
 
                          // *** random access erase ***
 
+    /// Remove from this list the element at the specified `position`, and
+    /// return an iterator providing modifiable access to the element
+    /// immediately following the removed element, or to the position
+    /// returned by the `end` method if the removed element was the last in
+    /// the sequence.  The behavior is undefined unless `position` refers to
+    /// an element in this list.
     iterator erase(const_iterator position);
-        // Remove from this list the element at the specified 'position', and
-        // return an iterator providing modifiable access to the element
-        // immediately following the removed element, or to the position
-        // returned by the 'end' method if the removed element was the last in
-        // the sequence.  The behavior is undefined unless 'position' refers to
-        // an element in this list.
 
+    /// Remove from this list the elements starting at the specified
+    /// `dstBegin` position up to, but not including, the specified `dstEnd`
+    /// position, and return a non-`const` iterator equivalent to `dstEnd`.
+    /// The behavior is undefined unless `dstBegin` is an iterator in the
+    /// range `[begin() .. end()]` and `dstEnd` is an iterator in the range
+    /// `[dstBegin .. end()]` (both endpoints included).  Note that
+    /// `dstBegin` may be equal to `dstEnd`, in which case the list is not
+    /// modified.
     iterator erase(const_iterator dstBegin, const_iterator dstEnd);
-        // Remove from this list the elements starting at the specified
-        // 'dstBegin' position up to, but not including, the specified 'dstEnd'
-        // position, and return a non-'const' iterator equivalent to 'dstEnd'.
-        // The behavior is undefined unless 'dstBegin' is an iterator in the
-        // range '[begin() .. end()]' and 'dstEnd' is an iterator in the range
-        // '[dstBegin .. end()]' (both endpoints included).  Note that
-        // 'dstBegin' may be equal to 'dstEnd', in which case the list is not
-        // modified.
 
                             // *** end inserts ***
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Append to the back of this list a newly created `value_type` object,
+    /// constructed by forwarding `get_allocator()` (if required) and the
+    /// specified (variable number of) `arguments` to the corresponding
+    /// constructor of `value_type`.  Return a reference providing
+    /// modifiable access to the inserted element.  If an exception is
+    /// thrown (other than by the move constructor of a non-copy-insertable
+    /// `value_type`), this method has no effect.  This method requires that
+    /// the (template parameter) `VALUE` be `move-insertable` into this list
+    /// and `emplace-constructible` from `arguments` (see {Requirements on
+    /// `VALUE`}).
     template <class... ARGS>
     reference emplace_back(ARGS&&... arguments);
-        // Append to the back of this list a newly created 'value_type' object,
-        // constructed by forwarding 'get_allocator()' (if required) and the
-        // specified (variable number of) 'arguments' to the corresponding
-        // constructor of 'value_type'.  Return a reference providing
-        // modifiable access to the inserted element.  If an exception is
-        // thrown (other than by the move constructor of a non-copy-insertable
-        // 'value_type'), this method has no effect.  This method requires that
-        // the (template parameter) 'VALUE' be 'move-insertable' into this list
-        // and 'emplace-constructible' from 'arguments' (see {Requirements on
-        // 'VALUE'}).
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Prepend to the front of this list a newly created `value_type`
+    /// object, constructed by forwarding `get_allocator()` (if required)
+    /// and the specified (variable number of) `arguments` to the
+    /// corresponding constructor of `value_type`.  Return a reference
+    /// providing modifiable access to the inserted element.  If an
+    /// exception is thrown (other than by the move constructor of a
+    /// non-copy-insertable `value_type`), this method has no effect.  This
+    /// method requires that the (template parameter) `VALUE` be
+    /// `move-insertable` into this list and `emplace-constructible` from
+    /// `arguments` (see {Requirements on `VALUE`}).
     template <class... ARGS>
     reference emplace_front(ARGS&&... arguments);
-        // Prepend to the front of this list a newly created 'value_type'
-        // object, constructed by forwarding 'get_allocator()' (if required)
-        // and the specified (variable number of) 'arguments' to the
-        // corresponding constructor of 'value_type'.  Return a reference
-        // providing modifiable access to the inserted element.  If an
-        // exception is thrown (other than by the move constructor of a
-        // non-copy-insertable 'value_type'), this method has no effect.  This
-        // method requires that the (template parameter) 'VALUE' be
-        // 'move-insertable' into this list and 'emplace-constructible' from
-        // 'arguments' (see {Requirements on 'VALUE'}).
 #endif
 
+    /// Append to the back of this list a copy of the specified `value`.
+    /// This method offers full guarantee of rollback in case an exception
+    /// is thrown.  This method requires that the (template parameter)
+    /// `VALUE` be `copy-constructible` (see {Requirements on `VALUE`}).
     void push_back(const value_type& value);
-        // Append to the back of this list a copy of the specified 'value'.
-        // This method offers full guarantee of rollback in case an exception
-        // is thrown.  This method requires that the (template parameter)
-        // 'VALUE' be 'copy-constructible' (see {Requirements on 'VALUE'}).
 
+    /// Append to the back of this list the specified move-insertable
+    /// `value`.  `value` is left in a valid but unspecified state.  If an
+    /// exception is thrown (other than by the move constructor of a
+    /// non-copy-insertable `value_type`), this method has no effect.  This
+    /// method requires that the (template parameter) `VALUE` be
+    /// `move-insertable` into this list (see {Requirements on `VALUE`}).
     void push_back(BloombergLP::bslmf::MovableRef<value_type> value);
-        // Append to the back of this list the specified move-insertable
-        // 'value'.  'value' is left in a valid but unspecified state.  If an
-        // exception is thrown (other than by the move constructor of a
-        // non-copy-insertable 'value_type'), this method has no effect.  This
-        // method requires that the (template parameter) 'VALUE' be
-        // 'move-insertable' into this list (see {Requirements on 'VALUE'}).
 
+    /// Prepend to the front of this list a copy of the specified `value`.
+    /// This method offers full guarantee of rollback in case an exception
+    /// is thrown.  This method requires that the (template parameter)
+    /// `VALUE` be `copy-constructible` (see {Requirements on `VALUE`}).
     void push_front(const value_type& value);
-        // Prepend to the front of this list a copy of the specified 'value'.
-        // This method offers full guarantee of rollback in case an exception
-        // is thrown.  This method requires that the (template parameter)
-        // 'VALUE' be 'copy-constructible' (see {Requirements on 'VALUE'}).
 
+    /// Prepend to the front of this list the specified move-insertable
+    /// `value`.  `value` is left in a valid but unspecified state.  If an
+    /// exception is thrown (other than by the move constructor of a
+    /// non-copy-insertable `value_type`), this method has no effect.  This
+    /// method requires that the (template parameter) `VALUE` be
+    /// `move-insertable` into this list (see {Requirements on `VALUE`}).
     void push_front(BloombergLP::bslmf::MovableRef<value_type> value);
-        // Prepend to the front of this list the specified move-insertable
-        // 'value'.  'value' is left in a valid but unspecified state.  If an
-        // exception is thrown (other than by the move constructor of a
-        // non-copy-insertable 'value_type'), this method has no effect.  This
-        // method requires that the (template parameter) 'VALUE' be
-        // 'move-insertable' into this list (see {Requirements on 'VALUE'}).
 
                        // *** random access inserts ***
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Insert at the specified `position` in this list a newly created
+    /// `value_type` object, constructed by forwarding `get_allocator()` (if
+    /// required) and the specified (variable number of) `arguments` to the
+    /// corresponding constructor of `value_type`, and return an iterator
+    /// providing modifiable access to the newly created and inserted
+    /// element.  If an exception is thrown (other than by the copy
+    /// constructor, move constructor, assignment operator, or move
+    /// assignment operator of `value_type`), this method has no effect.
+    /// This method requires that the (template parameter) `VALUE` be
+    /// `move-insertable` into this list and `emplace-constructible` from
+    /// `arguments` (see {Requirements on `VALUE`}).  The behavior is
+    /// undefined unless `position` is an iterator in the range
+    /// `[cbegin() .. cend()]` (both endpoints included).
     template <class... ARGS>
     iterator emplace(const_iterator position, ARGS&&... arguments);
-        // Insert at the specified 'position' in this list a newly created
-        // 'value_type' object, constructed by forwarding 'get_allocator()' (if
-        // required) and the specified (variable number of) 'arguments' to the
-        // corresponding constructor of 'value_type', and return an iterator
-        // providing modifiable access to the newly created and inserted
-        // element.  If an exception is thrown (other than by the copy
-        // constructor, move constructor, assignment operator, or move
-        // assignment operator of 'value_type'), this method has no effect.
-        // This method requires that the (template parameter) 'VALUE' be
-        // 'move-insertable' into this list and 'emplace-constructible' from
-        // 'arguments' (see {Requirements on 'VALUE'}).  The behavior is
-        // undefined unless 'position' is an iterator in the range
-        // '[cbegin() .. cend()]' (both endpoints included).
 #endif
 
+    /// Insert at the specified `dstPosition` in this list a copy of the
+    /// specified `value`, and return an iterator providing modifiable
+    /// access to the newly inserted element.  This method offers full
+    /// guarantee of rollback in case an exception is thrown other than by
+    /// the `VALUE` copy constructor or assignment operator.  This method
+    /// requires that the (template parameter) `VALUE` be `copy-insertable`
+    /// into this list (see {Requirements on `VALUE`}).  The behavior is
+    /// undefined unless `dstPosition` is an iterator in the range
+    /// `[cbegin() .. cend()] (both endpoints included)`.
     iterator insert(const_iterator dstPosition, const value_type& value);
-        // Insert at the specified 'dstPosition' in this list a copy of the
-        // specified 'value', and return an iterator providing modifiable
-        // access to the newly inserted element.  This method offers full
-        // guarantee of rollback in case an exception is thrown other than by
-        // the 'VALUE' copy constructor or assignment operator.  This method
-        // requires that the (template parameter) 'VALUE' be 'copy-insertable'
-        // into this list (see {Requirements on 'VALUE'}).  The behavior is
-        // undefined unless 'dstPosition' is an iterator in the range
-        // '[cbegin() .. cend()] (both endpoints included)'.
 
+    /// Insert at the specified `dstPosition` in this list the specified
+    /// move-insertable `value`, and return an iterator providing modifiable
+    /// access to the newly inserted element.  `value` is left in a valid
+    /// but unspecified state.  If an exception is thrown (other than by the
+    /// copy constructor, move constructor, assignment operator, or move
+    /// assignment operator of `value_type`), this method has no effect.
+    /// This method requires that the (template parameter) `VALUE` be
+    /// `move-insertable` into this list (see {Requirements on `VALUE`}).
+    /// The behavior is undefined unless `dstPosition` is an iterator in the
+    /// range `[cbegin() .. cend()]` (both endpoints included).
     iterator insert(const_iterator                             dstPosition,
                     BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert at the specified 'dstPosition' in this list the specified
-        // move-insertable 'value', and return an iterator providing modifiable
-        // access to the newly inserted element.  'value' is left in a valid
-        // but unspecified state.  If an exception is thrown (other than by the
-        // copy constructor, move constructor, assignment operator, or move
-        // assignment operator of 'value_type'), this method has no effect.
-        // This method requires that the (template parameter) 'VALUE' be
-        // 'move-insertable' into this list (see {Requirements on 'VALUE'}).
-        // The behavior is undefined unless 'dstPosition' is an iterator in the
-        // range '[cbegin() .. cend()]' (both endpoints included).
 
+    /// Insert at the specified `dstPosition` in this list the specified
+    /// `numElements` copies of the specified `value`, and return an
+    /// iterator providing modifiable access to the first element in the
+    /// newly inserted sequence of elements.  This method requires that the
+    /// (template parameter) `VALUE` be `copy-insertable` into this list
+    /// (see {Requirements on `VALUE`}).  The behavior is undefined unless
+    /// `dstPosition` is an iterator in the range `[cbegin() .. cend()]`
+    /// (both endpoints included).
     iterator insert(const_iterator    dstPosition,
                     size_type         numElements,
                     const value_type& value);
-        // Insert at the specified 'dstPosition' in this list the specified
-        // 'numElements' copies of the specified 'value', and return an
-        // iterator providing modifiable access to the first element in the
-        // newly inserted sequence of elements.  This method requires that the
-        // (template parameter) 'VALUE' be 'copy-insertable' into this list
-        // (see {Requirements on 'VALUE'}).  The behavior is undefined unless
-        // 'dstPosition' is an iterator in the range '[cbegin() .. cend()]'
-        // (both endpoints included).
 
+    /// Insert at the specified `dstPosition` in this list the values in the
+    /// range starting at the specified `first` and ending immediately
+    /// before the specified `last` iterators of the (template parameter)
+    /// type `INPUT_ITERATOR`, and return an iterator providing modifiable
+    /// access to the first element in the newly inserted sequence of
+    /// elements.  The (template parameter) type `INPUT_ITERATOR` shall meet
+    /// the requirements of an input iterator defined in the C++11 standard
+    /// [input.iterators] providing access to values of a type convertible
+    /// to `value_type`, and `value_type` must be `emplace-constructible`
+    /// from `*i` into this list, where `i` is a dereferenceable iterator in
+    /// the range `[first .. last)` (see {Requirements on `VALUE`}).  The
+    /// behavior is undefined unless `dstPosition` is an iterator in the
+    /// range `[cbegin() .. cend()]` (both endpoints included), and `first`
+    /// and `last` refer to a sequence of valid values where `first` is at a
+    /// position at or before `last`.
     template <class INPUT_ITERATOR>
     iterator insert(const_iterator dstPosition,
                     INPUT_ITERATOR first,
@@ -1571,21 +1601,6 @@ class list {
                         !is_arithmetic<INPUT_ITERATOR>::value &&
                         !is_enum<INPUT_ITERATOR>::value
                     >::type * = 0)
-        // Insert at the specified 'dstPosition' in this list the values in the
-        // range starting at the specified 'first' and ending immediately
-        // before the specified 'last' iterators of the (template parameter)
-        // type 'INPUT_ITERATOR', and return an iterator providing modifiable
-        // access to the first element in the newly inserted sequence of
-        // elements.  The (template parameter) type 'INPUT_ITERATOR' shall meet
-        // the requirements of an input iterator defined in the C++11 standard
-        // [input.iterators] providing access to values of a type convertible
-        // to 'value_type', and 'value_type' must be 'emplace-constructible'
-        // from '*i' into this list, where 'i' is a dereferenceable iterator in
-        // the range '[first .. last)' (see {Requirements on 'VALUE'}).  The
-        // behavior is undefined unless 'dstPosition' is an iterator in the
-        // range '[cbegin() .. cend()]' (both endpoints included), and 'first'
-        // and 'last' refer to a sequence of valid values where 'first' is at a
-        // position at or before 'last'.
     {
         // MS Visual Studio 2008 compiler requires that a function using
         // enable_if be in place inline.
@@ -1606,96 +1621,106 @@ class list {
     }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Insert at the specified `dstPosition` in this list the value of each
+    /// `value_type` object in the specified `values` initializer list, and
+    /// return an iterator providing modifiable access to the first element
+    /// in the newly inserted sequence of elements.  This method requires
+    /// that the (template parameter) `VALUE` be `copy-insertable` into this
+    /// list (see {Requirements on `VALUE`}).  The behavior is undefined
+    /// unless `dstPosition` is an iterator in the range
+    /// `[cbegin() .. cend()]` (both endpoints included).
     iterator insert(const_iterator                    dstPosition,
                     std::initializer_list<value_type> values);
-        // Insert at the specified 'dstPosition' in this list the value of each
-        // 'value_type' object in the specified 'values' initializer list, and
-        // return an iterator providing modifiable access to the first element
-        // in the newly inserted sequence of elements.  This method requires
-        // that the (template parameter) 'VALUE' be 'copy-insertable' into this
-        // list (see {Requirements on 'VALUE'}).  The behavior is undefined
-        // unless 'dstPosition' is an iterator in the range
-        // '[cbegin() .. cend()]' (both endpoints included).
 #endif
 
                           // *** list operations ***
 
+    /// Merge the specified sorted `other` list into this sorted list.  This
+    /// method has no effect if `other` is this list; otherwise, `other` is
+    /// left empty.  The behavior is undefined unless both `other` and this
+    /// list are sorted in non-decreasing order according to the ordering
+    /// provided by `operator<`, and unless both `other` and this list use
+    /// the same allocator.  `operator<` must define a strict weak ordering
+    /// per `value_type` (see {Comparators and Strict Weak Ordering}).
     void merge(list&                                other);
     void merge(BloombergLP::bslmf::MovableRef<list> other);
-        // Merge the specified sorted 'other' list into this sorted list.  This
-        // method has no effect if 'other' is this list; otherwise, 'other' is
-        // left empty.  The behavior is undefined unless both 'other' and this
-        // list are sorted in non-decreasing order according to the ordering
-        // provided by 'operator<', and unless both 'other' and this list use
-        // the same allocator.  'operator<' must define a strict weak ordering
-        // per 'value_type' (see {Comparators and Strict Weak Ordering}).
 
+    /// Merge the specified sorted `other` list into this sorted list, using
+    /// the specified binary `comparator` predicate to order elements.  This
+    /// method has no effect if `other` is this list; otherwise, `other` is
+    /// left empty.  The behavior is undefined unless both `other` and this
+    /// list are sorted in non-decreasing order according to the ordering
+    /// provided by `comparator`, and unless both `other` and this list use
+    /// the same allocator.
     template <class COMPARE>
     void merge(list& other, COMPARE comparator);
     template <class COMPARE>
     void merge(BloombergLP::bslmf::MovableRef<list> other, COMPARE comparator);
-        // Merge the specified sorted 'other' list into this sorted list, using
-        // the specified binary 'comparator' predicate to order elements.  This
-        // method has no effect if 'other' is this list; otherwise, 'other' is
-        // left empty.  The behavior is undefined unless both 'other' and this
-        // list are sorted in non-decreasing order according to the ordering
-        // provided by 'comparator', and unless both 'other' and this list use
-        // the same allocator.
 
+    /// Erase all the elements having the specified `value` from this list
+    /// and return the number of erased elements.
     size_type remove(const value_type& value);
-        // Erase all the elements having the specified 'value' from this list
-        // and return the number of erased elements.
 
+    /// Erase all the elements in this list for which the specified unary
+    /// `predicate` returns `true` and return the number of erased elements.
     template <class PREDICATE>
     size_type remove_if(PREDICATE predicate);
-        // Erase all the elements in this list for which the specified unary
-        // 'predicate' returns 'true' and return the number of erased elements.
 
+    /// Reverse the order of the elements in this list.
     void reverse() BSLS_KEYWORD_NOEXCEPT;
-        // Reverse the order of the elements in this list.
 
+    /// Sort this list in non-decreasing order according to the order
+    /// provided by `operator<`.  `operator<` must provide a strict weak
+    /// ordering over `value_type` (see {Comparators and Strict Weak
+    /// Ordering}).  The sort is stable, meaning that if
+    /// `!(a < b) && !(b < a)`, then the ordering of elements `a` and `b` in
+    /// the sequence is preserved.
     void sort();
-        // Sort this list in non-decreasing order according to the order
-        // provided by 'operator<'.  'operator<' must provide a strict weak
-        // ordering over 'value_type' (see {Comparators and Strict Weak
-        // Ordering}).  The sort is stable, meaning that if
-        // '!(a < b) && !(b < a)', then the ordering of elements 'a' and 'b' in
-        // the sequence is preserved.
 
+    /// Sort this list in non-decreasing order according to the order
+    /// provided by the specified `comparator` predicate.  `comparator` must
+    /// define a strict weak ordering over `value_type` (see {Comparators
+    /// and Strict Weak Ordering}).  The sort is stable, meaning that if
+    /// `!comparator(a, b) && !comparator(b, a)`, then the ordering of
+    /// elements `a` and `b` in the sequence is preserved.
     template <class COMPARE>
     void sort(COMPARE comparator);
-        // Sort this list in non-decreasing order according to the order
-        // provided by the specified 'comparator' predicate.  'comparator' must
-        // define a strict weak ordering over 'value_type' (see {Comparators
-        // and Strict Weak Ordering}).  The sort is stable, meaning that if
-        // '!comparator(a, b) && !comparator(b, a)', then the ordering of
-        // elements 'a' and 'b' in the sequence is preserved.
 
+    /// Remove all elements of the specified `src` list and insert them, in
+    /// the same order, in this list at the specified `dstPosition`.  The
+    /// behavior is undefined unless `src` is not this list, this list and
+    /// `src` use the same allocator, and `dstPosition` is in the range
+    /// `[begin() .. end()]` (note both endpoints included).
     void splice(const_iterator                       dstPosition,
                 list&                                src);
     void splice(const_iterator                       dstPosition,
                 BloombergLP::bslmf::MovableRef<list> src);
-        // Remove all elements of the specified 'src' list and insert them, in
-        // the same order, in this list at the specified 'dstPosition'.  The
-        // behavior is undefined unless 'src' is not this list, this list and
-        // 'src' use the same allocator, and 'dstPosition' is in the range
-        // '[begin() .. end()]' (note both endpoints included).
 
+    /// Remove the single element at the specified `srcNode` from the
+    /// specified `src` list, and insert it at the specified `dstPosition`
+    /// in this list.  The behavior is undefined unless `srcNode` refers to
+    /// a valid element in `src`, this list and `src` use the same
+    /// allocator, and `dstPosition` is in the range `[begin() .. end()]`
+    /// (note both endpoints included).  Note that `src` and `*this` may be
+    /// the same list, in which case the element is moved to a (possibly)
+    /// new position in the list.
     void splice(const_iterator                       dstPosition,
                 list&                                src,
                 const_iterator                       srcNode);
     void splice(const_iterator                       dstPosition,
                 BloombergLP::bslmf::MovableRef<list> src,
                 const_iterator                       srcNode);
-        // Remove the single element at the specified 'srcNode' from the
-        // specified 'src' list, and insert it at the specified 'dstPosition'
-        // in this list.  The behavior is undefined unless 'srcNode' refers to
-        // a valid element in 'src', this list and 'src' use the same
-        // allocator, and 'dstPosition' is in the range '[begin() .. end()]'
-        // (note both endpoints included).  Note that 'src' and '*this' may be
-        // the same list, in which case the element is moved to a (possibly)
-        // new position in the list.
 
+    /// Remove the elements in the specified range `[first .. last)` from
+    /// the specified `src` list, and insert them, in the same order, at the
+    /// specified `dstPosition` in this list.  The behavior is undefined
+    /// unless `[first .. last)` represents a range of valid elements in
+    /// `src`, `dstPosition` is not in the range `[first .. last)`, this
+    /// list and `src` use the same allocator, and `dstPosition` is in the
+    /// range `[begin() .. end()]` (note both endpoints included).  Note
+    /// that `src` and `*this` may be the same list, in which case an entire
+    /// sequence of nodes is moved to a (possibly) new position in this
+    /// list.
     void splice(const_iterator                       dstPosition,
                 list&                                src,
                 const_iterator                       first,
@@ -1704,26 +1729,16 @@ class list {
                 BloombergLP::bslmf::MovableRef<list> src,
                 const_iterator                       first,
                 const_iterator                       last);
-        // Remove the elements in the specified range '[first .. last)' from
-        // the specified 'src' list, and insert them, in the same order, at the
-        // specified 'dstPosition' in this list.  The behavior is undefined
-        // unless '[first .. last)' represents a range of valid elements in
-        // 'src', 'dstPosition' is not in the range '[first .. last)', this
-        // list and 'src' use the same allocator, and 'dstPosition' is in the
-        // range '[begin() .. end()]' (note both endpoints included).  Note
-        // that 'src' and '*this' may be the same list, in which case an entire
-        // sequence of nodes is moved to a (possibly) new position in this
-        // list.
 
+    /// Erase from this list all but the first element of every consecutive
+    /// group of elements that have the same value.
     void unique();
-        // Erase from this list all but the first element of every consecutive
-        // group of elements that have the same value.
 
+    /// Erase from this list all but the first element of every consecutive
+    /// group of elements for which the specified `binaryPredicate` returns
+    /// `true` for any two consecutive elements in the group.
     template <class EQ_PREDICATE>
     void unique(EQ_PREDICATE binaryPredicate);
-        // Erase from this list all but the first element of every consecutive
-        // group of elements for which the specified 'binaryPredicate' returns
-        // 'true' for any two consecutive elements in the group.
 
                               // *** misc ***
 
@@ -1749,65 +1764,73 @@ class list {
                                // *** iterators ***
 
     const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this list, or the `end` iterator if this list is
+    /// empty.
     const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this list, or the 'end' iterator if this list is
-        // empty.
 
     const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return the past-the-end (forward) iterator providing non-modifiable
+    /// access to this list.
     const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the past-the-end (forward) iterator providing non-modifiable
-        // access to this list.
 
     const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// last element in this list, and the past-the-end reverse iterator if
+    /// this list is empty.
     const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // last element in this list, and the past-the-end reverse iterator if
-        // this list is empty.
 
     const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return the past-the-end reverse iterator providing non-modifiable
+    /// access to this list.
     const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the past-the-end reverse iterator providing non-modifiable
-        // access to this list.
 
                                   // *** size ***
 
+    /// Return `true` if this list has no elements, and `false` otherwise.
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if this list has no elements, and 'false' otherwise.
 
+    /// Return an upper bound on the largest number of elements that this
+    /// list could possibly hold.  Note that the return value of this
+    /// function does not guarantee that this list can successfully grow
+    /// that large, or even close to that large without running out of
+    /// resources.
     size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an upper bound on the largest number of elements that this
-        // list could possibly hold.  Note that the return value of this
-        // function does not guarantee that this list can successfully grow
-        // that large, or even close to that large without running out of
-        // resources.
 
+    /// Return the number of elements in this list.
     size_type size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the number of elements in this list.
 
                            // *** element access ***
 
+    /// Return a reference providing non-modifiable access to the last
+    /// element of this list.  The behavior is undefined unless this list
+    /// contains at least one element.
     const_reference back() const;
-        // Return a reference providing non-modifiable access to the last
-        // element of this list.  The behavior is undefined unless this list
-        // contains at least one element.
 
+    /// Return a reference providing non-modifiable access to the first
+    /// element of this list.  The behavior is undefined unless this list
+    /// contains at least one element.
     const_reference front() const;
-        // Return a reference providing non-modifiable access to the first
-        // element of this list.  The behavior is undefined unless this list
-        // contains at least one element.
 
                                 // *** misc ***
 
+    /// Return a copy of the allocator used for memory allocation by this
+    /// list.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a copy of the allocator used for memory allocation by this
-        // list.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
+/// Deduce the template parameter `VALUE` from the corresponding parameter
+/// supplied to the constructor of `list`.  This deduction guide does not
+/// participate unless the supplied allocator is convertible to
+/// `bsl::allocator<VALUE>`.
 template <
     class SIZE_TYPE,
     class VALUE,
@@ -1821,20 +1844,21 @@ template <
                  typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type>>
     >
 list(SIZE_TYPE, VALUE, ALLOC *) -> list<VALUE>;
-    // Deduce the template parameter 'VALUE' from the corresponding parameter
-    // supplied to the constructor of 'list'.  This deduction guide does not
-    // participate unless the supplied allocator is convertible to
-    // 'bsl::allocator<VALUE>'.
 
+/// Deduce the template parameter `VALUE` from the `value_type` of the
+/// iterators supplied to the constructor of `list`.
 template <
     class INPUT_ITERATOR,
     class VALUE = typename
                    BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>
     >
 list(INPUT_ITERATOR, INPUT_ITERATOR) -> list<VALUE>;
-    // Deduce the template parameter 'VALUE' from the 'value_type' of the
-    // iterators supplied to the constructor of 'list'.
 
+/// Deduce the template parameter `VALUE` from the `value_type` of the
+/// iterators supplied to the constructor of `list`.  Deduce the template
+/// parameter `ALLOCATOR` from the allocator supplied to the constructor of
+/// `list`.  This deduction guide does not participate unless the supplied
+/// allocator meets the requirements of a standard allocator.
 template<
     class INPUT_ITERATOR,
     class ALLOCATOR,
@@ -1842,12 +1866,11 @@ template<
                   BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>>
 list(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> list<VALUE, ALLOCATOR>;
-    // Deduce the template parameter 'VALUE' from the 'value_type' of the
-    // iterators supplied to the constructor of 'list'.  Deduce the template
-    // parameter 'ALLOCATOR' from the allocator supplied to the constructor of
-    // 'list'.  This deduction guide does not participate unless the supplied
-    // allocator meets the requirements of a standard allocator.
 
+/// Deduce the template parameter `VALUE` from the value_type of the
+/// iterators supplied to the constructor of `list`.  This deduction guide
+/// does not participate unless the specified `ALLOC` is convertible to
+/// `bsl::allocator<CHAR_TYPE>`.
 template<
     class INPUT_ITERATOR,
     class ALLOC,
@@ -1858,11 +1881,11 @@ template<
     >
 list(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> list<VALUE>;
-    // Deduce the template parameter 'VALUE' from the value_type of the
-    // iterators supplied to the constructor of 'list'.  This deduction guide
-    // does not participate unless the specified 'ALLOC' is convertible to
-    // 'bsl::allocator<CHAR_TYPE>'.
 
+/// Deduce the template parameter `VALUE` from the value_type of the
+/// intializer_list supplied to the constructor of `list`.  This deduction
+/// guide does not participate unless the specified `ALLOC` is convertible
+/// to `bsl::allocator<CHAR_TYPE>`.
 template<
     class VALUE,
     class ALLOC,
@@ -1871,23 +1894,20 @@ template<
     >
 list(std::initializer_list<VALUE>, ALLOC *)
 -> list<VALUE>;
-    // Deduce the template parameter 'VALUE' from the value_type of the
-    // intializer_list supplied to the constructor of 'list'.  This deduction
-    // guide does not participate unless the specified 'ALLOC' is convertible
-    // to 'bsl::allocator<CHAR_TYPE>'.
 #endif
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `list` objects `lhs` and `rhs` have
+/// the same value if they have the same number of elements, and each
+/// element in the ordered sequence of elements of `lhs` has the same value
+/// as the corresponding element in the ordered sequence of elements of
+/// `rhs`.  This method requires that the (template parameter) type `VALUE`
+/// be `equality-comparable` (see {Requirements on `VALUE`}).
 template <class VALUE, class ALLOCATOR>
 bool operator==(const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'list' objects 'lhs' and 'rhs' have
-    // the same value if they have the same number of elements, and each
-    // element in the ordered sequence of elements of 'lhs' has the same value
-    // as the corresponding element in the ordered sequence of elements of
-    // 'rhs'.  This method requires that the (template parameter) type 'VALUE'
-    // be 'equality-comparable' (see {Requirements on 'VALUE'}).
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
@@ -1907,13 +1927,13 @@ bool operator!=(const list<VALUE, ALLOCATOR>& lhs,
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
+/// Perform a lexicographic three-way comparison of the specified `lhs` and
+/// the specified `rhs` lists by using the comparison operators of `VALUE`
+/// on each element; return the result of that comparison.
 template <class VALUE, class ALLOCATOR>
 BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE> operator<=>(
                                             const list<VALUE, ALLOCATOR>& lhs,
                                             const list<VALUE, ALLOCATOR>& rhs);
-    // Perform a lexicographic three-way comparison of the specified 'lhs' and
-    // the specified 'rhs' lists by using the comparison operators of 'VALUE'
-    // on each element; return the result of that comparison.
 
 #else
 
@@ -1968,17 +1988,18 @@ bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
+
+/// Erase all the elements in the specified list `l` that compare equal to
+/// the specified `value`.  Return the number of elements erased.
 template <class VALUE, class ALLOCATOR, class BDE_OTHER_TYPE>
 typename list<VALUE, ALLOCATOR>::size_type
 erase(list<VALUE, ALLOCATOR>& l, const BDE_OTHER_TYPE& value);
-    // Erase all the elements in the specified list 'l' that compare equal to
-    // the specified 'value'.  Return the number of elements erased.
 
+/// Erase all the elements in the specified list `l` that satisfy the
+/// specified predicate `predicate`.  Return the number of elements erased.
 template <class VALUE, class ALLOCATOR, class PREDICATE>
 typename list<VALUE, ALLOCATOR>::size_type
 erase_if(list<VALUE, ALLOCATOR>& l, PREDICATE predicate);
-    // Erase all the elements in the specified list 'l' that satisfy the
-    // specified predicate 'predicate'.  Return the number of elements erased.
 
 template <class VALUE, class ALLOCATOR>
 void swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)

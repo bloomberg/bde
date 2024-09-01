@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide "advanced" POSIX implementation of 'bslmt::TimedSemaphore'.
+//@PURPOSE: Provide "advanced" POSIX implementation of `bslmt::TimedSemaphore`.
 //
 //@CLASSES:
 //  bslmt::TimedSemaphoreImpl<PosixAdvTimedSemaphore>: POSIXa specialization
@@ -13,36 +13,36 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmt_timedsemaphore
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bslmt::TimedSemaphore',
-// 'bslmt::TimedSemaphoreImpl<PosixAdvTimedSemaphore>', for conforming POSIX
+// `bslmt::TimedSemaphore`,
+// `bslmt::TimedSemaphoreImpl<PosixAdvTimedSemaphore>`, for conforming POSIX
 // platforms via the template specialization:
-//..
-//  bslmt::TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore>
-//..
+// ```
+// bslmt::TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore>
+// ```
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bslmt::TimedSemaphore'.
+// should instead use `bslmt::TimedSemaphore`.
 //
-// This implementation of 'bslmt::TimedSemaphore' is preferred over that
-// defined in 'bslmt_timedsemaphoreimpl_pthread' on platforms that support
-// advanced realtime POSIX extensions (e.g., 'sem_timedwait').
+// This implementation of `bslmt::TimedSemaphore` is preferred over that
+// defined in `bslmt_timedsemaphoreimpl_pthread` on platforms that support
+// advanced realtime POSIX extensions (e.g., `sem_timedwait`).
 //
 ///Supported Clock-Types
 ///---------------------
-// 'bsls::SystemClockType' supplies the enumeration indicating the system clock
+// `bsls::SystemClockType` supplies the enumeration indicating the system clock
 // on which timeouts supplied to other methods should be based.  If the clock
-// type indicated at construction is 'bsls::SystemClockType::e_REALTIME', the
-// 'absTime' argument passed to the 'timedWait' method should be expressed as
+// type indicated at construction is `bsls::SystemClockType::e_REALTIME`, the
+// `absTime` argument passed to the `timedWait` method should be expressed as
 // an *absolute* offset since 00:00:00 UTC, January 1, 1970 (which matches the
-// epoch used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.
+// epoch used in `bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)`.
 // If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the 'absTime' argument passed to the
-// 'timedWait' method should be expressed as an *absolute* offset since the
+// `bsls::SystemClockType::e_MONOTONIC`, the `absTime` argument passed to the
+// `timedWait` method should be expressed as an *absolute* offset since the
 // epoch of this clock (which matches the epoch used in
-// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// `bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)`.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -70,11 +70,11 @@ class TimedSemaphoreImpl;
              // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
              // ================================================
 
+/// This class implements a timed semaphore in terms of POSIX operations.
+/// Note that only certain platforms provide `sem_timedwait`; on those that
+/// do not, `TimedSemaphoreImpl<PthreadTimedSemaphore>` is used.
 template <>
 class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
-    // This class implements a timed semaphore in terms of POSIX operations.
-    // Note that only certain platforms provide 'sem_timedwait'; on those that
-    // do not, 'TimedSemaphoreImpl<PthreadTimedSemaphore>' is used.
 
     // DATA
     sem_t                       d_sem;        // POSIX timed semaphore
@@ -88,68 +88,72 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
 
   public:
     // TYPES
+
+    /// The value `timedWait` returns when a timeout occurs.
     enum { e_TIMED_OUT = -1 };
-        // The value 'timedWait' returns when a timeout occurs.
 
     // CREATORS
+
+    /// Create a timed semaphore initially having a count of 0.  Optionally
+    /// specify a `clockType` indicating the type of the system clock
+    /// against which the `bsls::TimeInterval` `absTime` timeouts passed to
+    /// the `timedWait` method are to be interpreted (see {Supported
+    /// Clock-Types} in the component documentation).  If `clockType` is not
+    /// specified then the realtime system clock is used.  This method does
+    /// not return normally unless there are sufficient system resources to
+    /// construct the object.
     explicit
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
-        // Create a timed semaphore initially having a count of 0.  Optionally
-        // specify a 'clockType' indicating the type of the system clock
-        // against which the 'bsls::TimeInterval' 'absTime' timeouts passed to
-        // the 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.  This method does
-        // not return normally unless there are sufficient system resources to
-        // construct the object.
 
+    /// Create a timed semaphore initially having the specified `count`.
+    /// Optionally specify a `clockType` indicating the type of the system
+    /// clock against which the `bsls::TimeInterval` `absTime` timeouts
+    /// passed to the `timedWait` method are to be interpreted (see
+    /// {Supported Clock-Types} in the component documentation).  If
+    /// `clockType` is not specified then the realtime system clock is used.
+    /// This method does not return normally unless there are sufficient
+    /// system resources to construct the object.
     explicit
     TimedSemaphoreImpl(int                         count,
                        bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
-        // Create a timed semaphore initially having the specified 'count'.
-        // Optionally specify a 'clockType' indicating the type of the system
-        // clock against which the 'bsls::TimeInterval' 'absTime' timeouts
-        // passed to the 'timedWait' method are to be interpreted (see
-        // {Supported Clock-Types} in the component documentation).  If
-        // 'clockType' is not specified then the realtime system clock is used.
-        // This method does not return normally unless there are sufficient
-        // system resources to construct the object.
 
+    /// Destroy this semaphore object.
     ~TimedSemaphoreImpl();
-        // Destroy this semaphore object.
 
     // MANIPULATORS
+
+    /// Atomically increment the count of the semaphore.
     void post();
-        // Atomically increment the count of the semaphore.
 
+    /// Atomically increment the count by the specified `number` of the
+    /// semaphore.  The behavior is undefined unless `number` is a positive
+    /// value.
     void post(int number);
-        // Atomically increment the count by the specified 'number' of the
-        // semaphore.  The behavior is undefined unless 'number' is a positive
-        // value.
 
+    /// Block until the count of this semaphore is a positive value, or
+    /// until the specified `absTime` timeout expires.  `absTime` is an
+    /// *absolute* time represented as an interval from some epoch, which is
+    /// determined by the clock indicated at construction (see {Supported
+    /// Clock-Types} in the component documentation).  If the `absTime`
+    /// timeout did not expire before the count attained a positive value,
+    /// atomically decrement the count and return 0; otherwise, return a
+    /// non-zero value with no effect on the count.
     int timedWait(const bsls::TimeInterval& absTime);
-        // Block until the count of this semaphore is a positive value, or
-        // until the specified 'absTime' timeout expires.  'absTime' is an
-        // *absolute* time represented as an interval from some epoch, which is
-        // determined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  If the 'absTime'
-        // timeout did not expire before the count attained a positive value,
-        // atomically decrement the count and return 0; otherwise, return a
-        // non-zero value with no effect on the count.
 
+    /// Decrement the count of this semaphore if it is positive and return
+    /// 0.  Return a non-zero value otherwise.
     int tryWait();
-        // Decrement the count of this semaphore if it is positive and return
-        // 0.  Return a non-zero value otherwise.
 
+    /// Block until the count is a positive value and atomically decrement
+    /// it.
     void wait();
-        // Block until the count is a positive value and atomically decrement
-        // it.
 
     // ACCESSORS
+
+    /// Return the clock type used for timeouts.
     bsls::SystemClockType::Enum clockType() const;
-        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace

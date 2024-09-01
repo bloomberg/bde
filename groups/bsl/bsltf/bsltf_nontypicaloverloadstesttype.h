@@ -11,19 +11,19 @@ BSLS_IDENT("$Id: $")
 //   bsltf::NonTypicalOverloadsTestType: test class that non-typical operators
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'NonTypicalOverloadsTestType', that
+// (value-semantic) attribute class, `NonTypicalOverloadsTestType`, that
 // defines overloads to some non-typically-overloaded operators ('operator
-// new', 'operator delete', and 'operator&') to ensure that they do not get
+// new', `operator delete`, and `operator&`) to ensure that they do not get
 // invoked.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the class value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the class value
 //
 ///Usage
 ///-----
@@ -31,21 +31,21 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Demonstrating Calling Operator New/Delete Induce Assertions
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we wanted to show that calling 'operator new' and
-// 'operator delete on 'NonTypicalOverloadsTestType' causes an assertion.
+// Suppose that we wanted to show that calling `operator new` and
+// `operator delete on `NonTypicalOverloadsTestType' causes an assertion.
 //
-// First, we verify that calling 'operator new' will result in an
+// First, we verify that calling `operator new` will result in an
 // assertion:
-//..
-//  bsls::AssertTestHandlerGuard guard;
-//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
-//..
-// Finally, we verify that calling 'operator delete' will result in an
+// ```
+// bsls::AssertTestHandlerGuard guard;
+// BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
+// ```
+// Finally, we verify that calling `operator delete` will result in an
 // assertion:
-//..
-//  NonTypicalOverloadsTestType obj;
-//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj);
-//..
+// ```
+// NonTypicalOverloadsTestType obj;
+// BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj);
+// ```
 
 #include <bslscm_version.h>
 
@@ -62,12 +62,12 @@ namespace bsltf {
                         // class NonTypicalOverloadsTestType
                         // =================================
 
+/// This unconstrained (value-semantic) attribute class ensures that the
+/// operator new member and operator delete member never gets called by
+/// overloading and asserting in them.  See the Attributes section under
+/// @DESCRIPTION in the component-level documentation for information on the
+/// class attributes.
 class NonTypicalOverloadsTestType {
-    // This unconstrained (value-semantic) attribute class ensures that the
-    // operator new member and operator delete member never gets called by
-    // overloading and asserting in them.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.
 
   private:
     // DATA
@@ -89,11 +89,12 @@ class NonTypicalOverloadsTestType {
 
   public:
     // CLASS METHODS
-    static void* operator new(std::size_t size);
-        // Overload 'operator new' and assert this method is not called.
 
+    /// Overload `operator new` and assert this method is not called.
+    static void* operator new(std::size_t size);
+
+    /// Overload in place `new` and assert this method is not called.
     static void* operator new(std::size_t size, void *ptr);
-        // Overload in place 'new' and assert this method is not called.
 
 #if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER)
     static void operator delete(void *ptr);
@@ -113,20 +114,21 @@ class NonTypicalOverloadsTestType {
         // called.  Not used but required to avoid compiler warnings (MSVC).
 
     // CREATORS
+
+    /// Create a `NonTypicalOverloadsTestType` object having the (default)
+    /// attribute values:
+    /// ```
+    /// data() == 0
+    /// ```
     NonTypicalOverloadsTestType();
-        // Create a 'NonTypicalOverloadsTestType' object having the (default)
-        // attribute values:
-        //..
-        //  data() == 0
-        //..
 
+    /// Create a `NonTypicalOverloadsTestType` object having the specified
+    /// `data` attribute value.
     explicit NonTypicalOverloadsTestType(int data);
-        // Create a 'NonTypicalOverloadsTestType' object having the specified
-        // 'data' attribute value.
 
+    /// Create a `NonTypicalOverloadsTestType` object having the same value
+    /// as the specified `original` object.
     NonTypicalOverloadsTestType(const NonTypicalOverloadsTestType& original);
-        // Create a 'NonTypicalOverloadsTestType' object having the same value
-        // as the specified 'original' object.
 
 #if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER) ||                \
     !defined(BSLS_PLATFORM_CMP_MSVC)
@@ -140,32 +142,35 @@ class NonTypicalOverloadsTestType {
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
     NonTypicalOverloadsTestType& operator=(
                                        const NonTypicalOverloadsTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `NonTypicalOverloadsTestType` objects
+/// have the same if their `data` attributes are the same.
 bool operator==(const NonTypicalOverloadsTestType& lhs,
                 const NonTypicalOverloadsTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'NonTypicalOverloadsTestType' objects
-    // have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `NonTypicalOverloadsTestType`
+/// objects do not have the same value if their `data` attributes are not
+/// the same.
 bool operator!=(const NonTypicalOverloadsTestType& lhs,
                 const NonTypicalOverloadsTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'NonTypicalOverloadsTestType'
-    // objects do not have the same value if their 'data' attributes are not
-    // the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

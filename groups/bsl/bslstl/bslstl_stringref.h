@@ -5,133 +5,133 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a reference to a 'const' string.
+//@PURPOSE: Provide a reference to a `const` string.
 //
 //@CLASSES:
 //   bslstl::StringRefImp: reference wrapper for a generic string
-//      bslstl::StringRef: reference wrapper for a 'char' string
-//  bslstl::StringRefWide: reference wrapper for a 'wchar_t' string
+//      bslstl::StringRef: reference wrapper for a `char` string
+//  bslstl::StringRefWide: reference wrapper for a `wchar_t` string
 //
 //@CANONICAL_HEADER: bsl_string.h
 //
 //@SEE_ALSO: bdlb_stringrefutil
 //
-//@DESCRIPTION: This component defines two classes, 'bslstl::StringRef' and
-// 'bslstl::StringRefWide', each providing a reference to a non-modifiable
+//@DESCRIPTION: This component defines two classes, `bslstl::StringRef` and
+// `bslstl::StringRefWide`, each providing a reference to a non-modifiable
 // string value having an external representation.  The type of characters in
-// the string value can be either 'char' (for 'bslstl::StringRef') or 'wchar_t'
-// (for 'bslstl::StringRefWide').
+// the string value can be either `char` (for `bslstl::StringRef`) or `wchar_t`
+// (for `bslstl::StringRefWide`).
 //
-// The invariant of 'bslstl::StringRef' is that it always has a valid
-// non-modifiable 'std::string' value, where non-empty string values have an
+// The invariant of `bslstl::StringRef` is that it always has a valid
+// non-modifiable `std::string` value, where non-empty string values have an
 // external representation.  Empty string values do not need to have an
-// external representation.  Most operations on 'bslstl::StringRef' objects
-// have reference semantics and apply to the string value: e.g., 'operator=='
-// compares string values, not whether 'bslstl::StringRef' objects reference
+// external representation.  Most operations on `bslstl::StringRef` objects
+// have reference semantics and apply to the string value: e.g., `operator==`
+// compares string values, not whether `bslstl::StringRef` objects reference
 // the same string object.
 //
 // The only operations that do not apply to the string value (i.e., that have
 // pointer semantics) are copy construction and assignment.  These operations
-// produce a 'bslstl::StringRef' object with the same external representation
-// as the original 'bslstl::StringRef' object, which is a stronger
-// post-condition than having 'operator==' return 'true' for two
-// 'bslstl::StringRef' objects that have the same value.
+// produce a `bslstl::StringRef` object with the same external representation
+// as the original `bslstl::StringRef` object, which is a stronger
+// post-condition than having `operator==` return `true` for two
+// `bslstl::StringRef` objects that have the same value.
 //
-// The standard notion of substitutability defined by the 'operator==' does not
-// necessarily apply to 'bslstl::StringRef' since 'bslstl::StringRef' is not a
+// The standard notion of substitutability defined by the `operator==` does not
+// necessarily apply to `bslstl::StringRef` since `bslstl::StringRef` is not a
 // value-semantic type (because of the external representation).  Therefore
 // there can be a plausible sequence of operations applied to two "equal"
-// 'bslstl::StringRef' objects that result in objects that don't compare equal.
+// `bslstl::StringRef` objects that result in objects that don't compare equal.
 //
-// The string value that is represented by a 'bslstl::StringRef' object need
+// The string value that is represented by a `bslstl::StringRef` object need
 // not be null-terminated.  Moreover, the string may contain embedded null
-// characters.  As such, the string referenced by 'bslstl::StringRef', in
+// characters.  As such, the string referenced by `bslstl::StringRef`, in
 // general, is not a C-style string.  Moreover, the notion of a null-string
 // value is not supported.
 //
-// The address of the string referenced by 'bslstl::StringRef' is indicated by
-// the 'data' accessor.  Its extent is indicated by the 'length' and 'size'
-// accessors.  The referenced string is also indicated by the 'begin' and 'end'
+// The address of the string referenced by `bslstl::StringRef` is indicated by
+// the `data` accessor.  Its extent is indicated by the `length` and `size`
+// accessors.  The referenced string is also indicated by the `begin` and `end`
 // accessors that return STL-compatible iterators to the beginning of the
 // string and one character past the end of the string, respectively.  An
-// overloaded 'operator[]' is also provided for direct by-index access to
+// overloaded `operator[]` is also provided for direct by-index access to
 // individual characters in the string.
 //
-// Several overloaded free operators are provided for 'bslstl::StringRef'
+// Several overloaded free operators are provided for `bslstl::StringRef`
 // objects (as well as variants for all combinations involving
-// 'bslstl::StringRef' and 'std::string', and 'bslstl::StringRef' and 'char *')
+// `bslstl::StringRef` and `std::string`, and `bslstl::StringRef` and `char *`)
 // for (1) lexicographic comparison of values, and (2) concatenation of values
-// (producing an 'std::string'); also provided is an overloaded free
-// 'operator<<' for writing the value of a 'bslstl::StringRef' object to a
+// (producing an `std::string`); also provided is an overloaded free
+// `operator<<` for writing the value of a `bslstl::StringRef` object to a
 // specified output stream.
 //
-// The 'bsl::hash' template class is specialized for 'bslstl::StringRef' to
-// enable the use of 'bslstl::StringRef' with STL hash containers (e.g.,
-// 'bsl::unordered_set' and 'bsl::unordered_map').
+// The `bsl::hash` template class is specialized for `bslstl::StringRef` to
+// enable the use of `bslstl::StringRef` with STL hash containers (e.g.,
+// `bsl::unordered_set` and `bsl::unordered_map`).
 //
-///How to include 'bslstl::StringRef'
+///How to include `bslstl::StringRef`
 ///----------------------------------
-// To include 'bslstl::StringRef' use '#include <bsl_string.h>' (*not*
-// '#include <bslstl_stringref.h>').
+// To include `bslstl::StringRef` use `#include <bsl_string.h>` (*not*
+// `#include <bslstl_stringref.h>`).
 //
 ///Efficiency and Usage Considerations
 ///-----------------------------------
-// Using 'bslstl::StringRef' to pass strings as function arguments can be
-// considerably more efficient than passing 'bsl::string' objects by 'const'
+// Using `bslstl::StringRef` to pass strings as function arguments can be
+// considerably more efficient than passing `bsl::string` objects by `const`
 // reference.  First, consider a hypothetical class method in which the
-// parameter is a reference to a non-modifiable 'bsl::string':
-//..
-//  void MyClass::setLabel(const bsl::string& label)
-//  {
-//      d_label = label;  // 'MyClass::d_label' is of type 'bsl::string'
-//  }
-//..
+// parameter is a reference to a non-modifiable `bsl::string`:
+// ```
+// void MyClass::setLabel(const bsl::string& label)
+// {
+//     d_label = label;  // 'MyClass::d_label' is of type 'bsl::string'
+// }
+// ```
 // Then, consider a typical call to this method:
-//..
-//  MyClass myClassObj;
-//  myClassObj.setLabel("hello");
-//..
-// As a side-effect of this call, a temporary 'bsl::string' containing a *copy*
+// ```
+// MyClass myClassObj;
+// myClassObj.setLabel("hello");
+// ```
+// As a side-effect of this call, a temporary `bsl::string` containing a *copy*
 // of "hello" is created (using the default allocator), that value is copied to
-// 'd_label', and the temporary is eventually destroyed.  The call thus
+// `d_label`, and the temporary is eventually destroyed.  The call thus
 // requires the string data to be copied twice (as well as a possible
 // allocation and deallocation).
 //
 // Next, consider the same method taking a reference to a non-modifiable
-// 'bslstl::StringRef':
-//..
-//  void MyClass::setLabel(const bslstl::StringRef& label)
-//  {
-//      d_label.assign(label.begin(), label.end());
-//  }
-//..
+// `bslstl::StringRef`:
+// ```
+// void MyClass::setLabel(const bslstl::StringRef& label)
+// {
+//     d_label.assign(label.begin(), label.end());
+// }
+// ```
 // Now:
-//..
-//  myClassObj.setLabel("hello");
-//..
-// This call has the side-effect of creating a temporary 'bslstl::StringRef'
+// ```
+// myClassObj.setLabel("hello");
+// ```
+// This call has the side-effect of creating a temporary `bslstl::StringRef`
 // object, which is likely to be more efficient than creating a temporary
-// 'bsl::string' (even when implemented using the short-string optimization).
+// `bsl::string` (even when implemented using the short-string optimization).
 // In this case, instead of copying the *contents* of "hello", the *address* of
-// the literal string is copied.  In addition, 'bsl::strlen' is applied to the
+// the literal string is copied.  In addition, `bsl::strlen` is applied to the
 // string in order to locate its end.  There are *no* allocations done on
 // behalf of the temporary object.
 //
 ///Caveats
 ///-------
-// 1) The string referenced by 'bslstl::StringRef' need not be null-terminated,
+// 1) The string referenced by `bslstl::StringRef` need not be null-terminated,
 // and, in fact, may *contain* embedded null characters.  Thus, it is generally
-// not valid to pass the address returned by the 'data' accessor to Standard C
-// functions that expect a null-terminated string (e.g., 'std::strlen',
-// 'std::strcmp', etc.).
+// not valid to pass the address returned by the `data` accessor to Standard C
+// functions that expect a null-terminated string (e.g., `std::strlen`,
+// `std::strcmp`, etc.).
 //
-// 2) The string referenced by 'bslstl::StringRef' must remain valid as long as
-// the 'bslstl::StringRef' references that string.  Lifetime issues should be
-// carefully considered when, for example, returning a 'bslstl::StringRef'
-// object from a function or storing a 'bslstl::StringRef' object in a
+// 2) The string referenced by `bslstl::StringRef` must remain valid as long as
+// the `bslstl::StringRef` references that string.  Lifetime issues should be
+// carefully considered when, for example, returning a `bslstl::StringRef`
+// object from a function or storing a `bslstl::StringRef` object in a
 // container.
 //
-// 3) Passing a null string to any function (e.g., 'operator==') without also
+// 3) Passing a null string to any function (e.g., `operator==`) without also
 // passing a 0 length results in undefined behavior.
 //
 ///Usage
@@ -141,120 +141,120 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Operations
 ///- - - - - - - - - - - - - -
 // The following snippets of code illustrate basic and varied use of the
-// 'bslstl::StringRef' class.
+// `bslstl::StringRef` class.
 //
-// First, we define a function, 'getNumBlanks', that returns the number of
-// blank (' ') characters contained in the string referenced by a specified
-// 'bslstl::StringRef':
-//..
-//  #include <algorithm>
+// First, we define a function, `getNumBlanks`, that returns the number of
+// blank (` `) characters contained in the string referenced by a specified
+// `bslstl::StringRef`:
+// ```
+// #include <algorithm>
 //
-//   bslstl::StringRef::size_type
-//   getNumBlanks(const bslstl::StringRef& stringRef)
-//      // Return the number of blank (' ') characters in the string referenced
-//      // by the specified 'stringRef'.
-//  {
-//      return std::count(stringRef.begin(), stringRef.end(), ' ');
-//  }
-//..
-// Notice that the function delegates the work to the 'std::count' STL
+//  bslstl::StringRef::size_type
+//  getNumBlanks(const bslstl::StringRef& stringRef)
+//     // Return the number of blank (' ') characters in the string referenced
+//     // by the specified 'stringRef'.
+// {
+//     return std::count(stringRef.begin(), stringRef.end(), ' ');
+// }
+// ```
+// Notice that the function delegates the work to the `std::count` STL
 // algorithm.  This delegation is made possible by the STL-compatible iterators
-// provided by the 'begin' and 'end' accessors.
+// provided by the `begin` and `end` accessors.
 //
-// Then, call 'getNumBlanks' on a default constructed 'bslstl::StringRef':
-//..
-//  bslstl::StringRef            emptyRef;
-//  bslstl::StringRef::size_type numBlanks = getNumBlanks(emptyRef);
-//  assert(0 == numBlanks);
+// Then, call `getNumBlanks` on a default constructed `bslstl::StringRef`:
+// ```
+// bslstl::StringRef            emptyRef;
+// bslstl::StringRef::size_type numBlanks = getNumBlanks(emptyRef);
+// assert(0 == numBlanks);
 //
-//  assert(""         == emptyRef);
-//  assert("anything" >= emptyRef);
-//..
-// Notice that the behavior a default constructed 'bslstl::StringRef' object
+// assert(""         == emptyRef);
+// assert("anything" >= emptyRef);
+// ```
+// Notice that the behavior a default constructed `bslstl::StringRef` object
 // behaves the same as if it referenced an empty string.
 //
-// Next, we (implicitly) construct a 'bsl::string' object from
-// 'bslstl::StringRef':
-//..
-//  bsl::string empty(emptyRef);
-//  assert(0 == empty.size());
-//..
-// Then, we call 'getNumBlanks' on a string literal and assert that the number
+// Next, we (implicitly) construct a `bsl::string` object from
+// `bslstl::StringRef`:
+// ```
+// bsl::string empty(emptyRef);
+// assert(0 == empty.size());
+// ```
+// Then, we call `getNumBlanks` on a string literal and assert that the number
 // of blanks returned is as expected:
-//..
-//  numBlanks = getNumBlanks("Good things come to those who wait.");
-//  assert(6 == numBlanks);
-//..
-// Next, we define a longer string literal, 'poem', that we will use in the
+// ```
+// numBlanks = getNumBlanks("Good things come to those who wait.");
+// assert(6 == numBlanks);
+// ```
+// Next, we define a longer string literal, `poem`, that we will use in the
 // rest of this usage example:
-//..
-//  const char poem[] =                  // by William Butler Yeats (1865-1939)
-//      |....5....|....5....|....5....|....5....|   //  length  blanks
-//                                                  //
-//      "O love is the crooked thing,\n"            //    29      5
-//      "There is nobody wise enough\n"             //    28      4
-//      "To find out all that is in it,\n"          //    31      7
-//      "For he would be thinking of love\n"        //    33      6
-//      "Till the stars had run away\n"             //    28      5
-//      "And the shadows eaten the moon.\n"         //    32      5
-//      "Ah, penny, brown penny, brown penny,\n"    //    37      5
-//      "One cannot begin it too soon.";            //    29      5
-//                                                  //          ----
-//                                                  //    total: 42
+// ```
+// const char poem[] =                  // by William Butler Yeats (1865-1939)
+//     |....5....|....5....|....5....|....5....|   //  length  blanks
+//                                                 //
+//     "O love is the crooked thing,\n"            //    29      5
+//     "There is nobody wise enough\n"             //    28      4
+//     "To find out all that is in it,\n"          //    31      7
+//     "For he would be thinking of love\n"        //    33      6
+//     "Till the stars had run away\n"             //    28      5
+//     "And the shadows eaten the moon.\n"         //    32      5
+//     "Ah, penny, brown penny, brown penny,\n"    //    37      5
+//     "One cannot begin it too soon.";            //    29      5
+//                                                 //          ----
+//                                                 //    total: 42
 //
-//  numBlanks = getNumBlanks(poem);
-//  assert(42 == numBlanks);
-//..
-// Then, we construct a 'bslstl::StringRef' object, 'line', that refers to only
-// the first line of the 'poem':
-//..
-//  bslstl::StringRef line(poem, 29);
-//  numBlanks = getNumBlanks(line);
+// numBlanks = getNumBlanks(poem);
+// assert(42 == numBlanks);
+// ```
+// Then, we construct a `bslstl::StringRef` object, `line`, that refers to only
+// the first line of the `poem`:
+// ```
+// bslstl::StringRef line(poem, 29);
+// numBlanks = getNumBlanks(line);
 //
-//  assert( 5 == numBlanks);
-//  assert(29 == line.length());
-//  assert( 0 == std::strncmp(poem, line.data(), line.length()));
-//..
-// Next, we use the 'assign' method to make 'line' refer to the second line of
-// the 'poem':
-//..
-//  line.assign(poem + 29, poem + 57);
-//  numBlanks = getNumBlanks(line);
-//  assert(4 == numBlanks);
-//  assert((57 - 29) == line.length());
-//  assert("There is nobody wise enough\n" == line);
-//..
-// Then, we call 'getNumBlanks' with a 'bsl::string' initialized to the
-// contents of the 'poem':
-//..
-//  const bsl::string poemString(poem);
-//  numBlanks = getNumBlanks(poemString);
-//  assert(42 == numBlanks);
-//  assert(bslstl::StringRef(poemString) == poemString);
-//  assert(bslstl::StringRef(poemString) == poemString.c_str());
-//..
-// Next, we make a 'bslstl::StringRef' object that refers to a string that will
+// assert( 5 == numBlanks);
+// assert(29 == line.length());
+// assert( 0 == std::strncmp(poem, line.data(), line.length()));
+// ```
+// Next, we use the `assign` method to make `line` refer to the second line of
+// the `poem`:
+// ```
+// line.assign(poem + 29, poem + 57);
+// numBlanks = getNumBlanks(line);
+// assert(4 == numBlanks);
+// assert((57 - 29) == line.length());
+// assert("There is nobody wise enough\n" == line);
+// ```
+// Then, we call `getNumBlanks` with a `bsl::string` initialized to the
+// contents of the `poem`:
+// ```
+// const bsl::string poemString(poem);
+// numBlanks = getNumBlanks(poemString);
+// assert(42 == numBlanks);
+// assert(bslstl::StringRef(poemString) == poemString);
+// assert(bslstl::StringRef(poemString) == poemString.c_str());
+// ```
+// Next, we make a `bslstl::StringRef` object that refers to a string that will
 // be able to hold embedded null characters:
-//..
-//  char poemWithNulls[512];
-//  const bsl::size_t poemLength = std::strlen(poem);
-//  assert(poemLength < 512);
+// ```
+// char poemWithNulls[512];
+// const bsl::size_t poemLength = std::strlen(poem);
+// assert(poemLength < 512);
 //
-//  std::memcpy(poemWithNulls, poem, poemLength + 1);
-//  assert(0 == std::strcmp(poem, poemWithNulls));
-//..
-// Now, we replace each occurrence of a '\n' in 'poemWithNulls' with a yielding
+// std::memcpy(poemWithNulls, poem, poemLength + 1);
+// assert(0 == std::strcmp(poem, poemWithNulls));
+// ```
+// Now, we replace each occurrence of a '\n' in `poemWithNulls` with a yielding
 // '\0':
-//..
-//  std::replace(poemWithNulls, poemWithNulls + poemLength, '\n', '\0');
-//  assert(0 != std::strcmp(poem, poemWithNulls));
-//..
-// Finally, we observe that 'poemWithNulls' has the same number of blank
-// characters as the original 'poem':
-//..
-//  numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
-//  assert(42 == numBlanks);
-//..
+// ```
+// std::replace(poemWithNulls, poemWithNulls + poemLength, '\n', '\0');
+// assert(0 != std::strcmp(poem, poemWithNulls));
+// ```
+// Finally, we observe that `poemWithNulls` has the same number of blank
+// characters as the original `poem`:
+// ```
+// numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
+// assert(42 == numBlanks);
+// ```
 
 #include <bslscm_version.h>
 
@@ -300,28 +300,28 @@ using BloombergLP::bslstl_stringview_relops::operator>=;
                     // class StringRefImp<CHAR_TYPE>
                     // =============================
 
+/// This class provides a reference-semantic-like (see below) mechanism that
+/// allows `const` `std::string` values, which are represented externally as
+/// either an `std::string` or null-terminated c-style string (or parts
+/// thereof), to be treated both uniformly and efficiently when passed as an
+/// argument to a function in which the string's length will be needed.  The
+/// interface of this class provides a subset of accessor methods found on
+/// `std::string` (but none of the manipulators) -- all of which apply to
+/// the referenced string.  But, because only non-modifiable access is
+/// afforded to the referenced string value, each of the manipulators on
+/// this type -- assignment in particular -- apply to this string-reference
+/// object itself (as if it had pointer semantics).  Hence, this class has a
+/// hybrid of reference- and pointer-semantics.
+///
+/// This class:
+/// * supports a complete set of *value-semantic* operations
+///   - except for `bdex` serialization
+/// * is *exception-neutral* (agnostic)
+/// * is *alias-safe*
+/// * is `const` *thread-safe*
+/// For terminology see `bsldoc_glossary`.
 template <class CHAR_TYPE>
 class StringRefImp : public StringRefData<CHAR_TYPE> {
-    // This class provides a reference-semantic-like (see below) mechanism that
-    // allows 'const' 'std::string' values, which are represented externally as
-    // either an 'std::string' or null-terminated c-style string (or parts
-    // thereof), to be treated both uniformly and efficiently when passed as an
-    // argument to a function in which the string's length will be needed.  The
-    // interface of this class provides a subset of accessor methods found on
-    // 'std::string' (but none of the manipulators) -- all of which apply to
-    // the referenced string.  But, because only non-modifiable access is
-    // afforded to the referenced string value, each of the manipulators on
-    // this type -- assignment in particular -- apply to this string-reference
-    // object itself (as if it had pointer semantics).  Hence, this class has a
-    // hybrid of reference- and pointer-semantics.
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral* (agnostic)
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
   private:
     // PRIVATE TYPES
@@ -336,8 +336,9 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     typedef const CHAR_TYPE                       *const_iterator;
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
     typedef std::ptrdiff_t                         difference_type;
+
+    /// Standard Library general container requirements.
     typedef std::size_t                            size_type;
-        // Standard Library general container requirements.
 
   public:
     // TRAITS
@@ -345,57 +346,59 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
 
   private:
     // PRIVATE ACCESSORS
+
+    /// Write the value of this string reference to the specified output
+    /// `stream` in the unformatted way.
     void write(std::basic_ostream<CHAR_TYPE>& stream) const;
-        // Write the value of this string reference to the specified output
-        // 'stream' in the unformatted way.
 
   public:
     // CREATORS
-    StringRefImp();
-        // Create an object representing an empty 'std::string' value that is
-        // independent of any external representation and with the following
-        // attribute values:
-        //..
-        //  begin() == end()
-        //  isEmpty() == true
-        //..
 
+    /// Create an object representing an empty `std::string` value that is
+    /// independent of any external representation and with the following
+    /// attribute values:
+    /// ```
+    /// begin() == end()
+    /// isEmpty() == true
+    /// ```
+    StringRefImp();
+
+    /// Create a string-reference object having a valid `std::string` value,
+    /// whose external representation begins at the specified `data` address
+    /// and extends for the specified `length`.  The external representation
+    /// must remain valid as long as it is bound to this string reference.
+    /// Passing 0 has the same effect as default construction.  The behavior
+    /// is undefined unless `0 <= length` and, if `0 == data`, then
+    /// `0 == length`.  Note that, like an `std::string`, the `data` need
+    /// not be null-terminated and may contain embedded null characters.
+    /// Note that the template and non-template versions combine to allow
+    /// various integral and enumeration types to be used for length while
+    /// preventing `(char *, 0)` initializer arguments from matching the
+    /// two-iterator constructor below.
     template <class INT_TYPE>
     StringRefImp(const CHAR_TYPE *data,
                  INT_TYPE         length,
                  typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
                                          bslmf::Nil>::type = bslmf::Nil());
     StringRefImp(const CHAR_TYPE *data, size_type length);
-        // Create a string-reference object having a valid 'std::string' value,
-        // whose external representation begins at the specified 'data' address
-        // and extends for the specified 'length'.  The external representation
-        // must remain valid as long as it is bound to this string reference.
-        // Passing 0 has the same effect as default construction.  The behavior
-        // is undefined unless '0 <= length' and, if '0 == data', then
-        // '0 == length'.  Note that, like an 'std::string', the 'data' need
-        // not be null-terminated and may contain embedded null characters.
-        // Note that the template and non-template versions combine to allow
-        // various integral and enumeration types to be used for length while
-        // preventing '(char *, 0)' initializer arguments from matching the
-        // two-iterator constructor below.
 
+    /// Create a string-reference object having a valid `std::string` value,
+    /// whose external representation begins at the specified `begin`
+    /// iterator and extends up to, but not including, the specified `end`
+    /// iterator.  The external representation must remain valid as long as
+    /// it is bound to this string reference.  The behavior is undefined
+    /// unless `begin <= end`.  Note that, like an `std::string`, the string
+    /// need not be null-terminated and may contain embedded null
+    /// characters.
     StringRefImp(const_iterator begin, const_iterator end);
-        // Create a string-reference object having a valid 'std::string' value,
-        // whose external representation begins at the specified 'begin'
-        // iterator and extends up to, but not including, the specified 'end'
-        // iterator.  The external representation must remain valid as long as
-        // it is bound to this string reference.  The behavior is undefined
-        // unless 'begin <= end'.  Note that, like an 'std::string', the string
-        // need not be null-terminated and may contain embedded null
-        // characters.
 
+    /// Create a string-reference object having a valid `std::string` value,
+    /// whose external representation begins at the specified `data` address
+    /// and extends for `std::char_traits<CHAR_TYPE>::length(data)`
+    /// characters.  The external representation must remain valid as long
+    /// as it is bound to this string reference.  The behavior is undefined
+    /// unless `data` is null-terminated.
     StringRefImp(const CHAR_TYPE *data);                            // IMPLICIT
-        // Create a string-reference object having a valid 'std::string' value,
-        // whose external representation begins at the specified 'data' address
-        // and extends for 'std::char_traits<CHAR_TYPE>::length(data)'
-        // characters.  The external representation must remain valid as long
-        // as it is bound to this string reference.  The behavior is undefined
-        // unless 'data' is null-terminated.
 
     StringRefImp(const bsl::basic_string_view<CHAR_TYPE>& str);     // IMPLICIT
     StringRefImp(const std::basic_string<CHAR_TYPE>& str);          // IMPLICIT
@@ -415,18 +418,18 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // is bound to this string reference.  Note that this trivial copy
         // constructor's definition is compiler generated.
 
+    /// Create a string-reference object having a valid `std::string` value,
+    /// whose external representation begins at the specified `startIndex`
+    /// in the specified `original` string reference, and extends either the
+    /// specified `numCharacters` or until the end of the `original` string
+    /// reference, whichever comes first.  The external representation must
+    /// remain valid as long as it is bound to this string reference.  The
+    /// behavior is undefined unless `startIndex <= original.length()`.
+    /// Note that if `startIndex` is `original.length()` an empty string
+    /// reference is returned.
     StringRefImp(const StringRefImp& original,
                  size_type           startIndex,
                  size_type           numCharacters);
-        // Create a string-reference object having a valid 'std::string' value,
-        // whose external representation begins at the specified 'startIndex'
-        // in the specified 'original' string reference, and extends either the
-        // specified 'numCharacters' or until the end of the 'original' string
-        // reference, whichever comes first.  The external representation must
-        // remain valid as long as it is bound to this string reference.  The
-        // behavior is undefined unless 'startIndex <= original.length()'.
-        // Note that if 'startIndex' is 'original.length()' an empty string
-        // reference is returned.
 
 //! ~StringRefImp() = default;
         // Destroy this object.
@@ -439,168 +442,172 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // to have values of attributes 'begin' and 'end' equal to the 'rhs'
         // object's attributes.
 
+    /// Bind this string reference to the string at the specified `data`
+    /// address and extending for the specified `length` characters.  The
+    /// string indicated by `data` and `length` must remain valid as long as
+    /// it is bound to this object.  The behavior is undefined unless
+    /// `0 <= length` or `0 == data && 0 == length`.  Note that the string
+    /// need not be null-terminated and may contain embedded null
+    /// characters.  Note that the template and non-template versions
+    /// combine to allow various integral and enumeration types to be used
+    /// for length while preventing `(char *, 0)` initializer arguments from
+    /// matching the two-iterator overload of `assign` below.
     template <class INT_TYPE>
     void assign(const CHAR_TYPE *data,
                 INT_TYPE         length,
                 typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
                                              bslmf::Nil>::type = bslmf::Nil());
     void assign(const CHAR_TYPE *data, size_type length);
-        // Bind this string reference to the string at the specified 'data'
-        // address and extending for the specified 'length' characters.  The
-        // string indicated by 'data' and 'length' must remain valid as long as
-        // it is bound to this object.  The behavior is undefined unless
-        // '0 <= length' or '0 == data && 0 == length'.  Note that the string
-        // need not be null-terminated and may contain embedded null
-        // characters.  Note that the template and non-template versions
-        // combine to allow various integral and enumeration types to be used
-        // for length while preventing '(char *, 0)' initializer arguments from
-        // matching the two-iterator overload of 'assign' below.
 
+    /// Bind this string reference to the string at the specified `begin`
+    /// iterator, extending up to, but not including, the character at the
+    /// specified `end` iterator.  The string indicated by `begin` and `end`
+    /// must remain valid as long as it is bound to this object.  The
+    /// behavior is undefined unless `begin <= end`.  Note that the string
+    /// need not be null-terminated and may contain embedded null
+    /// characters.
     void assign(const_iterator begin, const_iterator end);
-        // Bind this string reference to the string at the specified 'begin'
-        // iterator, extending up to, but not including, the character at the
-        // specified 'end' iterator.  The string indicated by 'begin' and 'end'
-        // must remain valid as long as it is bound to this object.  The
-        // behavior is undefined unless 'begin <= end'.  Note that the string
-        // need not be null-terminated and may contain embedded null
-        // characters.
 
+    /// Bind this string reference to the string at the specified `data`
+    /// address and extending for
+    /// `std::char_traits<CHAR_TYPE>::length(data)` characters.  The string
+    /// at the `data` address must remain valid as long as it is bound to
+    /// this string reference.  The behavior is undefined unless `data` is
+    /// null-terminated.
     void assign(const CHAR_TYPE *data);
-        // Bind this string reference to the string at the specified 'data'
-        // address and extending for
-        // 'std::char_traits<CHAR_TYPE>::length(data)' characters.  The string
-        // at the 'data' address must remain valid as long as it is bound to
-        // this string reference.  The behavior is undefined unless 'data' is
-        // null-terminated.
 
+    /// Bind this string reference to the specified `str` string.  The
+    /// string indicated by `str` must remain valid as long as it is bound
+    /// to this object.
     void assign(const bsl::basic_string<CHAR_TYPE>& str);
-        // Bind this string reference to the specified 'str' string.  The
-        // string indicated by 'str' must remain valid as long as it is bound
-        // to this object.
 
+    /// Modify this string reference to refer to the same string as the
+    /// specified `stringRef`.  Note, that the string bound to `stringRef`
+    /// must remain valid as long as it is bound to this object.
     void assign(const StringRefImp<CHAR_TYPE>& stringRef);
-        // Modify this string reference to refer to the same string as the
-        // specified 'stringRef'.  Note, that the string bound to 'stringRef'
-        // must remain valid as long as it is bound to this object.
 
+    /// Reset this string reference to the default-constructed state having
+    /// an empty `std::string` value and the following attribute values:
+    /// ```
+    /// begin() == end()
+    /// isEmpty() == true
+    /// ```
     void reset();
-        // Reset this string reference to the default-constructed state having
-        // an empty 'std::string' value and the following attribute values:
-        //..
-        //  begin() == end()
-        //  isEmpty() == true
-        //..
 
     // ACCESSORS
+
+    /// Return a reference providing a non-modifiable access to the
+    /// character at the specified `index` in the string bound to this
+    /// reference.  This reference remains valid as long as the string
+    /// currently bound to this object remains valid.  The behavior is
+    /// undefined unless `0 <= index < length()`.
     const_reference operator[](size_type index) const;
-        // Return a reference providing a non-modifiable access to the
-        // character at the specified 'index' in the string bound to this
-        // reference.  This reference remains valid as long as the string
-        // currently bound to this object remains valid.  The behavior is
-        // undefined unless '0 <= index < length()'.
 
+    /// Return an `std::basic_string` (synonymous with
+    /// `std::basic_string`) having the value of the string bound to
+    /// this string reference.
     operator std::basic_string<CHAR_TYPE>() const;
-        // Return an 'std::basic_string' (synonymous with
-        // 'std::basic_string') having the value of the string bound to
-        // this string reference.
 
+    /// Return an STL-compatible iterator to the first character of the
+    /// string bound to this string reference or `end()` if the string
+    /// reference is empty.  The iterator remains valid as long as this
+    /// object is valid and is bound to the same string.
     const_iterator begin() const;
-        // Return an STL-compatible iterator to the first character of the
-        // string bound to this string reference or 'end()' if the string
-        // reference is empty.  The iterator remains valid as long as this
-        // object is valid and is bound to the same string.
 
+    /// Return an STL-compatible iterator one-past-the-last character of the
+    /// string bound to this string reference or `begin()` if the string
+    /// reference is empty.  The iterator remains valid as long as this
+    /// object is valid and is bound to the same string.
     const_iterator end() const;
-        // Return an STL-compatible iterator one-past-the-last character of the
-        // string bound to this string reference or 'begin()' if the string
-        // reference is empty.  The iterator remains valid as long as this
-        // object is valid and is bound to the same string.
 
+    /// Return an STL-compatible reverse iterator to the last character of
+    /// the string bound to this string reference or `rend()` if the string
+    /// reference is empty.  The iterator remains valid as long as this
+    /// object is valid and is bound to the same string.
     const_reverse_iterator rbegin() const;
-        // Return an STL-compatible reverse iterator to the last character of
-        // the string bound to this string reference or 'rend()' if the string
-        // reference is empty.  The iterator remains valid as long as this
-        // object is valid and is bound to the same string.
 
+    /// Return an STL-compatible reverse iterator to the
+    /// prior-to-the-beginning character of the string bound to this string
+    /// reference or `rbegin()` if the string reference is empty.  The
+    /// iterator remains valid as long as this object is valid and is bound
+    /// to the same string.
     const_reverse_iterator rend() const;
-        // Return an STL-compatible reverse iterator to the
-        // prior-to-the-beginning character of the string bound to this string
-        // reference or 'rbegin()' if the string reference is empty.  The
-        // iterator remains valid as long as this object is valid and is bound
-        // to the same string.
 
+    /// Return the address of the first character of the string bound to
+    /// this string reference such that `[data() .. data()+length())` is a
+    /// valid half-open range of characters.  Note that the range of
+    /// characters might not be null-terminated and may contain embedded
+    /// null characters.
     const CHAR_TYPE *data() const;
-        // Return the address of the first character of the string bound to
-        // this string reference such that '[data() .. data()+length())' is a
-        // valid half-open range of characters.  Note that the range of
-        // characters might not be null-terminated and may contain embedded
-        // null characters.
 
+    /// Return `true` if this object represents an empty string value, and
+    /// `false` otherwise.  This object represents an empty string value if
+    /// `begin() == end()`.  Note that this method is functionally identical
+    /// with the `isEmpty` method and allows developers to avoid distracting
+    /// syntax differences when `StringRef` appears in juxtaposition with
+    /// `string`, which defines `empty` but not `isEmpty`.
     bool empty() const;
-        // Return 'true' if this object represents an empty string value, and
-        // 'false' otherwise.  This object represents an empty string value if
-        // 'begin() == end()'.  Note that this method is functionally identical
-        // with the 'isEmpty' method and allows developers to avoid distracting
-        // syntax differences when 'StringRef' appears in juxtaposition with
-        // 'string', which defines 'empty' but not 'isEmpty'.
 
+    /// Return `true` if this object represents an empty string value, and
+    /// `false` otherwise.  This object represents an empty string value if
+    /// `begin() == end()`.
     bool isEmpty() const;
-        // Return 'true' if this object represents an empty string value, and
-        // 'false' otherwise.  This object represents an empty string value if
-        // 'begin() == end()'.
 
+    /// Return the length of the string referred to by this object.  Note
+    /// that this call is equivalent to `end() - begin()`.
     size_type length() const;
-        // Return the length of the string referred to by this object.  Note
-        // that this call is equivalent to 'end() - begin()'.
 
+    /// Return the number of characters in the string referred to by this
+    /// object.  Note that this call is equivalent to `end() - begin()`.
     size_type size() const;
-        // Return the number of characters in the string referred to by this
-        // object.  Note that this call is equivalent to 'end() - begin()'.
 
+    /// Compare this and the specified `other` string objects using a
+    /// lexicographical comparison and return a negative value if this
+    /// string is less than `other` string, a positive value if this string
+    /// is greater than `other` string, and 0 if this string is equal to
+    /// `other` string.
     int compare(const StringRefImp& other) const;
-        // Compare this and the specified 'other' string objects using a
-        // lexicographical comparison and return a negative value if this
-        // string is less than 'other' string, a positive value if this string
-        // is greater than 'other' string, and 0 if this string is equal to
-        // 'other' string.
 };
 
                         // ===============================
                         // struct StringRefImp_CompareUtil
                         // ===============================
 
+/// [**PRIVATE**] This class provides a namespace for private comparison
+/// implementation functions.
 struct StringRefImp_CompareUtil {
-    // [!PRIVATE!] This class provides a namespace for private comparison
-    // implementation functions.
 
     // CLASS METHODS
+
+    /// Compare the specified string object `a` with the specified
+    /// null-terminated C-string `b` using a lexicographical comparison and
+    /// return a negative value if `a` is less than `b`, a positive value if
+    /// `a` is greater than `b`, and 0 if `a` is equal to `b`.
     template <class CHAR_TYPE>
     static
     int compare(const StringRefImp<CHAR_TYPE>&  a,
                 const CHAR_TYPE                *b);
-        // Compare the specified string object 'a' with the specified
-        // null-terminated C-string 'b' using a lexicographical comparison and
-        // return a negative value if 'a' is less than 'b', a positive value if
-        // 'a' is greater than 'b', and 0 if 'a' is equal to 'b'.
 
+    /// Return `true` if the specified `a` is equal to `b` and `false`
+    /// otherwise.  Note that this function is more efficient than `compare`
+    /// for non-lexicographical equality comparisons.
     template <class CHAR_TYPE>
     static
     bool compareEqual(const StringRefImp<CHAR_TYPE>& a,
                       const StringRefImp<CHAR_TYPE>& b);
-        // Return 'true' if the specified 'a' is equal to 'b' and 'false'
-        // otherwise.  Note that this function is more efficient than 'compare'
-        // for non-lexicographical equality comparisons.
 
+    /// Return `true` if the specified `a` is equal to the specified
+    /// null-terminated C-string `b` and `false` otherwise.  Note that this
+    /// function is more efficient than `compare` for non-lexicographical
+    /// equality comparisons.
     template <class CHAR_TYPE>
     static
     bool compareEqual(const StringRefImp<CHAR_TYPE>&  a,
                       const CHAR_TYPE                *b);
-        // Return 'true' if the specified 'a' is equal to the specified
-        // null-terminated C-string 'b' and 'false' otherwise.  Note that this
-        // function is more efficient than 'compare' for non-lexicographical
-        // equality comparisons.
 };
 
+/// Return a `bsl::string` having the value of the concatenation of the
+/// strings referred to by the specified `lhs` and `rhs` values.
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
 operator+(const StringRefImp<CHAR_TYPE>& lhs,
@@ -629,13 +636,12 @@ template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
 operator+(const StringRefImp<CHAR_TYPE>&  lhs,
           const CHAR_TYPE                *rhs);
-    // Return a 'bsl::string' having the value of the concatenation of the
-    // strings referred to by the specified 'lhs' and 'rhs' values.
 
 // FREE FUNCTIONS
+
+/// Pass the specified `input` to the specified `hashAlg`
 template <class CHAR_TYPE, class HASHALG>
 void hashAppend(HASHALG& hashAlg, const StringRefImp<CHAR_TYPE>&  input);
-    // Pass the specified 'input' to the specified 'hashAlg'
 
 // ============================================================================
 //                                  TYPEDEFS
@@ -1121,20 +1127,20 @@ operator+(const StringRefImp<wchar_t>& lhs, const StringRefImp<wchar_t>& rhs);
 #ifdef bslstl_StringRefImp
 #undef bslstl_StringRefImp
 #endif
+/// This alias is defined for backward compatibility.
 #define bslstl_StringRefImp bslstl::StringRefImp
-    // This alias is defined for backward compatibility.
 
 #ifdef bslstl_StringRefWide
 #undef bslstl_StringRefWide
 #endif
+/// This alias is defined for backward compatibility.
 #define bslstl_StringRefWide bslstl::StringRefWide
-    // This alias is defined for backward compatibility.
 
 #ifdef bslstl_StringRef
 #undef bslstl_StringRef
 #endif
+/// This alias is defined for backward compatibility.
 #define bslstl_StringRef bslstl::StringRef
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 

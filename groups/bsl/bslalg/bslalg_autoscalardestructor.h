@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a proctor object to manage an
 // otherwise-unmanaged instance of a user-defined type.  If not explicitly
 // released, the instance managed by the proctor object is automatically
-// destroyed by the proctor's destructor, using the 'bslma::DestructionUtil'
+// destroyed by the proctor's destructor, using the `bslma::DestructionUtil`
 // utility.
 //
 ///Usage
@@ -39,11 +39,11 @@ namespace bslalg {
                      // class AutoScalarDestructor
                      // ==========================
 
+/// This `class` provides a specialized proctor object that, upon
+/// destruction and unless the `release` method is called, destroys the
+/// guarded object of the parameterized `OBJECT_TYPE`.
 template <class OBJECT_TYPE>
 class AutoScalarDestructor {
-    // This 'class' provides a specialized proctor object that, upon
-    // destruction and unless the 'release' method is called, destroys the
-    // guarded object of the parameterized 'OBJECT_TYPE'.
 
     // DATA
     OBJECT_TYPE *d_object_p;  // address of guarded object
@@ -55,26 +55,28 @@ class AutoScalarDestructor {
 
   public:
     // CREATORS
-    AutoScalarDestructor(OBJECT_TYPE *object);
-        // Create a guard object, proctoring the specified 'object' of the
-        // parameterized 'OBJECT_TYPE' (if non-zero), that will invoke the
-        // destructor of 'object' upon destruction.
 
+    /// Create a guard object, proctoring the specified `object` of the
+    /// parameterized `OBJECT_TYPE` (if non-zero), that will invoke the
+    /// destructor of `object` upon destruction.
+    AutoScalarDestructor(OBJECT_TYPE *object);
+
+    /// Call the destructor on the object of the parameterized `OBJECT_TYPE`
+    /// that is proctored by this guard object, if any, and destroy this
+    /// object.
     ~AutoScalarDestructor();
-        // Call the destructor on the object of the parameterized 'OBJECT_TYPE'
-        // that is proctored by this guard object, if any, and destroy this
-        // object.
 
     // MANIPULATORS
-    void release();
-        // Set the address of the object proctored by this guard object to 0,
-        // thereby releasing from management the object currently managed by
-        // this proctor, if any.
 
+    /// Set the address of the object proctored by this guard object to 0,
+    /// thereby releasing from management the object currently managed by
+    /// this proctor, if any.
+    void release();
+
+    /// Set this guard object to manage the specified `object`, thereby
+    /// releasing from management any object currently managed by this
+    /// proctor, if any.
     void reset(OBJECT_TYPE *object);
-        // Set this guard object to manage the specified 'object', thereby
-        // releasing from management any object currently managed by this
-        // proctor, if any.
 };
 
 // ============================================================================
@@ -127,8 +129,8 @@ void AutoScalarDestructor<OBJECT_TYPE>::reset(OBJECT_TYPE *object)
 #ifdef bslalg_AutoScalarDestructor
 #undef bslalg_AutoScalarDestructor
 #endif
+/// This alias is defined for backward compatibility.
 #define bslalg_AutoScalarDestructor bslalg::AutoScalarDestructor
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

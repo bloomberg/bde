@@ -12,21 +12,21 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@DESCRIPTION: This component provides a union type, 'UnionTestType', that
+//@DESCRIPTION: This component provides a union type, `UnionTestType`, that
 // supports the set of operations for a single unconstrained (value-semantic)
-// attribute type.  'UnionTestType' can be used during testing as the
-// parameterized type of a class templates to ensure 'union' types will
+// attribute type.  `UnionTestType` can be used during testing as the
+// parameterized type of a class templates to ensure `union` types will
 // function correctly.  Note that this is particular valuable when testing a
 // container template that supports different types of contained elements.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': value of this type
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: value of this type
 //
 ///Usage
 ///-----
@@ -34,9 +34,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Constructing And Using The Union
 ///- - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wanted to show how objects of 'UnionTestType' can be created and
+// Suppose we wanted to show how objects of `UnionTestType` can be created and
 // used.
-//..
+// ```
 // UnionTestType X;
 //
 // X.setData(-1);
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //
 // UnionTestType Z(X);
 // assert(Z == X);
-//..
+// ```
 
 #include <bslscm_version.h>
 
@@ -60,9 +60,9 @@ namespace bsltf {
                         // union UnionTestType
                         // ===================
 
+/// This union provides a union test type to facilitate testing of
+/// templates.
 union UnionTestType {
-    // This union provides a union test type to facilitate testing of
-    // templates.
 
     // DATA
   private:
@@ -73,35 +73,39 @@ union UnionTestType {
 
   public:
     // CREATORS
+
+    /// Construct a `UnionTestType` union having all members set to 0.
     UnionTestType();
-        // Construct a 'UnionTestType' union having all members set to 0.
 
+    /// Construct a `UnionTestType` having the `d_data` member set to the
+    /// specified `value`.
     explicit UnionTestType(int value);
-        // Construct a 'UnionTestType' having the 'd_data' member set to the
-        // specified 'value'.
 
+    /// Destroy this object.
     ~UnionTestType();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // FREE OPERATORS
-bool operator==(const UnionTestType& lhs, const UnionTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' unions have the same
-    // value, and 'false' otherwise.  Two 'UnionTestType' objects have the same
-    // if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` unions have the same
+/// value, and `false` otherwise.  Two `UnionTestType` objects have the same
+/// if their `data` attributes are the same.
+bool operator==(const UnionTestType& lhs, const UnionTestType& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `UnionTestType` objects do not
+/// have the same value if their `data` attributes are not the same.
 bool operator!=(const UnionTestType& lhs, const UnionTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'UnionTestType' objects do not
-    // have the same value if their 'data' attributes are not the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

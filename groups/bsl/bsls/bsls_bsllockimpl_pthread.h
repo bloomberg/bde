@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a mutex for use below 'bslmt'.
+//@PURPOSE: Provide a mutex for use below `bslmt`.
 //
 //@CLASSES:
 //  bsls::BslLockImpl_pthread: pthread mutex
@@ -14,14 +14,14 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a mutually exclusive lock primitive
 // ("mutex") by wrapping a suitable platform-specific mechanism.  The
-// 'bsls::BslLockImpl_pthread' class provides 'lock' and 'unlock' operations.
-// Note that 'bsls::BslLockImpl_pthread' is not intended for direct client use;
-// see 'bslmt_mutex' instead.  Also note that 'bsls::BslLockImpl_pthread' is
+// `bsls::BslLockImpl_pthread` class provides `lock` and `unlock` operations.
+// Note that `bsls::BslLockImpl_pthread` is not intended for direct client use;
+// see `bslmt_mutex` instead.  Also note that `bsls::BslLockImpl_pthread` is
 // not recursive.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bsls' and is *not* intended
+// This component is an implementation detail of `bsls` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -51,12 +51,12 @@ namespace bsls {
                               // class BslLockImpl_pthread
                               // =========================
 
+/// This `class` implements a light-weight wrapper of an OS-level mutex to
+/// support intra-process synchronization.  The mutex implemented by this
+/// class is *non*-recursive.  Note that `BslLockImpl_pthread` is *not*
+/// intended for direct use by client code; it is meant for internal use
+/// only.
 class BslLockImpl_pthread {
-    // This 'class' implements a light-weight wrapper of an OS-level mutex to
-    // support intra-process synchronization.  The mutex implemented by this
-    // class is *non*-recursive.  Note that 'BslLockImpl_pthread' is *not*
-    // intended for direct use by client code; it is meant for internal use
-    // only.
 
     // DATA
     pthread_mutex_t  d_lock;  // 'pthreads' mutex object
@@ -68,27 +68,29 @@ class BslLockImpl_pthread {
 
   public:
     // CREATORS
-    BslLockImpl_pthread();
-        // Create a lock object initialized to the unlocked state.
 
+    /// Create a lock object initialized to the unlocked state.
+    BslLockImpl_pthread();
+
+    /// Destroy this lock object.  The behavior is undefined unless this
+    /// object is in the unlocked state.
     ~BslLockImpl_pthread();
-        // Destroy this lock object.  The behavior is undefined unless this
-        // object is in the unlocked state.
 
     // MANIPULATORS
-    void lock();
-        // Acquire the lock on this object.  If the lock on this object is
-        // currently held by another thread, then suspend execution of the
-        // calling thread until the lock can be acquired.  The behavior is
-        // undefined unless the calling thread does not already hold the lock
-        // on this object.  Note that deadlock may result if this method is
-        // invoked while the calling thread holds the lock on the object.
 
+    /// Acquire the lock on this object.  If the lock on this object is
+    /// currently held by another thread, then suspend execution of the
+    /// calling thread until the lock can be acquired.  The behavior is
+    /// undefined unless the calling thread does not already hold the lock
+    /// on this object.  Note that deadlock may result if this method is
+    /// invoked while the calling thread holds the lock on the object.
+    void lock();
+
+    /// Release the lock on this object that was previously acquired through
+    /// a call to `lock`, enabling another thread to acquire the lock.  The
+    /// behavior is undefined unless the calling thread holds the lock on
+    /// this object.
     void unlock();
-        // Release the lock on this object that was previously acquired through
-        // a call to 'lock', enabling another thread to acquire the lock.  The
-        // behavior is undefined unless the calling thread holds the lock on
-        // this object.
 };
 
 // ============================================================================

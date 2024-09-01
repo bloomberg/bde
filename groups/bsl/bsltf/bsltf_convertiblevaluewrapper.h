@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@DESCRIPTION: This component provides a 'struct' that holds an object of a
+//@DESCRIPTION: This component provides a `struct` that holds an object of a
 // template parameter type, and provides implicit conversions to, and from,
-// that type.  A 'bsltf::ConvertibleValueWrapper' facilitates testing of
+// that type.  A `bsltf::ConvertibleValueWrapper` facilitates testing of
 // function templates whose contract requires a type that is "convertible to
 // the specified type".  It also ensures that this uses up the one user-defined
 // conversion in permitted in the conversion sequence, rather than accidentally
@@ -37,13 +37,13 @@ namespace bsltf {
                        // class ConvertibleValueWrapper
                        // =============================
 
+/// This class provides a wrapper around an object of the specified
+/// (template parameter) `TYPE`.  `TYPE` shall be CopyConstructible.  If
+/// `TYPE` is a value-semantic type, then this class will also be value
+/// semantic.  Objects of this type are implicitly convertible to and from
+/// objects of the specified `TYPE`.
 template <class TYPE>
 struct ConvertibleValueWrapper {
-    // This class provides a wrapper around an object of the specified
-    // (template parameter) 'TYPE'.  'TYPE' shall be CopyConstructible.  If
-    // 'TYPE' is a value-semantic type, then this class will also be value
-    // semantic.  Objects of this type are implicitly convertible to and from
-    // objects of the specified 'TYPE'.
 
   private:
     // DATA
@@ -51,16 +51,19 @@ struct ConvertibleValueWrapper {
 
   public:
     // CREATORS
+
+    /// Create an object wrapping the specified `value`.
     ConvertibleValueWrapper(const TYPE& value);                     // IMPLICIT
-        // Create an object wrapping the specified 'value'.
 
     // MANIPULATORS
+
+    /// Return a reference to the (modifiable) wrapped value.
     operator       TYPE&();
-        // Return a reference to the (modifiable) wrapped value.
 
     // ACCESSORS
+
+    /// Return a reference to the (non-modifiable) wrapped value.
     operator const TYPE&() const;
-        // Return a reference to the (non-modifiable) wrapped value.
 };
 
 

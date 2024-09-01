@@ -10,25 +10,25 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
-// BSLS_MACROREPEAT(N, MACRO): Invoke 'MACRO(1) MACRO(2) ... MACRO(N)'
-// BSLS_MACROREPEAT_COMMA(N, MACRO): 'N' comma-separated invocations of 'MACRO'
-// BSLS_MACROREPEAT_SEP(N, MACRO, S): 'N' invocations of 'MACRO' separated by S
+// BSLS_MACROREPEAT(N, MACRO): Invoke `MACRO(1) MACRO(2) ... MACRO(N)`
+// BSLS_MACROREPEAT_COMMA(N, MACRO): `N` comma-separated invocations of `MACRO`
+// BSLS_MACROREPEAT_SEP(N, MACRO, S): `N` invocations of `MACRO` separated by S
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a set of macros that expand to multiple
 // repetitions of a user-specified "repetition phrase".  The repetition phrase
 // is specified as macro that is invoked multiple times in each invocation of a
-// 'BSLS_MACROREPEAT*' macro.  For example:
-//..
-//  #define FOO(n) foo ## n
-//  doit(BSLS_MACROREPEAT_COMMA(5, FOO));
-//..
+// `BSLS_MACROREPEAT*` macro.  For example:
+// ```
+// #define FOO(n) foo ## n
+// doit(BSLS_MACROREPEAT_COMMA(5, FOO));
+// ```
 // will expand FOO(n) with arguments 1 through 5, inserting commas between the
 // expansions, resulting in:
-//..
-//  doit(foo1, foo2, foo3, foo4, foo5);
-//..
+// ```
+// doit(foo1, foo2, foo3, foo4, foo5);
+// ```
 // Use of these macros is less error-prone and often more compact than manually
 // repeating the specified pattern.  In addition, it is sometimes more readable
 // than the cut-and-paste alternative because the reader does not need to
@@ -47,110 +47,110 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Repeated Template Instantiation
 /// - - - - - - - - - - - - - - - - - - - - -
 // In this example, we wish to explicitly instantiate a template with a
-// sequence of integer values.  First, assume a function template 'foo<V>' that
-// adds the (compile-time) value 'V' to a global 'total' each time it is
+// sequence of integer values.  First, assume a function template `foo<V>` that
+// adds the (compile-time) value `V` to a global `total` each time it is
 // called:
-//..
-//  int total = 0;
-//  template <int V> void foo() { total += V; }
-//..
-// Now, if we instantiate and call 'foo<X>()' once for each 'X' in the range
-// '2' to '6'.  To do that, we create a macro, 'FOO_STMNT(X)' which and calls
-// 'foo<X+1>' (i.e., 'FOO_STMNT(1)' will call 'foo<2>()').  Then we invoke
-// 'FOO_STMNT' 5 times with arguments 1, 2, 3, 4, and 5 using the
-// 'BSLS_MACROREPEAT' macro:
-//..
-//  int main() {
+// ```
+// int total = 0;
+// template <int V> void foo() { total += V; }
+// ```
+// Now, if we instantiate and call `foo<X>()` once for each `X` in the range
+// `2` to `6`.  To do that, we create a macro, `FOO_STMNT(X)` which and calls
+// `foo<X+1>` (i.e., `FOO_STMNT(1)` will call `foo<2>()`).  Then we invoke
+// `FOO_STMNT` 5 times with arguments 1, 2, 3, 4, and 5 using the
+// `BSLS_MACROREPEAT` macro:
+// ```
+// int main() {
 //
-//      #define FOO_STMNT(X) foo<X+1>();  // Semicolon at end of each statement
-//      BSLS_MACROREPEAT(5, FOO_STMNT)
-//      assert(20 == total);
-//      return 0;
+//     #define FOO_STMNT(X) foo<X+1>();  // Semicolon at end of each statement
+//     BSLS_MACROREPEAT(5, FOO_STMNT)
+//     assert(20 == total);
+//     return 0;
 // }
-//..
+// ```
 //
 ///Example 2: Repeated Function Arguments
 /// - - - - - - - - - - - - - - - - - - -
 // In this example, we supply as series of identical arguments to a function
-// invocation, using 'BSLS_MACROREPEAT_COMMA'.  First, assume a function,
-// 'fmtQuartet' that takes four integer arguments and formats them into a
+// invocation, using `BSLS_MACROREPEAT_COMMA`.  First, assume a function,
+// `fmtQuartet` that takes four integer arguments and formats them into a
 // string:
-//..
-//  #include <cstring>
-//  #include <cstdio>
+// ```
+// #include <cstring>
+// #include <cstdio>
 //
-//  void fmtQuartet(char *result, int a, int b, int c, int d) {
-//      std::sprintf(result, "%d %d %d %d", a, b, c, d);
-//  }
-//..
+// void fmtQuartet(char *result, int a, int b, int c, int d) {
+//     std::sprintf(result, "%d %d %d %d", a, b, c, d);
+// }
+// ```
 // Now we wish to invoke this function, but in a context where the last three
 // arguments are always the same as each other.  For this situation we define a
-// macro 'X(x)' that ignores its argument and simply expands to an unchanging
-// set of tokens.  If the repeated argument is named 'i', then the expansion of
-// 'X(x)' is simply '(i)':
-//..
-//  int main() {
-//      char buffer[20];
-//      int i = 8;
-//      #define X(x) (i)
-//..
-// Finally, we invoke macro 'X(x)' three times within the argument list of
-// 'fmtQuart'.  We use 'BSLS_MACROREPEAT_COMMA' for these invocations, as it
+// macro `X(x)` that ignores its argument and simply expands to an unchanging
+// set of tokens.  If the repeated argument is named `i`, then the expansion of
+// `X(x)` is simply `(i)`:
+// ```
+// int main() {
+//     char buffer[20];
+//     int i = 8;
+//     #define X(x) (i)
+// ```
+// Finally, we invoke macro `X(x)` three times within the argument list of
+// `fmtQuart`.  We use `BSLS_MACROREPEAT_COMMA` for these invocations, as it
 // inserts a comma between each repetition:
-//..
-//      fmtQuartet(buffer, "%d %d %d %d", 7, BSLS_MACROREPEAT_COMMA(3, X));
-//      assert(0 == std::strcmp(buffer, "7 8 8 8"));
-//      return 0;
-//  }
-//..
+// ```
+//     fmtQuartet(buffer, "%d %d %d %d", 7, BSLS_MACROREPEAT_COMMA(3, X));
+//     assert(0 == std::strcmp(buffer, "7 8 8 8"));
+//     return 0;
+// }
+// ```
 //
 ///Example 3: Bitmask Computation
 /// - - - - - - - - - - - - - - -
 // In this example, we Compute (at compile time) a 7-bit mask.  First, we
-// defined a macro 'BITVAL' that computes the value of a single bit 'B' in the
+// defined a macro `BITVAL` that computes the value of a single bit `B` in the
 // mask:
-//..
-//  #define BITVAL(B) (1 << (B - 1))
-//..
-// Then we use the 'BSLS_MACROREPEAT_SEP' to invoke 'BITVAL' 7 times,
+// ```
+// #define BITVAL(B) (1 << (B - 1))
+// ```
+// Then we use the `BSLS_MACROREPEAT_SEP` to invoke `BITVAL` 7 times,
 // separating the repetitions with the bitwise OR operator:
-//..
-//  const unsigned mask = BSLS_MACROREPEAT_SEP(7, BITVAL, |);
+// ```
+// const unsigned mask = BSLS_MACROREPEAT_SEP(7, BITVAL, |);
 //
-//  int main() {
-//      assert(127 == mask);
-//      return 0;
-//  }
-//..
+// int main() {
+//     assert(127 == mask);
+//     return 0;
+// }
+// ```
 
+/// Expand to `N` invocations of `MACRO(x)`, where `x` in each invocation is
+/// the next number in the sequence from `1` to `N`.  If `N` is `0`, then
+/// the expansion is empty.  For example `BSLS_MACROREPEAT(3, XYZ)` expands
+/// to `XYZ(1) XYZ(2) XYZ(3)`.  The behavior is undefined unless `N` is a
+/// decimal integer (or is a macro that expands to a decimal integer) in the
+/// range 0 to 20.  Note that `MACRO` is typically a macro with one
+/// argument, but may also be a function or functor.
 #define BSLS_MACROREPEAT(N, MACRO) BSLS_MACROREPEAT_##N(MACRO)
-    // Expand to 'N' invocations of 'MACRO(x)', where 'x' in each invocation is
-    // the next number in the sequence from '1' to 'N'.  If 'N' is '0', then
-    // the expansion is empty.  For example 'BSLS_MACROREPEAT(3, XYZ)' expands
-    // to 'XYZ(1) XYZ(2) XYZ(3)'.  The behavior is undefined unless 'N' is a
-    // decimal integer (or is a macro that expands to a decimal integer) in the
-    // range 0 to 20.  Note that 'MACRO' is typically a macro with one
-    // argument, but may also be a function or functor.
 
+/// Expand to `N` comma-separated invocations of `MACRO(x)`, where `x` in
+/// each invocation is the next number in the sequence from `1` to `N`.  If
+/// `N` is `0`, then the expansion is empty.  For example
+/// `BSLS_MACROREPEAT_COMMA(3, XYZ)` expands to `XYZ(1), XYZ(2), XYZ(3)`.
+/// The behavior is undefined unless `N` is a decimal integer (or is a macro
+/// that expands to a decimal integer) in the range 0 to 20.  Note that
+/// `MACRO` is typically a macro with one argument, but may also be a
+/// function or functor.
 #define BSLS_MACROREPEAT_COMMA(N, MACRO) BSLS_MACROREPEAT_C##N(MACRO)
-    // Expand to 'N' comma-separated invocations of 'MACRO(x)', where 'x' in
-    // each invocation is the next number in the sequence from '1' to 'N'.  If
-    // 'N' is '0', then the expansion is empty.  For example
-    // 'BSLS_MACROREPEAT_COMMA(3, XYZ)' expands to 'XYZ(1), XYZ(2), XYZ(3)'.
-    // The behavior is undefined unless 'N' is a decimal integer (or is a macro
-    // that expands to a decimal integer) in the range 0 to 20.  Note that
-    // 'MACRO' is typically a macro with one argument, but may also be a
-    // function or functor.
 
+/// Expand to `N` invocations of `MACRO(x)` separated by the token sequence
+/// `S`, where `x` in each invocation is the next number in the sequence
+/// from `1` to `N`.  If `N` is `0`, then the expansion is empty.  For
+/// example `BSLS_MACROREPEAT_SEP(3, XYZ, ;)` expands to 'XYZ(1) ; XYZ(2) ;
+/// XYZ(3)`.  The behavior is undefined unless `N' is a decimal integer (or
+/// is a macro that expands to a decimal integer) in the range 0 to 20.
+/// Note that `MACRO` is typically a macro with one argument, but may also
+/// be a function or functor.
 #define BSLS_MACROREPEAT_SEP(N, MACRO, S) BSLS_MACROREPEAT_S##N(MACRO, S)
-    // Expand to 'N' invocations of 'MACRO(x)' separated by the token sequence
-    // 'S', where 'x' in each invocation is the next number in the sequence
-    // from '1' to 'N'.  If 'N' is '0', then the expansion is empty.  For
-    // example 'BSLS_MACROREPEAT_SEP(3, XYZ, ;)' expands to 'XYZ(1) ; XYZ(2) ;
-    // XYZ(3)'.  The behavior is undefined unless 'N' is a decimal integer (or
-    // is a macro that expands to a decimal integer) in the range 0 to 20.
-    // Note that 'MACRO' is typically a macro with one argument, but may also
-    // be a function or functor.
 
 // ============================================================================
 //                           IMPLEMENTATION MACROS

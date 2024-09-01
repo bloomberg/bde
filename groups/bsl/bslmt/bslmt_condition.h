@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_mutex
 //
-//@DESCRIPTION: The 'bslmt::Condition' class provided by this component
+//@DESCRIPTION: The `bslmt::Condition` class provided by this component
 // implements the concept of a *condition* *variable*, enabling multiple
 // threads to communicate information about the state of shared data.  A
 // condition variable is a signaling mechanism associated with a mutex, which
@@ -22,55 +22,55 @@ BSLS_IDENT("$Id: $")
 //
 // One or more threads can wait efficiently on a condition variable, either
 // indefinitely or until some *absolute* time, by invoking one of the following
-// methods of 'bslmt::Condition':
-//..
-//  int wait(bslmt::Mutex *mutex);
-//  int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval& absTime);
-//..
+// methods of `bslmt::Condition`:
+// ```
+// int wait(bslmt::Mutex *mutex);
+// int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval& absTime);
+// ```
 // The caller must lock the mutex before invoking these functions.  The
-// 'bslmt::Condition' atomically releases the lock and waits, thereby
+// `bslmt::Condition` atomically releases the lock and waits, thereby
 // preventing other threads from changing the predicate after the lock is
-// released, but before the thread begins to wait.  The 'bslmt' package
+// released, but before the thread begins to wait.  The `bslmt` package
 // guarantees that this lock will be reacquired before returning from a call to
-// the 'wait' and 'timedWait' methods, unless an error occurs.
+// the `wait` and `timedWait` methods, unless an error occurs.
 //
-// When invoking the 'timedWait' method, clients must specify, via the
-// parameter 'absTime', a timeout after which the call will return even if the
-// condition is not signaled.  'absTime' is expressed as a 'bsls::TimeInterval'
+// When invoking the `timedWait` method, clients must specify, via the
+// parameter `absTime`, a timeout after which the call will return even if the
+// condition is not signaled.  `absTime` is expressed as a `bsls::TimeInterval`
 // object that holds an *absolute* time according to the clock type the
-// 'bslmt::Condition' object is constructed with (the default clock is
-// 'bsls::SystemClockType::e_REALTIME').  Clients should use the
-// 'bsls::SystemTime::now(clockType)' utility method to obtain the current
+// `bslmt::Condition` object is constructed with (the default clock is
+// `bsls::SystemClockType::e_REALTIME`).  Clients should use the
+// `bsls::SystemTime::now(clockType)` utility method to obtain the current
 // time.
 //
 // Other threads can indicate that the predicate is true by signaling or
-// broadcasting the same 'bslmt::Condition' object.  A broadcast wakes up all
+// broadcasting the same `bslmt::Condition` object.  A broadcast wakes up all
 // waiting threads, whereas a signal wakes only one thread.  The client has no
 // control over which thread will be signaled if multiple threads are waiting:
-//..
-//  void signal();
-//  void broadcast();
-//..
+// ```
+// void signal();
+// void broadcast();
+// ```
 // A thread waiting on a condition variable may be signaled (i.e., the thread
 // may wake up without an error), but find that the predicate is still false.
 // This situation can arise for a few reasons: spurious wakeups produced by the
 // operating system, intercepted wakeups, and loose predicates.  Therefore, a
 // waiting thread should always check the predicate *after* (as well as before)
-// the call to the 'wait' function.
+// the call to the `wait` function.
 //
 ///Supported Clock-Types
 ///---------------------
-// 'bsls::SystemClockType' supplies the enumeration indicating the system clock
+// `bsls::SystemClockType` supplies the enumeration indicating the system clock
 // on which timeouts supplied to other methods should be based.  If the clock
-// type indicated at construction is 'bsls::SystemClockType::e_REALTIME', the
-// 'absTime' argument passed to the 'timedWait' method should be expressed as
+// type indicated at construction is `bsls::SystemClockType::e_REALTIME`, the
+// `absTime` argument passed to the `timedWait` method should be expressed as
 // an *absolute* offset since 00:00:00 UTC, January 1, 1970 (which matches the
-// epoch used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.
+// epoch used in `bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)`.
 // If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the 'absTime' argument passed to the
-// 'timedWait' method should be expressed as an *absolute* offset since the
+// `bsls::SystemClockType::e_MONOTONIC`, the `absTime` argument passed to the
+// `timedWait` method should be expressed as an *absolute* offset since the
 // epoch of this clock (which matches the epoch used in
-// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// `bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)`.
 //
 ///Usage
 ///-----
@@ -78,70 +78,70 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// Suppose we have a 'bslmt::Condition' object, 'condition', and a boolean
-// predicate associated with 'condition' (represented here as a free function
-// that returns a 'bool' value):
-//..
-//  bool predicate()
-//      // Return 'true' if the invariant holds for 'condition', and 'false'
-//      // otherwise.
-//  {
-//      return true;
-//  }
-//..
+// Suppose we have a `bslmt::Condition` object, `condition`, and a boolean
+// predicate associated with `condition` (represented here as a free function
+// that returns a `bool` value):
+// ```
+// bool predicate()
+//     // Return 'true' if the invariant holds for 'condition', and 'false'
+//     // otherwise.
+// {
+//     return true;
+// }
+// ```
 // The following usage pattern should always be followed:
-//..
-//    // ...
+// ```
+//   // ...
 //
-//    bslmt::Condition condition;
-//    bslmt::Mutex     mutex;
+//   bslmt::Condition condition;
+//   bslmt::Mutex     mutex;
 //
-//    mutex.lock();
-//    while (false == predicate()) {
-//        condition.wait(&mutex);
-//    }
+//   mutex.lock();
+//   while (false == predicate()) {
+//       condition.wait(&mutex);
+//   }
 //
-//    // Modify shared resources and adjust the predicate here.
+//   // Modify shared resources and adjust the predicate here.
 //
-//    mutex.unlock();
+//   mutex.unlock();
 //
-//    // ...
-//..
+//   // ...
+// ```
 // The usage pattern for a timed wait is similar, but has extra branches to
 // handle a timeout:
-//..
-//    // ...
+// ```
+//   // ...
 //
-//    enum { e_TIMED_OUT = -1 };
-//    bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
+//   enum { e_TIMED_OUT = -1 };
+//   bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
 //
-//    // Advance 'absTime' to some delta into the future here.
+//   // Advance 'absTime' to some delta into the future here.
 //
-//    mutex.lock();
-//    while (false == predicate()) {
-//        const int status = condition.timedWait(&mutex, absTime);
-//        if (e_TIMED_OUT == status) {
-//            break;
-//        }
-//    }
+//   mutex.lock();
+//   while (false == predicate()) {
+//       const int status = condition.timedWait(&mutex, absTime);
+//       if (e_TIMED_OUT == status) {
+//           break;
+//       }
+//   }
 //
-//    if (false == predicate()) {
-//        // The wait timed out and 'predicate' returned 'false'.  Perform
-//        // timeout logic here.
+//   if (false == predicate()) {
+//       // The wait timed out and 'predicate' returned 'false'.  Perform
+//       // timeout logic here.
 //
-//        // ...
-//    }
-//    else {
-//        // The condition variable was either signaled or timed out and
-//        // 'predicate' returned 'true'.  Modify shared resources and adjust
-//        // predicate here.
+//       // ...
+//   }
+//   else {
+//       // The condition variable was either signaled or timed out and
+//       // 'predicate' returned 'true'.  Modify shared resources and adjust
+//       // predicate here.
 //
-//        // ...
-//    }
-//    mutex.unlock();
+//       // ...
+//   }
+//   mutex.unlock();
 //
-//    // ...
-//..
+//   // ...
+// ```
 
 #include <bslscm_version.h>
 
@@ -172,8 +172,8 @@ class Mutex;
                              // class Condition
                              // ===============
 
+/// This `class` implements a portable inter-thread signaling primitive.
 class Condition {
-    // This 'class' implements a portable inter-thread signaling primitive.
 
     // DATA
     ConditionImpl<Platform::ThreadPolicy> d_imp;  // platform-specific
@@ -185,120 +185,124 @@ class Condition {
 
   public:
     // TYPES
+
+    /// The value `timedWait` returns when a timeout occurs.
     enum { e_TIMED_OUT = ConditionImpl<Platform::ThreadPolicy>::e_TIMED_OUT };
-        // The value 'timedWait' returns when a timeout occurs.
 
     // CREATORS
+
+    /// Create a condition variable object.  Optionally specify a
+    /// `clockType` indicating the type of the system clock against which
+    /// the `bsls::TimeInterval` `absTime` timeouts passed to the
+    /// `timedWait` method are to be interpreted (see {Supported
+    /// Clock-Types} in the component-level documentation).  If `clockType`
+    /// is not specified then the realtime system clock is used.  This
+    /// method does not return normally unless there are sufficient system
+    /// resources to construct the object.
     explicit
     Condition(bsls::SystemClockType::Enum clockType =
                                             bsls::SystemClockType::e_REALTIME);
-        // Create a condition variable object.  Optionally specify a
-        // 'clockType' indicating the type of the system clock against which
-        // the 'bsls::TimeInterval' 'absTime' timeouts passed to the
-        // 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component-level documentation).  If 'clockType'
-        // is not specified then the realtime system clock is used.  This
-        // method does not return normally unless there are sufficient system
-        // resources to construct the object.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Create a condition variable object.  Use the realtime system clock
+    /// as the clock against which the `absTime` timeouts passed to the
+    /// `timedWait` methods are interpreted (see {Supported Clock-Types} in
+    /// the component-level documentation).  This method does not return
+    /// normally unless there are sufficient system resources to construct
+    /// the object.
     explicit
     Condition(const bsl::chrono::system_clock&);
-        // Create a condition variable object.  Use the realtime system clock
-        // as the clock against which the 'absTime' timeouts passed to the
-        // 'timedWait' methods are interpreted (see {Supported Clock-Types} in
-        // the component-level documentation).  This method does not return
-        // normally unless there are sufficient system resources to construct
-        // the object.
 
+    /// Create a condition variable object.  Use the monotonic system clock
+    /// as the clock against which the `absTime` timeouts passed to the
+    /// `timedWait` methods are interpreted (see {Supported Clock-Types} in
+    /// the component-level documentation).  This method does not return
+    /// normally unless there are sufficient system resources to construct
+    /// the object.
     explicit
     Condition(const bsl::chrono::steady_clock&);
-        // Create a condition variable object.  Use the monotonic system clock
-        // as the clock against which the 'absTime' timeouts passed to the
-        // 'timedWait' methods are interpreted (see {Supported Clock-Types} in
-        // the component-level documentation).  This method does not return
-        // normally unless there are sufficient system resources to construct
-        // the object.
 #endif
 
+    /// Destroy this condition variable object.
     ~Condition();
-        // Destroy this condition variable object.
 
     // MANIPULATORS
+
+    /// Signal this condition variable object by waking up *all* threads
+    /// that are currently waiting on this condition.  If there are no
+    /// threads waiting on this condition, this method has no effect.
     void broadcast();
-        // Signal this condition variable object by waking up *all* threads
-        // that are currently waiting on this condition.  If there are no
-        // threads waiting on this condition, this method has no effect.
 
+    /// Signal this condition variable object by waking up a single thread
+    /// that is currently waiting on this condition.  If there are no
+    /// threads waiting on this condition, this method has no effect.
     void signal();
-        // Signal this condition variable object by waking up a single thread
-        // that is currently waiting on this condition.  If there are no
-        // threads waiting on this condition, this method has no effect.
 
+    /// Atomically unlock the specified `mutex` and suspend execution of the
+    /// current thread until this condition object is "signaled" (i.e., one
+    /// of the `signal` or `broadcast` methods is invoked on this object) or
+    /// until the specified `absTime` timeout expires, then re-acquire a
+    /// lock on the `mutex`.  `absTime` is an *absolute* time represented as
+    /// an interval from some epoch, which is determined by the clock
+    /// indicated at construction (see {Supported Clock-Types} in the
+    /// component-level documentation), and is the earliest time at which
+    /// the timeout may occur.  The `mutex` remains locked by the calling
+    /// thread upon returning from this function.  Return 0 on success, and
+    /// `e_TIMED_OUT` on timeout.  Any other value indicates that an error
+    ///  has occurred.  After an error, the condition may be destroyed, but
+    /// any other use has undefined behavior.  The behavior is undefined
+    /// unless `mutex` is locked by the calling thread prior to calling this
+    /// method.  Note that spurious wakeups are rare but possible, i.e.,
+    /// this method may succeed (return 0) and return control to the thread
+    /// without the condition object being signaled.  Also note that the
+    /// actual time of the timeout depends on many factors including system
+    /// scheduling and system timer resolution, and may be significantly
+    /// later than the time requested.
     int timedWait(Mutex *mutex, const bsls::TimeInterval& absTime);
-        // Atomically unlock the specified 'mutex' and suspend execution of the
-        // current thread until this condition object is "signaled" (i.e., one
-        // of the 'signal' or 'broadcast' methods is invoked on this object) or
-        // until the specified 'absTime' timeout expires, then re-acquire a
-        // lock on the 'mutex'.  'absTime' is an *absolute* time represented as
-        // an interval from some epoch, which is determined by the clock
-        // indicated at construction (see {Supported Clock-Types} in the
-        // component-level documentation), and is the earliest time at which
-        // the timeout may occur.  The 'mutex' remains locked by the calling
-        // thread upon returning from this function.  Return 0 on success, and
-        // 'e_TIMED_OUT' on timeout.  Any other value indicates that an error
-        //  has occurred.  After an error, the condition may be destroyed, but
-        // any other use has undefined behavior.  The behavior is undefined
-        // unless 'mutex' is locked by the calling thread prior to calling this
-        // method.  Note that spurious wakeups are rare but possible, i.e.,
-        // this method may succeed (return 0) and return control to the thread
-        // without the condition object being signaled.  Also note that the
-        // actual time of the timeout depends on many factors including system
-        // scheduling and system timer resolution, and may be significantly
-        // later than the time requested.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Atomically unlock the specified `mutex` and suspend execution of the
+    /// current thread until this condition object is "signaled" (i.e., one
+    /// of the `signal` or `broadcast` methods is invoked on this object) or
+    /// until the specified `absTime` timeout expires, then re-acquire a
+    /// lock on the `mutex`.  `absTime` is an *absolute* time represented as
+    /// an interval from some epoch, which is determined by the clock
+    /// associated with the time point, and is the earliest time at which
+    /// the timeout may occur.  The `mutex` remains locked by the calling
+    /// thread upon returning from this function.  Return 0 on success, and
+    /// `e_TIMED_OUT` on timeout.  Any other value indicates that an error
+    /// has occurred.  After an error, the condition may be destroyed, but
+    /// any other use has undefined behavior.  The behavior is undefined
+    /// unless `mutex` is locked by the calling thread prior to calling this
+    /// method.  Note that spurious wakeups are rare but possible, i.e.,
+    /// this method may succeed (return 0) and return control to the thread
+    /// without the condition object being signaled.  Also note that the
+    /// actual time of the timeout depends on many factors including system
+    /// scheduling and system timer resolution, and may be significantly
+    /// later than the time requested.  Also note that the lock on `mutex`
+    /// may be released and reacquired more than once before this method
+    /// returns.
     template <class CLOCK, class DURATION>
     int timedWait(Mutex                                           *mutex,
                   const bsl::chrono::time_point<CLOCK, DURATION>&  absTime);
-        // Atomically unlock the specified 'mutex' and suspend execution of the
-        // current thread until this condition object is "signaled" (i.e., one
-        // of the 'signal' or 'broadcast' methods is invoked on this object) or
-        // until the specified 'absTime' timeout expires, then re-acquire a
-        // lock on the 'mutex'.  'absTime' is an *absolute* time represented as
-        // an interval from some epoch, which is determined by the clock
-        // associated with the time point, and is the earliest time at which
-        // the timeout may occur.  The 'mutex' remains locked by the calling
-        // thread upon returning from this function.  Return 0 on success, and
-        // 'e_TIMED_OUT' on timeout.  Any other value indicates that an error
-        // has occurred.  After an error, the condition may be destroyed, but
-        // any other use has undefined behavior.  The behavior is undefined
-        // unless 'mutex' is locked by the calling thread prior to calling this
-        // method.  Note that spurious wakeups are rare but possible, i.e.,
-        // this method may succeed (return 0) and return control to the thread
-        // without the condition object being signaled.  Also note that the
-        // actual time of the timeout depends on many factors including system
-        // scheduling and system timer resolution, and may be significantly
-        // later than the time requested.  Also note that the lock on 'mutex'
-        // may be released and reacquired more than once before this method
-        // returns.
 #endif
 
+    /// Atomically unlock the specified `mutex` and suspend execution of the
+    /// current thread until this condition object is "signaled" (i.e.,
+    /// either `signal` or `broadcast` is invoked on this object in another
+    /// thread), then re-acquire a lock on the `mutex`.  Return 0 on
+    /// success, and a non-zero value otherwise.  Spurious wakeups are rare
+    /// but possible; i.e., this method may succeed (return 0), and return
+    /// control to the thread without the condition object being signaled.
+    /// The behavior is undefined unless `mutex` is locked by the calling
+    /// thread prior to calling this method.  Note that `mutex` remains
+    /// locked by the calling thread upon return from this function.
     int wait(Mutex *mutex);
-        // Atomically unlock the specified 'mutex' and suspend execution of the
-        // current thread until this condition object is "signaled" (i.e.,
-        // either 'signal' or 'broadcast' is invoked on this object in another
-        // thread), then re-acquire a lock on the 'mutex'.  Return 0 on
-        // success, and a non-zero value otherwise.  Spurious wakeups are rare
-        // but possible; i.e., this method may succeed (return 0), and return
-        // control to the thread without the condition object being signaled.
-        // The behavior is undefined unless 'mutex' is locked by the calling
-        // thread prior to calling this method.  Note that 'mutex' remains
-        // locked by the calling thread upon return from this function.
 
     // ACCESSORS
+
+    /// Return the clock type used for timeouts.
     bsls::SystemClockType::Enum clockType() const;
-        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace

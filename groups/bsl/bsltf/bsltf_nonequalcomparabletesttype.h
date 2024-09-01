@@ -13,18 +13,18 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'NonEqualComparableTestType', that does
+// (value-semantic) attribute class, `NonEqualComparableTestType`, that does
 // not provide equality-comparison operators.  This is particularly valuable
 // when test containers that should work with non-equal-comparable types.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the class value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the class value
 //
 ///Usage
 ///-----
@@ -32,18 +32,18 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Demonstrating the Type Cannot be Equality Compared
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wanted to show 'NonEqualComparableTestType' can't be equal
+// Suppose we wanted to show `NonEqualComparableTestType` can't be equal
 // compared.
 //
-// First, we create two 'NonEqualComparableTestType' objects, 'X' and 'Y':
-//..
-//  NonEqualComparableTestType X(1);
-//  NonEqualComparableTestType Y(2);
-//..
-// Now, we show that equal comparing 'X' and 'Y' will not compile:
-//..
-//  assert(X != Y); // This will not compile
-//..
+// First, we create two `NonEqualComparableTestType` objects, `X` and `Y`:
+// ```
+// NonEqualComparableTestType X(1);
+// NonEqualComparableTestType Y(2);
+// ```
+// Now, we show that equal comparing `X` and `Y` will not compile:
+// ```
+// assert(X != Y); // This will not compile
+// ```
 
 #include <bslscm_version.h>
 
@@ -54,9 +54,9 @@ namespace bsltf {
                         // class NonEqualComparableTestType
                         // ================================
 
+/// This unconstrained (value-semantic) attribute class does not
+/// provide equality-comparison operators.
 class NonEqualComparableTestType {
-    // This unconstrained (value-semantic) attribute class does not
-    // provide equality-comparison operators.
 
     // DATA
     int d_data;  // integer class value
@@ -64,24 +64,25 @@ class NonEqualComparableTestType {
   public:
 
     // CREATORS
-    NonEqualComparableTestType();
-        // Create a 'NonEqualComparableTestType' object having the (default)
-        // attribute values:
-        //..
-        //  data() == 0
-        //..
 
+    /// Create a `NonEqualComparableTestType` object having the (default)
+    /// attribute values:
+    /// ```
+    /// data() == 0
+    /// ```
+    NonEqualComparableTestType();
+
+    /// Create a `NonEqualComparableTestType` object having the specified
+    /// `data` attribute value.
     explicit NonEqualComparableTestType(int data);
-        // Create a 'NonEqualComparableTestType' object having the specified
-        // 'data' attribute value.
 
     // NonEqualComparableTestType(
     //                   const NonEqualComparableTestType& original) = default;
         // Create a 'NonEqualComparableTestType' object having the same value
         // as the specified 'original' object.
 
+    /// Destroy this object.
     ~NonEqualComparableTestType();
-        // Destroy this object.
 
     // MANIPULATORS
     // NonEqualComparableTestType& operator=(
@@ -89,12 +90,13 @@ class NonEqualComparableTestType {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // ============================================================================

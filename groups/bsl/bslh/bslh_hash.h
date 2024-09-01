@@ -5,82 +5,82 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a struct to run 'bslh' hash algorithms on supported types.
+//@PURPOSE: Provide a struct to run `bslh` hash algorithms on supported types.
 //
 //@CLASSES:
-//  bslh::Hash: functor that runs 'bslh' hash algorithms on supported types
+//  bslh::Hash: functor that runs `bslh` hash algorithms on supported types
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a templated 'struct', 'bslh::Hash',
+//@DESCRIPTION: This component provides a templated `struct`, `bslh::Hash`,
 // that defines a hash-functor that can be used with standard containers (a
-// drop in replacement for 'bsl::hash'), and which applies the supplied
-// (template parameter) 'HASH_ALGORITHM' to the attributes of the (template
-// parameter) 'TYPE' which have been identified as salient to hashing.  The
-// 'bslh::Hash' template parameter 'HASH_ALGORITHM' must be a hashing algorithm
+// drop in replacement for `bsl::hash`), and which applies the supplied
+// (template parameter) `HASH_ALGORITHM` to the attributes of the (template
+// parameter) `TYPE` which have been identified as salient to hashing.  The
+// `bslh::Hash` template parameter `HASH_ALGORITHM` must be a hashing algorithm
 // that conforms to the requirements outlined below (see {Requirements for
-// Regular 'bslh' Hashing Algorithms}).  Note that there are several hashing
-// algorithms defined within the 'bslh' package and some, such as those that
+// Regular `bslh` Hashing Algorithms}).  Note that there are several hashing
+// algorithms defined within the `bslh` package and some, such as those that
 // require seeds, will not meet these requirements, meaning they cannot be used
-// with 'bslh::Hash'.  A call to 'bslh::Hash::operator()' for a (template
-// parameter) 'TYPE' will call the 'hashAppend' free function for 'TYPE' and
-// provide 'hashAppend' an instance of a hash algorithm in the 'bslh' namespace
-// that will use the (template parameter) 'HASH_ALGORITHM' to compute hash
+// with `bslh::Hash`.  A call to `bslh::Hash::operator()` for a (template
+// parameter) `TYPE` will call the `hashAppend` free function for `TYPE` and
+// provide `hashAppend` an instance of a hash algorithm in the `bslh` namespace
+// that will use the (template parameter) `HASH_ALGORITHM` to compute hash
 // values.
 //
-// This component also contains 'hashAppend' definitions for fundamental types,
-// which are required by algorithms defined in 'bslh'.  Clients are expected to
-// define a free-function 'hashAppend' for each of the types they wish to be
-// hashable (see {'hashAppend'} below).  More information can be found in the
-// package level documentation for 'bslh' (internal users can also find
+// This component also contains `hashAppend` definitions for fundamental types,
+// which are required by algorithms defined in `bslh`.  Clients are expected to
+// define a free-function `hashAppend` for each of the types they wish to be
+// hashable (see {`hashAppend`} below).  More information can be found in the
+// package level documentation for `bslh` (internal users can also find
 // information here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Modularity
 ///----------
-// 'bslh::Hash' provides a modular system for hashing.  This modularity refers
+// `bslh::Hash` provides a modular system for hashing.  This modularity refers
 // to the decoupling of the various tasks associated with hashing.  Using this
 // system, type implementers can identify attributes of their type that are
 // salient to hashing, without having to write a hashing algorithm.
 // Conversely, hashing algorithms can be written independent of types.
 // Attributes that are salient to hashing are called out on a type using
-// 'hashAppend'.  Hashing algorithms are written to operate on the attributes
-// called out by 'hashAppend'.  Some default algorithms have been provided in
-// the 'bslh' package.  This modularity allows type creators to avoid writing
+// `hashAppend`.  Hashing algorithms are written to operate on the attributes
+// called out by `hashAppend`.  Some default algorithms have been provided in
+// the `bslh` package.  This modularity allows type creators to avoid writing
 // hashing algorithms, which can save work and avoid bad hashing algorithm
 // implementations.
 //
-///'hashAppend'
+///`hashAppend`
 ///------------
-// 'hashAppend' is the free function that is used to pass attributes that are
+// `hashAppend` is the free function that is used to pass attributes that are
 // salient to hashing into a hashing algorithm.  A custom type defined in
-// another component must define it's own 'hashAppend' free function overload
+// another component must define it's own `hashAppend` free function overload
 // that can be discovered through ADL in order to be hashed using this
-// facility.  A simple implementation of an overload for 'hashAppend' might
-// call 'hashAppend' on each of the type's fields that are salient to hashing.
-// Note that when writing a 'hashAppend' function that itself calls
-// 'hashAppend, 'using bslh::hashAppend;' must be included as the first line of
+// facility.  A simple implementation of an overload for `hashAppend` might
+// call `hashAppend` on each of the type's fields that are salient to hashing.
+// Note that when writing a `hashAppend` function that itself calls
+// `hashAppend, `using bslh::hashAppend;' must be included as the first line of
 // code in the function.  The using statement ensures that ADL will always be
-// able to find the 'hashAppend' functions defined in this component for
+// able to find the `hashAppend` functions defined in this component for
 // handling fundamental types even when the (template parameter) type
-// 'HASH_ALGORITHM' is not implemented in 'bslh'.
+// `HASH_ALGORITHM` is not implemented in `bslh`.
 //
-// A client will thus customize their hashing of any custom 'struct', 'class',
-// or 'union' by providing an appropriate 'hashAppend'.  In some very rare
+// A client will thus customize their hashing of any custom `struct`, `class`,
+// or `union` by providing an appropriate `hashAppend`.  In some very rare
 // cases, a client will want to provide special behavior when hashing
 // fundamental types such as integral types, pointers, or enums, and this can
-// be done by providing an appropriate typed 'operator()' overload of your own
+// be done by providing an appropriate typed `operator()` overload of your own
 // hash function.  Support for doing this is not provided for ther types, or
-// for 'bool'.
+// for `bool`.
 //
-// Some types may require more subtle implementations for 'hashAppend', such as
+// Some types may require more subtle implementations for `hashAppend`, such as
 // types containing C-strings which are salient to hashing.  These C-strings
-// must be passed directly into the (template parameter) type 'HASH_ALGORITHM',
-// rather than calling 'hashAppend' with the pointer as an argument.  This
-// special case exists because calling 'hashAppend' with a pointer will hash
+// must be passed directly into the (template parameter) type `HASH_ALGORITHM`,
+// rather than calling `hashAppend` with the pointer as an argument.  This
+// special case exists because calling `hashAppend` with a pointer will hash
 // the pointer rather than the data that is pointed to.
 //
-// Within this component, 'hashAppend' has been implemented for all of the
-// fundamental types, and for arrays.  When 'hashAppend' is reached on a
+// Within this component, `hashAppend` has been implemented for all of the
+// fundamental types, and for arrays.  When `hashAppend` is reached on a
 // fundamental type, the hashing algorithm is no longer propagated, and instead
 // a pointer to the beginning of the type in memory is passed to the algorithm,
 // along with the length of the type.  There are special cases with floating
@@ -91,26 +91,26 @@ BSLS_IDENT("$Id: $")
 //
 ///Hashing Algorithms
 ///------------------
-// There are algorithms implemented in the 'bslh' package that can be passed in
-// and used as template parameters for 'bslh::Hash' or other 'struct's like it.
-// Some of these algorithms, such as 'bslh::SpookyHashAlgorithm' or
-// 'bslh::WyHashAlgorithm', are named for the algorithm they implement.  These
+// There are algorithms implemented in the `bslh` package that can be passed in
+// and used as template parameters for `bslh::Hash` or other `struct`s like it.
+// Some of these algorithms, such as `bslh::SpookyHashAlgorithm` or
+// `bslh::WyHashAlgorithm`, are named for the algorithm they implement.  These
 // named algorithms are intended for use by those who want a specific
 // algorithm.  There are other algorithms, such as
-// 'bslh::DefaultHashAlgorithm', which wrap an unspecified algorithm and
+// `bslh::DefaultHashAlgorithm`, which wrap an unspecified algorithm and
 // describe the properties of the wrapped algorithm.  The descriptive
 // algorithms are intended for use by those who need specific properties and
 // want to be updated to a new algorithm when one is published with
-// improvements to the desired properties.  'bslh::DefaultHashAlgorithm' has
+// improvements to the desired properties.  `bslh::DefaultHashAlgorithm` has
 // the property of being a good default algorithm, specifically for use in a
 // hash table.
 //
-///Requirements for Regular 'bslh' Hashing Algorithms
+///Requirements for Regular `bslh` Hashing Algorithms
 ///--------------------------------------------------
 // Users of this modular hashing system are free to write their own hashing
-// algorithms.  In order to plug into 'bslh::Hash', the user-implemented
+// algorithms.  In order to plug into `bslh::Hash`, the user-implemented
 // algorithms must implement the interface shown here:
-//..
+// ```
 // class SomeHashAlgorithm
 // {
 //   public:
@@ -125,37 +125,37 @@ BSLS_IDENT("$Id: $")
 //
 //     result_type computeHash();
 // };
-//..
-// The 'result_type' 'typedef' must define the return type of this particular
+// ```
+// The `result_type` `typedef` must define the return type of this particular
 // algorithm.  A default constructor (either implicit or explicit) must be
 // supplied that creates an algorithm functor that is in a usable state.  An
-// 'operator()' must be supplied that takes a 'const void *' to the data to be
-// hashed and a 'size_t' length of bytes to be hashed.  This operator must
+// `operator()` must be supplied that takes a `const void *` to the data to be
+// hashed and a `size_t` length of bytes to be hashed.  This operator must
 // operate on all data uniformly, meaning that regardless of whether data is
 // passed in all at once, or one byte at a time, the result returned by
-// 'computeHash()' will be the same.  'computeHash()' will return the final
-// result of the hashing algorithm, as type 'result_type'.  'computeHash()' is
+// `computeHash()` will be the same.  `computeHash()` will return the final
+// result of the hashing algorithm, as type `result_type`.  `computeHash()` is
 // allowed to modify the internal state of the algorithm, meaning calling
-// 'computeHash()' more than once may not return the correct value.
+// `computeHash()` more than once may not return the correct value.
 //
 ///Subdivision-Invariance
 /// - - - - - - - - - - -
 // The result produced by the hashing algorithm must be independent of how the
-// data is subdivided into segments when supplied to 'operator()'.  More
-// precisely, for any subdivision of the message 'M' of size 'S' into 'N'
-// segments 'M_i' of size 'S_i', the following must be true:
+// data is subdivided into segments when supplied to `operator()`.  More
+// precisely, for any subdivision of the message `M` of size `S` into `N`
+// segments `M_i` of size `S_i`, the following must be true:
 //
-//..
-//  SomeHashAlgorithm algM;
-//  algM(M, S);
+// ```
+// SomeHashAlgorithm algM;
+// algM(M, S);
 //
-//  SomeHashAlgorithm algI;
-//  for (int i = 0; i < N; ++i) {
-//      algI(M_i, S_i);
-//  }
+// SomeHashAlgorithm algI;
+// for (int i = 0; i < N; ++i) {
+//     algI(M_i, S_i);
+// }
 //
-//  assert(algM.computeHash() == algI.computeHash());
-//..
+// assert(algM.computeHash() == algI.computeHash());
+// ```
 //
 ///Usage
 ///-----
@@ -163,279 +163,279 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Keying a Hash Table with a User-Defined Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a value-semantic type, 'Box', that contains attributes that
+// Suppose we have a value-semantic type, `Box`, that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
 // hashing.  Some of these attributes are themselves user defined types.  We
-// want to store objects of type 'Box' in a hash table, so we need to be able
-// to produce hash values that represent instances of 'Box'.  We don't want to
+// want to store objects of type `Box` in a hash table, so we need to be able
+// to produce hash values that represent instances of `Box`.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
 // difficult and labor-intensive to write a proper hashing algorithm.  In order
-// to hash this 'Box', we will use the modular hashing system supplied in
-// 'bslh'.
+// to hash this `Box`, we will use the modular hashing system supplied in
+// `bslh`.
 //
-// First, we define 'Point', a class that allows us to identify a location on a
+// First, we define `Point`, a class that allows us to identify a location on a
 // two dimensional Cartesian plane.
-//..
-//  class Point {
-//      // This class is a value-semantic type that represents a two
-//      // dimensional location on a Cartesian plane.
+// ```
+// class Point {
+//     // This class is a value-semantic type that represents a two
+//     // dimensional location on a Cartesian plane.
 //
-//    private:
-//      int    d_x;
-//      int    d_y;
-//      double d_distToOrigin; // This value will be accessed frequently, so we
-//                             // cache it rather than recalculate it every
-//                             // time.
+//   private:
+//     int    d_x;
+//     int    d_y;
+//     double d_distToOrigin; // This value will be accessed frequently, so we
+//                            // cache it rather than recalculate it every
+//                            // time.
 //
-//    public:
-//      Point (int x, int y);
-//          // Create a 'Point' having the specified 'x' and 'y' coordinates.
+//   public:
+//     Point (int x, int y);
+//         // Create a 'Point' having the specified 'x' and 'y' coordinates.
 //
-//      double distanceToOrigin() const;
-//          // Return the distance from the origin (0, 0) to this point.
+//     double distanceToOrigin() const;
+//         // Return the distance from the origin (0, 0) to this point.
 //
-//      int getX() const;
-//          // Return the x coordinate of this point.
+//     int getX() const;
+//         // Return the x coordinate of this point.
 //
-//      int getY() const;
-//          // Return the y coordinate of this point.
-//  };
+//     int getY() const;
+//         // Return the y coordinate of this point.
+// };
 //
-//  inline
-//  Point::Point(int x, int y)
-//  : d_x(x)
-//  , d_y(y)
-//  {
-//      d_distToOrigin = sqrt(static_cast<double>(d_x * d_x) +
-//                            static_cast<double>(d_y * d_y));
-//  }
+// inline
+// Point::Point(int x, int y)
+// : d_x(x)
+// , d_y(y)
+// {
+//     d_distToOrigin = sqrt(static_cast<double>(d_x * d_x) +
+//                           static_cast<double>(d_y * d_y));
+// }
 //
-//  inline
-//  double Point::distanceToOrigin() const
-//  {
-//      return d_distToOrigin;
-//  }
+// inline
+// double Point::distanceToOrigin() const
+// {
+//     return d_distToOrigin;
+// }
 //
-//  inline
-//  int Point::getX() const
-//  {
-//      return d_x;
-//  }
+// inline
+// int Point::getX() const
+// {
+//     return d_x;
+// }
 //
-//  inline
-//  int Point::getY() const
-//  {
-//      return d_y;
-//  }
-//..
-// Then, we define 'operator=='.  Notice how it checks only attributes that we
+// inline
+// int Point::getY() const
+// {
+//     return d_y;
+// }
+// ```
+// Then, we define `operator==`.  Notice how it checks only attributes that we
 // would want to incorporate into the hashed value.  Note that attributes that
 // are salient to hashing tend to be the same as or a subset of the attributes
-// that are checked in 'operator=='.
-//..
-//  bool operator==(const Point& lhs, const Point& rhs)
-//      // Return true if the specified 'lhs' and 'rhs' have the same value.
-//      // Two 'Point' objects have the same value if they have the same x and
-//      // y coordinates.
-//  {
-//      return (lhs.getX() == rhs.getX()) && (lhs.getY() == rhs.getY());
-//  }
-//..
-// Next, we define 'hashAppend'.  This function will allow any hashing
-// algorithm that meets the 'bslh' hashing algorithm requirements to be applied
-// to 'Point'.  This is the full extent of the work that needs to be done by
+// that are checked in `operator==`.
+// ```
+// bool operator==(const Point& lhs, const Point& rhs)
+//     // Return true if the specified 'lhs' and 'rhs' have the same value.
+//     // Two 'Point' objects have the same value if they have the same x and
+//     // y coordinates.
+// {
+//     return (lhs.getX() == rhs.getX()) && (lhs.getY() == rhs.getY());
+// }
+// ```
+// Next, we define `hashAppend`.  This function will allow any hashing
+// algorithm that meets the `bslh` hashing algorithm requirements to be applied
+// to `Point`.  This is the full extent of the work that needs to be done by
 // type creators.  They do not need to implement any algorithms, they just need
 // to call out the attributes that are salient to hashing by calling
-// 'hashAppend' on them.
-//..
-//  template <class HASH_ALGORITHM>
-//  void hashAppend(HASH_ALGORITHM& hashAlg, const Point& point)
-//      // Apply the specified 'hashAlg' to the specified 'point'
-//  {
-//      using bslh::hashAppend;
-//      hashAppend(hashAlg, point.getX());
-//      hashAppend(hashAlg, point.getY());
-//  }
-//..
-// Then, we declare another value-semantic type, 'Box' that will have a 'Point'
+// `hashAppend` on them.
+// ```
+// template <class HASH_ALGORITHM>
+// void hashAppend(HASH_ALGORITHM& hashAlg, const Point& point)
+//     // Apply the specified 'hashAlg' to the specified 'point'
+// {
+//     using bslh::hashAppend;
+//     hashAppend(hashAlg, point.getX());
+//     hashAppend(hashAlg, point.getY());
+// }
+// ```
+// Then, we declare another value-semantic type, `Box` that will have a `Point`
 // as one of its attributes that are salient to hashing.
-//..
-//  class Box {
-//      // This class is a value-semantic type that represents a box drawn on
-//      // to a Cartesian plane.
+// ```
+// class Box {
+//     // This class is a value-semantic type that represents a box drawn on
+//     // to a Cartesian plane.
 //
-//    private:
-//      Point d_position;
-//      int d_length;
-//      int d_width;
+//   private:
+//     Point d_position;
+//     int d_length;
+//     int d_width;
 //
-//    public:
-//      Box(Point position, int length, int width);
-//          // Create a box having the specified 'length' and 'width', with its
-//          // upper left corner at the specified 'position'
+//   public:
+//     Box(Point position, int length, int width);
+//         // Create a box having the specified 'length' and 'width', with its
+//         // upper left corner at the specified 'position'
 //
-//      int getLength() const;
-//          // Return the length of this box.
+//     int getLength() const;
+//         // Return the length of this box.
 //
-//      Point getPosition() const;
-//          // Return a 'Point' representing the upper left corner of this box
-//          // on a Cartesian plane
+//     Point getPosition() const;
+//         // Return a 'Point' representing the upper left corner of this box
+//         // on a Cartesian plane
 //
-//      int getWidth() const;
-//          // Return the width of this box.
-//  };
+//     int getWidth() const;
+//         // Return the width of this box.
+// };
 //
-//  inline
-//  Box::Box(Point position, int length, int width)
-//  : d_position(position)
-//  , d_length(length)
-//  , d_width(width) { }
+// inline
+// Box::Box(Point position, int length, int width)
+// : d_position(position)
+// , d_length(length)
+// , d_width(width) { }
 //
-//  int Box::getLength() const
-//  {
-//      return d_length;
-//  }
+// int Box::getLength() const
+// {
+//     return d_length;
+// }
 //
-//  Point Box::getPosition() const
-//  {
-//      return d_position;
-//  }
+// Point Box::getPosition() const
+// {
+//     return d_position;
+// }
 //
-//  int Box::getWidth() const
-//  {
-//      return d_width;
-//  }
-//..
-// Then, we define 'operator=='.  This time all of the data members are salient
+// int Box::getWidth() const
+// {
+//     return d_width;
+// }
+// ```
+// Then, we define `operator==`.  This time all of the data members are salient
 // to equality.
-//..
-//  bool operator==(const Box& lhs, const Box& rhs)
-//      // Return true if the specified 'lhs' and 'rhs' have the same value.
-//      // Two 'Box' objects have the same value if they have the same length,
-//      // width, and position.
-//  {
-//      return (lhs.getPosition() == rhs.getPosition()) &&
-//             (lhs.getLength()   == rhs.getLength()) &&
-//             (lhs.getWidth()    == rhs.getWidth());
-//  }
-//..
-// Next, we define 'hashAppend' for 'Box'.  Notice how as well as calling
-// 'hashAppend' on fundamental types, we can also call it with our user defined
-// type 'Point'.  Calling 'hashAppend' with 'Point' will propogate a reference
-// to the hashing algorithm functor 'hashAlg' down to the fundamental types
-// that make up 'Point', and those types will then be passed into the
+// ```
+// bool operator==(const Box& lhs, const Box& rhs)
+//     // Return true if the specified 'lhs' and 'rhs' have the same value.
+//     // Two 'Box' objects have the same value if they have the same length,
+//     // width, and position.
+// {
+//     return (lhs.getPosition() == rhs.getPosition()) &&
+//            (lhs.getLength()   == rhs.getLength()) &&
+//            (lhs.getWidth()    == rhs.getWidth());
+// }
+// ```
+// Next, we define `hashAppend` for `Box`.  Notice how as well as calling
+// `hashAppend` on fundamental types, we can also call it with our user defined
+// type `Point`.  Calling `hashAppend` with `Point` will propogate a reference
+// to the hashing algorithm functor `hashAlg` down to the fundamental types
+// that make up `Point`, and those types will then be passed into the
 // referenced algorithm functor.
-//..
-//  template <class HASH_ALGORITHM>
-//  void hashAppend(HASH_ALGORITHM& hashAlg, const Box& box)
-//      // Apply the specified 'hashAlg' to the specified 'box'
-//  {
-//      using bslh::hashAppend;
-//      hashAppend(hashAlg, box.getPosition());
-//      hashAppend(hashAlg, box.getLength());
-//      hashAppend(hashAlg, box.getWidth());
-//  }
-//..
+// ```
+// template <class HASH_ALGORITHM>
+// void hashAppend(HASH_ALGORITHM& hashAlg, const Box& box)
+//     // Apply the specified 'hashAlg' to the specified 'box'
+// {
+//     using bslh::hashAppend;
+//     hashAppend(hashAlg, box.getPosition());
+//     hashAppend(hashAlg, box.getLength());
+//     hashAppend(hashAlg, box.getWidth());
+// }
+// ```
 // Then, we declare our hash table (implementation elided).  We simplify the
 // problem by requiring the caller to supply an array.  Our hash table takes
-// two type parameters: 'TYPE' (the type being referenced) and 'HASHER' (a
-// functor that produces the hash).  'HASHER' will default to 'bslh::Hash<>'.
-//..
-//  template <class TYPE, class HASHER = bslh::Hash<> >
-//  class HashTable {
-//      // This class template implements a hash table providing fast lookup of
-//      // an external, non-owned, array of values of (template parameter)
-//      // 'TYPE'.
-//      //
-//      // The (template parameter) 'TYPE' shall have a transitive, symmetric
-//      // 'operator==' function and it will be hashable using 'bslh::Hash'.
-//      // Note that there is no requirement that it have any kind of creator
-//      // defined.
-//      //
-//      // The 'HASHER' template parameter type must be a functor with a method
-//      // having the following signature:
-//      //..
-//      //  size_t operator()(TYPE)  const;
-//      //                   -OR-
-//      //  size_t operator()(const TYPE&) const;
-//      //..
-//      // and 'HASHER' shall have a publicly accessible default constructor
-//      // and destructor.  Here we use 'bslh::Hash' as our default template
-//      // argument.  This allows us to hash any type for which 'hashAppend'
-//      // has been implemented.
-//      //
-//      // Note that this hash table has numerous simplifications because we
-//      // know the size of the array and never have to resize the table.
+// two type parameters: `TYPE` (the type being referenced) and `HASHER` (a
+// functor that produces the hash).  `HASHER` will default to `bslh::Hash<>`.
+// ```
+// template <class TYPE, class HASHER = bslh::Hash<> >
+// class HashTable {
+//     // This class template implements a hash table providing fast lookup of
+//     // an external, non-owned, array of values of (template parameter)
+//     // 'TYPE'.
+//     //
+//     // The (template parameter) 'TYPE' shall have a transitive, symmetric
+//     // 'operator==' function and it will be hashable using 'bslh::Hash'.
+//     // Note that there is no requirement that it have any kind of creator
+//     // defined.
+//     //
+//     // The 'HASHER' template parameter type must be a functor with a method
+//     // having the following signature:
+//     //..
+//     //  size_t operator()(TYPE)  const;
+//     //                   -OR-
+//     //  size_t operator()(const TYPE&) const;
+//     //..
+//     // and 'HASHER' shall have a publicly accessible default constructor
+//     // and destructor.  Here we use 'bslh::Hash' as our default template
+//     // argument.  This allows us to hash any type for which 'hashAppend'
+//     // has been implemented.
+//     //
+//     // Note that this hash table has numerous simplifications because we
+//     // know the size of the array and never have to resize the table.
 //
-//      // DATA
-//      const TYPE       *d_values;             // Array of values table is to
-//                                              // hold
-//      size_t            d_numValues;          // Length of 'd_values'.
-//      const TYPE      **d_bucketArray;        // Contains ptrs into
-//                                              // 'd_values'
-//      size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
-//      HASHER            d_hasher;
+//     // DATA
+//     const TYPE       *d_values;             // Array of values table is to
+//                                             // hold
+//     size_t            d_numValues;          // Length of 'd_values'.
+//     const TYPE      **d_bucketArray;        // Contains ptrs into
+//                                             // 'd_values'
+//     size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
+//     HASHER            d_hasher;
 //
-//    private:
-//      // PRIVATE ACCESSORS
-//      bool lookup(size_t      *idx,
-//                  const TYPE&  value,
-//                  size_t       hashValue) const;
-//          // Look up the specified 'value', having the specified 'hashValue',
-//          // and load its index in 'd_bucketArray' into the specified 'idx'.
-//          // If not found, return the vacant entry in 'd_bucketArray' where
-//          // it should be inserted.  Return 'true' if 'value' is found and
-//          // 'false' otherwise.
+//   private:
+//     // PRIVATE ACCESSORS
+//     bool lookup(size_t      *idx,
+//                 const TYPE&  value,
+//                 size_t       hashValue) const;
+//         // Look up the specified 'value', having the specified 'hashValue',
+//         // and load its index in 'd_bucketArray' into the specified 'idx'.
+//         // If not found, return the vacant entry in 'd_bucketArray' where
+//         // it should be inserted.  Return 'true' if 'value' is found and
+//         // 'false' otherwise.
 //
-//    public:
-//      // CREATORS
-//      HashTable(const TYPE *valuesArray,
-//                size_t      numValues);
-//          // Create a hash table referring to the specified 'valuesArray'
-//          // having length of the specified 'numValues'.  No value in
-//          // 'valuesArray' shall have the same value as any of the other
-//          // values in 'valuesArray'
+//   public:
+//     // CREATORS
+//     HashTable(const TYPE *valuesArray,
+//               size_t      numValues);
+//         // Create a hash table referring to the specified 'valuesArray'
+//         // having length of the specified 'numValues'.  No value in
+//         // 'valuesArray' shall have the same value as any of the other
+//         // values in 'valuesArray'
 //
-//      ~HashTable();
-//          // Free up memory used by this hash table.
+//     ~HashTable();
+//         // Free up memory used by this hash table.
 //
-//      // ACCESSORS
-//      bool contains(const TYPE& value) const;
-//          // Return true if the specified 'value' is found in the table and
-//          // false otherwise.
-//  };
-//..
+//     // ACCESSORS
+//     bool contains(const TYPE& value) const;
+//         // Return true if the specified 'value' is found in the table and
+//         // false otherwise.
+// };
+// ```
 // Next, we will create an array of boxes that we want to store in our hash
 // table.
-//..
+// ```
 //
-//        Box boxes[] = { Box(Point(1, 1), 3, 2),
-//                        Box(Point(3, 1), 4, 2),
-//                        Box(Point(1, 2), 3, 3),
-//                        Box(Point(1, 1), 2, 2),
-//                        Box(Point(1, 4), 4, 3),
-//                        Box(Point(2, 1), 4, 2),
-//                        Box(Point(1, 0), 3, 1)};
-//        enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
+//         Box boxes[] = { Box(Point(1, 1), 3, 2),
+//                         Box(Point(3, 1), 4, 2),
+//                         Box(Point(1, 2), 3, 3),
+//                         Box(Point(1, 1), 2, 2),
+//                         Box(Point(1, 4), 4, 3),
+//                         Box(Point(2, 1), 4, 2),
+//                         Box(Point(1, 0), 3, 1)};
+//         enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
 //
-//..
-// Then, we create our hash table 'hashTable'.  We pass we use the default
-// functor which will pick up the 'hashAppend' function we created:
-//..
+// ```
+// Then, we create our hash table `hashTable`.  We pass we use the default
+// functor which will pick up the `hashAppend` function we created:
+// ```
 //
-//        HashTable<Box> hashTable(boxes, NUM_BOXES);
-//..
+//         HashTable<Box> hashTable(boxes, NUM_BOXES);
+// ```
 // Now, we verify that each element in our array registers with count:
-//..
+// ```
 // for ( int i = 0; i < 6; ++i) { ASSERT(hashTable.contains(boxes[i])); }
-//..
+// ```
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
-//..
+// ```
 // ASSERT(!hashTable.contains(Box(Point(1, 1), 1, 1)));
 // ASSERT(!hashTable.contains(Box(Point(0, 0), 0, 0)));
 // ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
-//..
+// ```
 
 #include <bslscm_version.h>
 
@@ -463,29 +463,29 @@ namespace bslh {
                       // class bslh::Hash_AdlWrapper
                       // ===========================
 
+/// This `class` is a wrapper that is useful in the case of `HASH_ALGORITHM`
+/// not being in the `bslh` namespace, which can be problematic for ADL
+/// lookup of `bslh::hashAppend`.  Wrapping a hash algorithm in this
+/// wrapper, which is called inline, effectively forwards the algorithm into
+/// the `bslh` namespace.
+///
+/// More detailed explanation:
+///
+/// Normally, we define the free functions `hashAppend` in the same
+/// namespaces as the types they are hashing, so that ADL will find the
+/// function.  In cases where this is not possible, such as `std`, we
+/// support defining a `hashAppend` overload in the `bslh` namespace
+/// instead.  This wrapper makes sure that `bslh` is an associated namespace
+/// when it is used as the first argument to `hashAppend`, ensuring that
+/// such overloads in `bslh` added outside this component are still found
+/// via ADL.  Without this wrapper, in the cases where the hash algorithm is
+/// neither in `bslh` nor in the namespace of the hashed type, ADL then
+/// fails to find the function.
+///
+/// This wrapper solves this problem by forcibly associating the invocation
+/// of `hashAppend`, wherever it may be, with the `bslh` namespace.
 template <class HASH_ALGORITHM>
 class Hash_AdlWrapper {
-    // This 'class' is a wrapper that is useful in the case of 'HASH_ALGORITHM'
-    // not being in the 'bslh' namespace, which can be problematic for ADL
-    // lookup of 'bslh::hashAppend'.  Wrapping a hash algorithm in this
-    // wrapper, which is called inline, effectively forwards the algorithm into
-    // the 'bslh' namespace.
-    //
-    // More detailed explanation:
-    //
-    // Normally, we define the free functions 'hashAppend' in the same
-    // namespaces as the types they are hashing, so that ADL will find the
-    // function.  In cases where this is not possible, such as 'std', we
-    // support defining a 'hashAppend' overload in the 'bslh' namespace
-    // instead.  This wrapper makes sure that 'bslh' is an associated namespace
-    // when it is used as the first argument to 'hashAppend', ensuring that
-    // such overloads in 'bslh' added outside this component are still found
-    // via ADL.  Without this wrapper, in the cases where the hash algorithm is
-    // neither in 'bslh' nor in the namespace of the hashed type, ADL then
-    // fails to find the function.
-    //
-    // This wrapper solves this problem by forcibly associating the invocation
-    // of 'hashAppend', wherever it may be, with the 'bslh' namespace.
 
   public:
     typedef typename HASH_ALGORITHM::result_type result_type;
@@ -497,41 +497,44 @@ class Hash_AdlWrapper {
 
   public:
     // CREATORS
+
+    /// Default construct an instance of the hash algorithm wrapped in this
+    /// wrapper.
     Hash_AdlWrapper();
-        // Default construct an instance of the hash algorithm wrapped in this
-        // wrapper.
 
     // MANIPULATORS
-    void operator()(const void *input, size_t numBytes);
-        // Forward the call to the identical manipulator of 'HASH_ALGORITHM',
-        // passing on the specified 'input' and 'numBytes'.
 
+    /// Forward the call to the identical manipulator of `HASH_ALGORITHM`,
+    /// passing on the specified `input` and `numBytes`.
+    void operator()(const void *input, size_t numBytes);
+
+    /// Forward the call to the identical manipulator of `HASH_ALGORITHM`,
+    /// passing on the specified `input` and `numBytes`.
     template <class ELEMENT_TYPE>
     void operator()(const ELEMENT_TYPE *input, size_t numBytes);
-        // Forward the call to the identical manipulator of 'HASH_ALGORITHM',
-        // passing on the specified 'input' and 'numBytes'.
 
+    /// Forward the call to the identical manipulator of `HASH_ALGORITHM`
+    /// and cast the return value to 'result_type.
     result_type computeHash();
-        // Forward the call to the identical manipulator of 'HASH_ALGORITHM'
-        // and cast the return value to 'result_type.
 };
 
                           // ================
                           // class bslh::Hash
                           // ================
 
+/// This struct wraps the (template parameter) type `HASH_ALGORITHM` in an
+/// interface that satisfies the `hash` requirements of the C++11 standard.
 template <class HASH_ALGORITHM = bslh::DefaultHashAlgorithm>
 struct Hash {
-    // This struct wraps the (template parameter) type 'HASH_ALGORITHM' in an
-    // interface that satisfies the 'hash' requirements of the C++11 standard.
 
     // TYPES
-    typedef size_t result_type;
-        // The type of the hash value that will be returned by the
-        // function-call operator.
 
+    /// The type of the hash value that will be returned by the
+    /// function-call operator.
+    typedef size_t result_type;
+
+    /// Make the `HASH_ALGORITHM` template parameter available to clients.
     typedef HASH_ALGORITHM HashAlgorithm;
-        // Make the 'HASH_ALGORITHM' template parameter available to clients.
 
     // CREATORS
     //! Hash() = default;
@@ -552,15 +555,25 @@ struct Hash {
         // will have no observable effect.
 
     // ACCESSORS
+
+    /// Returns a hash value generated by the (template parameter) type
+    /// `HASH_ALGORITHM` for the specified `type`.  The value returned by
+    /// the `HASH_ALGORITHM` is cast to `size_t` before returning.
     template <class TYPE>
     result_type operator()(const TYPE& type) const;
-        // Returns a hash value generated by the (template parameter) type
-        // 'HASH_ALGORITHM' for the specified 'type'.  The value returned by
-        // the 'HASH_ALGORITHM' is cast to 'size_t' before returning.
 
 };
 
 // FREE FUNCTIONS
+
+/// Passes the specified `input` into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  Note that the `enable_if` meta-function is used
+/// to enable this `hashAppend` function for only integral (excluding
+/// `bool`), pointer, and enum types, because these types can all be hashed
+/// as a continuous sequence of bytes.  Also note that this function is
+/// defined inline because MS Visual Studio compilers before 2013 require
+/// (some) functions declared using enable_if be in-place inline.
 template <class HASH_ALGORITHM, class TYPE>
 inline
 typename bsl::enable_if<
@@ -570,18 +583,19 @@ typename bsl::enable_if<
     !bsl::is_same<TYPE, bool>::value
 >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
-    // Passes the specified 'input' into the specified 'hashAlg' to be combined
-    // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.  Note that the 'enable_if' meta-function is used
-    // to enable this 'hashAppend' function for only integral (excluding
-    // 'bool'), pointer, and enum types, because these types can all be hashed
-    // as a continuous sequence of bytes.  Also note that this function is
-    // defined inline because MS Visual Studio compilers before 2013 require
-    // (some) functions declared using enable_if be in-place inline.
 {
     hashAlg(&input, sizeof(input));
 }
 
+/// Passes the specified `input` into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  Note that the `enable_if` meta-function is used
+/// to enable this `hashAppend` function for only floating point (excluding
+/// `long double`) types, because these types need to have +/-0.0 normalized
+/// to 0.0 before they can be hashed as a continuous sequence of bytes.
+/// Also note that this function is defined inline because MS Visual Studio
+/// compilers before 2013 require (some) functions declared using enable_if
+/// be in-place inline.
 template <class HASH_ALGORITHM, class TYPE>
 inline
 typename bsl::enable_if<
@@ -589,77 +603,68 @@ typename bsl::enable_if<
    !bsl::is_same<TYPE, long double>::value
 >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
-    // Passes the specified 'input' into the specified 'hashAlg' to be combined
-    // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.  Note that the 'enable_if' meta-function is used
-    // to enable this 'hashAppend' function for only floating point (excluding
-    // 'long double') types, because these types need to have +/-0.0 normalized
-    // to 0.0 before they can be hashed as a continuous sequence of bytes.
-    // Also note that this function is defined inline because MS Visual Studio
-    // compilers before 2013 require (some) functions declared using enable_if
-    // be in-place inline.
 {
     if (input == 0)
         input = 0;
     hashAlg(&input, sizeof(input));
 }
 
+/// Passes the specified `input` into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  Note that the `enable_if` meta-function is used
+/// to enable this `hashAppend` function for only `bool`, because `bool`s
+/// can have multiple `true` representations and need to be normalized
+/// before they can be hashed as a continuous sequence of bytes.
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if< bsl::is_same<TYPE, bool>::value >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
-    // Passes the specified 'input' into the specified 'hashAlg' to be combined
-    // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.  Note that the 'enable_if' meta-function is used
-    // to enable this 'hashAppend' function for only 'bool', because 'bool's
-    // can have multiple 'true' representations and need to be normalized
-    // before they can be hashed as a continuous sequence of bytes.
 
+/// Passes the specified `input` into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  Note that the `enable_if` meta-function is used
+/// to enable this `hashAppend` function for only `long double`, because on
+/// some compilers `long double`s contain garbage and can not be hashed as a
+/// continuous sequence of bytes.
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if< bsl::is_same<TYPE, long double>::value >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
-    // Passes the specified 'input' into the specified 'hashAlg' to be combined
-    // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.  Note that the 'enable_if' meta-function is used
-    // to enable this 'hashAppend' function for only 'long double', because on
-    // some compilers 'long double's contain garbage and can not be hashed as a
-    // continuous sequence of bytes.
 
+/// Passes the specified `input` into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  Note that the entire `char` array will be hashed
+/// in only one call to `hashAlg`.  Also note that this `hashAppend` exists
+/// because some platforms don't recognize that adding a const qualifier is
+/// a better match for arrays than decaying to a pointer and using the
+/// `hashAppend` function for pointers.
 template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, char (&input)[N]);
-    // Passes the specified 'input' into the specified 'hashAlg' to be combined
-    // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.  Note that the entire 'char' array will be hashed
-    // in only one call to 'hashAlg'.  Also note that this 'hashAppend' exists
-    // because some platforms don't recognize that adding a const qualifier is
-    // a better match for arrays than decaying to a pointer and using the
-    // 'hashAppend' function for pointers.
 
+/// Passes the specified `input` into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  Note that the entire `char` array will be hashed
+/// in only one call to `hashAlg`.
 template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N]);
-    // Passes the specified 'input' into the specified 'hashAlg' to be combined
-    // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.  Note that the entire 'char' array will be hashed
-    // in only one call to 'hashAlg'.
 
+/// Passes the specified `input` into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  Note that the elements in `input` will be hashed
+/// one at a time by calling `hashAppend` because the (template parameter)
+/// `TYPE` might not be hashable as a contiguous sequence of bytes.  Also
+/// note that this `hashAppend` exists because some platforms don't
+/// recognize that adding a const qualifier is a better match for arrays
+/// than decaying to a pointer and using the `hashAppend` function for
+/// pointers.
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N]);
-    // Passes the specified 'input' into the specified 'hashAlg' to be combined
-    // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.  Note that the elements in 'input' will be hashed
-    // one at a time by calling 'hashAppend' because the (template parameter)
-    // 'TYPE' might not be hashable as a contiguous sequence of bytes.  Also
-    // note that this 'hashAppend' exists because some platforms don't
-    // recognize that adding a const qualifier is a better match for arrays
-    // than decaying to a pointer and using the 'hashAppend' function for
-    // pointers.
 
+/// Passes the specified `input` into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  Note that the elements in `input` will be hashed
+/// one at a time by calling `hashAppend` because the (template parameter)
+/// `TYPE` might not be hashable as a contiguous sequence of bytes.
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
-    // Passes the specified 'input' into the specified 'hashAlg' to be combined
-    // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.  Note that the elements in 'input' will be hashed
-    // one at a time by calling 'hashAppend' because the (template parameter)
-    // 'TYPE' might not be hashable as a contiguous sequence of bytes.
 
 }  // close package namespace
 

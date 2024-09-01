@@ -15,22 +15,22 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_addreference
 //
 //@DESCRIPTION: This component defines two meta-functions,
-// 'bsl::remove_reference' and 'BloombergLP::bslmf::RemoveReference', both of
+// `bsl::remove_reference` and `BloombergLP::bslmf::RemoveReference`, both of
 // which may be used to strip reference-ness (including both lvalue and rvalue
 // reference-ness, if the latter is supported by the compiler) from a type.
 //
-// 'bsl::remove_reference' meets the requirements of the 'remove_reference'
+// `bsl::remove_reference` meets the requirements of the `remove_reference`
 // template defined in the C++11 standard [meta.trans.ref], while
-// 'bslmf::RemoveReference' was devised before 'remove_reference' was
+// `bslmf::RemoveReference` was devised before `remove_reference` was
 // standardized.
 //
 // The two meta-functions are functionally equivalent.  The major difference
-// between them is that the result for 'bsl::remove_reference' is indicated by
-// the class member 'type', while the result for 'bslmf::RemoveReference' is
-// indicated by the class member 'Type'.
+// between them is that the result for `bsl::remove_reference` is indicated by
+// the class member `type`, while the result for `bslmf::RemoveReference` is
+// indicated by the class member `Type`.
 //
-// Note that 'bsl::remove_reference' should be preferred over
-// 'bslmf::RemoveReference', and in general, should be used by new components.
+// Note that `bsl::remove_reference` should be preferred over
+// `bslmf::RemoveReference`, and in general, should be used by new components.
 //
 ///Usage
 ///-----
@@ -41,43 +41,43 @@ BSLS_IDENT("$Id: $")
 // Suppose that we want to remove the reference-ness of a set of types.
 //
 // Now, remove the reference-ness of a set of types using
-// 'bsl::remove_reference' and verify that the returned type has any
+// `bsl::remove_reference` and verify that the returned type has any
 // reference-ness removed:
-//..
-//  assert(true  ==
-//            (bsl::is_same<bsl::remove_reference<int& >::type, int >::value));
-//  assert(false ==
-//            (bsl::is_same<bsl::remove_reference<int& >::type, int&>::value));
-//  assert(true  ==
-//            (bsl::is_same<bsl::remove_reference<int  >::type, int >::value));
-//#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-//  assert(true ==
-//            (bsl::is_same<bsl::remove_reference<int&&>::type, int >::value));
-//#endif
-//..
+// ```
+// assert(true  ==
+//           (bsl::is_same<bsl::remove_reference<int& >::type, int >::value));
+// assert(false ==
+//           (bsl::is_same<bsl::remove_reference<int& >::type, int&>::value));
+// assert(true  ==
+//           (bsl::is_same<bsl::remove_reference<int  >::type, int >::value));
+// #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+// assert(true ==
+//           (bsl::is_same<bsl::remove_reference<int&&>::type, int >::value));
+// #endif
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// remove reference-ness from a set of types using 'bsl::remove_reference_t'
+// remove reference-ness from a set of types using `bsl::remove_reference_t`
 // and verify that the resulting type has any reference-ness removed:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//  assert(true  ==
-//            (bsl::is_same<bsl::remove_reference_t<int& >, int >::value));
-//  assert(false ==
-//            (bsl::is_same<bsl::remove_reference_t<int& >, int&>::value));
-//  assert(true  ==
-//            (bsl::is_same<bsl::remove_reference_t<int  >, int >::value));
-//#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-//  assert(true ==
-//            (bsl::is_same<bsl::remove_reference_t<int&&>, int >::value));
-//#endif
-//#endif
-//..
+// ```
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//   assert(true  ==
+//             (bsl::is_same<bsl::remove_reference_t<int& >, int >::value));
+//   assert(false ==
+//             (bsl::is_same<bsl::remove_reference_t<int& >, int&>::value));
+//   assert(true  ==
+//             (bsl::is_same<bsl::remove_reference_t<int  >, int >::value));
+// #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+//   assert(true ==
+//             (bsl::is_same<bsl::remove_reference_t<int&&>, int >::value));
+// #endif
+// #endif
+// ```
 // Note that rvalue reference is a feature introduced in the C++11 standard and
 // may not be supported by all compilers.
 //
-// Also note, that the 'bsl::remove_reference_t' avoids the '::type' suffix and
-// 'typename' prefix when we want to use the result of the
-// 'bsl::remove_reference' meta-function in templates.
+// Also note, that the `bsl::remove_reference_t` avoids the `::type` suffix and
+// `typename` prefix when we want to use the result of the
+// `bsl::remove_reference` meta-function in templates.
 
 #include <bslscm_version.h>
 
@@ -164,17 +164,17 @@ namespace bslmf {
                          // struct RemoveReference
                          // ======================
 
+/// This `struct` template implements a meta-function to remove the
+/// reference-ness from the (template parameter) `t_TYPE`.  Note that
+/// although this `struct` is functionally equivalent to
+/// `bsl::remove_reference`, the use of `bsl::remove_reference` should be
+/// preferred.
 template <class t_TYPE>
 struct RemoveReference {
-    // This 'struct' template implements a meta-function to remove the
-    // reference-ness from the (template parameter) 't_TYPE'.  Note that
-    // although this 'struct' is functionally equivalent to
-    // 'bsl::remove_reference', the use of 'bsl::remove_reference' should be
-    // preferred.
 
+    /// This `typedef` is an alias to the same type as the (template
+    /// parameter) `t_TYPE` except with any reference-ness removed.
     typedef typename bsl::remove_reference<t_TYPE>::type Type;
-        // This 'typedef' is an alias to the same type as the (template
-        // parameter) 't_TYPE' except with any reference-ness removed.
 };
 
 }  // close package namespace
@@ -188,8 +188,8 @@ struct RemoveReference {
 #ifdef bslmf_RemoveReference
 #undef bslmf_RemoveReference
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_RemoveReference bslmf::RemoveReference
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 #endif

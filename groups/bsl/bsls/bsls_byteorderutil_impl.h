@@ -11,26 +11,26 @@ BSLS_IDENT("$Id: $")
 //   bsls::ByteOrderUtil_Impl: namespace for swapping functions
 //
 //@MACROS:
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(x)   return 'x' with bytes swapped
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(x)   return 'x' with bytes swapped
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(x)   return 'x' with bytes swapped
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(&x) return 'x' with bytes swapped
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(&x) return 'x' with bytes swapped
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(&x) return 'x' with bytes swapped
-//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(x)  return 'x' with bytes swapped
-//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(x)  return 'x' with bytes swapped
-//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(x)  return 'x' with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(x)   return `x` with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(x)   return `x` with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(x)   return `x` with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(&x) return `x` with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(&x) return `x` with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(&x) return `x` with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(x)  return `x` with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(x)  return `x` with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(x)  return `x` with bytes swapped
 //
 //@SEE_ALSO: bsls_byteorderutil, bsls_byteorder
 //
-//@DESCRIPTION: This component provides a template class 'ByteOrderUtil_Impl'
+//@DESCRIPTION: This component provides a template class `ByteOrderUtil_Impl`
 // and a set of macros suitable for swapping byte orders of all integral types.
-// The '*_CUSTOMSWAP_*' macros use assembly language or compiler primitives,
-// whereas the '*_GENERICSWAP_*' macros use C bitwise operations to perform the
-// swap.  The '*_CUSTOMSWAP_*' macros are not defined on all platforms; callers
-// must perform an '#ifdef' to see if they are defined before calling them.  At
-// most one of '*_CUSTOMSWAP_NN' and '*_CUSTOMSWAP_PNN' are defined on any one
-// platform for any value of 'NN', while '*_GENERICSWAP_NN' macros are defined
+// The `*_CUSTOMSWAP_*` macros use assembly language or compiler primitives,
+// whereas the `*_GENERICSWAP_*` macros use C bitwise operations to perform the
+// swap.  The `*_CUSTOMSWAP_*` macros are not defined on all platforms; callers
+// must perform an `#ifdef` to see if they are defined before calling them.  At
+// most one of `*_CUSTOMSWAP_NN` and `*_CUSTOMSWAP_PNN` are defined on any one
+// platform for any value of `NN`, while `*_GENERICSWAP_NN` macros are defined
 // on all platforms and are meant to be called when the other macros are not
 // available, and are also used for benchmarking.
 
@@ -52,48 +52,52 @@ namespace bsls {
 template <class TYPE, Types::size_type WIDTH = sizeof(TYPE)>
 struct ByteOrderUtil_Impl;
 
+/// This `class` provides a namespace for functions used for reversing the
+/// byte order of values having integral type.
 template <class TYPE>
 struct ByteOrderUtil_Impl<TYPE, 1> {
-    // This 'class' provides a namespace for functions used for reversing the
-    // byte order of values having integral type.
 
     // CLASS METHODS
+
+    /// Return the value that results from reversing the order of the bytes
+    /// in the specified `x`.
     static TYPE swapBytes(TYPE x);
-        // Return the value that results from reversing the order of the bytes
-        // in the specified 'x'.
 };
 
+/// This `class` provides a namespace for functions used for reversing the
+/// byte order of values having integral type.
 template <class TYPE>
 struct ByteOrderUtil_Impl<TYPE, 2> {
-    // This 'class' provides a namespace for functions used for reversing the
-    // byte order of values having integral type.
 
     // CLASS METHODS
+
+    /// Return the value that results from reversing the order of the bytes
+    /// in the specified `x`.
     static TYPE swapBytes(TYPE x);
-        // Return the value that results from reversing the order of the bytes
-        // in the specified 'x'.
 };
 
+/// This `class` provides a namespace for functions used for reversing the
+/// byte order of values having integral type.
 template <class TYPE>
 struct ByteOrderUtil_Impl<TYPE, 4> {
-    // This 'class' provides a namespace for functions used for reversing the
-    // byte order of values having integral type.
 
     // CLASS METHODS
+
+    /// Return the value that results from reversing the order of the bytes
+    /// in the specified `x`.
     static TYPE swapBytes(TYPE x);
-        // Return the value that results from reversing the order of the bytes
-        // in the specified 'x'.
 };
 
+/// This `class` provides a namespace for functions used for reversing the
+/// byte order of values having integral type.
 template <class TYPE>
 struct ByteOrderUtil_Impl<TYPE, 8> {
-    // This 'class' provides a namespace for functions used for reversing the
-    // byte order of values having integral type.
 
     // CLASS METHODS
+
+    /// Return the value that results from reversing the order of the bytes
+    /// in the specified `x`.
     static TYPE swapBytes(TYPE x);
-        // Return the value that results from reversing the order of the bytes
-        // in the specified 'x'.
 };
 
 }  // close package namespace

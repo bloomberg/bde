@@ -15,14 +15,14 @@ BSLS_IDENT("$Id: $")
 //@CANONICAL_HEADER: bsl_utility.h
 //
 //@DESCRIPTION: This component provides an implementation of standard
-// compliant tag types for in-place construction: 'bsl::in_place_t',
-// 'bsl::in_place_type_t', and 'bsl::in_place_index_t'.  Tag type
-// 'bsl::in_place_t' is used in constructors of 'bsl::optional' to indicate
+// compliant tag types for in-place construction: `bsl::in_place_t`,
+// `bsl::in_place_type_t`, and `bsl::in_place_index_t`.  Tag type
+// `bsl::in_place_t` is used in constructors of `bsl::optional` to indicate
 // that the contained object should be constructed in-place.  Tag type
-// 'bsl::in_place_type_t<TYPE>' is used in constructors of 'bsl::variant' to
-// indicate that the object of type 'TYPE' should be constructed in-place.  Tag
-// type 'bsl::in_place_index_t<INDEX>' is used in constructors of
-// 'bsl::variant' to indicate that the alternative with index 'INDEX' should
+// `bsl::in_place_type_t<TYPE>` is used in constructors of `bsl::variant` to
+// indicate that the object of type `TYPE` should be constructed in-place.  Tag
+// type `bsl::in_place_index_t<INDEX>` is used in constructors of
+// `bsl::variant` to indicate that the alternative with index `INDEX` should
 // be constructed in-place.
 //
 //@SEE_ALSO: bslstl_optional, bslstl_variant

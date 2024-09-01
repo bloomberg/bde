@@ -13,18 +13,18 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'NonAssignableTestType', that does not not
+// (value-semantic) attribute class, `NonAssignableTestType`, that does not not
 // support assignment.  This is particularly valuable when testing container
 // operations that works with non-assignable types.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the class value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the class value
 //
 ///Usage
 ///-----
@@ -32,17 +32,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Demonstrating The Type Cannot Be Assigned To
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wanted to show 'NonAssignableTestType' can't be assigned to:
+// Suppose we wanted to show `NonAssignableTestType` can't be assigned to:
 //
-// First, we create two 'NonAssignableTestType' objects, 'X' and 'Y':
-//..
-//  NonAssignableTestType X(1);
-//  NonAssignableTestType Y(2);
-//..
-// Now, we show that assigning 'X' from Y will not compile:
-//..
-//  X = Y; // This will not compile
-//..
+// First, we create two `NonAssignableTestType` objects, `X` and `Y`:
+// ```
+// NonAssignableTestType X(1);
+// NonAssignableTestType Y(2);
+// ```
+// Now, we show that assigning `X` from Y will not compile:
+// ```
+// X = Y; // This will not compile
+// ```
 
 #include <bslscm_version.h>
 
@@ -55,9 +55,9 @@ namespace bsltf {
                         // class NonAssignableTestType
                         // ===========================
 
+/// This unconstrained (value-semantic) attribute class does not
+/// provide an assignment operator.
 class NonAssignableTestType {
-    // This unconstrained (value-semantic) attribute class does not
-    // provide an assignment operator.
 
     // DATA
     int d_data;  // integer class value
@@ -70,46 +70,50 @@ class NonAssignableTestType {
   public:
 
     // CREATORS
-    NonAssignableTestType();
-        // Create a 'NonAssignableTestType' object having the (default)
-        // attribute values:
-        //..
-        //  data() == 0
-        //..
 
+    /// Create a `NonAssignableTestType` object having the (default)
+    /// attribute values:
+    /// ```
+    /// data() == 0
+    /// ```
+    NonAssignableTestType();
+
+    /// Create a `NonAssignableTestType` object having the specified
+    /// `data` attribute value.
     explicit NonAssignableTestType(int data);
-        // Create a 'NonAssignableTestType' object having the specified
-        // 'data' attribute value.
 
     // NonAssignableTestType(const NonAssignableTestType& original) = default;
         // Create a 'SimpleTestType' object having the same value as the
         // specified 'original' object.
 
+    /// Destroy this object.
     ~NonAssignableTestType();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Set the `data` attribute of this object to the specified `value`
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `NonAssignableTestType`
+/// objects have the same if their `data` attributes are the same.
 bool operator==(const NonAssignableTestType& lhs,
                 const NonAssignableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'NonAssignableTestType'
-    // objects have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `NonAssignableTestType`
+/// objects do not have the same value if their `data` attributes are not
+/// the same.
 bool operator!=(const NonAssignableTestType& lhs,
                 const NonAssignableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'NonAssignableTestType'
-    // objects do not have the same value if their 'data' attributes are not
-    // the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

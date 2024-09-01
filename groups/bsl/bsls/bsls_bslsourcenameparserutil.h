@@ -13,13 +13,13 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a namespace
-// 'bsls::BslSourceNameParserUtil' for methods to parse source code file names
-// (as may be reported by the '__FILE__' macro, or a listing), including
+// `bsls::BslSourceNameParserUtil` for methods to parse source code file names
+// (as may be reported by the `__FILE__` macro, or a listing), including
 // BDE-style (Lakos-style) component and test driver source file names.  This
-// component is not using any C++ library or 'bsl' dependencies.  In other
+// component is not using any C++ library or `bsl` dependencies.  In other
 // words, it uses only some functionality of the C standard library, and C++
 // core language features.  This is a necessary limitation because parsing file
-// names may be used form the lowest levels of 'bsl' code, especially in test
+// names may be used form the lowest levels of `bsl` code, especially in test
 // drivers.
 //
 ///BDE-Style Source File Names
@@ -35,34 +35,34 @@ BSLS_IDENT("$Id: $")
 ///Public Component Names
 /// - - - - - - - - - - -
 // A component consists of two source files sharing the same file name with
-// different extensions: '.h' for the header file and '.cpp' for the
+// different extensions: `.h` for the header file and `.cpp` for the
 // implementation file.  The component file name itself consists of the package
-// name the component belongs to (such as 'bsls'), followed by an underscore
-// ('_'), followed by the name of the component (such as 'atomicoperations'),
-// all lowercase letters, e.g., 'bsls_atomicoperations.h',
-// 'bsls_atomicoperations.cpp'.
+// name the component belongs to (such as `bsls`), followed by an underscore
+// (`_`), followed by the name of the component (such as `atomicoperations`),
+// all lowercase letters, e.g., `bsls_atomicoperations.h`,
+// `bsls_atomicoperations.cpp`.
 //
 ///Subordinate or Package-Internal Component Names
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Subordinate components are considered package-internal and, similarly to
 // component-private type names, formed by adding further underscore-delimited
 // "sections" to the file name (before the extension), such as:
-// 'bsls_atomicoperations_default.h', 'bsls_atomicoperations_x64_all_gcc.h',
-// 'bsls_assert_macroreset.h', or 'bsls_byteorderutil_impl.h'.
+// `bsls_atomicoperations_default.h`, `bsls_atomicoperations_x64_all_gcc.h`,
+// `bsls_assert_macroreset.h`, or `bsls_byteorderutil_impl.h`.
 //
 // There are two kinds of special subordinate components that are considered
 // part of the main component, and they are in separate files only for
 // non-structural (technical) reasons.  One such kind is the so-called
 // subordinate test component, that will be introduced in the section below.
-// The other is generated so-called '_cpp03' components for (mainly) emulating
+// The other is generated so-called `_cpp03` components for (mainly) emulating
 // variadic templates in C++03.  Such generated subordinate components get
-// '_cpp03' appended to their file name, right before the first dot '.' of the
+// `_cpp03` appended to their file name, right before the first dot `.` of the
 // extension(s).
 //
 ///Test Driver Source File Names
 ///- - - - - - - - - - - - - - -
 // Test driver source file names are normally very simple: the same base name
-// as the component, followed by '.t.cpp'.  However some components that
+// as the component, followed by `.t.cpp`.  However some components that
 // provide class and functions templates with many template parameters require
 // more than one test driver so the test driver files can compile, and compile
 // in a reasonable amount of time.  (Most often old, C++03 compilers run out of
@@ -72,31 +72,31 @@ BSLS_IDENT("$Id: $")
 // In the past, special private components were created when a test driver was
 // too large to compile.  Those components are called "subordinate test
 // (driver) components", and their names were created by having the last
-// underscore-delimited "segment" of the name to start with '_test'.
-// Optionally, after '_test' there could be a decimal number between 0-9, or
+// underscore-delimited "segment" of the name to start with `_test`.
+// Optionally, after `_test` there could be a decimal number between 0-9, or
 // 00-99.  (Due to legacy code that used text, we also allow alpha characters,
-// like '_testconstructors'.)  So for an imaginary
-// 'bslstl_unordinarymultikeymultimap.h' and '.cpp' we may have the expected
-// 'bslstl_unordinarymultikeymultimap.t.cpp', but also
-// 'bslstl_unordinarymultikeymultimap_test1.t.cpp'/'.h'/'.cpp', and so on.
+// like `_testconstructors`.)  So for an imaginary
+// `bslstl_unordinarymultikeymultimap.h` and `.cpp` we may have the expected
+// `bslstl_unordinarymultikeymultimap.t.cpp`, but also
+// `bslstl_unordinarymultikeymultimap_test1.t.cpp`/`.h`/`.cpp`, and so on.
 //
 // Newer complex components (and components that have been modernized) will not
 // have subordinate test drivers, but so-called test driver parts.  Test driver
 // part source file names are created by inserting a dot and a decimal number
-// (between 0-9 or 00-99), right before the '.t.cpp'.  Our example from the
+// (between 0-9 or 00-99), right before the `.t.cpp`.  Our example from the
 // previous paragraph would then have several test driver source files:
-// 'bslstl_unordinarymultikeymultimap.0.t.cpp',
-// 'bslstl_unordinarymultikeymultimap.1.t.cpp', and so on, but only one
-// component 'bslstl_unordinarymultikeymultimap.h' and '.cpp'.
+// `bslstl_unordinarymultikeymultimap.0.t.cpp`,
+// `bslstl_unordinarymultikeymultimap.1.t.cpp`, and so on, but only one
+// component `bslstl_unordinarymultikeymultimap.h` and `.cpp`.
 //
 // Because the components that need many files for their test driver often use
 // variadic templates (that need to be emulated in C++03) we often also have:
-// 'bslstl_unordinarymultikeymultimap_test1_cpp03.t.cpp'/'.h'/'.cpp', etc., or
-// 'bslstl_unordinarymultikeymultimap_cpp03.0.t.cpp' files as well.
+// `bslstl_unordinarymultikeymultimap_test1_cpp03.t.cpp`/`.h`/`.cpp`, etc., or
+// `bslstl_unordinarymultikeymultimap_cpp03.0.t.cpp` files as well.
 //
 // For the subordinate test components (including the ones that end with
-// '_cpp03') we consider the main component name
-// 'bslstl_unordinarymultikeymultimap' to be the component name part, because
+// `_cpp03`) we consider the main component name
+// `bslstl_unordinarymultikeymultimap` to be the component name part, because
 // the other components exists only due to compiler technical limitations.
 //
 ///Other Source File Names
@@ -119,26 +119,26 @@ BSLS_IDENT("$Id: $")
 // names.  To ease understanding we use string literals for source file names.
 //
 // First, we declare the result variables that the parser will fill:
-//..
-//  const char *componentStart  = 0;
-//  size_t      componentLength = 0;
-//..
+// ```
+// const char *componentStart  = 0;
+// size_t      componentLength = 0;
+// ```
 // Next, we call the parser, saving its return value:
-//..
-//  int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
-//                                        &componentStart,
-//                                        &componentLength,
-//                                        "groups/abc/abcx/abcx_name_cpp03.h");
-//..
+// ```
+// int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
+//                                       &componentStart,
+//                                       &componentLength,
+//                                       "groups/abc/abcx/abcx_name_cpp03.h");
+// ```
 //  Now, we verify that the parsing was successful:
-//..
-//  assert(0 == returnCode);
-//..
+// ```
+// assert(0 == returnCode);
+// ```
 // Finally, we verify that the expected component name is found:
-//..
-//  assert(9 == componentLength &&
-//         0 == memcmp("abcx_name", componentStart, 9));
-//..
+// ```
+// assert(9 == componentLength &&
+//        0 == memcmp("abcx_name", componentStart, 9));
+// ```
 // Notice how the "_cpp03" suffix of the generated file has been removed.
 //
 ///Example 2: Determining the Type of a Source File
@@ -148,99 +148,99 @@ BSLS_IDENT("$Id: $")
 // for source file names.
 //
 // First, we declare the result variables that the parser will fill:
-//..
-//  const char *componentStart  = 0;
-//  size_t      componentLength = 0;
-//  unsigned    sourceType      = ~0u;
-//..
+// ```
+// const char *componentStart  = 0;
+// size_t      componentLength = 0;
+// unsigned    sourceType      = ~0u;
+// ```
 // Next, we call the parser with the first name, passing the address of the
 // optional output variable after the source file name:
-//..
-//  int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
-//                                         &componentStart,
-//                                         &componentLength,
-//                                         "groups/abc/abcx/abcx_name_cpp03.h",
-//                                         &sourceType);
-//..
+// ```
+// int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
+//                                        &componentStart,
+//                                        &componentLength,
+//                                        "groups/abc/abcx/abcx_name_cpp03.h",
+//                                        &sourceType);
+// ```
 // Then, we verify that the parsing was successful, and the expected component
 // name is found:
-//..
-//  assert(0 == returnCode);
-//  assert(9 == componentLength &&
-//         0 == memcmp("abcx_name", componentStart, 9));
-//..
+// ```
+// assert(0 == returnCode);
+// assert(9 == componentLength &&
+//        0 == memcmp("abcx_name", componentStart, 9));
+// ```
 // Next, we verify the determined source file type by examining the "kind",
-// stored in the bits masked by 'bsls::BslSourceNameParserUtil::k_MASK_KIND',
+// stored in the bits masked by `bsls::BslSourceNameParserUtil::k_MASK_KIND`,
 // and the flags stored in other bits:
-//..
-//  typedef bsls::BslSourceNameParserUtil Util;  // For brevity
+// ```
+// typedef bsls::BslSourceNameParserUtil Util;  // For brevity
 //
-//  assert(Util::k_HEADER == (sourceType & Util::k_MASK_KIND));
+// assert(Util::k_HEADER == (sourceType & Util::k_MASK_KIND));
 //
-//  assert(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
-//  assert(0 == (sourceType & Util::k_IS_SUBORDINATE_TEST));
-//  assert(0 != (sourceType & Util::k_IS_CPP03_GENERATED ));
-//..
+// assert(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
+// assert(0 == (sourceType & Util::k_IS_SUBORDINATE_TEST));
+// assert(0 != (sourceType & Util::k_IS_CPP03_GENERATED ));
+// ```
 // Then, we can verify a subordinate test component implementation file name.
 // These names, and also headers for subordinate test components are special as
 // they are not supposed to contain executable code.  They are just another
 // test driver for their main component.
-//..
-//  returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
-//                                      &componentStart,
-//                                      &componentLength,
-//                                      "groups/abc/abcx/abcx_name_test12.cpp",
-//                                      &sourceType);
+// ```
+// returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
+//                                     &componentStart,
+//                                     &componentLength,
+//                                     "groups/abc/abcx/abcx_name_test12.cpp",
+//                                     &sourceType);
 //
-//  assert(0 == returnCode);
-//  assert(9 == componentLength &&
-//         0 == memcmp("abcx_name", componentStart, 9));
-//..
+// assert(0 == returnCode);
+// assert(9 == componentLength &&
+//        0 == memcmp("abcx_name", componentStart, 9));
+// ```
 // Note that the main component name is reported.
-//..
-//  assert(Util::k_IMPL == (sourceType & Util::k_MASK_KIND));
+// ```
+// assert(Util::k_IMPL == (sourceType & Util::k_MASK_KIND));
 //
-//  assert(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
-//  assert(0 != (sourceType & Util::k_IS_SUBORDINATE_TEST));
-//  assert(0 == (sourceType & Util::k_IS_CPP03_GENERATED ));
-//..
+// assert(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
+// assert(0 != (sourceType & Util::k_IS_SUBORDINATE_TEST));
+// assert(0 == (sourceType & Util::k_IS_CPP03_GENERATED ));
+// ```
 // Now, we verify a traditional test driver file name of a subordinate test
 // component:
-//..
-//  returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
-//                                    &componentStart,
-//                                    &componentLength,
-//                                    "groups/abc/abcx/abcx_name_test12.t.cpp",
-//                                    &sourceType);
+// ```
+// returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
+//                                   &componentStart,
+//                                   &componentLength,
+//                                   "groups/abc/abcx/abcx_name_test12.t.cpp",
+//                                   &sourceType);
 //
-//  assert(0 == returnCode);
-//  assert(9 == componentLength &&
-//         0 == memcmp("abcx_name", componentStart, 9));
+// assert(0 == returnCode);
+// assert(9 == componentLength &&
+//        0 == memcmp("abcx_name", componentStart, 9));
 //
-//  assert(Util::k_TTEST == (sourceType & Util::k_MASK_KIND));
+// assert(Util::k_TTEST == (sourceType & Util::k_MASK_KIND));
 //
-//  assert(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
-//  assert(0 != (sourceType & Util::k_IS_SUBORDINATE_TEST));
-//  assert(0 == (sourceType & Util::k_IS_CPP03_GENERATED ));
-//..
+// assert(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
+// assert(0 != (sourceType & Util::k_IS_SUBORDINATE_TEST));
+// assert(0 == (sourceType & Util::k_IS_CPP03_GENERATED ));
+// ```
 // Finally, we verify a multi-file test driver source:
-//..
-//  returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
-//                                                  &componentStart,
-//                                                  &componentLength,
-//                                                  "wxya_other_cpp03.0.g.cpp",
-//                                                  &sourceType);
+// ```
+// returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
+//                                                 &componentStart,
+//                                                 &componentLength,
+//                                                 "wxya_other_cpp03.0.g.cpp",
+//                                                 &sourceType);
 //
-//  assert(0 == returnCode);
-//  assert(10 == componentLength &&
-//         0 == memcmp("wxya_other", componentStart, 10));
+// assert(0 == returnCode);
+// assert(10 == componentLength &&
+//        0 == memcmp("wxya_other", componentStart, 10));
 //
-//  assert(Util::k_GTEST == (sourceType & Util::k_MASK_KIND));
+// assert(Util::k_GTEST == (sourceType & Util::k_MASK_KIND));
 //
-//  assert(0 != (sourceType & Util::k_IS_MULTIFILE_TEST  ));
-//  assert(0 == (sourceType & Util::k_IS_SUBORDINATE_TEST));
-//  assert(0 != (sourceType & Util::k_IS_CPP03_GENERATED ));
-//..
+// assert(0 != (sourceType & Util::k_IS_MULTIFILE_TEST  ));
+// assert(0 == (sourceType & Util::k_IS_SUBORDINATE_TEST));
+// assert(0 != (sourceType & Util::k_IS_CPP03_GENERATED ));
+// ```
 //
 ///Example 3: Reporting Parsing Errors
 ///- - - - - - - - - - - - - - - - - -
@@ -250,60 +250,60 @@ BSLS_IDENT("$Id: $")
 // source file names.
 //
 // First, we declare the result variables that the parser will fill:
-//..
-//  const char *componentStart  = 0;
-//  size_t      componentLength = 0;
-//..
+// ```
+// const char *componentStart  = 0;
+// size_t      componentLength = 0;
+// ```
 // Next, we can call the parser with a too short file name and save the return
 // value:
-//..
-//  int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
-//                                                            &componentStart,
-//                                                            &componentLength,
-//                                                            "a.h");
-//..
+// ```
+// int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
+//                                                           &componentStart,
+//                                                           &componentLength,
+//                                                           "a.h");
+// ```
 // Then, we verify that the parsing has failed:
-//..
-//  assert(0 != returnCode);
-//..
+// ```
+// assert(0 != returnCode);
+// ```
 // Next, we output a brief error message to the user if requested:
-//..
-//  if (verbose) {
-//      printf("Error parsing source file name \"%s\": %s\n",
-//             "a.h",
-//             bsls::BslSourceNameParserUtil::errorMessage(returnCode));
-//      // Output will indicate the file name was too short (to be a BDE name)
-//  }
-//..
+// ```
+// if (verbose) {
+//     printf("Error parsing source file name \"%s\": %s\n",
+//            "a.h",
+//            bsls::BslSourceNameParserUtil::errorMessage(returnCode));
+//     // Output will indicate the file name was too short (to be a BDE name)
+// }
+// ```
 // Now, we demonstrate another failing-to-parse source name and its error
 // message:
-//..
-//  returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
-//                                                          &componentStart,
-//                                                          &componentLength,
-//                                                          "abcxyz_name.hpp");
-//  assert(0 != returnCode);
-//  if (verbose) {
-//      printf("Error parsing source file name \"%s\": %s\n",
-//             "abcxyz_name.hpp",
-//             bsls::BslSourceNameParserUtil::errorMessage(returnCode));
-//      // Output will indicate an unsupported extension
-//  }
-//..
-// Finally, we demonstrate the "missing test driver tag" error:
-//..
-//  returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
+// ```
+// returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
 //                                                         &componentStart,
 //                                                         &componentLength,
-//                                                         "abcx_name..t.cpp");
-//  assert(0 != returnCode);
-//  if (verbose) {
-//      printf("Error parsing source file name \"%s\": %s\n",
-//             "abcx_name..t.cpp",
-//             bsls::BslSourceNameParserUtil::errorMessage(returnCode));
-//      // Output will indicate two dots next to each other in the file name
-//  }
-//..
+//                                                         "abcxyz_name.hpp");
+// assert(0 != returnCode);
+// if (verbose) {
+//     printf("Error parsing source file name \"%s\": %s\n",
+//            "abcxyz_name.hpp",
+//            bsls::BslSourceNameParserUtil::errorMessage(returnCode));
+//     // Output will indicate an unsupported extension
+// }
+// ```
+// Finally, we demonstrate the "missing test driver tag" error:
+// ```
+// returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
+//                                                        &componentStart,
+//                                                        &componentLength,
+//                                                        "abcx_name..t.cpp");
+// assert(0 != returnCode);
+// if (verbose) {
+//     printf("Error parsing source file name \"%s\": %s\n",
+//            "abcx_name..t.cpp",
+//            bsls::BslSourceNameParserUtil::errorMessage(returnCode));
+//     // Output will indicate two dots next to each other in the file name
+// }
+// ```
 
 #include <stddef.h>  // 'size_t'
 
@@ -314,10 +314,10 @@ namespace bsls {
                       // struct BslSourceNameParserUtil
                       //===============================
 
+/// This `struct` provides a namespace for `static` utility functions that
+/// parse source file names (as may be reported by the `__FILE__` macro),
+/// including Lakos-style component source and test driver names.
 struct BslSourceNameParserUtil {
-    // This 'struct' provides a namespace for 'static' utility functions that
-    // parse source file names (as may be reported by the '__FILE__' macro),
-    // including Lakos-style component source and test driver names.
 
     // PUBLIC TYPES
     enum SourceTypes {
@@ -380,42 +380,42 @@ struct BslSourceNameParserUtil {
 
                                // Parsing
 
+    /// Parse the specified Lakos-style `sourceName` source file name with
+    /// optional path portion to find the component name part.  Return zero
+    /// on success and a non-zero value if parsing failed.  In case of
+    /// success, fill the specified `componentNamePtr` with a pointer to the
+    /// first character, and the specified `componentNameLength` with the
+    /// number of character of the component name found.  Optionally specify
+    /// `type_p`.  When `type_p` is not 0 set the bits of the pointed
+    /// `unsigned`, according to `SourceTypes`, that describe the type of
+    /// the source file that was parsed.
+    ///
+    /// This function does not validate its input, it assumes that it is a
+    /// valid Lakos-style component source or test driver file name, or one
+    /// of the special names defined by John Lakos: Large Scale C++ Design
+    /// (application, adapter, etc).  If `SourceName` is not as such, the
+    /// function may return a non-zero error value, or it may report success
+    /// with its output is unspecified.
+    ///
+    /// Subordinate test component sources are special, as they should not
+    /// contain code, only their test drivers.  The component name reported
+    /// for subordinate test drivers is the main component name.
+    ///
+    /// Use the `errorMessage` function (in this utility) to get a static,
+    /// brief English textual description of a negative return value.
     static int getComponentName(const char **componentNamePtr,
                                 size_t      *componentNameLength,
                                 const char  *sourceName,
                                 unsigned    *type_p = 0);
-        // Parse the specified Lakos-style 'sourceName' source file name with
-        // optional path portion to find the component name part.  Return zero
-        // on success and a non-zero value if parsing failed.  In case of
-        // success, fill the specified 'componentNamePtr' with a pointer to the
-        // first character, and the specified 'componentNameLength' with the
-        // number of character of the component name found.  Optionally specify
-        // 'type_p'.  When 'type_p' is not 0 set the bits of the pointed
-        // 'unsigned', according to 'SourceTypes', that describe the type of
-        // the source file that was parsed.
-        //
-        // This function does not validate its input, it assumes that it is a
-        // valid Lakos-style component source or test driver file name, or one
-        // of the special names defined by John Lakos: Large Scale C++ Design
-        // (application, adapter, etc).  If 'SourceName' is not as such, the
-        // function may return a non-zero error value, or it may report success
-        // with its output is unspecified.
-        //
-        // Subordinate test component sources are special, as they should not
-        // contain code, only their test drivers.  The component name reported
-        // for subordinate test drivers is the main component name.
-        //
-        // Use the 'errorMessage' function (in this utility) to get a static,
-        // brief English textual description of a negative return value.
 
                              // Miscellaneous
 
+    /// Return a static, brief English error message that describes the
+    /// specified negative parsing `errorCode`.  The behavior is undefined
+    /// unless  `errorCode < 0` and was returned by one of the parsing
+    /// methods (of this utility) that states in its contract to use this
+    /// method to get the description of an error code.
     static const char *errorMessage(int errorCode);
-        // Return a static, brief English error message that describes the
-        // specified negative parsing 'errorCode'.  The behavior is undefined
-        // unless  'errorCode < 0' and was returned by one of the parsing
-        // methods (of this utility) that states in its contract to use this
-        // method to get the description of an error code.
 };
 
 }  // close package namespace

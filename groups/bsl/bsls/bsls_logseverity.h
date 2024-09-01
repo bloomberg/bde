@@ -12,34 +12,34 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_log
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'bsls::LogSeverity::Enum', which enumerates a set of severity levels used
-// for logging with 'bsls_log'.
+//@DESCRIPTION: This component provides a namespace for the `enum` type
+// `bsls::LogSeverity::Enum`, which enumerates a set of severity levels used
+// for logging with `bsls_log`.
 //
 ///Enumerators
 ///-----------
-//..
-//  Name          Description
-//  -----------   -------------------------------------------------------------
-//  e_FATAL       A severity appropriate for log messages accompanying a fatal
-//                event (i.e., one that will cause a *crash*).
+// ```
+// Name          Description
+// -----------   -------------------------------------------------------------
+// e_FATAL       A severity appropriate for log messages accompanying a fatal
+//               event (i.e., one that will cause a *crash*).
 //
-//  e_ERROR       A severity appropriate for log messages accompanying an
-//                unexpected error (i.e., one that will cause incorrect
-//                behavior).
+// e_ERROR       A severity appropriate for log messages accompanying an
+//               unexpected error (i.e., one that will cause incorrect
+//               behavior).
 //
-//  e_WARN        A severity appropriate for log messages accompanying an
-//                event that may indicate a problem.
+// e_WARN        A severity appropriate for log messages accompanying an
+//               event that may indicate a problem.
 //
-//  e_INFO        A severity appropriate for log messages providing informative
-//                status about the running process.
+// e_INFO        A severity appropriate for log messages providing informative
+//               status about the running process.
 //
-//  e_DEBUG       A severity appropriate for log messages providing information
-//                useful for debugging.
+// e_DEBUG       A severity appropriate for log messages providing information
+//               useful for debugging.
 //
-//  e_TRACE       A severity appropriate for log messages providing detailed
-//                trace information.
-//..
+// e_TRACE       A severity appropriate for log messages providing detailed
+//               trace information.
+// ```
 //
 ///Usage
 ///-----
@@ -48,23 +48,23 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of using
-// 'bsls::LogSeverity'.
+// `bsls::LogSeverity`.
 //
-// First, we create a variable 'value' of type 'bsls::LogSeverity::Enum'
+// First, we create a variable `value` of type `bsls::LogSeverity::Enum`
 // and initialize it with the enumerator value
-// 'bsls::LogSeverity::e_DEBUG':
-//..
-//  bsls::LogSeverity::Enum value = bsls::LogSeverity::e_DEBUG;
-//..
+// `bsls::LogSeverity::e_DEBUG`:
+// ```
+// bsls::LogSeverity::Enum value = bsls::LogSeverity::e_DEBUG;
+// ```
 // Now, we store the address of its ASCII representation in a pointer variable,
-// 'asciiValue', of type 'const char *':
-//..
-//  const char *asciiValue = bsls::LogSeverity::toAscii(value);
-//..
-// Finally, we verify the value of 'asciiValue':
-//..
-//  assert(0 == strcmp(asciiValue, "DEBUG"));
-//..
+// `asciiValue`, of type `const char *`:
+// ```
+// const char *asciiValue = bsls::LogSeverity::toAscii(value);
+// ```
+// Finally, we verify the value of `asciiValue`:
+// ```
+// assert(0 == strcmp(asciiValue, "DEBUG"));
+// ```
 
 namespace BloombergLP {
 namespace bsls {
@@ -73,10 +73,10 @@ namespace bsls {
                          // struct LogSeverity
                          // ==================
 
+/// This `struct` provides a namespace for enumerating the set of logging
+/// severity levels used in the `bsls` logging framework (see `bsls_log`).
+/// See `Enum` in the TYPES sub-section for details.
 struct LogSeverity {
-    // This 'struct' provides a namespace for enumerating the set of logging
-    // severity levels used in the 'bsls' logging framework (see 'bsls_log').
-    // See 'Enum' in the TYPES sub-section for details.
 
   public:
     // TYPES
@@ -92,23 +92,23 @@ struct LogSeverity {
     };
 
   public:
+    /// Return the non-modifiable string representation corresponding to the
+    /// specified enumeration `value`, if it exists, and a unique (error)
+    /// string otherwise.  The string representation of `value` matches its
+    /// corresponding enumerator name with the "e_" prefix elided.  For
+    /// example:
+    /// ```
+    /// bsl::cout << LogSeverity::toAscii(LogSeverity::e_DEBUG);
+    /// ```
+    /// will print the following on standard output:
+    /// ```
+    /// DEBUG
+    /// ```
+    /// Note that specifying a `value` that does not match any of the
+    /// enumerators will result in a string representation that is distinct
+    /// from any of those corresponding to the enumerators, but is otherwise
+    /// unspecified.
     static const char *toAscii(LogSeverity::Enum value);
-        // Return the non-modifiable string representation corresponding to the
-        // specified enumeration 'value', if it exists, and a unique (error)
-        // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "e_" prefix elided.  For
-        // example:
-        //..
-        //  bsl::cout << LogSeverity::toAscii(LogSeverity::e_DEBUG);
-        //..
-        // will print the following on standard output:
-        //..
-        //  DEBUG
-        //..
-        // Note that specifying a 'value' that does not match any of the
-        // enumerators will result in a string representation that is distinct
-        // from any of those corresponding to the enumerators, but is otherwise
-        // unspecified.
 };
 
 }  // close package namespace

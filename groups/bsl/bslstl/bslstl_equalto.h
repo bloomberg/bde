@@ -5,21 +5,21 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a binary functor conforming to the C++11 'equal_to' spec.
+//@PURPOSE: Provide a binary functor conforming to the C++11 `equal_to` spec.
 //
 //@CLASSES:
-//  equal_to: C++11-compliant binary functor applying 'operator=='
+//  equal_to: C++11-compliant binary functor applying `operator==`
 //
 //@CANONICAL_HEADER: bsl_functional.h
 //
 //@SEE_ALSO: bslstl_unorderedmap, bslstl_unorderedset
 //
 //@DESCRIPTION: This component provides the C+11 standard binary comparison
-// functor, 'bsl::equal_to', that evaluates equality of two 'VALUE_TYPE'
-// objects through the 'operator=='.  The application of the functor to two
-// different objects 'o1' and 'o2' returns true if 'o1 == o2'.  Note that this
+// functor, `bsl::equal_to`, that evaluates equality of two `VALUE_TYPE`
+// objects through the `operator==`.  The application of the functor to two
+// different objects `o1` and `o2` returns true if `o1 == o2`.  Note that this
 // the for use as keys in the standard unordered associative containers such as
-// 'bsl::unordered_map' and 'bsl::unordered_set'.  Also note that this class is
+// `bsl::unordered_map` and `bsl::unordered_set`.  Also note that this class is
 // an empty POD type.
 //
 ///Usage
@@ -34,210 +34,210 @@ BSLS_IDENT("$Id: $")
 // exhaustively use the comparison operator to see if a given value exists in
 // the list, forming a primitive set.
 //
-// First, we define our 'ListSet' template class:
-//..
-//  template <typename TYPE, typename EQUALS = bsl::equal_to<TYPE> >
-//  class ListSet {
-//      // This class implements a crude implementation of a set, that will
-//      // keep a set of values and be able to determine if an element is a
-//      // member of the set.  Unlike a 'bsl::set' or 'bsl::unordered_set', no
-//      // hash function or transitive 'operator<' is required -- only a
-//      // transitive 'EQUALS' operator.
-//      //
-//      // The 'TYPE' template parameter must have a public copy constructor
-//      // and destructor available.
-//      //
-//      // The 'EQUALS' template parameter must a function with a function
-//      // whose signature is
-//      //..
-//      //  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
-//      //..
-//      // and which returns 'true' if 'lhs' and 'rhs' are equivalent and
-//      // 'false' otherwise.  This equivalence relation must be transitive and
-//      // symmetric.  The comparator must have a default constructor and
-//      // destructor which are public.
+// First, we define our `ListSet` template class:
+// ```
+// template <typename TYPE, typename EQUALS = bsl::equal_to<TYPE> >
+// class ListSet {
+//     // This class implements a crude implementation of a set, that will
+//     // keep a set of values and be able to determine if an element is a
+//     // member of the set.  Unlike a 'bsl::set' or 'bsl::unordered_set', no
+//     // hash function or transitive 'operator<' is required -- only a
+//     // transitive 'EQUALS' operator.
+//     //
+//     // The 'TYPE' template parameter must have a public copy constructor
+//     // and destructor available.
+//     //
+//     // The 'EQUALS' template parameter must a function with a function
+//     // whose signature is
+//     //..
+//     //  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
+//     //..
+//     // and which returns 'true' if 'lhs' and 'rhs' are equivalent and
+//     // 'false' otherwise.  This equivalence relation must be transitive and
+//     // symmetric.  The comparator must have a default constructor and
+//     // destructor which are public.
 //
-//      // PRIVATE TYPES
-//      struct Node {
-//          TYPE  d_value;
-//          Node *d_next;
-//      };
+//     // PRIVATE TYPES
+//     struct Node {
+//         TYPE  d_value;
+//         Node *d_next;
+//     };
 //
-//      // DATA
-//      EQUALS            d_comparator;
-//      Node             *d_nodeList;
-//      bslma::Allocator *d_allocator_p;
+//     // DATA
+//     EQUALS            d_comparator;
+//     Node             *d_nodeList;
+//     bslma::Allocator *d_allocator_p;
 //
-//    private:
-//      // NOT IMPLEMENTED
-//      ListSet(const ListSet&);
-//      ListSet& operator=(const ListSet&);
+//   private:
+//     // NOT IMPLEMENTED
+//     ListSet(const ListSet&);
+//     ListSet& operator=(const ListSet&);
 //
-//    public:
-//      // CREATORS
-//      explicit
-//      ListSet(bslma::Allocator *allocator = 0)
-//      : d_comparator()
-//      , d_nodeList(0)
-//      , d_allocator_p(bslma::Default::allocator(allocator))
-//          // Create an empty "ListSet' using the specified 'allocator', or
-//          // the default allocator if none is specified.
-//      {}
+//   public:
+//     // CREATORS
+//     explicit
+//     ListSet(bslma::Allocator *allocator = 0)
+//     : d_comparator()
+//     , d_nodeList(0)
+//     , d_allocator_p(bslma::Default::allocator(allocator))
+//         // Create an empty "ListSet' using the specified 'allocator', or
+//         // the default allocator if none is specified.
+//     {}
 //
-//      ~ListSet()
-//          // Release all memory used by this 'ListSet'
-//      {
-//          for (Node *node = d_nodeList; node; ) {
-//              Node *toDelete = node;
-//              node = node->d_next;
+//     ~ListSet()
+//         // Release all memory used by this 'ListSet'
+//     {
+//         for (Node *node = d_nodeList; node; ) {
+//             Node *toDelete = node;
+//             node = node->d_next;
 //
-//              d_allocator_p->deleteObject(toDelete);
-//          }
-//      }
+//             d_allocator_p->deleteObject(toDelete);
+//         }
+//     }
 //
-//      // MANIPULATOR
-//      bool insert(const TYPE& value)
-//          // If 'value' isn't contained in this 'ListSet', add it and return
-//          // 'true', otherwise, return 'false' with no change to the
-//          // 'ListSet'.
-//      {
-//          if (count(value)) {
-//              return false;                                         // RETURN
-//          }
+//     // MANIPULATOR
+//     bool insert(const TYPE& value)
+//         // If 'value' isn't contained in this 'ListSet', add it and return
+//         // 'true', otherwise, return 'false' with no change to the
+//         // 'ListSet'.
+//     {
+//         if (count(value)) {
+//             return false;                                         // RETURN
+//         }
 //
-//          Node *node =
-//                   bslma::AllocatorUtil::allocateObject<Node>(d_allocator_p);
-//          bslma::ConstructionUtil::construct(&node->d_value,
-//                                             d_allocator_p,
-//                                             value);
-//          node->d_next = d_nodeList;
-//          d_nodeList = node;
+//         Node *node =
+//                  bslma::AllocatorUtil::allocateObject<Node>(d_allocator_p);
+//         bslma::ConstructionUtil::construct(&node->d_value,
+//                                            d_allocator_p,
+//                                            value);
+//         node->d_next = d_nodeList;
+//         d_nodeList = node;
 //
-//          return true;
-//      }
+//         return true;
+//     }
 //
-//      int count(const TYPE& value) const
-//          // Return the number of nodes whose 'd_value' field is equivalent
-//          // to the specified 'value', which will always be 0 or 1.
-//      {
-//          for (Node *node = d_nodeList; node; node = node->d_next) {
-//              if (d_comparator(node->d_value, value)) {
-//                  return 1;                                         // RETURN
-//              }
-//          }
+//     int count(const TYPE& value) const
+//         // Return the number of nodes whose 'd_value' field is equivalent
+//         // to the specified 'value', which will always be 0 or 1.
+//     {
+//         for (Node *node = d_nodeList; node; node = node->d_next) {
+//             if (d_comparator(node->d_value, value)) {
+//                 return 1;                                         // RETURN
+//             }
+//         }
 //
-//          return 0;
-//      }
-//  };
-//..
-// Then, in 'main', we declare an instance of 'ListSet' storing 'int's.  The
-// default definition of 'bsl::equal_to' will work nicely:
-//..
-//  ListSet<int> lsi;
-//..
-// Now, we insert several values into our 'ListSet'.  Note that successful
-// insertions return 'true' while redundant ones return 'false' with no effect:
-//..
-//  assert(true  == lsi.insert( 5));
-//  assert(false == lsi.insert( 5));
-//  assert(false == lsi.insert( 5));
-//  assert(true  == lsi.insert(11));
-//  assert(true  == lsi.insert(17));
-//  assert(true  == lsi.insert(81));
-//  assert(true  == lsi.insert(32));
-//  assert(false == lsi.insert(17));
-//..
-// Finally, we observe that our 'count' method successfully distinguishes
-// between values that have been stored in our 'ListSet' and those that
+//         return 0;
+//     }
+// };
+// ```
+// Then, in `main`, we declare an instance of `ListSet` storing `int`s.  The
+// default definition of `bsl::equal_to` will work nicely:
+// ```
+// ListSet<int> lsi;
+// ```
+// Now, we insert several values into our `ListSet`.  Note that successful
+// insertions return `true` while redundant ones return `false` with no effect:
+// ```
+// assert(true  == lsi.insert( 5));
+// assert(false == lsi.insert( 5));
+// assert(false == lsi.insert( 5));
+// assert(true  == lsi.insert(11));
+// assert(true  == lsi.insert(17));
+// assert(true  == lsi.insert(81));
+// assert(true  == lsi.insert(32));
+// assert(false == lsi.insert(17));
+// ```
+// Finally, we observe that our `count` method successfully distinguishes
+// between values that have been stored in our `ListSet` and those that
 // haven't:
-//..
-//  assert(0 == lsi.count( 7));
-//  assert(1 == lsi.count( 5));
-//  assert(0 == lsi.count(13));
-//  assert(1 == lsi.count(11));
-//  assert(0 == lsi.count(33));
-//  assert(1 == lsi.count(32));
-//..
+// ```
+// assert(0 == lsi.count( 7));
+// assert(1 == lsi.count( 5));
+// assert(0 == lsi.count(13));
+// assert(1 == lsi.count(11));
+// assert(0 == lsi.count(33));
+// assert(1 == lsi.count(32));
+// ```
 //
 ///Example 2: Using Our List Set For a Custom Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to have a list set containing objects of a custom type.  We
-// can declare an 'operator==' for our custom type, and 'equal_to' will use
-// that.  We will re-use the 'ListSet' template class from example 1, and
+// can declare an `operator==` for our custom type, and `equal_to` will use
+// that.  We will re-use the `ListSet` template class from example 1, and
 // create a new custom type.
 //
-// First, we define a type 'StringThing', which will contain a 'const char *'
+// First, we define a type `StringThing`, which will contain a `const char *`
 // pointer, it will be a very simple type, that is implicitly castable to or
-// from a 'const char *'.
-//..
-//  class StringThing {
-//      // This class holds a pointer to zero-terminated string.  It is
-//      // implicitly convertible to and from a 'const char *'.  The difference
-//      // between this type and a 'const char *' is that 'operator==' will
-//      // properly compare two objects of this type for equality of strings
-//      // rather than equality of pointers.
+// from a `const char *`.
+// ```
+// class StringThing {
+//     // This class holds a pointer to zero-terminated string.  It is
+//     // implicitly convertible to and from a 'const char *'.  The difference
+//     // between this type and a 'const char *' is that 'operator==' will
+//     // properly compare two objects of this type for equality of strings
+//     // rather than equality of pointers.
 //
-//      // DATA
-//      const char *d_string;    // held, not owned
+//     // DATA
+//     const char *d_string;    // held, not owned
 //
-//    public:
-//      // CREATOR
-//      StringThing(const char *string)                             // IMPLICIT
-//      : d_string(string)
-//          // Create a 'StringThing' object out of the specified 'string'.
-//      {}
+//   public:
+//     // CREATOR
+//     StringThing(const char *string)                             // IMPLICIT
+//     : d_string(string)
+//         // Create a 'StringThing' object out of the specified 'string'.
+//     {}
 //
-//      // ACCESSOR
-//      operator const char *() const
-//          // Implicitly cast this 'StringThing' object to a 'const char *'
-//          // that refers to the same buffer.
-//      {
-//          return d_string;
-//      }
-//  };
-//..
-// Then, we create an 'operator==' for StringThings
-//..
+//     // ACCESSOR
+//     operator const char *() const
+//         // Implicitly cast this 'StringThing' object to a 'const char *'
+//         // that refers to the same buffer.
+//     {
+//         return d_string;
+//     }
+// };
+// ```
+// Then, we create an `operator==` for StringThings
+// ```
 //
-//  bool operator==(const StringThing& lhs, const StringThing& rhs)
-//      {
-//          return !strcmp(lhs, rhs);
-//      }
+//   bool operator==(const StringThing& lhs, const StringThing& rhs)
+//       {
+//           return !strcmp(lhs, rhs);
+//       }
 //
-//..
-// Next, in 'main', we declare a 'ListSet' containing 'StringThing's:
-//..
-//  ListSet<StringThing> lsst;
-//..
+// ```
+// Next, in `main`, we declare a `ListSet` containing `StringThing`s:
+// ```
+// ListSet<StringThing> lsst;
+// ```
 // Then, we insert a number of values, and observe that redundant inserts
-// return 'false' with no effect:
-//..
-//  assert(true  == lsst.insert("woof"));
-//  assert(true  == lsst.insert("meow"));
-//  assert(true  == lsst.insert("arf"));
-//  assert(false == lsst.insert("woof"));
-//  assert(true  == lsst.insert("bark"));
-//  assert(false == lsst.insert("meow"));
-//  assert(false == lsst.insert("woof"));
-//..
-// Now, we observe that our 'count' method successfully distinguishes between
-// values that have been stored in 'lsst' and those that haven't:
-//..
-//  assert(1 == lsst.count("meow"));
-//  assert(0 == lsst.count("woo"));
-//  assert(1 == lsst.count("woof"));
-//  assert(1 == lsst.count("arf"));
-//  assert(0 == lsst.count("chomp"));
-//..
+// return `false` with no effect:
+// ```
+// assert(true  == lsst.insert("woof"));
+// assert(true  == lsst.insert("meow"));
+// assert(true  == lsst.insert("arf"));
+// assert(false == lsst.insert("woof"));
+// assert(true  == lsst.insert("bark"));
+// assert(false == lsst.insert("meow"));
+// assert(false == lsst.insert("woof"));
+// ```
+// Now, we observe that our `count` method successfully distinguishes between
+// values that have been stored in `lsst` and those that haven't:
+// ```
+// assert(1 == lsst.count("meow"));
+// assert(0 == lsst.count("woo"));
+// assert(1 == lsst.count("woof"));
+// assert(1 == lsst.count("arf"));
+// assert(0 == lsst.count("chomp"));
+// ```
 // Finally, we copy values into a buffer and observe that this makes no
-// difference to 'count's results:
-//..
-//  char buffer[10];
-//  strcpy(buffer, "meow");
-//  assert(1 == lsst.count(buffer));
-//  strcpy(buffer, "bite");
-//  assert(0 == lsst.count(buffer));
-//..
+// difference to `count`s results:
+// ```
+// char buffer[10];
+// strcpy(buffer, "meow");
+// assert(1 == lsst.count(buffer));
+// strcpy(buffer, "bite");
+// assert(0 == lsst.count(buffer));
+// ```
 
 #include <bslscm_version.h>
 
@@ -257,12 +257,12 @@ namespace bsl {
                        // struct equal_to
                        // ===============
 
+/// This `struct` defines a binary comparison functor applying `operator==`
+/// to two `VALUE_TYPE` objects.  This class conforms to the C++11 standard
+/// specification of `std::equal_to` that does not require inheriting from
+/// `std::binary_function`.  Note that this class is an empty POD type.
 template<class VALUE_TYPE = void>
 struct equal_to {
-    // This 'struct' defines a binary comparison functor applying 'operator=='
-    // to two 'VALUE_TYPE' objects.  This class conforms to the C++11 standard
-    // specification of 'std::equal_to' that does not require inheriting from
-    // 'std::binary_function'.  Note that this class is an empty POD type.
 
     // PUBLIC TYPES
     typedef VALUE_TYPE first_argument_type;
@@ -287,17 +287,18 @@ struct equal_to {
         // will have no observable effect.
 
     // ACCESSORS
+
+    /// Return `true` if the specified `lhs` compares equal to the specified
+    /// `rhs` using the equality-comparison operator, `lhs == rhs`.
     BSLA_NODISCARD BSLS_KEYWORD_CONSTEXPR bool
     operator()(const VALUE_TYPE& lhs, const VALUE_TYPE& rhs) const;
-        // Return 'true' if the specified 'lhs' compares equal to the specified
-        // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
 };
 
+/// This `struct` defines a binary comparison functor applying `operator==`
+/// to two objects of (possibly different) types.  Note that this class is
+/// an empty POD type.
 template<>
 struct equal_to<void> {
-    // This 'struct' defines a binary comparison functor applying 'operator=='
-    // to two objects of (possibly different) types.  Note that this class is
-    // an empty POD type.
 
     // PUBLIC TYPES
     typedef void is_transparent;
@@ -322,15 +323,15 @@ struct equal_to<void> {
 
     // ACCESSORS
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+    /// Return `true` if the specified `lhs` compares equal to the specified
+    /// `rhs` using the equality-comparison operator, `lhs == rhs`.
+    /// Implemented inline because of all the duplication of
+    /// `std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs)`.
     template<class TYPE1, class TYPE2>
     BSLA_NODISCARD BSLS_KEYWORD_CONSTEXPR inline
     auto operator()(TYPE1&& lhs, TYPE2&& rhs) const
       noexcept(noexcept(std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs)))
       -> decltype(      std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs))
-        // Return 'true' if the specified 'lhs' compares equal to the specified
-        // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
-        // Implemented inline because of all the duplication of
-        // 'std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs)'.
     { return            std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs); }
 #else
     template<class TYPE1, class TYPE2>

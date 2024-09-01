@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a platform-independent RW mutex class.
 //
-//@DEPRECATED: Use 'bslmt_readerwritermutex' instead.
+//@DEPRECATED: Use `bslmt_readerwritermutex` instead.
 //
 //@CLASSES:
 //   bslmt::RWMutex: platform-independent wrapper of an RW mutex
@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmt_readerwritermutex, bslmt_readerwriterlock,
 //           bslmt_readlockguard, bslmt_writelockguard
 //
-//@DESCRIPTION: This component provides a class, 'bslmt::RWMutex', that defines
+//@DESCRIPTION: This component provides a class, `bslmt::RWMutex`, that defines
 // a platform-independent RW mutex.  An RW mutex provides for a shared "read"
 // lock that may be held simultaneously by any number of threads, and a "write"
 // lock that is exclusive (i.e., it may be held by only one thread at a time).
@@ -62,12 +62,12 @@ namespace bslmt {
                      // struct RWMutexImpl<PosixThreads>
                      // ================================
 
+/// This is a platform-specific implementation detail that is not intended
+/// for use outside of this component.  Use the `RWMutex` class instead.
+/// This structure is a wrapper around a POSIX RW lock on Sun (on AIX the
+/// POSIX RW lock has poor performance and no writer guarantees).
 template <>
 struct RWMutexImpl<Platform::PosixThreads> {
-    // This is a platform-specific implementation detail that is not intended
-    // for use outside of this component.  Use the 'RWMutex' class instead.
-    // This structure is a wrapper around a POSIX RW lock on Sun (on AIX the
-    // POSIX RW lock has poor performance and no writer guarantees).
 
   private:
     // DATA
@@ -96,13 +96,13 @@ namespace bslmt {
                               // class RWMutex
                               // =============
 
+/// This class is a platform-independent interface to a reader-writer lock
+/// ("RW mutex").  Multiple readers can safely hold the lock simultaneously,
+/// whereas only one writer is allowed to hold the lock at a time.  This
+/// class uses the most efficient RW mutex implementation available for the
+/// current platform.  Note that the implementation may allow readers to
+/// starve writers.
 class RWMutex {
-    // This class is a platform-independent interface to a reader-writer lock
-    // ("RW mutex").  Multiple readers can safely hold the lock simultaneously,
-    // whereas only one writer is allowed to hold the lock at a time.  This
-    // class uses the most efficient RW mutex implementation available for the
-    // current platform.  Note that the implementation may allow readers to
-    // starve writers.
 
     // DATA
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLMT_PLATFORM_WIN32_THREADS)
@@ -117,49 +117,51 @@ class RWMutex {
 
   public:
     // CREATORS
-    RWMutex();
-        // Create an RW mutex initialized to an unlocked state.
 
+    /// Create an RW mutex initialized to an unlocked state.
+    RWMutex();
+
+    /// Destroy this RW mutex.  The behavior is undefined if the mutex
+    /// is in a locked state.
     ~RWMutex();
-        // Destroy this RW mutex.  The behavior is undefined if the mutex
-        // is in a locked state.
 
     // MANIPULATORS
+
+    /// Lock this reader-writer mutex for reading.  If there are no active
+    /// or pending write locks, lock this mutex for reading and return
+    /// immediately.  Otherwise, block until the read lock on this mutex is
+    /// acquired.  Use `unlock` to release the lock on this mutex.  The
+    /// behavior is undefined if this method is called from a thread that
+    /// already has a lock on this mutex.
     void lockRead();
-        // Lock this reader-writer mutex for reading.  If there are no active
-        // or pending write locks, lock this mutex for reading and return
-        // immediately.  Otherwise, block until the read lock on this mutex is
-        // acquired.  Use 'unlock' to release the lock on this mutex.  The
-        // behavior is undefined if this method is called from a thread that
-        // already has a lock on this mutex.
 
+    /// Lock this reader-writer mutex for writing.  If there are no active
+    /// or pending locks on this mutex, lock this mutex for writing and
+    /// return immediately.  Otherwise, block until the write lock on this
+    /// mutex is acquired.  Use `unlock` to release the lock on this mutex.
+    /// The behavior is undefined if this method is called from a thread
+    /// that already has a lock on this mutex.
     void lockWrite();
-        // Lock this reader-writer mutex for writing.  If there are no active
-        // or pending locks on this mutex, lock this mutex for writing and
-        // return immediately.  Otherwise, block until the write lock on this
-        // mutex is acquired.  Use 'unlock' to release the lock on this mutex.
-        // The behavior is undefined if this method is called from a thread
-        // that already has a lock on this mutex.
 
+    /// Attempt to lock this reader-writer mutex for reading.  Immediately
+    /// return 0 on success, and a non-zero value if there are active or
+    /// pending writers.  If successful, `unlock` must be used to release
+    /// the lock on this mutex.  The behavior is undefined if this method is
+    /// called from a thread that already has a lock on this mutex.
     int tryLockRead();
-        // Attempt to lock this reader-writer mutex for reading.  Immediately
-        // return 0 on success, and a non-zero value if there are active or
-        // pending writers.  If successful, 'unlock' must be used to release
-        // the lock on this mutex.  The behavior is undefined if this method is
-        // called from a thread that already has a lock on this mutex.
 
+    /// Attempt to lock this reader-writer mutex for writing.  Immediately
+    /// return 0 on success, and a non-zero value if there are active or
+    /// pending locks on this mutex.  If successful, `unlock` must be used
+    /// to release the lock on this mutex.  The behavior is undefined if
+    /// this method is called from a thread that already has a lock on this
+    /// mutex.
     int tryLockWrite();
-        // Attempt to lock this reader-writer mutex for writing.  Immediately
-        // return 0 on success, and a non-zero value if there are active or
-        // pending locks on this mutex.  If successful, 'unlock' must be used
-        // to release the lock on this mutex.  The behavior is undefined if
-        // this method is called from a thread that already has a lock on this
-        // mutex.
 
+    /// Release the lock that the calling thread holds on this reader-writer
+    /// mutex.  The behavior is undefined unless the calling thread
+    /// currently has a lock on this mutex.
     void unlock();
-        // Release the lock that the calling thread holds on this reader-writer
-        // mutex.  The behavior is undefined unless the calling thread
-        // currently has a lock on this mutex.
 };
 
 }  // close package namespace

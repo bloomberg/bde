@@ -76,221 +76,222 @@ namespace bsltf {
 // ============================================================================
 
 // FREE OPERATORS
+
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                                stream,
                    const TemplateTestFacility::MethodPtr& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                             stream,
                    const AllocBitwiseMoveableTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                        stream,
                    const AllocEmplacableTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&              stream,
                    const AllocTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                        stream,
                    const BitwiseCopyableTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                        stream,
                    const BitwiseMoveableTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                   stream,
                    const EmplacableTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                         stream,
                    const EnumeratedTestType::Enum& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                     stream,
                    const MovableAllocTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                stream,
                    const MovableTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                      stream,
                    const MoveOnlyAllocTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                      stream,
                    const NonAssignableTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                             stream,
                    const NonCopyConstructibleTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                                stream,
                    const NonDefaultConstructibleTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                           stream,
                    const NonEqualComparableTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                         stream,
                    const NonOptionalAllocTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                            stream,
                    const NonTypicalOverloadsTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&               stream,
                    const SimpleTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM, class ALLOC>
 inline
 STREAM& operator<<(STREAM&                        stream,
                    const StdAllocTestType<ALLOC>& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;
 }
 
+/// Stream the integer representing the value of the specified `object` to
+/// the specified `stream`.  Return `stream`.
 template <class STREAM>
 inline
 STREAM& operator<<(STREAM&              stream,
                    const UnionTestType& object)
-    // Stream the integer representing the value of the specified 'object' to
-    // the specified 'stream'.  Return 'stream'.
 {
     stream << TemplateTestFacility::getIdentifier(object);
     return stream;

@@ -5,31 +5,31 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Test driver utility to undefine all macros from 'bsls_review.h'.
+//@PURPOSE: Test driver utility to undefine all macros from `bsls_review.h`.
 //
 //@DESCRIPTION: This component provides a header that is *included* to undefine
-// all macros defined in 'bsls_review.h'; it is designed to be re-includable.
-// This is for the use of the 'bsls_review' test driver to enable it to
-// re-include the 'bsls_review.h' header with different input macros and verify
+// all macros defined in `bsls_review.h`; it is designed to be re-includable.
+// This is for the use of the `bsls_review` test driver to enable it to
+// re-include the `bsls_review.h` header with different input macros and verify
 // that they output the correct resulting macro definitions.
 //
 ///Usage
 ///-----
-// To undefine all macros defined in 'bsls_review.h', first disable the header
-// include guard for this header ('bsls_review_macroreset.h'):
-//..
-//  #undef INCLUDED_BSLS_REVIEW_MACRORESET
-//..
+// To undefine all macros defined in `bsls_review.h`, first disable the header
+// include guard for this header (`bsls_review_macroreset.h`):
+// ```
+// #undef INCLUDED_BSLS_REVIEW_MACRORESET
+// ```
 // Then re-include this header, which will undefine the macros that were
-// defined by 'bsls_review.h':
-//..
-//  #include <bsls_review_macroreset.h>
-//..
-// Then define any macros that control the behavior of 'bsls_review.h' for this
-// particular test, then re-include 'bsls_review.h':
-//..
-//  #include <bsls_review.h>
-//..
+// defined by `bsls_review.h`:
+// ```
+// #include <bsls_review_macroreset.h>
+// ```
+// Then define any macros that control the behavior of `bsls_review.h` for this
+// particular test, then re-include `bsls_review.h`:
+// ```
+// #include <bsls_review.h>
+// ```
 
 // Undefine the external header guard so that the component header can be
 // re-included and re-evaluated.

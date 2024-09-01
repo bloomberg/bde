@@ -12,462 +12,462 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslx_outstreamfunctions, bslx_versionfunctions
 //
-//@DESCRIPTION: This component provides a namespace, 'bslx::InStreamFunctions',
+//@DESCRIPTION: This component provides a namespace, `bslx::InStreamFunctions`,
 // that facilitates uniform support for BDEX unexternalization across all
 // BDEX-compliant user-defined types, including template types and containers,
-// as well as those fundamental types (and 'bsl::string' and 'bsl::vector') for
+// as well as those fundamental types (and `bsl::string` and `bsl::vector`) for
 // which the BDEX protocol provides direct support.
 //
-// The namespace 'bslx::InStreamFunctions' facilitates client unexternalization
+// The namespace `bslx::InStreamFunctions` facilitates client unexternalization
 // of objects in a uniform, type-independent manner.  It contains the
-// 'bdexStreamIn' function that unexternalizes objects of all BDEX-compliant
-// types.  This function unexternalizes the specified 'object' in the specified
-// 'version' or the 'version' read from the input stream as required by the
-// BDEX protocol.  The 'bdexStreamIn' function is overloaded for fundamental
-// types, enumeration types, 'bsl::string', and 'bsl::vector'.  Note that,
-// excluding 'bsl::vector', version information is never read from the stream
+// `bdexStreamIn` function that unexternalizes objects of all BDEX-compliant
+// types.  This function unexternalizes the specified `object` in the specified
+// `version` or the `version` read from the input stream as required by the
+// BDEX protocol.  The `bdexStreamIn` function is overloaded for fundamental
+// types, enumeration types, `bsl::string`, and `bsl::vector`.  Note that,
+// excluding `bsl::vector`, version information is never read from the stream
 // while unexternalizing these types.
 //
-// By default, objects of enumeration type are streamed in as 32-bit 'int'
+// By default, objects of enumeration type are streamed in as 32-bit `int`
 // values.  Users can override this behavior by providing overloads of the
-// 'InStreamFunctions::bdexStreamIn' function in the enumeration's namespace
+// `InStreamFunctions::bdexStreamIn` function in the enumeration's namespace
 // for their enumeration types.  The general form of this overload is:
-//..
-//  template <class STREAM>
-//  STREAM& bdexStreamIn(STREAM& stream, MyEnum& variable, int version)
-//  {
-//      using bslx::InStreamFunctions::bdexStreamIn;
+// ```
+// template <class STREAM>
+// STREAM& bdexStreamIn(STREAM& stream, MyEnum& variable, int version)
+// {
+//     using bslx::InStreamFunctions::bdexStreamIn;
 //
-//      // Code to stream in objects of 'MyEnum' type.
+//     // Code to stream in objects of 'MyEnum' type.
 //
-//      return stream;
-//  }
-//..
+//     return stream;
+// }
+// ```
 // For value-semantic types that support the BDEX protocol, the free function
-// 'bdexStreamIn' calls the 'bdexStreamIn' member function for that type.
+// `bdexStreamIn` calls the `bdexStreamIn` member function for that type.
 //
 ///Component Design, Anticipated Usage, and the BDEX Contract
 ///----------------------------------------------------------
-// 'bslx_instreamfunctions' is an integral part of the BDEX unexternalization
+// `bslx_instreamfunctions` is an integral part of the BDEX unexternalization
 // contract.  The BDEX contract is at least in part "collaborative", which is
 // to say that each developer of a given *kind* of component (e.g., a stream or
 // a value-semantic container) must comply with the relevant portions of the
 // contract to ensure that the "system as a whole" works for everybody.
-// 'bslx_instreamfunctions' plays several related but different roles in
+// `bslx_instreamfunctions` plays several related but different roles in
 // helping various developers to produce BDEX-compliant components.  In this
-// section we briefly highlight how and why 'bslx_instreamfunctions' is helpful
+// section we briefly highlight how and why `bslx_instreamfunctions` is helpful
 // (or required) for these different developers.  By discussing different
 // aspects of usage, we convey the general design goals of this component, and,
-// to a certain extent, the overall BDEX contract.  See the 'bslx'
+// to a certain extent, the overall BDEX contract.  See the `bslx`
 // package-level documentation for a full specification of the BDEX contract.
 //
 ///Implementing BDEX Streaming in Value-Semantic Template Classes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The author of a non-template value-semantic type has full knowledge of the
 // details of the "value" of that type, and may choose to use the appropriate
-// input stream 'get' methods directly when implementing the required
-// 'bdexStreamIn' method for that type.  However, if one or more aspects of the
+// input stream `get` methods directly when implementing the required
+// `bdexStreamIn` method for that type.  However, if one or more aspects of the
 // value are of template parameter type, then the author cannot in general know
-// how to stream the value using the 'get' methods.  For example, if a type has
-// as its value one 'int' data member:
-//..
-//  int d_value;
-//..
-// then the implementation of the 'bdexStreamIn' method can contain:
-//..
-//  stream.getInt32(d_value);
-//..
-// However, if the data member is of (template parameter) 'VALUE_TYPE':
-//..
-//  VALUE_TYPE d_value;
-//..
-// then the implementation of the 'bdexStreamIn' method must rely on the
-// 'bslx::InStreamFunctions' implementation to input the value:
-//..
-//  using bslx::InStreamFunctions::bdexStreamIn;
-//  bdexStreamIn(stream, d_value, 1);
-//..
-// This call will resolve to the correct sequence of 'get' calls no matter
-// whether 'VALUE_TYPE' is a fundamental type, a BDEX-compliant 'enum', or a
+// how to stream the value using the `get` methods.  For example, if a type has
+// as its value one `int` data member:
+// ```
+// int d_value;
+// ```
+// then the implementation of the `bdexStreamIn` method can contain:
+// ```
+// stream.getInt32(d_value);
+// ```
+// However, if the data member is of (template parameter) `VALUE_TYPE`:
+// ```
+// VALUE_TYPE d_value;
+// ```
+// then the implementation of the `bdexStreamIn` method must rely on the
+// `bslx::InStreamFunctions` implementation to input the value:
+// ```
+// using bslx::InStreamFunctions::bdexStreamIn;
+// bdexStreamIn(stream, d_value, 1);
+// ```
+// This call will resolve to the correct sequence of `get` calls no matter
+// whether `VALUE_TYPE` is a fundamental type, a BDEX-compliant `enum`, or a
 // proper BDEX-compliant class.  In the latter two cases, the explicit
 // specification of the version format (in this case, 1) guarantees the stable
-// operation of this method whether or not 'VALUE_TYPE' is provided additional
+// operation of this method whether or not `VALUE_TYPE` is provided additional
 // version formats.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bslx::InStreamFunctions' to Unexternalize Data
+///Example 1: Using `bslx::InStreamFunctions` to Unexternalize Data
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate the primary intended use of the parameterized
 // methods of this component, as well as a few trivial invocations just to show
 // the syntax clearly.  To accomplish this, we exhibit three separate example
-// "components": an 'enum', a value-semantic point object, and an input stream.
+// "components": an `enum`, a value-semantic point object, and an input stream.
 // In all cases, the component designs are very simple, with much of the
 // implied functionality omitted, in order to focus attention on the key
 // aspects of the functionality of *this* component.
 //
-// First, consider an 'enum' 'Color' that enumerates a set of colors:
-//..
-//  enum Color {
-//      RED   = 0,
-//      GREEN = 1,
-//      BLUE  = 2
-//  };
-//..
+// First, consider an `enum` `Color` that enumerates a set of colors:
+// ```
+// enum Color {
+//     RED   = 0,
+//     GREEN = 1,
+//     BLUE  = 2
+// };
+// ```
 // Next, we consider a very special-purpose point that has as a data member its
 // color.  Such a point provides an excellent opportunity for factoring, but
 // since we are interested in highlighting BDEX streaming of various types, we
 // will present a simple and unfactored design here.  In a real-world problem,
-// the 'mypoint' component would be implemented differently.
+// the `mypoint` component would be implemented differently.
 //
-// Note that the 'MyPoint' class in this example represents its coordinates as
-// 'short' integer values; this is done to make the BDEX stream input byte
+// Note that the `MyPoint` class in this example represents its coordinates as
+// `short` integer values; this is done to make the BDEX stream input byte
 // pattern somewhat easier for the reader of this example to recognize when the
 // input buffer is printed.
-//..
-//  // mypoint.h
+// ```
+// // mypoint.h
 //
-//  class MyPoint {
-//      // This class provides a geometric point having integer coordinates and
-//      // an enumerated color property.
+// class MyPoint {
+//     // This class provides a geometric point having integer coordinates and
+//     // an enumerated color property.
 //
-//      short d_x;      // x coordinate
-//      short d_y;      // y coordinate
-//      Color d_color;  // enumerated color property
+//     short d_x;      // x coordinate
+//     short d_y;      // y coordinate
+//     Color d_color;  // enumerated color property
 //
-//    public:
-//      // CLASS METHODS
-//      // ...
+//   public:
+//     // CLASS METHODS
+//     // ...
 //
-//      // CREATORS
-//      MyPoint();
-//          // Create a default point.
+//     // CREATORS
+//     MyPoint();
+//         // Create a default point.
 //
-//      MyPoint(short x, short y, Color color);
-//          // Create a point having the specified 'x' and 'y' coordinates
-//          // and the specified 'color'.
+//     MyPoint(short x, short y, Color color);
+//         // Create a point having the specified 'x' and 'y' coordinates
+//         // and the specified 'color'.
 //
-//      ~MyPoint();
-//          // Destroy this point.
+//     ~MyPoint();
+//         // Destroy this point.
 //
-//      // MANIPULATORS
-//      // ...
+//     // MANIPULATORS
+//     // ...
 //
-//      // ACCESSORS
-//      short x() const;
-//          // Return the x coordinate of this point.
+//     // ACCESSORS
+//     short x() const;
+//         // Return the x coordinate of this point.
 //
-//      short y() const;
-//          // Return the y coordinate of this point.
+//     short y() const;
+//         // Return the y coordinate of this point.
 //
-//      Color color() const;
-//          // Return the enumerated color of this point.
+//     Color color() const;
+//         // Return the enumerated color of this point.
 //
-//      template <class STREAM>
-//      STREAM& bdexStreamIn(STREAM& stream, int version);
-//          // Assign to this object the value read from the specified input
-//          // 'stream' using the specified 'version' format, and return a
-//          // reference to 'stream'.  If 'stream' is initially invalid, this
-//          // operation has no effect.  If 'version' is not supported, this
-//          // object is unaltered and 'stream' is invalidated, but otherwise
-//          // unmodified.  If 'version' is supported but 'stream' becomes
-//          // invalid during this operation, this object has an undefined, but
-//          // valid, state.  Note that no version is read from 'stream'.  See
-//          // the 'bslx' package-level documentation for more information on
-//          // BDEX streaming of value-semantic types and containers.
-//  };
+//     template <class STREAM>
+//     STREAM& bdexStreamIn(STREAM& stream, int version);
+//         // Assign to this object the value read from the specified input
+//         // 'stream' using the specified 'version' format, and return a
+//         // reference to 'stream'.  If 'stream' is initially invalid, this
+//         // operation has no effect.  If 'version' is not supported, this
+//         // object is unaltered and 'stream' is invalidated, but otherwise
+//         // unmodified.  If 'version' is supported but 'stream' becomes
+//         // invalid during this operation, this object has an undefined, but
+//         // valid, state.  Note that no version is read from 'stream'.  See
+//         // the 'bslx' package-level documentation for more information on
+//         // BDEX streaming of value-semantic types and containers.
+// };
 //
-//  // FREE OPERATORS
-//  inline
-//  bool operator==(const MyPoint& lhs, const MyPoint& rhs);
-//      // Return 'true' if the specified 'lhs' and 'rhs' points have the same
-//      // value, and 'false' otherwise.  Two points have the same value if
-//      // they have the same x and y coordinates and the same color.
-//..
+// // FREE OPERATORS
+// inline
+// bool operator==(const MyPoint& lhs, const MyPoint& rhs);
+//     // Return 'true' if the specified 'lhs' and 'rhs' points have the same
+//     // value, and 'false' otherwise.  Two points have the same value if
+//     // they have the same x and y coordinates and the same color.
+// ```
 // Representative (inline) implementations of these methods are shown below:
-//..
-//  // ========================================================================
-//  //                      INLINE FUNCTION DEFINITIONS
-//  // ========================================================================
+// ```
+// // ========================================================================
+// //                      INLINE FUNCTION DEFINITIONS
+// // ========================================================================
 //
-//  // CREATORS
-//  inline
-//  MyPoint::MyPoint()
-//  {
-//  }
+// // CREATORS
+// inline
+// MyPoint::MyPoint()
+// {
+// }
 //
-//  inline
-//  MyPoint::MyPoint(short x, short y, Color color)
-//  : d_x(x)
-//  , d_y(y)
-//  , d_color(color)
-//  {
-//  }
+// inline
+// MyPoint::MyPoint(short x, short y, Color color)
+// : d_x(x)
+// , d_y(y)
+// , d_color(color)
+// {
+// }
 //
-//  inline
-//  MyPoint::~MyPoint()
-//  {
-//  }
+// inline
+// MyPoint::~MyPoint()
+// {
+// }
 //
-//  // ...
+// // ...
 //
-//  // MANIPULATORS
-//  // ...
+// // MANIPULATORS
+// // ...
 //
-//  // ACCESSORS
-//  inline
-//  Color MyPoint::color() const
-//  {
-//      return d_color;
-//  }
+// // ACCESSORS
+// inline
+// Color MyPoint::color() const
+// {
+//     return d_color;
+// }
 //
-//  inline
-//  short MyPoint::x() const
-//  {
-//      return d_x;
-//  }
+// inline
+// short MyPoint::x() const
+// {
+//     return d_x;
+// }
 //
-//  inline
-//  short MyPoint::y() const
-//  {
-//      return d_y;
-//  }
-//  // ...
+// inline
+// short MyPoint::y() const
+// {
+//     return d_y;
+// }
+// // ...
 //
-//  template <class STREAM>
-//  STREAM& MyPoint::bdexStreamIn(STREAM& stream, int version)
-//  {
-//      switch (version) {
-//        case 1: {
-//          stream.getInt16(d_x);           // input the x coordinate
-//          stream.getInt16(d_y);           // input the y coordinate
-//          char color;
-//          stream.getInt8(color);          // input the color enum as one byte
-//          d_color = static_cast<Color>(color);
-//        } break;
-//        default: {
-//          stream.invalidate();
-//        } break;
-//      }
-//      return stream;
-//  }
+// template <class STREAM>
+// STREAM& MyPoint::bdexStreamIn(STREAM& stream, int version)
+// {
+//     switch (version) {
+//       case 1: {
+//         stream.getInt16(d_x);           // input the x coordinate
+//         stream.getInt16(d_y);           // input the y coordinate
+//         char color;
+//         stream.getInt8(color);          // input the color enum as one byte
+//         d_color = static_cast<Color>(color);
+//       } break;
+//       default: {
+//         stream.invalidate();
+//       } break;
+//     }
+//     return stream;
+// }
 //
-//  // FREE OPERATORS
-//  inline
-//  bool operator==(const MyPoint& lhs, const MyPoint& rhs)
-//  {
-//      return lhs.x()     == rhs.x()
-//          && lhs.y()     == rhs.y()
-//          && lhs.color() == rhs.color();
-//  }
-//..
+// // FREE OPERATORS
+// inline
+// bool operator==(const MyPoint& lhs, const MyPoint& rhs)
+// {
+//     return lhs.x()     == rhs.x()
+//         && lhs.y()     == rhs.y()
+//         && lhs.color() == rhs.color();
+// }
+// ```
 // Then, we will implement an extremely simple input stream that supports the
 // BDEX documentation-only protocol.  For simplicity, we will use an externally
 // managed buffer, and will only show a few methods needed for this example.
-//..
-//  // myinstream.h
-//  // ...
+// ```
+// // myinstream.h
+// // ...
 //
 // class MyInStream {
-//     // This class implements a limited-size fixed-buffer input stream that
-//     // partially conforms to the BDEX protocol for input streams.  This
-//     // class is suitable for demonstration purposes only.
+//    // This class implements a limited-size fixed-buffer input stream that
+//    // partially conforms to the BDEX protocol for input streams.  This
+//    // class is suitable for demonstration purposes only.
 //
-//     const char *d_buffer;  // input buffer, held but not owned
-//     int         d_length;  // length of 'd_buffer' (bytes)
-//     int         d_cursor;  // cursor (index into 'd_buffer')
+//    const char *d_buffer;  // input buffer, held but not owned
+//    int         d_length;  // length of 'd_buffer' (bytes)
+//    int         d_cursor;  // cursor (index into 'd_buffer')
 //
-//   public:
-//     // CREATORS
-//     MyInStream(const char *buffer, int length);
-//         // Create an input stream using the specified 'buffer' having the
-//         // specified 'length' (in bytes).
+//  public:
+//    // CREATORS
+//    MyInStream(const char *buffer, int length);
+//        // Create an input stream using the specified 'buffer' having the
+//        // specified 'length' (in bytes).
 //
-//     ~MyInStream();
-//         // Destroy this input byte stream.
+//    ~MyInStream();
+//        // Destroy this input byte stream.
 //
-//     // MANIPULATORS
-//     MyInStream& getVersion(int& version);
-//         // Consume a version value from this input stream, store that value
-//         // in the specified 'version', and return a reference to this
-//         // stream.  ...
+//    // MANIPULATORS
+//    MyInStream& getVersion(int& version);
+//        // Consume a version value from this input stream, store that value
+//        // in the specified 'version', and return a reference to this
+//        // stream.  ...
 //
-//     MyInStream& getInt32(int& value);
-//         // Consume a 32-bit signed integer value from this input stream,
-//         // store that value in the specified 'value', and return a reference
-//         // to this stream.  ...
+//    MyInStream& getInt32(int& value);
+//        // Consume a 32-bit signed integer value from this input stream,
+//        // store that value in the specified 'value', and return a reference
+//        // to this stream.  ...
 //
-//     MyInStream& getInt16(short& value);
-//         // Consume a 16-bit signed integer value from this input stream,
-//         // store that value in the specified 'value', and return a reference
-//         // to this stream.  ...
+//    MyInStream& getInt16(short& value);
+//        // Consume a 16-bit signed integer value from this input stream,
+//        // store that value in the specified 'value', and return a reference
+//        // to this stream.  ...
 //
-//     MyInStream& getInt8(char& value);
-//         // Consume an 8-bit signed integer value from this input stream,
-//         // store that value in the specified 'value', and return a reference
-//         // to this stream.  ...
+//    MyInStream& getInt8(char& value);
+//        // Consume an 8-bit signed integer value from this input stream,
+//        // store that value in the specified 'value', and return a reference
+//        // to this stream.  ...
 //
-//     void invalidate();
-//         // Put this input stream in an invalid state.  ...
+//    void invalidate();
+//        // Put this input stream in an invalid state.  ...
 //
-//     // ACCESSORS
-//     operator const void *() const;
-//         // Return a non-zero value if this stream is valid, and 0
-//         // otherwise.  An invalid stream is a stream in which insufficient
-//         // or invalid data was detected during an extraction operation.
-//         // Note that an empty stream will be valid unless an extraction
-//         // attempt or explicit invalidation causes it to be otherwise.
+//    // ACCESSORS
+//    operator const void *() const;
+//        // Return a non-zero value if this stream is valid, and 0
+//        // otherwise.  An invalid stream is a stream in which insufficient
+//        // or invalid data was detected during an extraction operation.
+//        // Note that an empty stream will be valid unless an extraction
+//        // attempt or explicit invalidation causes it to be otherwise.
 //
-//     int cursor() const;
-//         // Return the index of the next byte to be extracted from this
-//         // stream.
+//    int cursor() const;
+//        // Return the index of the next byte to be extracted from this
+//        // stream.
 //
-//     bool isEmpty() const;
-//          // Return 'true' if this stream is empty, and 'false' otherwise.
-//          // Note that this function enables higher-level types to verify
-//          // that, after successfully reading all expected data, no data
-//          // remains.
+//    bool isEmpty() const;
+//         // Return 'true' if this stream is empty, and 'false' otherwise.
+//         // Note that this function enables higher-level types to verify
+//         // that, after successfully reading all expected data, no data
+//         // remains.
 //
-//     int length() const;
-//         // Return the total number of bytes stored in this stream.
+//    int length() const;
+//        // Return the total number of bytes stored in this stream.
 // };
 //
-//..
+// ```
 // The relevant (inline) implementations are as follows.
-//..
-//  // ========================================================================
-//  //                      INLINE FUNCTION DEFINITIONS
-//  // ========================================================================
+// ```
+// // ========================================================================
+// //                      INLINE FUNCTION DEFINITIONS
+// // ========================================================================
 //
-//  // CREATORS
-//  inline
-//  MyInStream::MyInStream(const char *buffer, int length)
-//  : d_buffer(buffer)
-//  , d_length(length)
-//  , d_cursor(0)
-//  {
+// // CREATORS
+// inline
+// MyInStream::MyInStream(const char *buffer, int length)
+// : d_buffer(buffer)
+// , d_length(length)
+// , d_cursor(0)
+// {
+// }
+//
+// inline
+// MyInStream::~MyInStream()
+// {
+// }
+//
+// // MANIPULATORS
+//
+// inline
+// MyInStream& MyInStream::getVersion(int& value)
+// {
+//     value = static_cast<unsigned char>(d_buffer[d_cursor++]);
+//     return *this;
+// }
+//
+// inline
+// MyInStream& MyInStream::getInt32(int& value)
+// {
+//     const unsigned char *buffer =
+//                          reinterpret_cast<const unsigned char *>(d_buffer);
+//     value = static_cast<int>((buffer[d_cursor    ] << 24U) |
+//                              (buffer[d_cursor + 1] << 16U) |
+//                              (buffer[d_cursor + 2] <<  8U) |
+//                              (buffer[d_cursor + 3]       ));
+//     d_cursor += 4;
+//     return *this;
+// }
+//
+// inline
+// MyInStream& MyInStream::getInt16(short& value)
+// {
+//     const unsigned char *buffer =
+//                          reinterpret_cast<const unsigned char *>(d_buffer);
+//     value = static_cast<short>((buffer[d_cursor    ] <<  8) |
+//                                (buffer[d_cursor + 1]      ));
+//     d_cursor += 2;
+//     return *this;
 //  }
 //
-//  inline
-//  MyInStream::~MyInStream()
-//  {
-//  }
+// inline
+// MyInStream& MyInStream::getInt8(char& value)
+// {
+//     value = d_buffer[d_cursor];
+//     d_cursor += 1;
+//     return *this;
+// }
 //
-//  // MANIPULATORS
+// inline
+// void MyInStream::invalidate()
+// {
+//     d_buffer = 0;
+// }
 //
-//  inline
-//  MyInStream& MyInStream::getVersion(int& value)
-//  {
-//      value = static_cast<unsigned char>(d_buffer[d_cursor++]);
-//      return *this;
-//  }
+// // ACCESSORS
+// inline
+// MyInStream::operator const void *() const
+// {
+//     return d_cursor <= d_length ? d_buffer : 0;
+// }
 //
-//  inline
-//  MyInStream& MyInStream::getInt32(int& value)
-//  {
-//      const unsigned char *buffer =
-//                           reinterpret_cast<const unsigned char *>(d_buffer);
-//      value = static_cast<int>((buffer[d_cursor    ] << 24U) |
-//                               (buffer[d_cursor + 1] << 16U) |
-//                               (buffer[d_cursor + 2] <<  8U) |
-//                               (buffer[d_cursor + 3]       ));
-//      d_cursor += 4;
-//      return *this;
-//  }
+// inline
+// int MyInStream::cursor() const
+// {
+//     return d_cursor;
+// }
 //
-//  inline
-//  MyInStream& MyInStream::getInt16(short& value)
-//  {
-//      const unsigned char *buffer =
-//                           reinterpret_cast<const unsigned char *>(d_buffer);
-//      value = static_cast<short>((buffer[d_cursor    ] <<  8) |
-//                                 (buffer[d_cursor + 1]      ));
-//      d_cursor += 2;
-//      return *this;
-//   }
+// inline
+// bool MyInStream::isEmpty() const
+// {
+//     return d_cursor >= d_length;
+// }
 //
-//  inline
-//  MyInStream& MyInStream::getInt8(char& value)
-//  {
-//      value = d_buffer[d_cursor];
-//      d_cursor += 1;
-//      return *this;
-//  }
-//
-//  inline
-//  void MyInStream::invalidate()
-//  {
-//      d_buffer = 0;
-//  }
-//
-//  // ACCESSORS
-//  inline
-//  MyInStream::operator const void *() const
-//  {
-//      return d_cursor <= d_length ? d_buffer : 0;
-//  }
-//
-//  inline
-//  int MyInStream::cursor() const
-//  {
-//      return d_cursor;
-//  }
-//
-//  inline
-//  bool MyInStream::isEmpty() const
-//  {
-//      return d_cursor >= d_length;
-//  }
-//
-//  inline
-//  int MyInStream::length() const
-//  {
-//      return d_length;
-//  }
-//..
-// Finally, use the above 'enum', point class, and input stream to illustrate
-// 'bslx::InStreamFunctions' functionality.  This test code does not attempt to
+// inline
+// int MyInStream::length() const
+// {
+//     return d_length;
+// }
+// ```
+// Finally, use the above `enum`, point class, and input stream to illustrate
+// `bslx::InStreamFunctions` functionality.  This test code does not attempt to
 // do anything more useful than reading values from a stream whose buffer was
 // written "by hand" and confirming that the expected values were read
 // correctly from the known byte pattern in the buffer.
-//..
-//  using bslx::InStreamFunctions::bdexStreamIn;
+// ```
+// using bslx::InStreamFunctions::bdexStreamIn;
 //
-//  {
-//      const int  EXP       = 0x0A0B0C0D;
-//      const char buffer[4] = { 0xA, 0xB, 0xC, 0xD };  // 'int' (no version)
-//      int        i         = 0;
+// {
+//     const int  EXP       = 0x0A0B0C0D;
+//     const char buffer[4] = { 0xA, 0xB, 0xC, 0xD };  // 'int' (no version)
+//     int        i         = 0;
 //
-//      MyInStream in1(buffer, 4);  // use the one buffer
-//      bdexStreamIn(in1, i, 1);
-//      assert(in1);  assert(EXP == i);
+//     MyInStream in1(buffer, 4);  // use the one buffer
+//     bdexStreamIn(in1, i, 1);
+//     assert(in1);  assert(EXP == i);
 //
-//      i = 0;                      // reset 'i'
-//      MyInStream in2(buffer, 4);  // re-use 'buffer (no version)
-//      bdexStreamIn(in2, i, 0);
-//      assert(in2);  assert(EXP == i);
-//  }
+//     i = 0;                      // reset 'i'
+//     MyInStream in2(buffer, 4);  // re-use 'buffer (no version)
+//     bdexStreamIn(in2, i, 0);
+//     assert(in2);  assert(EXP == i);
+// }
 //
-//  {
-//      const MyPoint EXP(0, -1, BLUE);
-//      const char buffer1[5] = { 0, 0, -1, -1, 2 };     // 'MyPoint' (no ver)
-//      const char buffer2[6] = { 1, 0, 0, -1, -1, 2 };  // version, 'MyPoint'
-//      MyPoint p1, p2;  // two default points
+// {
+//     const MyPoint EXP(0, -1, BLUE);
+//     const char buffer1[5] = { 0, 0, -1, -1, 2 };     // 'MyPoint' (no ver)
+//     const char buffer2[6] = { 1, 0, 0, -1, -1, 2 };  // version, 'MyPoint'
+//     MyPoint p1, p2;  // two default points
 //
-//      MyInStream in1(buffer1, 5);  // 'buffer1' has no version byte
-//      bdexStreamIn(in1, p1, 1);
-//      assert(in1);  assert(EXP == p1);
+//     MyInStream in1(buffer1, 5);  // 'buffer1' has no version byte
+//     bdexStreamIn(in1, p1, 1);
+//     assert(in1);  assert(EXP == p1);
 //
-//      MyInStream in2(buffer2, 6);  // 'buffer2' *has* a version
-//      int version;
-//      in2.getVersion(version);
-//      assert(1 == version);
-//      bdexStreamIn(in2, p2, version);
-//      assert(in2);  assert(EXP == p2);
-//  }
-//..
+//     MyInStream in2(buffer2, 6);  // 'buffer2' *has* a version
+//     int version;
+//     in2.getVersion(version);
+//     assert(1 == version);
+//     bdexStreamIn(in2, p2, version);
+//     assert(in2);  assert(EXP == p2);
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -506,12 +506,17 @@ namespace InStreamFunctions {
                    // class InStreamFunctions_AccessorHelper
                    // ======================================
 
+/// This `struct` provides a namespace for implementation helper functions
+/// for this component.  They are not intended for use outside this
+/// component.
 template <class STREAM>
 struct InStreamFunctions_AccessorHelper {
-    // This 'struct' provides a namespace for implementation helper functions
-    // for this component.  They are not intended for use outside this
-    // component.
 
+    /// Load into the specified `result` the specified `length` values read
+    /// from the specified `stream`, and return a reference to `stream`.  If
+    /// `stream` is initially invalid, `*result` is unchanged.  If `stream`
+    /// becomes invalid during this operation, the contents of `result` have
+    /// an undefined, but valid, state.
     static STREAM& getArray(STREAM& stream, bool *result, int length);
     static STREAM& getArray(STREAM& stream, char *result, int length);
     static STREAM& getArray(STREAM& stream, signed char *result, int length);
@@ -530,464 +535,461 @@ struct InStreamFunctions_AccessorHelper {
                             int                  length);
     static STREAM& getArray(STREAM& stream, float *result, int length);
     static STREAM& getArray(STREAM& stream, double *result, int length);
-        // Load into the specified 'result' the specified 'length' values read
-        // from the specified 'stream', and return a reference to 'stream'.  If
-        // 'stream' is initially invalid, '*result' is unchanged.  If 'stream'
-        // becomes invalid during this operation, the contents of 'result' have
-        // an undefined, but valid, state.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<VALUE_TYPE, ALLOC>` value read from the specified input
+    /// `stream`, and return a reference to `stream`.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.
     template <class VALUE_TYPE, class ALLOC>
     static STREAM& getArray(STREAM&                         stream,
                             bsl::vector<VALUE_TYPE, ALLOC>& variable);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<VALUE_TYPE, ALLOC>' value read from the specified input
-        // 'stream', and return a reference to 'stream'.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.
 };
 
                              // =================
                              // struct IsEnumType
                              // =================
 
+/// This `struct`, together with `IsNotEnumType` (below), is used to
+/// distinguish enumeration types from other types in function overload
+/// resolution.  This `struct` contains no interface or implementation by
+/// design, and is meant for internal use only.
 struct IsEnumType {
-    // This 'struct', together with 'IsNotEnumType' (below), is used to
-    // distinguish enumeration types from other types in function overload
-    // resolution.  This 'struct' contains no interface or implementation by
-    // design, and is meant for internal use only.
     };
 
                          // ====================
                          // struct IsNotEnumType
                          // ====================
 
+    /// This `struct`, together with `IsEnumType` (above), is used to
+    /// distinguish enumeration types from other types in function overload
+    /// resolution.  This `struct` contains no interface or implementation
+    /// by design, and is meant for internal use only.
     struct IsNotEnumType {
-        // This 'struct', together with 'IsEnumType' (above), is used to
-        // distinguish enumeration types from other types in function overload
-        // resolution.  This 'struct' contains no interface or implementation
-        // by design, and is meant for internal use only.
     };
 
     // PRIVATE CLASS METHODS
+
+    /// Assign to the specified `variable` the `VALUE_TYPE` value read from
+    /// the specified input `stream`, and return a reference to `stream`.
+    /// The specified `version` is ignored.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `version` is not
+    /// supported by `VALUE_TYPE`, `variable` is unaltered and `stream` is
+    /// invalidated, but otherwise unmodified.  If `version` is supported
+    /// but `stream` becomes invalid during this operation, `variable` has
+    /// an undefined, but valid, state.  Note that this function is called
+    /// only for enumeration types and that this function is for internal
+    /// use only.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM, class VALUE_TYPE>
     STREAM& bdexStreamInImp(STREAM&           stream,
                             VALUE_TYPE&       variable,
                             int               version,
                             const IsEnumType&);
-        // Assign to the specified 'variable' the 'VALUE_TYPE' value read from
-        // the specified input 'stream', and return a reference to 'stream'.
-        // The specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'version' is not
-        // supported by 'VALUE_TYPE', 'variable' is unaltered and 'stream' is
-        // invalidated, but otherwise unmodified.  If 'version' is supported
-        // but 'stream' becomes invalid during this operation, 'variable' has
-        // an undefined, but valid, state.  Note that this function is called
-        // only for enumeration types and that this function is for internal
-        // use only.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `VALUE_TYPE` value read from
+    /// the specified input `stream` using the specified `version` format,
+    /// and return a reference to `stream`.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `version` is not
+    /// supported by `VALUE_TYPE`, `variable` is unaltered and `stream` is
+    /// invalidated, but otherwise unmodified.  If `version` is supported
+    /// but `stream` becomes invalid during this operation, `variable` has
+    /// an undefined, but valid, state.  Note that this function is for
+    /// internal use only.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM, class VALUE_TYPE>
     STREAM& bdexStreamInImp(STREAM&              stream,
                             VALUE_TYPE&          variable,
                             int                  version,
                             const IsNotEnumType&);
-        // Assign to the specified 'variable' the 'VALUE_TYPE' value read from
-        // the specified input 'stream' using the specified 'version' format,
-        // and return a reference to 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'version' is not
-        // supported by 'VALUE_TYPE', 'variable' is unaltered and 'stream' is
-        // invalidated, but otherwise unmodified.  If 'version' is supported
-        // but 'stream' becomes invalid during this operation, 'variable' has
-        // an undefined, but valid, state.  Note that this function is for
-        // internal use only.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
     // CLASS METHODS
+
+    /// Assign to the specified `variable` the `VALUE_TYPE` value read from
+    /// the specified input `stream`, and return a reference to `stream`.
+    /// If `stream` is initially invalid, this operation has no effect.  If
+    /// needed, first read the version information from the `stream` and if
+    /// this version is not supported by `VALUE_TYPE`, `stream` is
+    /// invalidated, but otherwise unmodified.  If `stream` becomes invalid
+    /// during this operation, `variable` has an undefined, but valid,
+    /// state.  Note that the version is only needed when the (template
+    /// parameter) `VALUE_TYPE` is a `bsl::vector` or a user-defined type.
+    /// See the `bslx` package-level documentation for more information on
+    /// BDEX streaming of value-semantic types and containers.
     template <class STREAM, class VALUE_TYPE>
     STREAM& bdexStreamIn(STREAM& stream, VALUE_TYPE& variable);
-        // Assign to the specified 'variable' the 'VALUE_TYPE' value read from
-        // the specified input 'stream', and return a reference to 'stream'.
-        // If 'stream' is initially invalid, this operation has no effect.  If
-        // needed, first read the version information from the 'stream' and if
-        // this version is not supported by 'VALUE_TYPE', 'stream' is
-        // invalidated, but otherwise unmodified.  If 'stream' becomes invalid
-        // during this operation, 'variable' has an undefined, but valid,
-        // state.  Note that the version is only needed when the (template
-        // parameter) 'VALUE_TYPE' is a 'bsl::vector' or a user-defined type.
-        // See the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `VALUE_TYPE` value read from
+    /// the specified input `stream` using the specified `version` format,
+    /// and return a reference to `stream`.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `version` is not
+    /// supported by `VALUE_TYPE`, `variable` is unaltered and `stream` is
+    /// invalidated, but otherwise unmodified.  If `version` is supported
+    /// but `stream` becomes invalid during this operation, `variable` has
+    /// an undefined, but valid, state.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM, class VALUE_TYPE>
     STREAM& bdexStreamIn(STREAM& stream, VALUE_TYPE& variable, int version);
-        // Assign to the specified 'variable' the 'VALUE_TYPE' value read from
-        // the specified input 'stream' using the specified 'version' format,
-        // and return a reference to 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'version' is not
-        // supported by 'VALUE_TYPE', 'variable' is unaltered and 'stream' is
-        // invalidated, but otherwise unmodified.  If 'version' is supported
-        // but 'stream' becomes invalid during this operation, 'variable' has
-        // an undefined, but valid, state.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
                         /* overloads */
 
+    /// Assign to the specified `variable` the `bool` value read from the
+    /// specified input `stream`, and return a reference to `stream`.  The
+    /// optionally specified `version` is ignored.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `stream` becomes invalid
+    /// during this operation, `variable` has an undefined, but valid,
+    /// state.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, bool& variable, int version = 0);
-        // Assign to the specified 'variable' the 'bool' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // optionally specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, 'variable' has an undefined, but valid,
-        // state.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `char` value read from the
+    /// specified input `stream`, and return a reference to `stream`.  The
+    /// optionally specified `version` is ignored.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `stream` becomes invalid
+    /// during this operation, `variable` has an undefined, but valid,
+    /// state.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, char& variable, int version = 0);
-        // Assign to the specified 'variable' the 'char' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // optionally specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, 'variable' has an undefined, but valid,
-        // state.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `signed char` value read from
+    /// the specified input `stream`, and return a reference to `stream`.
+    /// The optionally specified `version` is ignored.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&      stream,
                          signed char& variable,
                          int          version = 0);
-        // Assign to the specified 'variable' the 'signed char' value read from
-        // the specified input 'stream', and return a reference to 'stream'.
-        // The optionally specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `unsigned char` value read
+    /// from the specified input `stream`, and return a reference to
+    /// `stream`.  The optionally specified `version` is ignored.  If
+    /// `stream` is initially invalid, this operation has no effect.  If
+    /// `stream` becomes invalid during this operation, `variable` has an
+    /// undefined, but valid, state.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&        stream,
                          unsigned char& variable,
                          int            version = 0);
-        // Assign to the specified 'variable' the 'unsigned char' value read
-        // from the specified input 'stream', and return a reference to
-        // 'stream'.  The optionally specified 'version' is ignored.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `short` value read from the
+    /// specified input `stream`, and return a reference to `stream`.  The
+    /// optionally specified `version` is ignored.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `stream` becomes invalid
+    /// during this operation, `variable` has an undefined, but valid,
+    /// state.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, short& variable, int version = 0);
-        // Assign to the specified 'variable' the 'short' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // optionally specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, 'variable' has an undefined, but valid,
-        // state.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `unsigned short` value read
+    /// from the specified input `stream`, and return a reference to
+    /// `stream`.  The optionally specified `version` is ignored.  If
+    /// `stream` is initially invalid, this operation has no effect.  If
+    /// `stream` becomes invalid during this operation, `variable` has an
+    /// undefined, but valid, state.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&         stream,
                          unsigned short& variable,
                          int             version = 0);
-        // Assign to the specified 'variable' the 'unsigned short' value read
-        // from the specified input 'stream', and return a reference to
-        // 'stream'.  The optionally specified 'version' is ignored.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `int` value read from the
+    /// specified input `stream`, and return a reference to `stream`.  The
+    /// optionally specified `version` is ignored.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `stream` becomes invalid
+    /// during this operation, `variable` has an undefined, but valid,
+    /// state.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int& variable, int version = 0);
-        // Assign to the specified 'variable' the 'int' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // optionally specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, 'variable' has an undefined, but valid,
-        // state.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `unsigned int` value read
+    /// from the specified input `stream`, and return a reference to
+    /// `stream`.  The optionally specified `version` is ignored.  If
+    /// `stream` is initially invalid, this operation has no effect.  If
+    /// `stream` becomes invalid during this operation, `variable` has an
+    /// undefined, but valid, state.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&       stream,
                          unsigned int& variable,
                          int           version = 0);
-        // Assign to the specified 'variable' the 'unsigned int' value read
-        // from the specified input 'stream', and return a reference to
-        // 'stream'.  The optionally specified 'version' is ignored.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Assign to the specified `variable` the 32-bit `int` value read from
+    /// the specified input `stream`, and return a reference to `stream`.
+    /// The optionally specified `version` is ignored.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, long& variable, int version = 0);
-        // Assign to the specified 'variable' the 32-bit 'int' value read from
-        // the specified input 'stream', and return a reference to 'stream'.
-        // The optionally specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the 32-bit `unsigned int` value
+    /// read from the specified input `stream`, and return a reference to
+    /// `stream`.  The optionally specified `version` is ignored.  If
+    /// `stream` is initially invalid, this operation has no effect.  If
+    /// `stream` becomes invalid during this operation, `variable` has an
+    /// undefined, but valid, state.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&        stream,
                          unsigned long& variable,
                          int            version = 0);
-        // Assign to the specified 'variable' the 32-bit 'unsigned int' value
-        // read from the specified input 'stream', and return a reference to
-        // 'stream'.  The optionally specified 'version' is ignored.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `bsls::Types::Int64` value
+    /// read from the specified input `stream`, and return a reference to
+    /// `stream`.  The optionally specified `version` is ignored.  If
+    /// `stream` is initially invalid, this operation has no effect.  If
+    /// `stream` becomes invalid during this operation, `variable` has an
+    /// undefined, but valid, state.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&             stream,
                          bsls::Types::Int64& variable,
                          int                 version = 0);
-        // Assign to the specified 'variable' the 'bsls::Types::Int64' value
-        // read from the specified input 'stream', and return a reference to
-        // 'stream'.  The optionally specified 'version' is ignored.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `bsls::Types::Uint64` value
+    /// read from the specified input `stream`, and return a reference to
+    /// `stream`.  The optionally specified `version` is ignored.  If
+    /// `stream` is initially invalid, this operation has no effect.  If
+    /// `stream` becomes invalid during this operation, `variable` has an
+    /// undefined, but valid, state.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&              stream,
                          bsls::Types::Uint64& variable,
                          int                  version = 0);
-        // Assign to the specified 'variable' the 'bsls::Types::Uint64' value
-        // read from the specified input 'stream', and return a reference to
-        // 'stream'.  The optionally specified 'version' is ignored.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `float` value read from the
+    /// specified input `stream`, and return a reference to `stream`.  The
+    /// optionally specified `version` is ignored.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `stream` becomes invalid
+    /// during this operation, `variable` has an undefined, but valid,
+    /// state.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, float& variable, int version = 0);
-        // Assign to the specified 'variable' the 'float' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // optionally specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, 'variable' has an undefined, but valid,
-        // state.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `double` value read from the
+    /// specified input `stream`, and return a reference to `stream`.  The
+    /// optionally specified `version` is ignored.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `stream` becomes invalid
+    /// during this operation, `variable` has an undefined, but valid,
+    /// state.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, double& variable, int version = 0);
-        // Assign to the specified 'variable' the 'double' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // optionally specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, 'variable' has an undefined, but valid,
-        // state.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `bsl::string` value read from
+    /// the specified input `stream`, and return a reference to `stream`.
+    /// The optionally specified `version` is ignored.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&      stream,
                          bsl::string& variable,
                          int          version = 0);
-        // Assign to the specified 'variable' the 'bsl::string' value read from
-        // the specified input 'stream', and return a reference to 'stream'.
-        // The optionally specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `bsl::vector<char, ALLOC>`
+    /// value read from the specified input `stream`, and return a reference
+    /// to `stream`.  The specified `version` is ignored.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                   stream,
                          bsl::vector<char, ALLOC>& variable,
                          int                       version);
-        // Assign to the specified 'variable' the 'bsl::vector<char, ALLOC>'
-        // value read from the specified input 'stream', and return a reference
-        // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<signed char, ALLOC>` value read from the specified
+    /// input `stream`, and return a reference to `stream`.  The specified
+    /// `version` is ignored.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `stream` becomes invalid during this
+    /// operation, `variable` has an undefined, but valid, state.  See the
+    /// `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                          stream,
                          bsl::vector<signed char, ALLOC>& variable,
                          int                              version);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<signed char, ALLOC>' value read from the specified
-        // input 'stream', and return a reference to 'stream'.  The specified
-        // 'version' is ignored.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  See the
-        // 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<unsigned char, ALLOC>` value read from the specified
+    /// input `stream`, and return a reference to `stream`.  The specified
+    /// `version` is ignored.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `stream` becomes invalid during this
+    /// operation, `variable` has an undefined, but valid, state.  See the
+    /// `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                            stream,
                          bsl::vector<unsigned char, ALLOC>& variable,
                          int                                version);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<unsigned char, ALLOC>' value read from the specified
-        // input 'stream', and return a reference to 'stream'.  The specified
-        // 'version' is ignored.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  See the
-        // 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `bsl::vector<short, ALLOC>`
+    /// value read from the specified input `stream`, and return a reference
+    /// to `stream`.  The specified `version` is ignored.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                    stream,
                          bsl::vector<short, ALLOC>& variable,
                          int                        version);
-        // Assign to the specified 'variable' the 'bsl::vector<short, ALLOC>'
-        // value read from the specified input 'stream', and return a reference
-        // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<unsigned short, ALLOC>` value read from the specified
+    /// input `stream`, and return a reference to `stream`.  The specified
+    /// `version` is ignored.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `stream` becomes invalid during this
+    /// operation, `variable` has an undefined, but valid, state.  See the
+    /// `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                             stream,
                          bsl::vector<unsigned short, ALLOC>& variable,
                          int                                 version);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<unsigned short, ALLOC>' value read from the specified
-        // input 'stream', and return a reference to 'stream'.  The specified
-        // 'version' is ignored.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  See the
-        // 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `bsl::vector<int, ALLOC>`
+    /// value read from the specified input `stream`, and return a reference
+    /// to `stream`.  The specified `version` is ignored.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                  stream,
                          bsl::vector<int, ALLOC>& variable,
                          int                      version);
-        // Assign to the specified 'variable' the 'bsl::vector<int, ALLOC>'
-        // value read from the specified input 'stream', and return a reference
-        // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<unsigned int, ALLOC>` value read from the specified
+    /// input `stream`, and return a reference to `stream`.  The specified
+    /// `version` is ignored.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `stream` becomes invalid during this
+    /// operation, `variable` has an undefined, but valid, state.  See the
+    /// `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                           stream,
                          bsl::vector<unsigned int, ALLOC>& variable,
                          int                               version);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<unsigned int, ALLOC>' value read from the specified
-        // input 'stream', and return a reference to 'stream'.  The specified
-        // 'version' is ignored.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  See the
-        // 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<bsls::Types::Int64, ALLOC>` value read from the
+    /// specified input `stream`, and return a reference to `stream`.  The
+    /// specified `version` is ignored.  If `stream` is initially invalid,
+    /// this operation has no effect.  If `stream` becomes invalid during
+    /// this operation, `variable` has an undefined, but valid, state.  See
+    /// the `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                                 stream,
                          bsl::vector<bsls::Types::Int64, ALLOC>& variable,
                          int                                     version);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<bsls::Types::Int64, ALLOC>' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  If 'stream' becomes invalid during
-        // this operation, 'variable' has an undefined, but valid, state.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<bsls::Types::Uint64, ALLOC>` value read from the
+    /// specified input `stream`, and return a reference to `stream`.  The
+    /// specified `version` is ignored.  If `stream` is initially invalid,
+    /// this operation has no effect.  If `stream` becomes invalid during
+    /// this operation, `variable` has an undefined, but valid, state.  See
+    /// the `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                                  stream,
                          bsl::vector<bsls::Types::Uint64, ALLOC>& variable,
                          int                                      version);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<bsls::Types::Uint64, ALLOC>' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  If 'stream' becomes invalid during
-        // this operation, 'variable' has an undefined, but valid, state.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
+    /// Assign to the specified `variable` the `bsl::vector<float, ALLOC>`
+    /// value read from the specified input `stream`, and return a reference
+    /// to `stream`.  The specified `version` is ignored.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                    stream,
                          bsl::vector<float, ALLOC>& variable,
                          int                        version);
-        // Assign to the specified 'variable' the 'bsl::vector<float, ALLOC>'
-        // value read from the specified input 'stream', and return a reference
-        // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the `bsl::vector<double, ALLOC>`
+    /// value read from the specified input `stream`, and return a reference
+    /// to `stream`.  The specified `version` is ignored.  If `stream` is
+    /// initially invalid, this operation has no effect.  If `stream`
+    /// becomes invalid during this operation, `variable` has an undefined,
+    /// but valid, state.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                     stream,
                          bsl::vector<double, ALLOC>& variable,
                          int                         version);
-        // Assign to the specified 'variable' the 'bsl::vector<double, ALLOC>'
-        // value read from the specified input 'stream', and return a reference
-        // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  If 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<VALUE_TYPE, ALLOC>` value read from the specified input
+    /// `stream`, and return a reference to `stream`.  If `stream` is
+    /// initially invalid, this operation has no effect.  First read the
+    /// version information from the `stream` and if this version is not
+    /// supported by `VALUE_TYPE` and the vector is not empty, `stream` is
+    /// invalidated, but otherwise unmodified.  If `stream` becomes invalid
+    /// during this operation, `variable` has an undefined, but valid,
+    /// state.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM, class VALUE_TYPE, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                         stream,
                          bsl::vector<VALUE_TYPE, ALLOC>& variable);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<VALUE_TYPE, ALLOC>' value read from the specified input
-        // 'stream', and return a reference to 'stream'.  If 'stream' is
-        // initially invalid, this operation has no effect.  First read the
-        // version information from the 'stream' and if this version is not
-        // supported by 'VALUE_TYPE' and the vector is not empty, 'stream' is
-        // invalidated, but otherwise unmodified.  If 'stream' becomes invalid
-        // during this operation, 'variable' has an undefined, but valid,
-        // state.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Assign to the specified `variable` the
+    /// `bsl::vector<VALUE_TYPE, ALLOC>` value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported by
+    /// `VALUE_TYPE` and the vector is not empty, `stream` is invalidated,
+    /// but otherwise unmodified.  If `stream` becomes invalid during this
+    /// operation, `variable` has an undefined, but valid, state.  See the
+    /// `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM, class VALUE_TYPE, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                         stream,
                          bsl::vector<VALUE_TYPE, ALLOC>& variable,
                          int                             version);
-        // Assign to the specified 'variable' the
-        // 'bsl::vector<VALUE_TYPE, ALLOC>' value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported by
-        // 'VALUE_TYPE' and the vector is not empty, 'stream' is invalidated,
-        // but otherwise unmodified.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  See the
-        // 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
 }  // close namespace InStreamFunctions
 

@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a base class for 'bslstl::StringRef'.
+//@PURPOSE: Provide a base class for `bslstl::StringRef`.
 //
 //@CLASSES:
 //  bslstl::StringRefData: intermediate class providing StringRef compatibility
@@ -13,132 +13,132 @@ BSLS_IDENT("$Id: $")
 //@CANONICAL_HEADER: bsl_string.h
 //
 //@DESCRIPTION: Initially, this component provided a complex-constrained,
-// in-core (value-semantic) attribute class, 'bslstl::StringRefData', that
+// in-core (value-semantic) attribute class, `bslstl::StringRefData`, that
 // represented a reference to character string data.  Note that
-// 'bslstl::StringRefData' was intended for use as a base class for
-// 'bslstl::StringRef' and as parameter of 'bsl::string' constructor, enabling
-// a conversion from 'bslstl::StringRef' to 'bsl::string' without having a
+// `bslstl::StringRefData` was intended for use as a base class for
+// `bslstl::StringRef` and as parameter of `bsl::string` constructor, enabling
+// a conversion from `bslstl::StringRef` to `bsl::string` without having a
 // cyclic dependency among these three classes.
 //
 // But nowadays it only provides compatibility between the two constructors of
-// 'bsl::string' (implicit constructor, accepting 'StringRefData' object by
-// value and explicit constructor, accepting 'bsl::string_view' object by
-// value) to allow existing users of 'bslstl::StringRef' not to change their
+// `bsl::string` (implicit constructor, accepting `StringRefData` object by
+// value and explicit constructor, accepting `bsl::string_view` object by
+// value) to allow existing users of `bslstl::StringRef` not to change their
 // code.
 //
 // The dependencies between these components are shown on the following
 // diagram:
-//..
-//                              +-----------------------+
-//                              |                       |
-//                     /--------o   bslstl::StringRef   |
-//                    /         |                       |
-//                   /          +-----------------------+
-//                  /                      |
-//                 /                       |
-//  +------------------+        +----------V------------+
-//  |                  |        |                       |
-//  |   bsl::string    o--------| bslstl::StringRefData |
-//  |                  |        |                       |
-//  +--------------o---+        +-----------------------+
-//                  \                      |
-//                   \                     |
-//                    \         +----------V------------+
-//                     \        |                       |
-//                      \-------|    bsl::string_view   |
-//                              |                       |
-//                              +-----------------------+
-//..
+// ```
+//                             +-----------------------+
+//                             |                       |
+//                    /--------o   bslstl::StringRef   |
+//                   /         |                       |
+//                  /          +-----------------------+
+//                 /                      |
+//                /                       |
+// +------------------+        +----------V------------+
+// |                  |        |                       |
+// |   bsl::string    o--------| bslstl::StringRefData |
+// |                  |        |                       |
+// +--------------o---+        +-----------------------+
+//                 \                      |
+//                  \                     |
+//                   \         +----------V------------+
+//                    \        |                       |
+//                     \-------|    bsl::string_view   |
+//                             |                       |
+//                             +-----------------------+
+// ```
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Breaking Cyclic Dependency Between 'String' and 'StringRef'
+///Example 1: Breaking Cyclic Dependency Between `String` and `StringRef`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrate how 'bslstl::StringRefData' allows us to
-// break the cyclic dependency between hypothetical 'String' and 'StringRef'
+// In this example we demonstrate how `bslstl::StringRefData` allows us to
+// break the cyclic dependency between hypothetical `String` and `StringRef`
 // classes.
 //
-// Objects of our 'String' and 'StringRef' classes need to be convertible to
+// Objects of our `String` and `StringRef` classes need to be convertible to
 // each other.  However, only one of these classes can depend on the definition
 // of the other one, otherwise they will be cyclically dependent.
 //
-// First, we define a hypothetical 'String' class, whose implementation is
+// First, we define a hypothetical `String` class, whose implementation is
 // intentionally simple and contains only the essential constructors and
-// accessor methods; the important thing to notice is that 'String' does not
-// depend on 'StringRef', which has not been defined yet:
-//..
-//  namespace Usage {
+// accessor methods; the important thing to notice is that `String` does not
+// depend on `StringRef`, which has not been defined yet:
+// ```
+// namespace Usage {
 //
-//  class String {
-//    private:
-//      const char *d_begin_p;
-//      const char *d_end_p;
+// class String {
+//   private:
+//     const char *d_begin_p;
+//     const char *d_end_p;
 //
-//    public:
-//      typedef const char *const_iterator;
+//   public:
+//     typedef const char *const_iterator;
 //
-//      String(bslstl::StringRefData<char> const& stringRef)
-//      : d_begin_p(stringRef.data())
-//      , d_end_p(stringRef.data() + stringRef.length())
-//      {}
+//     String(bslstl::StringRefData<char> const& stringRef)
+//     : d_begin_p(stringRef.data())
+//     , d_end_p(stringRef.data() + stringRef.length())
+//     {}
 //
-//      const char *data() const
-//      {
-//          return d_begin_p;
-//      }
+//     const char *data() const
+//     {
+//         return d_begin_p;
+//     }
 //
-//      std::size_t length() const
-//      {
-//          return static_cast<std::size_t>(d_end_p - d_begin_p);
-//      }
-//  };
-//..
-// Notice that the constructor of 'String' takes a 'bslstl::StringRefData'
-// argument and then uses its members 'data' and 'length' to initialize the
+//     std::size_t length() const
+//     {
+//         return static_cast<std::size_t>(d_end_p - d_begin_p);
+//     }
+// };
+// ```
+// Notice that the constructor of `String` takes a `bslstl::StringRefData`
+// argument and then uses its members `data` and `length` to initialize the
 // string object.
 //
-// Then, we define a hypothetical 'StringRef' class, whose instances can be
-// initialized either with a 'String' object (to enable the conversion from
-// 'String' to 'StringRef') or with two 'const char *' pointers:
-//..
-//  class StringRef : public bslstl::StringRefData<char>
-//  {
-//    public:
-//      StringRef(const char *begin, const char *end)
-//      : bslstl::StringRefData<char>(begin, end)
-//      {}
+// Then, we define a hypothetical `StringRef` class, whose instances can be
+// initialized either with a `String` object (to enable the conversion from
+// `String` to `StringRef`) or with two `const char *` pointers:
+// ```
+// class StringRef : public bslstl::StringRefData<char>
+// {
+//   public:
+//     StringRef(const char *begin, const char *end)
+//     : bslstl::StringRefData<char>(begin, end)
+//     {}
 //
-//      StringRef(const String& str)
-//      : bslstl::StringRefData<char>(str.data(), str.data() + str.length())
-//      {}
-//  };
+//     StringRef(const String& str)
+//     : bslstl::StringRefData<char>(str.data(), str.data() + str.length())
+//     {}
+// };
 //
-//  }  // close namespace Usage
-//..
-// Note that 'StringRef' also derives from 'bslstl::StringRefData' so that an
-// object of 'StringRef' can be passed to the constructor of 'String' as a
-// reference to 'bslstl::StringRefData', which enables the conversion from
-// 'StringRef' to 'String'.
+// }  // close namespace Usage
+// ```
+// Note that `StringRef` also derives from `bslstl::StringRefData` so that an
+// object of `StringRef` can be passed to the constructor of `String` as a
+// reference to `bslstl::StringRefData`, which enables the conversion from
+// `StringRef` to `String`.
 //
-// Finally, we verify that the conversions between 'String' and 'StringRef'
+// Finally, we verify that the conversions between `String` and `StringRef`
 // work:
-//..
-//  using Usage::String;
-//  using Usage::StringRef;
+// ```
+// using Usage::String;
+// using Usage::StringRef;
 //
-//  const char str[] = "test string";
-//  StringRef  strRef(str, str + sizeof(str));
+// const char str[] = "test string";
+// StringRef  strRef(str, str + sizeof(str));
 //
-//  String     strObj = strRef;     // convert 'StringRef' to 'String'
-//  StringRef  strRf2 = strObj;     // convert 'String' to 'StringRef'
+// String     strObj = strRef;     // convert 'StringRef' to 'String'
+// StringRef  strRf2 = strObj;     // convert 'String' to 'StringRef'
 //
-//  assert(strObj.data()   == strRef.data());
-//  assert(strObj.length() == strRef.length());
-//  assert(strObj.data()   == strRf2.data());
-//  assert(strObj.length() == strRf2.length());
-//..
+// assert(strObj.data()   == strRef.data());
+// assert(strObj.length() == strRef.length());
+// assert(strObj.data()   == strRf2.data());
+// assert(strObj.length() == strRf2.length());
+// ```
 
 #include <bslscm_version.h>
 
@@ -163,11 +163,11 @@ namespace bslstl {
                          // class StringRefData
                          // ===================
 
+/// This class is an intermediate link between `bslstl::StringRef` used in
+/// BDE and `bsl::string_view` and is kept only for compatibility with
+/// legacy code.
 template <class CHAR_TYPE>
 class StringRefData : public bsl::basic_string_view<CHAR_TYPE> {
-    // This class is an intermediate link between 'bslstl::StringRef' used in
-    // BDE and 'bsl::string_view' and is kept only for compatibility with
-    // legacy code.
 
   private:
     // PRIVATE TYPES
@@ -175,29 +175,31 @@ class StringRefData : public bsl::basic_string_view<CHAR_TYPE> {
 
   public:
     // CLASS METHODS
+
+    /// Return the number of `CHAR_TYPE` characters in the specified
+    /// null-terminated `data` string, up to but not including the terminal
+    /// null value.
     static std::size_t cStringLength(const CHAR_TYPE *data);
-        // Return the number of 'CHAR_TYPE' characters in the specified
-        // null-terminated 'data' string, up to but not including the terminal
-        // null value.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(StringRefData, bsl::is_trivially_copyable);
 
     // CREATORS
+
+    /// Create a `StringRefData` object having default attribute values:
+    /// ```
+    /// begin() == 0
+    /// end()   == 0
+    /// ```
     StringRefData();
-        // Create a 'StringRefData' object having default attribute values:
-        //..
-        //  begin() == 0
-        //  end()   == 0
-        //..
 
+    /// Create a `StringRefData` object the specified `begin` and `end`
+    /// attribute values.  The behavior is undefined unless `begin <= end`
+    /// and `!begin == !end`.
     StringRefData(const CHAR_TYPE *begin, const CHAR_TYPE *end);
-        // Create a 'StringRefData' object the specified 'begin' and 'end'
-        // attribute values.  The behavior is undefined unless 'begin <= end'
-        // and '!begin == !end'.
 
+    /// Create a `StringRefData` object from the specified `view`.
     explicit StringRefData(const bsl::basic_string_view<CHAR_TYPE>& view);
-        // Create a 'StringRefData' object from the specified 'view'.
 
     //! StringRefData(const StringRefData&) = default;
     //! ~StringRefData() = default;
@@ -263,8 +265,8 @@ StringRefData<CHAR_TYPE>
 #ifdef bslstl_StringRefData
 #undef bslstl_StringRefData
 #endif
+/// This alias is defined for backward compatibility.
 #define bslstl_StringRefData bslstl::StringRefData
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

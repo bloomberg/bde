@@ -32,39 +32,39 @@ BSLS_IDENT("$Id: $")
 //  bslmf::TypeList19: Typelist of 19 types
 //  bslmf::TypeList20: Typelist of 20 types
 //
-//@DESCRIPTION: 'bslmf::TypeList' provides a compile time list that holds up to
+//@DESCRIPTION: `bslmf::TypeList` provides a compile time list that holds up to
 // 20 types.  Users can access the different types the list contains (by
-// index), and the length of the typelist.  A 'bslmf::TypeList' is typically
+// index), and the length of the typelist.  A `bslmf::TypeList` is typically
 // used when writing templatized classes that can store a variable amount of
 // types, such as a bind or variant class.
 //
 ///Usage
 ///-----
 // The following usage example demonstrates how to retrieve information from a
-// 'bslmf::TypeList':
-//..
-//  typedef bslmf::TypeList<int, double, char> List;
-//..
-// We can access the length of the list using the 'LENGTH' member:
-//..
-//  assert(3 == List::LENGTH);  // accessing the length of the list
-//..
+// `bslmf::TypeList`:
+// ```
+// typedef bslmf::TypeList<int, double, char> List;
+// ```
+// We can access the length of the list using the `LENGTH` member:
+// ```
+// assert(3 == List::LENGTH);  // accessing the length of the list
+// ```
 // We can also access the different types stored in the typelist using
-// predefined type members 'TypeN' (where '1 <= t_N <= 20'), or another
-// meta-function 'bslmf::TypeListTypeOf':
-//..
-//  assert(1 == bsl::is_same<int,    List::Type1>::value)
-//  assert(1 == bsl::is_same<double, List::Type2>::value)
-//  assert(1 == bsl::is_same<char,   List::Type3>::value)
+// predefined type members `TypeN` (where `1 <= t_N <= 20`), or another
+// meta-function `bslmf::TypeListTypeOf`:
+// ```
+// assert(1 == bsl::is_same<int,    List::Type1>::value)
+// assert(1 == bsl::is_same<double, List::Type2>::value)
+// assert(1 == bsl::is_same<char,   List::Type3>::value)
 //
-//  typedef bslmf::TypeListTypeOf<1, List>::Type my_Type1;
-//  typedef bslmf::TypeListTypeOf<2, List>::Type my_Type2;
-//  typedef bslmf::TypeListTypeOf<3, List>::Type my_Type3;
+// typedef bslmf::TypeListTypeOf<1, List>::Type my_Type1;
+// typedef bslmf::TypeListTypeOf<2, List>::Type my_Type2;
+// typedef bslmf::TypeListTypeOf<3, List>::Type my_Type3;
 //
-//  assert(1 == bsl::is_same<int,    my_Type1>::value)
-//  assert(1 == bsl::is_same<double, my_Type2>::value)
-//  assert(1 == bsl::is_same<char,   my_Type3>::value)
-//..
+// assert(1 == bsl::is_same<int,    my_Type1>::value)
+// assert(1 == bsl::is_same<double, my_Type2>::value)
+// assert(1 == bsl::is_same<char,   my_Type3>::value)
+// ```
 
 #include <bslscm_version.h>
 
@@ -75,15 +75,15 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+/// This macro indicates that we have all the needed features for an
+/// implementation of the typelist facility that is source-compatible with
+/// the pre-existing C++03 facility.  The main change is that the numbered
+/// classes TypeList0-TypeList20 are no longer distinct classes, but aliases
+/// of specific instantiations of the primary TypeList template.  Eventually
+/// these partial template specializations will be eliminated, when the
+/// individually named members are no longer used throughout the whole of
+/// the Bloomberg codebase.
 #define BSLMF_TYPELIST_USING_VARIADIC_TEMPLATES
-    // This macro indicates that we have all the needed features for an
-    // implementation of the typelist facility that is source-compatible with
-    // the pre-existing C++03 facility.  The main change is that the numbered
-    // classes TypeList0-TypeList20 are no longer distinct classes, but aliases
-    // of specific instantiations of the primary TypeList template.  Eventually
-    // these partial template specializations will be eliminated, when the
-    // individually named members are no longer used throughout the whole of
-    // the Bloomberg codebase.
 #endif
 
 namespace BloombergLP {
@@ -99,15 +99,15 @@ typedef Nil TypeListNil;
                          // struct TypeListTypeAt
                          // =====================
 
+/// This template is specialized below to return the type the `t_INDEX`th
+/// member of the typelist `t_LIST`.  If `0 > t_INDEX <= t_LIST::LENGTH`
+/// then `Type` will be defined as the type of the member.  Note that
+/// t_INDEX is relative to 1.
 template <unsigned t_INDEX,  // 'unsigned' is a proxy for 'size_t'
           class t_LIST,
           class t_DEFAULTTYPE = Nil,
           bool t_INRANGE      = (t_INDEX < t_LIST::LENGTH)>
 struct TypeListTypeAt {
-    // This template is specialized below to return the type the 't_INDEX'th
-    // member of the typelist 't_LIST'.  If '0 > t_INDEX <= t_LIST::LENGTH'
-    // then 'Type' will be defined as the type of the member.  Note that
-    // t_INDEX is relative to 1.
 
     // PUBLIC t_TYPES
     typedef t_LIST ListType;
@@ -120,11 +120,11 @@ struct TypeListTypeAt {
                          // struct TypeListTypeOf
                          // =====================
 
+/// Classic Bloomberg code uses a 1-based index into the type list.
 template <int t_INDEX, class t_LIST, class t_DEFAULTTYPE = Nil>
 using TypeListTypeOf = TypeListTypeAt<static_cast<unsigned int>(t_INDEX - 1),
                                       t_LIST,
                                       t_DEFAULTTYPE>;
-    // Classic Bloomberg code uses a 1-based index into the type list.
 
                               // ===============
                               // struct TypeList
@@ -3337,146 +3337,146 @@ struct TypeListTypeOf<20, t_LIST, t_DEFAULTTYPE, 1> {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslmf::TypeList0 bslmf_TypeList0;
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList
 #undef bslmf_TypeList
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList bslmf::TypeList
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeListNil
 #undef bslmf_TypeListNil
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeListNil bslmf::TypeListNil
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList1
 #undef bslmf_TypeList1
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList1 bslmf::TypeList1
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList2
 #undef bslmf_TypeList2
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList2 bslmf::TypeList2
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList3
 #undef bslmf_TypeList3
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList3 bslmf::TypeList3
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList4
 #undef bslmf_TypeList4
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList4 bslmf::TypeList4
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList5
 #undef bslmf_TypeList5
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList5 bslmf::TypeList5
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList6
 #undef bslmf_TypeList6
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList6 bslmf::TypeList6
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList7
 #undef bslmf_TypeList7
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList7 bslmf::TypeList7
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList8
 #undef bslmf_TypeList8
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList8 bslmf::TypeList8
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList9
 #undef bslmf_TypeList9
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList9 bslmf::TypeList9
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList10
 #undef bslmf_TypeList10
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList10 bslmf::TypeList10
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList11
 #undef bslmf_TypeList11
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList11 bslmf::TypeList11
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList12
 #undef bslmf_TypeList12
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList12 bslmf::TypeList12
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList13
 #undef bslmf_TypeList13
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList13 bslmf::TypeList13
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList14
 #undef bslmf_TypeList14
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList14 bslmf::TypeList14
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList15
 #undef bslmf_TypeList15
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList15 bslmf::TypeList15
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList16
 #undef bslmf_TypeList16
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList16 bslmf::TypeList16
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList17
 #undef bslmf_TypeList17
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList17 bslmf::TypeList17
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList18
 #undef bslmf_TypeList18
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList18 bslmf::TypeList18
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList19
 #undef bslmf_TypeList19
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList19 bslmf::TypeList19
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeList20
 #undef bslmf_TypeList20
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeList20 bslmf::TypeList20
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_TypeListTypeOf
 #undef bslmf_TypeListTypeOf
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_TypeListTypeOf bslmf::TypeListTypeOf
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

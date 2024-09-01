@@ -5,137 +5,137 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide low-level functions on 'bslmf' types.
+//@PURPOSE: Provide low-level functions on `bslmf` types.
 //
 //@CLASSES:
 //  bslmf::Util: utility class providing low-level functionality
 //
-//@DESCRIPTION: This component defines a utility 'struct', 'bslmf::Util', that
+//@DESCRIPTION: This component defines a utility `struct`, `bslmf::Util`, that
 // serves as a namespace for a suite of functions that supply low-level
 // functionality for implementing portable generic facilities such as might be
 // found in the C++ standard library.
 //
-///'bslmf::Util::forward'
+///`bslmf::Util::forward`
 ///----------------------
-// The function 'forward' emulates the C++ standard utility function
-// 'std::forward' with the addition that on compilers that don't support
-// r-value references (i.e., C++03) a 'bslmf::MovableRef<t_T>' is forwarded as
-// a 'bslmf::MovableRef<t_T>'.  This operation is typically used via
-// 'BSLS_COMPILERFEATURES_FORWARD' (along with
-// 'BSLS_COMPILERFEATURES_FORWARD_REF') when forwarding arguments in a generic
+// The function `forward` emulates the C++ standard utility function
+// `std::forward` with the addition that on compilers that don't support
+// r-value references (i.e., C++03) a `bslmf::MovableRef<t_T>` is forwarded as
+// a `bslmf::MovableRef<t_T>`.  This operation is typically used via
+// `BSLS_COMPILERFEATURES_FORWARD` (along with
+// `BSLS_COMPILERFEATURES_FORWARD_REF`) when forwarding arguments in a generic
 // context.  See {Usage}.
 //
-///'bslmf::Util::forwardAsReference'
+///`bslmf::Util::forwardAsReference`
 ///---------------------------------
-// The function 'forwardAsReference', like 'forward', emulates the C++ standard
-// utility function 'std::forward' with the difference that on compilers that
-// don't support r-value references (C++03) a 'bslmf::MovableRef<t_T>' is
-// forwarded as 'const t_T&' (instead of 'bslmf::MovableRef<t_T>').  This
-// operation is intended to be used when forwarding a 'MovableRef<t_T>' where
-// that 'MovableRef' is being supplied to a function that does not support
-// 'move' emulation, but will support true C++11 r-value references (e.g.,
-// 'bdlf::BindUtil::bind').
+// The function `forwardAsReference`, like `forward`, emulates the C++ standard
+// utility function `std::forward` with the difference that on compilers that
+// don't support r-value references (C++03) a `bslmf::MovableRef<t_T>` is
+// forwarded as `const t_T&` (instead of `bslmf::MovableRef<t_T>`).  This
+// operation is intended to be used when forwarding a `MovableRef<t_T>` where
+// that `MovableRef` is being supplied to a function that does not support
+// `move` emulation, but will support true C++11 r-value references (e.g.,
+// `bdlf::BindUtil::bind`).
 //
-///'bslmf::Util::moveIfSupported'
+///`bslmf::Util::moveIfSupported`
 ///------------------------------
-// The function 'moveIfSupported' emulates the C++ standard utility function
-// 'std::move' with the addition that on compilers that don't support r-value
+// The function `moveIfSupported` emulates the C++ standard utility function
+// `std::move` with the addition that on compilers that don't support r-value
 // references (i.e., C++03) an l-value reference is returned instead.  This
 // operation is intended to be used when moving an object to a function that
-// does not support 'move' emulation, but will support true C++11 r-value
-// references (e.g., 'bdlf::BindUtil::bind').
+// does not support `move` emulation, but will support true C++11 r-value
+// references (e.g., `bdlf::BindUtil::bind`).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bslmf::Util::forward'
+///Example 1: Using `bslmf::Util::forward`
 ///---------------------------------------
-// Clients should generally not use 'bslmf::Util::forward' directly, instead it
-// should be used via 'BSLS_COMPILERFEATURES_FORWARD' in conjunction with
-// 'BSLS_COMPILERFEATURES_FORWARD_REF'.  Here we show a simple function using
-// 'BSLS_COMPILERFEATURES_FORWARD':
-//..
-//  template <class RESULT_TYPE>
-//  struct FactoryUtil {
+// Clients should generally not use `bslmf::Util::forward` directly, instead it
+// should be used via `BSLS_COMPILERFEATURES_FORWARD` in conjunction with
+// `BSLS_COMPILERFEATURES_FORWARD_REF`.  Here we show a simple function using
+// `BSLS_COMPILERFEATURES_FORWARD`:
+// ```
+// template <class RESULT_TYPE>
+// struct FactoryUtil {
 //
-//     template <class ARG_TYPE>
-//     RESULT_TYPE create(BSLS_COMPILERFEATURES_FORWARD_REF(ARG_TYPE) arg) {
-//       return RESULT_TYPE(BSLS_COMPILERFEATURES_FORWARD(ARG_TYPE, arg));
-//     }
-//  };
-//..
-// Notice that 'bslmf::Util::forward' is only used in conjunction with
-// 'BSLS_COMPILERFEATURES_FORWARD_REF' because, in the example above, if the
-// 'create' function's parameter type was 'ARG_TYPE&& ' then it is a
+//    template <class ARG_TYPE>
+//    RESULT_TYPE create(BSLS_COMPILERFEATURES_FORWARD_REF(ARG_TYPE) arg) {
+//      return RESULT_TYPE(BSLS_COMPILERFEATURES_FORWARD(ARG_TYPE, arg));
+//    }
+// };
+// ```
+// Notice that `bslmf::Util::forward` is only used in conjunction with
+// `BSLS_COMPILERFEATURES_FORWARD_REF` because, in the example above, if the
+// `create` function's parameter type was `ARG_TYPE&& ` then it is a
 // C++11-only(!) forwarding reference, and we would simply use the standard
-// 'std::forward'.  Alternatively, if the parameter type was
-// 'MovableRef<ARG_TYPE>' then 'arg' is *not* a forwarding-reference to be
+// `std::forward`.  Alternatively, if the parameter type was
+// `MovableRef<ARG_TYPE>` then `arg` is *not* a forwarding-reference to be
 // forwarded (certainly not in C++03).
 //
-///Example 2: Using 'bslmf::Util::forwardAsReference'
+///Example 2: Using `bslmf::Util::forwardAsReference`
 ///--------------------------------------------------
-// Suppose we have a class 'S1' that has a regular copy constructor, and only
+// Suppose we have a class `S1` that has a regular copy constructor, and only
 // if the compiler supports rvalue references has to move constructor.  We want
 // to construct it with the move constructor if moves are supported and as a
-// copy otherwise.  Then we use 'bslmf::Util::forwardAsReference':
-//..
-//  struct S {
-//      S();
-//      S(const S&);
-//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-//      S(S&&);
-//  #endif
-//  };
+// copy otherwise.  Then we use `bslmf::Util::forwardAsReference`:
+// ```
+// struct S {
+//     S();
+//     S(const S&);
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+//     S(S&&);
+// #endif
+// };
 //
-//  S::S() {}
+// S::S() {}
 //
-//  S::S(const S&)
-//  {
-//      printf("S copy c'tor\n");
-//  }
+// S::S(const S&)
+// {
+//     printf("S copy c'tor\n");
+// }
 //
-//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-//  S::S(S&&)
-//  {
-//      printf("S move c'tor\n");
-//  }
-//  #endif
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// S::S(S&&)
+// {
+//     printf("S move c'tor\n");
+// }
+// #endif
 //
-//  void doThis2(S s)
-//  {
-//      // ...
-//  }
+// void doThis2(S s)
+// {
+//     // ...
+// }
 //
-//  void doThat2(bslmf::MovableRef<S> value)
-//  {
-//      doThis2(bslmf::Util::forwardAsReference<S>(value));
-//  }
-//..
+// void doThat2(bslmf::MovableRef<S> value)
+// {
+//     doThis2(bslmf::Util::forwardAsReference<S>(value));
+// }
+// ```
 //
-///Example 3: Using 'bslmf::Util::moveIfSupported'
+///Example 3: Using `bslmf::Util::moveIfSupported`
 ///-----------------------------------------------
 // Suppose we had a function that takes a non-const lvalue-ref, and only when
 // the compiler supports rvalue references also has an overload that takes
 // rvalue references:
-//..
-//  void doSomething(S&)
-//  {
-//      printf("doSomething lvalue-ref\n");
-//  }
+// ```
+// void doSomething(S&)
+// {
+//     printf("doSomething lvalue-ref\n");
+// }
 //
-//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-//  void doSomething(S&&)
-//  {
-//      printf("doSomething rvalue-ref\n");
-//  }
-//  #endif
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// void doSomething(S&&)
+// {
+//     printf("doSomething rvalue-ref\n");
+// }
+// #endif
 //
-//  void doSomethingElse(S value)
-//  {
-//      doSomething(bslmf::Util::moveIfSupported(value));
-//  }
-//..
+// void doSomethingElse(S value)
+// {
+//     doSomething(bslmf::Util::moveIfSupported(value));
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -158,12 +158,12 @@ namespace bslmf {
                       // struct Util
                       // ===========
 
+/// This struct provides several functions that are specified in the
+/// <utility> header of the C++ Standard, in order to support the `bsl`
+/// library implementation without cycles into the native standard library,
+/// and on platforms with only C++03 compilers available, where library
+/// features may be emulated.
 struct Util {
-    // This struct provides several functions that are specified in the
-    // <utility> header of the C++ Standard, in order to support the 'bsl'
-    // library implementation without cycles into the native standard library,
-    // and on platforms with only C++03 compilers available, where library
-    // features may be emulated.
 
     // CLASS METHODS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES

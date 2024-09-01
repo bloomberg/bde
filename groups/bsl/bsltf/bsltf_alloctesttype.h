@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a class for testing that allocates with 'bsl::allocator'.
+//@PURPOSE: Provide a class for testing that allocates with `bsl::allocator`.
 //
 //@CLASSES:
 //   bsltf::AllocTestType: allocating test class
@@ -13,30 +13,30 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'AllocTestType', that uses a
-// 'bsl::allocator<>' to supply memory and defines the type trait
-// 'bslma::UsesBslmaAllocator'.  Furthermore, this class is not
+// (value-semantic) attribute class, `AllocTestType`, that uses a
+// `bsl::allocator<>` to supply memory and defines the type trait
+// `bslma::UsesBslmaAllocator`.  Furthermore, this class is not
 // bitwise-moveable, and will assert on destruction if it has been moved.  This
 // class is primarily provided to facilitate testing of templates by defining a
 // simple type representative of user-defined types having an allocator.
 //
 ///Salient Attributes
 ///------------------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the object's value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the object's value
 //
 ///Non-salient Attributes
 ///----------------------
-//..
-//  Name                Type              Default
-//  ------------------  ----------------  ------------------
-//  allocator           bsl::allocator<>  bsl::allocator<>{}
-//..
-//: o 'allocator': allocator used by the object
+// ```
+// Name                Type              Default
+// ------------------  ----------------  ------------------
+// allocator           bsl::allocator<>  bsl::allocator<>{}
+// ```
+// * `allocator`: allocator used by the object
 //
 ///Usage
 ///-----
@@ -46,39 +46,39 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to print the supported traits of this test type.
 //
-// First, we create a function template 'printTypeTraits' with a parameterized
-// 'TYPE':
-//..
-//  template <class TYPE>
-//  void printTypeTraits()
-//      // Prints the traits of the parameterized 'TYPE' to the console.
-//  {
-//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
-//          printf("Type defines bslma::UsesBslmaAllocator.\n");
-//      }
-//      else {
-//          printf(
-//              "Type does not define bslma::UsesBslmaAllocator.\n");
-//      }
+// First, we create a function template `printTypeTraits` with a parameterized
+// `TYPE`:
+// ```
+// template <class TYPE>
+// void printTypeTraits()
+//     // Prints the traits of the parameterized 'TYPE' to the console.
+// {
+//     if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//         printf("Type defines bslma::UsesBslmaAllocator.\n");
+//     }
+//     else {
+//         printf(
+//             "Type does not define bslma::UsesBslmaAllocator.\n");
+//     }
 //
-//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
-//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
-//      }
-//      else {
-//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
-//      }
-//  }
-//..
-// Now, we invoke the 'printTypeTraits' function template using
-// 'AllocTestType' as the parameterized 'TYPE':
-//..
-//  printTypeTraits<AllocTestType>();
-//..
+//     if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//         printf("Type defines bslmf::IsBitwiseMoveable.\n");
+//     }
+//     else {
+//         printf("Type does not define bslmf::IsBitwiseMoveable.\n");
+//     }
+// }
+// ```
+// Now, we invoke the `printTypeTraits` function template using
+// `AllocTestType` as the parameterized `TYPE`:
+// ```
+// printTypeTraits<AllocTestType>();
+// ```
 // Finally, we observe the console output:
-//..
-//  Type defines bslma::UsesBslmaAllocator.
-//  Type does not define bslmf::IsBitwiseMoveable.
-//..
+// ```
+// Type defines bslma::UsesBslmaAllocator.
+// Type does not define bslmf::IsBitwiseMoveable.
+// ```
 
 #include <bslscm_version.h>
 
@@ -93,14 +93,14 @@ namespace bsltf {
                         // class AllocTestType
                         // ===================
 
+/// This unconstrained (value-semantic) attribute class that uses a
+/// `bsl::allocator<>` to supply memory and defines the type trait
+/// `bslma::UsesBslmaAllocator`.  This class is primarily provided
+/// to facilitate testing of templates by defining a simple type
+/// representative of user-defined types having an allocator.  See the
+/// Attributes section under @DESCRIPTION in the component-level
+/// documentation for information on the class attributes.
 class AllocTestType {
-    // This unconstrained (value-semantic) attribute class that uses a
-    // 'bsl::allocator<>' to supply memory and defines the type trait
-    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
-    // to facilitate testing of templates by defining a simple type
-    // representative of user-defined types having an allocator.  See the
-    // Attributes section under @DESCRIPTION in the component-level
-    // documentation for information on the class attributes.
 
     // DATA
     bsl::allocator<int> d_allocator;  // allocator used to supply memory
@@ -113,67 +113,71 @@ class AllocTestType {
     typedef bsl::allocator<int> allocator_type;
 
     // CREATORS
+
+    /// Create a `AllocTestType` object having the (default) attribute
+    /// values:
+    /// ```
+    /// data() == 0
+    /// ```
+    /// Optionally specify a `allocator` used to supply memory.  If
+    /// `allocator` is 0, the currently installed default allocator is
+    /// used.
     AllocTestType();
     explicit AllocTestType(const allocator_type& allocator);
-        // Create a 'AllocTestType' object having the (default) attribute
-        // values:
-        //..
-        //  data() == 0
-        //..
-        // Optionally specify a 'allocator' used to supply memory.  If
-        // 'allocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create a `AllocTestType` object having the specified `data`
+    /// attribute value.  Optionally specify a `allocator` used to supply
+    /// memory (e.g., the address of a `bslma::Allocator` object).  If
+    /// `allocator` is not specified, the currently installed default
+    /// allocator is used.
     explicit AllocTestType(int                   data,
                            const allocator_type& allocator = allocator_type());
-        // Create a 'AllocTestType' object having the specified 'data'
-        // attribute value.  Optionally specify a 'allocator' used to supply
-        // memory (e.g., the address of a 'bslma::Allocator' object).  If
-        // 'allocator' is not specified, the currently installed default
-        // allocator is used.
 
+    /// Create a `AllocTestType` object having the same value as the
+    /// specified `original` object.  Optionally specify a `allocator` used
+    /// to supply memory (e.g., the address of a `bslma::Allocator` object).
+    /// If `allocator` is not specified, the currently installed default
+    /// allocator is used.
     AllocTestType(const AllocTestType&  original,
                   const allocator_type& allocator = allocator_type());
-        // Create a 'AllocTestType' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'allocator' used
-        // to supply memory (e.g., the address of a 'bslma::Allocator' object).
-        // If 'allocator' is not specified, the currently installed default
-        // allocator is used.
 
+    /// Destroy this object.
     ~AllocTestType();
-        // Destroy this object.
 
     // MANIPULATORS
-    AllocTestType& operator=(const AllocTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    AllocTestType& operator=(const AllocTestType& rhs);
+
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 
                                   // Aspects
 
+    /// Return `get_allocator().mechanism()`.
     bslma::Allocator *allocator() const;
-        // Return 'get_allocator().mechanism()'.
 
+    /// Return the allocator used by this object to supply memory.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
-bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'AllocTestType' objects have the same
-    // if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `AllocTestType` objects have the same
+/// if their `data` attributes are the same.
+bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `AllocTestType` objects do not
+/// have the same value if their `data` attributes are not the same.
 bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'AllocTestType' objects do not
-    // have the same value if their 'data' attributes are not the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

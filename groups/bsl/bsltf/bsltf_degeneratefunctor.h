@@ -48,94 +48,98 @@ namespace bsltf {
                        // class DegenerateFunctor
                        // =======================
 
+/// This test class template adapts a CopyConstructible class to offer
+/// a minimal or outright obstructive interface for testing generic code.
+/// To support the testing of standard containers, this adapter will be
+/// MoveConstructible, CopyConstructible, and nothrow Destructible as long
+/// as the adapted `FUNCTOR` satisfies the same requirements.  This class
+/// will further be Swappable if (the template parameter) `ENABLE_SWAP` is
+/// `true` and the adapted `FUNCTOR` is MoveConstructible.  The (inherited)
+/// function call operator should be the only other available method, no
+/// other operation (e.g., the unary address-of operator) should be usable.
+/// We take advantage of the fact that defining a copy constructor inhibits
+/// the generation of a default constructor, and that constructors are not
+/// inherited by a derived class.  `DegenerateFunctor` objects must be
+/// created through either the copy constructor, or by wrapping a `FUNCTOR`
+/// object through the static factory method of this class,
+/// `cloneBaseObject`.
 template <class FUNCTOR, bool ENABLE_SWAP = true>
 class DegenerateFunctor : private FUNCTOR {
-    // This test class template adapts a CopyConstructible class to offer
-    // a minimal or outright obstructive interface for testing generic code.
-    // To support the testing of standard containers, this adapter will be
-    // MoveConstructible, CopyConstructible, and nothrow Destructible as long
-    // as the adapted 'FUNCTOR' satisfies the same requirements.  This class
-    // will further be Swappable if (the template parameter) 'ENABLE_SWAP' is
-    // 'true' and the adapted 'FUNCTOR' is MoveConstructible.  The (inherited)
-    // function call operator should be the only other available method, no
-    // other operation (e.g., the unary address-of operator) should be usable.
-    // We take advantage of the fact that defining a copy constructor inhibits
-    // the generation of a default constructor, and that constructors are not
-    // inherited by a derived class.  'DegenerateFunctor' objects must be
-    // created through either the copy constructor, or by wrapping a 'FUNCTOR'
-    // object through the static factory method of this class,
-    // 'cloneBaseObject'.
 
   private:
     // PRIVATE CREATORS
+
+    /// Create a `DegenerateFunctor` wrapping a copy of the specified
+    /// `base`.
     explicit DegenerateFunctor(const FUNCTOR& base);
-        // Create a 'DegenerateFunctor' wrapping a copy of the specified
-        // 'base'.
 
   private:
     // NOT IMPLEMENTED
+
+    /// Not implemented
     DegenerateFunctor& operator=(const DegenerateFunctor&); // = delete;
-        // Not implemented
 
+    /// not implemented
     void operator&();  // = delete;
-        // not implemented
 
+    /// not implemented
     template<class T>
     void operator,(const T&); // = delete;
-        // not implemented
 
+    /// not implemented
     template<class T>
     void operator,(T&); // = delete;
-        // not implemented
 
+    /// Not implemented.  This method hides a frequently supplied member
+    /// function that may be sniffed out by clever template code when it
+    /// is declared in the base class.  When `ENABLE_SWAP` is `false`, we
+    /// want to be sure that this class does not accidentally allow
+    /// swapping through an unexpected back door.  When `ENABLE_SWAP` is
+    /// `true`, we provide a differently named hook, to minimize the chance
+    /// that a clever template library can sniff it out.
     template<class T>
     void swap(T&); // = delete;
-        // Not implemented.  This method hides a frequently supplied member
-        // function that may be sniffed out by clever template code when it
-        // is declared in the base class.  When 'ENABLE_SWAP' is 'false', we
-        // want to be sure that this class does not accidentally allow
-        // swapping through an unexpected back door.  When 'ENABLE_SWAP' is
-        // 'true', we provide a differently named hook, to minimize the chance
-        // that a clever template library can sniff it out.
 
   public:
+    /// Create a DegenerateFunctor object wrapping a copy of the specified
+    /// `base`.  Note that this method is supplied so that the only
+    /// publicly accessible constructor is the copy constructor.
     static DegenerateFunctor cloneBaseObject(const FUNCTOR& base);
-        // Create a DegenerateFunctor object wrapping a copy of the specified
-        // 'base'.  Note that this method is supplied so that the only
-        // publicly accessible constructor is the copy constructor.
 
     // CREATORS
-    DegenerateFunctor(const DegenerateFunctor& original);
-        // Create a 'DegenerateFunctor' having the same value the specified
-        // 'original'.
 
+    /// Create a `DegenerateFunctor` having the same value the specified
+    /// `original`.
+    DegenerateFunctor(const DegenerateFunctor& original);
+
+    /// Create a `DegenerateFunctor` having the same value the specified
+    /// `original, and leave `original' in an unspecified (but valid) state.
     DegenerateFunctor(bslmf::MovableRef<DegenerateFunctor> original);
-        // Create a 'DegenerateFunctor' having the same value the specified
-        // 'original, and leave 'original' in an unspecified (but valid) state.
 
     // MANIPULATORS
-    using FUNCTOR::operator();
-        // Expose the overloaded function call operator from the parameterizing
-        // class 'FUNCTOR'.
 
+    /// Expose the overloaded function call operator from the parameterizing
+    /// class `FUNCTOR`.
+    using FUNCTOR::operator();
+
+    /// Swap the wrapped `FUNCTOR` object, by move-constructing a temporary
+    /// object from the specified `*other`, then alternately destroying and
+    /// in-place move-constructing new values for each of `*other` and
+    /// `*this`.  Note that this function is deliberately *not* named `swap`
+    /// as some "clever" template libraries may try to call a member-swap
+    /// function when they can find it, and ADL-swap is not available.  Also
+    /// note that this overload is needed only so that the ADL-enabling
+    /// free-function `swap` can be defined, as the native std library
+    /// `std::swap` function will not accept this class (with its deliberate
+    /// degenerate nature) on AIX, or on Windows with Visual C++ prior to
+    /// VC2010.
     void exchangeValues(DegenerateFunctor *other);
-        // Swap the wrapped 'FUNCTOR' object, by move-constructing a temporary
-        // object from the specified '*other', then alternately destroying and
-        // in-place move-constructing new values for each of '*other' and
-        // '*this'.  Note that this function is deliberately *not* named 'swap'
-        // as some "clever" template libraries may try to call a member-swap
-        // function when they can find it, and ADL-swap is not available.  Also
-        // note that this overload is needed only so that the ADL-enabling
-        // free-function 'swap' can be defined, as the native std library
-        // 'std::swap' function will not accept this class (with its deliberate
-        // degenerate nature) on AIX, or on Windows with Visual C++ prior to
-        // VC2010.
 };
 
+/// Exchange the values of the specified `lhs` and `rhs` objects.
 template <class FUNCTOR>
 void swap(DegenerateFunctor<FUNCTOR, true>& lhs,
           DegenerateFunctor<FUNCTOR, true>& rhs);
-    // Exchange the values of the specified 'lhs' and 'rhs' objects.
 
 
 // ============================================================================

@@ -13,94 +13,94 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslstl_unorderedmultimap, bslstl_unorderedmultiset
 //
 //@DESCRIPTION: This component provides a standard-conforming forward iterator,
-// 'bslstl::HashTableBucketIterator', over a list of elements (of
-// 'bslalg::BidirectionalLinkList' type) in a single bucket (of
-// 'bslalg::HashTableBucket' type) of a hashtable.  The requirements of a
+// `bslstl::HashTableBucketIterator`, over a list of elements (of
+// `bslalg::BidirectionalLinkList` type) in a single bucket (of
+// `bslalg::HashTableBucket` type) of a hashtable.  The requirements of a
 // forward iterator are outlined in the C++11 standard in section [24.2.5]
-// under the tag [forward.iterators].  The 'bslstl::HashTableBucketIterator'
-// class template has two template parameters: 'VALUE_TYPE', and
-// 'DIFFERENCE_TYPE'.  'VALUE_TYPE' indicates the type of the value to which
+// under the tag [forward.iterators].  The `bslstl::HashTableBucketIterator`
+// class template has two template parameters: `VALUE_TYPE`, and
+// `DIFFERENCE_TYPE`.  `VALUE_TYPE` indicates the type of the value to which
 // this iterator provides references, and may be const-qualified for constant
-// iterators.  'DIFFERENCE_TYPE' determines the (standard mandated)
-// 'difference_type' for the iterator, and will typically be supplied by the
+// iterators.  `DIFFERENCE_TYPE` determines the (standard mandated)
+// `difference_type` for the iterator, and will typically be supplied by the
 // allocator used by the hash-table being iterated over.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Iterating a Hash Table Bucket Using 'HashTableIterator'
+///Example 1: Iterating a Hash Table Bucket Using `HashTableIterator`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a simple hashtable and then use a
-// 'HashTableBucketIterator' to iterate through the elements in one of its
+// `HashTableBucketIterator` to iterate through the elements in one of its
 // buckets.
 //
-// First, we define a typedef, 'Node', prepresenting a bidirectional node
+// First, we define a typedef, `Node`, prepresenting a bidirectional node
 // holding an integer value:
-//..
-//  typedef bslalg::BidirectionalNode<int> Node;
-//..
+// ```
+// typedef bslalg::BidirectionalNode<int> Node;
+// ```
 // Then, we construct a test allocator, and we use it to allocate an array of
-// 'Node' objects, each holding a unique integer value:
-//..
-//  bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+// `Node` objects, each holding a unique integer value:
+// ```
+// bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 //
-//  const int NUM_NODES = 5;
-//  const int NUM_BUCKETS = 3;
+// const int NUM_NODES = 5;
+// const int NUM_BUCKETS = 3;
 //
-//  Node *nodes[NUM_NODES];
-//  for (int i = 0; i < NUM_NODES; ++i) {
-//      nodes[i] = static_cast<Node *>(scratch.allocate(sizeof(Node)));
-//      nodes[i]->value() = i;
-//  }
-//..
-// Next, we create an array of 'HashTableBuckets' objects, and we use the array
-// to construct an empty hash table characterized by a 'HashTableAnchor'
+// Node *nodes[NUM_NODES];
+// for (int i = 0; i < NUM_NODES; ++i) {
+//     nodes[i] = static_cast<Node *>(scratch.allocate(sizeof(Node)));
+//     nodes[i]->value() = i;
+// }
+// ```
+// Next, we create an array of `HashTableBuckets` objects, and we use the array
+// to construct an empty hash table characterized by a `HashTableAnchor`
 // object:
-//..
-//  bslalg::HashTableBucket buckets[NUM_BUCKETS];
-//  for (int i = 0; i < NUM_BUCKETS; ++i) {
-//      buckets[i].reset();
-//  }
-//  bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
-//..
+// ```
+// bslalg::HashTableBucket buckets[NUM_BUCKETS];
+// for (int i = 0; i < NUM_BUCKETS; ++i) {
+//     buckets[i].reset();
+// }
+// bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
+// ```
 // Then, we insert each node in the array of nodes into the hash table using
-// 'bslalg::HashTableImpUtil', supplying the integer value held by each node as
+// `bslalg::HashTableImpUtil`, supplying the integer value held by each node as
 // its hash value:
-//..
-//  for (int i = 0; i < NUM_NODES; ++i) {
-//      bslalg::HashTableImpUtil::insertAtFrontOfBucket(&hashTable,
-//                                                      nodes[i],
-//                                                      nodes[i]->value());
-//  }
-//..
-// Next, we define a 'typedef' that is an alias an instance of
-// 'HashTableBucketIterator' that can traverse buckets in a hash table holding
+// ```
+// for (int i = 0; i < NUM_NODES; ++i) {
+//     bslalg::HashTableImpUtil::insertAtFrontOfBucket(&hashTable,
+//                                                     nodes[i],
+//                                                     nodes[i]->value());
+// }
+// ```
+// Next, we define a `typedef` that is an alias an instance of
+// `HashTableBucketIterator` that can traverse buckets in a hash table holding
 // integer values.
-//..
-//  typedef bslstl::HashTableBucketIterator<int, ptrdiff_t> Iter;
-//..
+// ```
+// typedef bslstl::HashTableBucketIterator<int, ptrdiff_t> Iter;
+// ```
 // Now, we create two iterators: one pointing to the start the second bucket in
 // the hash table, and the other representing the end sentinel.  We use the
 // iterators to navigate and print the elements in the hash table bucket:
-//..
-//  Iter iter(&hashTable.bucketArrayAddress()[1]);
-//  Iter end(0, &hashTable.bucketArrayAddress()[1]);
-//  for (;iter != end; ++iter) {
-//      printf("%d\n", *iter);
-//  }
-//..
+// ```
+// Iter iter(&hashTable.bucketArrayAddress()[1]);
+// Iter end(0, &hashTable.bucketArrayAddress()[1]);
+// for (;iter != end; ++iter) {
+//     printf("%d\n", *iter);
+// }
+// ```
 // Then, we observe the following output:
-//..
+// ```
 // 1
 // 3
-//..
+// ```
 // Finally, we deallocate the memory used by the hash table:
-//..
-//  for (int i = 0; i < NUM_NODES; ++i) {
-//      scratch.deallocate(nodes[i]);
-//  }
-//..
+// ```
+// for (int i = 0; i < NUM_NODES; ++i) {
+//     scratch.deallocate(nodes[i]);
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -161,8 +161,9 @@ class HashTableBucketIterator {
     typedef DIFFERENCE_TYPE            difference_type;
     typedef VALUE_TYPE                *pointer;
     typedef VALUE_TYPE&                reference;
+
+    /// Standard iterator defined types [24.4.2].
     typedef std::forward_iterator_tag  iterator_category;
-        // Standard iterator defined types [24.4.2].
 
   private:
     // DATA
@@ -171,34 +172,36 @@ class HashTableBucketIterator {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Advance to the next element.
     void advance();
-        // Advance to the next element.
 
   public:
     // CREATORS
+
+    /// Create a default-constructed iterator referring to an empty list of
+    /// nodes.  All default-constructed iterators are non-dereferenceable
+    /// and refer to the same empty list.
     HashTableBucketIterator();
-        // Create a default-constructed iterator referring to an empty list of
-        // nodes.  All default-constructed iterators are non-dereferenceable
-        // and refer to the same empty list.
 
+    /// Create an iterator referring to the specified `bucket`, initially
+    /// pointing to the first node in that `bucket`, or a past-the-end value
+    /// if the `bucket` is empty.  Note that this constructor is an
+    /// implementation detail and is not part of the C++ standard.
     explicit HashTableBucketIterator(const bslalg::HashTableBucket *bucket);
-        // Create an iterator referring to the specified 'bucket', initially
-        // pointing to the first node in that 'bucket', or a past-the-end value
-        // if the 'bucket' is empty.  Note that this constructor is an
-        // implementation detail and is not part of the C++ standard.
 
+    /// Create an iterator referring to the specified `bucket`, initially
+    /// pointing to the specified `node` in that bucket.  The behavior is
+    /// undefined unless `node` is part of `bucket`, or `node` is 0.  Note
+    /// that this constructor is an implementation detail and is not part of
+    /// the C++ standard.
     explicit HashTableBucketIterator(bslalg::BidirectionalLink     *node,
                                      const bslalg::HashTableBucket *bucket);
-        // Create an iterator referring to the specified 'bucket', initially
-        // pointing to the specified 'node' in that bucket.  The behavior is
-        // undefined unless 'node' is part of 'bucket', or 'node' is 0.  Note
-        // that this constructor is an implementation detail and is not part of
-        // the C++ standard.
 
+    /// Create an iterator at the same position as the specified `original`
+    /// iterator.  Note that this constructor enables converting from
+    /// modifiable to `const` iterator types.
     HashTableBucketIterator(const NonConstIter& original);          // IMPLICIT
-        // Create an iterator at the same position as the specified 'original'
-        // iterator.  Note that this constructor enables converting from
-        // modifiable to 'const' iterator types.
 
     // HashTableBucketIterator(const HashTableBucketIterator& original)
     //                                                               = default;
@@ -216,51 +219,57 @@ class HashTableBucketIterator {
     //HashTableBucketIterator& operator=(const HashTableBucketIterator&)
     //                                                               = default;
 
+    /// Copy the value of the specified `rhs` of another (compatible)
+    /// `HashTableBucketIterator` type, (e.g., a mutable iterator of the
+    /// same type) to this iterator.  Return a reference to this modifiable
+    /// object.  Note that this method may be the copy-assignment operator
+    /// (inhibiting the implicit declaration of a copy-assignment operator
+    /// above), or may be an additional overload.
     HashTableBucketIterator& operator=(const NonConstIter& rhs);
-        // Copy the value of the specified 'rhs' of another (compatible)
-        // 'HashTableBucketIterator' type, (e.g., a mutable iterator of the
-        // same type) to this iterator.  Return a reference to this modifiable
-        // object.  Note that this method may be the copy-assignment operator
-        // (inhibiting the implicit declaration of a copy-assignment operator
-        // above), or may be an additional overload.
 
+    /// Move this iterator to the next element in the hash table bucket and
+    /// return a reference providing modifiable access to this iterator.
+    /// The behavior is undefined unless the iterator refers to a valid (not
+    /// yet erased) element in a bucket.  Note that this iterator is
+    /// invalidated when the underlying hash table is rehashed.
     HashTableBucketIterator& operator++();
-        // Move this iterator to the next element in the hash table bucket and
-        // return a reference providing modifiable access to this iterator.
-        // The behavior is undefined unless the iterator refers to a valid (not
-        // yet erased) element in a bucket.  Note that this iterator is
-        // invalidated when the underlying hash table is rehashed.
 
     // ACCESSORS
+
+    /// Return a reference providing modifiable access to the element (of
+    /// the template parameter `VALUE_TYPE`) at which this iterator is
+    /// positioned.  The behavior is undefined unless the iterator refers to
+    /// a valid (not yet erased) element in a hash table bucket.  Note that
+    /// this iterator is invalidated when the underlying hash table is
+    /// rehashed.
     reference operator*() const;
-        // Return a reference providing modifiable access to the element (of
-        // the template parameter 'VALUE_TYPE') at which this iterator is
-        // positioned.  The behavior is undefined unless the iterator refers to
-        // a valid (not yet erased) element in a hash table bucket.  Note that
-        // this iterator is invalidated when the underlying hash table is
-        // rehashed.
 
+    /// Return the address of the element (of the template parameter
+    /// `VALUE_TYPE`) at which this iterator is positioned.  The behavior is
+    /// undefined unless the iterator refers to a valid (not yet erased)
+    /// element a hash table bucket.  Note that this iterator is invalidated
+    /// when the underlying hash table is rehashed.
     pointer operator->() const;
-        // Return the address of the element (of the template parameter
-        // 'VALUE_TYPE') at which this iterator is positioned.  The behavior is
-        // undefined unless the iterator refers to a valid (not yet erased)
-        // element a hash table bucket.  Note that this iterator is invalidated
-        // when the underlying hash table is rehashed.
 
+    /// Return the address of the node holding the element at which this
+    /// iterator is positioned, or 0 if this iterator is positioned after
+    /// the end of a bucket.  Note that this method is an implementation
+    /// detail and is not part of the C++ standard.
     bslalg::BidirectionalLink *node() const;
-        // Return the address of the node holding the element at which this
-        // iterator is positioned, or 0 if this iterator is positioned after
-        // the end of a bucket.  Note that this method is an implementation
-        // detail and is not part of the C++ standard.
 
+    /// Return the address of the hash table bucket referred to by this
+    /// iterator.  Note that this method is an implementation detail
+    /// intended for debugging purposes only, and is not part of the C++
+    /// standard.
     const bslalg::HashTableBucket *bucket() const;
-        // Return the address of the hash table bucket referred to by this
-        // iterator.  Note that this method is an implementation detail
-        // intended for debugging purposes only, and is not part of the C++
-        // standard.
 };
 
 // FREE FUNCTIONS AND OPERATORS
+
+/// Return `true` if the specified `lhs` and the specified `rhs` iterators
+/// have the same value and `false` otherwise.  Two iterators have the same
+/// value if they refer to the same element in the same hash table, or if
+/// both iterators are positioned after the end of a hash table bucket.
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator==(
               const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
@@ -277,11 +286,12 @@ template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator==(
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
-    // have the same value and 'false' otherwise.  Two iterators have the same
-    // value if they refer to the same element in the same hash table, or if
-    // both iterators are positioned after the end of a hash table bucket.
 
+/// Return `true` if the specified `lhs` and the specified `rhs` iterators
+/// do not have the same value and `false` otherwise.  Two iterators do not
+/// have the same value if they refer to the different elements in the same
+/// hash table, or if either (but not both) of the iterators are positioned
+/// after the end of a hash table bucket.
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator!=(
               const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
@@ -298,21 +308,16 @@ template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator!=(
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
-    // do not have the same value and 'false' otherwise.  Two iterators do not
-    // have the same value if they refer to the different elements in the same
-    // hash table, or if either (but not both) of the iterators are positioned
-    // after the end of a hash table bucket.
 
+/// Move the specified `iter` to the next element in the hash table bucket
+/// and return the value of `iter` prior to this call.  The behavior is
+/// undefined unless `iter` refers to a valid (not yet erased) element in a
+/// bucket.  Note that `iter` is invalidated when the underlying hash table
+/// is rehashed.
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>
 operator++(HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>& iterator,
            int);
-    // Move the specified 'iter' to the next element in the hash table bucket
-    // and return the value of 'iter' prior to this call.  The behavior is
-    // undefined unless 'iter' refers to a valid (not yet erased) element in a
-    // bucket.  Note that 'iter' is invalidated when the underlying hash table
-    // is rehashed.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

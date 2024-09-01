@@ -12,16 +12,16 @@ BSLS_IDENT("$Id: $")
 // bsltf::StdTestAllocatorConfigurationGuard: configuration scoped guard
 //                   bsltf::StdTestAllocator: standard compliant allocator
 //
-//@DESCRIPTION: This component provides an allocator, 'StdTestAllocator', that
+//@DESCRIPTION: This component provides an allocator, `StdTestAllocator`, that
 // defines the minimal interface to comply with section 20.1.5
 // ([lib.allocator.requirements]) of the C++03 standard.  This type can be used
 // to verify that constructs designed to support a standard-compliant allocator
 // access the allocator only through the standard-defined interface.
 //
-// 'StdTestAllocator' delegates its operations to a static 'bslma::Allocator'
+// `StdTestAllocator` delegates its operations to a static `bslma::Allocator`
 // (delegate allocator) that can be configured by the utilities provided in the
-// namespace 'StdTestAllocatorConfiguration'.
-// 'StdTestAllocatorConfigurationGuard' provides a scoped guard to enable
+// namespace `StdTestAllocatorConfiguration`.
+// `StdTestAllocatorConfigurationGuard` provides a scoped guard to enable
 // temporary replacement of the delegate allocator.
 //
 ///Usage
@@ -35,90 +35,90 @@ BSLS_IDENT("$Id: $")
 //
 // First we define a simple container type intended to be used with a C++03
 // standard compliant allocator:
-//..
-//  template <class TYPE, class ALLOCATOR>
-//  class MyContainer {
-//      // This container type is parameterized on a standard allocator type
-//      // and contains a single object, always initialized, which can be
-//      // replaced and accessed.
+// ```
+// template <class TYPE, class ALLOCATOR>
+// class MyContainer {
+//     // This container type is parameterized on a standard allocator type
+//     // and contains a single object, always initialized, which can be
+//     // replaced and accessed.
 //
-//      // DATA MEMBERS
-//      ALLOCATOR  d_allocator;  // allocator used to supply memory (held, not
-//                               // owned)
+//     // DATA MEMBERS
+//     ALLOCATOR  d_allocator;  // allocator used to supply memory (held, not
+//                              // owned)
 //
-//      TYPE      *d_object_p;   // pointer to the contained object
+//     TYPE      *d_object_p;   // pointer to the contained object
 //
-//    public:
-//      // CONSTRUCTORS
-//      MyContainer(const TYPE& object);
-//          // Create an container containing the specified 'object', using the
-//          // parameterized 'ALLOCATOR' to supply memory.
+//   public:
+//     // CONSTRUCTORS
+//     MyContainer(const TYPE& object);
+//         // Create an container containing the specified 'object', using the
+//         // parameterized 'ALLOCATOR' to supply memory.
 //
-//      ~MyContainer();
-//          // Destroy this container.
+//     ~MyContainer();
+//         // Destroy this container.
 //
-//      // MANIPULATORS
-//      TYPE& object();
-//          // Return a reference providing modifiable access to the object
-//          // contained in this container.
+//     // MANIPULATORS
+//     TYPE& object();
+//         // Return a reference providing modifiable access to the object
+//         // contained in this container.
 //
-//      // ACCESSORS
-//      const TYPE& object() const;
-//          // Return a reference providing non-modifiable access to the object
-//          // contained in this container.
-//  };
-//..
-// Then, we define the member functions of 'MyContainer':
-//..
-//  // CREATORS
-//  template <class TYPE, class ALLOCATOR>
-//  MyContainer<TYPE, ALLOCATOR>::MyContainer(const TYPE& object)
-//  {
-//      d_object_p = d_allocator.allocate(1);
-//      d_allocator.construct(d_object_p, object);
-//  }
+//     // ACCESSORS
+//     const TYPE& object() const;
+//         // Return a reference providing non-modifiable access to the object
+//         // contained in this container.
+// };
+// ```
+// Then, we define the member functions of `MyContainer`:
+// ```
+// // CREATORS
+// template <class TYPE, class ALLOCATOR>
+// MyContainer<TYPE, ALLOCATOR>::MyContainer(const TYPE& object)
+// {
+//     d_object_p = d_allocator.allocate(1);
+//     d_allocator.construct(d_object_p, object);
+// }
 //
-//  template <class TYPE, class ALLOCATOR>
-//  MyContainer<TYPE, ALLOCATOR>::~MyContainer()
-//  {
-//      d_allocator.destroy(d_object_p);
-//      d_allocator.deallocate(d_object_p);
-//  }
+// template <class TYPE, class ALLOCATOR>
+// MyContainer<TYPE, ALLOCATOR>::~MyContainer()
+// {
+//     d_allocator.destroy(d_object_p);
+//     d_allocator.deallocate(d_object_p);
+// }
 //
-//  // MANIPULATORS
-//  template <class TYPE, class ALLOCATOR>
-//  TYPE& MyContainer<TYPE, ALLOCATOR>::object()
-//  {
-//      return *d_object_p;
-//  }
+// // MANIPULATORS
+// template <class TYPE, class ALLOCATOR>
+// TYPE& MyContainer<TYPE, ALLOCATOR>::object()
+// {
+//     return *d_object_p;
+// }
 //
-//  // ACCESSORS
-//  template <class TYPE, class ALLOCATOR>
-//  const TYPE& MyContainer<TYPE, ALLOCATOR>::object() const
-//  {
-//      return *d_object_p;
-//  }
-//..
-// Now, we use 'StdTestAllocator' to implement a simple test for 'MyContainer'
+// // ACCESSORS
+// template <class TYPE, class ALLOCATOR>
+// const TYPE& MyContainer<TYPE, ALLOCATOR>::object() const
+// {
+//     return *d_object_p;
+// }
+// ```
+// Now, we use `StdTestAllocator` to implement a simple test for `MyContainer`
 // to verify it correctly uses a parameterized allocator using only the C++03
 // standard methods:
-//..
-//  bslma_TestAllocator oa("object", veryVeryVeryVerbose);
-//  StdTestAllocatorConfigurationGuard stag(&oa);
-//  {
-//      typedef MyContainer<int, StdTestAllocator<int> > Obj;
+// ```
+// bslma_TestAllocator oa("object", veryVeryVeryVerbose);
+// StdTestAllocatorConfigurationGuard stag(&oa);
+// {
+//     typedef MyContainer<int, StdTestAllocator<int> > Obj;
 //
-//      Obj mX(2); const Obj& X = mX;
-//      assert(sizeof(int) == oa.numBytesInUse());
+//     Obj mX(2); const Obj& X = mX;
+//     assert(sizeof(int) == oa.numBytesInUse());
 //
-//      assert(X.object() == 2);
+//     assert(X.object() == 2);
 //
-//      mX.object() = -10;
-//      assert(X.object() == -10);
-//  }
+//     mX.object() = -10;
+//     assert(X.object() == -10);
+// }
 //
-//  assert(0 == oa.numBytesInUse());
-//..
+// assert(0 == oa.numBytesInUse());
+// ```
 
 #include <bslscm_version.h>
 
@@ -152,38 +152,39 @@ namespace bsltf {
                         // class StdTestAllocatorConfiguration
                         // ===================================
 
+/// This `struct` provides a namespace for functions that manipulate and
+/// access the *delegate allocator* for `StdTestAllocator`.  The delegate
+/// allocator is the allocator to which `StdTestAllocator` objects delegate
+/// their operations.  The provided operations are *not* thread-safe.  Note
+/// that this allocator is configured globally as C++03 standard compliant
+/// allocators cannot have individually identifiable state.
 struct StdTestAllocatorConfiguration {
-    // This 'struct' provides a namespace for functions that manipulate and
-    // access the *delegate allocator* for 'StdTestAllocator'.  The delegate
-    // allocator is the allocator to which 'StdTestAllocator' objects delegate
-    // their operations.  The provided operations are *not* thread-safe.  Note
-    // that this allocator is configured globally as C++03 standard compliant
-    // allocators cannot have individually identifiable state.
 
   public:
     // CLASS METHODS
-    static void setDelegateAllocatorRaw(bslma::Allocator *basicAllocator);
-        // Set the address of the delegate allocator to the specified
-        // 'basicAllocator'.
 
+    /// Set the address of the delegate allocator to the specified
+    /// `basicAllocator`.
+    static void setDelegateAllocatorRaw(bslma::Allocator *basicAllocator);
+
+    /// Return the address of the delegate allocator.  Note that, this
+    /// method will initially return
+    /// `&bslma_NewDeleteAllocator::singleton()` if the
+    /// `setDelegatingAllocator` class method has not been called.
     static bslma::Allocator* delegateAllocator();
-        // Return the address of the delegate allocator.  Note that, this
-        // method will initially return
-        // '&bslma_NewDeleteAllocator::singleton()' if the
-        // 'setDelegatingAllocator' class method has not been called.
 };
 
                         // ========================================
                         // class StdTestAllocatorConfigurationGuard
                         // ========================================
 
+/// Upon construction, an object of this class saves the current *delegate
+/// allocator* for `StdTestAllocator` and and installs the user-specified
+/// allocator as the delegate allocator.  The delegate allocator is the
+/// globally configured allocator to which an `StdTestAllocator` objects
+/// delegate their operations.  On destruction, the original delegate
+/// allocator is restored.
 class StdTestAllocatorConfigurationGuard {
-    // Upon construction, an object of this class saves the current *delegate
-    // allocator* for 'StdTestAllocator' and and installs the user-specified
-    // allocator as the delegate allocator.  The delegate allocator is the
-    // globally configured allocator to which an 'StdTestAllocator' objects
-    // delegate their operations.  On destruction, the original delegate
-    // allocator is restored.
 
     bslma::Allocator *d_original_p;  // original (restore at destruction)
 
@@ -196,14 +197,15 @@ class StdTestAllocatorConfigurationGuard {
 
   public:
     // CREATORS
+
+    /// Create a scoped guard that installs the specified
+    /// `temporaryAllocator` as the delegate allocator.
     explicit
     StdTestAllocatorConfigurationGuard(bslma::Allocator *temporaryAllocator);
-        // Create a scoped guard that installs the specified
-        // 'temporaryAllocator' as the delegate allocator.
 
+    /// Restore the delegate allocator that was in place when this scoped
+    /// guard was created and destroy this guard.
     ~StdTestAllocatorConfigurationGuard();
-        // Restore the delegate allocator that was in place when this scoped
-        // guard was created and destroy this guard.
 };
 
 
@@ -211,14 +213,14 @@ class StdTestAllocatorConfigurationGuard {
                         // class StdTestAllocator
                         // ======================
 
+/// This allocator implements the minimal interface to comply with section
+/// 20.1.5 ([lib.allocator.requirements]) of the C++03 standard.  Instances
+/// of this allocator delegate their operations to a globally configured
+/// delegate allocator as C++03 compliant allocators cannot have
+/// individually identifiable state (see `StdTestAllocatorConfiguration` and
+/// 'StdTestAllocatorConfigurationGuard).
 template <class TYPE>
 class StdTestAllocator {
-    // This allocator implements the minimal interface to comply with section
-    // 20.1.5 ([lib.allocator.requirements]) of the C++03 standard.  Instances
-    // of this allocator delegate their operations to a globally configured
-    // delegate allocator as C++03 compliant allocators cannot have
-    // individually identifiable state (see 'StdTestAllocatorConfiguration' and
-    // 'StdTestAllocatorConfigurationGuard).
 
   public:
     // TRAITS
@@ -237,33 +239,34 @@ class StdTestAllocator {
     typedef const TYPE&           const_reference;
     typedef TYPE                  value_type;
 
+    /// This nested `struct` template, parameterized by some
+    /// `BDE_OTHER_TYPE`, provides a namespace for an `other` type alias,
+    /// which is an allocator type following the same template as this one
+    /// but that allocates elements of `BDE_OTHER_TYPE`.  Note that this
+    /// allocator type is convertible to and from `other` for any
+    /// `BDE_OTHER_TYPE` including `void`.
     template <class BDE_OTHER_TYPE>
     struct rebind
     {
-        // This nested 'struct' template, parameterized by some
-        // 'BDE_OTHER_TYPE', provides a namespace for an 'other' type alias,
-        // which is an allocator type following the same template as this one
-        // but that allocates elements of 'BDE_OTHER_TYPE'.  Note that this
-        // allocator type is convertible to and from 'other' for any
-        // 'BDE_OTHER_TYPE' including 'void'.
 
         typedef StdTestAllocator<BDE_OTHER_TYPE> other;
     };
 
     // CREATORS
+
+    /// Create a `StdTestAllocator` object.
     StdTestAllocator();
-        // Create a 'StdTestAllocator' object.
 
     // StdTestAllocator(const StdTestAllocator& original) = default;
         // Create a 'StdTestAllocator' object.  Note that this object will
         // compare equal to the default constructed object, because this type
         // has no state.
 
+    /// Create a `StdTestAllocator` object.  Note that this object will
+    /// compare equal to the default constructed object, because this type
+    /// has no state.
     template <class BDE_OTHER_TYPE>
     StdTestAllocator(const StdTestAllocator<BDE_OTHER_TYPE>&);
-        // Create a 'StdTestAllocator' object.  Note that this object will
-        // compare equal to the default constructed object, because this type
-        // has no state.
 
     // ~StdTestAllocator() = default;
         // Destroy this object.
@@ -273,60 +276,62 @@ class StdTestAllocator {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    /// Allocate enough (properly aligned) space for the specified
+    /// `numElements` of type `T`.  If the configured delegate allocator is
+    /// unable to fulfill the allocation request, an exception (typically
+    /// `bsl::bad_alloc`) will be thrown.  The behavior is undefined unless
+    /// `numElements <= max_size()`.
     pointer allocate(size_type numElements);
-        // Allocate enough (properly aligned) space for the specified
-        // 'numElements' of type 'T'.  If the configured delegate allocator is
-        // unable to fulfill the allocation request, an exception (typically
-        // 'bsl::bad_alloc') will be thrown.  The behavior is undefined unless
-        // 'numElements <= max_size()'.
 
+    /// Return memory previously at the specified `address` for
+    /// `numElements` back to this allocator.  The `numElements` argument is
+    /// ignored by this allocator type.  The behavior is undefined unless
+    /// `address` was allocated using this allocator object and has not
+    /// already been deallocated.
     void deallocate(pointer address, size_type numElements = 1);
-        // Return memory previously at the specified 'address' for
-        // 'numElements' back to this allocator.  The 'numElements' argument is
-        // ignored by this allocator type.  The behavior is undefined unless
-        // 'address' was allocated using this allocator object and has not
-        // already been deallocated.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
+
+    /// Create an object of (template parameter) `ELEMENT_TYPE` at the
+    /// specified `address`, constructed by forwarding the specified
+    /// `argument1` and the (variable number of) additional specified
+    /// `arguments` to the corresponding constructor of `ELEMENT_TYPE`.  The
+    /// behavior is undefined unless `address` refers to a block of memory
+    /// having sufficient size and alignment for an object of
+    /// `ELEMENT_TYPE`.
     template <class ELEMENT_TYPE, class... Args>
     void construct(ELEMENT_TYPE *address, Args&&... arguments);
-        // Create an object of (template parameter) 'ELEMENT_TYPE' at the
-        // specified 'address', constructed by forwarding the specified
-        // 'argument1' and the (variable number of) additional specified
-        // 'arguments' to the corresponding constructor of 'ELEMENT_TYPE'.  The
-        // behavior is undefined unless 'address' refers to a block of memory
-        // having sufficient size and alignment for an object of
-        // 'ELEMENT_TYPE'.
 #endif
 
+    /// Call the `ELEMENT_TYPE` destructor for the object at the specified
+    /// `address` but do not deallocate the memory at `address`.
     template <class ELEMENT_TYPE>
     void destroy(ELEMENT_TYPE *address);
-        // Call the 'ELEMENT_TYPE' destructor for the object at the specified
-        // 'address' but do not deallocate the memory at 'address'.
 
     // ACCESSORS
+
+    /// Return the address providing modifiable access to `object`.
     pointer address(reference object) const;
-        // Return the address providing modifiable access to 'object'.
 
+    /// Return the address providing non-modifiable access to `object`.
     const_pointer address(const_reference object) const;
-        // Return the address providing non-modifiable access to 'object'.
 
+    /// Return the maximum number of elements of type `TYPE` that can be
+    /// allocated using this allocator in a single call to the `allocate`
+    /// method.  Note that there is no guarantee that attempts at allocating
+    /// less elements than the value returned by `max_size` will not throw.
     size_type max_size() const;
-        // Return the maximum number of elements of type 'TYPE' that can be
-        // allocated using this allocator in a single call to the 'allocate'
-        // method.  Note that there is no guarantee that attempts at allocating
-        // less elements than the value returned by 'max_size' will not throw.
 };
 
                           // ============================
                           // class StdTestAllocator<void>
                           // ============================
 
+/// This specialization of `StdTestAllocator` for `void` type as the
+/// parameterized `TYPE` does not contain members that are unrepresentable
+/// for `void`.
 template <>
 class StdTestAllocator<void> {
-    // This specialization of 'StdTestAllocator' for 'void' type as the
-    // parameterized 'TYPE' does not contain members that are unrepresentable
-    // for 'void'.
 
   public:
     // PUBLIC TYPES
@@ -341,33 +346,34 @@ class StdTestAllocator<void> {
     typedef const void           *const_pointer;
     typedef void                  value_type;
 
+    /// This nested `struct` template, parameterized by some
+    /// `BDE_OTHER_TYPE`, provides a namespace for an `other` type alias,
+    /// which is an allocator type following the same template as this one
+    /// but that allocates elements of `BDE_OTHER_TYPE`.  Note that this
+    /// allocator type is convertible to and from `other` for any
+    /// `BDE_OTHER_TYPE` including `void`.
     template <class BDE_OTHER_TYPE>
     struct rebind
     {
-        // This nested 'struct' template, parameterized by some
-        // 'BDE_OTHER_TYPE', provides a namespace for an 'other' type alias,
-        // which is an allocator type following the same template as this one
-        // but that allocates elements of 'BDE_OTHER_TYPE'.  Note that this
-        // allocator type is convertible to and from 'other' for any
-        // 'BDE_OTHER_TYPE' including 'void'.
 
         typedef StdTestAllocator<BDE_OTHER_TYPE> other;
     };
 
     // CREATORS
+
+    /// Create a `StdTestAllocator` object.
     StdTestAllocator();
-        // Create a 'StdTestAllocator' object.
 
     // StdTestAllocator(const StdTestAllocator& original) = default;
         // Create a 'StdTestAllocator' object.  Note that this object will
         // compare equal to the default constructed object because, because
         // this type has no state.
 
+    /// Create a `StdTestAllocator` object.  Note that this object will
+    /// compare equal to the default constructed object because, because
+    /// this type has no state.
     template <class BDE_OTHER_TYPE>
     StdTestAllocator(const StdTestAllocator<BDE_OTHER_TYPE>&);
-        // Create a 'StdTestAllocator' object.  Note that this object will
-        // compare equal to the default constructed object because, because
-        // this type has no state.
 
     // ~StdTestAllocator() = default;
         // Destroy this object.
@@ -380,33 +386,35 @@ class StdTestAllocator<void> {
 };
 
 // FREE OPERATORS
+
+/// Return `true` because `StdTestAllocator` does not hold a state.
 template <class TYPE1, class TYPE2>
 bool operator==(const StdTestAllocator<TYPE1>& lhs,
                 const StdTestAllocator<TYPE2>& rhs);
-    // Return 'true' because 'StdTestAllocator' does not hold a state.
 
+/// Return `false` because `StdTestAllocator` does not hold a state.
 template <class TYPE1, class TYPE2>
 bool operator!=(const StdTestAllocator<TYPE1>& lhs,
                 const StdTestAllocator<TYPE2>& rhs);
-    // Return 'false' because 'StdTestAllocator' does not hold a state.
 
 
                         // ======================
                         // class StdTestAllocator
                         // ======================
 
+/// This `struct` provides a namespace for utilities that are common to
+/// all instantiations of the `StdTestAllocator` class template.
 struct StdTestAllocator_CommonUtil {
-    // This 'struct' provides a namespace for utilities that are common to
-    // all instantiations of the 'StdTestAllocator' class template.
 
     // CLASS METHODS
+
+    /// Return the maximum number of objects, each taking the specified
+    /// `elementSize` bytes of storage, that can potentially be allocated by
+    /// a `StdTestAllocator`.  Note that this function is mostly about
+    /// insulating consumers of this component from a standard header, so
+    /// that this test component does not hide missing header dependencies
+    /// in testing scenarios.
     static size_t maxSize(size_t elementSize);
-        // Return the maximum number of objects, each taking the specified
-        // 'elementSize' bytes of storage, that can potentially be allocated by
-        // a 'StdTestAllocator'.  Note that this function is mostly about
-        // insulating consumers of this component from a standard header, so
-        // that this test component does not hide missing header dependencies
-        // in testing scenarios.
 };
 
 // ============================================================================

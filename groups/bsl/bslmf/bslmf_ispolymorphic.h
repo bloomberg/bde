@@ -13,48 +13,47 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsPolymorphic: meta-function for detecting polymorphic types
 //
 //@DESCRIPTION: This component defines two meta-functions,
-// 'bsl::is_polymorphic' and 'BloombergLP::bslmf::IsPolymorphic' and a template
-// variable 'bsl::is_polymorphic_v', that represents the result value of the
-// 'bsl::is_polymorphic' meta-function.  All of these meta-functions may be
+// `bsl::is_polymorphic` and `BloombergLP::bslmf::IsPolymorphic` and a template
+// variable `bsl::is_polymorphic_v`, that represents the result value of the
+// `bsl::is_polymorphic` meta-function.  All of these meta-functions may be
 // used to query whether a type is a polymorphic class as defined in the C++11
 // standard [class.virtual].  A class is polymorphic if it has at least one
 // virtual function.  Note that the destructor of such a class should *always*
-// be declared 'virtual'.  Therefore, another definition of polymorphic is
+// be declared `virtual`.  Therefore, another definition of polymorphic is
 // whether a class has a virtual destructor.
 //
-// 'bsl::is_polymorphic' has the same syntax as the 'is_polymorphic' template
+// `bsl::is_polymorphic` has the same syntax as the `is_polymorphic` template
 // defined in the C++11 standard [meta.unary.prop], while
-// 'bslmf::IsPolymorphic' was devised before 'is_polymorphic' was standardized.
-// 'bsl::is_polymorphic' meets the requirements of the C++11 standard with two
+// `bslmf::IsPolymorphic` was devised before `is_polymorphic` was standardized.
+// `bsl::is_polymorphic` meets the requirements of the C++11 standard with two
 // exceptions:
 //
-//: 1 The compilation will fail if the meta-function is used to evaluate a
-//:   'union' type, unless one of the following compilers, which provide an
-//:   intrinsic operation to detect this specific trait, is used:
-//:     o gcc 4.3 or later
-//:     o Visual C++ 2008 or later
-//:
-//: 2 The meta-function will yield false positives, claiming non-polymorphic
-//:   types *are* polymorphic, for types using virtual inheritance.  This case
-//:   is known to be handled *correctly* for the following compilers only:
-//:     o Compilers with intrinsic support, listed above
-//:     o IBM XLC
+// 1. The compilation will fail if the meta-function is used to evaluate a
+//    `union` type, unless one of the following compilers, which provide an
+//    intrinsic operation to detect this specific trait, is used:
+//     - gcc 4.3 or later
+//     - Visual C++ 2008 or later
+// 2. The meta-function will yield false positives, claiming non-polymorphic
+//    types *are* polymorphic, for types using virtual inheritance.  This case
+//    is known to be handled *correctly* for the following compilers only:
+//     - Compilers with intrinsic support, listed above
+//     - IBM XLC
 //
 // The two meta-functions are functionally equivalent.  The major difference
-// between them is that the result for 'bsl::is_polymorphic' is indicated by
-// the class member 'value', while the result for 'bslmf::IsPolymorphic' is
-// indicated by the class member 'value'.  'bsl::is_polymorphic' should be
-// preferred over 'bslmf::IsPolymorphic', and in general, should be used by new
+// between them is that the result for `bsl::is_polymorphic` is indicated by
+// the class member `value`, while the result for `bslmf::IsPolymorphic` is
+// indicated by the class member `value`.  `bsl::is_polymorphic` should be
+// preferred over `bslmf::IsPolymorphic`, and in general, should be used by new
 // components.
 //
-// Note that the template variable 'is_polymorphic_v' is defined in the C++17
+// Note that the template variable `is_polymorphic_v` is defined in the C++17
 // standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_polymorphic_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_polymorphic_v' is
-// defined as a non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// variable C++17 compiler feature, `bsl::is_polymorphic_v` is defined as an
+// `inline constexpr bool` variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, `bsl::is_polymorphic_v` is
+// defined as a non-inline `constexpr bool` variable.  See
+// `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in
 // bsls_compilerfeatures component for details.
 //
 ///Usage
@@ -66,64 +65,64 @@ BSLS_IDENT("$Id: $")
 // Suppose that we want to assert whether a particular type is a polymorphic
 // type.
 //
-// First, we define two types in a non-polymorphic hierarchy, 'MyStruct' and
-// 'MyDerivedStruct':
-//..
-//  struct MyStruct {
-//      void nonvirtualMethod();
-//  };
-//  struct MyDerivedStruct : public MyStruct {
-//  };
-//..
-// Then, we define two types in a polymorphic hierarchy, 'MyClass' and
-// 'MyDerivedClass':
-//..
-//  class MyClass {
-//    public:
-//      MyClass();
-//      virtual ~MyClass();  // makes 'MyClass' polymorphic
-//  };
+// First, we define two types in a non-polymorphic hierarchy, `MyStruct` and
+// `MyDerivedStruct`:
+// ```
+// struct MyStruct {
+//     void nonvirtualMethod();
+// };
+// struct MyDerivedStruct : public MyStruct {
+// };
+// ```
+// Then, we define two types in a polymorphic hierarchy, `MyClass` and
+// `MyDerivedClass`:
+// ```
+// class MyClass {
+//   public:
+//     MyClass();
+//     virtual ~MyClass();  // makes 'MyClass' polymorphic
+// };
 //
-//  class MyDerivedClass : public MyClass {
-//    public:
-//      MyDerivedClass();
-//      virtual ~MyDerivedClass();
-//  };
-//..
+// class MyDerivedClass : public MyClass {
+//   public:
+//     MyDerivedClass();
+//     virtual ~MyDerivedClass();
+// };
+// ```
 // Now, assert that the two types in the non-polymorphic hierarchy are not
 // polymorphic, and that the two types in the polymorphic hierarchy are
-// polymorphic using 'bsl::is_polymorphic':
-//..
-//  assert(false == bsl::is_polymorphic<MyStruct          >::value);
-//  assert(false == bsl::is_polymorphic<MyStruct         *>::value);
-//  assert(false == bsl::is_polymorphic<MyDerivedStruct&  >::value);
-//  assert(false == bsl::is_polymorphic<MyDerivedStruct  *>::value);
+// polymorphic using `bsl::is_polymorphic`:
+// ```
+// assert(false == bsl::is_polymorphic<MyStruct          >::value);
+// assert(false == bsl::is_polymorphic<MyStruct         *>::value);
+// assert(false == bsl::is_polymorphic<MyDerivedStruct&  >::value);
+// assert(false == bsl::is_polymorphic<MyDerivedStruct  *>::value);
 //
-//  assert(true  == bsl::is_polymorphic<      MyClass    >::value);
-//  assert(false == bsl::is_polymorphic<const MyClass&   >::value);
-//  assert(false == bsl::is_polymorphic<      MyClass   *>::value);
-//  assert(true  == bsl::is_polymorphic<MyDerivedClass   >::value);
-//  assert(false == bsl::is_polymorphic<MyDerivedClass&  >::value);
-//  assert(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
-//..
+// assert(true  == bsl::is_polymorphic<      MyClass    >::value);
+// assert(false == bsl::is_polymorphic<const MyClass&   >::value);
+// assert(false == bsl::is_polymorphic<      MyClass   *>::value);
+// assert(true  == bsl::is_polymorphic<MyDerivedClass   >::value);
+// assert(false == bsl::is_polymorphic<MyDerivedClass&  >::value);
+// assert(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_polymorphic_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_polymorphic_v<MyStruct          >);
-//  assert(false == bsl::is_polymorphic_v<MyStruct         *>);
-//  assert(false == bsl::is_polymorphic_v<MyDerivedStruct&  >);
-//  assert(false == bsl::is_polymorphic_v<MyDerivedStruct  *>);
+// `bsl::is_polymorphic_v` variable as follows:
+// ```
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//   assert(false == bsl::is_polymorphic_v<MyStruct          >);
+//   assert(false == bsl::is_polymorphic_v<MyStruct         *>);
+//   assert(false == bsl::is_polymorphic_v<MyDerivedStruct&  >);
+//   assert(false == bsl::is_polymorphic_v<MyDerivedStruct  *>);
 //
-//  assert(true  == bsl::is_polymorphic_v<      MyClass    >);
-//  assert(false == bsl::is_polymorphic_v<const MyClass&   >);
-//  assert(false == bsl::is_polymorphic_v<      MyClass   *>);
-//  assert(true  == bsl::is_polymorphic_v<MyDerivedClass   >);
-//  assert(false == bsl::is_polymorphic_v<MyDerivedClass&  >);
-//  assert(false == bsl::is_polymorphic_v<MyDerivedClass  *>);
-//#endif
-//..
+//   assert(true  == bsl::is_polymorphic_v<      MyClass    >);
+//   assert(false == bsl::is_polymorphic_v<const MyClass&   >);
+//   assert(false == bsl::is_polymorphic_v<      MyClass   *>);
+//   assert(true  == bsl::is_polymorphic_v<MyDerivedClass   >);
+//   assert(false == bsl::is_polymorphic_v<MyDerivedClass&  >);
+//   assert(false == bsl::is_polymorphic_v<MyDerivedClass  *>);
+// #endif
+// ```
 
 #include <bslscm_version.h>
 
@@ -203,24 +202,24 @@ struct IsPolymorphic_Imp<t_TYPE, true> {
 
 namespace bsl {
 
+/// This `struct` template implements the `is_polymorphic` meta-function
+/// defined in the C++11 standard [meta.unary.prop] to determine if the
+/// (template parameter) `t_TYPE` is a (possibly cv-qualified) polymorphic
+/// type.  This `struct` derives from `bsl::true_type` if the `t_TYPE` is a
+/// polymorphic type, and `bsl::false_type` otherwise.
 template <class t_TYPE>
 struct is_polymorphic
 : integral_constant<bool,
                     BloombergLP::bslmf::IsPolymorphic_Imp<
                         typename remove_cv<t_TYPE>::type>::Value> {
-    // This 'struct' template implements the 'is_polymorphic' meta-function
-    // defined in the C++11 standard [meta.unary.prop] to determine if the
-    // (template parameter) 't_TYPE' is a (possibly cv-qualified) polymorphic
-    // type.  This 'struct' derives from 'bsl::true_type' if the 't_TYPE' is a
-    // polymorphic type, and 'bsl::false_type' otherwise.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// This template variable represents the result value of the
+/// `bsl::is_polymorphic` meta-function.
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_polymorphic_v =
                                                  is_polymorphic<t_TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_polymorphic' meta-function.
 #endif
 
 }  // close namespace bsl
@@ -233,16 +232,16 @@ namespace bslmf {
                          // struct IsPolymorphic
                          // ====================
 
+/// This `struct` template implements a meta-function to determine if the
+/// (template parameter) `t_TYPE` is a (possibly cv-qualified) polymorphic
+/// type.  This `struct` derives from `bsl::true_type` if the `t_TYPE` is a
+/// polymorphic type, and `bsl::false_type` otherwise.
+///
+/// Note that although this `struct` is functionally equivalent to
+/// `bsl::is_polymorphic`, the use of `bsl::is_polymorphic` should be
+/// preferred.
 template <class t_TYPE>
 struct IsPolymorphic : bsl::is_polymorphic<t_TYPE>::type {
-    // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 't_TYPE' is a (possibly cv-qualified) polymorphic
-    // type.  This 'struct' derives from 'bsl::true_type' if the 't_TYPE' is a
-    // polymorphic type, and 'bsl::false_type' otherwise.
-    //
-    // Note that although this 'struct' is functionally equivalent to
-    // 'bsl::is_polymorphic', the use of 'bsl::is_polymorphic' should be
-    // preferred.
 };
 
 }  // close package namespace
@@ -255,8 +254,8 @@ struct IsPolymorphic : bsl::is_polymorphic<t_TYPE>::type {
 #ifdef bslmf_IsPolymorphic
 #undef bslmf_IsPolymorphic
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_IsPolymorphic bslmf::IsPolymorphic
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

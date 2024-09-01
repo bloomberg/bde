@@ -11,9 +11,9 @@ BSLS_IDENT("$Id: $")
 //  bsls::Util: utility class supplying essential, low-level functionality
 //
 //@MACROS:
-//  BSLS_UTIL_ADDRESSOF(OBJ): address of 'OBJ', even if 'operator&' overloaded
+//  BSLS_UTIL_ADDRESSOF(OBJ): address of `OBJ`, even if `operator&` overloaded
 //
-//@DESCRIPTION: This component defines a utility 'struct', 'bsls::Util', that
+//@DESCRIPTION: This component defines a utility `struct`, `bsls::Util`, that
 // serves as a namespace for a suite of pure functions that supply essential
 // low-level support for implementing portable generic facilities such as might
 // be found in the C++ standard library.
@@ -22,96 +22,96 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Obtain the Address of a 'class' That Defines 'operator&'.
+///Example 1: Obtain the Address of a `class` That Defines `operator&`.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There are times, especially within low-level library functions, where it is
 // necessary to obtain the address of an object even if that object's class
-// overloads 'operator&' to return something other than the object's address.
+// overloads `operator&` to return something other than the object's address.
 //
 // First, we create a special reference-like type that can refer to a single
 // bit within a byte (inline implementations are provided in class scope for
 // ease of exposition):
-//..
-//  class BitReference {
+// ```
+// class BitReference {
 //
-//      // DATA
-//      char *d_byte_p;
-//      int   d_bitpos;
+//     // DATA
+//     char *d_byte_p;
+//     int   d_bitpos;
 //
-//    public:
-//      // CREATORS
-//      BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
-//      : d_byte_p(byteptr)
-//      , d_bitpos(bitpos)
-//      {
-//      }
+//   public:
+//     // CREATORS
+//     BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
+//     : d_byte_p(byteptr)
+//     , d_bitpos(bitpos)
+//     {
+//     }
 //
-//      // ACCESSORS
-//      operator bool() const { return (*d_byte_p >> d_bitpos) & 1; }
+//     // ACCESSORS
+//     operator bool() const { return (*d_byte_p >> d_bitpos) & 1; }
 //
-//      char *byteptr() const { return d_byte_p; }
-//      int bitpos() const { return d_bitpos; }
-//  };
-//..
+//     char *byteptr() const { return d_byte_p; }
+//     int bitpos() const { return d_bitpos; }
+// };
+// ```
 // Then, we create a pointer-like type that can point to a single bit:
-//..
-//  class BitPointer {
+// ```
+// class BitPointer {
 //
-//      // DATA
-//      char *d_byte_p;
-//      int   d_bitpos;
+//     // DATA
+//     char *d_byte_p;
+//     int   d_bitpos;
 //
-//    public:
-//      // CREATORS
-//      BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
-//      : d_byte_p(byteptr)
-//      , d_bitpos(bitpos)
-//      {
-//      }
+//   public:
+//     // CREATORS
+//     BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
+//     : d_byte_p(byteptr)
+//     , d_bitpos(bitpos)
+//     {
+//     }
 //
-//      // ACCESSORS
-//      BitReference operator*() const
-//      {
-//          return BitReference(d_byte_p, d_bitpos);
-//      }
+//     // ACCESSORS
+//     BitReference operator*() const
+//     {
+//         return BitReference(d_byte_p, d_bitpos);
+//     }
 //
-//      // etc.
-//  };
-//..
-// Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
+//     // etc.
+// };
+// ```
+// Next, we overload `operator&` for `BitReference` to return a `BitPointer`
 // instead of a raw pointer, completing the setup:
-//..
-//  inline BitPointer operator&(const BitReference& ref)
-//  {
-//      return BitPointer(ref.byteptr(), ref.bitpos());
-//  }
-//..
+// ```
+// inline BitPointer operator&(const BitReference& ref)
+// {
+//     return BitPointer(ref.byteptr(), ref.bitpos());
+// }
+// ```
 // Then, we note that there are times when it might be desirable to get the
-// true address of a 'BitReference'.  Since the above overload prevents the
-// obvious syntax from working, we use 'bsls::Util::addressOf' to accomplish
+// true address of a `BitReference`.  Since the above overload prevents the
+// obvious syntax from working, we use `bsls::Util::addressOf` to accomplish
 // this task.
 //
-// Next, we create a 'BitReference' object:
-//..
-//  char c[4];
-//  BitReference br(c, 3);
-//..
-// Now, we invoke 'bsls::Util::addressOf' to obtain and save the address of
-// 'br':
-//..
-//  BitReference *p = bsls::Util::addressOf(br);  // OK
-//  // BitReference *p = &br;                     // Won't compile
-//..
-// Notice that the commented line illustrates canonical use of 'operator&' that
+// Next, we create a `BitReference` object:
+// ```
+// char c[4];
+// BitReference br(c, 3);
+// ```
+// Now, we invoke `bsls::Util::addressOf` to obtain and save the address of
+// `br`:
+// ```
+// BitReference *p = bsls::Util::addressOf(br);  // OK
+// // BitReference *p = &br;                     // Won't compile
+// ```
+// Notice that the commented line illustrates canonical use of `operator&` that
 // would not compile in this example.
 //
 // Finally, we verify that address obtained is the correct one, running some
 // sanity checks:
-//..
-//  assert(0 != p);
-//  assert(c == p->byteptr());
-//  assert(3 == p->bitpos());
-//..
+// ```
+// assert(0 != p);
+// assert(c == p->byteptr());
+// assert(3 == p->bitpos());
+// ```
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -121,15 +121,15 @@ namespace BloombergLP {
 
 namespace bsls {
 
+/// This class template provides an easy way to alias a function pointer
+/// type when used as the return type of a function.  The syntax for a
+/// function returning a function pointer is otherwise quite obscure, and
+/// difficult to read.  As we want to return function pointers taking
+/// parameters and returning a result specified by template parameters
+/// below, it is not possible to define a simple typedef to the function
+/// type outside the function template itself.
 template <class TYPE>
 struct Util_Identity {
-    // This class template provides an easy way to alias a function pointer
-    // type when used as the return type of a function.  The syntax for a
-    // function returning a function pointer is otherwise quite obscure, and
-    // difficult to read.  As we want to return function pointers taking
-    // parameters and returning a result specified by template parameters
-    // below, it is not possible to define a simple typedef to the function
-    // type outside the function template itself.
 
     typedef TYPE type;  // alias of the template parameter 'TYPE'.
 };
@@ -167,22 +167,28 @@ struct Util_AssertNotLvalue<TYPE&> {
                                  // struct Util
                                  // ===========
 
+/// This `struct` provides a namespace for essential low-level functions for
+/// implementing portable generic facilities such as the C++ standard
+/// library.
 struct Util {
-    // This 'struct' provides a namespace for essential low-level functions for
-    // implementing portable generic facilities such as the C++ standard
-    // library.
 
     // CLASS METHODS
+
+    /// Return the address of the specified `obj`, even if `operator&` is
+    /// overloaded for objects of type `BSLS_TYPE`.  Behavior is undefined
+    /// unless `BSLS_TYPE` is an object type.  Note that this function
+    /// conforms to the C++11 definition for `addressof` as specified in the
+    /// section [specialized.addressof] (20.6.12.1) of the C++11 standard,
+    /// except that function types, which are not object types, are
+    /// supported by `std::addressof` in C++11.
     template <class TYPE>
     static TYPE *addressOf(TYPE& obj);
-        // Return the address of the specified 'obj', even if 'operator&' is
-        // overloaded for objects of type 'BSLS_TYPE'.  Behavior is undefined
-        // unless 'BSLS_TYPE' is an object type.  Note that this function
-        // conforms to the C++11 definition for 'addressof' as specified in the
-        // section [specialized.addressof] (20.6.12.1) of the C++11 standard,
-        // except that function types, which are not object types, are
-        // supported by 'std::addressof' in C++11.
 
+    /// Return the address of the specified function `fn`.  Note that this
+    /// implementation supports functions of only a limited number of
+    /// parameters, determined by the current needs of the BDE software.  A
+    /// more general form that will support an arbitrary number of function
+    /// parameters will be available with C++11.
     template <class RESULT>
     static
     typename Util_Identity<RESULT()>::type *addressOf(RESULT (&fn)());
@@ -193,11 +199,6 @@ struct Util {
     static
     typename Util_Identity<RESULT(ARG1, ARG2)>::type *addressOf(
                                                      RESULT (&fn)(ARG1, ARG2));
-        // Return the address of the specified function 'fn'.  Note that this
-        // implementation supports functions of only a limited number of
-        // parameters, determined by the current needs of the BDE software.  A
-        // more general form that will support an arbitrary number of function
-        // parameters will be available with C++11.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
@@ -205,19 +206,20 @@ struct Util {
     BSLS_KEYWORD_CONSTEXPR
     TYPE&& forward(typename Util_RemoveReference<TYPE>::type&  t)
                                                          BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return a reference to the specified `t` of non-deduced `TYPE`.  If
+    /// `TYPE` is an lvalue-reference type, then the result will be an
+    /// lvalue-reference, and an rvalue-refernce otherwise.  Note that as
+    /// `TYPE` is not deduced, it must be explicitly specified by the caller
+    /// of this function.  Also note that while this function may return an
+    /// rvalue-reference, it cannot extend the lifetime of temporaries
+    /// beyond the expression that calls this function; storing an rvalue
+    /// reference to the result will lead to undefined behavior.
     template <class TYPE>
     static
     BSLS_KEYWORD_CONSTEXPR
     TYPE&& forward(typename Util_RemoveReference<TYPE>::type&& t)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Return a reference to the specified 't' of non-deduced 'TYPE'.  If
-        // 'TYPE' is an lvalue-reference type, then the result will be an
-        // lvalue-reference, and an rvalue-refernce otherwise.  Note that as
-        // 'TYPE' is not deduced, it must be explicitly specified by the caller
-        // of this function.  Also note that while this function may return an
-        // rvalue-reference, it cannot extend the lifetime of temporaries
-        // beyond the expression that calls this function; storing an rvalue
-        // reference to the result will lead to undefined behavior.
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 };
 

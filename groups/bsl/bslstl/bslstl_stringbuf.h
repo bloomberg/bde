@@ -5,77 +5,77 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a C++03-compatible 'stringbuf' class.
+//@PURPOSE: Provide a C++03-compatible `stringbuf` class.
 //
 //@CLASSES:
-//  bsl::stringbuf: C++03-compatible 'stringbuf' class
-//  bsl::StringBufContainer: wrapper for 'basic_stringbuf'
+//  bsl::stringbuf: C++03-compatible `stringbuf` class
+//  bsl::StringBufContainer: wrapper for `basic_stringbuf`
 //
 //@CANONICAL_HEADER: bsl_sstream.h
 //
 //@SEE_ALSO: bslstl_stringstream, bslstl_ostringstream, bslstl_istringstream
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_sstream.h>' instead.
+// `<bsl_sstream.h>` instead.
 //
-// This component defines a class template, 'bsl::basic_stringbuf', that
+// This component defines a class template, `bsl::basic_stringbuf`, that
 // implements a standard string buffer, providing an unformatted character
 // input sequence and an unformatted character output sequence that
 // may be initialized or accessed using a string value (see 27.8.2 [stringbuf]
 // of the C++11 standard).  This component also defines two standard aliases,
-// 'bsl::stringbuf' and 'bsl::wstringbuf', that refer to specializations of the
-// 'bsl::basic_stringbuf' template for 'char' and 'wchar_t' types,
-// respectively.  As with any stream buffer class, 'bsl::basic_stringbuf' is
+// `bsl::stringbuf` and `bsl::wstringbuf`, that refer to specializations of the
+// `bsl::basic_stringbuf` template for `char` and `wchar_t` types,
+// respectively.  As with any stream buffer class, `bsl::basic_stringbuf` is
 // rarely used directly.  Stream buffers provide low-level unformatted
-// input/output.  They are usually plugged into 'std::basic_stream' classes to
-// provide higher-level formatted input and output via 'operator>>' and
-// 'operator<<'.  'bsl::basic_stringbuf' is used in the
-// 'bsl::basic_stringstream' family of classes and users should prefer those
-// classes over direct use of 'bsl::basic_stringbuf'.
+// input/output.  They are usually plugged into `std::basic_stream` classes to
+// provide higher-level formatted input and output via `operator>>` and
+// `operator<<`.  `bsl::basic_stringbuf` is used in the
+// `bsl::basic_stringstream` family of classes and users should prefer those
+// classes over direct use of `bsl::basic_stringbuf`.
 //
-// 'bsl::basic_stringbuf' derives from 'std::basic_streambuf' and implements
-// the necessary protected virtual methods.  In this way 'bsl::basic_stringbuf'
-// customizes the behavior of 'std::basic_streambuf' to redirect the reading
+// `bsl::basic_stringbuf` derives from `std::basic_streambuf` and implements
+// the necessary protected virtual methods.  In this way `bsl::basic_stringbuf`
+// customizes the behavior of `std::basic_streambuf` to redirect the reading
 // and writing of characters to an internally-maintained sequence of characters
-// that can be initialized or accessed using a 'bsl::basic_string'.  Note that
+// that can be initialized or accessed using a `bsl::basic_string`.  Note that
 // although the standard mandates functions that access and modify the
-// buffered sequence using a 'basic_string', it does not mandate that a
-// 'basic_stringbuf' internally store this buffer in a 'basic_string'; this
-// implementation currently uses a 'basic_string' as its internal buffer, but
+// buffered sequence using a `basic_string`, it does not mandate that a
+// `basic_stringbuf` internally store this buffer in a `basic_string`; this
+// implementation currently uses a `basic_string` as its internal buffer, but
 // that is subject to change without warning.
 //
-// The 'bsl::stringbuf' template has three parameters, 'CHAR_TYPE',
-// 'CHAR_TRAITS', and 'ALLOCATOR'.  The 'CHAR_TYPE' and 'CHAR_TRAITS'
+// The `bsl::stringbuf` template has three parameters, `CHAR_TYPE`,
+// `CHAR_TRAITS`, and `ALLOCATOR`.  The `CHAR_TYPE` and `CHAR_TRAITS`
 // parameters respectively define the character type for the stream buffer and
 // a type providing a set of operations the stream buffer will use to
 // manipulate characters of that type, which must meet the character traits
 // requirements defined by the C++11 standard, 21.2 [char.traits].  The
-// 'ALLOCATOR' template parameter is described in the "Memory Allocation"
+// `ALLOCATOR` template parameter is described in the "Memory Allocation"
 // section below.
 //
 ///Memory Allocation
 ///-----------------
-// The type supplied as a stream buffer's 'ALLOCATOR' template parameter
+// The type supplied as a stream buffer's `ALLOCATOR` template parameter
 // determines how that stream buffer will allocate memory.  The
-// 'basic_stringbuf' template supports allocators meeting the requirements
+// `basic_stringbuf` template supports allocators meeting the requirements
 // of the C++11 standard, 17.6.3.5 [allocator.requirements]; in addition, it
-// supports scoped-allocators derived from the 'bslma::Allocator' memory
-// allocation protocol.  Clients intending to use 'bslma'-style allocators
-// should use 'bsl::allocator', which provides a C++11 standard-compatible
-// adapter for a 'bslma::Allocator' object.  Note that the standard aliases
-// 'bsl::stringbuf' and 'bsl::wstringbuf' both use 'bsl::allocator'.
+// supports scoped-allocators derived from the `bslma::Allocator` memory
+// allocation protocol.  Clients intending to use `bslma`-style allocators
+// should use `bsl::allocator`, which provides a C++11 standard-compatible
+// adapter for a `bslma::Allocator` object.  Note that the standard aliases
+// `bsl::stringbuf` and `bsl::wstringbuf` both use `bsl::allocator`.
 //
-///'bslma'-Style Allocators
+///`bslma`-Style Allocators
 /// - - - - - - - - - - - -
-// If the type supplied for the 'ALLOCATOR' template parameter of a 'stringbuf'
-// instantiation is 'bsl::allocator', then objects of that stream buffer type
-// will conform to the standard behavior of a 'bslma'-allocator-enabled type.
-// Such a stream buffer accepts an optional 'bslma::Allocator' argument at
-// construction.  If the address of a 'bslma::Allocator' object is explicitly
+// If the type supplied for the `ALLOCATOR` template parameter of a `stringbuf`
+// instantiation is `bsl::allocator`, then objects of that stream buffer type
+// will conform to the standard behavior of a `bslma`-allocator-enabled type.
+// Such a stream buffer accepts an optional `bslma::Allocator` argument at
+// construction.  If the address of a `bslma::Allocator` object is explicitly
 // supplied at construction, it will be used to supply memory for the stream
 // buffer throughout its lifetime; otherwise, the stream buffer will use the
 // default allocator installed at the time of the stream buffer's construction
-// (see 'bslma_default').
+// (see `bslma_default`).
 //
 ///Usage
 ///-----
@@ -83,58 +83,58 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Operations
 ///- - - - - - - - - - - - - -
-// The following example demonstrates the use of 'bsl::stringbuf' to read and
-// write character data from and to a 'bsl::string' object.
+// The following example demonstrates the use of `bsl::stringbuf` to read and
+// write character data from and to a `bsl::string` object.
 //
-// Suppose we want to implement a simplified converter from 'unsigned int' to
-// 'bsl::string' and back.  First, we define the prototypes of two conversion
+// Suppose we want to implement a simplified converter from `unsigned int` to
+// `bsl::string` and back.  First, we define the prototypes of two conversion
 // functions:
-//..
-//  bsl::string  toString(unsigned int from);
-//  unsigned int fromString(const bsl::string& from);
-//..
-// Then, we use 'bsl::stringbuf' to implement the 'toString' function.  We
-// write all digits into 'bsl::stringbuf' individually using 'sputc' methods
-// and then return the resulting 'bsl::string' object:
-//..
-//  #include <algorithm>
+// ```
+// bsl::string  toString(unsigned int from);
+// unsigned int fromString(const bsl::string& from);
+// ```
+// Then, we use `bsl::stringbuf` to implement the `toString` function.  We
+// write all digits into `bsl::stringbuf` individually using `sputc` methods
+// and then return the resulting `bsl::string` object:
+// ```
+// #include <algorithm>
 //
-//  bsl::string toString(unsigned int from)
-//  {
-//      bsl::stringbuf out;
+// bsl::string toString(unsigned int from)
+// {
+//     bsl::stringbuf out;
 //
-//      for (; from != 0; from /= 10) {
-//          out.sputc('0' + from % 10);
-//      }
+//     for (; from != 0; from /= 10) {
+//         out.sputc('0' + from % 10);
+//     }
 //
-//      bsl::string result(out.str());
-//      std::reverse(result.begin(), result.end());
-//      return result;
-//  }
-//..
-// Now, we implement the 'fromString' function that converts from
-// 'bsl::string' to 'unsigned int' by using 'bsl::stringbuf' to read individual
+//     bsl::string result(out.str());
+//     std::reverse(result.begin(), result.end());
+//     return result;
+// }
+// ```
+// Now, we implement the `fromString` function that converts from
+// `bsl::string` to `unsigned int` by using `bsl::stringbuf` to read individual
 // digits from the string object:
-//..
-//  unsigned int fromString(const bsl::string& from)
-//  {
-//      unsigned int result = 0;
+// ```
+// unsigned int fromString(const bsl::string& from)
+// {
+//     unsigned int result = 0;
 //
-//      for (bsl::stringbuf in(from); in.in_avail(); ) {
-//          result = result * 10 + (in.sbumpc() - '0');
-//      }
+//     for (bsl::stringbuf in(from); in.in_avail(); ) {
+//         result = result * 10 + (in.sbumpc() - '0');
+//     }
 //
-//      return result;
-//  }
-//..
+//     return result;
+// }
+// ```
 // Finally, we verify that the result of the round-trip conversion is identical
 // to the original value:
-//..
-//  unsigned int orig   = 92872498;
-//  unsigned int result = fromString(toString(orig));
+// ```
+// unsigned int orig   = 92872498;
+// unsigned int result = fromString(toString(orig));
 //
-//  assert(orig == result);
-//..
+// assert(orig == result);
+// ```
 
 #include <bslscm_version.h>
 
@@ -193,12 +193,12 @@ using std::ios_base;
                             // class basic_stringbuf
                             // =====================
 
+/// This class implements a standard stream buffer providing an unformatted
+/// character input sequence and an unformatted character output sequence
+/// that may be initialized or accessed using a string value.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_stringbuf
     : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> {
-    // This class implements a standard stream buffer providing an unformatted
-    // character input sequence and an unformatted character output sequence
-    // that may be initialized or accessed using a string value.
 
   private:
     // PRIVATE TYPES
@@ -247,178 +247,197 @@ class basic_stringbuf
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Update the input pointers (`eback`, `gptr`, `egptr`) of this string
+    /// buffer, setting the beginning of the input sequence, `eback`, to the
+    /// address of the first character of the internal string
+    /// representation, `d_str`, the current position of the input sequence,
+    /// `gptr`, to the specified `currentInputPosition`, and the address
+    /// past the end of the accessible sequence, `egptr`, to the last
+    /// character in `d_ptr` (`&d_ptr[0] + d_endHint`).  Return the offset
+    /// of the current position of the input sequence from the start of the
+    /// sequence.  The behavior is undefined unless this buffer is in input
+    /// mode and `currentInputPosition` is within the range of accessible
+    /// characters in `d_ptr`.
     pos_type updateInputPointers(char_type *currentInputPosition);
-        // Update the input pointers ('eback', 'gptr', 'egptr') of this string
-        // buffer, setting the beginning of the input sequence, 'eback', to the
-        // address of the first character of the internal string
-        // representation, 'd_str', the current position of the input sequence,
-        // 'gptr', to the specified 'currentInputPosition', and the address
-        // past the end of the accessible sequence, 'egptr', to the last
-        // character in 'd_ptr' ('&d_ptr[0] + d_endHint').  Return the offset
-        // of the current position of the input sequence from the start of the
-        // sequence.  The behavior is undefined unless this buffer is in input
-        // mode and 'currentInputPosition' is within the range of accessible
-        // characters in 'd_ptr'.
 
+    /// Update the output pointers (`pback`, `pptr`, `epptr`) of this string
+    /// buffer, setting the beginning of the output sequence, `pback`, to
+    /// the address of the first character of the internal string
+    /// representation, `d_str`, the current position of the output
+    /// sequence, `pptr`, to the specified `currentOutputPosition`, and the
+    /// address past the end of the accessible sequence, `epptr`, to one
+    /// past the last character in `d_ptr` (`&d_ptr[0] + d_ptr.size()`).
+    /// Return the offset of the current position of the output sequence
+    /// from the start of the sequence.  The behavior is undefined unless
+    /// this buffer is in output mode, and `currentOutputPosition` is within
+    /// the range of accessible characters in `d_ptr`.
     pos_type updateOutputPointers(char_type *currentOutputPosition);
-        // Update the output pointers ('pback', 'pptr', 'epptr') of this string
-        // buffer, setting the beginning of the output sequence, 'pback', to
-        // the address of the first character of the internal string
-        // representation, 'd_str', the current position of the output
-        // sequence, 'pptr', to the specified 'currentOutputPosition', and the
-        // address past the end of the accessible sequence, 'epptr', to one
-        // past the last character in 'd_ptr' ('&d_ptr[0] + d_ptr.size()').
-        // Return the offset of the current position of the output sequence
-        // from the start of the sequence.  The behavior is undefined unless
-        // this buffer is in output mode, and 'currentOutputPosition' is within
-        // the range of accessible characters in 'd_ptr'.
 
+    /// Update the input and output positions of this string buffer object
+    /// according to the current state of the internal string representation
+    /// `d_ptr`.  Optionally specify an `inputOffset` indicating the current
+    /// input position's offset from the beginning of the sequence.
+    /// Optionally specify an `outputOffset` indicating the current output
+    /// position's offset from the beginning of the sequence.  If this
+    /// buffer is in output mode, set the beginning of the output sequence,
+    /// `pback`, to the address of the first character of `d_ptr`, the
+    /// current output position, `pptr`, to `pback + outputOffset`, and the
+    /// end of the output sequence, `epptr`, to one past the last character
+    /// in `d_str` (`&d_ptr[0] + d_ptr.size()`).  If this buffer is in input
+    /// mode, set the beginning of the input sequence, `eback`, to the
+    /// address of the first character of `d_ptr`, the current input
+    /// position, `gptr`, to `eback + inputOffset`, and the end of the input
+    /// sequence, `egptr`, to the last written character in `d_str`
+    /// (`&d_ptr[0] + d_endHint`).
     void updateStreamPositions(off_type inputOffset  = 0,
                                off_type outputOffset = 0);
-        // Update the input and output positions of this string buffer object
-        // according to the current state of the internal string representation
-        // 'd_ptr'.  Optionally specify an 'inputOffset' indicating the current
-        // input position's offset from the beginning of the sequence.
-        // Optionally specify an 'outputOffset' indicating the current output
-        // position's offset from the beginning of the sequence.  If this
-        // buffer is in output mode, set the beginning of the output sequence,
-        // 'pback', to the address of the first character of 'd_ptr', the
-        // current output position, 'pptr', to 'pback + outputOffset', and the
-        // end of the output sequence, 'epptr', to one past the last character
-        // in 'd_str' ('&d_ptr[0] + d_ptr.size()').  If this buffer is in input
-        // mode, set the beginning of the input sequence, 'eback', to the
-        // address of the first character of 'd_ptr', the current input
-        // position, 'gptr', to 'eback + inputOffset', and the end of the input
-        // sequence, 'egptr', to the last written character in 'd_str'
-        // ('&d_ptr[0] + d_endHint').
 
+    /// Attempt to expand the sequence of characters available for input
+    /// (i.e., update the end of input buffer position, `egptr`) to
+    /// incorporate additional characters that may have been written (as
+    /// output) to the stream.  Return `true` if the input buffer was
+    /// successfully extended, and `false` otherwise.  Note that the input
+    /// area as described by `eback`, `gptr`, and `egptr` may become out of
+    /// sync with the characters actually available in the buffer as the
+    /// parent `basic_streambuf` type may perform writes into the output
+    /// area (using `pbase`, `pptr`, and `epptr`) without calling any
+    /// methods of this object.
     bool extendInputArea();
-        // Attempt to expand the sequence of characters available for input
-        // (i.e., update the end of input buffer position, 'egptr') to
-        // incorporate additional characters that may have been written (as
-        // output) to the stream.  Return 'true' if the input buffer was
-        // successfully extended, and 'false' otherwise.  Note that the input
-        // area as described by 'eback', 'gptr', and 'egptr' may become out of
-        // sync with the characters actually available in the buffer as the
-        // parent 'basic_streambuf' type may perform writes into the output
-        // area (using 'pbase', 'pptr', and 'epptr') without calling any
-        // methods of this object.
 
     // PRIVATE ACCESSORS
-    pos_type streamSize() const;
-        // Return the number of characters currently in the buffer.  Note this
-        // may not be 'd_str.size()', as this implementation resizes 'd_str'
-        // beyond the number of written characters to provide more efficient
-        // buffering, and it also may not be 'd_endHint', as that value may
-        // currently be stale (as writes may have been performed through the
-        // parent 'basic_streambuf' type without calling a method on this
-        // object).
 
+    /// Return the number of characters currently in the buffer.  Note this
+    /// may not be `d_str.size()`, as this implementation resizes `d_str`
+    /// beyond the number of written characters to provide more efficient
+    /// buffering, and it also may not be `d_endHint`, as that value may
+    /// currently be stale (as writes may have been performed through the
+    /// parent `basic_streambuf` type without calling a method on this
+    /// object).
+    pos_type streamSize() const;
+
+    /// Return `true` if pointers form a valid range
+    /// (`first <= middle <= last`) and `first == d_str.data()` and
+    /// `middle` and  `last` are in the range
+    /// `[d_str.data() .. d_str.data() + d_str.size()]`, or all arguments
+    /// are 0, and `false` otherwise.  Note that this function is called in
+    /// defensive (i.e., "DEBUG" or "SAFE") build modes only.
     bool arePointersValid(const char_type *first,
                           const char_type *middle,
                           const char_type *last) const;
-        // Return 'true' if pointers form a valid range
-        // ('first <= middle <= last') and 'first == d_str.data()' and
-        // 'middle' and  'last' are in the range
-        // '[d_str.data() .. d_str.data() + d_str.size()]', or all arguments
-        // are 0, and 'false' otherwise.  Note that this function is called in
-        // defensive (i.e., "DEBUG" or "SAFE") build modes only.
 
   protected:
     // PROTECTED MANIPULATORS
+
+    /// Set the current input position or the current output position (or
+    /// both) to the specified `offset` from the specified `whence`
+    /// location.  Optionally specify a `modeBitMask` indicating whether to
+    /// set the current input position, current output position, or both.
+    /// If `whence` is `ios_base::beg`, set the current position to the
+    /// indicated `offset` from the beginning of the stream; if `whence` is
+    /// `ios_base::end`, set the current position to the indicated `offset`
+    /// from the end of the stream; and if `whence` is `ios_base::cur`, set
+    /// the current input or output position to the indicated `offset` from
+    /// its current position.  If `whence` is `ios_base::cur`, then
+    /// `modeBitMask` may be either `ios_base::in` or `ios_base::out`, but
+    /// not both.  Return the offset of the new position on success, and
+    /// `pos_type(off_type(-1))` otherwise.
     virtual pos_type seekoff(
                 off_type           offset,
                 ios_base::seekdir  whence,
                 ios_base::openmode modeBitMask = ios_base::in | ios_base::out);
-        // Set the current input position or the current output position (or
-        // both) to the specified 'offset' from the specified 'whence'
-        // location.  Optionally specify a 'modeBitMask' indicating whether to
-        // set the current input position, current output position, or both.
-        // If 'whence' is 'ios_base::beg', set the current position to the
-        // indicated 'offset' from the beginning of the stream; if 'whence' is
-        // 'ios_base::end', set the current position to the indicated 'offset'
-        // from the end of the stream; and if 'whence' is 'ios_base::cur', set
-        // the current input or output position to the indicated 'offset' from
-        // its current position.  If 'whence' is 'ios_base::cur', then
-        // 'modeBitMask' may be either 'ios_base::in' or 'ios_base::out', but
-        // not both.  Return the offset of the new position on success, and
-        // 'pos_type(off_type(-1))' otherwise.
 
+    /// Set the current input position or the current output position (or
+    /// both) to the specified `absoluteOffset` from the beginning of the
+    /// stream.  Optionally specify a `modeBitMask` indicating whether to
+    /// set the current input position, current output position, or both.
+    /// Return the offset of the new position on success, and
+    /// `pos_type(off_type(-1))` otherwise.
     virtual pos_type seekpos(
              pos_type           absoluteOffset,
              ios_base::openmode modeBitMask = ios_base::in | ios_base::out);
-        // Set the current input position or the current output position (or
-        // both) to the specified 'absoluteOffset' from the beginning of the
-        // stream.  Optionally specify a 'modeBitMask' indicating whether to
-        // set the current input position, current output position, or both.
-        // Return the offset of the new position on success, and
-        // 'pos_type(off_type(-1))' otherwise.
 
+    /// Read up to the specified `numCharacters` from this `stringbuf`
+    /// object and store them in the specified `result` array.  Return the
+    /// number of characters loaded into `result`.  Note that if fewer than
+    /// `numCharacters` characters are available in the buffer, all
+    /// available characters are loaded into `result`.  The behavior is
+    /// undefined unless `result` refers to a contiguous sequence of at
+    /// least `numCharacters` characters.
     virtual std::streamsize xsgetn(char_type       *result,
                                    std::streamsize  numCharacters);
-        // Read up to the specified 'numCharacters' from this 'stringbuf'
-        // object and store them in the specified 'result' array.  Return the
-        // number of characters loaded into 'result'.  Note that if fewer than
-        // 'numCharacters' characters are available in the buffer, all
-        // available characters are loaded into 'result'.  The behavior is
-        // undefined unless 'result' refers to a contiguous sequence of at
-        // least 'numCharacters' characters.
 
+    /// Return the character at the current input position, if a character
+    /// is available, and `traits_type::eof()` otherwise.   Update the end
+    /// of the input area, `egptr`, if additional characters are available
+    /// (as may occur if additional characters have been written to the
+    /// string buffer).  Note that this operation is similar to `uflow`,
+    /// but does not advance the current input position.
     virtual int_type underflow();
-        // Return the character at the current input position, if a character
-        // is available, and 'traits_type::eof()' otherwise.   Update the end
-        // of the input area, 'egptr', if additional characters are available
-        // (as may occur if additional characters have been written to the
-        // string buffer).  Note that this operation is similar to 'uflow',
-        // but does not advance the current input position.
 
+    /// Return the character at the current input position and advance the
+    /// input position by 1.  If no character is available at the current
+    /// input position, return `traits_type::eof()`.   Update the end of the
+    /// input area, `egptr`, if additional characters are available (as may
+    /// occur if additional characters have been written to the string
+    /// buffer).  Note that this operation is similar to `underflow`, but
+    /// advances the current input position.
     virtual int_type uflow();
-        // Return the character at the current input position and advance the
-        // input position by 1.  If no character is available at the current
-        // input position, return 'traits_type::eof()'.   Update the end of the
-        // input area, 'egptr', if additional characters are available (as may
-        // occur if additional characters have been written to the string
-        // buffer).  Note that this operation is similar to 'underflow', but
-        // advances the current input position.
 
+    /// Put back the specified `character` into the input sequence so that
+    /// the next character read from the input sequence will be
+    /// `character`.  If `character` is either `traits_type::eof()` or is
+    /// the same as the previously read character from the input sequence,
+    /// then adjust the current input position, `gptr`, back one position.
+    /// If `character` is neither `traits_type::eof()` nor the character
+    /// previously read from the input sequence, but this string buffer was
+    /// opened for writing (`ios_base::out`), then adjust the input
+    /// sequence back one position and write `character` to that position.
+    /// Return the character that was put back on success and
+    /// `traits_type::eof()` if either the input position is currently at
+    /// the beginning of the sequence or if the previous character in the
+    /// input sequence is not `character` and this buffer was not opened
+    /// for writing.
     virtual int_type pbackfail(int_type character = traits_type::eof());
-        // Put back the specified 'character' into the input sequence so that
-        // the next character read from the input sequence will be
-        // 'character'.  If 'character' is either 'traits_type::eof()' or is
-        // the same as the previously read character from the input sequence,
-        // then adjust the current input position, 'gptr', back one position.
-        // If 'character' is neither 'traits_type::eof()' nor the character
-        // previously read from the input sequence, but this string buffer was
-        // opened for writing ('ios_base::out'), then adjust the input
-        // sequence back one position and write 'character' to that position.
-        // Return the character that was put back on success and
-        // 'traits_type::eof()' if either the input position is currently at
-        // the beginning of the sequence or if the previous character in the
-        // input sequence is not 'character' and this buffer was not opened
-        // for writing.
 
+    /// Append the specified `numCharacters` from the specified
+    /// `inputString` to the output sequence starting at the current output
+    /// position (`pptr`).  Update the current output position of this
+    /// string buffer to refer to the last appended character.  Return the
+    /// number of characters that were appended.  The behavior is undefined
+    /// unless `inputString` refers to a contiguous sequence of at least
+    /// `numCharacters` characters.
     virtual std::streamsize xsputn(const char_type *inputString,
                                    std::streamsize  numCharacters);
-        // Append the specified 'numCharacters' from the specified
-        // 'inputString' to the output sequence starting at the current output
-        // position ('pptr').  Update the current output position of this
-        // string buffer to refer to the last appended character.  Return the
-        // number of characters that were appended.  The behavior is undefined
-        // unless 'inputString' refers to a contiguous sequence of at least
-        // 'numCharacters' characters.
 
+    /// Append the specified `character` to the output sequence of this
+    /// stream buffer at the current output position (`pptr`), and advance
+    /// the output position by one.  This operation may update the end of
+    /// output area (`epptr`) to allow for additional writes (e.g., by the
+    /// base `basic_streambuf` type) to the output sequence without calling
+    /// a method on this type.  Return the written character on success, and
+    /// `traits_type::eof()` if `character` is `traits_type::eof()` or this
+    /// stream buffer was not opened for writing.
     virtual int_type overflow(int_type character = traits_type::eof());
-        // Append the specified 'character' to the output sequence of this
-        // stream buffer at the current output position ('pptr'), and advance
-        // the output position by one.  This operation may update the end of
-        // output area ('epptr') to allow for additional writes (e.g., by the
-        // base 'basic_streambuf' type) to the output sequence without calling
-        // a method on this type.  Return the written character on success, and
-        // 'traits_type::eof()' if 'character' is 'traits_type::eof()' or this
-        // stream buffer was not opened for writing.
 
   public:
     // CREATORS
+
+    /// Create a `basic_stringbuf` object.  Optionally specify a
+    /// `modeBitMask` indicating whether this buffer may be read from,
+    /// written to, or both.  If `modeBitMask` is not supplied, this buffer
+    /// is created with `ios_base::in | ios_base::out`.  Optionally specify
+    /// an `initialString` indicating the initial sequence of characters
+    /// that this buffer will access or manipulate.  If `initialString` is
+    /// not supplied, the initial sequence of characters will be empty.
+    /// Optionally specify the `allocator` used to supply memory.  If
+    /// `allocator` is not supplied, a default-constructed object of the
+    /// (template parameter) `ALLOCATOR` type is used.  If the `ALLOCATOR`
+    /// argument is of type `bsl::allocator` (the default), then
+    /// `allocator`, if supplied, shall be convertible to
+    /// `bslma::Allocator *`.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` and `allocator` is not supplied, the currently
+    /// installed default allocator will be used to supply memory.
     explicit
     basic_stringbuf(const allocator_type& allocator = allocator_type());
     explicit
@@ -430,22 +449,16 @@ class basic_stringbuf
     basic_stringbuf(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
                     const allocator_type& allocator = allocator_type());
-        // Create a 'basic_stringbuf' object.  Optionally specify a
-        // 'modeBitMask' indicating whether this buffer may be read from,
-        // written to, or both.  If 'modeBitMask' is not supplied, this buffer
-        // is created with 'ios_base::in | ios_base::out'.  Optionally specify
-        // an 'initialString' indicating the initial sequence of characters
-        // that this buffer will access or manipulate.  If 'initialString' is
-        // not supplied, the initial sequence of characters will be empty.
-        // Optionally specify the 'allocator' used to supply memory.  If
-        // 'allocator' is not supplied, a default-constructed object of the
-        // (template parameter) 'ALLOCATOR' type is used.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default), then
-        // 'allocator', if supplied, shall be convertible to
-        // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.
 
+    /// Create a `basic_stringbuf` object.  Use the specified
+    /// `initialString` indicating the initial sequence of characters that
+    /// this buffer will access or manipulate.  Optionally specify a
+    /// `modeBitMask` indicating whether this buffer may be read from,
+    /// written to, or both.  If `modeBitMask` is not supplied, this buffer
+    /// is created with `ios_base::in | ios_base::out`.  Optionally specify
+    /// the `allocator` used to supply memory.  If `allocator` is not
+    /// supplied, the allocator in `initialString` is used.  `initialString`
+    /// is left in a valid but unspecified state.
     explicit
     basic_stringbuf(BloombergLP::bslmf::MovableRef<StringType>
                                                  initialString);
@@ -459,15 +472,6 @@ class basic_stringbuf
                                                  initialString,
                     ios_base::openmode           modeBitMask,
                     const allocator_type&        allocator);
-        // Create a 'basic_stringbuf' object.  Use the specified
-        // 'initialString' indicating the initial sequence of characters that
-        // this buffer will access or manipulate.  Optionally specify a
-        // 'modeBitMask' indicating whether this buffer may be read from,
-        // written to, or both.  If 'modeBitMask' is not supplied, this buffer
-        // is created with 'ios_base::in | ios_base::out'.  Optionally specify
-        // the 'allocator' used to supply memory.  If 'allocator' is not
-        // supplied, the allocator in 'initialString' is used.  'initialString'
-        // is left in a valid but unspecified state.
 
     template <class SALLOC>
     explicit
@@ -498,6 +502,20 @@ class basic_stringbuf
         updateStreamPositions();
     }
 
+    /// Create a `basic_stringbuf` object.  Use the specified
+    /// `initialString` indicating the initial sequence of characters that
+    /// this buffer will access or manipulate.  Use the specified
+    /// `modeBitMask` to indicate whether this buffer may be read from,
+    /// written to, or both.  Optionally specify the `allocator` used to
+    /// supply memory.  If `allocator` is not supplied, a
+    /// default-constructed object of the (template parameter) `ALLOCATOR`
+    /// type is used.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` (the default), then `allocator`, if supplied, shall
+    /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
+    /// is of type `bsl::allocator` and `allocator` is not supplied, the
+    /// currently installed default allocator will be used to supply memory.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     basic_stringbuf(
         const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>&
@@ -506,20 +524,6 @@ class basic_stringbuf
         const allocator_type&                     allocator = allocator_type(),
         typename bsl::enable_if<
                     !bsl::is_same<ALLOCATOR, SALLOC>::value, void *>::type = 0)
-        // Create a 'basic_stringbuf' object.  Use the specified
-        // 'initialString' indicating the initial sequence of characters that
-        // this buffer will access or manipulate.  Use the specified
-        // 'modeBitMask' to indicate whether this buffer may be read from,
-        // written to, or both.  Optionally specify the 'allocator' used to
-        // supply memory.  If 'allocator' is not supplied, a
-        // default-constructed object of the (template parameter) 'ALLOCATOR'
-        // type is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' and 'allocator' is not supplied, the
-        // currently installed default allocator will be used to supply memory.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     : BaseType()
     , d_str(initialString.data(), initialString.size(), allocator)
     , d_endHint(initialString.size())
@@ -529,43 +533,43 @@ class basic_stringbuf
     }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    /// Create a `basic_stringbuf` object having the same value as the
+    /// specified `original` object by moving the contents of `original` to
+    /// the newly-created object.  Optionally specify the `allocator` used
+    /// to supply memory.  `original` is left in a valid but unspecified
+    /// state.
     basic_stringbuf(basic_stringbuf&&     original);
     basic_stringbuf(basic_stringbuf&&     original,
                     const allocator_type& allocator);
-        // Create a 'basic_stringbuf' object having the same value as the
-        // specified 'original' object by moving the contents of 'original' to
-        // the newly-created object.  Optionally specify the 'allocator' used
-        // to supply memory.  'original' is left in a valid but unspecified
-        // state.
 #endif
 
+    /// Destroy this object.
     ~basic_stringbuf();
-        // Destroy this object.
 
     // MANIPULATORS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.  The contents
+    /// of `rhs` are move-assigned to this object.  `rhs` is left in a valid
+    /// but unspecified state.
     basic_stringbuf& operator=(basic_stringbuf&& rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.  The contents
-        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
-        // but unspecified state.
 #endif
 
+    /// Reset the internally buffered sequence of characters to the
+    /// specified `value`.  Update the beginning and end of both the input
+    /// and output sequences to be the beginning and end of the updated
+    /// buffer, update the current input position to be the beginning of the
+    /// updated buffer, and update the current output position to be the end
+    /// of the updated buffer.  If `value` is passed by `MovableRef`, then
+    /// it is left in an unspecified but valid state.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     void str(const StringType& value);
     void str(BloombergLP::bslmf::MovableRef<StringType> value);
     template <class SALLOC>
     typename
         bsl::enable_if<!bsl::is_same<ALLOCATOR, SALLOC>::value, void>::type
     str(const basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>& value)
-        // Reset the internally buffered sequence of characters to the
-        // specified 'value'.  Update the beginning and end of both the input
-        // and output sequences to be the beginning and end of the updated
-        // buffer, update the current input position to be the beginning of the
-        // updated buffer, and update the current output position to be the end
-        // of the updated buffer.  If 'value' is passed by 'MovableRef', then
-        // it is left in an unspecified but valid state.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         d_str.assign(value.data(), value.size());
         d_endHint = d_str.size();
@@ -573,34 +577,35 @@ class basic_stringbuf
     }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    /// Return the currently buffered sequence of characters.  If this
+    /// object was created only in input mode, the resultant `StringType`
+    /// contains the character sequence in the range `[eback(), egptr())`.
+    /// If `modeBitMask & ios_base::out` specified at construction is
+    /// nonzero then the resultant `StringType` contains the character
+    /// sequence in the range `[pbase(), high_mark)`, where `high_mark`
+    /// represents the position one past the highest initialized character
+    /// in the buffer.  Otherwise this object has been created in neither
+    /// input nor output mode and a zero length `StringType` is returned.
+    /// This object is left in an empty state.
     StringType str() &&;
-        // Return the currently buffered sequence of characters.  If this
-        // object was created only in input mode, the resultant 'StringType'
-        // contains the character sequence in the range '[eback(), egptr())'.
-        // If 'modeBitMask & ios_base::out' specified at construction is
-        // nonzero then the resultant 'StringType' contains the character
-        // sequence in the range '[pbase(), high_mark)', where 'high_mark'
-        // represents the position one past the highest initialized character
-        // in the buffer.  Otherwise this object has been created in neither
-        // input nor output mode and a zero length 'StringType' is returned.
-        // This object is left in an empty state.
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee if `*this` and `other` allocators compare
+    /// equal.  The behavior is undefined unless either `*this` and `other`
+    /// allocators compare equal or `propagate_on_container_swap` is `true`.
+    /// Note that this function is only available for C++11 (and later)
+    /// language standards because it requires that `swap` be provided on
+    /// the (platform supplied) base class for this type.
     void swap(basic_stringbuf& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee if '*this' and 'other' allocators compare
-        // equal.  The behavior is undefined unless either '*this' and 'other'
-        // allocators compare equal or 'propagate_on_container_swap' is 'true'.
-        // Note that this function is only available for C++11 (and later)
-        // language standards because it requires that 'swap' be provided on
-        // the (platform supplied) base class for this type.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
     // ACCESSORS
+
+    /// Return the allocator used by the underlying string to supply memory.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the allocator used by the underlying string to supply memory.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
     StringType str() const &;
@@ -619,51 +624,52 @@ class basic_stringbuf
 
 #ifndef BSLS_PLATFORM_CMP_SUN
     // To be enabled once DRQS 168075157 is resolved
+
+    /// Return the currently buffered sequence of characters in a
+    /// `basic_string` that uses the specified `allocator`.  If this object
+    /// was created only in input mode, the resultant `basic_string`
+    /// contains the character sequence in the range `[eback(), egptr())`.
+    /// If `modeBitMask & ios_base::out` specified at construction is
+    /// nonzero then the resultant `basic_string` contains the character
+    /// sequence in the range `[pbase(), high_mark)`, where `high_mark`
+    /// represents the position one past the highest initialized character
+    /// in the buffer.  Otherwise this object has been created in neither
+    /// input nor output mode and a zero length `basic_string` is returned.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     typename bsl::enable_if<
         bsl::IsStdAllocator<SALLOC>::value,
         basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC> >::type
     str(const SALLOC& allocator) const
-        // Return the currently buffered sequence of characters in a
-        // 'basic_string' that uses the specified 'allocator'.  If this object
-        // was created only in input mode, the resultant 'basic_string'
-        // contains the character sequence in the range '[eback(), egptr())'.
-        // If 'modeBitMask & ios_base::out' specified at construction is
-        // nonzero then the resultant 'basic_string' contains the character
-        // sequence in the range '[pbase(), high_mark)', where 'high_mark'
-        // represents the position one past the highest initialized character
-        // in the buffer.  Otherwise this object has been created in neither
-        // input nor output mode and a zero length 'basic_string' is returned.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>(view(), allocator);
     }
 #endif
 
+    /// Return a `string_view` containing the currently buffered sequence of
+    /// characters.  If this object was created only in input mode, the
+    /// resultant `ViewType` contains the character sequence in the range
+    /// `[eback(), egptr())`.  If `modeBitMask & ios_base::out` specified at
+    /// construction is nonzero then the resultant `StringType` contains the
+    /// character sequence in the range `[pbase(), high_mark)`, where
+    /// `high_mark` represents the position one past the highest initialized
+    /// character in the buffer.  Otherwise this object has been created in
+    /// neither input nor output mode and a zero length `ViewType` is
+    /// returned.
     ViewType view() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a 'string_view' containing the currently buffered sequence of
-        // characters.  If this object was created only in input mode, the
-        // resultant 'ViewType' contains the character sequence in the range
-        // '[eback(), egptr())'.  If 'modeBitMask & ios_base::out' specified at
-        // construction is nonzero then the resultant 'StringType' contains the
-        // character sequence in the range '[pbase(), high_mark)', where
-        // 'high_mark' represents the position one past the highest initialized
-        // character in the buffer.  Otherwise this object has been created in
-        // neither input nor output mode and a zero length 'ViewType' is
-        // returned.
 };
 
 // FREE FUNCTIONS
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)                  \
  && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
+/// Efficiently exchange the values of the specified `a` and `b` objects.
+/// This method provides the no-throw exception-safety guarantee if `a` and
+/// `b` allocators compare equal.  Note that this function is only available
+/// for C++11 (and later) language standards.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void swap(basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
           basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This method provides the no-throw exception-safety guarantee if 'a' and
-    // 'b' allocators compare equal.  Note that this function is only available
-    // for C++11 (and later) language standards.
 #endif
 
 // STANDARD TYPEDEFS
@@ -675,23 +681,23 @@ typedef basic_stringbuf<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                       // struct StringBufContainer
                       // =========================
 
+/// This class enables the implementation of string-stream types by
+/// providing a trivial type containing a `basic_stringbuf` that is suitable
+/// as a (`private`) base class for a string-stream.  Inheriting from
+/// `StringBufContainer` allows the string-stream to ensure that the
+/// contained `basic_stringbuf` is initialized before initializing other
+/// base classes or data members without potentially overriding `virtual`
+/// methods in the `basic_stringbuf` type.  Note that implementations of
+/// string-stream types must pass the address of a string-buffer to their
+/// `public` base class (e.g., `basic_stream`), so the string-stream must
+/// ensure (using `private` inheritance) that the string-buffer is
+/// initialized before constructing the `public` base class.  If a
+/// string-stream implementation were to directly inherit from
+/// `basic_streambuf`, then `virtual` methods defined in that string-stream
+/// (e.g., `underflow`) might incorrectly override those in the
+/// `basic_stringbuf` implementation.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class StringBufContainer {
-    // This class enables the implementation of string-stream types by
-    // providing a trivial type containing a 'basic_stringbuf' that is suitable
-    // as a ('private') base class for a string-stream.  Inheriting from
-    // 'StringBufContainer' allows the string-stream to ensure that the
-    // contained 'basic_stringbuf' is initialized before initializing other
-    // base classes or data members without potentially overriding 'virtual'
-    // methods in the 'basic_stringbuf' type.  Note that implementations of
-    // string-stream types must pass the address of a string-buffer to their
-    // 'public' base class (e.g., 'basic_stream'), so the string-stream must
-    // ensure (using 'private' inheritance) that the string-buffer is
-    // initialized before constructing the 'public' base class.  If a
-    // string-stream implementation were to directly inherit from
-    // 'basic_streambuf', then 'virtual' methods defined in that string-stream
-    // (e.g., 'underflow') might incorrectly override those in the
-    // 'basic_stringbuf' implementation.
 
   private:
     // PRIVATE TYPES
@@ -762,11 +768,11 @@ class StringBufContainer {
     }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    /// Create a `StringBufContainer` object having the same value as the
+    /// specified `original` object by moving the contents of `original` to
+    /// the newly-created object.  `original` is left in a valid but
+    /// unspecified state.
     StringBufContainer(StringBufContainer&& original)
-        // Create a 'StringBufContainer' object having the same value as the
-        // specified 'original' object by moving the contents of 'original' to
-        // the newly-created object.  'original' is left in a valid but
-        // unspecified state.
     : d_bufObj(std::move(original.d_bufObj))
     {
     }
@@ -786,11 +792,11 @@ class StringBufContainer {
 
     // MANIPULATORS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.  The contents
+    /// of `rhs` are move-assigned to this object.  `rhs` is left in a valid
+    /// but unspecified state.
     StringBufContainer& operator=(StringBufContainer&& rhs)
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.  The contents
-        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
-        // but unspecified state.
     {
         d_bufObj = std::move(rhs.d_bufObj);
 
@@ -799,9 +805,9 @@ class StringBufContainer {
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.
     void swap(StringBufContainer& other)
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.
     {
         d_bufObj.swap(other.d_bufObj);
     }

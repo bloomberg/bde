@@ -5,16 +5,16 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a default constructible alternative for 'bsl::variant'.
+//@PURPOSE: Provide a default constructible alternative for `bsl::variant`.
 //
 //@CLASSES:
-//  bsl::monostate: default constructible 'bsl::variant' first alternative
+//  bsl::monostate: default constructible `bsl::variant` first alternative
 //
 //@SEE_ALSO: bslstl_variant
 //
-//@DESCRIPTION: This component provides a 'bsl::monostate' class.  This class
-// can serve as a first alternative type for a 'bsl::variant' to make the
-// 'bsl::variant' type default constructible.
+//@DESCRIPTION: This component provides a `bsl::monostate` class.  This class
+// can serve as a first alternative type for a `bsl::variant` to make the
+// `bsl::variant` type default constructible.
 
 
 #include <bslscm_version.h>

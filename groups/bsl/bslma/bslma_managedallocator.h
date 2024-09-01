@@ -5,36 +5,36 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a protocol for memory allocators that support 'release'.
+//@PURPOSE: Provide a protocol for memory allocators that support `release`.
 //
-//@INTERNAL_DEPRECATED: use 'bdlma_managedallocator' instead.
+//@INTERNAL_DEPRECATED: use `bdlma_managedallocator` instead.
 //
 //@CLASSES:
-//  bslma::ManagedAllocator: protocol for allocators with 'release' capability
+//  bslma::ManagedAllocator: protocol for allocators with `release` capability
 //
 //@SEE_ALSO: bslma_allocator
 //
 //@DESCRIPTION: This component provides a protocol (pure abstract interface)
-//  class, 'bslma::ManagedAllocator', which extends the base-level protocol
-//  class, 'bslma::Allocator', providing the ability to 'release' all memory
+//  class, `bslma::ManagedAllocator`, which extends the base-level protocol
+//  class, `bslma::Allocator`, providing the ability to `release` all memory
 //  currently allocated through the protocol back to the memory supplier of the
 //  derived concrete allocator object.
-//..
-//   ,-----------------------.
-//  ( bslma::ManagedAllocator )
-//   `-----------------------'
-//               |       release
-//               V
-//       ,----------------.
-//      ( bslma::Allocator )
-//       `----------------'
-//                       allocate
-//                       deallocate
-//..
+// ```
+//  ,-----------------------.
+// ( bslma::ManagedAllocator )
+//  `-----------------------'
+//              |       release
+//              V
+//      ,----------------.
+//     ( bslma::Allocator )
+//      `----------------'
+//                      allocate
+//                      deallocate
+// ```
 //
 ///Usage
 ///-----
-// The 'bslma::ManagedAllocator' protocol class serves as a useful internal
+// The `bslma::ManagedAllocator` protocol class serves as a useful internal
 // interface for documentation purpose and could be used as a parameter to
 // low-level helper functions for some implementations.  We have yet to find a
 // suitable real-world example and when one becomes available, it will be
@@ -55,29 +55,31 @@ namespace bslma {
                         // class ManagedAllocator
                         // ======================
 
+/// Provide a protocol for allocators with the ability to `release` all
+/// memory currently allocated through the protocol back to the memory
+/// supplier of the derived concrete allocator object.
 class ManagedAllocator : public Allocator {
-    // Provide a protocol for allocators with the ability to 'release' all
-    // memory currently allocated through the protocol back to the memory
-    // supplier of the derived concrete allocator object.
 
   private:
     // PRIVATE ACCESSORS
+
+    /// Do nothing.  Note that this function is added to avoid including a
+    /// (redundant) vtable into every translation unit that includes this
+    /// type.  Although we expect that these redundant vtables, identified
+    /// by the `-Wweak-vtables` warning of the clang compiler (version 4.0
+    /// and higher), will be consolidated by the linker, this workaround
+    /// avoids the space being used in the generated object files, which may
+    /// be important for very heavily used types like this one.
+    /// Implementing a virtual function out-of-line enables the compiler to
+    /// use this component translation unit as a "home" for the single
+    /// shared copy of the vtable.
     virtual void vtableDummy() const;
-        // Do nothing.  Note that this function is added to avoid including a
-        // (redundant) vtable into every translation unit that includes this
-        // type.  Although we expect that these redundant vtables, identified
-        // by the '-Wweak-vtables' warning of the clang compiler (version 4.0
-        // and higher), will be consolidated by the linker, this workaround
-        // avoids the space being used in the generated object files, which may
-        // be important for very heavily used types like this one.
-        // Implementing a virtual function out-of-line enables the compiler to
-        // use this component translation unit as a "home" for the single
-        // shared copy of the vtable.
 
   public:
     // MANIPULATORS
+
+    /// Release all memory currently allocated through this allocator.
     virtual void release() = 0;
-        // Release all memory currently allocated through this allocator.
 };
 
 }  // close package namespace
@@ -87,8 +89,8 @@ class ManagedAllocator : public Allocator {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslma::ManagedAllocator bslma_ManagedAllocator;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

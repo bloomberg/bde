@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE ALSO: bsltf_copystate
 //
-//@DESCRIPTION: This component provides a 'struct', 'bsltf_MoveState', which
+//@DESCRIPTION: This component provides a `struct`, `bsltf_MoveState`, which
 // serves as a namespace for enumerating the move-state of an object, including
 // an unknown value indicating that the test type does not support tracking
 // of this information.  An object is involved in a move operation if that
@@ -22,17 +22,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Enumerators
 ///-----------
-//..
-//  Name          Description
-//  -----------   -------------------------------------------------------------
-//  e_NOT_MOVED   The type was not involved in a move operation.
+// ```
+// Name          Description
+// -----------   -------------------------------------------------------------
+// e_NOT_MOVED   The type was not involved in a move operation.
 //
-//  e_MOVED       The type was involved in a move operation.
+// e_MOVED       The type was involved in a move operation.
 //
-//  e_UNKNOWN     The type does not expose move-state infromation.
-//..
-// When converted to 'bool', 'e_NOT_MOVED' yields 'false' whereas the rest
-// yield 'true'.  When 'e_UNKNOWN' is not expected, this conversion makes it
+// e_UNKNOWN     The type does not expose move-state infromation.
+// ```
+// When converted to `bool`, `e_NOT_MOVED` yields `false` whereas the rest
+// yield `true`.  When `e_UNKNOWN` is not expected, this conversion makes it
 // easy to check a value for the binary copied/not-copied attribute.
 //
 ///Usage
@@ -42,23 +42,23 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of using
-// 'bsltf::MoveState'.
+// `bsltf::MoveState`.
 //
-// First, we create a variable 'value' of type 'bsltf::MoveState::Enum'
+// First, we create a variable `value` of type `bsltf::MoveState::Enum`
 // and initialize it with the enumerator value
-// 'bsltf::MoveState::e_MOVED':
-//..
-//  bsltf::MoveState::Enum value = bsltf::MoveState::e_MOVED;
-//..
+// `bsltf::MoveState::e_MOVED`:
+// ```
+// bsltf::MoveState::Enum value = bsltf::MoveState::e_MOVED;
+// ```
 // Now, we store the address of its ASCII representation in a pointer variable,
-// 'asciiValue', of type 'const char *':
-//..
-//  const char *asciiValue = bsltf::MoveState::toAscii(value);
-//..
-// Finally, we verify the value of 'asciiValue':
-//..
-//  assert(0 == strcmp(asciiValue, "MOVED"));
-//..
+// `asciiValue`, of type `const char *`:
+// ```
+// const char *asciiValue = bsltf::MoveState::toAscii(value);
+// ```
+// Finally, we verify the value of `asciiValue`:
+// ```
+// assert(0 == strcmp(asciiValue, "MOVED"));
+// ```
 
 #include <bslscm_version.h>
 
@@ -84,61 +84,63 @@ struct MoveState {
 
   public:
     // CLASS METHOD
+
+    /// Return the non-modifiable string representation corresponding to the
+    /// specified enumeration `value`, if it exists, and a unique (error)
+    /// string otherwise.  The string representation of `value` matches its
+    /// corresponding enumerator name with the "e_" prefix elided.  For
+    /// example:
+    /// ```
+    /// bsl::cout << MoveState::toAscii(MoveState::e_MOVED);
+    /// ```
+    /// will print the following on standard output:
+    /// ```
+    /// MOVED
+    /// ```
+    /// Note that specifying a `value` that does not match any of the
+    /// enumerators will result in a string representation that is distinct
+    /// from any of those corresponding to the enumerators, but is otherwise
+    /// unspecified.
     static const char *toAscii(MoveState::Enum value);
-        // Return the non-modifiable string representation corresponding to the
-        // specified enumeration 'value', if it exists, and a unique (error)
-        // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "e_" prefix elided.  For
-        // example:
-        //..
-        //  bsl::cout << MoveState::toAscii(MoveState::e_MOVED);
-        //..
-        // will print the following on standard output:
-        //..
-        //  MOVED
-        //..
-        // Note that specifying a 'value' that does not match any of the
-        // enumerators will result in a string representation that is distinct
-        // from any of those corresponding to the enumerators, but is otherwise
-        // unspecified.
 
 };
 
 // FREE FUNCTIONS
-void debugprint(const MoveState::Enum& value);
-    // Print the specified 'value' as a string.
 
+/// Print the specified `value` as a string.
+void debugprint(const MoveState::Enum& value);
+
+/// **DEPRECATED**: Use `CopyMoveState::isMovedFrom` or `CopyMoveState::get`.
+/// Return the moved-from state of the specified `object` of (template
+/// parameter) `TYPE`.  The default implementation of this ADL customization
+/// point calls `CopyMoveState::get` and translates the result into the
+/// correpsonding `MoveState::Enum` (which has been deprecated).  Note that
+/// a customization of this function for a specific type will not be
+/// "inherited" by derived classes of that type; new types should customize
+/// `copyMoveState`, not `getMovedFrom`.
 template <class TYPE>
 MoveState::Enum getMovedFrom(const TYPE& object);
-    // !DEPRECATED!: Use 'CopyMoveState::isMovedFrom' or 'CopyMoveState::get'.
-    // Return the moved-from state of the specified 'object' of (template
-    // parameter) 'TYPE'.  The default implementation of this ADL customization
-    // point calls 'CopyMoveState::get' and translates the result into the
-    // correpsonding 'MoveState::Enum' (which has been deprecated).  Note that
-    // a customization of this function for a specific type will not be
-    // "inherited" by derived classes of that type; new types should customize
-    // 'copyMoveState', not 'getMovedFrom'.
 
+/// **DEPRECATED**: Use `CopyMoveState::isMovedInto` or `CopyMoveState::get`.
+/// Return the moved-from state of the specified `object` of (template
+/// parameter) `TYPE`.  The default implementation of this ADL customization
+/// point calls `CopyMoveState::get` and translates the result into the
+/// correpsonding `MoveState::Enum`.  Note that a customization of this
+/// function for a specific type will not be "inherited" by derived classes
+/// of that type; new types should customize `copyMoveState`, not
+/// `getMovedInto`.
 template <class TYPE>
 MoveState::Enum getMovedInto(const TYPE& object);
-    // !DEPRECATED!: Use 'CopyMoveState::isMovedInto' or 'CopyMoveState::get'.
-    // Return the moved-from state of the specified 'object' of (template
-    // parameter) 'TYPE'.  The default implementation of this ADL customization
-    // point calls 'CopyMoveState::get' and translates the result into the
-    // correpsonding 'MoveState::Enum'.  Note that a customization of this
-    // function for a specific type will not be "inherited" by derived classes
-    // of that type; new types should customize 'copyMoveState', not
-    // 'getMovedInto'.
 
+/// **DEPRECATED**: Use `CopyMoveState::set` insetead.
+/// Set the moved-into state of the specified `object` to the specified
+/// `value`.  The default implementation of this ADL customization point
+/// calls `CopyMoveState::set` and translates `value` into the correpsonding
+/// `CopyMoveState::Enum`.  Note that a customization of this function for a
+/// specific type will not be "inherited" by derived classes of that type;
+/// new types should customize `setCopyMoveState`, not `setMovedInto`.
 template <class TYPE>
 void setMovedInto(TYPE *object, MoveState::Enum value);
-    // !DEPRECATED!: Use 'CopyMoveState::set' insetead.
-    // Set the moved-into state of the specified 'object' to the specified
-    // 'value'.  The default implementation of this ADL customization point
-    // calls 'CopyMoveState::set' and translates 'value' into the correpsonding
-    // 'CopyMoveState::Enum'.  Note that a customization of this function for a
-    // specific type will not be "inherited" by derived classes of that type;
-    // new types should customize 'setCopyMoveState', not 'setMovedInto'.
 
 }  // close package namespace
 
@@ -178,8 +180,8 @@ void bsltf::setMovedInto(TYPE *object, bsltf::MoveState::Enum value)
     CopyMoveState::set(object, cms);
 }
 
+/// Print the specified `value` as a string.
 inline void bsltf::debugprint(const bsltf::MoveState::Enum& value)
-    // Print the specified 'value' as a string.
 {
     std::printf("%s", MoveState::toAscii(value));
 }

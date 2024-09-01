@@ -5,34 +5,34 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Undefine macros related to 'bsls_asserttest.h'.
+//@PURPOSE: Undefine macros related to `bsls_asserttest.h`.
 //
 //@DESCRIPTION: This component provides a header that is *included* to undefine
-// all macros defined in 'bsls_asserttest.h', 'bsls_assert.h', and
-// 'bsls_review.h'; it is designed to be *re*-includable.  This is for the use
-// of the 'bsls_assertest' test driver to enable it to re-include the
-// 'bsls_asserttest.h' header with different input macros and verify that they
+// all macros defined in `bsls_asserttest.h`, `bsls_assert.h`, and
+// `bsls_review.h`; it is designed to be *re*-includable.  This is for the use
+// of the `bsls_assertest` test driver to enable it to re-include the
+// `bsls_asserttest.h` header with different input macros and verify that they
 // output the correct resulting macro definitions.
 //
 ///Usage
 ///-----
-// To undefine all macros defined in 'bsls_asserttest.h', 'bsls_assert.h' and
-// 'bsls_review.h', first disable the header include guard for this header
-// ('bsls_asserttest_macroreset.h'):
-//..
-//  #undef INCLUDED_BSLS_ASSERTTEST_MACRORESET
-//..
+// To undefine all macros defined in `bsls_asserttest.h`, `bsls_assert.h` and
+// `bsls_review.h`, first disable the header include guard for this header
+// (`bsls_asserttest_macroreset.h`):
+// ```
+// #undef INCLUDED_BSLS_ASSERTTEST_MACRORESET
+// ```
 // Then re-include this header, which will undefine the macros that were
-// defined by 'bsls_asserttest.h', 'bsls_assert.h' and 'bsls_review.h':
-//..
-//  #include <bsls_asserttest_macroreset.h>
-//..
-// Then define any macros that control the behaviors of 'bsls_asserttest.h',
-// 'bsls_assert.h' and 'bsls_review.h' for this particular test, then
-// re-include 'bsls_asserttest.h':
-//..
-//  #include <bsls_asserttest.h>
-//..
+// defined by `bsls_asserttest.h`, `bsls_assert.h` and `bsls_review.h`:
+// ```
+// #include <bsls_asserttest_macroreset.h>
+// ```
+// Then define any macros that control the behaviors of `bsls_asserttest.h`,
+// `bsls_assert.h` and `bsls_review.h` for this particular test, then
+// re-include `bsls_asserttest.h`:
+// ```
+// #include <bsls_asserttest.h>
+// ```
 
 // Undefine the external header guards so that the component headers can be
 // re-included and re-evaluated.

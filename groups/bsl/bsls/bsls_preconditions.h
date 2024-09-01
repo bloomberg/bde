@@ -17,14 +17,14 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_fuzztest
 //
-//@DESCRIPTION: This component provides macros, 'BSLS_PRECONDITIONS_BEGIN' and
-// 'BSLS_PRECONDITIONS_END', to facilitate fuzz testing narrow contract
+//@DESCRIPTION: This component provides macros, `BSLS_PRECONDITIONS_BEGIN` and
+// `BSLS_PRECONDITIONS_END`, to facilitate fuzz testing narrow contract
 // functions.  When fuzz testing is not enabled, the macros expand to nothing.
 // When fuzz testing is enabled, the macros invoke a dynamic handler function
-// via 'bsls::PreconditionsHandler'.
+// via `bsls::PreconditionsHandler`.
 //
-// 'BSLS_PRECONDITIONS_BEGIN' is used as a marker to identify where
-// precondition checks are begun, while 'BSLS_PRECONDITIONS_END' is used as a
+// `BSLS_PRECONDITIONS_BEGIN` is used as a marker to identify where
+// precondition checks are begun, while `BSLS_PRECONDITIONS_END` is used as a
 // marker to identify where precondition checks are complete.  These macros
 // should always be used as a pair, and always at the very beginning of a
 // function, surrounding the function preconditions.
@@ -32,27 +32,27 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // Since the macros contained in this component are intended to be used in
-// conjunction with the macros defined in 'bsls_fuzztest', this test driver
+// conjunction with the macros defined in `bsls_fuzztest`, this test driver
 // contains only the simplest USAGE EXAMPLE.  See the USAGE EXAMPLE in
-// {'bsls_fuzztest'} for a fuller treatment.
+// {`bsls_fuzztest`} for a fuller treatment.
 //
-// The following example shows the use of 'BSLS_PRECONDITIONS_BEGIN' and
-// 'BSLS_PRECONDITIONS_END' in the definition of a narrow contract function.
+// The following example shows the use of `BSLS_PRECONDITIONS_BEGIN` and
+// `BSLS_PRECONDITIONS_END` in the definition of a narrow contract function.
 // These macros are to be placed around the function precondition checks,
 // immediately before and after.
-//..
-//  double mySqrt(double x)
-//      // Return the square root of the specified 'x'.  The behavior is
-//      // undefined unless 'x >= 0'.
-//  {
-//      BSLS_PRECONDITIONS_BEGIN();
-//      BSLS_ASSERT(0 <= x);
-//      BSLS_PRECONDITIONS_END();
-//      return sqrt(x);
-//  }
-//..
+// ```
+// double mySqrt(double x)
+//     // Return the square root of the specified 'x'.  The behavior is
+//     // undefined unless 'x >= 0'.
+// {
+//     BSLS_PRECONDITIONS_BEGIN();
+//     BSLS_ASSERT(0 <= x);
+//     BSLS_PRECONDITIONS_END();
+//     return sqrt(x);
+// }
+// ```
 // In a fuzz-enabled build, we would invoke this function inside the fuzz loop
-// with 'BSLS_FUZZTEST_EVALUATE'.
+// with `BSLS_FUZZTEST_EVALUATE`.
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h> // 'AtomicTypes'
@@ -98,11 +98,12 @@ namespace bsls {
                          // ===========================
                          // class PreconditionsHandler
                          // ===========================
+
+/// This utility class maintains pointers containing the addresses of
+/// functions invoked by the `BSLS_PRECONDITIONS_BEGIN` and
+/// `BSLS_PRECONDITIONS_END` macros, and provides methods to
+///  manipulate and utilize those functions.
 class PreconditionsHandler {
-    // This utility class maintains pointers containing the addresses of
-    // functions invoked by the 'BSLS_PRECONDITIONS_BEGIN' and
-    // 'BSLS_PRECONDITIONS_END' macros, and provides methods to
-    //  manipulate and utilize those functions.
 
   private:
     // CLASS DATA
@@ -113,32 +114,34 @@ class PreconditionsHandler {
 
   public:
     // TYPES
+
+    /// `PreconditionHandlerType` is an alias for a pointer to a function
+    /// returning `void` and taking no parameters.
     typedef void (*PreconditionHandlerType)();
-        // 'PreconditionHandlerType' is an alias for a pointer to a function
-        // returning 'void' and taking no parameters.
 
     // CLASS METHODS
+
+    /// Return the previously installed `s_beginHandler`.
     static
     PreconditionHandlerType getBeginHandler();
-        // Return the previously installed 's_beginHandler'.
 
+    /// Return the previously installed `s_endHandler`.
     static
     PreconditionHandlerType getEndHandler();
-        // Return the previously installed 's_endHandler'.
 
+    /// Store the specified `beginHandler` and `endHandler` function
+    /// pointers to the `static` member variables.
     static void installHandlers(PreconditionHandlerType beginHandler,
                                 PreconditionHandlerType endHandler);
-        // Store the specified 'beginHandler' and 'endHandler' function
-        // pointers to the 'static' member variables.
 
+    /// Invoke the previously installed `s_beginHandler` function.
     static void invokeBeginHandler();
-        // Invoke the previously installed 's_beginHandler' function.
 
+    /// Invoke the previously installed `s_endHandler` function.
     static void invokeEndHandler();
-        // Invoke the previously installed 's_endHandler' function.
 
+    /// Do nothing.
     static void noOpHandler();
-        // Do nothing.
 };
 
 }  // close package namespace

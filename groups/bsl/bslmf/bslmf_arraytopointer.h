@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bslmf::ArrayToPointer: convert an array type to a pointer type
-//  bslmf::ArrayToConstPointer: convert an array type to a 'const' pointer type
+//  bslmf::ArrayToConstPointer: convert an array type to a `const` pointer type
 //
 //@SEE_ALSO: bslmf_isarray, bslmf_forwardingtype
 //
@@ -17,25 +17,25 @@ BSLS_IDENT("$Id: $")
 // types to pointer types.  The utility is generally used for in templates that
 // require forwarding or storage of arguments that are passed a arrays(e.g.,
 // "string literals").  For non array types, the type is left unmodified.  Note
-// that 'bslmf::ArrayToPointer' and 'bslmf::ArrayToConstPointer' retain the CV
+// that `bslmf::ArrayToPointer` and `bslmf::ArrayToConstPointer` retain the CV
 // qualifiers of the original type.  In other words, if the original array type
-// was 'const' or 'volatile', or 'const volatile', the converted pointer type
-// will also be 'const', 'volatile', or 'const volatile' respectively.
+// was `const` or `volatile`, or `const volatile`, the converted pointer type
+// will also be `const`, `volatile`, or `const volatile` respectively.
 //
 // When an explicit const pointer pointer type is needed(such as when accepting
-// as argument, then 'bslmf::ArrayToConstPointer' should be used.
+// as argument, then `bslmf::ArrayToConstPointer` should be used.
 //
 ///Usage
 ///-----
 // For example:
-//..
-//  assert(1 == bsl::is_same<bslmf::ArrayToPointer<int[5]>::Type
-//                          , int *>::value);
-//  assert(1 == bsl::is_same<bslmf::ArrayToPointer<int *>::Type
-//                          , int *>::value);
-//  assert(0 == bsl::is_same<bslmf::ArrayToPointer<int (*)[5]>::Type]
-//                          , int **>::value);
-//..
+// ```
+// assert(1 == bsl::is_same<bslmf::ArrayToPointer<int[5]>::Type
+//                         , int *>::value);
+// assert(1 == bsl::is_same<bslmf::ArrayToPointer<int *>::Type
+//                         , int *>::value);
+// assert(0 == bsl::is_same<bslmf::ArrayToPointer<int (*)[5]>::Type]
+//                         , int **>::value);
+// ```
 
 #include <bslscm_version.h>
 
@@ -105,14 +105,14 @@ struct ArrayToPointer_Imp<t_TYPE[], t_UNUSED> {
 #ifdef bslmf_ArrayToConstPointer
 #undef bslmf_ArrayToConstPointer
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_ArrayToConstPointer bslmf::ArrayToConstPointer
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_ArrayToPointer
 #undef bslmf_ArrayToPointer
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_ArrayToPointer bslmf::ArrayToPointer
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

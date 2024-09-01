@@ -5,10 +5,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a metafunction for 'allocator_arg_t' construction
+//@PURPOSE: Provide a metafunction for `allocator_arg_t` construction
 //
 //@CLASSES:
-//  bslmf::UsesAllocatorArgT: metafunction for 'allocator_arg_t' checking
+//  bslmf::UsesAllocatorArgT: metafunction for `allocator_arg_t` checking
 //
 //@SEE_ALSO: bslmf_allocatorargt
 //
@@ -20,24 +20,24 @@ BSLS_IDENT("$Id: $")
 // the allocator for the constructed object.
 //
 // The idiom adopted is to pass an object of the empty tag class
-// 'std::allocator_arg_t' (or 'bsl::allocator_arg_t', within the BSL library)
+// `std::allocator_arg_t` (or `bsl::allocator_arg_t`, within the BSL library)
 // as the first argument in the constructor, followed immediately by the
 // allocator argument.
 //
-// The 'UsesAllocatorArgT<T>' metafunction inherits from 'true_type' of 'T' is
-// one of the classes that uses this idiom; otherwise 'false_type'.  It is used
+// The `UsesAllocatorArgT<T>` metafunction inherits from `true_type` of `T` is
+// one of the classes that uses this idiom; otherwise `false_type`.  It is used
 // when constructing elements of a container or members of a class template, to
 // determine whether and how to pass an allocator to that element or member.
-// By default, any 'T' is assumed NOT to use the 'allocator_arg_t' idiom.
+// By default, any `T` is assumed NOT to use the `allocator_arg_t` idiom.
 // Specialization of this trait is required for classes that do use this idiom.
 // Although a C++11 trait could be designed to automatically determine whether
-// class 'T' uses the idiom for a specific set of constructor arguments, such
+// class `T` uses the idiom for a specific set of constructor arguments, such
 // code would not be portable to C++03 compilers, a requirement for BSL
 // classes.
 //
-// Given a type 'T" where 'bslmf::UsesAllocatorArgT<T>::value' is true, if
-// 'bslma::UsesBslmaAllocator<T>::value' is also true, then the argument after
-// 'allocator_arg' can be of type 'bslma::Allocator*'; otherwise, it must be of
+// Given a type `T" where `bslmf::UsesAllocatorArgT<T>::value' is true, if
+// `bslma::UsesBslmaAllocator<T>::value` is also true, then the argument after
+// `allocator_arg` can be of type `bslma::Allocator*`; otherwise, it must be of
 // a type that meets the STL allocator requirements.
 //
 ///Usage
@@ -55,42 +55,42 @@ namespace bslmf {
                         // class template UsesAllocatorArgT
                         // ================================
 
+/// User-specialized trait type indicating that the constructor of `t_TYPE`
+/// can be invoked using `bsl::allocator_arg` as its first argument and an
+/// allocator object as its second argument.
 template <class t_TYPE>
 struct UsesAllocatorArgT : DetectNestedTrait<t_TYPE, UsesAllocatorArgT>::type {
-    // User-specialized trait type indicating that the constructor of 't_TYPE'
-    // can be invoked using 'bsl::allocator_arg' as its first argument and an
-    // allocator object as its second argument.
 };
 
+/// Trait metafunction that determines whether the constructor of `t_TYPE`
+/// can be invoked using `bsl::allocator_arg` as its first argument and an
+/// allocator object as its second argument.  The value is computed by
+/// stripping off the cv-qualifier and forwading to
+/// `UsesAllocatorArgT<t_TYPE>`, which is user-specialized for the
+/// appropriate types.
 template <class t_TYPE>
 struct UsesAllocatorArgT<const t_TYPE> : UsesAllocatorArgT<t_TYPE>::type {
-    // Trait metafunction that determines whether the constructor of 't_TYPE'
-    // can be invoked using 'bsl::allocator_arg' as its first argument and an
-    // allocator object as its second argument.  The value is computed by
-    // stripping off the cv-qualifier and forwading to
-    // 'UsesAllocatorArgT<t_TYPE>', which is user-specialized for the
-    // appropriate types.
 };
 
+/// Trait metafunction that determines whether the constructor of `t_TYPE`
+/// can be invoked using `bsl::allocator_arg` as its first argument and an
+/// allocator object as its second argument.  The value is computed by
+/// stripping off the cv-qualifier and forwading to
+/// `UsesAllocatorArgT<t_TYPE>`, which is user-specialized for the
+/// appropriate types.
 template <class t_TYPE>
 struct UsesAllocatorArgT<volatile t_TYPE> : UsesAllocatorArgT<t_TYPE>::type {
-    // Trait metafunction that determines whether the constructor of 't_TYPE'
-    // can be invoked using 'bsl::allocator_arg' as its first argument and an
-    // allocator object as its second argument.  The value is computed by
-    // stripping off the cv-qualifier and forwading to
-    // 'UsesAllocatorArgT<t_TYPE>', which is user-specialized for the
-    // appropriate types.
 };
 
+/// Trait metafunction that determines whether the constructor of `t_TYPE`
+/// can be invoked using `bsl::allocator_arg` as its first argument and an
+/// allocator object as its second argument.  The value is computed by
+/// stripping off the cv-qualifier and forwading to
+/// `UsesAllocatorArgT<t_TYPE>`, which is user-specialized for the
+/// appropriate types.
 template <class t_TYPE>
 struct UsesAllocatorArgT<const volatile t_TYPE>
 : UsesAllocatorArgT<t_TYPE>::type {
-    // Trait metafunction that determines whether the constructor of 't_TYPE'
-    // can be invoked using 'bsl::allocator_arg' as its first argument and an
-    // allocator object as its second argument.  The value is computed by
-    // stripping off the cv-qualifier and forwading to
-    // 'UsesAllocatorArgT<t_TYPE>', which is user-specialized for the
-    // appropriate types.
 };
 
 }  // close package namespace

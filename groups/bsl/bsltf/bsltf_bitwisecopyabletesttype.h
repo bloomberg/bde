@@ -13,17 +13,17 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'BitwiseCopyableTestType', that is
-// bitwise-copyable and defines the 'bslmf::IsBitwiseCopyable' type trait.
+// (value-semantic) attribute class, `BitwiseCopyableTestType`, that is
+// bitwise-copyable and defines the `bslmf::IsBitwiseCopyable` type trait.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the class value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the class value
 //
 ///Usage
 ///-----
@@ -33,39 +33,39 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to print the supported traits of this test type.
 //
-// First, we create a function template 'printTypeTraits' with a parameterized
-// 'TYPE':
-//..
-//  template <class TYPE>
-//  void printTypeTraits()
-//      // Prints the traits of the parameterized 'TYPE' to the console.
-//  {
-//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
-//          printf("Type defines bslma::UsesBslmaAllocator.\n");
-//      }
-//      else {
-//          printf(
-//               "Type does not define bslma::UsesBslmaAllocator.\n");
-//      }
+// First, we create a function template `printTypeTraits` with a parameterized
+// `TYPE`:
+// ```
+// template <class TYPE>
+// void printTypeTraits()
+//     // Prints the traits of the parameterized 'TYPE' to the console.
+// {
+//     if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//         printf("Type defines bslma::UsesBslmaAllocator.\n");
+//     }
+//     else {
+//         printf(
+//              "Type does not define bslma::UsesBslmaAllocator.\n");
+//     }
 //
-//      if (bls::is_trivially_copyable<TYPE>::value) {
-//          printf("Type defines bsl::is_trivially_copyable.\n");
-//      }
-//      else {
-//          printf("Type does not define bsl::is_trivially_copyable.\n");
-//      }
-//  }
-//..
-// Now, we invoke the 'printTypeTraits' function template using
-// 'BitwiseCopyableTestType' as the parameterized 'TYPE':
-//..
-//  printTypeTraits<BitwiseCopyableTestType>();
-//..
+//     if (bls::is_trivially_copyable<TYPE>::value) {
+//         printf("Type defines bsl::is_trivially_copyable.\n");
+//     }
+//     else {
+//         printf("Type does not define bsl::is_trivially_copyable.\n");
+//     }
+// }
+// ```
+// Now, we invoke the `printTypeTraits` function template using
+// `BitwiseCopyableTestType` as the parameterized `TYPE`:
+// ```
+// printTypeTraits<BitwiseCopyableTestType>();
+// ```
 // Finally, we observe the console output:
-//..
-//  Type does not define bslma::UsesBslmaAllocator.
-//  Type defines bsl::is_trivially_copyable.
-//..
+// ```
+// Type does not define bslma::UsesBslmaAllocator.
+// Type defines bsl::is_trivially_copyable.
+// ```
 
 #include <bslscm_version.h>
 
@@ -81,11 +81,11 @@ namespace bsltf {
                         // class BitwiseCopyableTestType
                         // =============================
 
+/// This unconstrained (value-semantic) attribute class defines the
+/// `bsl::is_trivially_copyable` trait and does not allocate memory.  See
+/// the Attributes section under @DESCRIPTION in the component-level
+/// documentation for information on the class attributes.
 class BitwiseCopyableTestType {
-    // This unconstrained (value-semantic) attribute class defines the
-    // 'bsl::is_trivially_copyable' trait and does not allocate memory.  See
-    // the Attributes section under @DESCRIPTION in the component-level
-    // documentation for information on the class attributes.
 
     // DATA
     int d_data;  // class value
@@ -96,16 +96,17 @@ class BitwiseCopyableTestType {
                                    bslmf::IsBitwiseCopyable);
 
     // CREATORS
-    BitwiseCopyableTestType();
-        // Create a 'SimpleTestType' object having the (default) attribute
-        // values:
-        //..
-        //  data() == 0
-        //..
 
+    /// Create a `SimpleTestType` object having the (default) attribute
+    /// values:
+    /// ```
+    /// data() == 0
+    /// ```
+    BitwiseCopyableTestType();
+
+    /// Create a `BitwiseCopyableTestType` object having the specified
+    /// `data` attribute value.
     explicit BitwiseCopyableTestType(int data);
-        // Create a 'BitwiseCopyableTestType' object having the specified
-        // 'data' attribute value.
 
     //! BitwiseCopyableTestType(
     //                      const BitwiseCopyableTestType& original) = default;
@@ -122,27 +123,29 @@ class BitwiseCopyableTestType {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `BitwiseCopyableTestType` objects
+/// have the same if their `data` attributes are the same.
 bool operator==(const BitwiseCopyableTestType& lhs,
                 const BitwiseCopyableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'BitwiseCopyableTestType' objects
-    // have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `BitwiseCopyableTestType`
+/// objects do not have the same value if their `data` attributes are not
+/// the same.
 bool operator!=(const BitwiseCopyableTestType& lhs,
                 const BitwiseCopyableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'BitwiseCopyableTestType'
-    // objects do not have the same value if their 'data' attributes are not
-    // the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

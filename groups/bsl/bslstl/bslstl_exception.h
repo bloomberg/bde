@@ -5,14 +5,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an implementation of 'uncaught_exceptions'.
+//@PURPOSE: Provide an implementation of `uncaught_exceptions`.
 //
 //@CLASSES:
 //
 //@CANONICAL_HEADER: bsl_exception.h
 //
-//@DESCRIPTION: This component defines a function 'bsl::uncaught_exceptions'.
-// For C++17 and later, this is an alias for 'std::uncaught_exceptions'. Before
+//@DESCRIPTION: This component defines a function `bsl::uncaught_exceptions`.
+// For C++17 and later, this is an alias for `std::uncaught_exceptions`. Before
 // C++17, we emulate the functionality.
 //
 ///Usage
@@ -22,29 +22,29 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Determining if the stack is being unwound.
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a class that does some processing in it's destructor, but
-// we don't want to do this if an exception is "in flight".  'bslmt::OnceGuard'
+// we don't want to do this if an exception is "in flight".  `bslmt::OnceGuard`
 // is an example of this kind of functionality.
 //
-// First, we create a class with an 'int d_exception_count' member variable,
+// First, we create a class with an `int d_exception_count` member variable,
 // and record the number of in-flight exceptions in the constructor.
-//..
-//  struct ExceptionAware {
-//      ExceptionAware() : d_exception_count(bsl::uncaught_exceptions()) {}
-//      ~ExceptionAware();
-//      int d_exception_count;
-//   };
-//..
+// ```
+// struct ExceptionAware {
+//     ExceptionAware() : d_exception_count(bsl::uncaught_exceptions()) {}
+//     ~ExceptionAware();
+//     int d_exception_count;
+//  };
+// ```
 // Then, we implement the destructor
-//..
-//  ExceptionAware::~ExceptionAware () {
-//      if (bsl::uncaught_exceptions() > d_exception_count) {
-//          // The stack is being unwound
-//      }
-//      else {
-//          // The object is being destroyed normally
-//      }
-//  }
-//..
+// ```
+// ExceptionAware::~ExceptionAware () {
+//     if (bsl::uncaught_exceptions() > d_exception_count) {
+//         // The stack is being unwound
+//     }
+//     else {
+//         // The object is being destroyed normally
+//     }
+// }
+// ```
 
 #include <bslscm_version.h>
 

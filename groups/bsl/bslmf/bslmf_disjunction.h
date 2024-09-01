@@ -9,11 +9,11 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::disjunction: forms the logical OR of the specified type traits
-//  bsl::disjunction_v: the result value of the 'disjunction' meta-function
+//  bsl::disjunction_v: the result value of the `disjunction` meta-function
 //
 //@DESCRIPTION: This component makes available the functionality provided by
-// the 'std::disjunction' meta-function in all C++ language modes -
-// 'std::disjunction' is available only starting from C++17.
+// the `std::disjunction` meta-function in all C++ language modes -
+// `std::disjunction` is available only starting from C++17.
 
 #include <bslscm_version.h>
 

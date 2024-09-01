@@ -5,15 +5,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Implement atomic operations using gcc '__atomic_*' intrinsics.
+//@PURPOSE: Implement atomic operations using gcc `__atomic_*` intrinsics.
 //
 //@CLASSES:
-//  bsls::AtomicOperations_ALL_ALL_GCCIntrinsics: gcc '__atomic_*' intrinsics
+//  bsls::AtomicOperations_ALL_ALL_GCCIntrinsics: gcc `__atomic_*` intrinsics
 //
 //@DESCRIPTION: This component provides classes necessary to implement
 // atomics in 32bit/64bit mode using GCC and clang compiler intrinsics.
-// The classes are for private use only.  See 'bsls_atomicoperations'
-// and 'bsls_atomic' for the public interface to atomics.
+// The classes are for private use only.  See `bsls_atomicoperations`
+// and `bsls_atomic` for the public interface to atomics.
 
 #include <bsls_atomicoperations_default.h>
 #include <bsls_platform.h>

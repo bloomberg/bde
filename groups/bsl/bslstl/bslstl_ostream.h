@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CANONICAL_HEADER: bsl_ostream.h
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_ostream.h>' instead.  This component provides a namespace for
-// implementations for standard 'osynstream' I/O manipulators.
+// `<bsl_ostream.h>` instead.  This component provides a namespace for
+// implementations for standard `osynstream` I/O manipulators.
 
 #include <bslstl_iosfwd.h>
 #include <bslstl_ios.h>
@@ -39,28 +39,28 @@ namespace bsl {
     // following symbol needs to be added into bsl namespace.
     using std::exception;
 
+    /// If, for the specified `stream`, `stream.rdbuf()` is a
+    /// `basic_syncbuf<CHAR,TRAITS,ALLOCATOR>`, make `stream` emit (i.e.,
+    /// transmit data to the wrapped stream buffer) when flushed, otherwise
+    /// has no effect.  Return `stream`.
     template <class CHAR, class TRAITS>
     basic_ostream<CHAR,TRAITS>& emit_on_flush(
                                            basic_ostream<CHAR,TRAITS>& stream);
-        // If, for the specified 'stream', 'stream.rdbuf()' is a
-        // 'basic_syncbuf<CHAR,TRAITS,ALLOCATOR>', make 'stream' emit (i.e.,
-        // transmit data to the wrapped stream buffer) when flushed, otherwise
-        // has no effect.  Return 'stream'.
 
+    /// Flush the specified `stream` as if by calling `stream.flush()`.
+    /// Then, if `stream.rdbuf()` actually points to a
+    /// `basic_syncbuf<CHAR,TRAITS,ALLOCATOR>` `buf`, call `buf.emit()`.
+    /// Return `stream`.
     template <class CHAR, class TRAITS>
     basic_ostream<CHAR,TRAITS>& flush_emit(basic_ostream<CHAR,TRAITS>& stream);
-        // Flush the specified 'stream' as if by calling 'stream.flush()'.
-        // Then, if 'stream.rdbuf()' actually points to a
-        // 'basic_syncbuf<CHAR,TRAITS,ALLOCATOR>' 'buf', call 'buf.emit()'.
-        // Return 'stream'.
 
+    /// If, for the specified `stream`, `stream.rdbuf()` is a
+    /// `basic_syncbuf<CHAR,TRAITS,ALLOCATOR>`, make `stream` not emit
+    /// (i.e., don't transmit data to the wrapped stream buffer) when
+    /// flushed, otherwise has no effect.  Return `stream`.
     template <class CHAR, class TRAITS>
     basic_ostream<CHAR,TRAITS>& noemit_on_flush(
                                            basic_ostream<CHAR,TRAITS>& stream);
-        // If, for the specified 'stream', 'stream.rdbuf()' is a
-        // 'basic_syncbuf<CHAR,TRAITS,ALLOCATOR>', make 'stream' not emit
-        // (i.e., don't transmit data to the wrapped stream buffer) when
-        // flushed, otherwise has no effect.  Return 'stream'.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Export additional names, leaked to support transitive dependencies in

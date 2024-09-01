@@ -13,30 +13,28 @@ BSLS_IDENT("$Id$ $CSID$")
 //@SEE_ALSO: bslma_managedptr
 //
 //@DESCRIPTION: This component provides a single, complex-constrained in-core
-// value-semantic attribute class, 'bslma::ManagedPtrDeleter', that is used to
+// value-semantic attribute class, `bslma::ManagedPtrDeleter`, that is used to
 // store a bound function call for a "factory" to destroy an object.
 //
 ///Attributes
 ///----------
-//..
-//  Name              Type                      Default
-//  ----------------  ------------------------  -------
-//  object            void *                    0
-//  factory           void *                    0
-//  deleter           void (*)(void *, void *)  0
+// ```
+// Name              Type                      Default
+// ----------------  ------------------------  -------
+// object            void *                    0
+// factory           void *                    0
+// deleter           void (*)(void *, void *)  0
 //
-//  Complex Constraints
-//  ------------------------------------------------------------------
-//  '0 == deleter' or 'deleter(object, factory)' has defined behavior.
-//..
-//: o object   Address of the object to be destroyed by the factory.
-//:
-//: o factory  Address of the factory object that is responsible for destroying
-//:            'object'.
-//:
-//: o deleter  Address of the function that restores the erased types of
-//:            'object' and 'factory', and invokes the 'factory' method to
-//:            destroy 'object'.
+// Complex Constraints
+// ------------------------------------------------------------------
+// '0 == deleter' or 'deleter(object, factory)' has defined behavior.
+// ```
+// * object   Address of the object to be destroyed by the factory.
+// * factory  Address of the factory object that is responsible for destroying
+//            `object`.
+// * deleter  Address of the function that restores the erased types of
+//            `object` and `factory`, and invokes the `factory` method to
+//            destroy `object`.
 
 #include <bslscm_version.h>
 
@@ -51,29 +49,30 @@ namespace bslma {
                        // class ManagedPtrDeleter
                        // =======================
 
+/// This complex constrained in-core value-semantic class holds the
+/// information necessary for `ManagedPtr` to correctly manage its
+/// underlying object, namely the addresses of `object` and `factory`, and
+/// the `deleter` function, optionally supplied through the constructors or
+/// through the `set` method.  This information is stored in a sub-structure
+/// to allow the compiler to copy it more efficiently.
+///
+/// See the {Attributes} section in the component-level documentation.  Note
+/// that the class invariants are identically the constraints on the
+/// individual attributes.
+///
+/// This class:
+/// * supports a complete set of *value-semantic* operations
+/// * is *exception-safe*
+/// * is *alias-safe*
+/// * is `const` *thread-safe*
+/// For terminology see `bsldoc_glossary`.
 class ManagedPtrDeleter {
-    // This complex constrained in-core value-semantic class holds the
-    // information necessary for 'ManagedPtr' to correctly manage its
-    // underlying object, namely the addresses of 'object' and 'factory', and
-    // the 'deleter' function, optionally supplied through the constructors or
-    // through the 'set' method.  This information is stored in a sub-structure
-    // to allow the compiler to copy it more efficiently.
-    //
-    // See the {Attributes} section in the component-level documentation.  Note
-    // that the class invariants are identically the constraints on the
-    // individual attributes.
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //: o is *exception-safe*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
   public:
     // PUBLIC TYPES
+
+    /// Deleter function prototype used to destroy the managed pointer.
     typedef void (*Deleter)(void *managedObject, void *cookie);
-        // Deleter function prototype used to destroy the managed pointer.
 
   private:
     // DATA
@@ -86,17 +85,18 @@ class ManagedPtrDeleter {
 
   public:
     // CREATORS
-    ManagedPtrDeleter();
-        // Create a default 'ManagedPtrDeleter' object that does not refer to
-        // any object or factory instance.
 
+    /// Create a default `ManagedPtrDeleter` object that does not refer to
+    /// any object or factory instance.
+    ManagedPtrDeleter();
+
+    /// Create a `ManagedPtrDeleter` object that refers to the object and
+    /// factory instances located at the specified `object` and `factory`
+    /// memory locations, and the specified `deleter`.  The behavior is
+    /// undefined unless `deleter` is either 0, or points to a function
+    /// whose behavior is defined if called once with `object` and `factory`
+    /// as arguments.
     ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
-        // Create a 'ManagedPtrDeleter' object that refers to the object and
-        // factory instances located at the specified 'object' and 'factory'
-        // memory locations, and the specified 'deleter'.  The behavior is
-        // undefined unless 'deleter' is either 0, or points to a function
-        // whose behavior is defined if called once with 'object' and 'factory'
-        // as arguments.
 
     //! ManagedPtrDeleter(const ManagedPtrDeleter& original);
         // Create a 'ManagedPtrDeleter' object having the same value as the
@@ -114,45 +114,47 @@ class ManagedPtrDeleter {
         // that this trivial copy-assignment operator's definition is compiler
         // generated.
 
+    /// Reset this `ManagedPtrDeleter` to its default-constructed state.
     void clear();
-        // Reset this 'ManagedPtrDeleter' to its default-constructed state.
 
+    /// Set this `ManagedPtrDeleter` to refer to the object and factory
+    /// instances located at the specified `object` and `factory` memory
+    /// locations, and the specified `deleter`.  The behavior is undefined
+    /// unless `deleter` is either 0, or points to a function whose behavior
+    /// is defined if called once with `object` and `factory` as arguments.
     void set(void *object, void *factory, Deleter deleter);
-        // Set this 'ManagedPtrDeleter' to refer to the object and factory
-        // instances located at the specified 'object' and 'factory' memory
-        // locations, and the specified 'deleter'.  The behavior is undefined
-        // unless 'deleter' is either 0, or points to a function whose behavior
-        // is defined if called once with 'object' and 'factory' as arguments.
 
     // ACCESSORS
+
+    /// Invoke the deleter object.  The behavior is undefined unless
+    /// `deleter` is not 0 and has not already been called on the managed
+    /// object associated with this deleter.
     void deleteManagedObject() const;
-        // Invoke the deleter object.  The behavior is undefined unless
-        // 'deleter' is not 0 and has not already been called on the managed
-        // object associated with this deleter.
 
+    /// Return the deleter function associated with this deleter.
     Deleter deleter() const;
-        // Return the deleter function associated with this deleter.
 
+    /// Return a pointer to the factory instance associated with this
+    /// deleter.
     void *factory() const;
-        // Return a pointer to the factory instance associated with this
-        // deleter.
 
+    /// Return a pointer to the managed object associated with this deleter.
     void *object() const;
-        // Return a pointer to the managed object associated with this deleter.
 };
 
 // FREE OPERATORS
-bool operator==(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'ManagedPtrDeleter' objects have the
-    // same value if the corresponding values of their 'object', 'factory', and
-    // 'deleter' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `ManagedPtrDeleter` objects have the
+/// same value if the corresponding values of their `object`, `factory`, and
+/// `deleter` attributes are the same.
+bool operator==(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `ManagedPtrDeleter` objects do
+/// not have the same value if any of the corresponding values of their
+/// `object`, `factory`, and `deleter` attributes are not the same.
 bool operator!=(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'ManagedPtrDeleter' objects do
-    // not have the same value if any of the corresponding values of their
-    // 'object', 'factory', and 'deleter' attributes are not the same.
 
 // ============================================================================
 //                          INLINE DEFINITIONS

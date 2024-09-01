@@ -10,54 +10,54 @@ BSLS_IDENT("$Id: $")
 //@CANONICAL_HEADER: bsl_complex.h
 //
 //@DESCRIPTION: This component is for internal use only. Please include
-//'<bsl_complex.h>' directly.  This component imports symbols declared in the
+//`<bsl_complex.h>` directly.  This component imports symbols declared in the
 // <complex> header file implemented in the standard library provided by the
 // compiler vendor.
 //
 ///User-defined literals
 ///---------------------
 // This component provides a set of user-defined literals (UDL) to form
-// 'bsl::complex' objects with various ranges of values.  The ud-suffixes are
-// preceded with the '_' symbol to distinguish between the 'bsl'-complex's UDLs
-// and the 'std'-complex's UDLs introduced in the C++14 standard and
-// implemented in the standard library.  Note that 'bsl'-complex's UDLs, unlike
-// the 'std'-complex's UDLs, can be used in a client's code if the current
+// `bsl::complex` objects with various ranges of values.  The ud-suffixes are
+// preceded with the `_` symbol to distinguish between the `bsl`-complex's UDLs
+// and the `std`-complex's UDLs introduced in the C++14 standard and
+// implemented in the standard library.  Note that `bsl`-complex's UDLs, unlike
+// the `std`-complex's UDLs, can be used in a client's code if the current
 // compiler supports the C++11 standard.
 //
-// Also note that 'bsl'-complex's UDL operators are declared in the
-// 'bsl::literals::complex_literals' namespace, where 'literals' and
-// 'complex_literals' are inline namespaces.  Access to these operators can be
-// gained with either 'using namespace bsl::literals',
-// 'using namespace bsl::complex_literals' or
-// 'using namespace bsl::literals::complex_literals'.  But we recommend
-// 'using namespace bsl::complex_literals' to minimize the scope of the using
+// Also note that `bsl`-complex's UDL operators are declared in the
+// `bsl::literals::complex_literals` namespace, where `literals` and
+// `complex_literals` are inline namespaces.  Access to these operators can be
+// gained with either `using namespace bsl::literals`,
+// `using namespace bsl::complex_literals` or
+// `using namespace bsl::literals::complex_literals`.  But we recommend
+// `using namespace bsl::complex_literals` to minimize the scope of the using
 // declaration.
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Basic 'bsl'-complex's UDLs Usage
+///Example 1: Basic `bsl`-complex's UDLs Usage
 /// - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates basic use of the complex user-defined literal
 // operators.
 //
-// First, we provide an access to 'bsl'-complex's UDLs.
-//..
-//  using namespace bsl::complex_literals;
-//..
-// Then, we construct a 'bsl::complex' object 'z'.
-//..
-//  auto z = 1.0 + 1_i;
-//..
-// Finally, stream the magnitude of the complex number 'z' to 'stdout':
-//..
-//  printf("abs(%.1f,%.1f) = %f\n", z.real(), z.imag(), bsl::abs(z));
-//..
-// The streaming operator produces output in the following format on 'stdout':
-//..
-//  abs(1.0,1.0) = 1.414214
-//..
+// First, we provide an access to `bsl`-complex's UDLs.
+// ```
+// using namespace bsl::complex_literals;
+// ```
+// Then, we construct a `bsl::complex` object `z`.
+// ```
+// auto z = 1.0 + 1_i;
+// ```
+// Finally, stream the magnitude of the complex number `z` to `stdout`:
+// ```
+// printf("abs(%.1f,%.1f) = %f\n", z.real(), z.imag(), bsl::abs(z));
+// ```
+// The streaming operator produces output in the following format on `stdout`:
+// ```
+// abs(1.0,1.0) = 1.414214
+// ```
 
 #include <bslscm_version.h>
 

@@ -9,29 +9,29 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_UNREACHABLE: indicate that a statement is intended to be not reached
-//  BSLA_UNREACHABLE_IS_ACTIVE: defined if 'BSLA_UNREACHABLE' is active
+//  BSLA_UNREACHABLE_IS_ACTIVE: defined if `BSLA_UNREACHABLE` is active
 //
 //@SEE_ALSO: bsla_annotations
 //
 //@DESCRIPTION: This component provides a preprocessor macro that hints to the
 // compile that a statement in the code is intended to be unreachable.  Note
-// that an instance of 'BSLA_UNREACHABLE' must be followed by a ';' and is a
+// that an instance of `BSLA_UNREACHABLE` must be followed by a `;` and is a
 // statement in its own right.
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_UNREACHABLE':
+//: `BSLA_UNREACHABLE`:
 //:     This macro will, when used and followed by a semicolon, create a
 //:     statement that emits no code, but that is indicated to be unreachable,
 //:     causing compilers, where supported, to issue warnings if there is
 //:     actually a way that the statement can be reached.  Note that the
-//:     behavior is undefined if control actually reaches a 'BSLA_UNREACHABLE'
+//:     behavior is undefined if control actually reaches a `BSLA_UNREACHABLE`
 //:     statement.
 //:
-//: 'BSLA_UNREACHABLE_IS_ACTIVE':
-//:     The macro 'BSLA_UNREACHABLE_IS_ACTIVE' is defined if 'BSLA_UNREACHABLE'
+//: `BSLA_UNREACHABLE_IS_ACTIVE`:
+//:     The macro `BSLA_UNREACHABLE_IS_ACTIVE` is defined if `BSLA_UNREACHABLE`
 //:     expands to something with the desired effect; otherwise
-//:     'BSLA_UNREACHABLE_IS_ACTIVE' is not defined and 'BSLA_UNREACHABLE'
+//:     `BSLA_UNREACHABLE_IS_ACTIVE` is not defined and `BSLA_UNREACHABLE`
 //:     expands to nothing.
 //
 ///Usage
@@ -40,50 +40,50 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Indicating That a Statement is Intended to be Unreachable
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function, 'directoriesInPath', that counts the number of
-// directories in the 'PATH' environment variable.  If 'PATH' is not set, the
-// program dumps core by calling 'BSLS_ASSERT_OPT':
-//..
-//  int directoriesInPath()
-//  {
-//      const char *path = ::getenv("PATH");
-//      if (path) {
-//          int ret = 1;
-//          for (; *path; ++path) {
-//              ret += ':' == *path;
-//          }
-//          return ret;                                               // RETURN
-//      }
+// First, we define a function, `directoriesInPath`, that counts the number of
+// directories in the `PATH` environment variable.  If `PATH` is not set, the
+// program dumps core by calling `BSLS_ASSERT_OPT`:
+// ```
+// int directoriesInPath()
+// {
+//     const char *path = ::getenv("PATH");
+//     if (path) {
+//         int ret = 1;
+//         for (; *path; ++path) {
+//             ret += ':' == *path;
+//         }
+//         return ret;                                               // RETURN
+//     }
 //
-//      BSLS_ASSERT_OPT(false && "$PATH not set");
-//  }
-//..
+//     BSLS_ASSERT_OPT(false && "$PATH not set");
+// }
+// ```
 // Then, we observe a compile error because the compiler expects the
-// 'BSLA_ASSERT_OPT' to return and the function to run off the end and return
-// 'void', while the function is declared to return 'int'.
-//..
-//  .../bsla_unreachable.t.cpp(141) : error C4715: 'directoriesInPath': not all
-//  control paths return a value
-//..
-// Now, we put a 'BSLA_UNREACHABLE' statement after the 'BSLS_ASSERT_OPT',
+// `BSLA_ASSERT_OPT` to return and the function to run off the end and return
+// `void`, while the function is declared to return `int`.
+// ```
+// .../bsla_unreachable.t.cpp(141) : error C4715: 'directoriesInPath': not all
+// control paths return a value
+// ```
+// Now, we put a `BSLA_UNREACHABLE` statement after the `BSLS_ASSERT_OPT`,
 // which tells the compiler that that point in the code is unreachable:
-//..
-//  int directoriesInPath()
-//  {
-//      const char *path = ::getenv("PATH");
-//      if (path) {
-//          int ret = 1;
-//          for (; *path; ++path) {
-//              ret += ':' == *path;
-//          }
-//          return ret;                                               // RETURN
-//      }
+// ```
+// int directoriesInPath()
+// {
+//     const char *path = ::getenv("PATH");
+//     if (path) {
+//         int ret = 1;
+//         for (; *path; ++path) {
+//             ret += ':' == *path;
+//         }
+//         return ret;                                               // RETURN
+//     }
 //
-//      BSLS_ASSERT_OPT(false && "$PATH not set");
+//     BSLS_ASSERT_OPT(false && "$PATH not set");
 //
-//      BSLA_UNREACHABLE;
-//  }
-//..
+//     BSLA_UNREACHABLE;
+// }
+// ```
 // Finally, we observe that the compiler error is silenced and the build is
 // successful.
 

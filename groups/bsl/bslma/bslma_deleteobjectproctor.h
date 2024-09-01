@@ -13,38 +13,38 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslma_deallocatebytesproctor, bslma_dealocatebjectproctor
 //
 //@DESCRIPTION: This component provides a proctor class template,
-// 'bslma::DeleteObjectProctor', that conditionally reverses the effect of
-// 'bslma::AllocatorUtil::newObject<TYPE>' or 'new (bslmAllocator) TYPE'.  Upon
-// destruction, this proctor invokes the 'TYPE' destructor and deallocates the
+// `bslma::DeleteObjectProctor`, that conditionally reverses the effect of
+// `bslma::AllocatorUtil::newObject<TYPE>` or `new (bslmAllocator) TYPE`.  Upon
+// destruction, this proctor invokes the `TYPE` destructor and deallocates the
 // object from the specified allocator or pool.  The proctor's constructor
-// takes the same arguments as 'bslma::AllocatorUtil::deleteObject',
-// making it straightforward to allocate an object using 'newObject' and
-// protect it using 'DeleteObjectProctor'.
+// takes the same arguments as `bslma::AllocatorUtil::deleteObject`,
+// making it straightforward to allocate an object using `newObject` and
+// protect it using `DeleteObjectProctor`.
 //
 // As with all proctors, this class is used to automatically reclaim a resource
 // in the event that a function ends prematurely, e.g., via an exception.
 // After allocating and constructing an object, an exception-safe function
-// would create a 'DeleteObjectProctor' to manage the new object's lifetime.
+// would create a `DeleteObjectProctor` to manage the new object's lifetime.
 // If the operation completes successfully, the code calls the proctor's
-// 'release' method, which disengages the proctor.  If, however, the function
+// `release` method, which disengages the proctor.  If, however, the function
 // or constructor exits while the proctor is still engaged, the proctor's
 // destructor will destroy and deallocate the managed object.
 //
-// The 'DeleteObjectProctor' template has two template parameters: the
-// 'ALLOCATOR' type used to reclaim storage and the object 'TYPE' managed by
-// the proctor.  If 'ALLOCATOR' is a non-pointer type and 'TYPE' is omitted, it
-// is deduced as 'ALLOCATOR::value_type'.  However, if 'TYPE' is supplied, it
-// overrides 'ALLOCATOR::value_type'.
+// The `DeleteObjectProctor` template has two template parameters: the
+// `ALLOCATOR` type used to reclaim storage and the object `TYPE` managed by
+// the proctor.  If `ALLOCATOR` is a non-pointer type and `TYPE` is omitted, it
+// is deduced as `ALLOCATOR::value_type`.  However, if `TYPE` is supplied, it
+// overrides `ALLOCATOR::value_type`.
 //
-// If 'ALLOCATOR' is a non-pointer type, the proctor uses
-// 'bslma::AllocatorUtil::deleteObject(a, ptr)' to destroy the managed object
-// and reclaim its storage, where 'a' is the allocator, and 'ptr' is the
-// address of the managed object.  Otherwise, if 'ALLOCATOR' is a pointer
-// type, the proctor invokes the 'TYPE' destructor followed by
-// 'a->deallocate(ptr)'.  Instantiating 'DeleteObjectProctor' with a
-// pointer-type 'ALLOCATOR' is appropriate for classes derived from
-// 'bslma::Allocator' and for BDE-style pool types, i.e., classes for which
-// 'a->deallocate(ptr)' is well formed.
+// If `ALLOCATOR` is a non-pointer type, the proctor uses
+// `bslma::AllocatorUtil::deleteObject(a, ptr)` to destroy the managed object
+// and reclaim its storage, where `a` is the allocator, and `ptr` is the
+// address of the managed object.  Otherwise, if `ALLOCATOR` is a pointer
+// type, the proctor invokes the `TYPE` destructor followed by
+// `a->deallocate(ptr)`.  Instantiating `DeleteObjectProctor` with a
+// pointer-type `ALLOCATOR` is appropriate for classes derived from
+// `bslma::Allocator` and for BDE-style pool types, i.e., classes for which
+// `a->deallocate(ptr)` is well formed.
 //
 ///Usage
 ///-----
@@ -52,152 +52,152 @@ BSLS_IDENT("$Id: $")
 //
 //Example 1: Class having an owning pointer
 //- - - - - - - - - - - - - - - - - - - - -
-// In this example, we create a class, 'my_Manager', having an owning pointer
-// to an object of another class, 'my_Data'.  Because it owns the 'my_Data'
-// object, 'my_Manager' is responsible for allocating, constructing,
+// In this example, we create a class, `my_Manager`, having an owning pointer
+// to an object of another class, `my_Data`.  Because it owns the `my_Data`
+// object, `my_Manager` is responsible for allocating, constructing,
 // deallocating, and destroying it.
 //
-// First, we define the 'my_Data' class, which holds an integer value and
+// First, we define the `my_Data` class, which holds an integer value and
 // counts how many times its constructor and destructor have been called. It
-// also has a manipulator, 'mightThrow', that throws an exception if the
+// also has a manipulator, `mightThrow`, that throws an exception if the
 // integer value equals the number of constructor calls:
-//..
-//  #include <bslma_allocatorutil.h>
-//  #include <bslma_bslallocator.h>
-//  #include <bslma_testallocator.h>
+// ```
+// #include <bslma_allocatorutil.h>
+// #include <bslma_bslallocator.h>
+// #include <bslma_testallocator.h>
 //
-//  class my_Data {
+// class my_Data {
 //
-//      // DATA
-//      int d_value;
+//     // DATA
+//     int d_value;
 //
-//      // CLASS DATA
-//      static int s_numConstructed;
-//      static int s_numDestroyed;
+//     // CLASS DATA
+//     static int s_numConstructed;
+//     static int s_numDestroyed;
 //
-//    public:
-//      // CLASS METHODS
-//      static int numConstructed() { return s_numConstructed; }
-//      static int numDestroyed()   { return s_numDestroyed;   }
+//   public:
+//     // CLASS METHODS
+//     static int numConstructed() { return s_numConstructed; }
+//     static int numDestroyed()   { return s_numDestroyed;   }
 //
-//      // CREATORS
-//      explicit my_Data(int v) : d_value(v) { ++s_numConstructed; }
-//      my_Data(const my_Data& original);
-//      ~my_Data() { ++s_numDestroyed; }
+//     // CREATORS
+//     explicit my_Data(int v) : d_value(v) { ++s_numConstructed; }
+//     my_Data(const my_Data& original);
+//     ~my_Data() { ++s_numDestroyed; }
 //
-//      // MANIPULATORS
-//      void mightThrow()
-//          { if (s_numConstructed == d_value) { throw --d_value; } }
-//  };
+//     // MANIPULATORS
+//     void mightThrow()
+//         { if (s_numConstructed == d_value) { throw --d_value; } }
+// };
 //
-//  int my_Data::s_numConstructed = 0;
-//  int my_Data::s_numDestroyed   = 0;
-//..
-// Next, we define 'my_Manager' as an allocator-aware class holding a pointer
-// to 'my_Data' and maintaining its own count of constructor invocations:
-//..
-//  class my_Manager {
+// int my_Data::s_numConstructed = 0;
+// int my_Data::s_numDestroyed   = 0;
+// ```
+// Next, we define `my_Manager` as an allocator-aware class holding a pointer
+// to `my_Data` and maintaining its own count of constructor invocations:
+// ```
+// class my_Manager {
 //
-//      // DATA
-//      bsl::allocator<my_Data>  d_allocator;
-//      my_Data                 *d_data_p;
+//     // DATA
+//     bsl::allocator<my_Data>  d_allocator;
+//     my_Data                 *d_data_p;
 //
-//      // CLASS DATA
-//      static int s_numConstructed;
+//     // CLASS DATA
+//     static int s_numConstructed;
 //
-//    public:
-//      // TYPES
-//      typedef bsl::allocator<> allocator_type;
+//   public:
+//     // TYPES
+//     typedef bsl::allocator<> allocator_type;
 //
-//      // CLASS METHODS
-//      static int numConstructed() { return s_numConstructed; }
+//     // CLASS METHODS
+//     static int numConstructed() { return s_numConstructed; }
 //
-//      // CREATORS
-//      explicit my_Manager(int                   v,
-//                        const allocator_type& allocator = allocator_type());
-//      my_Manager(const my_Manager& original);
-//      ~my_Manager();
+//     // CREATORS
+//     explicit my_Manager(int                   v,
+//                       const allocator_type& allocator = allocator_type());
+//     my_Manager(const my_Manager& original);
+//     ~my_Manager();
 //
-//      // ...
-//  };
+//     // ...
+// };
 //
-//  int my_Manager::s_numConstructed = 0;
-//..
-// Next, we define the constructor for 'my_Manager', which begins by allocating
-// and constructing a 'my_Data' object:
-//..
-//  my_Manager::my_Manager(int v, const allocator_type& allocator)
-//      : d_allocator(allocator), d_data_p(0)
-//  {
-//      d_data_p = bslma::AllocatorUtil::newObject<my_Data>(allocator, v);
-//..
-// Then, the 'my_Manager' constructor invokes the 'mightThrow' manipulator on
+// int my_Manager::s_numConstructed = 0;
+// ```
+// Next, we define the constructor for `my_Manager`, which begins by allocating
+// and constructing a `my_Data` object:
+// ```
+// my_Manager::my_Manager(int v, const allocator_type& allocator)
+//     : d_allocator(allocator), d_data_p(0)
+// {
+//     d_data_p = bslma::AllocatorUtil::newObject<my_Data>(allocator, v);
+// ```
+// Then, the `my_Manager` constructor invokes the `mightThrow` manipulator on
 // the new data object, but first, it protects the object with a
-// 'bslma::DeleteObjectProctor':
-//..
-//      bslma::DeleteObjectProctor<bsl::allocator<my_Data> >
-//                                              proctor(d_allocator, d_data_p);
-//      d_data_p->mightThrow();
-//..
-// Then, once the 'mightThrow' operation completes successfully, we can release
+// `bslma::DeleteObjectProctor`:
+// ```
+//     bslma::DeleteObjectProctor<bsl::allocator<my_Data> >
+//                                             proctor(d_allocator, d_data_p);
+//     d_data_p->mightThrow();
+// ```
+// Then, once the `mightThrow` operation completes successfully, we can release
 // the data object from the proctor.  Only then do we increment the
 // construction count:
-//..
-//      proctor.release();
-//      ++s_numConstructed;
-//  }
-//..
-// Next, we define the 'my_Manager' destructor, which destroys and deallocates
+// ```
+//     proctor.release();
+//     ++s_numConstructed;
+// }
+// ```
+// Next, we define the `my_Manager` destructor, which destroys and deallocates
 // its data object:
-//..
-//  my_Manager::~my_Manager()
-//  {
-//      bslma::AllocatorUtil::deleteObject(d_allocator, d_data_p);
-//  }
-//..
-// Now, we use a 'bslma::TestAllocator' to verify that, under normal (non
-// exceptional) circumstances, constructing a 'my_Manager' object will result
-// in one block of memory being allocated and one invocation of the 'my_Data'
+// ```
+// my_Manager::~my_Manager()
+// {
+//     bslma::AllocatorUtil::deleteObject(d_allocator, d_data_p);
+// }
+// ```
+// Now, we use a `bslma::TestAllocator` to verify that, under normal (non
+// exceptional) circumstances, constructing a `my_Manager` object will result
+// in one block of memory being allocated and one invocation of the `my_Data`
 // constructor:
-//..
-//  int main()
-//  {
-//      bslma::TestAllocator ta;
+// ```
+// int main()
+// {
+//     bslma::TestAllocator ta;
 //
-//      {
-//          my_Manager obj1(7, &ta);
-//          assert(1 == ta.numBlocksInUse());
-//          assert(1 == ta.numBlocksTotal());
-//          assert(1 == my_Data::numConstructed());
-//          assert(0 == my_Data::numDestroyed());
-//          assert(1 == my_Manager::numConstructed());
-//      }
-//      assert(0 == ta.numBlocksInUse());
-//      assert(1 == ta.numBlocksTotal());
-//      assert(1 == my_Data::numConstructed());
-//      assert(1 == my_Data::numDestroyed());
-//      assert(1 == my_Manager::numConstructed());
-//..
-// Finally, when 'mightThrow' does throw, a block is allocated and a 'my_Data'
-// constructor is invoked, but we verify that the 'my_Manager' constructor did
-// not complete, the 'my_Data' destructor was called and the block was
+//     {
+//         my_Manager obj1(7, &ta);
+//         assert(1 == ta.numBlocksInUse());
+//         assert(1 == ta.numBlocksTotal());
+//         assert(1 == my_Data::numConstructed());
+//         assert(0 == my_Data::numDestroyed());
+//         assert(1 == my_Manager::numConstructed());
+//     }
+//     assert(0 == ta.numBlocksInUse());
+//     assert(1 == ta.numBlocksTotal());
+//     assert(1 == my_Data::numConstructed());
+//     assert(1 == my_Data::numDestroyed());
+//     assert(1 == my_Manager::numConstructed());
+// ```
+// Finally, when `mightThrow` does throw, a block is allocated and a `my_Data`
+// constructor is invoked, but we verify that the `my_Manager` constructor did
+// not complete, the `my_Data` destructor was called and the block was
 // deallocated, resulting in no leaks:
-//..
-//      try {
-//          my_Manager obj2(2, &ta);
-//          assert(false && "Can't get here");
-//      }
-//      catch (int e) {
-//          assert(1 == e);
-//          assert(0 == ta.numBlocksInUse());
-//          assert(2 == ta.numBlocksTotal());
-//          assert(2 == my_Data::numConstructed());
-//          assert(2 == my_Data::numDestroyed());   //
-//          assert(1 == my_Manager::numConstructed());
-//      }
-//      assert(1 == my_Manager::numConstructed());
-//  }
-//..
+// ```
+//     try {
+//         my_Manager obj2(2, &ta);
+//         assert(false && "Can't get here");
+//     }
+//     catch (int e) {
+//         assert(1 == e);
+//         assert(0 == ta.numBlocksInUse());
+//         assert(2 == ta.numBlocksTotal());
+//         assert(2 == my_Data::numConstructed());
+//         assert(2 == my_Data::numDestroyed());   //
+//         assert(1 == my_Manager::numConstructed());
+//     }
+//     assert(1 == my_Manager::numConstructed());
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -225,19 +225,19 @@ struct DeleteObjectProctor_PtrType;
                     // class template DeleteObjectProctor
                     // ==================================
 
+/// This class implements a proctor that, unless its `release` method has
+/// previously been invoked, automatically deletes a managed object upon
+/// destruction by first invoking the object's destructor, and then invoking
+/// the `deallocate` method of an allocator (or pool) of parameterized
+/// `ALLOCATOR` type supplied to it at construction.  The managed object of
+/// parameterized `TYPE` must have been created using memory provided by
+/// this allocator (or pool), which must remain valid throughout the
+/// lifetime of the proctor object.  If `ALLOCATOR` is a non-pointer type,
+/// it is assumed to be STL compatible; otherwise, it is assumed have a
+/// `deallocate` method with a single `void *` parameter, i.e., the same
+/// deallocation interface as `bslma::Allocator`.
 template <class ALLOCATOR, class TYPE = typename ALLOCATOR::value_type>
 class DeleteObjectProctor {
-    // This class implements a proctor that, unless its 'release' method has
-    // previously been invoked, automatically deletes a managed object upon
-    // destruction by first invoking the object's destructor, and then invoking
-    // the 'deallocate' method of an allocator (or pool) of parameterized
-    // 'ALLOCATOR' type supplied to it at construction.  The managed object of
-    // parameterized 'TYPE' must have been created using memory provided by
-    // this allocator (or pool), which must remain valid throughout the
-    // lifetime of the proctor object.  If 'ALLOCATOR' is a non-pointer type,
-    // it is assumed to be STL compatible; otherwise, it is assumed have a
-    // 'deallocate' method with a single 'void *' parameter, i.e., the same
-    // deallocation interface as 'bslma::Allocator'.
 
   private:
     // PRIVATE TYPES
@@ -264,29 +264,31 @@ class DeleteObjectProctor {
 
   public:
     // CREATORS
+
+    /// Create a proctor to manage the specified `p` object, which has been
+    /// allocated from the specified `allocator`.  If `p` is null, then the
+    /// created proctor is disengaged (manages no object).  The behavior is
+    /// undefined if `p` is non-null but not allocated from `allocator`.
     DeleteObjectProctor(const ALLOCATOR& allocator, PtrType p);
-        // Create a proctor to manage the specified 'p' object, which has been
-        // allocated from the specified 'allocator'.  If 'p' is null, then the
-        // created proctor is disengaged (manages no object).  The behavior is
-        // undefined if 'p' is non-null but not allocated from 'allocator'.
 
+    /// This move constructor creates a proctor managing the same object as
+    /// `original`.  After the move, `original` is disengaged.
     DeleteObjectProctor(bslmf::MovableRef<DeleteObjectProctor> original);
-        // This move constructor creates a proctor managing the same object as
-        // 'original'.  After the move, 'original' is disengaged.
 
+    /// Destroy and deallocate the managed object, if any.
     ~DeleteObjectProctor();
-        // Destroy and deallocate the managed object, if any.
 
     // MANIPULATORS
-    PtrType release();
-        // Disengage this allocator and return a pointer to the formerly
-        // managed object.
 
+    /// Disengage this allocator and return a pointer to the formerly
+    /// managed object.
+    PtrType release();
+
+    /// Release the managed object and reset this proctor to manage the
+    /// specified `p` object.  If `p` is null, the proctor will be
+    /// disengaged.  Note that the previously managed object is not
+    /// destroyed or deallocated.
     void reset(PtrType p);
-        // Release the managed object and reset this proctor to manage the
-        // specified 'p' object.  If 'p' is null, the proctor will be
-        // disengaged.  Note that the previously managed object is not
-        // destroyed or deallocated.
 
     // ACCESSORS
     PtrType ptr() const;
@@ -302,25 +304,25 @@ class DeleteObjectProctor {
                 // struct template DeleteObjectProctor_PtrType
                 // -------------------------------------------
 
+/// This metafunction has a nested `type` that indicates the correct pointer
+/// type to use to manage an object of the specified `TYPE` template
+/// parameter allocated from an allocator having the specified `ALLOCATOR`
+/// template parameter type.  This primary template yields the pointer type
+/// specified by `ALLOCATOR`, after rebinding to the specified `TYPE`.
 template <class ALLOCATOR, class TYPE>
 struct DeleteObjectProctor_PtrType
 {
-    // This metafunction has a nested 'type' that indicates the correct pointer
-    // type to use to manage an object of the specified 'TYPE' template
-    // parameter allocated from an allocator having the specified 'ALLOCATOR'
-    // template parameter type.  This primary template yields the pointer type
-    // specified by 'ALLOCATOR', after rebinding to the specified 'TYPE'.
 
     typedef typename bsl::allocator_traits<ALLOCATOR>::
                                     template rebind_traits<TYPE>::pointer type;
 };
 
+/// This partial specialization is chosen when `ALLOCATOR` is a pointer type
+/// (i.e., `bslma::Allocator *` or a pointer to a pool class).  It yields
+/// `TYPE *` for `type`.
 template <class ALLOCATOR, class TYPE>
 struct DeleteObjectProctor_PtrType<ALLOCATOR *, TYPE>
 {
-    // This partial specialization is chosen when 'ALLOCATOR' is a pointer type
-    // (i.e., 'bslma::Allocator *' or a pointer to a pool class).  It yields
-    // 'TYPE *' for 'type'.
 
     typedef TYPE *type;
 };

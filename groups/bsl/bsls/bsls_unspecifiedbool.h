@@ -5,16 +5,16 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a class supporting the 'unspecified bool' idiom.
+//@PURPOSE: Provide a class supporting the `unspecified bool` idiom.
 //
 //@CLASSES:
-//  bsls::UnspecifiedBool: class template for the 'unspecified bool' idiom.
+//  bsls::UnspecifiedBool: class template for the `unspecified bool` idiom.
 //
 //@DESCRIPTION: This component provides a class template that can be used to
 // manufacture an "unspecified boolean type" that is distinct for each class
 // that instantiates it.  Note that classes supplying an implicit conversion to
-// an unspecified bool type will be equality comparable (using 'operator==' and
-// 'operator!=') through this conversion.  Private equality and inequality
+// an unspecified bool type will be equality comparable (using `operator==` and
+// `operator!=`) through this conversion.  Private equality and inequality
 // operators should be added to the class definition unless this comparison is
 // desired.  It is important that each class produces a distinct unspecified
 // bool type, as otherwise objects of different class types would compare equal
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 ///---------------------
 // This component will become redundant when all Bloomberg production compilers
 // support "explicit conversion operators", a feature of C++11.  An
-// 'explicit operator bool()' conversion operator is superior to this C++98
+// `explicit operator bool()` conversion operator is superior to this C++98
 // idiom in all ways.
 //
 ///Usage
@@ -35,88 +35,88 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - -
 // A common requirement for "smart pointer" types is to emulate the native
 // pointer types and, in particular, support testing for "null" or "empty"
-// pointer values as a simple boolean conversion in 'if' and 'while' clauses.
-// We here demonstrate how to create a simple smart pointer type, 'SimplePtr',
+// pointer values as a simple boolean conversion in `if` and `while` clauses.
+// We here demonstrate how to create a simple smart pointer type, `SimplePtr`,
 // using this component to implement a safe the boolean conversion.
 //
-// An object of type 'SimplePtr' holds a pointer value, but does not claim
+// An object of type `SimplePtr` holds a pointer value, but does not claim
 // ownership or any responsibility for the lifetime of the referenced object.
-// A 'SimplePtr' object acts as a "simple" native pointer.
+// A `SimplePtr` object acts as a "simple" native pointer.
 //
-// First, we create the 'SimplePtr' class, define its data members, creators
+// First, we create the `SimplePtr` class, define its data members, creators
 // and manipulators:
-//..
-//  template <class TYPE>
-//  class SimplePtr
-//  {
-//      // This class holds a pointer to a single object, and provides a subset
-//      // of the regular pointer operators.  For example, objects of this
-//      // class can be dereferenced with 'operator*' and tested as a boolean
-//      // value to determine if null.  Conversely, this class does not support
-//      // pointer arithmetic.
+// ```
+// template <class TYPE>
+// class SimplePtr
+// {
+//     // This class holds a pointer to a single object, and provides a subset
+//     // of the regular pointer operators.  For example, objects of this
+//     // class can be dereferenced with 'operator*' and tested as a boolean
+//     // value to determine if null.  Conversely, this class does not support
+//     // pointer arithmetic.
 //
-//    private:
-//      // DATA
-//      TYPE *d_ptr_p;  // address of the referenced object
+//   private:
+//     // DATA
+//     TYPE *d_ptr_p;  // address of the referenced object
 //
-//      // PRIVATE ACCESSORS
-//      bool operator==(const SimplePtr &);  // = delete;
-//      bool operator!=(const SimplePtr &);  // = delete;
-//          // Suppress equality-comparison operations on objects of this
-//          // class.
+//     // PRIVATE ACCESSORS
+//     bool operator==(const SimplePtr &);  // = delete;
+//     bool operator!=(const SimplePtr &);  // = delete;
+//         // Suppress equality-comparison operations on objects of this
+//         // class.
 //
-//    public:
-//      // CREATORS
-//      explicit SimplePtr(TYPE *ptr = 0) : d_ptr_p(ptr) {}
-//          // Create a 'SimplePtr' having the value of the specified 'ptr'.
+//   public:
+//     // CREATORS
+//     explicit SimplePtr(TYPE *ptr = 0) : d_ptr_p(ptr) {}
+//         // Create a 'SimplePtr' having the value of the specified 'ptr'.
 //
-//      //! ~SimplePtr() = default;
-//          // Destroy this object.
+//     //! ~SimplePtr() = default;
+//         // Destroy this object.
 //
-//      // ACCESSORS
-//      TYPE& operator*() const  { return *d_ptr_p; }
-//          // Return a reference to the object pointed to by this
-//          // 'SimplePtr'.
+//     // ACCESSORS
+//     TYPE& operator*() const  { return *d_ptr_p; }
+//         // Return a reference to the object pointed to by this
+//         // 'SimplePtr'.
 //
-//      TYPE *operator->() const { return d_ptr_p; }
-//          // Return the held 'd_ptr_p'.
-//..
+//     TYPE *operator->() const { return d_ptr_p; }
+//         // Return the held 'd_ptr_p'.
+// ```
 // Next, we define, for convenience, an alias for a unique type that is
-// implicitly convertible to 'bool' (note that we pass the current template
-// instantiation to the 'bsls::UnspecifiedBool' template to guarantee a unique
-// name, even for different instantiations of this same 'SimplePtr' template):
-//..
-//  // TYPES
-//  typedef typename bsls::UnspecifiedBool<SimplePtr>::BoolType BoolType;
-//..
+// implicitly convertible to `bool` (note that we pass the current template
+// instantiation to the `bsls::UnspecifiedBool` template to guarantee a unique
+// name, even for different instantiations of this same `SimplePtr` template):
+// ```
+// // TYPES
+// typedef typename bsls::UnspecifiedBool<SimplePtr>::BoolType BoolType;
+// ```
 // Now, we can define a boolean conversion operator that tests whether or not
-// this 'SimplePtr' object is holding a null pointer, or a valid address:
-//..
-//      operator BoolType() const {
-//          return bsls::UnspecifiedBool<SimplePtr>::makeValue(d_ptr_p);
-//      }
-//  }; // class SimplePtr
-//..
-// Note that we do not need to define 'operator!' as this single boolean
+// this `SimplePtr` object is holding a null pointer, or a valid address:
+// ```
+//     operator BoolType() const {
+//         return bsls::UnspecifiedBool<SimplePtr>::makeValue(d_ptr_p);
+//     }
+// }; // class SimplePtr
+// ```
+// Note that we do not need to define `operator!` as this single boolean
 // conversion operator is invoked with the correct semantics when the user
 // tries that operator.
 //
-// Finally, we write a simple test function, creating a couple of 'SimplePtr'
+// Finally, we write a simple test function, creating a couple of `SimplePtr`
 // objects, one "null", and the other with a well-defined address.
-//..
-//  void runTests() {
-//      SimplePtr<int> p1;  // default ctor sets to null
-//      assert(!p1);
+// ```
+// void runTests() {
+//     SimplePtr<int> p1;  // default ctor sets to null
+//     assert(!p1);
 //
-//      int            i = 3;
-//      SimplePtr<int> p2(&i);
+//     int            i = 3;
+//     SimplePtr<int> p2(&i);
 //
-//      if (p2) {
-//          assert(3 == *p2);
-//      }
-//  }
-//..
-// Notice that 'SimplePtr' objects behave as native pointers.  They should be
+//     if (p2) {
+//         assert(3 == *p2);
+//     }
+// }
+// ```
+// Notice that `SimplePtr` objects behave as native pointers.  They should be
 // tested before dereferencing (as they could be null).
 
 namespace BloombergLP {
@@ -127,10 +127,10 @@ namespace bsls {
                          // class UnspecifiedBool
                          // =====================
 
+/// This class provides a member, `d_member`, whose pointer-to-member may be
+/// used as an "unspecified boolean type" for implicit conversion operators.
 template<class BSLS_HOST_TYPE>
 class UnspecifiedBool {
-    // This class provides a member, 'd_member', whose pointer-to-member may be
-    // used as an "unspecified boolean type" for implicit conversion operators.
 
   private:
     // DATA
@@ -140,21 +140,23 @@ class UnspecifiedBool {
 
   public:
     // TYPES
+
+    /// Alias of a distinct type that is implicitly convertible to `bool`,
+    /// but does not promote to `int`.
     typedef int UnspecifiedBool::* BoolType;
-        // Alias of a distinct type that is implicitly convertible to 'bool',
-        // but does not promote to 'int'.
 
     // CLASS METHODS
+
+    /// Return a value that converts to the `bool` value `false`.
     static BoolType falseValue();
-        // Return a value that converts to the 'bool' value 'false'.
 
+    /// Return a value that converts to the `bool` value `true`.
     static BoolType trueValue();
-        // Return a value that converts to the 'bool' value 'true'.
 
+    /// Return a value that converts to the `bool` value `true` if the
+    /// specified predicate is `true`, and the `bool` value `false`
+    /// otherwise.
     static BoolType makeValue(bool predicate);
-        // Return a value that converts to the 'bool' value 'true' if the
-        // specified predicate is 'true', and the 'bool' value 'false'
-        // otherwise.
 };
 
 
@@ -197,8 +199,8 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 #ifdef bsls_UnspecifiedBool
 #undef bsls_UnspecifiedBool
 #endif
+/// This alias is defined for backward compatibility.
 #define bsls_UnspecifiedBool bsls::UnspecifiedBool
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

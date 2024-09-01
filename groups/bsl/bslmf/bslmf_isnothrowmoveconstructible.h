@@ -15,26 +15,26 @@ BSLS_IDENT("$Id: $")
 //           bslmf_movableref
 //
 //@DESCRIPTION: This component defines a metafunction,
-// 'bsl::is_nothrow_move_constructible', and a variable template
-// 'bsl::is_nothrow_move_constructible_v' that represents the result value of
-// the 'bsl::is_nothrow_move_constructible' metafunction, which may be used to
+// `bsl::is_nothrow_move_constructible`, and a variable template
+// `bsl::is_nothrow_move_constructible_v` that represents the result value of
+// the `bsl::is_nothrow_move_constructible` metafunction, which may be used to
 // query whether a type has a constructor that can be called with a single
 // rvalue that is known to not throw exceptions.  Note that a C++11 compiler
 // will automatically infer this trait for class types with a move constructor
-// that is marked as 'noexcept'.
+// that is marked as `noexcept`.
 //
-// 'bsl::is_nothrow_move_constructible' meets the requirements of the
-// 'is_nothrow_move_constructible' template defined in the C++11 standard.
+// `bsl::is_nothrow_move_constructible` meets the requirements of the
+// `is_nothrow_move_constructible` template defined in the C++11 standard.
 //
-// Note that the template variable 'is_nothrow_move_constructible_v' is defined
+// Note that the template variable `is_nothrow_move_constructible_v` is defined
 // in the C++17 standard as an inline variable.  If the current compiler
 // supports the inline variable C++17 compiler feature,
-// 'bsl::is_nothrow_move_constructible_v' is defined as an 'inline constexpr
+// `bsl::is_nothrow_move_constructible_v` is defined as an 'inline constexpr
 // bool' variable.  Otherwise, if the compiler supports the variable templates
-// C++14 compiler feature, 'bsl::is_nothrow_move_constructible_v' is defined as
-// a non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in the
+// C++14 compiler feature, `bsl::is_nothrow_move_constructible_v` is defined as
+// a non-inline `constexpr bool` variable.  See
+// `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in the
 // bsls_compilerfeatures component for details.
 
 #include <bslscm_version.h>
@@ -116,16 +116,22 @@ namespace bslmf {
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+/// This `struct` template implements a metafunction to determine whether
+/// the (non-cv-qualified) (template parameter) `t_TYPE` has a no-throw move
+/// constructor.  Note that the partial specializations below will provide
+/// the determination for class types.
 template <class t_TYPE, class = void>
 struct IsNothrowMoveConstructible_Impl
 : bsl::integral_constant<bool,
                          STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(t_TYPE)> {
-    // This 'struct' template implements a metafunction to determine whether
-    // the (non-cv-qualified) (template parameter) 't_TYPE' has a no-throw move
-    // constructor.  Note that the partial specializations below will provide
-    // the determination for class types.
 };
 
+/// This `struct` template implements a metafunction to determine whether
+/// the (non-cv-qualified) (template parameter) `t_TYPE` has a no-throw move
+/// constructor.  To maintain consistency between the C++03 and C++11
+/// implementations of this trait, types that use the BDE trait association
+/// techniques are also detected as no-throw move constructible, even if the
+/// `noexcept` operator would draw a different conclusion.
 template <class t_TYPE>
 struct IsNothrowMoveConstructible_Impl<
     t_TYPE,
@@ -136,12 +142,6 @@ struct IsNothrowMoveConstructible_Impl<
           bslmf::IsBitwiseCopyable<t_TYPE>::value ||
           DetectNestedTrait<t_TYPE,
                             bsl::is_nothrow_move_constructible>::value> {
-    // This 'struct' template implements a metafunction to determine whether
-    // the (non-cv-qualified) (template parameter) 't_TYPE' has a no-throw move
-    // constructor.  To maintain consistency between the C++03 and C++11
-    // implementations of this trait, types that use the BDE trait association
-    // techniques are also detected as no-throw move constructible, even if the
-    // 'noexcept' operator would draw a different conclusion.
 
     enum { k_CHECK_COMPLETE = sizeof(t_TYPE) };  // Diagnose incomplete types
 };
@@ -302,32 +302,32 @@ namespace bsl {
                    // struct is_nothrow_move_constructible
                    // ====================================
 
+/// This `struct` template implements a metafunction to determine whether
+/// the (template parameter) `t_TYPE` has a no-throw move constructor.  This
+/// `struct` derives from `bsl::true_type` if the `t_TYPE` has a no-throw
+/// move constructor, and from `bsl::false_type` otherwise.  This
+/// metafunction has the same syntax as the `is_nothrow_move_constructible`
+/// metafunction defined in the C++11 standard [meta.unary.prop]; on C++03
+/// platforms, however, this metafunction can automatically determine the
+/// value for trivially copyable types (including scalar types), for
+/// reference types, and for class types associating with the
+/// `bsl::is_nothrow_move_constructible` trait using the
+/// `BSLMF_NESTED_TRAIT_DECLARATION` macro.  To support other no-throw move
+/// constructible types, this template should be specialized to inherit from
+/// `bsl::true_type`.  Note that cv-qualified user defined types are rarely
+/// no-throw move constructible unless they are also trivially copyable, so
+/// there are no cv-qualified partial specializations of this trait.
 template <class t_TYPE>
 struct is_nothrow_move_constructible
 : BloombergLP::bslmf::IsNothrowMoveConstructible_Impl<t_TYPE>::type {
-    // This 'struct' template implements a metafunction to determine whether
-    // the (template parameter) 't_TYPE' has a no-throw move constructor.  This
-    // 'struct' derives from 'bsl::true_type' if the 't_TYPE' has a no-throw
-    // move constructor, and from 'bsl::false_type' otherwise.  This
-    // metafunction has the same syntax as the 'is_nothrow_move_constructible'
-    // metafunction defined in the C++11 standard [meta.unary.prop]; on C++03
-    // platforms, however, this metafunction can automatically determine the
-    // value for trivially copyable types (including scalar types), for
-    // reference types, and for class types associating with the
-    // 'bsl::is_nothrow_move_constructible' trait using the
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.  To support other no-throw move
-    // constructible types, this template should be specialized to inherit from
-    // 'bsl::true_type'.  Note that cv-qualified user defined types are rarely
-    // no-throw move constructible unless they are also trivially copyable, so
-    // there are no cv-qualified partial specializations of this trait.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// This template variable represents the result value of the
+/// `bsl::is_nothrow_move_constructible` metafunction.
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_nothrow_move_constructible_v =
                                   is_nothrow_move_constructible<t_TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_nothrow_move_constructible' metafunction.
 #endif
 
 }  // close namespace bsl

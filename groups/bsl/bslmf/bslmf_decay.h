@@ -9,22 +9,22 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::decay: type trait computing return type for type parameter
-//  bsl::decay_t: alias to the return type of the 'bsl::decay' meta-function
+//  bsl::decay_t: alias to the return type of the `bsl::decay` meta-function
 //
 //@SEE_ALSO: bslmf_removeextent
 //
-//@DESCRIPTION: This component provides a metafunction, 'bsl::decay', that
+//@DESCRIPTION: This component provides a metafunction, `bsl::decay`, that
 // applies array-to-pointer and function-to-pointer conversion and
 // cv-qualification removal to a type, thus modeling the decay of an argument
-// type when passed by-value into a function.  'bsl::decay' provides identical
-// functionality to the C++11 standard metafunction 'std::decay'.  From the
-// C++14, standard description of 'std::decay':
+// type when passed by-value into a function.  `bsl::decay` provides identical
+// functionality to the C++11 standard metafunction `std::decay`.  From the
+// C++14, standard description of `std::decay`:
 //
-// Let 'U' be 'remove_reference_t<T>'.  If 'is_array<U>::value' is 'true', the
-// member typedef 'type' shall equal 'remove_extent_t<U>*'.  If
-// 'is_function<U>::value' is 'true', the member typedef 'type' shall equal
-// 'add_pointer_t<U>'.  Otherwise the member typedef 'type' equals
-// 'remove_cv_t<U>'.  [ *Note*: This behavior is similar to the
+// Let `U` be `remove_reference_t<T>`.  If `is_array<U>::value` is `true`, the
+// member typedef `type` shall equal `remove_extent_t<U>*`.  If
+// `is_function<U>::value` is `true`, the member typedef `type` shall equal
+// `add_pointer_t<U>`.  Otherwise the member typedef `type` equals
+// `remove_cv_t<U>`.  [ *Note*: This behavior is similar to the
 // lvalue-to-rvalue (4.1), array-to-pointer (4.2), and function-to-pointer
 // (4.3) conversions applied when an lvalue expression is used as an rvalue,
 // but also strips cv-qualifiers from class types in order to more closely
@@ -35,58 +35,58 @@ BSLS_IDENT("$Id: $")
 //
 /// Usage Example 1
 /// - - - - - - - -
-// A class template needs to cache a value of type 'T'. There is nothing in the
-// definition of the class that would prevent it from working for 'T' of
+// A class template needs to cache a value of type `T`. There is nothing in the
+// definition of the class that would prevent it from working for `T` of
 // function type or array-of-unknown bound, but one cannot simply declare a
-// member of either of those types.  Instead, we use 'bsl::decay<T>::type',
+// member of either of those types.  Instead, we use `bsl::decay<T>::type`,
 // which can be stored, copied, and compared as needed:
-//..
-//  #ifndef INCLUDED_BSLMF_DECAY
-//  #include <bslmf_decay.h>
-//  #endif
+// ```
+// #ifndef INCLUDED_BSLMF_DECAY
+// #include <bslmf_decay.h>
+// #endif
 //
-//  template <class t_TYPE>
-//  class Thing {
-//    public:
+// template <class t_TYPE>
+// class Thing {
+//   public:
 //
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+// ```
 // Note that if the current compiler supports alias templates C++11 feature, we
-// can use 'bsl::decay_t' alias to the "result" type of the 'bsl::decay'
-// meta-function, that avoids the '::type' suffix and 'typename' prefix in the
+// can use `bsl::decay_t` alias to the "result" type of the `bsl::decay`
+// meta-function, that avoids the `::type` suffix and `typename` prefix in the
 // declaration of the function return type:
-//..
-//      using CacheType = bsl::decay_t<t_TYPE>;
-//#else
-//      typedef typename bsl::decay<t_TYPE>::type CacheType;
-//#endif
+// ```
+//     using CacheType = bsl::decay_t<t_TYPE>;
+// #else
+//     typedef typename bsl::decay<t_TYPE>::type CacheType;
+// #endif
 //
-//  private:
-//      CacheType d_cache;
-//      // ...
+// private:
+//     CacheType d_cache;
+//     // ...
 //
-//  public:
-//      CacheType cache() const { return d_cache; }
-//  };
-//..
-// Now verify that for function and array types, 'cache()' will return a simple
+// public:
+//     CacheType cache() const { return d_cache; }
+// };
+// ```
+// Now verify that for function and array types, `cache()` will return a simple
 // pointer:
-//..
-//  int main()
-//  {
-//      typedef const int A1[];
-//      typedef double A2[3][4];
-//      typedef void F1(int);
-//      typedef int (&F2)();
+// ```
+// int main()
+// {
+//     typedef const int A1[];
+//     typedef double A2[3][4];
+//     typedef void F1(int);
+//     typedef int (&F2)();
 //
-//      assert((bsl::is_same<const int*,    Thing<A1>::CacheType>::value));
-//      assert((bsl::is_same<double(*)[4],  Thing<A2>::CacheType>::value));
-//      assert((bsl::is_same<void (*)(int), Thing<F1>::CacheType>::value));
-//      assert((bsl::is_same<int (*)(),     Thing<F2>::CacheType>::value));
+//     assert((bsl::is_same<const int*,    Thing<A1>::CacheType>::value));
+//     assert((bsl::is_same<double(*)[4],  Thing<A2>::CacheType>::value));
+//     assert((bsl::is_same<void (*)(int), Thing<F1>::CacheType>::value));
+//     assert((bsl::is_same<int (*)(),     Thing<F2>::CacheType>::value));
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -108,11 +108,11 @@ template <class t_TYPE, bool t_IS_ARRAY, bool t_IS_FUNC> struct decay_imp;
                         // class template decay
                         // ====================
 
+/// Metafunction to return the variant of the specified parameter `t_TYPE`
+/// used for pass-by-reference, e.g., by applying array-to-pointer and
+/// function-to-pointer conversion.
 template <class t_TYPE>
 class decay {
-    // Metafunction to return the variant of the specified parameter 't_TYPE'
-    // used for pass-by-reference, e.g., by applying array-to-pointer and
-    // function-to-pointer conversion.
 
     typedef typename bsl::remove_reference<t_TYPE>::type U;
     enum {
@@ -127,12 +127,13 @@ class decay {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
+
+/// `decay_t` is an alias to the return type of the `bsl::decay`
+/// meta-function.  Note, that the `enable_if_t` avoids the `::type` suffix
+/// and `typename` prefix when we want to use the result of the
+/// meta-function in templates.
 template <class t_TYPE>
 using decay_t = typename decay<t_TYPE>::type;
-    // 'decay_t' is an alias to the return type of the 'bsl::decay'
-    // meta-function.  Note, that the 'enable_if_t' avoids the '::type' suffix
-    // and 'typename' prefix when we want to use the result of the
-    // meta-function in templates.
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 

@@ -13,65 +13,65 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslma_rawdeleterproctor, bslma_rawdeleterguard
 //
 //@DESCRIPTION: This component provides a range proctor class template,
-// 'bslma::AutoRawDeleter', to manage a sequence of (otherwise-unmanaged)
-// objects of parameterized 'TYPE' supplied at construction.  If not explicitly
+// `bslma::AutoRawDeleter`, to manage a sequence of (otherwise-unmanaged)
+// objects of parameterized `TYPE` supplied at construction.  If not explicitly
 // released, the sequence of managed objects are deleted automatically when the
 // range proctor goes out of scope by iterating over each object, first calling
 // the (managed) object's destructor, and then freeing its memory footprint by
-// invoking the 'deallocate' method of an allocator (or pool) of parameterized
-// 'ALLOCATOR' type also supplied at construction.  Note that after a range
+// invoking the `deallocate` method of an allocator (or pool) of parameterized
+// `ALLOCATOR` type also supplied at construction.  Note that after a range
 // proctor releases its sequence of managed objects, the same proctor can be
 // reused to conditionally manage another sequence of objects (allocated from
 // the same allocator or pool that was supplied at construction) by invoking
-// the 'reset' method.
+// the `reset` method.
 //
 ///"Raw" Warning
 ///-------------
 // Note that this component should be used only if we are sure that the
-// supplied pointer is !not! of a type that is a secondary base class -- i.e.,
+// supplied pointer is **not** of a type that is a secondary base class -- i.e.,
 // the (managed) object's address is (numerically) the same as when it was
-// originally dispensed by 'ALLOCATOR'.
+// originally dispensed by `ALLOCATOR`.
 //
 ///Requirement
 ///-----------
-// The parameterized 'ALLOCATOR' type of the 'bslma::AutoRawDeleter' class
-// template must provide a (possibly 'virtual') method:
-//..
-//  void deallocate(void *address);
-//..
-// to deallocate memory at the specified 'address' (originally supplied by the
-// 'ALLOCATOR' object).
+// The parameterized `ALLOCATOR` type of the `bslma::AutoRawDeleter` class
+// template must provide a (possibly `virtual`) method:
+// ```
+// void deallocate(void *address);
+// ```
+// to deallocate memory at the specified `address` (originally supplied by the
+// `ALLOCATOR` object).
 //
 ///Usage
 ///-----
-// The 'bslma::AutoRawDeleter' proctor object can be used to preserve exception
+// The `bslma::AutoRawDeleter` proctor object can be used to preserve exception
 // neutrality during manipulation of out-of-place arrays of user-defined-type
 // objects.  The following illustrates the insertion operation for an
 // "out-of-place" string array.  Assume that a string array initially contains
 // the addresses of the following string objects as its elements:
-//..
-//     0     1     2     3     4
-//   _____ _____ _____ _____ _____
-//  |  o  |  o  |  o  |  o  |  o  |
-//  `==|==^==|==^==|==^==|==^==|=='
-//    _V_   _V_   _V_   _V_   _V_
-//   |"A"| |"B"| |"C"| |"D"| |"E"|
-//   `===' `===' `===' `===' `==='
-//..
+// ```
+//    0     1     2     3     4
+//  _____ _____ _____ _____ _____
+// |  o  |  o  |  o  |  o  |  o  |
+// `==|==^==|==^==|==^==|==^==|=='
+//   _V_   _V_   _V_   _V_   _V_
+//  |"A"| |"B"| |"C"| |"D"| |"E"|
+//  `===' `===' `===' `===' `==='
+// ```
 // To insert two string objects with values "F" and "G" at index position 2,
 // the array is first reallocated if it is not big enough, and then the
 // existing elements at index positions 2, 3, and 4 are shifted:
-//..
-//     0     1     2     3     4     5     6
-//   _____ _____ _____ _____ _____ _____ _____
-//  |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
-//  `==|==^==|==^=====^=====^==|==^==|==^==|=='
-//    _V_   _V_               _V_   _V_   _V_
-//   |"A"| |"B"|             |"C"| |"D"| |"E"|
-//   `===' `==='             `===' `===' `==='
+// ```
+//    0     1     2     3     4     5     6
+//  _____ _____ _____ _____ _____ _____ _____
+// |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
+// `==|==^==|==^=====^=====^==|==^==|==^==|=='
+//   _V_   _V_               _V_   _V_   _V_
+//  |"A"| |"B"|             |"C"| |"D"| |"E"|
+//  `===' `==='             `===' `===' `==='
 //
-//  Note: "xxxxx" denotes undefined value
-//..
+// Note: "xxxxx" denotes undefined value
+// ```
 // Next, two new string objects must be created and initialized with string
 // values "F" and "G", respectively.  If, during creation, an allocation fails
 // and an exception is thrown, the array will be left in an invalid state
@@ -82,221 +82,221 @@ BSLS_IDENT("$Id: $")
 // still a problem: the string objects "C", "D", and "E" (at index positions
 // 3, 4, and 5) are "orphaned" and will never be deleted -- a memory leak.  To
 // prevent this potential memory leak, we can additionally create a
-// 'bslma::AutoRawDeleter' object to manage (temporarily) the elements at index
+// `bslma::AutoRawDeleter` object to manage (temporarily) the elements at index
 // positions 4, 5, and 6 prior to creating the new objects:
-//..
-//      0     1     2     3     4     5     6
-//    _____ _____ _____ _____ _____ _____ _____
-//   |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
-//   `==|==^==|==^=====^=====^==|==^==|==^==|=='
-//     _V_   _V_               _V_   _V_   _V_
-//    |"A"| |"B"|             |"C"| |"D"| |"E"|
-//    `===' `==='             `===' `===' `==='
-//    my_StrArray2           ^-----------------bslma::AutoRawDeleter
-//    (length = 2)                             (length = 3)
+// ```
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
+//  `==|==^==|==^=====^=====^==|==^==|==^==|=='
+//    _V_   _V_               _V_   _V_   _V_
+//   |"A"| |"B"|             |"C"| |"D"| |"E"|
+//   `===' `==='             `===' `===' `==='
+//   my_StrArray2           ^-----------------bslma::AutoRawDeleter
+//   (length = 2)                             (length = 3)
 //
-//  Figure: Use of proctor for my_StrArray2::insert
-//..
+// Figure: Use of proctor for my_StrArray2::insert
+// ```
 // If an exception occurs, the array (now of length 2) is in a perfectly valid
 // state, while the second proctor is responsible for deleting the orphaned
 // elements at index positions 4, 5, and 6.  If no exception is thrown, the
 // elements at index positions 2 and 3 are set to new strings "F" and "G", the
-// length of the first proctor is set to 7 and the second proctor's 'release'
+// length of the first proctor is set to 7 and the second proctor's `release`
 // method is called, releasing its control over the temporarily managed
 // elements.
 //
-// The following example illustrates the use of 'bslma::AutoRawDeleter' in
-// conjunction with 'bslma::DeallocatorProctor' to manage temporarily a
-// templatized, "out-of-place" array of parameterized 'TYPE' objects during the
+// The following example illustrates the use of `bslma::AutoRawDeleter` in
+// conjunction with `bslma::DeallocatorProctor` to manage temporarily a
+// templatized, "out-of-place" array of parameterized `TYPE` objects during the
 // array's insertion operation.
 //
-// First we define a 'myArray' class that stores an array of parameterized
-// 'TYPE' objects:
-//..
-//  template <class TYPE>
-//  class myArray {
-//      // This class is a container that stores an array of objects of
-//      // parameterized 'TYPE'.
+// First we define a `myArray` class that stores an array of parameterized
+// `TYPE` objects:
+// ```
+// template <class TYPE>
+// class myArray {
+//     // This class is a container that stores an array of objects of
+//     // parameterized 'TYPE'.
 //
-//      // DATA
-//      TYPE              **d_array_p;       // dynamically allocated array of
-//                                           // character sequence
+//     // DATA
+//     TYPE              **d_array_p;       // dynamically allocated array of
+//                                          // character sequence
 //
-//      int                 d_length;        // logical length of this array
+//     int                 d_length;        // logical length of this array
 //
-//      int                 d_size;          // physical capacity of this array
+//     int                 d_size;          // physical capacity of this array
 //
-//      bslma::Allocator   *d_allocator_p;   // allocator (held, not owned)
+//     bslma::Allocator   *d_allocator_p;   // allocator (held, not owned)
 //
-//    public:
-//      // CREATORS
-//      myArray(bslma::Allocator *basicAllocator = 0);
-//          // Create a 'myArray' object.  Optionally specify a
-//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//          // 0, the currently installed default allocator is used.
+//   public:
+//     // CREATORS
+//     myArray(bslma::Allocator *basicAllocator = 0);
+//         // Create a 'myArray' object.  Optionally specify a
+//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//         // 0, the currently installed default allocator is used.
 //
-//      ~myArray();
-//          // Destroy this 'myArray' object and all elements currently stored.
+//     ~myArray();
+//         // Destroy this 'myArray' object and all elements currently stored.
 //
-//      // MANIPULATORS
-//      void insert(int dstIndex, const myArray& srcArray);
-//          // Insert into this array at the specified 'dstIndex', the
-//          // character sequences in the specified 'srcArray'.  All values
-//          // with initial indices at or above 'dstIndex' are shifted up by
-//          // 'srcArray.length()' index positions.  The behavior is undefined
-//          // unless '0 <= dstIndex' and 'dstIndex <= length()'.
+//     // MANIPULATORS
+//     void insert(int dstIndex, const myArray& srcArray);
+//         // Insert into this array at the specified 'dstIndex', the
+//         // character sequences in the specified 'srcArray'.  All values
+//         // with initial indices at or above 'dstIndex' are shifted up by
+//         // 'srcArray.length()' index positions.  The behavior is undefined
+//         // unless '0 <= dstIndex' and 'dstIndex <= length()'.
 //
-//      // ...
+//     // ...
 //
-//      // ACCESSORS
-//      int length() const;
-//          // Return the logical length of this array.
+//     // ACCESSORS
+//     int length() const;
+//         // Return the logical length of this array.
 //
-//      // ...
-//  };
-//..
-// Note that a 'bslma::DeallocatorProctor' is used to manage a block of memory
-// allocated before invoking the constructor of 'TYPE'.  If the constructor of
-// 'TYPE' throws, the (managed) memory is automatically deallocated by
-// 'bslma::DeallocatorProctor's destructor:
-//..
-//  template <class TYPE>
-//  void myArray<TYPE>::insert(int dstIndex, const myArray<TYPE>& srcArray)
-//  {
-//      int srcLength  = srcArray.d_length;
-//      int newLength  = d_length + srcLength;
-//      int numShifted = d_length - dstIndex;
+//     // ...
+// };
+// ```
+// Note that a `bslma::DeallocatorProctor` is used to manage a block of memory
+// allocated before invoking the constructor of `TYPE`.  If the constructor of
+// `TYPE` throws, the (managed) memory is automatically deallocated by
+// `bslma::DeallocatorProctor`s destructor:
+// ```
+// template <class TYPE>
+// void myArray<TYPE>::insert(int dstIndex, const myArray<TYPE>& srcArray)
+// {
+//     int srcLength  = srcArray.d_length;
+//     int newLength  = d_length + srcLength;
+//     int numShifted = d_length - dstIndex;
 //
-//      if (newLength > d_size) {  // need to resize
-//          // ...
-//      }
+//     if (newLength > d_size) {  // need to resize
+//         // ...
+//     }
 //
-//      // First shift the elements to the back of the array.
-//      memmove(d_array_p + dstIndex + srcLength,
-//              d_array_p + dstIndex,
-//              numShifted * sizeof *d_array_p);
+//     // First shift the elements to the back of the array.
+//     memmove(d_array_p + dstIndex + srcLength,
+//             d_array_p + dstIndex,
+//             numShifted * sizeof *d_array_p);
 //
-//      // Shorten 'd_length' and use 'bslma::AutoDeleter' to proctor tail
-//      // elements.
-//      d_length = dstIndex;
+//     // Shorten 'd_length' and use 'bslma::AutoDeleter' to proctor tail
+//     // elements.
+//     d_length = dstIndex;
 //
-//      //*************************************************************
-//      // Note the use of auto raw deleter on tail elements (below). *
-//      //*************************************************************
+//     //*************************************************************
+//     // Note the use of auto raw deleter on tail elements (below). *
+//     //*************************************************************
 //
-//      bslma::AutoRawDeleter<TYPE, bslma::Allocator>
-//                                tailDeleter(d_array_p + dstIndex + srcLength,
-//                                            d_allocator_p,
-//                                            numShifted);
-//..
+//     bslma::AutoRawDeleter<TYPE, bslma::Allocator>
+//                               tailDeleter(d_array_p + dstIndex + srcLength,
+//                                           d_allocator_p,
+//                                           numShifted);
+// ```
 // Now, if any allocation, either allocating memory for new elements or the
 // constructor of the new element throws, the elements that had been moved to
 // the end of the array will be deleted automatically by the
-// 'bslma::AutoRawDeleter'.
-//..
-//      // Used to temporarily proctor each new element's memory.
-//      bslma::DeallocatorProctor<bslma::Allocator>
-//                                        elementDeallocator(0, d_allocator_p);
+// `bslma::AutoRawDeleter`.
+// ```
+//     // Used to temporarily proctor each new element's memory.
+//     bslma::DeallocatorProctor<bslma::Allocator>
+//                                       elementDeallocator(0, d_allocator_p);
 //
-//      if (this != &srcArray) {  // no self-alias
+//     if (this != &srcArray) {  // no self-alias
 //
-//          // Copy the objects one by one.
-//          for (int i = 0; i < srcLength; ++i, ++d_length) {
-//              d_array_p[dstIndex + i] =
-//                        (TYPE *) d_allocator_p->allocate(sizeof **d_array_p);
+//         // Copy the objects one by one.
+//         for (int i = 0; i < srcLength; ++i, ++d_length) {
+//             d_array_p[dstIndex + i] =
+//                       (TYPE *) d_allocator_p->allocate(sizeof **d_array_p);
 //
-//              elementDeallocator.reset(d_array_p[dstIndex + i]);
-//              new(d_array_p[dstIndex + i]) TYPE(*srcArray.d_array_p[i],
-//                                                d_allocator_p);
-//              elementDeallocator.release();
-//          }
-//      }
-//      else {  // self-alias
-//          // ...
-//      }
+//             elementDeallocator.reset(d_array_p[dstIndex + i]);
+//             new(d_array_p[dstIndex + i]) TYPE(*srcArray.d_array_p[i],
+//                                               d_allocator_p);
+//             elementDeallocator.release();
+//         }
+//     }
+//     else {  // self-alias
+//         // ...
+//     }
 //
-//      //*********************************************
-//      // Note that the proctor is released (below). *
-//      //*********************************************
+//     //*********************************************
+//     // Note that the proctor is released (below). *
+//     //*********************************************
 //
-//      tailDeleter.release();
-//      d_length = newLength;
-//  }
-//..
+//     tailDeleter.release();
+//     d_length = newLength;
+// }
+// ```
 // Note that portions of the implementation are elided as it adds unnecessary
 // complications to the usage example.  The shown portion is sufficient to
-// illustrate the use of 'bslma_autorawdeleter'.
+// illustrate the use of `bslma_autorawdeleter`.
 //
 // The above method copies the source elements (visually) from left to right.
 // Another (functionally equivalent) implementation copies the source elements
-// from right to left, and makes use of the 'operator--()' of the
-// 'bslma::AutoRawDeleter' interface:
-//..
-//  template <class TYPE>
-//  void myArray<TYPE>::insert(int dstIndex, const myStrArray<TYPE>& srcArray)
-//  {
-//      int srcLength  = srcArray.d_length;
-//      int newLength  = d_length + srcLength;
-//      int numShifted = d_length - dstIndex;
+// from right to left, and makes use of the `operator--()` of the
+// `bslma::AutoRawDeleter` interface:
+// ```
+// template <class TYPE>
+// void myArray<TYPE>::insert(int dstIndex, const myStrArray<TYPE>& srcArray)
+// {
+//     int srcLength  = srcArray.d_length;
+//     int newLength  = d_length + srcLength;
+//     int numShifted = d_length - dstIndex;
 //
-//      if (newLength > d_size) {  // need to resize
-//          // ...
-//      }
+//     if (newLength > d_size) {  // need to resize
+//         // ...
+//     }
 //
-//      // First shift the elements to the back of the array.
-//      memmove(d_array_p + dstIndex + srcLength,
-//              d_array_p + dstIndex,
-//              numShifted * sizeof *d_array_p);
+//     // First shift the elements to the back of the array.
+//     memmove(d_array_p + dstIndex + srcLength,
+//             d_array_p + dstIndex,
+//             numShifted * sizeof *d_array_p);
 //
-//      // Shorten 'd_length' and use 'bslma::AutoDeallocator' to proctor the
-//      // memory shifted.
-//      d_length = dst_Index;
+//     // Shorten 'd_length' and use 'bslma::AutoDeallocator' to proctor the
+//     // memory shifted.
+//     d_length = dst_Index;
 //
-//      //********************************************
-//      //* Note the use of auto raw deleter on tail *
-//      //* memory with negative length (below).     *
-//      //********************************************
+//     //********************************************
+//     //* Note the use of auto raw deleter on tail *
+//     //* memory with negative length (below).     *
+//     //********************************************
 //
-//      bslma::AutoRawDeleter<TYPE, bslma::Allocator> tailDeleter(newLength,
-//                                                              d_allocator_p,
-//                                                              -numShifted);
-//..
+//     bslma::AutoRawDeleter<TYPE, bslma::Allocator> tailDeleter(newLength,
+//                                                             d_allocator_p,
+//                                                             -numShifted);
+// ```
 // Since we have decided to copy the source elements from right to left, we
-// set the origin of the 'bslma::AutoRawDeleter' to the end of the array, and
+// set the origin of the `bslma::AutoRawDeleter` to the end of the array, and
 // decrement the (signed) length on each copy to extend the proctor range by
 // 1.
-//..
-//      // Used to temporarily proctor each new element's memory.
-//      bslma::DeallocatorProctor<bslma::Allocator>
-//                                        elementDeallocator(0, d_allocator_p);
+// ```
+//     // Used to temporarily proctor each new element's memory.
+//     bslma::DeallocatorProctor<bslma::Allocator>
+//                                       elementDeallocator(0, d_allocator_p);
 //
-//      if (this != &srcArray) {  // no self-alias
+//     if (this != &srcArray) {  // no self-alias
 //
-//          // Copy the character sequences from the 'srcArray'.  Note that the
-//          // 'tailDeleter' has to be decremented to cover the newly
-//          // created object.
+//         // Copy the character sequences from the 'srcArray'.  Note that the
+//         // 'tailDeleter' has to be decremented to cover the newly
+//         // created object.
 //
-//          for (int i = srcLength - 1; i >= 0; --i, --tailDeleter) {
-//              d_array_p[dstIndex + i] =
-//                        (TYPE *) d_allocator_p->allocate(sizeof **d_array_p);
-//              elementDeallocator.reset(d_array_p[dstIndex + i]);
-//              new(d_array_p[dstIndex + i]) TYPE(*srcArray.d_array_p[i],
-//                                                d_allocator_p);
-//              elementDeallocator.release();
-//          }
-//      }
-//      else {  // self-alias
-//          // ...
-//      }
+//         for (int i = srcLength - 1; i >= 0; --i, --tailDeleter) {
+//             d_array_p[dstIndex + i] =
+//                       (TYPE *) d_allocator_p->allocate(sizeof **d_array_p);
+//             elementDeallocator.reset(d_array_p[dstIndex + i]);
+//             new(d_array_p[dstIndex + i]) TYPE(*srcArray.d_array_p[i],
+//                                               d_allocator_p);
+//             elementDeallocator.release();
+//         }
+//     }
+//     else {  // self-alias
+//         // ...
+//     }
 //
-//      //*********************************************
-//      // Note that the proctor is released (below). *
-//      //*********************************************
+//     //*********************************************
+//     // Note that the proctor is released (below). *
+//     //*********************************************
 //
-//      tailDeleter.release();
-//      d_length = newLength;
-//  }
-//..
+//     tailDeleter.release();
+//     d_length = newLength;
+// }
+// ```
 // Note that though the two implementations are functionally equivalent, they
 // are logically different.  First of all, the second implementation will be
 // slightly slower because it is accessing memory backwards when compared to
@@ -319,19 +319,19 @@ namespace bslma {
                         // class AutoRawDeleter
                         // ====================
 
+/// This class implements a range proctor that, unless its `release` method
+/// has previously been invoked, automatically deletes the contiguous
+/// sequence of managed objects upon destruction by iterating on each
+/// (managed) object, first invoking the object's destructor, and then free
+/// memory by invoking the `deallocate` method of an allocator (or pool) of
+/// parameterized `ALLOCATOR` type supplied to it at construction.  The
+/// sequence of managed objects of parameterized `TYPE` must have been
+/// created using memory provided by this allocator (or pool), which must
+/// remain valid throughout the lifetime of this range proctor.  Note that
+/// when the length of this object is non-zero, it must refer to a non-null
+/// array of objects.
 template <class TYPE, class ALLOCATOR>
 class AutoRawDeleter {
-    // This class implements a range proctor that, unless its 'release' method
-    // has previously been invoked, automatically deletes the contiguous
-    // sequence of managed objects upon destruction by iterating on each
-    // (managed) object, first invoking the object's destructor, and then free
-    // memory by invoking the 'deallocate' method of an allocator (or pool) of
-    // parameterized 'ALLOCATOR' type supplied to it at construction.  The
-    // sequence of managed objects of parameterized 'TYPE' must have been
-    // created using memory provided by this allocator (or pool), which must
-    // remain valid throughout the lifetime of this range proctor.  Note that
-    // when the length of this object is non-zero, it must refer to a non-null
-    // array of objects.
 
     // DATA
     TYPE      **d_origin_p;     // reference location for the sequence of
@@ -348,113 +348,117 @@ class AutoRawDeleter {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Delete the contiguous sequence of objects managed by this auto raw
+    /// deleter (if any) by iterating over each (managed) object, first
+    /// invoking the object's destructor, and then freeing memory by
+    /// invoking the `deallocate` method of the allocator (or pool) that was
+    /// supplied with the sequence of (managed) objects at construction.
+    /// Note that the order in which the managed objects are deleted is
+    /// undefined.  Also note that this method factors out the destruction
+    /// logic, which allows the destructor to be declared `inline` for the
+    /// common case (the range proctor released before being destroyed).
     void rawDelete();
-        // Delete the contiguous sequence of objects managed by this auto raw
-        // deleter (if any) by iterating over each (managed) object, first
-        // invoking the object's destructor, and then freeing memory by
-        // invoking the 'deallocate' method of the allocator (or pool) that was
-        // supplied with the sequence of (managed) objects at construction.
-        // Note that the order in which the managed objects are deleted is
-        // undefined.  Also note that this method factors out the destruction
-        // logic, which allows the destructor to be declared 'inline' for the
-        // common case (the range proctor released before being destroyed).
 
   public:
     // CREATORS
+
+    /// Create an auto raw deleter to manage an array of objects at the
+    /// specified `origin`, and that uses the specified `allocator` to
+    /// delete the sequence of objects managed by this range proctor (if not
+    /// released -- see `release`) upon destruction.  Optionally specify
+    /// `length` to define its range, which by default is empty (i.e.,
+    /// `length = 0`).  The sequence of objects may extend in either
+    /// direction from `origin`.  A positive `length` represents the
+    /// sequence of objects starting at `origin` and extending "up" to
+    /// `length` (*not* including the object at the index position
+    /// `origin + length`).  A negative `length` represents the sequence of
+    /// objects starting at one position below `origin` and extending "down"
+    /// to the absolute value of `length` (including the object at index
+    /// position `origin + length`).  If `length` is 0, then this range
+    /// proctor manages no objects.  If `origin` is non-zero, all objects
+    /// within the proctored range (if any) must be constructed using memory
+    /// supplied by `allocator`.  The behavior is undefined unless
+    /// `allocator` is non-zero, and, if `origin` is 0, 'length is also 0.
+    /// Note that when `length` is non-positive, the object at the origin is
+    /// *not* managed by this range proctor.  For example, if `origin` is at
+    /// the index position 2, a `length` of 2 signifies that the objects at
+    /// positions 2 and 3 are managed, whereas a `length` of -2 signifies
+    /// that the objects at positions 0 and 1 are managed:
+    /// ```
+    ///    length = -2                            length = 2
+    ///    |<----->|                              |<----->|
+    ///     ___ ___ ___ ___ ___            ___ ___ ___ ___ ___
+    ///    | 0 | 1 | 2 | 3 | 4 |          | 0 | 1 | 2 | 3 | 4 |
+    ///    `===^===^===^===^==='          `===^===^===^===^==='
+    ///            ^------------ origin           ^------------ origin
+    /// ```
     AutoRawDeleter(TYPE      **origin,
                    ALLOCATOR  *allocator,
                    int         length = 0);
-        // Create an auto raw deleter to manage an array of objects at the
-        // specified 'origin', and that uses the specified 'allocator' to
-        // delete the sequence of objects managed by this range proctor (if not
-        // released -- see 'release') upon destruction.  Optionally specify
-        // 'length' to define its range, which by default is empty (i.e.,
-        // 'length = 0').  The sequence of objects may extend in either
-        // direction from 'origin'.  A positive 'length' represents the
-        // sequence of objects starting at 'origin' and extending "up" to
-        // 'length' (*not* including the object at the index position
-        // 'origin + length').  A negative 'length' represents the sequence of
-        // objects starting at one position below 'origin' and extending "down"
-        // to the absolute value of 'length' (including the object at index
-        // position 'origin + length').  If 'length' is 0, then this range
-        // proctor manages no objects.  If 'origin' is non-zero, all objects
-        // within the proctored range (if any) must be constructed using memory
-        // supplied by 'allocator'.  The behavior is undefined unless
-        // 'allocator' is non-zero, and, if 'origin' is 0, 'length is also 0.
-        // Note that when 'length' is non-positive, the object at the origin is
-        // *not* managed by this range proctor.  For example, if 'origin' is at
-        // the index position 2, a 'length' of 2 signifies that the objects at
-        // positions 2 and 3 are managed, whereas a 'length' of -2 signifies
-        // that the objects at positions 0 and 1 are managed:
-        //..
-        //     length = -2                            length = 2
-        //     |<----->|                              |<----->|
-        //      ___ ___ ___ ___ ___            ___ ___ ___ ___ ___
-        //     | 0 | 1 | 2 | 3 | 4 |          | 0 | 1 | 2 | 3 | 4 |
-        //     `===^===^===^===^==='          `===^===^===^===^==='
-        //             ^------------ origin           ^------------ origin
-        //..
 
+    /// Destroy this range proctor and delete the contiguous sequence of
+    /// objects it manages (if any) by iterating over each (managed) object,
+    /// first invoking the object's destructor, and then freeing memory by
+    /// invoking the `deallocate` method of the allocator (or pool) that was
+    /// supplied with the sequence of (managed) objects at construction.
+    /// Note that the order in which the managed objects are deleted is
+    /// undefined.
     ~AutoRawDeleter();
-        // Destroy this range proctor and delete the contiguous sequence of
-        // objects it manages (if any) by iterating over each (managed) object,
-        // first invoking the object's destructor, and then freeing memory by
-        // invoking the 'deallocate' method of the allocator (or pool) that was
-        // supplied with the sequence of (managed) objects at construction.
-        // Note that the order in which the managed objects are deleted is
-        // undefined.
 
     // MANIPULATORS
+
+    /// Increase by one the (signed) length of the sequence of objects
+    /// managed by this range proctor.  The behavior is undefined unless the
+    /// origin of the sequence of objects managed by this proctor is
+    /// non-zero.  The behavior is undefined unless the origin or this range
+    /// proctor is non-zero.  Note that if the length of this proctor is
+    /// currently negative, the number of managed objects will decrease by
+    /// one, whereas if the length is non-negative, the number of managed
+    /// objects will increase by one.
     void operator++();
-        // Increase by one the (signed) length of the sequence of objects
-        // managed by this range proctor.  The behavior is undefined unless the
-        // origin of the sequence of objects managed by this proctor is
-        // non-zero.  The behavior is undefined unless the origin or this range
-        // proctor is non-zero.  Note that if the length of this proctor is
-        // currently negative, the number of managed objects will decrease by
-        // one, whereas if the length is non-negative, the number of managed
-        // objects will increase by one.
 
+    /// Decrease by one the (signed) length of the sequence of objects
+    /// managed by this range proctor.  The behavior is undefined unless the
+    /// origin of the sequence of objects managed by this proctor is
+    /// non-zero.  The behavior is undefined unless the origin or this range
+    /// proctor is non-zero.  Note that if the length of this proctor is
+    /// currently positive, the number of managed objects will decrease by
+    /// one, whereas if the length is non-positive, the number of managed
+    /// objects will increase by one.
     void operator--();
-        // Decrease by one the (signed) length of the sequence of objects
-        // managed by this range proctor.  The behavior is undefined unless the
-        // origin of the sequence of objects managed by this proctor is
-        // non-zero.  The behavior is undefined unless the origin or this range
-        // proctor is non-zero.  Note that if the length of this proctor is
-        // currently positive, the number of managed objects will decrease by
-        // one, whereas if the length is non-positive, the number of managed
-        // objects will increase by one.
 
+    /// Release from management the sequence of objects currently managed by
+    /// this range proctor by setting the length of the managed sequence to
+    /// 0.  All objects currently under management will become unmanaged
+    /// (i.e., when the proctor goes out of scope and it was not assigned
+    /// another sequence of objects to manage by invoking `reset`, no
+    /// objects will be deleted).  If no objects are currently being
+    /// managed, this method has no effect.  Note that the origin is not
+    /// affected.
     void release() ;
-        // Release from management the sequence of objects currently managed by
-        // this range proctor by setting the length of the managed sequence to
-        // 0.  All objects currently under management will become unmanaged
-        // (i.e., when the proctor goes out of scope and it was not assigned
-        // another sequence of objects to manage by invoking 'reset', no
-        // objects will be deleted).  If no objects are currently being
-        // managed, this method has no effect.  Note that the origin is not
-        // affected.
 
+    /// Set the specified `origin` as the origin of the sequence of objects
+    /// to be managed by this range proctor.  The behavior is undefined
+    /// unless `origin` is non-zero.  Note that the length of the sequence
+    /// of objects managed by this proctor is not affected, and `setLength`
+    /// should be invoked if the managed range is different from the
+    /// previously managed sequence of objects.  Also note that this method
+    /// releases any previously-managed objects from management (without
+    /// deleting them), and so may be called with or without having called
+    /// `release` when reusing this object.
     void reset(TYPE **origin);
-        // Set the specified 'origin' as the origin of the sequence of objects
-        // to be managed by this range proctor.  The behavior is undefined
-        // unless 'origin' is non-zero.  Note that the length of the sequence
-        // of objects managed by this proctor is not affected, and 'setLength'
-        // should be invoked if the managed range is different from the
-        // previously managed sequence of objects.  Also note that this method
-        // releases any previously-managed objects from management (without
-        // deleting them), and so may be called with or without having called
-        // 'release' when reusing this object.
 
+    /// Set the (signed) length of the sequence of objects managed by this
+    /// range proctor to the specified `length`.  The behavior is undefined
+    /// unless the origin of this range proctor is non-zero.
     void setLength(int length);
-        // Set the (signed) length of the sequence of objects managed by this
-        // range proctor to the specified 'length'.  The behavior is undefined
-        // unless the origin of this range proctor is non-zero.
 
     // ACCESSORS
+
+    /// Return the (signed) length of the sequence of objects managed by
+    /// this range proctor.
     int length() const;
-        // Return the (signed) length of the sequence of objects managed by
-        // this range proctor.
 };
 
 // ============================================================================
@@ -570,8 +574,8 @@ int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 #ifdef bslma_AutoRawDeleter
 #undef bslma_AutoRawDeleter
 #endif
+/// This alias is defined for backward compatibility.
 #define bslma_AutoRawDeleter bslma::AutoRawDeleter
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

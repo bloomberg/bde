@@ -22,337 +22,337 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Dispatch On Traits
 ///- - - - - - - - - - - - - - -
 // We would like to create a function template,
-// 'ScalarPrimitives::copyConstruct', that takes an original object and an
-// allocator constructs a copy of 'original' using the most efficient valid
+// `ScalarPrimitives::copyConstruct`, that takes an original object and an
+// allocator constructs a copy of `original` using the most efficient valid
 // mechanism.  The function should take into account that the original type
 // might be bitwise copyable, or have an allocator that can be different in
 // the copy than in the original object, or that the original might be a pair
-// type, where the correct method of copying 'first' and 'second' is
+// type, where the correct method of copying `first` and `second` is
 // (recursively) governed by the same concerns.
 //
-// The old (legacy) 'bsls::HasTrait' mechanism has a clumsy mechanism for
+// The old (legacy) `bsls::HasTrait` mechanism has a clumsy mechanism for
 // dispatching on multiple traits at once.  For example, the
-// 'bslalg::scalarprimitives::copyConstruct', function uses four different
+// `bslalg::scalarprimitives::copyConstruct`, function uses four different
 // implementations, depending on the traits of the object being copied.  The
 // existing code looks like this:
-//..
-//  template <class TARGET_TYPE>
-//  inline
-//  void
-//  ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
-//                                  const TARGET_TYPE&  original,
-//                                  bslma::Allocator   *allocator)
-//  {
-//      BSLS_ASSERT_SAFE(address);
+// ```
+// template <class TARGET_TYPE>
+// inline
+// void
+// ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
+//                                 const TARGET_TYPE&  original,
+//                                 bslma::Allocator   *allocator)
+// {
+//     BSLS_ASSERT_SAFE(address);
 //
-//      enum {
-//          VALUE = HasTrait<TARGET_TYPE,
-//                                  TypeTraitUsesBslmaAllocator
-//                                 >::value ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
-//                : HasTrait<TARGET_TYPE,
-//                                  TypeTraitBitwiseCopyable
-//                                 >::value ? Imp::BITWISE_COPYABLE_TRAITS
-//                : HasTrait<TARGET_TYPE,
-//                                  TypeTraitPair
-//                                 >::value ? Imp::PAIR_TRAITS
-//                : Imp::NIL_TRAITS
-//      };
-//      Imp::copyConstruct(address, original, allocator,
-//                         (bsl::integral_constant<int, VALUE>*)0);
-//  }
-//..
-// We would like to replace the cumbersome chain of '?:' operations with a
+//     enum {
+//         VALUE = HasTrait<TARGET_TYPE,
+//                                 TypeTraitUsesBslmaAllocator
+//                                >::value ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
+//               : HasTrait<TARGET_TYPE,
+//                                 TypeTraitBitwiseCopyable
+//                                >::value ? Imp::BITWISE_COPYABLE_TRAITS
+//               : HasTrait<TARGET_TYPE,
+//                                 TypeTraitPair
+//                                >::value ? Imp::PAIR_TRAITS
+//               : Imp::NIL_TRAITS
+//     };
+//     Imp::copyConstruct(address, original, allocator,
+//                        (bsl::integral_constant<int, VALUE>*)0);
+// }
+// ```
+// We would like to replace the cumbersome chain of `?:` operations with a
 // clean mechanism for producing one of four different types based on the
 // first matching trait.
 //
 // First, we create three traits metafunctions to replace the three legacy
 // traits used above:
-//..
-//  template <class t_TYPE> struct UsesBslmaAllocator : bsl::false_type { };
-//  template <class t_TYPE> struct IsBitwiseCopyable : bsl::false_type { };
-//  template <class t_TYPE> struct IsPair : bsl::false_type { };
-//..
+// ```
+// template <class t_TYPE> struct UsesBslmaAllocator : bsl::false_type { };
+// template <class t_TYPE> struct IsBitwiseCopyable : bsl::false_type { };
+// template <class t_TYPE> struct IsPair : bsl::false_type { };
+// ```
 // Note that these definitions are simplified to avoid excess dependencies; A
-// proper traits definition would inherit from 'bslmf::DetectNestedTrait'
-// instead of from 'bsl::false_type'.
+// proper traits definition would inherit from `bslmf::DetectNestedTrait`
+// instead of from `bsl::false_type`.
 //
-// Next, we forward-declare 'bslma::Allocator' and
-// 'bslalg::scalarprimitives::copyConstruct':
-//..
-//  namespace bslma { class Allocator; }
+// Next, we forward-declare `bslma::Allocator` and
+// `bslalg::scalarprimitives::copyConstruct`:
+// ```
+// namespace bslma { class Allocator; }
 //
-//  namespace bslalg {
-//  struct ScalarPrimitives {
-//      template <class TARGET_TYPE>
-//      static void copyConstruct(TARGET_TYPE        *address,
-//                                const TARGET_TYPE&  original,
-//                                bslma::Allocator   *allocator);
-//  };
-//..
-// Next, we implement three overloads of 'Imp::copyConstruct', each taking a
-// different trait specialization.  A fourth overload takes 'false_type'
+// namespace bslalg {
+// struct ScalarPrimitives {
+//     template <class TARGET_TYPE>
+//     static void copyConstruct(TARGET_TYPE        *address,
+//                               const TARGET_TYPE&  original,
+//                               bslma::Allocator   *allocator);
+// };
+// ```
+// Next, we implement three overloads of `Imp::copyConstruct`, each taking a
+// different trait specialization.  A fourth overload takes `false_type`
 // instead of a trait specialization, for those types that don't match any
 // traits.  For testing purposes, in addition to copying the data member, each
 // overload also increments a separate counter.  These implementations are
 // slightly simplified for readability:
-//..
-//  struct Imp {
+// ```
+// struct Imp {
 //
-//      // Counters for counting overload calls
-//      static int s_noTraitsCounter;
-//      static int s_usesBslmaAllocatorCounter;
-//      static int s_isPairCounter;
-//      static int s_isBitwiseCopyableCounter;
+//     // Counters for counting overload calls
+//     static int s_noTraitsCounter;
+//     static int s_usesBslmaAllocatorCounter;
+//     static int s_isPairCounter;
+//     static int s_isBitwiseCopyableCounter;
 //
-//      static void clearCounters() {
-//          s_noTraitsCounter = 0;
-//          s_usesBslmaAllocatorCounter = 0;
-//          s_isPairCounter = 0;
-//          s_isBitwiseCopyableCounter = 0;
-//      }
+//     static void clearCounters() {
+//         s_noTraitsCounter = 0;
+//         s_usesBslmaAllocatorCounter = 0;
+//         s_isPairCounter = 0;
+//         s_isBitwiseCopyableCounter = 0;
+//     }
 //
-//      template <class TARGET_TYPE>
-//      static void
-//      copyConstruct(TARGET_TYPE                                 *address,
-//                    const TARGET_TYPE&                           original,
-//                    bslma::Allocator                            *allocator,
-//                    bslmf::SelectTraitCase<UsesBslmaAllocator>)
-//      {
-//          new (address) TARGET_TYPE(original, allocator);
-//          ++s_usesBslmaAllocatorCounter;
-//      }
+//     template <class TARGET_TYPE>
+//     static void
+//     copyConstruct(TARGET_TYPE                                 *address,
+//                   const TARGET_TYPE&                           original,
+//                   bslma::Allocator                            *allocator,
+//                   bslmf::SelectTraitCase<UsesBslmaAllocator>)
+//     {
+//         new (address) TARGET_TYPE(original, allocator);
+//         ++s_usesBslmaAllocatorCounter;
+//     }
 //
-//      template <class TARGET_TYPE>
-//      static void
-//      copyConstruct(TARGET_TYPE                 *address,
-//                    const TARGET_TYPE&           original,
-//                    bslma::Allocator            *allocator,
-//                    bslmf::SelectTraitCase<IsPair>)
-//      {
-//          ScalarPrimitives::copyConstruct(&address->first, original.first,
-//                                          allocator);
-//          ScalarPrimitives::copyConstruct(&address->second, original.second,
-//                                          allocator);
-//          ++s_isPairCounter;
-//      }
+//     template <class TARGET_TYPE>
+//     static void
+//     copyConstruct(TARGET_TYPE                 *address,
+//                   const TARGET_TYPE&           original,
+//                   bslma::Allocator            *allocator,
+//                   bslmf::SelectTraitCase<IsPair>)
+//     {
+//         ScalarPrimitives::copyConstruct(&address->first, original.first,
+//                                         allocator);
+//         ScalarPrimitives::copyConstruct(&address->second, original.second,
+//                                         allocator);
+//         ++s_isPairCounter;
+//     }
 //
-//      template <class TARGET_TYPE>
-//      static void
-//      copyConstruct(TARGET_TYPE                             *address,
-//                    const TARGET_TYPE&                       original,
-//                    bslma::Allocator                        *,
-//                    bslmf::SelectTraitCase<IsBitwiseCopyable>)
-//      {
-//          memcpy(address, &original, sizeof(original));
-//          ++s_isBitwiseCopyableCounter;
-//      }
+//     template <class TARGET_TYPE>
+//     static void
+//     copyConstruct(TARGET_TYPE                             *address,
+//                   const TARGET_TYPE&                       original,
+//                   bslma::Allocator                        *,
+//                   bslmf::SelectTraitCase<IsBitwiseCopyable>)
+//     {
+//         memcpy(address, &original, sizeof(original));
+//         ++s_isBitwiseCopyableCounter;
+//     }
 //
-//      template <class TARGET_TYPE>
-//      static void
-//      copyConstruct(TARGET_TYPE                *address,
-//                    const TARGET_TYPE&          original,
-//                    bslma::Allocator           *,
-//                    bslmf::SelectTraitCase<>)
-//      {
-//          new (address) TARGET_TYPE(original);
-//          ++s_noTraitsCounter;
-//      }
-//  };
+//     template <class TARGET_TYPE>
+//     static void
+//     copyConstruct(TARGET_TYPE                *address,
+//                   const TARGET_TYPE&          original,
+//                   bslma::Allocator           *,
+//                   bslmf::SelectTraitCase<>)
+//     {
+//         new (address) TARGET_TYPE(original);
+//         ++s_noTraitsCounter;
+//     }
+// };
 //
-//  int Imp::s_noTraitsCounter = 0;
-//  int Imp::s_usesBslmaAllocatorCounter = 0;
-//  int Imp::s_isPairCounter = 0;
-//  int Imp::s_isBitwiseCopyableCounter = 0;
-//..
-// Then, we implement 'ScalarPrimitives::copyConstruct':
-//..
-//  template <class TARGET_TYPE>
-//  inline void
-//  ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
-//                                  const TARGET_TYPE&  original,
-//                                  bslma::Allocator   *allocator)
-//  {
-//..
-// We use 'bslmf::SelectTrait' to declare 'Selection' as a specialization
+// int Imp::s_noTraitsCounter = 0;
+// int Imp::s_usesBslmaAllocatorCounter = 0;
+// int Imp::s_isPairCounter = 0;
+// int Imp::s_isBitwiseCopyableCounter = 0;
+// ```
+// Then, we implement `ScalarPrimitives::copyConstruct`:
+// ```
+// template <class TARGET_TYPE>
+// inline void
+// ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
+//                                 const TARGET_TYPE&  original,
+//                                 bslma::Allocator   *allocator)
+// {
+// ```
+// We use `bslmf::SelectTrait` to declare `Selection` as a specialization
 // of the first match of the specified traits:
-//..
-//      typedef typename bslmf::SelectTrait<TARGET_TYPE,
-//                                          UsesBslmaAllocator,
-//                                          IsBitwiseCopyable,
-//                                          IsPair>::Type Selection;
-//..
-// Now, we use 'Selection' to choose (at compile time), one of the
-// 'Imp::copyConstruct' overloads defined above:
-//..
-//      Imp::copyConstruct(address, original, allocator, Selection());
-//  } // end copyConstruct()
+// ```
+//     typedef typename bslmf::SelectTrait<TARGET_TYPE,
+//                                         UsesBslmaAllocator,
+//                                         IsBitwiseCopyable,
+//                                         IsPair>::Type Selection;
+// ```
+// Now, we use `Selection` to choose (at compile time), one of the
+// `Imp::copyConstruct` overloads defined above:
+// ```
+//     Imp::copyConstruct(address, original, allocator, Selection());
+// } // end copyConstruct()
 //
-//  } // Close namespace bslalg
-//..
+// } // Close namespace bslalg
+// ```
 // Finally, we define three classes, associated with each of the three traits
 // of interest, a fourth class associated with more than one trait (to show
 // that the selection mechanism respects preference) and a fifth class that is
 // not associated with any trait.
 //
-// The first class is associated with the 'UsesBslmaAllocator' trait:
-//..
-//  class TypeWithAllocator {
-//      int               d_value;
-//      bslma::Allocator *d_alloc;
-//  public:
-//      TypeWithAllocator(int v = 0, bslma::Allocator *a = 0)       // IMPLICIT
-//          : d_value(v), d_alloc(a) { }
-//      TypeWithAllocator(const TypeWithAllocator& other,
-//                        bslma::Allocator *a = 0)
-//          : d_value(other.d_value), d_alloc(a) {  }
+// The first class is associated with the `UsesBslmaAllocator` trait:
+// ```
+// class TypeWithAllocator {
+//     int               d_value;
+//     bslma::Allocator *d_alloc;
+// public:
+//     TypeWithAllocator(int v = 0, bslma::Allocator *a = 0)       // IMPLICIT
+//         : d_value(v), d_alloc(a) { }
+//     TypeWithAllocator(const TypeWithAllocator& other,
+//                       bslma::Allocator *a = 0)
+//         : d_value(other.d_value), d_alloc(a) {  }
 //
-//      int value() const { return d_value; }
-//      bslma::Allocator *allocator() const { return d_alloc; }
-//  };
+//     int value() const { return d_value; }
+//     bslma::Allocator *allocator() const { return d_alloc; }
+// };
 //
-//  template <> struct UsesBslmaAllocator<TypeWithAllocator>
-//      : bsl::true_type { };
-//..
-// The second class is associated with the 'IsBitwiseCopyable' trait:
-//..
-//  class BitwiseCopyableType {
-//      int d_value;
-//  public:
-//      BitwiseCopyableType(int v = 0) : d_value(v) { }             // IMPLICIT
-//      int value() const { return d_value; }
-//  };
+// template <> struct UsesBslmaAllocator<TypeWithAllocator>
+//     : bsl::true_type { };
+// ```
+// The second class is associated with the `IsBitwiseCopyable` trait:
+// ```
+// class BitwiseCopyableType {
+//     int d_value;
+// public:
+//     BitwiseCopyableType(int v = 0) : d_value(v) { }             // IMPLICIT
+//     int value() const { return d_value; }
+// };
 //
-//  template <> struct IsBitwiseCopyable<BitwiseCopyableType>
-//      : bsl::true_type { };
-//..
-// The third class is associated with the 'IsPair' trait:
-//..
-//  struct PairType {
-//      TypeWithAllocator   first;
-//      BitwiseCopyableType second;
+// template <> struct IsBitwiseCopyable<BitwiseCopyableType>
+//     : bsl::true_type { };
+// ```
+// The third class is associated with the `IsPair` trait:
+// ```
+// struct PairType {
+//     TypeWithAllocator   first;
+//     BitwiseCopyableType second;
 //
-//      PairType(int a, int b) : first(a), second(b) { }
-//  };
+//     PairType(int a, int b) : first(a), second(b) { }
+// };
 //
-//  template <> struct IsPair<PairType> : bsl::true_type { };
-//..
-// The fourth class is associated with both the 'IsPair' and
-// 'IsBitwiseCopyable' traits:
-//..
-//  struct BitwiseCopyablePairType {
-//      BitwiseCopyableType first;
-//      BitwiseCopyableType second;
+// template <> struct IsPair<PairType> : bsl::true_type { };
+// ```
+// The fourth class is associated with both the `IsPair` and
+// `IsBitwiseCopyable` traits:
+// ```
+// struct BitwiseCopyablePairType {
+//     BitwiseCopyableType first;
+//     BitwiseCopyableType second;
 //
-//      BitwiseCopyablePairType(int a, int b) : first(a), second(b) { }
-//  };
+//     BitwiseCopyablePairType(int a, int b) : first(a), second(b) { }
+// };
 //
-//  template <> struct IsPair<BitwiseCopyablePairType> : bsl::true_type { };
-//  template <> struct IsBitwiseCopyable<BitwiseCopyablePairType>
-//      : bsl::true_type { };
-//..
+// template <> struct IsPair<BitwiseCopyablePairType> : bsl::true_type { };
+// template <> struct IsBitwiseCopyable<BitwiseCopyablePairType>
+//     : bsl::true_type { };
+// ```
 // The fifth class is not associated with any explicit traits:
-//..
-//  class TypeWithNoTraits {
-//      int d_value;
-//  public:
-//      TypeWithNoTraits(int v = 0) : d_value(v) { }                // IMPLICIT
-//      int value() const { return d_value; }
-//  };
-//..
-// We use these classes to instantiate 'ScalarPrimitives::copyConstruct' and
+// ```
+// class TypeWithNoTraits {
+//     int d_value;
+// public:
+//     TypeWithNoTraits(int v = 0) : d_value(v) { }                // IMPLICIT
+//     int value() const { return d_value; }
+// };
+// ```
+// We use these classes to instantiate `ScalarPrimitives::copyConstruct` and
 // verify that the most efficient copy operation that is valid for each type
 // is applied:
-//..
-//  int usageExample1()
-//  {
-//      using bslalg::Imp;
+// ```
+// int usageExample1()
+// {
+//     using bslalg::Imp;
 //
-//      // This buffer is properly aligned and big enough to hold any of the
-//      // test types.
-//      void *buffer[4];
-//      char dummy[2];  // Dummy addresses
+//     // This buffer is properly aligned and big enough to hold any of the
+//     // test types.
+//     void *buffer[4];
+//     char dummy[2];  // Dummy addresses
 //
-//      bslma::Allocator *a1 = (bslma::Allocator*) &dummy[0];
-//      bslma::Allocator *a2 = (bslma::Allocator*) &dummy[1];
-//..
-// When we call 'ScalarPrimitives::copyConstruct' for an object of
-// 'TypeWithAllocator', we expect that the copy will have the same value but a
+//     bslma::Allocator *a1 = (bslma::Allocator*) &dummy[0];
+//     bslma::Allocator *a2 = (bslma::Allocator*) &dummy[1];
+// ```
+// When we call `ScalarPrimitives::copyConstruct` for an object of
+// `TypeWithAllocator`, we expect that the copy will have the same value but a
 // different allocator than the original and that the
-// 'UsesBslmaAllocator' copy implementation will be called once:
-//..
-//      Imp::clearCounters();
-//      TypeWithAllocator  twa(1, a1);
-//      TypeWithAllocator *twaptr = (TypeWithAllocator*) buffer;
-//      bslalg::ScalarPrimitives::copyConstruct(twaptr, twa, a2);
-//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
-//      assert(1 == twaptr->value());
-//      assert(a2 == twaptr->allocator());
-//      twaptr->~TypeWithAllocator();
-//..
-// When we call 'ScalarPrimitives::copyConstruct' for an object of
-// 'BitwiseCopyableType', we expect that the 'IsBitwiseCopyable' copy
+// `UsesBslmaAllocator` copy implementation will be called once:
+// ```
+//     Imp::clearCounters();
+//     TypeWithAllocator  twa(1, a1);
+//     TypeWithAllocator *twaptr = (TypeWithAllocator*) buffer;
+//     bslalg::ScalarPrimitives::copyConstruct(twaptr, twa, a2);
+//     assert(1 == Imp::s_usesBslmaAllocatorCounter);
+//     assert(1 == twaptr->value());
+//     assert(a2 == twaptr->allocator());
+//     twaptr->~TypeWithAllocator();
+// ```
+// When we call `ScalarPrimitives::copyConstruct` for an object of
+// `BitwiseCopyableType`, we expect that the `IsBitwiseCopyable` copy
 // implementation will be called once:
-//..
-//      Imp::clearCounters();
-//      BitwiseCopyableType  bct(2);
-//      BitwiseCopyableType *bctptr = (BitwiseCopyableType*) buffer;
-//      bslalg::ScalarPrimitives::copyConstruct(bctptr, bct, a2);
-//      assert(1 == Imp::s_isBitwiseCopyableCounter);
-//      assert(2 == bctptr->value());
-//      bctptr->~BitwiseCopyableType();
-//..
-// When we call 'ScalarPrimitives::copyConstruct' for an object of
-// 'PairType', we expect that the 'IsPair' copy implementation will be
+// ```
+//     Imp::clearCounters();
+//     BitwiseCopyableType  bct(2);
+//     BitwiseCopyableType *bctptr = (BitwiseCopyableType*) buffer;
+//     bslalg::ScalarPrimitives::copyConstruct(bctptr, bct, a2);
+//     assert(1 == Imp::s_isBitwiseCopyableCounter);
+//     assert(2 == bctptr->value());
+//     bctptr->~BitwiseCopyableType();
+// ```
+// When we call `ScalarPrimitives::copyConstruct` for an object of
+// `PairType`, we expect that the `IsPair` copy implementation will be
 // called once for the pair as whole and that the
-// 'UsesBslmaAllocator' and 'IsBitwiseCopyable' implementations
-// will be called for the 'first' and 'second' members, respectively:
-//..
-//      Imp::clearCounters();
-//      PairType  pt(3, 4);
-//      PairType *ptptr = (PairType*) buffer;
-//      bslalg::ScalarPrimitives::copyConstruct(ptptr, pt, a2);
-//      assert(1 == Imp::s_isPairCounter);
-//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
-//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
-//      assert(3 == ptptr->first.value());
-//      assert(a2 == ptptr->first.allocator());
-//      assert(4 == ptptr->second.value());
-//      ptptr->~PairType();
-//..
-// When we call 'ScalarPrimitives::copyConstruct' for an object of
-// 'BitwiseCopyablePairType', the 'IsBitwiseCopyable' trait takes precedence
-// over the 'IsPair' trait (because it appears first in the list of traits
-// used to instantiate 'SelectTrait').  Therefore, we expect to see the
-// 'IsBitwiseCopyable' copy implementation called once for the whole
-// pair and the 'IsPair' copy implementation not called at all:
-//..
-//      Imp::clearCounters();
-//      BitwiseCopyablePairType  bcpt(5, 6);
-//      BitwiseCopyablePairType *bcptbcptr = (BitwiseCopyablePairType*) buffer;
-//      bslalg::ScalarPrimitives::copyConstruct(bcptbcptr, bcpt, a2);
-//      // Prefer IsBitwiseCopyable over IsPair trait
-//      assert(1 == Imp::s_isBitwiseCopyableCounter);
-//      assert(0 == Imp::s_isPairCounter);
-//      assert(5 == bcptbcptr->first.value());
-//      assert(6 == bcptbcptr->second.value());
-//      bcptbcptr->~BitwiseCopyablePairType();
-//..
-// When we call 'ScalarPrimitives::copyConstruct' for an object of
-// 'TypeWithNoTraits', we expect none of the specialized copy implementations
-// to be called, thus defaulting to the 'false_type' copy implementation:
-//..
-//      Imp::clearCounters();
-//      TypeWithNoTraits  twnt(7);
-//      TypeWithNoTraits *twntptr = (TypeWithNoTraits*) buffer;
-//      bslalg::ScalarPrimitives::copyConstruct(twntptr, twnt, a2);
-//      assert(1 == Imp::s_noTraitsCounter);
-//      assert(7 == twntptr->value());
-//      twntptr->~TypeWithNoTraits();
+// `UsesBslmaAllocator` and `IsBitwiseCopyable` implementations
+// will be called for the `first` and `second` members, respectively:
+// ```
+//     Imp::clearCounters();
+//     PairType  pt(3, 4);
+//     PairType *ptptr = (PairType*) buffer;
+//     bslalg::ScalarPrimitives::copyConstruct(ptptr, pt, a2);
+//     assert(1 == Imp::s_isPairCounter);
+//     assert(1 == Imp::s_usesBslmaAllocatorCounter);
+//     assert(1 == Imp::s_usesBslmaAllocatorCounter);
+//     assert(3 == ptptr->first.value());
+//     assert(a2 == ptptr->first.allocator());
+//     assert(4 == ptptr->second.value());
+//     ptptr->~PairType();
+// ```
+// When we call `ScalarPrimitives::copyConstruct` for an object of
+// `BitwiseCopyablePairType`, the `IsBitwiseCopyable` trait takes precedence
+// over the `IsPair` trait (because it appears first in the list of traits
+// used to instantiate `SelectTrait`).  Therefore, we expect to see the
+// `IsBitwiseCopyable` copy implementation called once for the whole
+// pair and the `IsPair` copy implementation not called at all:
+// ```
+//     Imp::clearCounters();
+//     BitwiseCopyablePairType  bcpt(5, 6);
+//     BitwiseCopyablePairType *bcptbcptr = (BitwiseCopyablePairType*) buffer;
+//     bslalg::ScalarPrimitives::copyConstruct(bcptbcptr, bcpt, a2);
+//     // Prefer IsBitwiseCopyable over IsPair trait
+//     assert(1 == Imp::s_isBitwiseCopyableCounter);
+//     assert(0 == Imp::s_isPairCounter);
+//     assert(5 == bcptbcptr->first.value());
+//     assert(6 == bcptbcptr->second.value());
+//     bcptbcptr->~BitwiseCopyablePairType();
+// ```
+// When we call `ScalarPrimitives::copyConstruct` for an object of
+// `TypeWithNoTraits`, we expect none of the specialized copy implementations
+// to be called, thus defaulting to the `false_type` copy implementation:
+// ```
+//     Imp::clearCounters();
+//     TypeWithNoTraits  twnt(7);
+//     TypeWithNoTraits *twntptr = (TypeWithNoTraits*) buffer;
+//     bslalg::ScalarPrimitives::copyConstruct(twntptr, twnt, a2);
+//     assert(1 == Imp::s_noTraitsCounter);
+//     assert(7 == twntptr->value());
+//     twntptr->~TypeWithNoTraits();
 //
-//      return 0;
-//  }
-//..
-// Note that using 'SelectTraits' for dispatching using overloading imposes
+//     return 0;
+// }
+// ```
+// Note that using `SelectTraits` for dispatching using overloading imposes
 // little or no overhead, since the compiler typically generates no code for
 // the constructor or copy constructor of the trait argument to
 // the overloaded functions.  When inlining is in effect, the result is very
@@ -371,39 +371,39 @@ namespace bslmf {
                         // struct SelectTrait_False
                         // ========================
 
+/// Metafunction that always returns false.
 template <class>
 struct SelectTrait_False : bsl::false_type
 {
-    // Metafunction that always returns false.
 };
 
                            // ======================
                            // struct SelectTraitCase
                            // ======================
 
+/// This template expresses a class that is unique for the specified
+/// (template parameter) `t_TRAIT` metafunction.  An instantiation of this
+/// template is the "compile-time return value" of `SelectTrait` (see
+/// below).  `SelectTraitCase` acts as a sort of compile-time
+/// pointer-to-metafunction that holds the identity of a metafunction
+/// similar to the way a pointer-to-function holds (at run-time) the
+/// identity of a function.  As in the pointer-to-function case, a
+/// `SelectTraitCase` can also be used indirectly to evaluate `t_TRAIT` (at
+/// compile time).  Also note that, when `SelectTraitCase` is specialized
+/// with the default `t_TRAIT` type parameter, `SelectTrait_False`, it
+/// essentially means that none of the traits specified to `SelectTrait`
+/// match.
 template <template <class> class t_TRAIT = SelectTrait_False>
 struct SelectTraitCase
 {
-    // This template expresses a class that is unique for the specified
-    // (template parameter) 't_TRAIT' metafunction.  An instantiation of this
-    // template is the "compile-time return value" of 'SelectTrait' (see
-    // below).  'SelectTraitCase' acts as a sort of compile-time
-    // pointer-to-metafunction that holds the identity of a metafunction
-    // similar to the way a pointer-to-function holds (at run-time) the
-    // identity of a function.  As in the pointer-to-function case, a
-    // 'SelectTraitCase' can also be used indirectly to evaluate 't_TRAIT' (at
-    // compile time).  Also note that, when 'SelectTraitCase' is specialized
-    // with the default 't_TRAIT' type parameter, 'SelectTrait_False', it
-    // essentially means that none of the traits specified to 'SelectTrait'
-    // match.
 
+    /// Evaluates `t_TRAIT` for the specified (template parameter) `T` type.
+    /// The resulting `Eval<T>` instantiation is derived from `true_type` if
+    /// `t_TRAIT<T>` is derived from `true_type` and `false_type` if
+    /// `t_TRAIT<T>` is derived from `false_type`.  (More generally,
+    /// `Eval<T>` is derived from `t_TRAIT<T>::type`.)
     template <class t_TYPE>
     struct Eval : public t_TRAIT<t_TYPE>::type {
-        // Evaluates 't_TRAIT' for the specified (template parameter) 'T' type.
-        // The resulting 'Eval<T>' instantiation is derived from 'true_type' if
-        // 't_TRAIT<T>' is derived from 'true_type' and 'false_type' if
-        // 't_TRAIT<T>' is derived from 'false_type'.  (More generally,
-        // 'Eval<T>' is derived from 't_TRAIT<T>::type'.)
     };
 
     typedef SelectTraitCase Type;
@@ -454,6 +454,12 @@ struct SelectTrait_Imp {
                              // struct SelectTrait
                              // ==================
 
+/// Instantiate each specified (template parameter) `t_TRAIT1` to `t_TRAIT9`
+/// metafunction using the specified (template parameter) `t_TYPE`.  Inherit
+/// from `SelectTraitCase<TRAITx>`, where *x* is `1` if
+/// `t_TRAIT1<t_TYPE>::value` is true, `2` if `t_TRAIT2<t_TYPE>::value` is
+/// true, etc..  If none of the traits evaluates to true, then inherit from
+/// `SelectTraitCase<>`, which means that none of the traits match.
 template <class t_TYPE,
           template <class> class t_TRAIT1,
           template <class> class t_TRAIT2 = SelectTrait_False,
@@ -474,12 +480,6 @@ struct SelectTrait : SelectTrait_Imp<t_TYPE,
                                      t_TRAIT7,
                                      t_TRAIT8,
                                      t_TRAIT9>::Type {
-    // Instantiate each specified (template parameter) 't_TRAIT1' to 't_TRAIT9'
-    // metafunction using the specified (template parameter) 't_TYPE'.  Inherit
-    // from 'SelectTraitCase<TRAITx>', where *x* is '1' if
-    // 't_TRAIT1<t_TYPE>::value' is true, '2' if 't_TRAIT2<t_TYPE>::value' is
-    // true, etc..  If none of the traits evaluates to true, then inherit from
-    // 'SelectTraitCase<>', which means that none of the traits match.
 
   public:
     enum {

@@ -7,10 +7,10 @@ BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
 
-//@PURPOSE: Provide a compliant standard 'is_error_code_enum' trait.
+//@PURPOSE: Provide a compliant standard `is_error_code_enum` trait.
 //
 //@CLASSES:
-//  bsl::is_error_code_enum: standard compliant version of 'is_error_code_enum'
+//  bsl::is_error_code_enum: standard compliant version of `is_error_code_enum`
 //
 //@MACROS:
 //  BSL_IS_ERROR_CODE_ENUM_NAMESPACE:  namespace to specialize the trait
@@ -18,13 +18,13 @@ BSLS_IDENT("$Id: $")
 //@CANONICAL_HEADER: bsl_system_error.h
 //
 //@DESCRIPTION: This component defines a class template,
-// 'bsl::is_error_code_enum', intended to be specialized for enumeration types
-// that are designated as error codes for the '<system_error>' facility.  In
-// C++11 mode, the vendor-supplied '<system_error>' implementation is used
-// instead, and the corresponding names from 'std' are imported into 'bsl'.
-// This component also defines a macro, 'BSL_IS_ERROR_CODE_ENUM_NAMESPACE', to
+// `bsl::is_error_code_enum`, intended to be specialized for enumeration types
+// that are designated as error codes for the `<system_error>` facility.  In
+// C++11 mode, the vendor-supplied `<system_error>` implementation is used
+// instead, and the corresponding names from `std` are imported into `bsl`.
+// This component also defines a macro, `BSL_IS_ERROR_CODE_ENUM_NAMESPACE`, to
 // be used as the namespace in which to write specializations of
-// 'is_error_code_enum'.
+// `is_error_code_enum`.
 //
 ///Usage
 ///-----
@@ -34,31 +34,31 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - -
 // Suppose we have a dedicated system with a set of possible errors, and we
 // want to be able to throw descriptive exceptions when an error occurs.  We
-// need to work with the '<system_error>' facility to support this, starting by
+// need to work with the `<system_error>` facility to support this, starting by
 // marking the enumeration type that defines the error literals as eligible to
-// participate.  We can use 'bsl::is_error_code_enum' to do this.
+// participate.  We can use `bsl::is_error_code_enum` to do this.
 //
 // First, we define the set of error values for our system.
-//..
-//  struct CarError {
-//      // TYPES
-//      enum Enum {
-//          k_CAR_WHEELS_CAME_OFF = 1,
-//          k_CAR_ENGINE_FELL_OUT = 2
-//      };
-//  };
-//..
+// ```
+// struct CarError {
+//     // TYPES
+//     enum Enum {
+//         k_CAR_WHEELS_CAME_OFF = 1,
+//         k_CAR_ENGINE_FELL_OUT = 2
+//     };
+// };
+// ```
 // Then, we enable the trait marking this as an error code.
-//..
-//  namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
-//  template <> struct is_error_code_enum<CarError::Enum>
-//  : bsl::public true_type { };
-//  }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
-//..
+// ```
+// namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
+// template <> struct is_error_code_enum<CarError::Enum>
+// : bsl::public true_type { };
+// }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
+// ```
 // Finally, we verify that the trait marks our type as eligible.
-//..
-//  assert(is_error_code_enum<CarError::Enum>::value);
-//..
+// ```
+// assert(is_error_code_enum<CarError::Enum>::value);
+// ```
 
 #include <bslscm_version.h>
 

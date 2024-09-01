@@ -18,66 +18,66 @@ BSLS_IDENT("$Id: $")
 // underlying type.  Such primitives are exceptionally useful for implementing
 // generic components such as containers.  There are six families of
 // algorithms, each with a collection of overloads:
-//..
-//  Algorithm           Forwards to (depending on traits)
-//  ----------------    ------------------------------------------------
-//  defaultConstruct    Default constructor, with or without allocator
+// ```
+// Algorithm           Forwards to (depending on traits)
+// ----------------    ------------------------------------------------
+// defaultConstruct    Default constructor, with or without allocator
 //
-//  copyConstruct       Copy constructor, with or without allocator,
-//                        or bitwise copy if appropriate
+// copyConstruct       Copy constructor, with or without allocator,
+//                       or bitwise copy if appropriate
 //
-//  moveConstruct       Move constructor, with or without allocator,
-//                        or bitwise copy if appropriate.  In C++03 mode,
-//                        behavior is the same as 'copyConstruct'.
+// moveConstruct       Move constructor, with or without allocator,
+//                       or bitwise copy if appropriate.  In C++03 mode,
+//                       behavior is the same as 'copyConstruct'.
 //
-//  destructiveMove     Move construction followed by destruction of the
-//                        original, with or without allocator,
-//                        or bitwise copy if appropriate
+// destructiveMove     Move construction followed by destruction of the
+//                       original, with or without allocator,
+//                       or bitwise copy if appropriate
 //
-//  construct           In-place construction (using variadic template
-//                        arguments, simulated by overloads), with
-//                        or without allocator
+// construct           In-place construction (using variadic template
+//                       arguments, simulated by overloads), with
+//                       or without allocator
 //
-//  swap                Three way assignment, or bitwise swap
-//..
+// swap                Three way assignment, or bitwise swap
+// ```
 // The traits under consideration by this component are:
-//..
-//  Trait                                         Description
-//  --------------------------------------------  -----------------------------
-//  bsl::is_trivially_default_constructible       "TYPE has the trivial default
-//                                                constructor trait", or
-//                                                "TYPE has a trivial default
-//                                                constructor"
+// ```
+// Trait                                         Description
+// --------------------------------------------  -----------------------------
+// bsl::is_trivially_default_constructible       "TYPE has the trivial default
+//                                               constructor trait", or
+//                                               "TYPE has a trivial default
+//                                               constructor"
 //
-//  bslmf::IsBitwiseCopyable                      "TYPE has the bit-wise
-//                                                copyable trait", or
-//                                                "TYPE is bit-wise copyable"
-//                                                (implies that it has a
-//                                                trivial destructor too)
+// bslmf::IsBitwiseCopyable                      "TYPE has the bit-wise
+//                                               copyable trait", or
+//                                               "TYPE is bit-wise copyable"
+//                                               (implies that it has a
+//                                               trivial destructor too)
 //
-//  bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
-//                                                moveable trait", or
-//                                                "TYPE is bit-wise moveable"
+// bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
+//                                               moveable trait", or
+//                                               "TYPE is bit-wise moveable"
 //
-//  bslma::UsesBslmaAllocator                     "the 'TYPE' constructor takes
-//                                                an allocator argument", or
-//                                                "'TYPE' supports 'bslma'
-//                                                allocators"
+// bslma::UsesBslmaAllocator                     "the 'TYPE' constructor takes
+//                                               an allocator argument", or
+//                                               "'TYPE' supports 'bslma'
+//                                               allocators"
 //
-//  bslmf::UsesAllocatorArgT                      "the 'TYPE' constructor takes
-//                                                an allocator argument", and
-//                                                optionally passes allocators
-//                                                as the first two arguments to
-//                                                each constructor, where the
-//                                                tag type 'allocator_arg_t' is
-//                                                first, and the allocator type
-//                                                is second.
-//..
+// bslmf::UsesAllocatorArgT                      "the 'TYPE' constructor takes
+//                                               an allocator argument", and
+//                                               optionally passes allocators
+//                                               as the first two arguments to
+//                                               each constructor, where the
+//                                               tag type 'allocator_arg_t' is
+//                                               first, and the allocator type
+//                                               is second.
+// ```
 //
 ///Usage
 ///-----
-// This component is for use primarily by the 'bslstl' package.  Other clients
-// should use the STL algorithms provided in '<algorithm>' and '<memory>'.
+// This component is for use primarily by the `bslstl` package.  Other clients
+// should use the STL algorithms provided in `<algorithm>` and `<memory>`.
 
 #include <bslscm_version.h>
 
@@ -124,12 +124,12 @@ struct ScalarPrimitives_Imp;
                        // struct ScalarPrimitives
                        // =======================
 
+/// This `struct` provides a namespace for a suite of utility functions that
+/// operate on elements of a parameterized type `TARGET_TYPE`.  If any of
+/// the `...Construct` methods throws, then its target `address` is left
+/// uninitialized and there are no effects, unless otherwise mentioned in
+/// the documentation.
 struct ScalarPrimitives {
-    // This 'struct' provides a namespace for a suite of utility functions that
-    // operate on elements of a parameterized type 'TARGET_TYPE'.  If any of
-    // the '...Construct' methods throws, then its target 'address' is left
-    // uninitialized and there are no effects, unless otherwise mentioned in
-    // the documentation.
 
   private:
     // PRIVATE TYPES
@@ -137,23 +137,33 @@ struct ScalarPrimitives {
 
   public:
     // CLASS METHODS
+
+    /// Build a default-initialized object of the parameterized
+    /// `TARGET_TYPE` in the uninitialized memory at the specified
+    /// `address`, as if by using the `TARGET_TYPE` default constructor.  If
+    /// the specified `allocator` is based on `bslma::Allocator` and
+    /// `TARGET_TYPE` takes an allocator constructor argument, then
+    /// `allocator` is passed to the default constructor.  If the
+    /// constructor throws, the `address` is left in an uninitialized state.
+    /// Note that this operation may bypass the constructor and simply fill
+    /// memory with 0 if `TARGET_TYPE` has the trivial default constructor
+    /// trait and does not use `bslma::Allocator`.
     template <class TARGET_TYPE>
     static void defaultConstruct(TARGET_TYPE      *address,
                                  bslma::Allocator *allocator);
     template <class TARGET_TYPE>
     static void defaultConstruct(TARGET_TYPE *address,
                                  void        *allocator);
-        // Build a default-initialized object of the parameterized
-        // 'TARGET_TYPE' in the uninitialized memory at the specified
-        // 'address', as if by using the 'TARGET_TYPE' default constructor.  If
-        // the specified 'allocator' is based on 'bslma::Allocator' and
-        // 'TARGET_TYPE' takes an allocator constructor argument, then
-        // 'allocator' is passed to the default constructor.  If the
-        // constructor throws, the 'address' is left in an uninitialized state.
-        // Note that this operation may bypass the constructor and simply fill
-        // memory with 0 if 'TARGET_TYPE' has the trivial default constructor
-        // trait and does not use 'bslma::Allocator'.
 
+    /// Build an object of the parameterized `TARGET_TYPE` from the
+    /// specified `original` object of the same `TARGET_TYPE` in the
+    /// uninitialized memory at the specified `address`, as if by using the
+    /// copy constructor of `TARGET_TYPE`.  If the specified `allocator` is
+    /// based on `bslma::Allocator` and `TARGET_TYPE` takes an allocator
+    /// constructor argument, then `allocator` is passed to the copy
+    /// constructor.  If the constructor throws, the `address` is left in an
+    /// uninitialized state.  Note that bit-wise copy will be used if
+    /// `TARGET_TYPE` has the bit-wise copyable trait.
     template <class TARGET_TYPE>
     static void copyConstruct(TARGET_TYPE        *address,
                               const TARGET_TYPE&  original,
@@ -162,16 +172,18 @@ struct ScalarPrimitives {
     static void copyConstruct(TARGET_TYPE        *address,
                               const TARGET_TYPE&  original,
                               void               *allocator);
-        // Build an object of the parameterized 'TARGET_TYPE' from the
-        // specified 'original' object of the same 'TARGET_TYPE' in the
-        // uninitialized memory at the specified 'address', as if by using the
-        // copy constructor of 'TARGET_TYPE'.  If the specified 'allocator' is
-        // based on 'bslma::Allocator' and 'TARGET_TYPE' takes an allocator
-        // constructor argument, then 'allocator' is passed to the copy
-        // constructor.  If the constructor throws, the 'address' is left in an
-        // uninitialized state.  Note that bit-wise copy will be used if
-        // 'TARGET_TYPE' has the bit-wise copyable trait.
 
+    /// Build an object of the parameterized `TARGET_TYPE` from the
+    /// specified `original` object of the same `TARGET_TYPE` in the
+    /// uninitialized memory at the specified `address`, as if by using the
+    /// move constructor of `TARGET_TYPE`.  If the specified `allocator` is
+    /// based on `bslma::Allocator` and `TARGET_TYPE` takes an allocator
+    /// constructor argument, then `allocator` is passed to the move
+    /// constructor.  If the constructor throws, the `address` is left in
+    /// an uninitialized state.  Note that bit-wise copy will be used if
+    /// `TARGET_TYPE` has the bit-wise copyable trait (not the bit-wise
+    /// moveable trait, which indicates a destructive bit-wise move).  In
+    /// C++03 mode, `moveConstruct` has the same effect as `copyConstruct`.
     template <class TARGET_TYPE>
     static void moveConstruct(TARGET_TYPE        *address,
                               TARGET_TYPE&        original,
@@ -180,39 +192,37 @@ struct ScalarPrimitives {
     static void moveConstruct(TARGET_TYPE        *address,
                               TARGET_TYPE&        original,
                               void               *allocator);
-        // Build an object of the parameterized 'TARGET_TYPE' from the
-        // specified 'original' object of the same 'TARGET_TYPE' in the
-        // uninitialized memory at the specified 'address', as if by using the
-        // move constructor of 'TARGET_TYPE'.  If the specified 'allocator' is
-        // based on 'bslma::Allocator' and 'TARGET_TYPE' takes an allocator
-        // constructor argument, then 'allocator' is passed to the move
-        // constructor.  If the constructor throws, the 'address' is left in
-        // an uninitialized state.  Note that bit-wise copy will be used if
-        // 'TARGET_TYPE' has the bit-wise copyable trait (not the bit-wise
-        // moveable trait, which indicates a destructive bit-wise move).  In
-        // C++03 mode, 'moveConstruct' has the same effect as 'copyConstruct'.
 
+    /// Move the state of the object of the parameterized `TARGET_TYPE` from
+    /// the object at the specified `original` address to the uninitialized
+    /// memory at the specified `address`, as if by move constructing and
+    /// then destroying the original.  If the parameterized `ALLOCATOR` is
+    /// based on `bslma::Allocator` and `TARGET_TYPE` takes an allocator
+    /// constructor argument, then the moved object uses the specified
+    /// `allocator` to supply memory.  If the move constructor throws, the
+    /// `address` is left in an uninitialized state and the `original` is
+    /// left unchanged.  The behavior is undefined unless the `original`
+    /// object also uses the `allocator`.  Note that bit-wise copy will be
+    /// used and `allocator` will be ignored if TARGET_TYPE' has the
+    /// bit-wise moveable trait.  Note that, if `ALLOCATOR` is not based on
+    /// `bslma::Allocator`, then the `allocator` argument is ignored; the
+    /// allocator used by the resulting object at `address` might or might
+    /// not be the same as the allocator used by `original`, depending on
+    /// whether `TARGET_TYPE` has a move constructor (C++11).
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(TARGET_TYPE *address,
                                 TARGET_TYPE *original,
                                 ALLOCATOR   *allocator);
-        // Move the state of the object of the parameterized 'TARGET_TYPE' from
-        // the object at the specified 'original' address to the uninitialized
-        // memory at the specified 'address', as if by move constructing and
-        // then destroying the original.  If the parameterized 'ALLOCATOR' is
-        // based on 'bslma::Allocator' and 'TARGET_TYPE' takes an allocator
-        // constructor argument, then the moved object uses the specified
-        // 'allocator' to supply memory.  If the move constructor throws, the
-        // 'address' is left in an uninitialized state and the 'original' is
-        // left unchanged.  The behavior is undefined unless the 'original'
-        // object also uses the 'allocator'.  Note that bit-wise copy will be
-        // used and 'allocator' will be ignored if TARGET_TYPE' has the
-        // bit-wise moveable trait.  Note that, if 'ALLOCATOR' is not based on
-        // 'bslma::Allocator', then the 'allocator' argument is ignored; the
-        // allocator used by the resulting object at 'address' might or might
-        // not be the same as the allocator used by 'original', depending on
-        // whether 'TARGET_TYPE' has a move constructor (C++11).
 
+    /// Build an object of the parameterized `TARGET_TYPE` in the
+    /// uninitialized memory at the specified `address`.  Use the
+    /// `TARGET_TYPE` constructor `TARGET_TYPE(ARG1 const&, ...)` taking the
+    /// specified `a1` up to `a14` arguments of the respective parameterized
+    /// `ARG1` up to `ARG14` types.  If the specified `allocator` is based
+    /// on `bslma::Allocator` and `TARGET_TYPE` takes an allocator
+    /// constructor argument, then `allocator` is passed to the
+    /// `TARGET_TYPE` constructor in the manner appropriate to the traits
+    /// `bslmf::UsesAllocatorArgT` and `blsma::UsesBslmaAllocator`.
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator);
@@ -573,62 +583,53 @@ struct ScalarPrimitives {
                           const ARG13&  a13,
                           const ARG14&  a14,
                           void         *allocator);
-        // Build an object of the parameterized 'TARGET_TYPE' in the
-        // uninitialized memory at the specified 'address'.  Use the
-        // 'TARGET_TYPE' constructor 'TARGET_TYPE(ARG1 const&, ...)' taking the
-        // specified 'a1' up to 'a14' arguments of the respective parameterized
-        // 'ARG1' up to 'ARG14' types.  If the specified 'allocator' is based
-        // on 'bslma::Allocator' and 'TARGET_TYPE' takes an allocator
-        // constructor argument, then 'allocator' is passed to the
-        // 'TARGET_TYPE' constructor in the manner appropriate to the traits
-        // 'bslmf::UsesAllocatorArgT' and 'blsma::UsesBslmaAllocator'.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    /// **DEPRECATED**: Use `bslma::DestructionUtil::destroy` without an
+    /// allocator argument instead.
+    ///
+    /// Destroy the specified `object` of the parameterized `TARGET_TYPE`,
+    /// as if by calling the `TARGET_TYPE` destructor, but do not deallocate
+    /// the memory occupied by `object`.  Note that the destructor may
+    /// deallocate other memory owned by `object`.  Also note that this
+    /// function is a no-op if the `TARGET_TYPE` has the trivial destructor
+    /// trait.  Further note that the specified `allocator` is not used.
     template <class TARGET_TYPE>
     static void destruct(TARGET_TYPE *object,
                          void        *allocator);
-        // !DEPRECATED!: Use 'bslma::DestructionUtil::destroy' without an
-        // allocator argument instead.
-        //
-        // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
-        // as if by calling the 'TARGET_TYPE' destructor, but do not deallocate
-        // the memory occupied by 'object'.  Note that the destructor may
-        // deallocate other memory owned by 'object'.  Also note that this
-        // function is a no-op if the 'TARGET_TYPE' has the trivial destructor
-        // trait.  Further note that the specified 'allocator' is not used.
 
+    /// **DEPRECATED**: Use `bslma::DestructionUtil::destroy` instead.
+    ///
+    /// Destroy the specified `object` of the parameterized `TARGET_TYPE`,
+    /// as if by calling the `TARGET_TYPE` destructor, but do not deallocate
+    /// the memory occupied by `object`.  Note that the destructor may
+    /// deallocate other memory owned by `object`.  Also note that this
+    /// function is a no-op if the `TARGET_TYPE` has the trivial destructor
+    /// trait.
     template <class TARGET_TYPE>
     static void destruct(TARGET_TYPE *object);
-        // !DEPRECATED!: Use 'bslma::DestructionUtil::destroy' instead.
-        //
-        // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
-        // as if by calling the 'TARGET_TYPE' destructor, but do not deallocate
-        // the memory occupied by 'object'.  Note that the destructor may
-        // deallocate other memory owned by 'object'.  Also note that this
-        // function is a no-op if the 'TARGET_TYPE' has the trivial destructor
-        // trait.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+    /// Swap the contents of the specified `lhs` of the parameterized
+    /// `LHS_TYPE` with those of the specified `rhs` of the parameterized
+    /// `RHS_TYPE`.  Note that, if `LHS_TYPE` and `RHS_TYPE` are the same
+    /// type and that type has the bit-wise moveable trait but does not use
+    /// `bslma` allocators, the swap can be performed using a three-way
+    /// bit-wise move.
     template <class LHS_TYPE, class RHS_TYPE>
     static void swap(LHS_TYPE& lhs, RHS_TYPE& rhs);
-        // Swap the contents of the specified 'lhs' of the parameterized
-        // 'LHS_TYPE' with those of the specified 'rhs' of the parameterized
-        // 'RHS_TYPE'.  Note that, if 'LHS_TYPE' and 'RHS_TYPE' are the same
-        // type and that type has the bit-wise moveable trait but does not use
-        // 'bslma' allocators, the swap can be performed using a three-way
-        // bit-wise move.
 };
 
                      // ===========================
                      // struct ScalarPrimitives_Imp
                      // ===========================
 
+/// This `struct` provides a namespace for a suite of utility functions that
+/// operate on arrays of elements of a parameterized type `TARGET_TYPE`.
+/// These utility functions are only for the purpose of implementing those
+/// in the `ScalarPrimitives` utility, and should not be used outside this
+/// component.
 struct ScalarPrimitives_Imp {
-    // This 'struct' provides a namespace for a suite of utility functions that
-    // operate on arrays of elements of a parameterized type 'TARGET_TYPE'.
-    // These utility functions are only for the purpose of implementing those
-    // in the 'ScalarPrimitives' utility, and should not be used outside this
-    // component.
 
     enum {
         // These constants are used in the overloads below, when the last
@@ -645,12 +646,20 @@ struct ScalarPrimitives_Imp {
     };
 
     // CLASS METHODS
+
+    /// Return the `const`-unqualified value of the specified `pointer`.
+    /// This function resolves into a `const_cast` and therefore has no
+    /// runtime cost, it exists only for template argument deduction.
     template <class TARGET_TYPE>
     static TARGET_TYPE *unconst(const TARGET_TYPE *pointer);
-        // Return the 'const'-unqualified value of the specified 'pointer'.
-        // This function resolves into a 'const_cast' and therefore has no
-        // runtime cost, it exists only for template argument deduction.
 
+    /// Build a `TARGET_TYPE` object in a default state in the uninitialized
+    /// memory at the specified `address`, using the specified `allocator`
+    /// to supply memory if `TARGET_TYPE` uses `bslma` allocators.  Use the
+    /// default constructor of the parameterized `TARGET_TYPE`, or `memset`
+    /// to 0 if `TARGET_TYPE` has a trivial default constructor.  The last
+    /// argument is for traits overloading resolution only and its value is
+    /// ignored.
     template <class TARGET_TYPE>
     static void defaultConstruct(
                  TARGET_TYPE                                        *address,
@@ -670,14 +679,12 @@ struct ScalarPrimitives_Imp {
     static void defaultConstruct(TARGET_TYPE                        *address,
                                  bslma::Allocator                   *allocator,
                                  bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Build a 'TARGET_TYPE' object in a default state in the uninitialized
-        // memory at the specified 'address', using the specified 'allocator'
-        // to supply memory if 'TARGET_TYPE' uses 'bslma' allocators.  Use the
-        // default constructor of the parameterized 'TARGET_TYPE', or 'memset'
-        // to 0 if 'TARGET_TYPE' has a trivial default constructor.  The last
-        // argument is for traits overloading resolution only and its value is
-        // ignored.
 
+    /// Build a `TARGET_TYPE` object in a default state in the uninitialized
+    /// memory at the specified `address`.  Use the default constructor of
+    /// the parameterized `TARGET_TYPE`, or `memset` to 0 if `TARGET_TYPE`
+    /// has a trivial default constructor.  The last argument is for traits
+    /// overloading resolution only and its value is ignored.
     template <class TARGET_TYPE>
     static void defaultConstruct(
              TARGET_TYPE                                              *address,
@@ -685,12 +692,15 @@ struct ScalarPrimitives_Imp {
     template <class TARGET_TYPE>
     static void defaultConstruct(TARGET_TYPE                          *address,
                                  bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Build a 'TARGET_TYPE' object in a default state in the uninitialized
-        // memory at the specified 'address'.  Use the default constructor of
-        // the parameterized 'TARGET_TYPE', or 'memset' to 0 if 'TARGET_TYPE'
-        // has a trivial default constructor.  The last argument is for traits
-        // overloading resolution only and its value is ignored.
 
+    /// Build in the uninitialized memory at the specified `address` an
+    /// object of the parameterized `TARGET_TYPE` that is a copy of the
+    /// specified `original` object of the same `TARGET_TYPE`, using the
+    /// specified `allocator` to supply memory.  Use the copy constructor of
+    /// the `TARGET_TYPE`, or a bit-wise copy if `TARGET_TYPE` is a bit-wise
+    /// copyable type.  The last argument is for traits overloading
+    /// resolution only and its value is ignored.  Note that a bit-wise copy
+    /// is appropriate only if `TARGET_TYPE` does not take allocators.
     template <class TARGET_TYPE>
     static void copyConstruct(
                  TARGET_TYPE                                        *address,
@@ -714,15 +724,15 @@ struct ScalarPrimitives_Imp {
                               const TARGET_TYPE&                     original,
                               bslma::Allocator                      *allocator,
                               bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Build in the uninitialized memory at the specified 'address' an
-        // object of the parameterized 'TARGET_TYPE' that is a copy of the
-        // specified 'original' object of the same 'TARGET_TYPE', using the
-        // specified 'allocator' to supply memory.  Use the copy constructor of
-        // the 'TARGET_TYPE', or a bit-wise copy if 'TARGET_TYPE' is a bit-wise
-        // copyable type.  The last argument is for traits overloading
-        // resolution only and its value is ignored.  Note that a bit-wise copy
-        // is appropriate only if 'TARGET_TYPE' does not take allocators.
 
+    /// Build in the uninitialized memory at the specified `address` an
+    /// object of the parameterized `TARGET_TYPE` that is a copy of the
+    /// specified `original` object of the same `TARGET_TYPE`.  Use the copy
+    /// constructor of the `TARGET_TYPE`, or a bit-wise copy if
+    /// `TARGET_TYPE` is a bit-wise copyable type.  The last argument is for
+    /// traits overloading resolution only and its value is ignored.  Note
+    /// that a bit-wise copy is appropriate only if `TARGET_TYPE` does not
+    /// take allocators.
     template <class TARGET_TYPE>
     static void copyConstruct(
                      TARGET_TYPE                                     *address,
@@ -732,15 +742,18 @@ struct ScalarPrimitives_Imp {
     static void copyConstruct(TARGET_TYPE                            *address,
                               const TARGET_TYPE&                      original,
                               bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Build in the uninitialized memory at the specified 'address' an
-        // object of the parameterized 'TARGET_TYPE' that is a copy of the
-        // specified 'original' object of the same 'TARGET_TYPE'.  Use the copy
-        // constructor of the 'TARGET_TYPE', or a bit-wise copy if
-        // 'TARGET_TYPE' is a bit-wise copyable type.  The last argument is for
-        // traits overloading resolution only and its value is ignored.  Note
-        // that a bit-wise copy is appropriate only if 'TARGET_TYPE' does not
-        // take allocators.
 
+    /// Build in the uninitialized memory at the specified `address` an
+    /// object of the parameterized `TARGET_TYPE` that is a move of the
+    /// specified `original` object of the same `TARGET_TYPE`, using the
+    /// specified `allocator` to supply memory.  Use the move constructor
+    /// of the `TARGET_TYPE`, or a bit-wise copy if `TARGET_TYPE` is a
+    /// bit-wise copyable type (not a bit-wise moveable type, which
+    /// indicates a destructive bit-wise move).  The last argument is for
+    /// traits overloading resolution only and its value is ignored.  Note
+    /// that a bit-wise copy is used only if `TARGET_TYPE` does not take
+    /// allocators.  In C++03 mode, `moveConstruct` has the same effect as
+    /// `copyConstruct`.
     template <class TARGET_TYPE>
     static void moveConstruct(
                  TARGET_TYPE                                        *address,
@@ -764,18 +777,16 @@ struct ScalarPrimitives_Imp {
                               TARGET_TYPE&                           original,
                               bslma::Allocator                      *allocator,
                               bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Build in the uninitialized memory at the specified 'address' an
-        // object of the parameterized 'TARGET_TYPE' that is a move of the
-        // specified 'original' object of the same 'TARGET_TYPE', using the
-        // specified 'allocator' to supply memory.  Use the move constructor
-        // of the 'TARGET_TYPE', or a bit-wise copy if 'TARGET_TYPE' is a
-        // bit-wise copyable type (not a bit-wise moveable type, which
-        // indicates a destructive bit-wise move).  The last argument is for
-        // traits overloading resolution only and its value is ignored.  Note
-        // that a bit-wise copy is used only if 'TARGET_TYPE' does not take
-        // allocators.  In C++03 mode, 'moveConstruct' has the same effect as
-        // 'copyConstruct'.
 
+    /// Build in the uninitialized memory at the specified `address` an
+    /// object of the parameterized `TARGET_TYPE` that is a move of the
+    /// specified `original` object of the same `TARGET_TYPE`.  Use the move
+    /// constructor of the `TARGET_TYPE`, or a bit-wise copy if
+    /// `TARGET_TYPE` is a bit-wise copyable type (bit-wise copyable, NOT
+    /// bit-wise moveable, which relates to destructive bit-wise move).  The
+    /// last argument is for traits overloading resolution only and its
+    /// value is ignored.  In C++03 mode, `moveConstruct` has the same
+    /// effect as `copyConstruct`.
     template <class TARGET_TYPE>
     static void moveConstruct(
                      TARGET_TYPE                                     *address,
@@ -785,16 +796,14 @@ struct ScalarPrimitives_Imp {
     static void moveConstruct(TARGET_TYPE                            *address,
                               TARGET_TYPE&                            original,
                               bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Build in the uninitialized memory at the specified 'address' an
-        // object of the parameterized 'TARGET_TYPE' that is a move of the
-        // specified 'original' object of the same 'TARGET_TYPE'.  Use the move
-        // constructor of the 'TARGET_TYPE', or a bit-wise copy if
-        // 'TARGET_TYPE' is a bit-wise copyable type (bit-wise copyable, NOT
-        // bit-wise moveable, which relates to destructive bit-wise move).  The
-        // last argument is for traits overloading resolution only and its
-        // value is ignored.  In C++03 mode, 'moveConstruct' has the same
-        // effect as 'copyConstruct'.
 
+    /// Build a copy of the specified `original` in the uninitialized memory
+    /// at the specified `address`.  Use the copy constructor of the
+    /// parameterized `TARGET_TYPE` (or a bit-wise copy if `TARGET_TYPE` is
+    /// bit-wise moveable).  If `TARGET_TYPE` is not bit-wise moveable, also
+    /// destroy the `original`.  The last argument is for traits overloading
+    /// resolution only and its value is ignored.  Note that the specified
+    /// `allocator` is not used.
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(
                      TARGET_TYPE                                    *address,
@@ -806,28 +815,29 @@ struct ScalarPrimitives_Imp {
                                 TARGET_TYPE                         *original,
                                 ALLOCATOR                           *allocator,
                                 bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Build a copy of the specified 'original' in the uninitialized memory
-        // at the specified 'address'.  Use the copy constructor of the
-        // parameterized 'TARGET_TYPE' (or a bit-wise copy if 'TARGET_TYPE' is
-        // bit-wise moveable).  If 'TARGET_TYPE' is not bit-wise moveable, also
-        // destroy the 'original'.  The last argument is for traits overloading
-        // resolution only and its value is ignored.  Note that the specified
-        // 'allocator' is not used.
 
+    /// Build an object from the specified `a1` in the uninitialized memory
+    /// at the specified `address`.  The specified `allocator` is ignored.
+    /// Use the parameterized `TARGET_TYPE` constructor with the signature
+    /// `TARGET_TYPE(ARG1 const&)` or bitwise copy for non-fundamental
+    /// types.  The traits argument is for overloading resolution only and
+    /// is ignored.  Note that this function is called only when `ARG1` is
+    /// the same as `TARGET_TYPE`.
     template <class TARGET_TYPE, class ARG1>
     static void construct(
                      TARGET_TYPE                                    *address,
                      const ARG1&                                     a1,
                      bslma::Allocator                               *allocator,
                      bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *);
-        // Build an object from the specified 'a1' in the uninitialized memory
-        // at the specified 'address'.  The specified 'allocator' is ignored.
-        // Use the parameterized 'TARGET_TYPE' constructor with the signature
-        // 'TARGET_TYPE(ARG1 const&)' or bitwise copy for non-fundamental
-        // types.  The traits argument is for overloading resolution only and
-        // is ignored.  Note that this function is called only when 'ARG1' is
-        // the same as 'TARGET_TYPE'.
 
+    /// Build an object of the parameterized `TARGET_TYPE` in the
+    /// uninitialized memory at the specified `address`, passing the
+    /// specified `a1` up to `a14` arguments of the corresponding
+    /// parameterized `ARG1` up to `ARG14` types to the `TARGET_TYPE`
+    /// constructor with the signature 'TARGET_TYPE(bsl::allocator_arg_t,
+    /// bslma::Allocator *, const ARG1&, ...)', and pass the specified
+    /// `allocator` as the second argument.  The last argument is for
+    /// overloading resolution only and its value is ignored.
     template <class TARGET_TYPE>
     static void construct(
                  TARGET_TYPE                                        *address,
@@ -1038,15 +1048,15 @@ struct ScalarPrimitives_Imp {
                  const ARG14&                                        a14,
                  bslma::Allocator                                   *allocator,
                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *);
-        // Build an object of the parameterized 'TARGET_TYPE' in the
-        // uninitialized memory at the specified 'address', passing the
-        // specified 'a1' up to 'a14' arguments of the corresponding
-        // parameterized 'ARG1' up to 'ARG14' types to the 'TARGET_TYPE'
-        // constructor with the signature 'TARGET_TYPE(bsl::allocator_arg_t,
-        // bslma::Allocator *, const ARG1&, ...)', and pass the specified
-        // 'allocator' as the second argument.  The last argument is for
-        // overloading resolution only and its value is ignored.
 
+    /// Build an object of the parameterized `TARGET_TYPE` in the
+    /// uninitialized memory at the specified `address`, passing the
+    /// specified `a1` up to `a14` arguments of the corresponding
+    /// parameterized `ARG1` up to `ARG14` types to the `TARGET_TYPE`
+    /// constructor with the signature
+    /// `TARGET_TYPE(ARG1 const&, ..., bslma::Allocator *)`, and pass the
+    /// specified `allocator` in the last position.  The last argument is
+    /// for overloading resolution only and its value is ignored.
     template <class TARGET_TYPE>
     static void construct(
                  TARGET_TYPE                                        *address,
@@ -1257,15 +1267,15 @@ struct ScalarPrimitives_Imp {
                  const ARG14&                                        a14,
                  bslma::Allocator                                   *allocator,
                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *);
-        // Build an object of the parameterized 'TARGET_TYPE' in the
-        // uninitialized memory at the specified 'address', passing the
-        // specified 'a1' up to 'a14' arguments of the corresponding
-        // parameterized 'ARG1' up to 'ARG14' types to the 'TARGET_TYPE'
-        // constructor with the signature
-        // 'TARGET_TYPE(ARG1 const&, ..., bslma::Allocator *)', and pass the
-        // specified 'allocator' in the last position.  The last argument is
-        // for overloading resolution only and its value is ignored.
 
+    /// Build an object of the parameterized `TARGET_TYPE` in the
+    /// uninitialized memory at the specified `address`, passing the
+    /// specified `a1` up to `a14` arguments of the corresponding
+    /// parameterized `ARG1` up to `ARG14` types to the `TARGET_TYPE`
+    /// constructor with the signature `TARGET_TYPE(ARG1 const&, ...)`.  The
+    /// specified `allocator` is *not* passed through to the `TARGET_TYPE`
+    /// constructor.  The last argument is for overloading resolution only
+    /// and is ignored.
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE                               *address,
                           bslma::Allocator                          *allocator,
@@ -1461,15 +1471,14 @@ struct ScalarPrimitives_Imp {
                           const ARG14&                               a14,
                           bslma::Allocator                          *allocator,
                           bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Build an object of the parameterized 'TARGET_TYPE' in the
-        // uninitialized memory at the specified 'address', passing the
-        // specified 'a1' up to 'a14' arguments of the corresponding
-        // parameterized 'ARG1' up to 'ARG14' types to the 'TARGET_TYPE'
-        // constructor with the signature 'TARGET_TYPE(ARG1 const&, ...)'.  The
-        // specified 'allocator' is *not* passed through to the 'TARGET_TYPE'
-        // constructor.  The last argument is for overloading resolution only
-        // and is ignored.
 
+    /// Swap the contents of the specified `lhs` object of the parameterized
+    /// `LHS_TYPE` with the specified `rhs` object of the parameterized
+    /// `RHS_TYPE`.  Use a three-way bit-wise copy (with a temporary
+    /// uninitialized buffer), if `LHS_TYPE` and `RHS_TYPE` are the same
+    /// bit-wise moveable type, and a three-way assignment with a temporary
+    /// if not.  The last argument is for overloading resolution only and is
+    /// ignored.
     template <class LHS_TYPE, class RHS_TYPE>
     static void swap(LHS_TYPE&                                             lhs,
                      RHS_TYPE&                                             rhs,
@@ -1478,13 +1487,6 @@ struct ScalarPrimitives_Imp {
     static void swap(LHS_TYPE&                                  lhs,
                      RHS_TYPE&                                  rhs,
                      bsl::integral_constant<int, e_NIL_TRAITS> *);
-        // Swap the contents of the specified 'lhs' object of the parameterized
-        // 'LHS_TYPE' with the specified 'rhs' object of the parameterized
-        // 'RHS_TYPE'.  Use a three-way bit-wise copy (with a temporary
-        // uninitialized buffer), if 'LHS_TYPE' and 'RHS_TYPE' are the same
-        // bit-wise moveable type, and a three-way assignment with a temporary
-        // if not.  The last argument is for overloading resolution only and is
-        // ignored.
 };
 
 // ============================================================================
@@ -3822,8 +3824,8 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&                   lhs,
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslalg::ScalarPrimitives bslalg_ScalarPrimitives;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

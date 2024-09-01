@@ -12,10 +12,10 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the PowerPC platform in 32bit/64bit mode with the GCC compiler.  The
-// classes are for private use only.  See 'bsls_atomicoperations' and
-// 'bsls_atomic' for the public interface to atomics.
+// classes are for private use only.  See `bsls_atomicoperations` and
+// `bsls_atomic` for the public interface to atomics.
 //
-// 'bsls_atomicoperations_all_all_gccintrinsics.h' is used for gcc 4.7+ and
+// `bsls_atomicoperations_all_all_gccintrinsics.h` is used for gcc 4.7+ and
 // provides C++11 atomics.  The implementation herein is intended for earlier
 // versions of gcc and will work correctly for 64-bit programs, as well as for
 // 32-bit programs on AIX 6 or better, where AIX kernel saves and restores

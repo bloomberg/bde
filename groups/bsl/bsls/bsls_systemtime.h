@@ -12,37 +12,37 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_timeinterval
 //
-//@DESCRIPTION: This component provides a 'struct', 'bsls::SystemTime', in
+//@DESCRIPTION: This component provides a `struct`, `bsls::SystemTime`, in
 // which are defined a series of static methods for retrieving the current
 // system time.  This component provides access to a monotonic clock and a
 // real-time (wall) clock.
 //
 ///Reference Time Point
 ///--------------------
-// The 'bsls::TimeInterval' objects returned by functions in this component
+// The `bsls::TimeInterval` objects returned by functions in this component
 // identify a time by providing a time interval from some fixed reference time
-// point (or "epoch").  The clock types supported by 'bsls_systemtime' (see
-// 'bsls_systemclocktype') define a reference time point as described in the
+// point (or "epoch").  The clock types supported by `bsls_systemtime` (see
+// `bsls_systemclocktype`) define a reference time point as described in the
 // table below:
-//..
-//  bsls::SystemClockType::Enum  Reference Time Point
-//  ---------------------------  --------------------
-//  e_REALTIME                   January 1, 1970 00:00.000 UTC (POSIX epoch)
-//  e_MONOTONIC                  platform-dependent
-//..
-// The 'e_MONOTONIC' clock's reference time point is an unspecified,
+// ```
+// bsls::SystemClockType::Enum  Reference Time Point
+// ---------------------------  --------------------
+// e_REALTIME                   January 1, 1970 00:00.000 UTC (POSIX epoch)
+// e_MONOTONIC                  platform-dependent
+// ```
+// The `e_MONOTONIC` clock's reference time point is an unspecified,
 // platform-dependent, value.  This means that the monotonic clock cannot be
 // reliably used to determine the absolute wall clock time.  Monotonic clock
 // times are frequently used to specify a fixed point in the future relative to
 // the current (monotonic) clock time (e.g., for a timed-wait on a condition
 // variable).  Note that the monotonic clock time may be (though certainly is
 // not guaranteed to be) an arbitrary value relative to the process start time,
-// meaning that 'bsls::TimeInterval' values from the monotonic clock should
+// meaning that `bsls::TimeInterval` values from the monotonic clock should
 // *not* be shared between processes.
 //
 ///Thread Safety
 ///-------------
-// The functions provided by 'bsls::SystemTime' are *thread-safe*.
+// The functions provided by `bsls::SystemTime` are *thread-safe*.
 //
 ///Usage
 ///-----
@@ -51,35 +51,35 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Getting Current Wall Clock Time
 /// - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this utility component
-// to obtain the system time by calling 'now' and 'nowRealtimeClock'.
+// to obtain the system time by calling `now` and `nowRealtimeClock`.
 //
-// First, we call 'nowRealtimeClock', and set 't1', to the current time
+// First, we call `nowRealtimeClock`, and set `t1`, to the current time
 // according to the real-time clock:
-//..
-//  bsls::TimeInterval t1 = bsls::SystemTime::nowRealtimeClock();
+// ```
+// bsls::TimeInterval t1 = bsls::SystemTime::nowRealtimeClock();
 //
-//  assert(bsls::TimeInterval() != t1);
-//..
+// assert(bsls::TimeInterval() != t1);
+// ```
 // Next, we sleep for 1 second:
-//..
-//  sleep(1);
-//..
-// Now, we call 'now', and supply 'e_REALTIME' to indicate a real-time clock
-// value should be returned, and then set 't2' to the current time according
+// ```
+// sleep(1);
+// ```
+// Now, we call `now`, and supply `e_REALTIME` to indicate a real-time clock
+// value should be returned, and then set `t2` to the current time according
 // to the real-time clock:
-//..
-//  bsls::TimeInterval t2 = bsls::SystemTime::now(
-//                                          bsls::SystemClockType::e_REALTIME);
+// ```
+// bsls::TimeInterval t2 = bsls::SystemTime::now(
+//                                         bsls::SystemClockType::e_REALTIME);
 //
-//  assert(bsls::TimeInterval() != t2);
-//..
-// Finally, we verify the interval between 't1' and 't2' is close to 1 second:
-//..
-//  bsls::TimeInterval interval = t2 - t1;
+// assert(bsls::TimeInterval() != t2);
+// ```
+// Finally, we verify the interval between `t1` and `t2` is close to 1 second:
+// ```
+// bsls::TimeInterval interval = t2 - t1;
 //
-//  assert(bsls::TimeInterval(.9) <= interval &&
-//                                   interval <= bsls::TimeInterval(1.1));
-//..
+// assert(bsls::TimeInterval(.9) <= interval &&
+//                                  interval <= bsls::TimeInterval(1.1));
+// ```
 
 #include <bsls_assert.h>
 #include <bsls_systemclocktype.h>
@@ -92,29 +92,30 @@ namespace bsls {
                             // struct SystemTime
                             // =================
 
+/// This `struct` provides a namespace for system-time-retrieval functions.
 struct SystemTime {
-    // This 'struct' provides a namespace for system-time-retrieval functions.
 
   public:
     // CLASS METHODS
+
+    /// Return the `TimeInterval` value representing the current system
+    /// time according to the specified `clockType`.  The returned value is
+    /// the time interval between the reference time point defined for the
+    /// supplied `clockType` (see {Reference Time Point}) and the current
+    /// time.
     static TimeInterval now(SystemClockType::Enum clockType);
-        // Return the 'TimeInterval' value representing the current system
-        // time according to the specified 'clockType'.  The returned value is
-        // the time interval between the reference time point defined for the
-        // supplied 'clockType' (see {Reference Time Point}) and the current
-        // time.
 
+    /// Return the `TimeInterval` value representing the current system time
+    /// according to the monotonic clock.  The returned value is the time
+    /// interval between the reference time point for the monotonic clock
+    /// (see {Reference Time Point}) and the current time.
     static TimeInterval nowMonotonicClock();
-        // Return the 'TimeInterval' value representing the current system time
-        // according to the monotonic clock.  The returned value is the time
-        // interval between the reference time point for the monotonic clock
-        // (see {Reference Time Point}) and the current time.
 
+    /// Return the `TimeInterval` value representing the current system time
+    /// according to the real-time clock.  The returned value is the time
+    /// interval between the reference time point for the real-time clock
+    /// (see {Reference Time Point}) and the current time.
     static TimeInterval nowRealtimeClock();
-        // Return the 'TimeInterval' value representing the current system time
-        // according to the real-time clock.  The returned value is the time
-        // interval between the reference time point for the real-time clock
-        // (see {Reference Time Point}) and the current time.
 };
 
 // ============================================================================

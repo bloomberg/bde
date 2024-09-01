@@ -13,15 +13,15 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_removecv, bslmf_removereference
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_cvref',
-// and declares a 'bsl::remove_cvref_t' alias to the return type of the
-// 'bsl::remove_cvref', that may be used to strip reference-ness (including
+//@DESCRIPTION: This component defines a meta-function, `bsl::remove_cvref`,
+// and declares a `bsl::remove_cvref_t` alias to the return type of the
+// `bsl::remove_cvref`, that may be used to strip reference-ness (including
 // both lvalue and rvalue reference-ness, if the latter is supported by the
-// compiler) and to remove any top-level cv-qualifiers ('const'-qualifier and
-// 'volatile'-qualifier) from a type.
+// compiler) and to remove any top-level cv-qualifiers (`const`-qualifier and
+// `volatile`-qualifier) from a type.
 //
-// 'bsl::remove_cvref' and  'bsl::remove_cvref_t' meet the requirements of the
-// 'remove_cvref' template defined in the C++20 standard [meta.trans.other].
+// `bsl::remove_cvref` and  `bsl::remove_cvref_t` meet the requirements of the
+// `remove_cvref` template defined in the C++20 standard [meta.trans.other].
 //
 ///Usage
 ///-----
@@ -31,31 +31,31 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to remove the cv-qualifiers from a particular type.
 //
-// First, we create two 'typedef's -- a 'const'-qualified and
-// 'volatile'-qualified reference type ('MyCvRefType') and the same type
-// without the cv-qualifiers and reference-ness ('MyType'):
-//..
-//      typedef const volatile int& MyCvRefType;
-//      typedef                int  MyType;
-//..
-// Now, we remove the cv-qualifiers from 'MyCvRefType' and its reference-ness
-// using 'bsl::remove_cvref' and verify that the resulting type is the same as
-// 'MyType':
-//..
-//      assert(true == (bsl::is_same<bsl::remove_cvref<MyCvRefType>::type,
-//                                   MyType>::value));
-//..
+// First, we create two `typedef`s -- a `const`-qualified and
+// `volatile`-qualified reference type (`MyCvRefType`) and the same type
+// without the cv-qualifiers and reference-ness (`MyType`):
+// ```
+//     typedef const volatile int& MyCvRefType;
+//     typedef                int  MyType;
+// ```
+// Now, we remove the cv-qualifiers from `MyCvRefType` and its reference-ness
+// using `bsl::remove_cvref` and verify that the resulting type is the same as
+// `MyType`:
+// ```
+//     assert(true == (bsl::is_same<bsl::remove_cvref<MyCvRefType>::type,
+//                                  MyType>::value));
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a 'const'-qualifier, 'volatile'-qualifier and its reference-ness from
-// 'MyCvRefType' using 'bsl::remove_cvref_t' and verify that the resulting type
-// is the same as 'MyType':
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//      assert(
-//          true ==
-//          (bsl::is_same<bsl::remove_cvref_t<MyCvRefType>, MyType>::value));
-//#endif
-//..
+// remove a `const`-qualifier, `volatile`-qualifier and its reference-ness from
+// `MyCvRefType` using `bsl::remove_cvref_t` and verify that the resulting type
+// is the same as `MyType`:
+// ```
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//       assert(
+//           true ==
+//           (bsl::is_same<bsl::remove_cvref_t<MyCvRefType>, MyType>::value));
+// #endif
+// ```
 
 #include <bslscm_version.h>
 

@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //           bslstl_stringstream
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_iosfwd.h>' instead.
+// `<bsl_iosfwd.h>` instead.
 
 #include <bslscm_version.h>
 

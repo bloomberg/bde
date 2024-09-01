@@ -5,31 +5,31 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a (mostly) standard-compliant 'span' class template.
+//@PURPOSE: Provide a (mostly) standard-compliant `span` class template.
 //
 //@CLASSES:
-//  bsl::span: C++03-compliant implementation of 'std::span'.
+//  bsl::span: C++03-compliant implementation of `std::span`.
 //
 //@CANONICAL_HEADER: bsl_span.h
 //
 //@SEE_ALSO: ISO C++ Standard
 //
-//@DESCRIPTION: This component provides the C+20 standard view type 'span',
+//@DESCRIPTION: This component provides the C+20 standard view type `span`,
 // that is a view over a contiguous sequence of objects.  Note that if compiler
-// supports the C++20 standard, then the 'std' implementation of 'span' is
+// supports the C++20 standard, then the `std` implementation of `span` is
 // used.
 //
-// There are two implementations of 'span'; one for 'statically sized' (i. e.,
-//  size fixed at compile time) spans, and 'dynamically sized' (size can be
+// There are two implementations of `span`; one for `statically sized` (i. e.,
+//  size fixed at compile time) spans, and `dynamically sized` (size can be
 //  altered at run-time).
 //
-// 'bsl::span' differs from 'std::span' in the following ways:
-//: o The 'constexpr' inline symbol 'std::dynamic_extent' has been replaced by
-//:   an enumeration for C++03 compatibility.
-//: o A 'bsl::span' can be implicitly constructed from a 'bsl::array'.
-//: o The implicit construction from an arbitrary container that supports
-//:   'data()' and 'size()' is enabled only for C++11 and later.
-//: o bsl::span is implicitly constructible from a bsl::vector in C++03.
+// `bsl::span` differs from `std::span` in the following ways:
+// * The `constexpr` inline symbol `std::dynamic_extent` has been replaced by
+//   an enumeration for C++03 compatibility.
+// * A `bsl::span` can be implicitly constructed from a `bsl::array`.
+// * The implicit construction from an arbitrary container that supports
+//   `data()` and `size()` is enabled only for C++11 and later.
+// * bsl::span is implicitly constructible from a bsl::vector in C++03.
 //
 ///Usage
 ///-----
@@ -37,107 +37,107 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Using Span To Pass A Portion Of An Array As A Container
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we already have an array of values of type 'TYPE', and we want to
+// Suppose we already have an array of values of type `TYPE`, and we want to
 // pass a subset of the array to a function, which is expecting some kind of a
-// container.   We can create a 'span' from the array, and then pass that.
-// Since the span is a 'view' into the array, i.e, the span owns no storage,
+// container.   We can create a `span` from the array, and then pass that.
+// Since the span is a `view` into the array, i.e, the span owns no storage,
 // the elements in the span are the same as the ones in the array.
 //
 // First, we create a template function that takes a generic container.  This
 // function inspects each of the (numeric) values in the container, and if the
 // low bit is set, flips it.  This has the effect of turning odd values into
 // even values.
-//..
-//  template <class CONTAINER>
-//  void MakeEven(CONTAINER &c)
-//      // Make every value in the specified container 'c' even.
-//  {
-//      for (typename CONTAINER::iterator it = c.begin();
-//                                        it != c.end();
-//                                        ++it) {
-//          if (*it & 1) {
-//              *it ^= 1;
-//          }
-//      }
-//  }
-//..
+// ```
+// template <class CONTAINER>
+// void MakeEven(CONTAINER &c)
+//     // Make every value in the specified container 'c' even.
+// {
+//     for (typename CONTAINER::iterator it = c.begin();
+//                                       it != c.end();
+//                                       ++it) {
+//         if (*it & 1) {
+//             *it ^= 1;
+//         }
+//     }
+// }
+// ```
 //  We then create a span, and verify that it contains the values that we
-//  expect, and pass it to 'MakeEven' to modify it.  Afterwards, we check that
+//  expect, and pass it to `MakeEven` to modify it.  Afterwards, we check that
 //  none of the elements in the array that were not included in the span are
 //  unchanged, and the ones in the span were.
-//..
-//  int            arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-//  bsl::span<int> sp(arr + 3, 4);   // 4 elements, starting at 3.
-//  for (int i = 0; i < 10; ++i)
-//  {
-//      assert(arr[i] == i);
-//  }
+// ```
+// int            arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+// bsl::span<int> sp(arr + 3, 4);   // 4 elements, starting at 3.
+// for (int i = 0; i < 10; ++i)
+// {
+//     assert(arr[i] == i);
+// }
 //
-//  assert(sp[0] == 3);
-//  assert(sp[1] == 4);
-//  assert(sp[2] == 5);
-//  assert(sp[3] == 6);
+// assert(sp[0] == 3);
+// assert(sp[1] == 4);
+// assert(sp[2] == 5);
+// assert(sp[3] == 6);
 //
-//  MakeEven(sp);
+// MakeEven(sp);
 //
-//  assert(sp[0] == 2); // Has been changed
-//  assert(sp[1] == 4);
-//  assert(sp[2] == 4); // Has been changed
-//  assert(sp[3] == 6);
+// assert(sp[0] == 2); // Has been changed
+// assert(sp[1] == 4);
+// assert(sp[2] == 4); // Has been changed
+// assert(sp[3] == 6);
 //
-//  assert(arr[0] == 0); // Not part of the span
-//  assert(arr[1] == 1); // Not part of the span
-//  assert(arr[2] == 2); // Not part of the span
-//  assert(arr[3] == 2); // Has been changed
-//  assert(arr[4] == 4);
-//  assert(arr[5] == 4); // Has been changed
-//  assert(arr[6] == 6);
-//  assert(arr[7] == 7); // Not part of the span
-//  assert(arr[8] == 8); // Not part of the span
-//  assert(arr[9] == 9); // Not part of the span
-//..
+// assert(arr[0] == 0); // Not part of the span
+// assert(arr[1] == 1); // Not part of the span
+// assert(arr[2] == 2); // Not part of the span
+// assert(arr[3] == 2); // Has been changed
+// assert(arr[4] == 4);
+// assert(arr[5] == 4); // Has been changed
+// assert(arr[6] == 6);
+// assert(arr[7] == 7); // Not part of the span
+// assert(arr[8] == 8); // Not part of the span
+// assert(arr[9] == 9); // Not part of the span
+// ```
 //
 ///Example 2: Returning A Subset Of A Container From A Function
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we already have a vector of values of type 'TYPE', and we want to
+// Suppose we already have a vector of values of type `TYPE`, and we want to
 // return a (contiguous) subset of the vector from a function, which can then
 // be processed processed using a range-based for loop.  To achieve that, we
-// can use 'span' as the return type.  The calling code can then interate over
+// can use `span` as the return type.  The calling code can then interate over
 // the span as if it was a container.  Note that since the span doesn't own the
 // elements of the vector, the span might become invalid when the vector is
 // changed (or resized, or destroyed).
 //
 // First, we create the vector and define our function that returns a slice as
-// a 'span'.
-//..
-//  bsl::vector<int> v = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+// a `span`.
+// ```
+// bsl::vector<int> v = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 //
-//  bsl::span<const int> slice(const bsl::vector<int>& vec,
-//                             size_t                  first,
-//                             size_t                  last)
-//      // Return a span into the specified 'vec', starting at the specified
-//      // 'first' index, and continuing up to (but not including) the
-//      // specified 'last' index.
-//  {
-//      return bsl::span<const int>(vec.data() + first, last-first);
-//  }
-//..
+// bsl::span<const int> slice(const bsl::vector<int>& vec,
+//                            size_t                  first,
+//                            size_t                  last)
+//     // Return a span into the specified 'vec', starting at the specified
+//     // 'first' index, and continuing up to (but not including) the
+//     // specified 'last' index.
+// {
+//     return bsl::span<const int>(vec.data() + first, last-first);
+// }
+// ```
 //  We can now iterate over the elements in the slice using the span:
-//..
-//  bsl::span<const int> sp = slice(v, 4, 7);
-//  int            val = 4;
-//  for (int x: sp) {
-//       assert(x == val++);
-//   }
-//..
+// ```
+// bsl::span<const int> sp = slice(v, 4, 7);
+// int            val = 4;
+// for (int x: sp) {
+//      assert(x == val++);
+//  }
+// ```
 //  Note that we can use the return value directly and avoid declaring the
-//  variable 'sp':
-//..
-//   val = 2;
-//   for (int x: slice(v, 2, 8)) {
-//       assert(x == val++);
-//   }
-//..
+//  variable `sp`:
+// ```
+//  val = 2;
+//  for (int x: slice(v, 2, 8)) {
+//      assert(x == val++);
+//  }
+// ```
 
 #include <bslscm_version.h>
 

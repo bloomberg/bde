@@ -7,8 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide consistent interface for platform-dependent functionality.
 //
-//@INTERNAL_DEPRECATED: Use 'bsls_alignmentutil', 'bsls_byteorder',
-// 'bsls_platform', and 'bsls_types' instead.
+//@INTERNAL_DEPRECATED: Use `bsls_alignmentutil`, `bsls_byteorder`,
+// `bsls_platform`, and `bsls_types` instead.
 //
 //@CLASSES:
 //  bsls::PlatformUtil: namespace for platform-neutral type names and API
@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_platform, bsls_types
 //
-//@DESCRIPTION: This component provides a namespace for a set of 'typedef's and
+//@DESCRIPTION: This component provides a namespace for a set of `typedef`s and
 // functions that provide a stable, portable interface to platform-dependent
 // functionality.  In particular, this component supplies portable typenames
 // for signed and unsigned 64-bit integers, and provides compile-time
@@ -39,69 +39,69 @@ BSLS_IDENT("$Id: $")
 //
 ///Types
 ///- - -
-// 'bsls::PlatformUtil::Int64' and 'bsls::PlatformUtil::Uint64' identify the
+// `bsls::PlatformUtil::Int64` and `bsls::PlatformUtil::Uint64` identify the
 // preferred fundamental types denoting signed and unsigned 64-bit integers,
 // respectively:
-//..
-//  bsls::PlatformUtil::Uint64 stimulus = 787000000000ULL;
-//..
-// Clients can use these types in the same way as an 'int'.  Clients can also
+// ```
+// bsls::PlatformUtil::Uint64 stimulus = 787000000000ULL;
+// ```
+// Clients can use these types in the same way as an `int`.  Clients can also
 // mix usage with other fundamental integral types:
-//..
-//  bsls::PlatformUtil::Uint64 nationalDebt = 1000000000000ULL;
-//  nationalDebt += stimulus;
+// ```
+// bsls::PlatformUtil::Uint64 nationalDebt = 1000000000000ULL;
+// nationalDebt += stimulus;
 //
-//  unsigned int deficitReduction = 1000000000;
-//  nationalDebt -= deficitReduction;
+// unsigned int deficitReduction = 1000000000;
+// nationalDebt -= deficitReduction;
 //
-//  std::cout << "National Debt Level: " << nationalDebt << std::endl;
-//..
-// 'bsls::PlatformUtil::size_type' identifies the preferred integral type
+// std::cout << "National Debt Level: " << nationalDebt << std::endl;
+// ```
+// `bsls::PlatformUtil::size_type` identifies the preferred integral type
 // denoting the number of elements in a container, and the number of bytes in a
 // single block of memory supplied by an allocator.  For example, a typical use
-// is as a 'typedef' in an STL container:
-//..
-//  class vector {
+// is as a `typedef` in an STL container:
+// ```
+// class vector {
 //
-//      // ...
+//     // ...
 //
-//    public:
-//      typedef bsls::PlatformUtil::size_type size_type;
+//   public:
+//     typedef bsls::PlatformUtil::size_type size_type;
 //
-//      // ...
-//  };
-//..
+//     // ...
+// };
+// ```
 //
 ///Functions and Macros
 /// - - - - - - - - - -
 // The functions:
-//..
-//  bool bsls::PlatformUtil::isLittleEndian();
-//  bool bsls::PlatformUtil::isBigEndian();
-//..
+// ```
+// bool bsls::PlatformUtil::isLittleEndian();
+// bool bsls::PlatformUtil::isBigEndian();
+// ```
 // encapsulate the capability of determining whether a machine is big- or
 // little-endian across all supported platforms.  In addition, certain
 // compile-time constants are also provided as preprocessor macros to
 // facilitate conditional compilation:
-//..
-//  BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
-//  BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
-//..
+// ```
+// BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+// BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+// ```
 // These functions and macros are useful for writing platform-independent code,
-// such as a function that converts the bytes in a 'short' to network byte
+// such as a function that converts the bytes in a `short` to network byte
 // order (which is consistent with big-endian):
-//..
-//  short convertToNetworkByteOrder(short input)
-//      // Return the specified 'input' in network byte order.
-//  {
-//  #ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
-//      return input;
-//  #else
-//      return static_cast<short>(
-//                              ((input >> 8) & 0xFF) | ((input & 0xFF) << 8));
-//  #endif
-//  }
-//..
+// ```
+// short convertToNetworkByteOrder(short input)
+//     // Return the specified 'input' in network byte order.
+// {
+// #ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+//     return input;
+// #else
+//     return static_cast<short>(
+//                             ((input >> 8) & 0xFF) | ((input & 0xFF) << 8));
+// #endif
+// }
+// ```
 // Note that in the above usage example, either the macros or the functions can
 // be used to test whether a platform is big- or little-endian.
 
@@ -122,71 +122,75 @@ namespace bsls {
                           // struct PlatformUtil
                           // ===================
 
+/// Provide a namespace for a suite of `typedef`s and pure procedures that
+/// encapsulate, platform-dependent types and APIs.
 struct PlatformUtil {
-    // Provide a namespace for a suite of 'typedef's and pure procedures that
-    // encapsulate, platform-dependent types and APIs.
 
     // TYPES
+
+    /// The alias `size_type` refers to the preferred type for denoting a
+    /// number of elements in either `bslma` allocators or container types.
+    /// Note that this type is signed, as negative values may make sense in
+    /// certain contexts.  Also note that the standard-compliant allocators
+    /// (e.g., `bsl::allocator` and `std::allocator`) use an *unsigned*
+    /// size type, but that is fine because they also have a mechanism
+    /// (`max_size`) to determine overflows resulting from converting from
+    /// one size type to the other.
+    ///
+    /// DEPRECATED: Use `Types::size_type` instead.
     typedef Types::size_type size_type;
-        // The alias 'size_type' refers to the preferred type for denoting a
-        // number of elements in either 'bslma' allocators or container types.
-        // Note that this type is signed, as negative values may make sense in
-        // certain contexts.  Also note that the standard-compliant allocators
-        // (e.g., 'bsl::allocator' and 'std::allocator') use an *unsigned*
-        // size type, but that is fine because they also have a mechanism
-        // ('max_size') to determine overflows resulting from converting from
-        // one size type to the other.
-        //
-        // DEPRECATED: Use 'Types::size_type' instead.
 
     typedef Types::UintPtr UintPtr;
+
+    /// The aliases `UintPtr` and `IntPtr` are guaranteed to have the same
+    /// size as pointers.
+    ///
+    /// DEPRECATED: Use `Types::UintPtr` and `Types::IntPtr` instead.
     typedef Types::IntPtr  IntPtr;
-        // The aliases 'UintPtr' and 'IntPtr' are guaranteed to have the same
-        // size as pointers.
-        //
-        // DEPRECATED: Use 'Types::UintPtr' and 'Types::IntPtr' instead.
 
     typedef Types::Int64  Int64;
+
+    /// The aliases `Int64` and `Uint64` stand for whatever type `Types`
+    /// implements for the appropriate supported platforms.
+    ///
+    /// DEPRECATED: Use `Types::Int64` and `Types::Uint64` instead.
     typedef Types::Uint64 Uint64;
-        // The aliases 'Int64' and 'Uint64' stand for whatever type 'Types'
-        // implements for the appropriate supported platforms.
-        //
-        // DEPRECATED: Use 'Types::Int64' and 'Types::Uint64' instead.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    /// The alias `MaxAlign` refers to a type that is maximally-aligned on
+    /// the current platform.
+    ///
+    /// DEPRECATED: Use `AlignmentUtil::MaxAlignedType` instead.
     typedef AlignmentUtil::MaxAlignedType MaxAlign;
-        // The alias 'MaxAlign' refers to a type that is maximally-aligned on
-        // the current platform.
-        //
-        // DEPRECATED: Use 'AlignmentUtil::MaxAlignedType' instead.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
+
+    /// Return `true` if this platform is "big-endian", and `false`
+    /// otherwise.  Note that "big-endian" (i.e., the most significant byte
+    /// of data at the lowest byte address) is consistent with network byte
+    /// order.
+    ///
+    /// DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_BIG_ENDIAN`
+    /// defined in `bsls_platform` instead.
     static bool isBigEndian();
-        // Return 'true' if this platform is "big-endian", and 'false'
-        // otherwise.  Note that "big-endian" (i.e., the most significant byte
-        // of data at the lowest byte address) is consistent with network byte
-        // order.
-        //
-        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_BIG_ENDIAN'
-        // defined in 'bsls_platform' instead.
 
+    /// Return `true` if this platform is "little-endian", and `false`
+    /// otherwise.  Note that "little-endian" (i.e., the least significant
+    /// byte of data at the lowest byte address) is inconsistent with
+    /// network byte order.
+    ///
+    /// DEPRECATED: Use preprocessor macro
+    /// `BSLS_PLATFORMUTIL_IS_BIG_ENDIAN` defined in `bsls_platform`
+    /// instead.
     static bool isLittleEndian();
-        // Return 'true' if this platform is "little-endian", and 'false'
-        // otherwise.  Note that "little-endian" (i.e., the least significant
-        // byte of data at the lowest byte address) is inconsistent with
-        // network byte order.
-        //
-        // DEPRECATED: Use preprocessor macro
-        // 'BSLS_PLATFORMUTIL_IS_BIG_ENDIAN' defined in 'bsls_platform'
-        // instead.
 
+    /// Return the specified `size` (in bytes) rounded up to the smallest
+    /// integral multiple of the maximum alignment.  The behavior is
+    /// undefined unless `0 <= size`.
+    ///
+    /// DEPRECATED: Use `AlignmentUtil::roundUpToMaximalAlignment` instead.
     static int roundUpToMaximalAlignment(int size);
-        // Return the specified 'size' (in bytes) rounded up to the smallest
-        // integral multiple of the maximum alignment.  The behavior is
-        // undefined unless '0 <= size'.
-        //
-        // DEPRECATED: Use 'AlignmentUtil::roundUpToMaximalAlignment' instead.
 };
 
 }  // close package namespace
@@ -199,9 +203,9 @@ struct PlatformUtil {
 // replacements in 'bsls_byteorder' and 'bsls_platform' instead.
 
 #if defined(BSLS_PLATFORM_CPU_X86_64)
+    /// DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_LITTLE_ENDIAN`
+    /// defined in `bsls_platform` instead.
     #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN BSLS_PLATFORM_IS_LITTLE_ENDIAN
-        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_LITTLE_ENDIAN'
-        // defined in 'bsls_platform' instead.
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_X86)
@@ -297,8 +301,8 @@ int PlatformUtil::roundUpToMaximalAlignment(int size)
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bsls::PlatformUtil bsls_PlatformUtil;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

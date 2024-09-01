@@ -5,20 +5,20 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an exception class thrown by 'bsl::optional'.
+//@PURPOSE: Provide an exception class thrown by `bsl::optional`.
 //
 //@CLASSES:
-//  bsl::bad_optional_access: exception type thrown by 'bsl::optional'
+//  bsl::bad_optional_access: exception type thrown by `bsl::optional`
 //
 //@CANONICAL_HEADER: bsl_optional.h
 //
 //@SEE_ALSO: bslstl_optional, bslstl_stdexceptionutil
 //
-//@DESCRIPTION: This component provides a 'bsl::bad_optional_access' exception
-// class.  This exception is thrown by 'bsl::optional::value' when accessing a
-// 'bsl::optional' object that does not contain a value.  If 'std::optional'
-// implementation is available, 'bsl::bad_optional_access' is an alias to
-// 'std::bad_optional_access'.
+//@DESCRIPTION: This component provides a `bsl::bad_optional_access` exception
+// class.  This exception is thrown by `bsl::optional::value` when accessing a
+// `bsl::optional` object that does not contain a value.  If `std::optional`
+// implementation is available, `bsl::bad_optional_access` is an alias to
+// `std::bad_optional_access`.
 //
 
 #include <bslscm_version.h>

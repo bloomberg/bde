@@ -5,14 +5,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an exposition-only concept 'boolean-testable'.
+//@PURPOSE: Provide an exposition-only concept `boolean-testable`.
 //
 //@CLASSES:
-//  bslmf::BooleanTestable: standard exposition-only 'boolean-testable' concept
+//  bslmf::BooleanTestable: standard exposition-only `boolean-testable` concept
 //
-//@DESCRIPTION: This component provides a concept, 'bslmf::BooleanTestable',
+//@DESCRIPTION: This component provides a concept, `bslmf::BooleanTestable`,
 // that specifies the requirements on expressions that are convertible to
-// 'bool' and for which the logical operators have the conventional semantics.
+// `bool` and for which the logical operators have the conventional semantics.
 // For more details, please refer to [concept.booleantestable] in the ISO C++20
 // Standard.
 //
@@ -22,23 +22,23 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Implementing a Concept for a Predicate (Boolean) Expression
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use 'bslmf::BooleanTestable' to implement a
-// concept to determine whether applying the '<' operator to a given type
-// produces an 'if'-testable result.
-//..
-//  template <class t_TYPE>
-//  concept LessComparable =
-//      requires(t_TYPE v) {
-//          { v < v } -> bslmf::BooleanTestable;
-//      };
-//..
+// In the following example we use `bslmf::BooleanTestable` to implement a
+// concept to determine whether applying the `<` operator to a given type
+// produces an `if`-testable result.
+// ```
+// template <class t_TYPE>
+// concept LessComparable =
+//     requires(t_TYPE v) {
+//         { v < v } -> bslmf::BooleanTestable;
+//     };
+// ```
 // Now types can be tested using this concept:
-//..
-//  static_assert(LessComparable<int>);
+// ```
+// static_assert(LessComparable<int>);
 //
-//  struct NonLessComparable { void operator<(NonLessComparable) {} };
-//  static_assert(!LessComparable<NonLessComparable>);
-//..
+// struct NonLessComparable { void operator<(NonLessComparable) {} };
+// static_assert(!LessComparable<NonLessComparable>);
+// ```
 
 #include <bslscm_version.h>
 

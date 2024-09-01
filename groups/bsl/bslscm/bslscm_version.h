@@ -8,31 +8,31 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide source control management (versioning) information.
 //
 //@CLASSES:
-// bslscm::Version: namespace for RCS and SCCS versioning information for 'bsl'
+// bslscm::Version: namespace for RCS and SCCS versioning information for `bsl`
 //
 //@DESCRIPTION: This component provides source control management (versioning)
-// information for the 'bsl' package group.  In particular, this component
+// information for the `bsl` package group.  In particular, this component
 // embeds RCS-style and SCCS-style version strings in binary executable files
-// that use one or more components from the 'bsl' package group.  This version
+// that use one or more components from the `bsl` package group.  This version
 // information may be extracted from binary files using common UNIX utilities
-// (e.g., 'ident' and 'what').  In addition, the 'version' 'static' member
-// function in the 'bslscm::Version' 'struct' can be used to query version
-// information for the 'bsl' package group at runtime.  The following usage
+// (e.g., `ident` and `what`).  In addition, the `version` `static` member
+// function in the `bslscm::Version` `struct` can be used to query version
+// information for the `bsl` package group at runtime.  The following usage
 // examples illustrate these two basic capabilities.
 //
-// Note that unless the 'version' method will be called, it is not necessary to
-// '#include' this component header file to get 'bsl' version information
-// embedded in an executable.  It is only necessary to use one or more 'bsl'
-// components (and, hence, link in the 'bsl' library).
+// Note that unless the `version` method will be called, it is not necessary to
+// `#include` this component header file to get `bsl` version information
+// embedded in an executable.  It is only necessary to use one or more `bsl`
+// components (and, hence, link in the `bsl` library).
 //
 ///Usage
 ///-----
 // A program can display the version of BSL that was used to build it by
-// printing the version string returned by 'bslscm::Version::version()' to
-// 'stdout' as follows:
-//..
-//  std::printf("BSL version: %s\n", bslscm::Version::version());
-//..
+// printing the version string returned by `bslscm::Version::version()` to
+// `stdout` as follows:
+// ```
+// std::printf("BSL version: %s\n", bslscm::Version::version());
+// ```
 
 #include <bsls_buildtarget.h>      // need to ensure consistent build options
 #include <bsls_platform.h>
@@ -63,10 +63,10 @@ namespace bslscm {
                          // Version
                          // =======
 
+/// This struct provides a namespace for (1) source control management
+/// (versioning) information that is embedded in binary executable files,
+/// and (2) a facility to query that information at runtime.
 struct Version {
-    // This struct provides a namespace for (1) source control management
-    // (versioning) information that is embedded in binary executable files,
-    // and (2) a facility to query that information at runtime.
 
     // CLASS DATA
     static const char *s_ident;
@@ -93,9 +93,10 @@ struct Version {
     static const char *s_sourceControlInfo;
 
     // CLASS METHODS
+
+    /// Return the address of a character string that identifies the version
+    /// of the `bsl` package group in use.
     static const char *version();
-        // Return the address of a character string that identifies the version
-        // of the 'bsl' package group in use.
 };
 
 // ============================================================================

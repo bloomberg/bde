@@ -13,11 +13,11 @@
 //@SEE_ALSO: bsl_unordered_map
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_hash_map.h>' instead.
+// `<bsl_hash_map.h>` instead.
 //
 // Note that the functions in this component are based on STLPort's
 // implementation, with copyright notice as follows:
-//..
+// ```
 /*
  * Copyright (c) 1996,1997
  * Silicon Graphics Computer Systems, Inc.

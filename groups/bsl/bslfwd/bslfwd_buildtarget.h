@@ -9,15 +9,15 @@
 //@CLASSES:
 //
 //@MACROS:
-// BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES: set if two-level namespace in 'bsl'
+// BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES: set if two-level namespace in `bsl`
 //
 //@DESCRIPTION: This header potentially provides a single macro,
-// 'BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES'.  If
-// 'BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES' is defined then the types in the
-// 'bsl' library are declared in C++ style namespaces (e.g.,
-// 'bslma::Allocator').  If 'BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES' is not
-// defined then the types in the 'bsl' library are declared using legacy-style
-// namespaces (e.g., 'bslma_Allocator').
+// `BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES`.  If
+// `BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES` is defined then the types in the
+// `bsl` library are declared in C++ style namespaces (e.g.,
+// `bslma::Allocator`).  If `BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES` is not
+// defined then the types in the `bsl` library are declared using legacy-style
+// namespaces (e.g., `bslma_Allocator`).
 
 // Uncomment the following macro when switching to 'bsl' with namespaces to
 // enable forward declarations provided by the 'bslfwd' package to be in the

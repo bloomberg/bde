@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_isconvertible, bslmf_integralconstant
 //
 //@DESCRIPTION: This component provides a meta-function,
-// 'bslmf::IsConvertibleToAny', that may be used to query (at compile-time)
+// `bslmf::IsConvertibleToAny`, that may be used to query (at compile-time)
 // whether a type has a templatized conversion operator allowing it to be
 // converted to any other type.
 //
@@ -27,19 +27,19 @@ BSLS_IDENT("$Id: $")
 // conversion operator.
 //
 // First, we define a type with the template conversion operator:
-//..
-//  struct TypeWithTemplateConversion {
-//      template <class t_TYPE>
-//      operator t_TYPE() {
-//          return t_TYPE();
-//      }
-//  };
-//..
-// Now, we instantiate the 'bslmf::IsConvertibleToAny' template for
-// 'TypeWithTemplateConversion' and assert the 'value' of the instantiation:
-//..
-//  assert(bslmf::IsConvertibleToAny<TypeWithTemplateConversion>::value);
-//..
+// ```
+// struct TypeWithTemplateConversion {
+//     template <class t_TYPE>
+//     operator t_TYPE() {
+//         return t_TYPE();
+//     }
+// };
+// ```
+// Now, we instantiate the `bslmf::IsConvertibleToAny` template for
+// `TypeWithTemplateConversion` and assert the `value` of the instantiation:
+// ```
+// assert(bslmf::IsConvertibleToAny<TypeWithTemplateConversion>::value);
+// ```
 
 #include <bslscm_version.h>
 
@@ -54,29 +54,29 @@ namespace bslmf {
                           // struct IsConvertibleToAny
                           // =========================
 
+/// This class template implements a component-private meta-function to
+/// determine if the (template parameter) `t_TYPE` is convertible to any
+/// other type.
 template <class t_TYPE>
 class IsConvertibleToAny_Imp {
-    // This class template implements a component-private meta-function to
-    // determine if the (template parameter) 't_TYPE' is convertible to any
-    // other type.
 
+    /// A type convertible to this private type must have a template
+    /// conversion operator.
     struct UniqueType {
-        // A type convertible to this private type must have a template
-        // conversion operator.
     };
 
   public:
+    /// `type` is defined as `bsl::true_type` if `t_TYPE` is convertible to
+    /// `UniqueType` and `bsl::false_type` otherwise.
     typedef typename bsl::is_convertible<t_TYPE, UniqueType>::type type;
-        // 'type' is defined as 'bsl::true_type' if 't_TYPE' is convertible to
-        // 'UniqueType' and 'bsl::false_type' otherwise.
 };
 
+/// This `struct` template implements a meta-function to determine if the
+/// (template parameter) `t_TYPE` is convertible to any other type.  This
+/// `struct` derives from `bsl::true_type` if `t_TYPE` is convertible to any
+/// type, and `bsl::false_type` otherwise.
 template <class t_TYPE>
 struct IsConvertibleToAny : IsConvertibleToAny_Imp<t_TYPE>::type {
-    // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 't_TYPE' is convertible to any other type.  This
-    // 'struct' derives from 'bsl::true_type' if 't_TYPE' is convertible to any
-    // type, and 'bsl::false_type' otherwise.
 };
 
 }  // close package namespace

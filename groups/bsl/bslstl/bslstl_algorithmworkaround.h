@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for work arounds for the standard algorithms
 //
-//@DEPRECATED: Use 'bsl_algorithm.h' directly.
+//@DEPRECATED: Use `bsl_algorithm.h` directly.
 //
 //@CLASSES:
 //
@@ -16,13 +16,13 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bos+stdhdrs
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_algorithm>' instead.  This component provides a namespace for
+// `<bsl_algorithm>` instead.  This component provides a namespace for
 // work-arounds for the platform supplied algorithm header (particularly for
 // the Sun Studio libCstd).
 //
 ///Usage
 ///-----
-// This component is for use by the 'bos+stdhdrs' package.  Use 'algorithm'
+// This component is for use by the `bos+stdhdrs` package.  Use `algorithm`
 // directly.
 
 #include <bslscm_version.h>

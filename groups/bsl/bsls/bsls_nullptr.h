@@ -10,54 +10,54 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::nullptr_t: type for function parameter to match null pointer literals
 //
-//@DESCRIPTION: This component provides 'bsl::nullptr_t' as a limited emulation
-// of the C++11 type, 'std::nullptr_t', which can be used as a function
+//@DESCRIPTION: This component provides `bsl::nullptr_t` as a limited emulation
+// of the C++11 type, `std::nullptr_t`, which can be used as a function
 // parameter type to create an overload set where null pointer literals are
 // handled specially.  Note that this component will be deprecated, and
 // ultimately removed, once BDE code can assume support for a C++11 compiler.
 // On a platform that supports the language feature, a fully-conforming
-// 'typedef' is supplied rather than using the emulation layer.
+// `typedef` is supplied rather than using the emulation layer.
 //
 ///Limitations
 ///-----------
 // This component provides a simple emulation of the C++11 facility, which
 // cannot be expressed with a pure library solution.  As such it comes with a
 // number of limitations.  The most obvious is that C++11 provides a new null
-// pointer literal, 'nullptr', which is not emulated by this component.  The
+// pointer literal, `nullptr`, which is not emulated by this component.  The
 // new null pointer literal is an object of a new type, expressed by the alias
-// 'nullptr_t', which this component emulates.  However, as this is a
+// `nullptr_t`, which this component emulates.  However, as this is a
 // library-only emulation, it does not have any preference in the overloading
 // rules, so will be an equal-rank ambiguous match.  For example, given the
-// following overload set, a call to 'myFunction' with a null pointer literal
+// following overload set, a call to `myFunction` with a null pointer literal
 // would be ambiguous:
-//..
-//  void myFunction(void *p);
-//  void myFunction(bsl::nullptr_t);
+// ```
+// void myFunction(void *p);
+// void myFunction(bsl::nullptr_t);
 //
-//  int main() {
-//     myFunction(0);  // ERROR, ambiguous function call
-//  }
-//..
+// int main() {
+//    myFunction(0);  // ERROR, ambiguous function call
+// }
+// ```
 // However, if the pointer-argument is a pointer whose type is deduced from the
 // function call, then no pointer type can be deduced from the null pointer and
 // this component becomes necessary.
-//..
-//  template<typename T>
-//  void myFunction(T *p);
-//  void myFunction(bsl::nullptr_t);
+// ```
+// template<typename T>
+// void myFunction(T *p);
+// void myFunction(bsl::nullptr_t);
 //
-//  int main() {
-//     myFunction(0);  // call the 'bsl::nullptr_t' method
-//  }
-//..
+// int main() {
+//    myFunction(0);  // call the 'bsl::nullptr_t' method
+// }
+// ```
 // Null pointer values can be created in C++11 by creating objects of type
-// 'std::nullptr_t', and then used to initialize pointer and pointer-to-member
+// `std::nullptr_t`, and then used to initialize pointer and pointer-to-member
 // objects:
-//..
-//  std::nullptr_t nullLiteral = std::nullptr_t();
-//  int *pI = nullLiteral;
-//..
-// The type of a 'bsl::nullptr_t' object cannot be used in such assignments or
+// ```
+// std::nullptr_t nullLiteral = std::nullptr_t();
+// int *pI = nullLiteral;
+// ```
+// The type of a `bsl::nullptr_t` object cannot be used in such assignments or
 // initializations, unless compiled on a platform that natively supports this
 // C++11 language feature.
 //
@@ -74,103 +74,103 @@ BSLS_IDENT("$Id: $")
 // function.  By capturing the most-derived type through type-deduction when
 // the smart pointer is constructed, we can ensure the correct destructor is
 // called, even if the destructor of the base class has not been declared as
-// 'virtual'.  However, relying on type-deduction means we cannot pass a null
+// `virtual`.  However, relying on type-deduction means we cannot pass a null
 // pointer to this constructor, as it is not possible to deduce what type a
 // null pointer is supposed to refer to, therefore we must use a special null
-// pointer type, such as 'bsls::nullptr_t'.  Note that in real code we would
+// pointer type, such as `bsls::nullptr_t`.  Note that in real code we would
 // allocate and reclaim memory using a user-specified allocator, but defining
 // such protocols in this low level component would further distract from the
-// 'nullptr' usage in this example.
-//..
-//  template<class TARGET_TYPE>
-//  class ScopedPointer {
-//      // This class template is a guard to manage a dynamically created
-//      // object of the parameterized 'TARGET_TYPE'.
+// `nullptr` usage in this example.
+// ```
+// template<class TARGET_TYPE>
+// class ScopedPointer {
+//     // This class template is a guard to manage a dynamically created
+//     // object of the parameterized 'TARGET_TYPE'.
+//
+//   private:
+//     typedef void DeleterFn(TARGET_TYPE *);  // deleter type
+//
+//     // DATA
+//     TARGET_TYPE *d_target_p;    // wrapped pointer
+//     DeleterFn   *d_deleter_fn;  // deleter function
+//
+//     template<class SOURCE_TYPE>
+//     static void defaultDeleteFn(TARGET_TYPE *ptr);
+//         // Destroy the specified '*ptr' by calling 'delete' on the pointer
+//         // cast to the parameterized 'SOURCE_TYPE*'.  It is an error to
+//         // instantiate this template with a 'SOURCE_TYPE' that is not
+//         // derived from (and cv-compatible with) 'TARGET_TYPE'.
 //
 //    private:
-//      typedef void DeleterFn(TARGET_TYPE *);  // deleter type
+//     // NOT IMPLEMENTED
+//     ScopedPointer(const ScopedPointer&);
+//     ScopedPointer& operator=(const ScopedPointer&);
+//         // Objects of this type cannot be copied.
 //
-//      // DATA
-//      TARGET_TYPE *d_target_p;    // wrapped pointer
-//      DeleterFn   *d_deleter_fn;  // deleter function
+//   public:
+//     template<class SOURCE_TYPE>
+//     ScopedPointer(SOURCE_TYPE *pointer,
+//                   DeleterFn   *fn = &defaultDeleteFn<SOURCE_TYPE>);
+//         // Create a 'ScopedPointer' object owning the specified 'pointer'
+//         // and using the specified 'fn' to destroy the owned pointer when
+//         // this object is destroyed.
 //
-//      template<class SOURCE_TYPE>
-//      static void defaultDeleteFn(TARGET_TYPE *ptr);
-//          // Destroy the specified '*ptr' by calling 'delete' on the pointer
-//          // cast to the parameterized 'SOURCE_TYPE*'.  It is an error to
-//          // instantiate this template with a 'SOURCE_TYPE' that is not
-//          // derived from (and cv-compatible with) 'TARGET_TYPE'.
+//     ScopedPointer(bsl::nullptr_t = 0);
+//         // Create an empty 'ScopedPointer' object that does not own a
+//         // pointer.
 //
-//     private:
-//      // NOT IMPLEMENTED
-//      ScopedPointer(const ScopedPointer&);
-//      ScopedPointer& operator=(const ScopedPointer&);
-//          // Objects of this type cannot be copied.
+//     ~ScopedPointer();
+//         // Destroy this 'ScopedPointer' object and the target object
+//         // that it owns, using the stored deleter function.
 //
-//    public:
-//      template<class SOURCE_TYPE>
-//      ScopedPointer(SOURCE_TYPE *pointer,
-//                    DeleterFn   *fn = &defaultDeleteFn<SOURCE_TYPE>);
-//          // Create a 'ScopedPointer' object owning the specified 'pointer'
-//          // and using the specified 'fn' to destroy the owned pointer when
-//          // this object is destroyed.
-//
-//      ScopedPointer(bsl::nullptr_t = 0);
-//          // Create an empty 'ScopedPointer' object that does not own a
-//          // pointer.
-//
-//      ~ScopedPointer();
-//          // Destroy this 'ScopedPointer' object and the target object
-//          // that it owns, using the stored deleter function.
-//
-//      // Further methods appropriate to a smart pointer, such as
-//      // 'operator*' and 'operator->' elided from this example.
-//  };
-//..
+//     // Further methods appropriate to a smart pointer, such as
+//     // 'operator*' and 'operator->' elided from this example.
+// };
+// ```
 // Then we provide a definition for each of the methods.
-//..
-//  template<class TARGET_TYPE>
-//  template<class SOURCE_TYPE>
-//  void ScopedPointer<TARGET_TYPE>::defaultDeleteFn(TARGET_TYPE *ptr)
-//  {
-//      delete static_cast<SOURCE_TYPE *>(ptr);
-//  }
+// ```
+// template<class TARGET_TYPE>
+// template<class SOURCE_TYPE>
+// void ScopedPointer<TARGET_TYPE>::defaultDeleteFn(TARGET_TYPE *ptr)
+// {
+//     delete static_cast<SOURCE_TYPE *>(ptr);
+// }
 //
-//  template<class TARGET_TYPE>
-//  template<class SOURCE_TYPE>
-//  inline
-//  ScopedPointer<TARGET_TYPE>::ScopedPointer(SOURCE_TYPE *pointer,
-//                                            DeleterFn   *fn)
-//  : d_target_p(pointer)
-//  , d_deleter_fn(fn)
-//  {
-//  }
+// template<class TARGET_TYPE>
+// template<class SOURCE_TYPE>
+// inline
+// ScopedPointer<TARGET_TYPE>::ScopedPointer(SOURCE_TYPE *pointer,
+//                                           DeleterFn   *fn)
+// : d_target_p(pointer)
+// , d_deleter_fn(fn)
+// {
+// }
 //
-//  template<class TARGET_TYPE>
-//  inline
-//  ScopedPointer<TARGET_TYPE>::ScopedPointer(bsl::nullptr_t)
-//  : d_target_p(0)
-//  , d_deleter_fn(0)
-//  {
-//  }
+// template<class TARGET_TYPE>
+// inline
+// ScopedPointer<TARGET_TYPE>::ScopedPointer(bsl::nullptr_t)
+// : d_target_p(0)
+// , d_deleter_fn(0)
+// {
+// }
 //
-//  template<class TARGET_TYPE>
-//  inline
-//  ScopedPointer<TARGET_TYPE>::~ScopedPointer()
-//  {
-//      if (d_deleter_fn) {
-//          d_deleter_fn(d_target_p);
-//      }
-//  }
-//..
-// Finally, we can construct a 'ScopedPointer' with a null pointer literal,
-// that would otherwise be non-deducible, using our 'bsl::nullptr_t' overload.
-//..
-//  void testScopedPointer()
-//  {
-//      ScopedPointer<int> x(0);
-//  }
-//..
+// template<class TARGET_TYPE>
+// inline
+// ScopedPointer<TARGET_TYPE>::~ScopedPointer()
+// {
+//     if (d_deleter_fn) {
+//         d_deleter_fn(d_target_p);
+//     }
+// }
+// ```
+// Finally, we can construct a `ScopedPointer` with a null pointer literal,
+// that would otherwise be non-deducible, using our `bsl::nullptr_t` overload.
+// ```
+// void testScopedPointer()
+// {
+//     ScopedPointer<int> x(0);
+// }
+// ```
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>

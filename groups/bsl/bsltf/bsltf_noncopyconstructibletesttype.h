@@ -13,18 +13,18 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'NonCopyConstructibleTestType', that does
+// (value-semantic) attribute class, `NonCopyConstructibleTestType`, that does
 // not provide a copy constructor.  This is particularly valuable when testing
 // container operations that works with non-copy-constructible types.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the class value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the class value
 //
 ///Usage
 ///-----
@@ -32,18 +32,18 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Demonstrating The Type Cannot Be Copy Constructed
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wanted to show 'NonCopyConstructibleTestType' can't be copy
+// Suppose we wanted to show `NonCopyConstructibleTestType` can't be copy
 // constructed:
 //
-// First, we create a 'NonCopyConstructibleTestType' object, 'X':
-//..
-//  NonCopyConstructibleTestType X;
-//..
-// Now, we show that copy constructing another object from 'X' will not
+// First, we create a `NonCopyConstructibleTestType` object, `X`:
+// ```
+// NonCopyConstructibleTestType X;
+// ```
+// Now, we show that copy constructing another object from `X` will not
 // compile:
-//..
-//  NonCopyConstructibleTestType Y(X); // This will not compile
-//..
+// ```
+// NonCopyConstructibleTestType Y(X); // This will not compile
+// ```
 
 #include <bslscm_version.h>
 
@@ -56,9 +56,9 @@ namespace bsltf {
                         // class NonCopyConstructibleTestType
                         // ==================================
 
+/// This unconstrained (value-semantic) attribute class does not
+/// provide a copy constructor.
 class NonCopyConstructibleTestType {
-    // This unconstrained (value-semantic) attribute class does not
-    // provide a copy constructor.
 
     // DATA
     int d_data;  // integer class value
@@ -71,19 +71,20 @@ class NonCopyConstructibleTestType {
   public:
 
     // CREATORS
+
+    /// Create a `NonCopyConstructibleTestType` object having the (default)
+    /// attribute values:
+    /// ```
+    /// data() == 0
+    /// ```
     NonCopyConstructibleTestType();
-        // Create a 'NonCopyConstructibleTestType' object having the (default)
-        // attribute values:
-        //..
-        //  data() == 0
-        //..
 
+    /// Create a `NonCopyConstructibleTestType` object having the specified
+    /// `data` attribute value.
     explicit NonCopyConstructibleTestType(int data);
-        // Create a 'NonCopyConstructibleTestType' object having the specified
-        // 'data' attribute value.
 
+    /// Destroy this object.
     ~NonCopyConstructibleTestType();
-        // Destroy this object.
 
     // MANIPULATORS
     // NonCopyConstructibleTestType& operator=(
@@ -91,27 +92,29 @@ class NonCopyConstructibleTestType {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    /// Set the `data` attribute of this object to the specified `value`
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `NonCopyConstructibleTestType`
+/// objects have the same if their `data` attributes are the same.
 bool operator==(const NonCopyConstructibleTestType& lhs,
                 const NonCopyConstructibleTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'NonCopyConstructibleTestType'
-    // objects have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `NonCopyConstructibleTestType`
+/// objects do not have the same value if their `data` attributes are not
+/// the same.
 bool operator!=(const NonCopyConstructibleTestType& lhs,
                 const NonCopyConstructibleTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'NonCopyConstructibleTestType'
-    // objects do not have the same value if their 'data' attributes are not
-    // the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

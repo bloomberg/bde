@@ -14,27 +14,27 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_vector
 //
-//@DESCRIPTION: This component defines a single class template, 'bsl::array',
-// implementing the standard container 'std::array', holding a non-resizable
+//@DESCRIPTION: This component defines a single class template, `bsl::array`,
+// implementing the standard container `std::array`, holding a non-resizable
 // array of values of a template parameter type where the size is specified as
 // the second template parameter.
 //
-// An instantiation of 'array' is a value-semantic type whose salient
+// An instantiation of `array` is a value-semantic type whose salient
 // attributes are its size and the sequence of values the array contains.  If
-// 'array' is instantiated with a value type that is not value-semantic, then
+// `array` is instantiated with a value type that is not value-semantic, then
 // the array will not retain all of its value-semantic qualities.  In
-// particular, if a value type cannot be tested for equality, then an 'array'
+// particular, if a value type cannot be tested for equality, then an `array`
 // containing objects of that type will fail to compile the equality comparison
-// operator.  Similarly, if an 'array' is instantiated with a type that does
-// not have a copy-constructor, then the 'array' will not be copyable.
+// operator.  Similarly, if an `array` is instantiated with a type that does
+// not have a copy-constructor, then the `array` will not be copyable.
 //
 // An array meets most the requirements of a container with random access
-// iterators in the C++ standard [array].  The 'array' implemented here follows
+// iterators in the C++ standard [array].  The `array` implemented here follows
 // the C++11 standard when compiled with a C++11 compiler and follows the C++03
 // standard otherwise.
 //
 // An array lacks certain requirements of a sequential container.  Array lacks
-// 'insert', 'erase', 'emplace', and 'clear', as these functions would require
+// `insert`, `erase`, `emplace`, and `clear`, as these functions would require
 // modifying the size of the array.
 //
 // An array also meets the requirements of an aggregate.  This means that an
@@ -46,72 +46,72 @@ BSLS_IDENT("$Id: $")
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances of
-// 'array':
-//..
-//  Legend
-//  ------
-//  'V'                 - (template parameter) 'VALUE_TYPE' of the array
-//  'S'                 - (template parameter) 'SIZE' of the array
-//  'a', 'b'            - two distinct objects of type 'array<V, S>'
-//  'k'                 - non-negative integer
-//  'vt1', 'vt2', 'vt3' - objects of type 'VALUE_TYPE'
+// `array`:
+// ```
+// Legend
+// ------
+// 'V'                 - (template parameter) 'VALUE_TYPE' of the array
+// 'S'                 - (template parameter) 'SIZE' of the array
+// 'a', 'b'            - two distinct objects of type 'array<V, S>'
+// 'k'                 - non-negative integer
+// 'vt1', 'vt2', 'vt3' - objects of type 'VALUE_TYPE'
 //
-//  |-----------------------------------------+-------------------------------|
-//  | Operation                               | Complexity                    |
-//  |=========================================+===============================|
-//  | array<V> a    (default construction)    | O[1]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | array<V> a(b) (copy construction)       | O[S]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | array<V> a = {{vt1, vt2, vt3}}          | O[S]                          |
-//  | array<V> a = {vt1, vt2, vt3}            |                               |
-//  |               (aggregate initialization)|                               |
-//  |-----------------------------------------+-------------------------------|
-//  | a.~array<V>() (destruction)             | O[S]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a.begin(), a.end(),                     | O[1]                          |
-//  | a.cbegin(), a.cend(),                   |                               |
-//  | a.rbegin(), a.rend(),                   |                               |
-//  | a.crbegin(), a.crend()                  |                               |
-//  |-----------------------------------------+-------------------------------|
-//  | a.size()                                | O[1]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a.max_size()                            | O[1]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a.empty()                               | O[1]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a[k]                                    | O[1]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a.at(k)                                 | O[1]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a.front()                               | O[1]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a.back()                                | O[1]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a.swap(b), swap(a,b)                    | O[S]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a = b;           (copy assignment)      | O[S]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a == b, a != b                          | O[S]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a < b, a <= b, a > b, a >= b            | O[S]                          |
-//  |-----------------------------------------+-------------------------------|
-//..
+// |-----------------------------------------+-------------------------------|
+// | Operation                               | Complexity                    |
+// |=========================================+===============================|
+// | array<V> a    (default construction)    | O[1]                          |
+// |-----------------------------------------+-------------------------------|
+// | array<V> a(b) (copy construction)       | O[S]                          |
+// |-----------------------------------------+-------------------------------|
+// | array<V> a = {{vt1, vt2, vt3}}          | O[S]                          |
+// | array<V> a = {vt1, vt2, vt3}            |                               |
+// |               (aggregate initialization)|                               |
+// |-----------------------------------------+-------------------------------|
+// | a.~array<V>() (destruction)             | O[S]                          |
+// |-----------------------------------------+-------------------------------|
+// | a.begin(), a.end(),                     | O[1]                          |
+// | a.cbegin(), a.cend(),                   |                               |
+// | a.rbegin(), a.rend(),                   |                               |
+// | a.crbegin(), a.crend()                  |                               |
+// |-----------------------------------------+-------------------------------|
+// | a.size()                                | O[1]                          |
+// |-----------------------------------------+-------------------------------|
+// | a.max_size()                            | O[1]                          |
+// |-----------------------------------------+-------------------------------|
+// | a.empty()                               | O[1]                          |
+// |-----------------------------------------+-------------------------------|
+// | a[k]                                    | O[1]                          |
+// |-----------------------------------------+-------------------------------|
+// | a.at(k)                                 | O[1]                          |
+// |-----------------------------------------+-------------------------------|
+// | a.front()                               | O[1]                          |
+// |-----------------------------------------+-------------------------------|
+// | a.back()                                | O[1]                          |
+// |-----------------------------------------+-------------------------------|
+// | a.swap(b), swap(a,b)                    | O[S]                          |
+// |-----------------------------------------+-------------------------------|
+// | a = b;           (copy assignment)      | O[S]                          |
+// |-----------------------------------------+-------------------------------|
+// | a == b, a != b                          | O[S]                          |
+// |-----------------------------------------+-------------------------------|
+// | a < b, a <= b, a > b, a >= b            | O[S]                          |
+// |-----------------------------------------+-------------------------------|
+// ```
 //
 ///Comparing an array of floating point values
 ///-------------------------------------------
 // The comparison operator performs a bit-wise comparison for floating point
-// types ('float' and 'double'), which produces results for NaN, +0, and -0
+// types (`float` and `double`), which produces results for NaN, +0, and -0
 // values that do not meet the guarantees provided by the standard.
-// The 'bslmf::IsBitwiseEqualityComparable' trait for 'double' and 'float'
-// types returns 'true' which is incorrect because a comparison with a NaN
-// value is always 'false', and -0 and +0 are equal.
-//..
-//    bsl::array<double, 1> a{bsl::numeric_limits<double>::quiet_NaN()};
-//    ASSERT(a == a);   // This assertion will *NOT* fail!
-//..
-// Addressing this issue, i.e., updating 'bslmf::IsBitwiseEqualityComparable'
-// to return 'false' for floating point types, could potentially destabilize
+// The `bslmf::IsBitwiseEqualityComparable` trait for `double` and `float`
+// types returns `true` which is incorrect because a comparison with a NaN
+// value is always `false`, and -0 and +0 are equal.
+// ```
+//   bsl::array<double, 1> a{bsl::numeric_limits<double>::quiet_NaN()};
+//   ASSERT(a == a);   // This assertion will *NOT* fail!
+// ```
+// Addressing this issue, i.e., updating `bslmf::IsBitwiseEqualityComparable`
+// to return `false` for floating point types, could potentially destabilize
 // production software so the change (for the moment) has not been made.
 //
 ///Usage
@@ -120,40 +120,40 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Returning an array from a function
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to define a function that will return an array of 'float's.
+// Suppose we want to define a function that will return an array of `float`s.
 // If a raw array were used, the size would need to be tracked separately
 // because raw arrays decay to pointers when passed as function arguments, or
-// returned by-value.  'bsl::array' does not decay, and so provides a simple
+// returned by-value.  `bsl::array` does not decay, and so provides a simple
 // solution to this problem.
-//..
-//  typedef bsl::array<float, 3> Point;
+// ```
+// typedef bsl::array<float, 3> Point;
 //
-//  Point createPoint(float f1, float f2, float f3)
-//  {
-//      bsl::array<float, 3> ret = {f1, f2, f3};
-//      return ret;
-//  }
-//..
+// Point createPoint(float f1, float f2, float f3)
+// {
+//     bsl::array<float, 3> ret = {f1, f2, f3};
+//     return ret;
+// }
+// ```
 // Create a bsl::array object containing three values set to the specified
-// 'f1', 'f2', 'f3'.
-//..
-//  void usageExample()
-//  {
-//      Point p1 = createPoint(1.0, 1.0, 1.0);
-//      Point p2 = createPoint(2.0, 2.0, 2.0);
-//      Point p3 = createPoint(3.0, 3.0, 3.0);
+// `f1`, `f2`, `f3`.
+// ```
+// void usageExample()
+// {
+//     Point p1 = createPoint(1.0, 1.0, 1.0);
+//     Point p2 = createPoint(2.0, 2.0, 2.0);
+//     Point p3 = createPoint(3.0, 3.0, 3.0);
 //
-//      bsl::array<Point, 3> points = {p1, p2, p3};
+//     bsl::array<Point, 3> points = {p1, p2, p3};
 //
-//      for(size_t i = 0; i < points.size(); ++i) {
-//          for(size_t j = 0; j < points[i].size(); ++j) {
-//              points[i][j] *= 2.0f;
-//          }
-//      }
-//  }
-//..
+//     for(size_t i = 0; i < points.size(); ++i) {
+//         for(size_t j = 0; j < points[i].size(); ++j) {
+//             points[i][j] *= 2.0f;
+//         }
+//     }
+// }
+// ```
 // Use the createPoint function to generate three arrays of floats.  The arrays
-// are returned by copy and the 'size()' member function is used to access the
+// are returned by copy and the `size()` member function is used to access the
 // size of the arrays that could not be done with a raw array.
 
 #include <bslscm_version.h>
@@ -600,18 +600,19 @@ namespace BloombergLP {
 namespace bslh {
 
 // HASH SPECIALIZATIONS
+
+/// Pass the specified `input` to the specified `hashAlgorithm` hashing
+/// algorithm of the (template parameter) type `HASH_ALGORITHM`.  Note that
+/// this function violates the BDE coding standard, adding a function for a
+/// namespace for a different package, and none of the function parameters
+/// are from this package either.  This is necessary in order to provide an
+/// implementation of `bslh::hashAppend` for the (native) standard library
+/// `array` type as we are not allowed to add overloads directly into
+/// namespace `std`, and this component essentially provides the interface
+/// between `bsl` and `std` array types.
 template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
 void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
                 const std::array<TYPE, SIZE>& input);
-    // Pass the specified 'input' to the specified 'hashAlgorithm' hashing
-    // algorithm of the (template parameter) type 'HASH_ALGORITHM'.  Note that
-    // this function violates the BDE coding standard, adding a function for a
-    // namespace for a different package, and none of the function parameters
-    // are from this package either.  This is necessary in order to provide an
-    // implementation of 'bslh::hashAppend' for the (native) standard library
-    // 'array' type as we are not allowed to add overloads directly into
-    // namespace 'std', and this component essentially provides the interface
-    // between 'bsl' and 'std' array types.
 
 }  // close namespace bslh
 }  // close enterprise namespace

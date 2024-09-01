@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides an enumeration type,
-//'EnumeratedTestType', to facilitate the testing of templates.
+//`EnumeratedTestType`, to facilitate the testing of templates.
 //
 ///Usage
 ///-----
@@ -21,18 +21,18 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Using The Enumeration
 /// - - - - - - - - - - - - - - - -
-// First, we create an 'EnumeratedTestType::Enum' value and initialize it to
+// First, we create an `EnumeratedTestType::Enum` value and initialize it to
 // the first possible value:
-//..
+// ```
 // EnumeratedTestType::Enum first = EnumeratedTestType::FIRST;
 // assert(static_cast<int>(first) == 0);
-//..
-// Finally, we create an 'EnumeratedTestType::Enum' value and initialize it to
+// ```
+// Finally, we create an `EnumeratedTestType::Enum` value and initialize it to
 // the last possible value:
-//..
+// ```
 // EnumeratedTestType::Enum last = EnumeratedTestType::LAST;
 // assert(static_cast<int>(last) == 127);
-//..
+// ```
 
 #include <bslscm_version.h>
 
@@ -44,10 +44,10 @@ namespace bsltf {
                         // struct EnumeratedTestType
                         // =========================
 
+/// This `struct` provides a namespace for defining an `enum` type that
+/// supports explicit conversion to and from an integral type for values
+/// from 0 to 127 (according to 7.2.7 of the C++11 standard).
 struct EnumeratedTestType {
-    // This 'struct' provides a namespace for defining an 'enum' type that
-    // supports explicit conversion to and from an integral type for values
-    // from 0 to 127 (according to 7.2.7 of the C++11 standard).
 
   public:
     // TYPES

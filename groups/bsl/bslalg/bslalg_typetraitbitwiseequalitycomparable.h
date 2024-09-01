@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as bit-wise eq.-comparable.
 //
-//@DEPRECATED: Use 'bslmf_isbitwiseequalitycomparable' instead.
+//@DEPRECATED: Use `bslmf_isbitwiseequalitycomparable` instead.
 //
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseEqualityComparable: bit-wise eq.-comparable trait
@@ -15,10 +15,10 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitBitwiseEqualityComparable', which allows the trait
-// 'bslmf::IsBitwiseEqualityComparable' to be declared using the (deprecated)
-// 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the
-// 'bslmf_isbitwiseequalitycomparable' component for details of this trait.
+// `bslalg::TypeTraitBitwiseEqualityComparable`, which allows the trait
+// `bslmf::IsBitwiseEqualityComparable` to be declared using the (deprecated)
+// `BSLALG_DECLARE_NESTED_TRAITS` macro.  See the
+// `bslmf_isbitwiseequalitycomparable` component for details of this trait.
 //
 ///Usage
 ///-----
@@ -37,23 +37,23 @@ namespace bslalg {
               // struct TypeTraitBitwiseEqualityComparable
               //==========================================
 
+/// Objects of a type with this trait can be compared for equality using
+/// `memcmp`.  If two objects compare equal, then `memcmp` returns 0,
+/// otherwise it returns non-zero.  Classes with this traits are assumed to
+/// have no padding and to be bit-wise copyable (see the
+/// `TypeTraitBitwiseCopyable` trait).  Undefined behavior may result if
+/// this trait is assigned to a type that does not have an `operator==` or
+/// whose `operator==` implementation may return different from comparing
+/// the footprints with `memcmp` .
 struct TypeTraitBitwiseEqualityComparable {
-    // Objects of a type with this trait can be compared for equality using
-    // 'memcmp'.  If two objects compare equal, then 'memcmp' returns 0,
-    // otherwise it returns non-zero.  Classes with this traits are assumed to
-    // have no padding and to be bit-wise copyable (see the
-    // 'TypeTraitBitwiseCopyable' trait).  Undefined behavior may result if
-    // this trait is assigned to a type that does not have an 'operator==' or
-    // whose 'operator==' implementation may return different from comparing
-    // the footprints with 'memcmp' .
 
+    /// This class template ties the
+    /// `bslalg::TypeTraitBitwiseEqualityComparable` trait tag to the
+    /// `bslmf::IsBitwiseEqualityComparable` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseEqualityComparable>
     {
-        // This class template ties the
-        // 'bslalg::TypeTraitBitwiseEqualityComparable' trait tag to the
-        // 'bslmf::IsBitwiseEqualityComparable' trait metafunction.
     };
 
     template <class TYPE>
@@ -67,9 +67,9 @@ struct TypeTraitBitwiseEqualityComparable {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslalg::TypeTraitBitwiseEqualityComparable
                                      bslalg_TypeTraitBitwiseEqualityComparable;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

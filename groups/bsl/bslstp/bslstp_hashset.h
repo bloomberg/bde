@@ -16,7 +16,7 @@
 //
 // Note that the functions in this component are based on STLPort's
 // implementation, with copyright notice as follows:
-//..
+// ```
 /*
  * Copyright (c) 1996,1997
  * Silicon Graphics Computer Systems, Inc.

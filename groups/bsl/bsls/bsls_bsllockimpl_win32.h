@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a mutex for use below 'bslmt' for windows platform.
+//@PURPOSE: Provide a mutex for use below `bslmt` for windows platform.
 //
 //@CLASSES:
 //  bsls::BslLockImpl_win32: windows mutex
@@ -14,14 +14,14 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a mutually exclusive lock primitive
 // ("mutex") by wrapping a suitable platform-specific mechanism.  The
-// 'bsls::BslLockImpl_win32' class provides 'lock' and 'unlock' operations.
-// Note that 'bsls::BslLockImpl_win32' is not intended for direct client use;
-// see 'bslmt_mutex' instead.  Also note that 'bsls::BslLockImpl_win32' is not
+// `bsls::BslLockImpl_win32` class provides `lock` and `unlock` operations.
+// Note that `bsls::BslLockImpl_win32` is not intended for direct client use;
+// see `bslmt_mutex` instead.  Also note that `bsls::BslLockImpl_win32` is not
 // recursive.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bsls' and is *not* intended
+// This component is an implementation detail of `bsls` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstp::Util: namespace for utility functions
 //
-//@DESCRIPTION: This component defines a class, 'bslstp::Util', that provides a
+//@DESCRIPTION: This component defines a class, `bslstp::Util`, that provides a
 // namespace for utility functions used to implement STL functionality in the
-// 'bslstp' package.
+// `bslstp` package.
 //
 ///Usage
 ///-----
@@ -34,57 +34,59 @@ namespace bslstp {
                         // class Util
                         // ==========
 
+/// Namespace for utility functions used to implement STL functionality.
 class Util {
-    // Namespace for utility functions used to implement STL functionality.
 
     // PRIVATE TYPES
+
+    /// Simplify template specializations and overloading.
     template <class ALLOCATOR, int IS_BSLMA_ALLOC>
     struct AllocatorUtil {
-        // Simplify template specializations and overloading.
 
+        /// Return the appropriate allocator for use when copy-constructing
+        /// a container.  `rhsAlloc` is intended to be the allocator from
+        /// the container being copied.  If `isBslmaAlloc` is of type
+        /// `bsl::true_type` then ignore `rhsAlloc` and return the
+        /// default allocator.  Otherwise, return `rhsAlloc` unchanged.
         static ALLOCATOR copyContainerAllocator(const ALLOCATOR& rhsAlloc);
-            // Return the appropriate allocator for use when copy-constructing
-            // a container.  'rhsAlloc' is intended to be the allocator from
-            // the container being copied.  If 'isBslmaAlloc' is of type
-            // 'bsl::true_type' then ignore 'rhsAlloc' and return the
-            // default allocator.  Otherwise, return 'rhsAlloc' unchanged.
     };
 
+    /// Specialization for non-`bslma` allocators.
     template <class ALLOCATOR>
     struct AllocatorUtil<ALLOCATOR, 0> {
-        // Specialization for non-'bslma' allocators.
 
+        /// Return the appropriate allocator for use when copy-constructing
+        /// a container.  `rhsAlloc` is intended to be the allocator from
+        /// the container being copied.  If `isBslmaAlloc` is of type
+        /// `bsl::true_type` then ignore `rhsAlloc` and return the
+        /// default allocator.  Otherwise, return `rhsAlloc` unchanged.
         static ALLOCATOR copyContainerAllocator(const ALLOCATOR& rhsAlloc);
-            // Return the appropriate allocator for use when copy-constructing
-            // a container.  'rhsAlloc' is intended to be the allocator from
-            // the container being copied.  If 'isBslmaAlloc' is of type
-            // 'bsl::true_type' then ignore 'rhsAlloc' and return the
-            // default allocator.  Otherwise, return 'rhsAlloc' unchanged.
     };
 
   public:
     // CLASS METHODS
+
+    /// Return the appropriate allocator for use when copy-constructing a
+    /// container.  `rhsAlloc` is intended to be the allocator from the
+    /// container being copied.  If the `ALLOCATOR` type uses `bslma`
+    /// allocator semantics, then ignore `rhsAlloc` and return the default
+    /// allocator.  Otherwise, return `rhsAlloc` unchanged.
     template <class ALLOCATOR>
     static ALLOCATOR copyContainerAllocator(const ALLOCATOR& rhsAlloc);
-        // Return the appropriate allocator for use when copy-constructing a
-        // container.  'rhsAlloc' is intended to be the allocator from the
-        // container being copied.  If the 'ALLOCATOR' type uses 'bslma'
-        // allocator semantics, then ignore 'rhsAlloc' and return the default
-        // allocator.  Otherwise, return 'rhsAlloc' unchanged.
 
+    /// Swap the contents of containers `c1` and `c2`, correctly handling
+    /// the case where the two containers have different allocator values.
+    /// The `quickswap` argument is a binary function object that is called
+    /// to quickly swap two `CONTAINER` objects with matching allocators.
+    /// (The `quickswap` object does not need to check that the allocator
+    /// matched -- it is guaranteed by the caller.)  Strong exception
+    /// guarantee: if the allocator or copy constructor of either container
+    /// throws an exception, then the values of `c1` and `c2` are left
+    /// unchanged.  The `quickswap` function must not throw an exception.
     template <class CONTAINER, class QUICKSWAP_FUNC>
     static void swapContainers(CONTAINER&            c1,
                                CONTAINER&            c2,
                                const QUICKSWAP_FUNC& quickswap);
-        // Swap the contents of containers 'c1' and 'c2', correctly handling
-        // the case where the two containers have different allocator values.
-        // The 'quickswap' argument is a binary function object that is called
-        // to quickly swap two 'CONTAINER' objects with matching allocators.
-        // (The 'quickswap' object does not need to check that the allocator
-        // matched -- it is guaranteed by the caller.)  Strong exception
-        // guarantee: if the allocator or copy constructor of either container
-        // throws an exception, then the values of 'c1' and 'c2' are left
-        // unchanged.  The 'quickswap' function must not throw an exception.
 };
 
 }  // close package namespace
@@ -170,8 +172,8 @@ void Util::swapContainers(CONTAINER&            c1,
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslstp::Util bslstp_Util;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

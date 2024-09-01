@@ -15,30 +15,30 @@ BSLS_IDENT("$Id: $")
 //: BSLMF_TAG_TO_BOOL(EXPR): map tag to boolean value
 //
 //@DESCRIPTION: This component defines a simple template structure used to map
-// an integral constant to a C++ type.  'bslmf::Tag<unsigned>' defines a
+// an integral constant to a C++ type.  `bslmf::Tag<unsigned>` defines a
 // different type for each distinct compile-time constant integral parameter.
 // That is, instantiations with different integer values form distinct types,
-// so that 'bslmf::Tag<0>' is a distinct type from 'bslmf::Tag<1>', which, in
-// turn, is also distinct from 'bslmf::Tag<2>', and so on.
+// so that `bslmf::Tag<0>` is a distinct type from `bslmf::Tag<1>`, which, in
+// turn, is also distinct from `bslmf::Tag<2>`, and so on.
 //
-// This component also provides two macros for mapping a 'bslmf::Tag<t_N>'
-// instance to the integral value 't_N' ('BSLMF_TAG_TO_INT'), and to the
-// boolean value 't_N != 0' ('BSLMF_TAG_TO_BOOL').
+// This component also provides two macros for mapping a `bslmf::Tag<t_N>`
+// instance to the integral value `t_N` (`BSLMF_TAG_TO_INT`), and to the
+// boolean value `t_N != 0` (`BSLMF_TAG_TO_BOOL`).
 //
 ///Macro Summary
 ///-------------
 // This section provides a brief description of the macros defined in this
 // component.
 //
-//: 'BSLMF_TAG_TO_INT(EXPR)'
-//:     Given an integral value, 'V', and an expression, 'EXPR', of type
-//:     'bslmf::Tag<V>', this macro returns a compile-time constant with the
-//:     value 'V'.  'EXPR' is not evaluated at run-time.
+//: `BSLMF_TAG_TO_INT(EXPR)`
+//:     Given an integral value, `V`, and an expression, `EXPR`, of type
+//:     `bslmf::Tag<V>`, this macro returns a compile-time constant with the
+//:     value `V`.  `EXPR` is not evaluated at run-time.
 //:
-//: 'BSLMF_TAG_TO_BOOL(EXPR)'
-//:     Given an integral value, 'V', and an expression, 'EXPR', of type
-//:     'bslmf::Tag<V>', this macro returns a compile-time constant with the
-//:     value 'true' or 'false', depending on the boolean value of 'V'.  'EXPR'
+//: `BSLMF_TAG_TO_BOOL(EXPR)`
+//:     Given an integral value, `V`, and an expression, `EXPR`, of type
+//:     `bslmf::Tag<V>`, this macro returns a compile-time constant with the
+//:     value `true` or `false`, depending on the boolean value of `V`.  `EXPR`
 //:     is not evaluated at run-time.
 //
 
@@ -114,13 +114,13 @@ namespace bslmf {
                               // struct Tag<t_N>
                               // ===============
 
+/// This template class is never intended to produce a run-time instance.
+/// The only useful attribute of a tag is its size (which is, of course,
+/// computable at compile time, even if an instance is never created).  Note
+/// that in case of overflow on Linux 64-bit machines, we split the size
+/// into 2 data members.
 template <unsigned t_N>
 struct Tag {
-    // This template class is never intended to produce a run-time instance.
-    // The only useful attribute of a tag is its size (which is, of course,
-    // computable at compile time, even if an instance is never created).  Note
-    // that in case of overflow on Linux 64-bit machines, we split the size
-    // into 2 data members.
 
     // DATA
     char d_upperSizeArray[(t_N >> 16) + 1];
@@ -145,8 +145,8 @@ struct Tag {
 #ifdef bslmf_Tag
 #undef bslmf_Tag
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_Tag bslmf::Tag
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

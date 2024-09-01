@@ -8,16 +8,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a utility for formatting numbers into strings.
 //
 //@CLASSES:
-//  bslalg::NumericFormatterUtil: namespace for 'toChars' and support functions
+//  bslalg::NumericFormatterUtil: namespace for `toChars` and support functions
 //
-//@DESCRIPTION: This component, 'bslalg_numericformatterutil' provides a
-// namespace 'struct', 'bslalg::NumericFormatterUtil', containing the
-// overloaded function 'toChars', that converts integral and floating point
+//@DESCRIPTION: This component, `bslalg_numericformatterutil` provides a
+// namespace `struct`, `bslalg::NumericFormatterUtil`, containing the
+// overloaded function `toChars`, that converts integral and floating point
 // types into ASCII strings.
 //
 ///Shortest (Textual) Decimal Representation for Binary Floating Point Values
 ///--------------------------------------------------------------------------
-// The floating point 'toChars' implementations (for 'float' and 'double') of
+// The floating point `toChars` implementations (for `float` and `double`) of
 // this component provide the shortest (textual) decimal representation that
 // can (later) be parsed back to the original binary value (i.e., a
 // "round-trip" conversion).  Such round-tripping enables precise, and
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // Scientific notation, when chosen, always uses the minimum number of
 // fractional digits necessary to restore the exact binary floating point
 // value.  The shortest *decimal* notation of a binary floating point number is
-// text that has enough decimal !fractional! digits so that there can be no
+// text that has enough decimal **fractional** digits so that there can be no
 // ambiguity in which binary representation value is closest to it.  Notice
 // that the previous sentence only addresses the number of *fractional* digits
 // in the decimal notation.  Floating point values that are mathematically
@@ -46,17 +46,17 @@ BSLS_IDENT("$Id: $")
 // More information about the difficulty of rendering binary floating point
 // numbers as decimals can be found at
 // https://bloomberg.github.io/bde/articles/binary_decimal_conversion.html .
-// In short, IEEE-754 double precision binary floating point numbers ('double')
+// In short, IEEE-754 double precision binary floating point numbers (`double`)
 // are guaranteed to round-trip when represented by 17 significant decimal
-// digits, while single precisions ('float') needs 9 digits.  However those
+// digits, while single precisions (`float`) needs 9 digits.  However those
 // numbers are the *maximum* decimal digits that *may* be necessary, and in
-// fact many values can be precisely represented precisely by less.  'toChars'
+// fact many values can be precisely represented precisely by less.  `toChars`
 // renders the minimum number of digits needed, so that the value can later be
 // restored.
 //
 ///Default Floating Point Format
 ///-----------------------------
-// The default floating point format (that is used when no 'format' argument is
+// The default floating point format (that is used when no `format` argument is
 // present in the signature) uses the shortest representation from the decimal
 // notation and the scientific notation, favoring decimal notation in case of a
 // tie.
@@ -69,13 +69,13 @@ BSLS_IDENT("$Id: $")
 // The special numerical value is really just one, and that is negative zero.
 //
 // For non-numerical special value both IEEE-754 and W3C XML Schema Definition
-// Language (XSD) 1.1(**) 'numericalSpecialRep' requires there to be three
+// Language (XSD) 1.1(**) `numericalSpecialRep` requires there to be three
 // distinct values supported: positive infinity, negative infinity, and NaN.
 // We represent those values according to the XSD lexical mapping
 // specification.  That also means that these values will round trip in text
 // *only* if the reader algorithm recognizes those representations.
 //
-//..
+// ```
 // +-------------------+----------------+
 // | Special Value     | Textual Repr.  |
 // +-------------------+----------------+
@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 // +-------------------+----------------+
 // | Not-a-number      | "NaN"          |
 // +-------------------+----------------+
-//..
+// ```
 //
 // (*) Non-numerical values do not represent a specific mathematical value.  Do
 //     not confuse non-numerical values with Not-a-Number.  NaN is just one of
@@ -105,149 +105,149 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example 1: Writing an Integer to a 'streambuf'
+///Example 1: Writing an Integer to a `streambuf`
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to define a function that writes an 'int' to a 'streambuf'.
-// We can use 'bsl::to_chars' to write the 'int' to a buffer, then write the
-// buffer to the 'streambuf'.
+// Suppose we want to define a function that writes an `int` to a `streambuf`.
+// We can use `bsl::to_chars` to write the `int` to a buffer, then write the
+// buffer to the `streambuf`.
 //
 // First, we declare our function:
-//..
-//  void writeJsonScalar(std::streambuf *result, int value)
-//      // Write the specified 'value', in decimal, to the specified 'result'.
-//  {
-//..
-// Then, we declare a buffer long enough to store any 'int' value in decimal.
-//..
-//      char buffer[bslalg::NumericFormatterUtil::
-//                                             ToCharsMaxLength<int>::k_VALUE];
-//                                 // size large enough to write 'INT_MIN', the
-//                                 // worst-case value, in decimal.
-//..
+// ```
+// void writeJsonScalar(std::streambuf *result, int value)
+//     // Write the specified 'value', in decimal, to the specified 'result'.
+// {
+// ```
+// Then, we declare a buffer long enough to store any `int` value in decimal.
+// ```
+//     char buffer[bslalg::NumericFormatterUtil::
+//                                            ToCharsMaxLength<int>::k_VALUE];
+//                                // size large enough to write 'INT_MIN', the
+//                                // worst-case value, in decimal.
+// ```
 // Next, we call the function:
-//..
-//      char *ret = bslalg::NumericFormatterUtil::toChars(
-//                                                      buffer,
-//                                                      buffer + sizeof buffer,
-//                                                      value);
-//..
+// ```
+//     char *ret = bslalg::NumericFormatterUtil::toChars(
+//                                                     buffer,
+//                                                     buffer + sizeof buffer,
+//                                                     value);
+// ```
 // Then, we check that the buffer was long enough, which should always be the
 // case:
-//..
-//      assert(0 != ret);
-//..
-// Now, we write our buffer to the 'streambuf':
-//..
-//      result->sputn(buffer, ret - buffer);
-//  }
-//..
+// ```
+//     assert(0 != ret);
+// ```
+// Now, we write our buffer to the `streambuf`:
+// ```
+//     result->sputn(buffer, ret - buffer);
+// }
+// ```
 // Finally, we use an output string stream buffer to exercise the
-// 'writeJsonScalar' function for 'int':
-//..
-//  std::ostringstream  oss;
-//  std::streambuf* sb = oss.rdbuf();
+// `writeJsonScalar` function for `int`:
+// ```
+// std::ostringstream  oss;
+// std::streambuf* sb = oss.rdbuf();
 //
-//  writeJsonScalar(sb, 0);
-//  assert("0" == oss.str());
+// writeJsonScalar(sb, 0);
+// assert("0" == oss.str());
 //
-//  oss.str("");
-//  writeJsonScalar(sb, 99);
-//  assert("99" == oss.str());
+// oss.str("");
+// writeJsonScalar(sb, 99);
+// assert("99" == oss.str());
 //
-//  oss.str("");
-//  writeJsonScalar(sb, -1234567890);  // worst case: max string length
-//  assert("-1234567890" == oss.str());
-//..
+// oss.str("");
+// writeJsonScalar(sb, -1234567890);  // worst case: max string length
+// assert("-1234567890" == oss.str());
+// ```
 //
-///Example 2: Writing the Minimal Form of a 'double'
+///Example 2: Writing the Minimal Form of a `double`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to store a floating point number using decimal text (such as
 // JSON) for later retrieval, using the minimum number of digits that ensures
 // we can later restore the same binary floating point value.
 //
 // First, we declare our writer function:
-//..
-//  void writeJsonScalar(std::streambuf *result,
-//                       double          value,
-//                       bool            stringNonNumericValues = false)
-//      // Write the specified 'value' in the shortest round-trip decimal
-//      // format into the specified 'result'.  Write non-numeric values
-//      // according to the optionally specified 'stringNonNumericValues'
-//      // either as strings "NaN", "+Infinity", or "-Infinity" when
-//      // 'stringNonNumericValues' is 'true', or a null when it is 'false' or
-//      // not specified.
-//  {
-//..
-// Then, we handle non-numeric values ('toChars' would write them the XSD way):
-//..
-//      if (isnan(value) || isinf(value)) {
-//          if (false == stringNonNumericValues) {  // JSON standard output
-//              result->sputn("null", 4);
-//          }
-//          else {                                  // Frequent JSON extension
-//              if (isnan(value)) {
-//                  result->sputn("\"NaN\"", 5);
-//              }
-//              else if (isinf(value)) {
-//                  result->sputn(value < 0 ? "\"-" : "\"+", 2);
-//                  result->sputn("Infinity\"", 9);
-//              }
-//          }
-//          return;                                                   // RETURN
-//      }
-//..
-// Next, we declare a buffer long enough to store any 'double' value written in
+// ```
+// void writeJsonScalar(std::streambuf *result,
+//                      double          value,
+//                      bool            stringNonNumericValues = false)
+//     // Write the specified 'value' in the shortest round-trip decimal
+//     // format into the specified 'result'.  Write non-numeric values
+//     // according to the optionally specified 'stringNonNumericValues'
+//     // either as strings "NaN", "+Infinity", or "-Infinity" when
+//     // 'stringNonNumericValues' is 'true', or a null when it is 'false' or
+//     // not specified.
+// {
+// ```
+// Then, we handle non-numeric values (`toChars` would write them the XSD way):
+// ```
+//     if (isnan(value) || isinf(value)) {
+//         if (false == stringNonNumericValues) {  // JSON standard output
+//             result->sputn("null", 4);
+//         }
+//         else {                                  // Frequent JSON extension
+//             if (isnan(value)) {
+//                 result->sputn("\"NaN\"", 5);
+//             }
+//             else if (isinf(value)) {
+//                 result->sputn(value < 0 ? "\"-" : "\"+", 2);
+//                 result->sputn("Infinity\"", 9);
+//             }
+//         }
+//         return;                                                   // RETURN
+//     }
+// ```
+// Next, we declare a buffer long enough to store any `double` value written in
 // this minimal-length form:
-//..
-//      char buffer[bslalg::NumericFormatterUtil::
-//                                          ToCharsMaxLength<double>::k_VALUE];
-//                                // large enough to write the longest 'double'
-//                                // without a null terminator character.
-//..
+// ```
+//     char buffer[bslalg::NumericFormatterUtil::
+//                                         ToCharsMaxLength<double>::k_VALUE];
+//                               // large enough to write the longest 'double'
+//                               // without a null terminator character.
+// ```
 // Then, we call the function:
-//..
-//      char *ret = bslalg::NumericFormatterUtil::toChars(
-//                                                      buffer,
-//                                                      buffer + sizeof buffer,
-//                                                      value);
-//..
-// Finally, we can write our buffer to the 'streambuf':
-//..
-//      result->sputn(buffer, ret - buffer);
-//  }
-//..
+// ```
+//     char *ret = bslalg::NumericFormatterUtil::toChars(
+//                                                     buffer,
+//                                                     buffer + sizeof buffer,
+//                                                     value);
+// ```
+// Finally, we can write our buffer to the `streambuf`:
+// ```
+//     result->sputn(buffer, ret - buffer);
+// }
+// ```
 // Finally, we use the output string stream buffer defined earlier to exercise
-// the floating point 'writeJsonScalar' function:
-//..
-//  oss.str("");
-//  writeJsonScalar(sb, 20211017.0);
-//  assert("20211017" == oss.str());
+// the floating point `writeJsonScalar` function:
+// ```
+// oss.str("");
+// writeJsonScalar(sb, 20211017.0);
+// assert("20211017" == oss.str());
 //
-//  oss.str("");
-//  writeJsonScalar(sb, 3.1415926535897932);
-//  assert("3.141592653589793" == oss.str());
+// oss.str("");
+// writeJsonScalar(sb, 3.1415926535897932);
+// assert("3.141592653589793" == oss.str());
 //
-//  oss.str("");
-//  writeJsonScalar(sb, 2e5);
-//  assert("2e+05" == oss.str());
+// oss.str("");
+// writeJsonScalar(sb, 2e5);
+// assert("2e+05" == oss.str());
 //
-//  oss.str("");                  // Non-numeric are written as null by default
-//  writeJsonScalar(sb, std::numeric_limits<double>::quiet_NaN());
-//  assert("null" == oss.str());  oss.str("");
+// oss.str("");                  // Non-numeric are written as null by default
+// writeJsonScalar(sb, std::numeric_limits<double>::quiet_NaN());
+// assert("null" == oss.str());  oss.str("");
 //
-//  oss.str("");                  // Non-numeric can be printed as strings
-//  writeJsonScalar(sb, std::numeric_limits<double>::quiet_NaN(), true);
-//  assert("\"NaN\"" == oss.str());  oss.str("");
-//..
+// oss.str("");                  // Non-numeric can be printed as strings
+// writeJsonScalar(sb, std::numeric_limits<double>::quiet_NaN(), true);
+// assert("\"NaN\"" == oss.str());  oss.str("");
+// ```
 //
 ///Example 3: Determining The Necessary Minimum Buffer Size
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose you are writing code that uses 'bslalg::NumericFormatterUtil' to
+// Suppose you are writing code that uses `bslalg::NumericFormatterUtil` to
 // convert values to text.  Determining the necessary buffer sizes to ensure
 // successful conversions, especially for floating point types, is non-trivial,
 // and frankly usually strikes as a distraction in the flow of the work.  This
-// component provides the 'ToCharsMaxLength' 'struct' "overloaded" template
-// that parallels the overloaded 'toChars' function variants and provides the
+// component provides the `ToCharsMaxLength` `struct` "overloaded" template
+// that parallels the overloaded `toChars` function variants and provides the
 // well-vetted and tested minimum sufficient buffer size values as compile time
 // constants.
 //
@@ -256,60 +256,60 @@ BSLS_IDENT("$Id: $")
 // control the conversion, and is that argument a compile time time constant?
 //
 // First, because of the descriptive type names we may want to start by locally
-// shortening them using a 'typedef':
-//..
-//  typedef bslalg::NumericFormatterUtil NfUtil;
-//..
-// Next, we determine the sufficient buffer size for converting a 'long' to
-// decimal.  'long' is a type that has different 'sizeof' on different 64 bit
+// shortening them using a `typedef`:
+// ```
+// typedef bslalg::NumericFormatterUtil NfUtil;
+// ```
+// Next, we determine the sufficient buffer size for converting a `long` to
+// decimal.  `long` is a type that has different `sizeof` on different 64 bit
 // platforms, so it is especially convenient to have that difference hidden:
-//..
-//  const size_t k_LONG_DEC_SIZE = NfUtil::ToCharsMaxLength<long>::k_VALUE;
-//      // Sufficient buffer size to convert any 'long' value to decimal text.
-//..
-// Then, we can write the longest possible 'long' successfully into a buffer:
-//..
-//  char longDecimalBuffer[k_LONG_DEC_SIZE];
-//      // We can write any 'long' in decimal into this buffer using
-//      // 'NfUtil::toChars' safely.
+// ```
+// const size_t k_LONG_DEC_SIZE = NfUtil::ToCharsMaxLength<long>::k_VALUE;
+//     // Sufficient buffer size to convert any 'long' value to decimal text.
+// ```
+// Then, we can write the longest possible `long` successfully into a buffer:
+// ```
+// char longDecimalBuffer[k_LONG_DEC_SIZE];
+//     // We can write any 'long' in decimal into this buffer using
+//     // 'NfUtil::toChars' safely.
 //
-//  char *p = NfUtil::toChars(longDecimalBuffer,
-//                            longDecimalBuffer + sizeof longDecimalBuffer,
-//                            LONG_MIN);
-//  assert(p != 0);
-//..
-// Next, we can get the sufficient size for conversion of an 'unsigned int' to
+// char *p = NfUtil::toChars(longDecimalBuffer,
+//                           longDecimalBuffer + sizeof longDecimalBuffer,
+//                           LONG_MIN);
+// assert(p != 0);
+// ```
+// Next, we can get the sufficient size for conversion of an `unsigned int` to
 // octal:
-//..
-//  const size_t k_UINT_OCT_SIZE = NfUtil::ToCharsMaxLength<unsigned,
-//                                                          8>::k_VALUE;
-//..
-// Then, if we do not know what 'base' value 'toChars' will use we have to,
+// ```
+// const size_t k_UINT_OCT_SIZE = NfUtil::ToCharsMaxLength<unsigned,
+//                                                         8>::k_VALUE;
+// ```
+// Then, if we do not know what `base` value `toChars` will use we have to,
 // assume the longest, which is always base 2:
-//..
-//  const size_t k_SHRT_MAX_SIZE = NfUtil::ToCharsMaxLength<short, 2>::k_VALUE;
-//..
-// Now, floating point types have an optional 'format' argument instead of a
-// 'base', with "default" format as the default, and "fixed" and "scientific"
-// formats are selectable when a 'format' argument is specified:
-//..
-//  const size_t k_DBL_DFL_SIZE = NfUtil::ToCharsMaxLength<double>::k_VALUE;
+// ```
+// const size_t k_SHRT_MAX_SIZE = NfUtil::ToCharsMaxLength<short, 2>::k_VALUE;
+// ```
+// Now, floating point types have an optional `format` argument instead of a
+// `base`, with "default" format as the default, and "fixed" and "scientific"
+// formats are selectable when a `format` argument is specified:
+// ```
+// const size_t k_DBL_DFL_SIZE = NfUtil::ToCharsMaxLength<double>::k_VALUE;
 //
-//  const size_t k_FLT_DEC_SIZE = NfUtil::ToCharsMaxLength<
-//                                                   float,
-//                                                   NfUtil::e_FIXED>::k_VALUE;
+// const size_t k_FLT_DEC_SIZE = NfUtil::ToCharsMaxLength<
+//                                                  float,
+//                                                  NfUtil::e_FIXED>::k_VALUE;
 //
-//  const size_t k_DBL_SCI_SIZE = NfUtil::ToCharsMaxLength<
-//                                              double,
-//                                              NfUtil::e_SCIENTIFIC>::k_VALUE;
-//..
-// Finally, the longest floating point format is 'e_FIXED', so if the 'format'
-// argument is not known at compile time, 'e_FIXED' should be used:
-//..
-//  const size_t k_DBL_MAX_SIZE = NfUtil::ToCharsMaxLength<
-//                                                   double,
-//                                                   NfUtil::e_FIXED>::k_VALUE;
-//..
+// const size_t k_DBL_SCI_SIZE = NfUtil::ToCharsMaxLength<
+//                                             double,
+//                                             NfUtil::e_SCIENTIFIC>::k_VALUE;
+// ```
+// Finally, the longest floating point format is `e_FIXED`, so if the `format`
+// argument is not known at compile time, `e_FIXED` should be used:
+// ```
+// const size_t k_DBL_MAX_SIZE = NfUtil::ToCharsMaxLength<
+//                                                  double,
+//                                                  NfUtil::e_FIXED>::k_VALUE;
+// ```
 
 #include <bslscm_version.h>
 
@@ -331,139 +331,145 @@ namespace bslalg {
                         // struct NumericFormatterUtil
                         // ===========================
 
+/// Namespace `struct` for free functions supporting `to_chars`.
 struct NumericFormatterUtil {
-    // Namespace 'struct' for free functions supporting 'to_chars'.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Write the specified `value` into the character buffer starting a the
+    /// specified `first` and ending at the specified `last`, rendering the
+    /// value in the specified base `base`.  On success, return a the
+    /// address one past the lowest order digit written, on failure, return
+    /// 0.  The only reason for failure is if the range `[ first, last )` is
+    /// not large enough to contain the result.  The written result is to
+    /// begin at `first` with leftover room following the return value.  The
+    /// behavior is undefined unless `first <= last` and `base` is in the
+    /// range `[ 2 .. 36 ]`.
     static char *toCharsImpl(char     *first,
                              char     *last,
                              unsigned  value,
                              int       base) BSLS_KEYWORD_NOEXCEPT;
-        // Write the specified 'value' into the character buffer starting a the
-        // specified 'first' and ending at the specified 'last', rendering the
-        // value in the specified base 'base'.  On success, return a the
-        // address one past the lowest order digit written, on failure, return
-        // 0.  The only reason for failure is if the range '[ first, last )' is
-        // not large enough to contain the result.  The written result is to
-        // begin at 'first' with leftover room following the return value.  The
-        // behavior is undefined unless 'first <= last' and 'base' is in the
-        // range '[ 2 .. 36 ]'.
 
+    /// Write the specified `value` into the character buffer starting a the
+    /// specified `first` and ending at the specified `last`, ing the value
+    /// in the specified base `base`.  On success, return a the address one
+    /// past the lowest order digit written, on failure, return 0.  The only
+    /// reason for failure is if the range `[ first, last )` is not large
+    /// enough to contain the result.  The written result is to begin at
+    /// `first` with leftover room following the return value.  The behavior
+    /// is undefined unless `first <= last` and `base` is in the range
+    /// `[ 2 .. 36 ]`.
     static
     char *toCharsImpl(char                    *first,
                       char                    *last,
                       unsigned long long int   value,
                       int                      base) BSLS_KEYWORD_NOEXCEPT;
-        // Write the specified 'value' into the character buffer starting a the
-        // specified 'first' and ending at the specified 'last', ing the value
-        // in the specified base 'base'.  On success, return a the address one
-        // past the lowest order digit written, on failure, return 0.  The only
-        // reason for failure is if the range '[ first, last )' is not large
-        // enough to contain the result.  The written result is to begin at
-        // 'first' with leftover room following the return value.  The behavior
-        // is undefined unless 'first <= last' and 'base' is in the range
-        // '[ 2 .. 36 ]'.
 
+    /// Write the textual representation of the specified `value` in the
+    /// specified `base` into the character buffer starting a the specified
+    /// `first` and ending at the specified `last`.  Return the address one
+    /// past the lowest order digit written on success, or 0 on failure.
+    /// The only possible reason for failure is if the range
+    /// `[ first, last )` is not large enough to contain the result.  The
+    /// written result is to begin at `first` with leftover room following
+    /// the return value.  The behavior is undefined unless `first < last`
+    /// and `base` is in the range `[ 2 .. 36 ]`.  The behavior is also
+    /// undefined unless the specified `TYPE` is a fundamental integral type
+    /// not larger than 64 bits.
     template <class TYPE>
     static char *toCharsIntegral(char *first,
                                  char *last,
                                  TYPE  value,
                                  int   base) BSLS_KEYWORD_NOEXCEPT;
-        // Write the textual representation of the specified 'value' in the
-        // specified 'base' into the character buffer starting a the specified
-        // 'first' and ending at the specified 'last'.  Return the address one
-        // past the lowest order digit written on success, or 0 on failure.
-        // The only possible reason for failure is if the range
-        // '[ first, last )' is not large enough to contain the result.  The
-        // written result is to begin at 'first' with leftover room following
-        // the return value.  The behavior is undefined unless 'first < last'
-        // and 'base' is in the range '[ 2 .. 36 ]'.  The behavior is also
-        // undefined unless the specified 'TYPE' is a fundamental integral type
-        // not larger than 64 bits.
 
     static char *toCharsDecimal(char   *first,
                                 char   *last,
                                 double  value) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the textual representation of the specified `value` in decimal
+    /// notation into the character buffer starting a the specified `first`
+    /// and ending at the specified `last`.  Return the address one past the
+    /// lowest order digit written on success, or 0 on failure.  The only
+    /// possible reason for failure is if the range `[ first, last )` is not
+    /// large enough to contain the result.  The written result is to begin
+    /// at `first` with leftover room following the return value.
     static char *toCharsDecimal(char   *first,
                                 char   *last,
                                 float   value) BSLS_KEYWORD_NOEXCEPT;
-        // Write the textual representation of the specified 'value' in decimal
-        // notation into the character buffer starting a the specified 'first'
-        // and ending at the specified 'last'.  Return the address one past the
-        // lowest order digit written on success, or 0 on failure.  The only
-        // possible reason for failure is if the range '[ first, last )' is not
-        // large enough to contain the result.  The written result is to begin
-        // at 'first' with leftover room following the return value.
 
     static char *toCharsScientific(char   *first,
                                    char   *last,
                                    double  value) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the textual representation of the specified `value` in
+    /// scientific notation into the character buffer starting a the
+    /// specified `first` and ending at the specified `last`.  Return the
+    /// address one past the lowest order digit of the exponent written on
+    /// success, or 0 on failure.  The only possible reason for failure is
+    /// if the range `[ first, last )` is not large enough to contain the
+    /// result.  The written result is to begin at `first` with leftover
+    /// room following the return value.
     static char *toCharsScientific(char   *first,
                                    char   *last,
                                    float   value) BSLS_KEYWORD_NOEXCEPT;
-        // Write the textual representation of the specified 'value' in
-        // scientific notation into the character buffer starting a the
-        // specified 'first' and ending at the specified 'last'.  Return the
-        // address one past the lowest order digit of the exponent written on
-        // success, or 0 on failure.  The only possible reason for failure is
-        // if the range '[ first, last )' is not large enough to contain the
-        // result.  The written result is to begin at 'first' with leftover
-        // room following the return value.
 
   private:
     // NOT IMPLEMENTED
+
+    /// This deleted/private method declaration exists to prevent `toChars`
+    /// being called with a `bool` input argument.
     static char *toChars(char*, char*, bool, int = 10) BSLS_KEYWORD_NOEXCEPT
                                                        BSLS_KEYWORD_DELETED;
-        // This deleted/private method declaration exists to prevent 'toChars'
-        // being called with a 'bool' input argument.
 
   private:
     // PRIVATE TYPES
+
+    /// This enumerator is used internally to achieve "type safe"
+    /// pseudo-overloading of the `ToCharsMaxLength` template to mimic the
+    /// different `toChars` class method overloads.
     enum { k_MAXLEN_ARG_DEFAULT = -256 };
-        // This enumerator is used internally to achieve "type safe"
-        // pseudo-overloading of the 'ToCharsMaxLength' template to mimic the
-        // different 'toChars' class method overloads.
 
     // PRIVATE METAFUNCTIONS
+
+    /// This `struct` template implements a meta-function to determine the
+    /// minimum sufficient size (in characters) of an output buffer to
+    /// successfully convert any value of the specified `FLT_TYPE` floating
+    /// point type into text of the specified `FORMAT` using `toChars`.
+    /// Format may be any of the `Format` enumerator values or an
+    /// unspecified value for default format.  The floating point types are
+    /// assumed to be IEEE-754 binary types.  The result ("return value") is
+    /// a member enumerator `k_VALUE`.  This meta-function is private and
+    /// contains no defensive checks.
     template <class FLT_TYPE, int FORMAT>
     struct FltMaxLen;
-        // This 'struct' template implements a meta-function to determine the
-        // minimum sufficient size (in characters) of an output buffer to
-        // successfully convert any value of the specified 'FLT_TYPE' floating
-        // point type into text of the specified 'FORMAT' using 'toChars'.
-        // Format may be any of the 'Format' enumerator values or an
-        // unspecified value for default format.  The floating point types are
-        // assumed to be IEEE-754 binary types.  The result ("return value") is
-        // a member enumerator 'k_VALUE'.  This meta-function is private and
-        // contains no defensive checks.
 
+    /// This `struct` template implements a meta-function to determine the
+    /// minimum sufficient size (in characters) of an output buffer to
+    /// successfully convert any value of a fundamental integer type to text
+    /// into the specified `BASE` using `toChars`.  The integer type is
+    /// described by the specified `IS_SIGNED` and `SIZEOF` parameters, and
+    /// is assumed to be two's complement.  The result ("return value") is
+    /// an enumerator `k_VALUE`.  The meta-function is private and contains
+    /// no defensive checks.
     template <bool IS_SIGNED, unsigned SIZEOF, int BASE>
     struct IntMaxLen;
-        // This 'struct' template implements a meta-function to determine the
-        // minimum sufficient size (in characters) of an output buffer to
-        // successfully convert any value of a fundamental integer type to text
-        // into the specified 'BASE' using 'toChars'.  The integer type is
-        // described by the specified 'IS_SIGNED' and 'SIZEOF' parameters, and
-        // is assumed to be two's complement.  The result ("return value") is
-        // an enumerator 'k_VALUE'.  The meta-function is private and contains
-        // no defensive checks.
 
+    /// This `struct` template implements the meta-function to determine if
+    /// the specified `TYPE` is a supported floating point type for the
+    /// `toChars` overloaded method-set.  The result ("return value") is an
+    /// enumerator `k_SUPPORTED` that has a non-zero value if `TYPE` is a
+    /// supported floating point type, or zero otherwise.
     template <class TYPE>
     struct IsSupportedFloatingPoint;
-        // This 'struct' template implements the meta-function to determine if
-        // the specified 'TYPE' is a supported floating point type for the
-        // 'toChars' overloaded method-set.  The result ("return value") is an
-        // enumerator 'k_SUPPORTED' that has a non-zero value if 'TYPE' is a
-        // supported floating point type, or zero otherwise.
 
+    /// This `struct` template implements the meta-function to determine if
+    /// the specified `TYPE` is a supported integral type for the `toChars`
+    /// overloaded method-set.  The result ("return value") is an enumerator
+    /// `k_SUPPORTED` that has a non-zero value if `TYPE` is a supported
+    /// integral type, or zero otherwise.
     template <class TYPE>
     struct IsSupportedIntegral;
-        // This 'struct' template implements the meta-function to determine if
-        // the specified 'TYPE' is a supported integral type for the 'toChars'
-        // overloaded method-set.  The result ("return value") is an enumerator
-        // 'k_SUPPORTED' that has a non-zero value if 'TYPE' is a supported
-        // integral type, or zero otherwise.
 
   public:
     // PUBLIC TYPES
@@ -484,23 +490,24 @@ struct NumericFormatterUtil {
     };
 
     // PUBLIC METAFUNCTIONS
+
+    /// This `struct` template implements the meta-function to determine the
+    /// minimum sufficient size of a buffer to successfully convert any
+    /// numeric value of a specified `TYPE` supported by one of the
+    /// `toChars` function overloads in `NumericFormatterUtil`.  The
+    /// meta-function allows specifying an argument value to the `toChars`
+    /// overloads, as a non-type template parameter.  That value stands for
+    /// the `base` parameter for integral conversions, and the `format`
+    /// parameter for floating point conversions.  A second non-type
+    /// template parameter is reserved for further addition in case the
+    /// `precision` parameter overloads are implemented for floating point
+    /// conversions (in addition to the `format` parameter).  The
+    /// compile-time "return value" of `ToCharsMaxLength` is an enumerator
+    /// name `k_VALUE`.  For usage examples see {Example 3: Determining The
+    /// Required Buffer Size}.
     template <class TYPE,
               int   ARG = k_MAXLEN_ARG_DEFAULT>
     struct ToCharsMaxLength;
-        // This 'struct' template implements the meta-function to determine the
-        // minimum sufficient size of a buffer to successfully convert any
-        // numeric value of a specified 'TYPE' supported by one of the
-        // 'toChars' function overloads in 'NumericFormatterUtil'.  The
-        // meta-function allows specifying an argument value to the 'toChars'
-        // overloads, as a non-type template parameter.  That value stands for
-        // the 'base' parameter for integral conversions, and the 'format'
-        // parameter for floating point conversions.  A second non-type
-        // template parameter is reserved for further addition in case the
-        // 'precision' parameter overloads are implemented for floating point
-        // conversions (in addition to the 'format' parameter).  The
-        // compile-time "return value" of 'ToCharsMaxLength' is an enumerator
-        // name 'k_VALUE'.  For usage examples see {Example 3: Determining The
-        // Required Buffer Size}.
 
     // PUBLIC CLASS METHODS
     static
@@ -571,35 +578,36 @@ struct NumericFormatterUtil {
                   char                   *last,
                   double                  value,
                   Format                  format) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the specified `value` into the character buffer starting a the
+    /// specified `first` and ending at the specified `last`, `last` not
+    /// included.  In integer conversions, if the optionally specified
+    /// `base` argument is not present or specified, base 10 is used. In
+    /// floating point conversions, if the optionally specified `format`
+    /// argument is not present or specified, the {Default Floating Point
+    /// Format} is used.  If a `format` argument is specified (`e_DECIMAL`
+    /// or `e_SCIENTIFIC`), the {Shortest (Textual) Decimal Representation
+    /// for Binary Floating Point Values} is used in that format (that will
+    /// produce the exact binary floating point `value` when converted back
+    /// to the original type from text), but see possible exceptions under
+    /// {Special Floating Point Values}.  Return the address one past the
+    /// last character (lowest order digit or last digit of the exponent)
+    /// written on success, or `0` on failure.  The only reason for failure
+    /// is when the range `[ first, last )` is not large enough to contain
+    /// the result.  The written result is to begin at `first` with leftover
+    /// room following the return value.  The behavior is undefined unless
+    /// `first <= last`, and `base` is in the range `[ 2 .. 36 ]`.  Note
+    /// that the type `bool` for the `value` parameter is explicitly
+    /// disabled in the "NOT IMPLEMENTED" `private` section, because `bool`
+    /// would otherwise be promoted to `int` and printed as `0` or `1`,
+    /// instead of the (possibly) expected `false` and `true`; and `bool`
+    /// is not an integral or numeric type either.  Also note that these
+    /// functions do **not** null-terminate the result.
     static
     char *toChars(char                   *first,
                   char                   *last,
                   float                   value,
                   Format                  format) BSLS_KEYWORD_NOEXCEPT;
-        // Write the specified 'value' into the character buffer starting a the
-        // specified 'first' and ending at the specified 'last', 'last' not
-        // included.  In integer conversions, if the optionally specified
-        // 'base' argument is not present or specified, base 10 is used. In
-        // floating point conversions, if the optionally specified 'format'
-        // argument is not present or specified, the {Default Floating Point
-        // Format} is used.  If a 'format' argument is specified ('e_DECIMAL'
-        // or 'e_SCIENTIFIC'), the {Shortest (Textual) Decimal Representation
-        // for Binary Floating Point Values} is used in that format (that will
-        // produce the exact binary floating point 'value' when converted back
-        // to the original type from text), but see possible exceptions under
-        // {Special Floating Point Values}.  Return the address one past the
-        // last character (lowest order digit or last digit of the exponent)
-        // written on success, or '0' on failure.  The only reason for failure
-        // is when the range '[ first, last )' is not large enough to contain
-        // the result.  The written result is to begin at 'first' with leftover
-        // room following the return value.  The behavior is undefined unless
-        // 'first <= last', and 'base' is in the range '[ 2 .. 36 ]'.  Note
-        // that the type 'bool' for the 'value' parameter is explicitly
-        // disabled in the "NOT IMPLEMENTED" 'private' section, because 'bool'
-        // would otherwise be promoted to 'int' and printed as '0' or '1',
-        // instead of the (possibly) expected 'false' and 'true'; and 'bool'
-        // is not an integral or numeric type either.  Also note that these
-        // functions do !not! null-terminate the result.
 };
 
             // -----------------------------------------------
@@ -610,8 +618,9 @@ template <class FLT_TYPE, int FORMAT>
 struct NumericFormatterUtil::FltMaxLen {
   private:
     // PRIVATE TYPES
+
+    /// For more readable lines below.
     typedef typename bsl::remove_cv<FLT_TYPE>::type NoCvT;
-        // For more readable lines below.
   public:
     // PUBLIC TYPES
     enum Enum {
@@ -984,8 +993,9 @@ template <class TYPE>
 struct NumericFormatterUtil::IsSupportedFloatingPoint {
   private:
     // PRIVATE TYPES
+
+    /// For more readable lines below.
     typedef typename bsl::remove_cv<TYPE>::type NoCvT;
-        // For more readable lines below.
   public:
     // PUBLIC TYPES
     enum Enum {
@@ -1002,8 +1012,9 @@ template <class TYPE>
 struct NumericFormatterUtil::IsSupportedIntegral {
   private:
     // PRIVATE TYPES
+
+    /// For more readable lines below.
     typedef typename bsl::remove_cv<TYPE>::type NoCvT;
-        // For more readable lines below.
   public:
     // PUBLIC TYPES
     enum Enum {
@@ -1030,9 +1041,10 @@ template <class TYPE, int ARG>
 struct NumericFormatterUtil::ToCharsMaxLength {
   private:
     // PRIVATE TYPES
+
+    /// This type alias exists to make the lines below shorter, therefore
+    /// easier to read at a glance.
     typedef const bool Cbool;
-        // This type alias exists to make the lines below shorter, therefore
-        // easier to read at a glance.
 
     // PRIVATE CONSTANTS
                               // Type Related

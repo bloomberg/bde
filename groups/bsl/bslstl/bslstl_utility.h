@@ -14,15 +14,15 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsl+bslhdrs
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_utility.h>' instead.  This component provides a namespace for free
+// `<bsl_utility.h>` instead.  This component provides a namespace for free
 // functions implementing standard utilities that are not provided by the
-// underlying standard library implementation.  For example, 'as_const' is a
+// underlying standard library implementation.  For example, `as_const` is a
 // C++17 utility, and it is provided here for code using C++03.
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+bslhdrs' package.  Use
-// 'bsl_utility.h' directly.
+// This component is for use by the `bsl+bslhdrs` package.  Use
+// `bsl_utility.h` directly.
 
 #include <bslscm_version.h>
 

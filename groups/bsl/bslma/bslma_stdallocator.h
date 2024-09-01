@@ -1,8 +1,8 @@
 // bslma_stdallocator.h                                               -*-C++-*-
 
-//@PURPOSE: Provide an STL-compatible proxy for 'bslma::Allocator' objects.
+//@PURPOSE: Provide an STL-compatible proxy for `bslma::Allocator` objects.
 //
-//@DEPRECATED: Use 'bslma_bslallocator' instead
+//@DEPRECATED: Use `bslma_bslallocator` instead
 //
 //@CLASSES:
 //  bsl::allocator: STL-compatible allocator template
@@ -10,10 +10,10 @@
 //@SEE_ALSO: bslma_allocator, bslma_polymorphicallocator
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_memory.h>' instead and use 'bsl::allocator' directly.  This component
-// was renamed to 'bslma_bslallocator'; this stub header file simply
-// '#includes' the renamed header, 'bslma_bslallocator.h', which provides the
-// 'bsl::allocator' class template.  See 'bslma_bslallocator' component-level
+// `<bsl_memory.h>` instead and use `bsl::allocator` directly.  This component
+// was renamed to `bslma_bslallocator`; this stub header file simply
+// `#includes` the renamed header, `bslma_bslallocator.h`, which provides the
+// `bsl::allocator` class template.  See `bslma_bslallocator` component-level
 // documentation for more information.
 // ----------------------------------------------------------------------------
 

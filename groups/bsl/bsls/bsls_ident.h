@@ -7,36 +7,36 @@
 //@CLASSES:
 //
 //@MACROS:
-//: BSLS_IDENT(identifier): inset 'identifier' into '.comment' section
-//: BSLS_IDENT_RCSID(tag, identifier): alternatively, use add 'tag' as static
-//: BSLS_IDENT_PRAGMA_ONCE: encapsulate '_Pragma("once")'
+//: BSLS_IDENT(identifier): inset `identifier` into `.comment` section
+//: BSLS_IDENT_RCSID(tag, identifier): alternatively, use add `tag` as static
+//: BSLS_IDENT_PRAGMA_ONCE: encapsulate `_Pragma("once")`
 //
 //@DESCRIPTION: The purpose of this component is to provide macros for
 // inserting SCM (Source Control Management) Ids into source files.  SCM Ids
 // are useful for identifying source revisions in binaries.  Additional
 // information about SCM Ids may be obtained from the following man pages:
-// 'man ident' 'man strings' ('strings -a' produces more verbose output)
-// 'man mcs' (Solaris-only)
+// `man ident` `man strings` (`strings -a` produces more verbose output)
+// `man mcs` (Solaris-only)
 //
-// Note that these SCM Ids are only present if the 'BSLS_IDENT_ON' macro is
+// Note that these SCM Ids are only present if the `BSLS_IDENT_ON` macro is
 // defined at compilation time.  By default, this macro is *not* defined, and
 // ident strings are *not* added to object files.
 //
 // SCM systems may replace Ids with their expanded forms.  Note that we will
-// replace the key symbol '$' with '(DOLLAR)' to avoid any expansion within
+// replace the key symbol `$` with `(DOLLAR)` to avoid any expansion within
 // this header file's documentation.
 //
 // SCM Ids usually take the form "(DOLLAR)Id: (DOLLAR)" which is expanded,
 // automatically, by the source control system into an identifier which maps to
 // specific source revision:
-//..
-//  '(DOLLAR)Id: bsls_ident.h 141104 2010-09-17 00:30:47Z mgiroux (DOLLAR)'
-//..
+// ```
+// '(DOLLAR)Id: bsls_ident.h 141104 2010-09-17 00:30:47Z mgiroux (DOLLAR)'
+// ```
 // This specifies that the file was checked in on 2010-09-17 at the specified
-// time by user 'mgiroux', and can be retrieved from the SCM system using
-// revision '141104'.
+// time by user `mgiroux`, and can be retrieved from the SCM system using
+// revision `141104`.
 //
-// 'BSLS_IDENT_PRAGMA_ONCE' can optionally be used in headers and encapsulates
+// `BSLS_IDENT_PRAGMA_ONCE` can optionally be used in headers and encapsulates
 // a non-standard pragma (_Pragma("once")) supported on a number of platforms
 // and which indicates that a header should only be included and parsed once.
 // Use of this macro can help reduce compile times by eliminating extraneous
@@ -49,48 +49,48 @@
 ///-------------
 // The following are the macros provided by this component.
 //
-//: 'BSLS_IDENT(identifier)'
-//:   This macro inserts the specified 'identifier' into the object's
-//:   '.comment' section, if supported on the current platform.
+//: `BSLS_IDENT(identifier)`
+//:   This macro inserts the specified `identifier` into the object's
+//:   `.comment` section, if supported on the current platform.
 //:
-//: 'BSLS_IDENT_RCSID(tag, identifier)'
-//:   This macro inserts the specified 'identifier' into the object, using
-//:   'BSLS_IDENT', if possible on the current platform.  If 'BSLS_IDENT' is
-//:   not available, the specified 'tag' may be used to declare a static char
-//:   array containing the 'tag'.
+//: `BSLS_IDENT_RCSID(tag, identifier)`
+//:   This macro inserts the specified `identifier` into the object, using
+//:   `BSLS_IDENT`, if possible on the current platform.  If `BSLS_IDENT` is
+//:   not available, the specified `tag` may be used to declare a static char
+//:   array containing the `tag`.
 //:
-//: 'BSLS_IDENT_PRAGMA_ONCE'
-//:   This macro encapsulates the '_Pragma("once")' functionality if available
+//: `BSLS_IDENT_PRAGMA_ONCE`
+//:   This macro encapsulates the `_Pragma("once")` functionality if available
 //:   on the current platform.  If available, this functions in the same way as
 //:   redundant include guards, avoiding re-opening already-included header
 //:   files.
 //
 ///Usage
 ///-----
-// Include 'bsls_ident.h' and use the BSLS_IDENT macro.  For header files this
+// Include `bsls_ident.h` and use the BSLS_IDENT macro.  For header files this
 // should be done directly after the include guards, e.g., bsls_somefile.h:
-//..
-//  // bsls_somefile.h                                                -*-C++-*-
-//  #ifndef INCLUDED_BSLS_SOMEFILE
-//  #define INCLUDED_BSLS_SOMEFILE
+// ```
+// // bsls_somefile.h                                                -*-C++-*-
+// #ifndef INCLUDED_BSLS_SOMEFILE
+// #define INCLUDED_BSLS_SOMEFILE
 //
-//  #include <bsls_ident.h>
-//  BSLS_IDENT("(DOLLAR)Id: (DOLLAR)") // In real usage, replace '(DOLLAR)'
-//                                     // with '$'
+// #include <bsls_ident.h>
+// BSLS_IDENT("(DOLLAR)Id: (DOLLAR)") // In real usage, replace '(DOLLAR)'
+//                                    // with '$'
 //
-//  // ...
+// // ...
 //
-//  #endif // INCLUDED_BSLS_SOMEFILE
-//..
+// #endif // INCLUDED_BSLS_SOMEFILE
+// ```
 // For cpp files it should be done directly after the comment for the file name
 // and the language, e.g., bsls_somefile.cpp:
-//..
-//  // bsls_ident.t.cpp                                               -*-C++-*-
+// ```
+// // bsls_ident.t.cpp                                               -*-C++-*-
 //
-//  #include <bsls_ident.h>
-//  BSLS_IDENT("(DOLLAR)Id: (DOLLAR)") // In real usage, replace '(DOLLAR)'
-//                                     // with '$'
-//..
+// #include <bsls_ident.h>
+// BSLS_IDENT("(DOLLAR)Id: (DOLLAR)") // In real usage, replace '(DOLLAR)'
+//                                    // with '$'
+// ```
 
 #undef BDE_OMIT_INTERNAL_DEPRECATED
 #ifdef BDE_FORCE_OMIT_INTERNAL_DEPRECATED

@@ -12,49 +12,47 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_treenodepool, bdlma_pool
 //
-//@DESCRIPTION: This component implements a memory pool, 'bslstl::SimplePool',
+//@DESCRIPTION: This component implements a memory pool, `bslstl::SimplePool`,
 // that allocates and manages memory blocks of for a parameterized type.  A
-// 'bslstl::SimplePool' object maintains an internal linked list of
-// free memory blocks, and dispenses one block for each 'allocate' method
+// `bslstl::SimplePool` object maintains an internal linked list of
+// free memory blocks, and dispenses one block for each `allocate` method
 // invocation.  When a memory block is deallocated, it is returned to the free
 // list for potential reuse.
 //
 // Whenever the linked list of free memory blocks is depleted,
-// 'bslstl::SimplePool' replenishes the list by first allocating a large,
+// `bslstl::SimplePool` replenishes the list by first allocating a large,
 // contiguous "chunk" of memory, then splitting the chunk into multiple memory
-// blocks each having the 'sizeof' the simple pool's parameterized type.  A
+// blocks each having the `sizeof` the simple pool's parameterized type.  A
 // chunk and its constituent memory blocks can be depicted visually:
-//..
-//     +-----+--- memory blocks of uniform size for parameterized type
-//     |     |
-//   ----- ----- ------------
-//  |     |     |     ...    |
-//   =====^=====^============
+// ```
+//    +-----+--- memory blocks of uniform size for parameterized type
+//    |     |
+//  ----- ----- ------------
+// |     |     |     ...    |
+//  =====^=====^============
 //
-//   \___________ __________/
-//               V
-//           a "chunk"
-//..
+//  \___________ __________/
+//              V
+//          a "chunk"
+// ```
 // This pool implementation is simple because its allocation strategy is not
 // configurable.  The size of a chunk starts from 1 memory block, and doubles
 // each time a chunk is allocated up to an implementation defined maximum
 // number of blocks.
 //
-///Comparison with 'bdema_Pool'
+///Comparison with `bdema_Pool`
 ///----------------------------
-// There are a few differences between 'bslstl::SimplePool' and 'bdema_Pool':
-//: 1 'bslstl::SimplePool' is parameterized on both allocator and type, which
-//:   improve performance and memory usage in exchange for increase in code
-//:   size.
-//:
-//: 2 'bslstl::SimplePool' uses the allocator through the use of
-//:   'bsl::allocator_traits' (which is generally not relevant to non-container
-//:   type.
-//:
-//: 3 'bslstl::SimplePool' is less configurable in order to achieve abstraction
-//:   of allocation and improvement in performance.
+// There are a few differences between `bslstl::SimplePool` and `bdema_Pool`:
+// 1. `bslstl::SimplePool` is parameterized on both allocator and type, which
+//    improve performance and memory usage in exchange for increase in code
+//    size.
+// 2. `bslstl::SimplePool` uses the allocator through the use of
+//    `bsl::allocator_traits` (which is generally not relevant to non-container
+//    type.
+// 3. `bslstl::SimplePool` is less configurable in order to achieve abstraction
+//    of allocation and improvement in performance.
 //
-// Clients are encouraged to use 'bdema_Pool' as 'bslstl::SimplePool' is
+// Clients are encouraged to use `bdema_Pool` as `bslstl::SimplePool` is
 // designed for node-based STL containers, and its pooling behavior may change
 // according to the needs of those containers.
 //
@@ -66,131 +64,131 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to implement a stack with a linked list.  It is
 // expensive to allocate memory every time a node is inserted.  Therefore, we
-// can use 'SimplePool' to efficiently manage the memory for the list.
+// can use `SimplePool` to efficiently manage the memory for the list.
 //
 // First, we define the class that implements the stack:
-//..
-//  template <class ALLOCATOR = bsl::allocator<int> >
-//  class my_Stack {
-//      // This class defines a node-based stack of integers.
+// ```
+// template <class ALLOCATOR = bsl::allocator<int> >
+// class my_Stack {
+//     // This class defines a node-based stack of integers.
 //
-//      // PRIVATE TYPES
-//      struct Node {
-//          // This 'struct' implements a link data structure containing a
-//          // value and a pointer to the next node.
+//     // PRIVATE TYPES
+//     struct Node {
+//         // This 'struct' implements a link data structure containing a
+//         // value and a pointer to the next node.
 //
-//          int   d_value;   // payload value
-//          Node *d_next_p;  // pointer to the next node
-//      };
+//         int   d_value;   // payload value
+//         Node *d_next_p;  // pointer to the next node
+//     };
 //
-//      typedef bslstl::SimplePool<Node, ALLOCATOR> Pool;
-//          // Alias for memory pool.
+//     typedef bslstl::SimplePool<Node, ALLOCATOR> Pool;
+//         // Alias for memory pool.
 //
-//    private:
-//      // DATA
-//      Node *d_head_p;  // pointer to the first node
-//      int   d_size;    // size of the stack
-//      Pool  d_pool;    // memory manager for the stack
+//   private:
+//     // DATA
+//     Node *d_head_p;  // pointer to the first node
+//     int   d_size;    // size of the stack
+//     Pool  d_pool;    // memory manager for the stack
 //
-//    public:
-//      // CREATORS
-//      my_Stack(const ALLOCATOR& allocator = ALLOCATOR());
-//          // Create an empty 'my_Stack' object.  Optionally specify a
-//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//          // 0, the currently installed default allocator is used.
+//   public:
+//     // CREATORS
+//     my_Stack(const ALLOCATOR& allocator = ALLOCATOR());
+//         // Create an empty 'my_Stack' object.  Optionally specify a
+//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//         // 0, the currently installed default allocator is used.
 //
-//      // MANIPULATORS
-//      void push(int value);
-//          // Insert an element with the specified value to the top of this
-//          // stack.
+//     // MANIPULATORS
+//     void push(int value);
+//         // Insert an element with the specified value to the top of this
+//         // stack.
 //
-//      void pop();
-//          // Remove the top element from this stack.  The behavior is
-//          // undefined unless '1 <= size()'.
+//     void pop();
+//         // Remove the top element from this stack.  The behavior is
+//         // undefined unless '1 <= size()'.
 //
-//      // ACCESSORS
-//      int top();
-//          // Return the value of the element on the top of this stack.  The
-//          // behavior is undefined unless '1 <= size()'.
+//     // ACCESSORS
+//     int top();
+//         // Return the value of the element on the top of this stack.  The
+//         // behavior is undefined unless '1 <= size()'.
 //
-//      std::size_t size();
-//          // Return the number of elements in this stack.
-//  };
-//..
+//     std::size_t size();
+//         // Return the number of elements in this stack.
+// };
+// ```
 // Now, we define the implementation of the stack.  Notice how
-// 'bslstl::SimplePool' is used to allocate memory in 'push' and deallocate
-// memory in 'pop':
-//..
-//  // CREATORS
-//  template <class ALLOCATOR>
-//  my_Stack<ALLOCATOR>::my_Stack(const ALLOCATOR& allocator)
-//  : d_head_p(0)
-//  , d_size(0)
-//  , d_pool(allocator)
-//  {
-//  }
+// `bslstl::SimplePool` is used to allocate memory in `push` and deallocate
+// memory in `pop`:
+// ```
+// // CREATORS
+// template <class ALLOCATOR>
+// my_Stack<ALLOCATOR>::my_Stack(const ALLOCATOR& allocator)
+// : d_head_p(0)
+// , d_size(0)
+// , d_pool(allocator)
+// {
+// }
 //
-//  // MANIPULATORS
-//  template <class ALLOCATOR>
-//  void my_Stack<ALLOCATOR>::push(int value)
-//  {
-//      Node *newNode = d_pool.allocate();
+// // MANIPULATORS
+// template <class ALLOCATOR>
+// void my_Stack<ALLOCATOR>::push(int value)
+// {
+//     Node *newNode = d_pool.allocate();
 //
-//      newNode->d_value = value;
-//      newNode->d_next_p = d_head_p;
-//      d_head_p = newNode;
+//     newNode->d_value = value;
+//     newNode->d_next_p = d_head_p;
+//     d_head_p = newNode;
 //
-//      ++d_size;
-//  }
+//     ++d_size;
+// }
 //
-//  template <class ALLOCATOR>
-//  void my_Stack<ALLOCATOR>::pop()
-//  {
-//      BSLS_ASSERT(0 != size());
+// template <class ALLOCATOR>
+// void my_Stack<ALLOCATOR>::pop()
+// {
+//     BSLS_ASSERT(0 != size());
 //
-//      Node *n = d_head_p;
-//      d_head_p = d_head_p->d_next_p;
-//      d_pool.deallocate(n);
-//      --d_size;
-//  }
+//     Node *n = d_head_p;
+//     d_head_p = d_head_p->d_next_p;
+//     d_pool.deallocate(n);
+//     --d_size;
+// }
 //
-//  // ACCESSORS
-//  template <class ALLOCATOR>
-//  int my_Stack<ALLOCATOR>::top()
-//  {
-//      BSLS_ASSERT(0 != size());
+// // ACCESSORS
+// template <class ALLOCATOR>
+// int my_Stack<ALLOCATOR>::top()
+// {
+//     BSLS_ASSERT(0 != size());
 //
-//      return d_head_p->d_value;
-//  }
+//     return d_head_p->d_value;
+// }
 //
-//  template <class ALLOCATOR>
-//  std::size_t my_Stack<ALLOCATOR>::size()
-//  {
-//      return d_size;
-//  }
-//..
+// template <class ALLOCATOR>
+// std::size_t my_Stack<ALLOCATOR>::size()
+// {
+//     return d_size;
+// }
+// ```
 // Finally, we test our stack by pushing and popping some elements:
-//..
-//  my_Stack stack;
-//  stack.push(1);
-//  stack.push(2);
-//  stack.push(3);
-//  stack.push(4);
-//  stack.push(5);
-//  assert(5 == stack.size());
+// ```
+// my_Stack stack;
+// stack.push(1);
+// stack.push(2);
+// stack.push(3);
+// stack.push(4);
+// stack.push(5);
+// assert(5 == stack.size());
 //
-//  assert(5 == stack.top());
-//  stack.pop();
-//  assert(4 == stack.top());
-//  stack.pop();
-//  assert(3 == stack.top());
-//  stack.pop();
-//  assert(2 == stack.top());
-//  stack.pop();
-//  assert(1 == stack.top());
-//  stack.pop();
-//  assert(0 == stack.size());
-//..
+// assert(5 == stack.top());
+// stack.pop();
+// assert(4 == stack.top());
+// stack.pop();
+// assert(3 == stack.top());
+// stack.pop();
+// assert(2 == stack.top());
+// stack.pop();
+// assert(1 == stack.top());
+// stack.pop();
+// assert(0 == stack.size());
+// ```
 
 #include <bslscm_version.h>
 
@@ -214,47 +212,47 @@ namespace bslstl {
                        // struct SimplePool_Type
                        // ======================
 
+/// For use only by `bslstl::SimplePool`.  This `struct` provides a
+/// namespace for a set of types used to define the base-class of a
+/// `SimplePool`.  The parameterized `ALLOCATOR` is bound to
+/// `MaxAlignedType` to ensure the allocated memory is maximally aligned.
 template <class ALLOCATOR>
 struct SimplePool_Type {
-    // For use only by 'bslstl::SimplePool'.  This 'struct' provides a
-    // namespace for a set of types used to define the base-class of a
-    // 'SimplePool'.  The parameterized 'ALLOCATOR' is bound to
-    // 'MaxAlignedType' to ensure the allocated memory is maximally aligned.
 
+    /// Alias for the allocator traits rebound to allocate
+    /// `bsls::AlignmentUtil::MaxAlignedType`.
     typedef typename bsl::allocator_traits<ALLOCATOR>::template
             rebind_traits<bsls::AlignmentUtil::MaxAlignedType> AllocatorTraits;
-        // Alias for the allocator traits rebound to allocate
-        // 'bsls::AlignmentUtil::MaxAlignedType'.
 
+    /// Alias for the allocator type for
+    /// `bsls::AlignmentUtil::MaxAlignedType`.
     typedef typename AllocatorTraits::allocator_type AllocatorType;
-        // Alias for the allocator type for
-        // 'bsls::AlignmentUtil::MaxAlignedType'.
 };
 
                        // ================
                        // class SimplePool
                        // ================
 
+/// This class provides methods for creating and deleting nodes using the
+/// appropriate allocator-traits of the parameterized `ALLOCATOR`.
+/// This type is intended to be used as a private base-class for a
+/// node-based container, in order to take advantage of the
+/// empty-base-class optimization in the case where the base-class has 0
+/// size (as may the case if the parameterized `ALLOCATOR` is not a
+/// `bslma::Allocator`).
 template <class VALUE, class ALLOCATOR>
 class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
-    // This class provides methods for creating and deleting nodes using the
-    // appropriate allocator-traits of the parameterized 'ALLOCATOR'.
-    // This type is intended to be used as a private base-class for a
-    // node-based container, in order to take advantage of the
-    // empty-base-class optimization in the case where the base-class has 0
-    // size (as may the case if the parameterized 'ALLOCATOR' is not a
-    // 'bslma::Allocator').
 
     // PRIVATE TYPES
     typedef SimplePool_Type<ALLOCATOR> Types;
 
     enum { k_MAX_BLOCKS_PER_CHUNK = 32 };
 
+    /// This `union` implements a link data structure with the size no
+    /// smaller than `VALUE` that stores the address of the next link.
+    /// It is used to implement the internal linked list of free memory
+    /// blocks.
     union Block {
-        // This 'union' implements a link data structure with the size no
-        // smaller than 'VALUE' that stores the address of the next link.
-        // It is used to implement the internal linked list of free memory
-        // blocks.
 
         Block *d_next_p;                    // pointer to the next block
 
@@ -265,11 +263,11 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
                                             // ensure proper alignment
     };
 
+    /// This `union` prepends to the beginning of each managed block of
+    /// allocated memory, implementing a singly-linked list of managed
+    /// chunks, and thereby enabling constant-time additions to the list of
+    /// chunks.
     union Chunk {
-        // This 'union' prepends to the beginning of each managed block of
-        // allocated memory, implementing a singly-linked list of managed
-        // chunks, and thereby enabling constant-time additions to the list of
-        // chunks.
 
         struct {
             Chunk                                      *d_next_p;
@@ -279,23 +277,24 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         typename bsls::AlignmentFromType<Block>::Type d_alignment;
                           // ensure each block is correctly aligned
 
+        /// Return a pointer to the first block in this chunk.
         Block *firstBlock()
-            // Return a pointer to the first block in this chunk.
             { return reinterpret_cast<Block *>(this + 1); }
     };
 
   public:
     // TYPES
+
+    /// Alias for the parameterized type `VALUE`.
     typedef VALUE ValueType;
-        // Alias for the parameterized type 'VALUE'.
 
+    /// Alias for the allocator type for a
+    /// `bsls::AlignmentUtil::MaxAlignedType`.
     typedef typename Types::AllocatorType AllocatorType;
-        // Alias for the allocator type for a
-        // 'bsls::AlignmentUtil::MaxAlignedType'.
 
+    /// Alias for the allocator traits for the parameterized
+    /// `ALLOCATOR`.
     typedef typename Types::AllocatorTraits AllocatorTraits;
-        // Alias for the allocator traits for the parameterized
-        // 'ALLOCATOR'.
 
     typedef typename AllocatorTraits::size_type size_type;
 
@@ -315,102 +314,106 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Allocate a chunk of memory having enough usable blocks for the
+    /// specified `numBlocks` objects of type `VALUE`, add the chunk to the
+    /// chunk list, and return the address of the chunk header.
     Chunk *allocateChunk(std::size_t numBlocks);
-        // Allocate a chunk of memory having enough usable blocks for the
-        // specified 'numBlocks' objects of type 'VALUE', add the chunk to the
-        // chunk list, and return the address of the chunk header.
 
+    /// Deallocate a chunk of memory at the specified `chunk_p` address.
+    /// The behavior is undefined unless `chunk_p` was allocate from this
+    /// pool using `allocateChunk` and not yet deallocated.
     void deallocateChunk(Chunk *chunk_p);
-        // Deallocate a chunk of memory at the specified 'chunk_p' address.
-        // The behavior is undefined unless 'chunk_p' was allocate from this
-        // pool using 'allocateChunk' and not yet deallocated.
 
+    /// Dynamically allocate a new chunk using the pool's underlying growth
+    /// strategy, and use the chunk to replenish the free memory list of
+    /// this pool.
     void replenish();
-        // Dynamically allocate a new chunk using the pool's underlying growth
-        // strategy, and use the chunk to replenish the free memory list of
-        // this pool.
 
   public:
     // CREATORS
+
+    /// Create a memory pool that returns blocks of contiguous memory of the
+    /// size of the parameterized `VALUE` using the specified `allocator` to
+    /// supply memory.  The chunk size grows starting with at least
+    /// `sizeof(VALUE)`, doubling in size up to an implementation defined
+    /// maximum number of blocks per chunk.
     explicit SimplePool(const ALLOCATOR& allocator);
-        // Create a memory pool that returns blocks of contiguous memory of the
-        // size of the parameterized 'VALUE' using the specified 'allocator' to
-        // supply memory.  The chunk size grows starting with at least
-        // 'sizeof(VALUE)', doubling in size up to an implementation defined
-        // maximum number of blocks per chunk.
 
+    /// Create a memory pool, adopting all outstanding memory allocations
+    /// associated with the specified `original` pool, that returns blocks
+    /// of contiguous memory of the sizeof the paramterized `VALUE` using
+    /// the allocator associated with `original`.  The chunk size is set to
+    /// that of `original` and continues to double in size up to an
+    /// implementation defined maximum number of blocks per chunk.  Note
+    /// that `original` is left in a valid but unspecified state.
     SimplePool(bslmf::MovableRef<SimplePool> original);
-        // Create a memory pool, adopting all outstanding memory allocations
-        // associated with the specified 'original' pool, that returns blocks
-        // of contiguous memory of the sizeof the paramterized 'VALUE' using
-        // the allocator associated with 'original'.  The chunk size is set to
-        // that of 'original' and continues to double in size up to an
-        // implementation defined maximum number of blocks per chunk.  Note
-        // that 'original' is left in a valid but unspecified state.
 
+    /// Destroy this pool, releasing all associated memory back to the
+    /// underlying allocator.
     ~SimplePool();
-        // Destroy this pool, releasing all associated memory back to the
-        // underlying allocator.
 
     // MANIPULATORS
+
+    /// Adopt all outstanding memory allocations associated with the
+    /// specfied memory `pool`.  The behavior is undefined unless this pool
+    /// uses the same allocator as that associated with `pool`.  The
+    /// behavior is undefined unless this pool is in the default-constructed
+    /// state.
     void adopt(bslmf::MovableRef<SimplePool> pool);
-        // Adopt all outstanding memory allocations associated with the
-        // specfied memory 'pool'.  The behavior is undefined unless this pool
-        // uses the same allocator as that associated with 'pool'.  The
-        // behavior is undefined unless this pool is in the default-constructed
-        // state.
 
+    /// Return a reference providing modifiable access to the rebound
+    /// allocator traits for the node-type.  Note that this operation
+    /// returns a base-class (`AllocatorType`) reference to this object.
     AllocatorType& allocator();
-        // Return a reference providing modifiable access to the rebound
-        // allocator traits for the node-type.  Note that this operation
-        // returns a base-class ('AllocatorType') reference to this object.
 
+    /// Return the address of a block of memory of at least the size of
+    /// `VALUE`.  Note that the memory is *not* initialized.
     VALUE *allocate();
-        // Return the address of a block of memory of at least the size of
-        // 'VALUE'.  Note that the memory is *not* initialized.
 
+    /// Relinquish the memory block at the specified `address` back to this
+    /// pool object for reuse.  The behavior is undefined unless `address`
+    /// is non-zero, was allocated by this pool, and has not already been
+    /// deallocated.
     void deallocate(void *address);
-        // Relinquish the memory block at the specified 'address' back to this
-        // pool object for reuse.  The behavior is undefined unless 'address'
-        // is non-zero, was allocated by this pool, and has not already been
-        // deallocated.
 
+    /// Dynamically allocate a new chunk containing the specified
+    /// `numBlocks` number of blocks, and add the chunk to the free memory
+    /// list of this pool.  The additional memory is added irrespective of
+    /// the amount of free memory when called.  The behavior is undefined
+    /// unless `0 < numBlocks`.
     void reserve(size_type numBlocks);
-        // Dynamically allocate a new chunk containing the specified
-        // 'numBlocks' number of blocks, and add the chunk to the free memory
-        // list of this pool.  The additional memory is added irrespective of
-        // the amount of free memory when called.  The behavior is undefined
-        // unless '0 < numBlocks'.
 
+    /// Relinquish all memory currently allocated via this pool object.
     void release();
-        // Relinquish all memory currently allocated via this pool object.
 
+    /// Efficiently exchange the memory blocks of this object with those of
+    /// the specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless
+    /// `allocator() == other.allocator()`.
     void swap(SimplePool& other);
-        // Efficiently exchange the memory blocks of this object with those of
-        // the specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless
-        // 'allocator() == other.allocator()'.
 
+    /// Efficiently exchange the memory blocks of this object with those of
+    /// the specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless
+    /// `allocator() == other.allocator()`.
     void quickSwapRetainAllocators(SimplePool& other);
-        // Efficiently exchange the memory blocks of this object with those of
-        // the specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless
-        // 'allocator() == other.allocator()'.
 
+    /// Efficiently exchange the memory blocks and the allocator of this
+    /// object with those of the specified `other` object.  This method
+    /// provides the no-throw exception-safety guarantee.
     void quickSwapExchangeAllocators(SimplePool& other);
-        // Efficiently exchange the memory blocks and the allocator of this
-        // object with those of the specified 'other' object.  This method
-        // provides the no-throw exception-safety guarantee.
 
     // ACCESSORS
-    const AllocatorType& allocator() const;
-        // Return a reference providing non-modifiable access to the rebound
-        // allocator traits for the node-type.  Note that this operation
-        // returns a base-class ('AllocatorType') reference to this object.
 
+    /// Return a reference providing non-modifiable access to the rebound
+    /// allocator traits for the node-type.  Note that this operation
+    /// returns a base-class (`AllocatorType`) reference to this object.
+    const AllocatorType& allocator() const;
+
+    /// Return `true` if this object holds free (currently unused) blocks,
+    /// and `false` otherwise.
     bool hasFreeBlocks() const;
-        // Return 'true' if this object holds free (currently unused) blocks,
-        // and 'false' otherwise.
 };
 
 // ============================================================================

@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a stop state for 'std'-compliant stop tokens.
+//@PURPOSE: Provide a stop state for `std`-compliant stop tokens.
 //
 //@CLASSES:
 //  bslstl::StopState: mechanism for requesting stops and invoking callbacks
@@ -15,15 +15,15 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_stopsource, bslstl_stoptoken, bslstl_stopcallback
 //
-//@DESCRIPTION: This component provides the 'bslstl::StopState' and
-// 'bslstl::StopStateCallbackNode' classes, which are for internal use only
-// and are used to implement 'bsl::stop_source', 'bsl::stop_token', and
-// 'bsl::stop_callback'.  Please include '<bsl_stop_token.h>' instead.
+//@DESCRIPTION: This component provides the `bslstl::StopState` and
+// `bslstl::StopStateCallbackNode` classes, which are for internal use only
+// and are used to implement `bsl::stop_source`, `bsl::stop_token`, and
+// `bsl::stop_callback`.  Please include `<bsl_stop_token.h>` instead.
 //
 ///Usage
 ///-----
-// This component is for internal usage only.  Use 'bsl::stop_source',
-// 'bsl::stop_token', and 'bsl::stop_callback' instead.
+// This component is for internal usage only.  Use `bsl::stop_source`,
+// `bsl::stop_token`, and `bsl::stop_callback` instead.
 
 #include <bsla_nodiscard.h>
 
@@ -39,8 +39,8 @@ namespace bslstl {
                           // class StopState_ListNode
                           // ========================
 
+/// This component-private class represents a node in a doubly-linked list.
 class StopState_ListNode {
-    // This component-private class represents a node in a doubly-linked list.
   private:
     // DATA
     StopState_ListNode *d_prev_p;
@@ -58,16 +58,18 @@ class StopStateCallbackNode : private StopState_ListNode
 {
   private:
     // DATA
+
+    // flag indicating whether the callback has completed
     bsls::AtomicBool d_finished;
-        // flag indicating whether the callback has completed
 
     // FRIENDS
     friend class StopState;
 
   public:
     // MANIPULATORS
+
+    /// Invoke the callback stored in the derived class.
     virtual void invoke() BSLS_NOTHROW_SPEC = 0;
-        // Invoke the callback stored in the derived class.
 };
 
                               // ===============
@@ -77,28 +79,30 @@ class StopStateCallbackNode : private StopState_ListNode
 class StopState {
   private:
     // DATA
+
+    // mutex guarding access to this object's data members
     bsls::BslLock          d_stateMutex;
-        // mutex guarding access to this object's data members
 
+    // head node for linked list of callbacks
     StopState_ListNode     d_head;
-        // head node for linked list of callbacks
 
+    // thread ID of the thread that successfully called `requestStop`
     unsigned long long     d_stoppingThread;
-        // thread ID of the thread that successfully called 'requestStop'
 
+    // pointer to the node containing the callback currently being invoked;
+    // will be set to null if that callback deregisters its own node
     StopStateCallbackNode *d_currentCallback_p;
-        // pointer to the node containing the callback currently being invoked;
-        // will be set to null if that callback deregisters its own node
 
+    // flag indicating whether a stop has been requested on this object
     bsls::AtomicBool       d_stopRequested;
-        // flag indicating whether a stop has been requested on this object
 
     // PRIVATE MANIPULATORS
+
+    /// Remove the specified `node` from the list of nodes registered to
+    /// this state and set its `d_next_p` pointer to null.  The behavior is
+    /// undefined unless `d_stateMutex` is held by the calling thread and
+    /// `node` is registered to this state.
     void unlink(StopState_ListNode *node);
-        // Remove the specified 'node' from the list of nodes registered to
-        // this state and set its 'd_next_p' pointer to null.  The behavior is
-        // undefined unless 'd_stateMutex' is held by the calling thread and
-        // 'node' is registered to this state.
 
   private:
     // NOT IMPLEMENTED
@@ -107,36 +111,39 @@ class StopState {
 
   public:
     // CREATORS
+
+    /// Create a `StopState` object that initially has no registered
+    /// callbacks and on which a stop has not been requested.
     StopState();
-        // Create a 'StopState' object that initially has no registered
-        // callbacks and on which a stop has not been requested.
 
     // MANIPULATORS
+
+    /// If a stop has already been requested, then invoke the callback of
+    /// the specified `node` and return `false`.  Otherwise, add `node` to
+    /// the list of nodes registered to this state and return `true`.  The
+    /// behavior is undefined if this method is called more than once for a
+    /// given `node`.
     bool enregister(StopStateCallbackNode *node);
-        // If a stop has already been requested, then invoke the callback of
-        // the specified 'node' and return 'false'.  Otherwise, add 'node' to
-        // the list of nodes registered to this state and return 'true'.  The
-        // behavior is undefined if this method is called more than once for a
-        // given 'node'.
 
+    /// If the callback of the specified `node` is currently executing, wait
+    /// for it to complete.  Otherwise, remove `node` from the list of nodes
+    /// registered to this state.  The behavior is undefined if this method
+    /// is called more than once for a given `node` or if `node` was not
+    /// previously registered to this state by a call to `enregister` that
+    /// returned `true`.
     void deregister(StopStateCallbackNode *node);
-        // If the callback of the specified 'node' is currently executing, wait
-        // for it to complete.  Otherwise, remove 'node' from the list of nodes
-        // registered to this state.  The behavior is undefined if this method
-        // is called more than once for a given 'node' or if 'node' was not
-        // previously registered to this state by a call to 'enregister' that
-        // returned 'true'.
 
+    /// If this `StopState` object has already had a stop requested, return
+    /// `false`.  Otherwise, atomically mark this `StopState` object as
+    /// having had a stop requested, then execute all registered callbacks
+    /// in an unspecified order, and finally return `true`.
     bool requestStop();
-        // If this 'StopState' object has already had a stop requested, return
-        // 'false'.  Otherwise, atomically mark this 'StopState' object as
-        // having had a stop requested, then execute all registered callbacks
-        // in an unspecified order, and finally return 'true'.
 
     // ACCESSORS
+
+    /// Return `true` if a stop has been requested on this `StopState`
+    /// object, and `false` otherwise.
     BSLA_NODISCARD bool stopRequested() const;
-        // Return 'true' if a stop has been requested on this 'StopState'
-        // object, and 'false' otherwise.
 };
 
 }  // close package namespace

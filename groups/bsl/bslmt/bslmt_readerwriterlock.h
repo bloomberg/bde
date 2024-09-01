@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //           bslmt_writelockguard, bslmt_readerwriterlockassert
 //
 //@DESCRIPTION: This component defines an efficient multi-reader/single-writer
-// lock (RW-Lock) mechanism, 'bslmt::ReaderWriterLock'.  It is designed to
+// lock (RW-Lock) mechanism, `bslmt::ReaderWriterLock`.  It is designed to
 // allow concurrent *read* access to a shared resource while still controlling
 // *write* access.
 //
@@ -28,27 +28,25 @@ BSLS_IDENT("$Id: $")
 // This implementation gives preference to writers, which can lead to reader
 // "starvation" in applications with continuous writes.
 //
-///Comparison between 'bslmt' Reader-Writer Locks
+///Comparison between `bslmt` Reader-Writer Locks
 /// - - - - - - - - - - - - - - - - - - - - - - -
-//: o 'bslmt::ReaderWriterLock' (defined in this component).  Preferred only
-//:   when very long hold times are anticipated.  Provides 'upgrade*' methods
-//:   from a locked-for-read state to a locked-for-write state, but the use of
-//:   this feature is discouraged as it has performed poorly on benchmarks.
-//:
-//: o 'bslmt::ReaderWriterMutex': Preferred for most use-cases.  Doesn't offer
-//:   the 'upgrade' function, but performs better than
-//:   'bslmt::ReaderWriterLock' under most conditions.
-//:
-//: o 'bslmt::RWMutex': Deprecated.
+// * `bslmt::ReaderWriterLock` (defined in this component).  Preferred only
+//   when very long hold times are anticipated.  Provides `upgrade*` methods
+//   from a locked-for-read state to a locked-for-write state, but the use of
+//   this feature is discouraged as it has performed poorly on benchmarks.
+// * `bslmt::ReaderWriterMutex`: Preferred for most use-cases.  Doesn't offer
+//   the `upgrade` function, but performs better than
+//   `bslmt::ReaderWriterLock` under most conditions.
+// * `bslmt::RWMutex`: Deprecated.
 //
 // Note that for extremely short hold times and very high concurrency, a
-// 'bslmt::Mutex' might outperform all of the above.
+// `bslmt::Mutex` might outperform all of the above.
 //
-// Also note that lock guards are provide by 'bslmt_readlockguard' and
-// 'bslmt_writelockguard'.
+// Also note that lock guards are provide by `bslmt_readlockguard` and
+// `bslmt_writelockguard`.
 //
 // Also note that asserts to verify locking are provided by
-// 'bslmt_readerwriterlockassert'.
+// `bslmt_readerwriterlockassert`.
 //
 ///Read and Write Locks
 ///--------------------
@@ -58,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // reader will block until all *write* *locks* (including those acquired after
 // the reader) are released.
 //
-// 'bslmt::ReaderWriterLock' also supports atomic conversion from *read* to
+// `bslmt::ReaderWriterLock` also supports atomic conversion from *read* to
 // *write* *locks*.  This feature allows callers to first acquire a *read*
 // *lock*, determine if a write operation needs to be performed, and
 // conditionally upgrade to a *write* *lock* without possibility of another
@@ -81,10 +79,10 @@ BSLS_IDENT("$Id: $")
 // re-evaluating the update condition is too high, clients may choose to
 // acquire a *read* *lock* that is guaranteed to upgrade atomically, that is
 // without the possibility of another thread acquiring a read or write lock in
-// the meantime.  The 'lockReadReserveWrite' method allows a caller to acquire
+// the meantime.  The `lockReadReserveWrite` method allows a caller to acquire
 // a *read* *lock* and simultaneously reserve a *write* *lock*.  The *read*
 // *lock* can then be atomically upgraded to the reserved *write* *lock* by
-// calling the 'upgradeToWriteLock' method.
+// calling the `upgradeToWriteLock` method.
 //
 ///Usage
 ///-----
@@ -96,134 +94,134 @@ BSLS_IDENT("$Id: $")
 // lock.  The sample implements a simple cache mechanism for user information.
 // We expect that the information is read very frequently, but only modified
 // when a user "badges" in or out, which should be relatively infrequent.
-//..
-//  struct UserInfo{
-//      long               d_UserId;
-//      char               d_UserName[MAX_USER_NAME];
-//      char               d_badge_location[MAX_BADGE_LOCATION];
-//      int                d_inOutStatus;
-//      bsls::TimeInterval d_badgeTime;
-//  };
+// ```
+// struct UserInfo{
+//     long               d_UserId;
+//     char               d_UserName[MAX_USER_NAME];
+//     char               d_badge_location[MAX_BADGE_LOCATION];
+//     int                d_inOutStatus;
+//     bsls::TimeInterval d_badgeTime;
+// };
 //
-//  class UserInfoCache {
-//      typedef bsl::map<int, UserInfo> InfoMap;
+// class UserInfoCache {
+//     typedef bsl::map<int, UserInfo> InfoMap;
 //
-//      bslmt::ReaderWriterLock d_lock;
-//      InfoMap                 d_infoMap;
+//     bslmt::ReaderWriterLock d_lock;
+//     InfoMap                 d_infoMap;
 //
-//    public:
-//      UserInfoCache();
-//      ~UserInfoCache();
+//   public:
+//     UserInfoCache();
+//     ~UserInfoCache();
 //
-//      int getUserInfo(int userId, UserInfo *userInfo);
-//      int updateUserInfo(int userId, UserInfo *userInfo);
-//      int addUserInfo(int userId, UserInfo *userInfo);
-//      void removeUser(int userId);
-//  };
+//     int getUserInfo(int userId, UserInfo *userInfo);
+//     int updateUserInfo(int userId, UserInfo *userInfo);
+//     int addUserInfo(int userId, UserInfo *userInfo);
+//     void removeUser(int userId);
+// };
 //
-//  inline
-//  UserInfoCache::UserInfoCache()
-//  {
-//  }
+// inline
+// UserInfoCache::UserInfoCache()
+// {
+// }
 //
-//  inline
-//  UserInfoCache::~UserInfoCache()
-//  {
-//  }
+// inline
+// UserInfoCache::~UserInfoCache()
+// {
+// }
 //
-//  inline
-//  int UserInfoCache::getUserInfo(int userId, UserInfo *userInfo)
-//  {
-//      int ret = 1;
-//..
+// inline
+// int UserInfoCache::getUserInfo(int userId, UserInfo *userInfo)
+// {
+//     int ret = 1;
+// ```
 // Getting the user info does not require any write access.  We do, however,
-// need read access to 'd_infoMap', which is controlled by 'd_lock'.  (Note
+// need read access to `d_infoMap`, which is controlled by `d_lock`.  (Note
 // that writers *will* block until this *read* *lock* is released, but
 // concurrent reads are allowed.)  The user info is copied into the
-// caller-owned location 'userInfo'.
-//..
-//      d_lock.lockRead();
-//      InfoMap::iterator it = d_infoMap.find(userId);
-//      if (d_infoMap.end() != it) {
-//          *userInfo = it->second;
-//          ret = 0;
-//      }
-//      d_lock.unlock();
-//      return ret;
-//  }
+// caller-owned location `userInfo`.
+// ```
+//     d_lock.lockRead();
+//     InfoMap::iterator it = d_infoMap.find(userId);
+//     if (d_infoMap.end() != it) {
+//         *userInfo = it->second;
+//         ret = 0;
+//     }
+//     d_lock.unlock();
+//     return ret;
+// }
 //
-//  inline
-//  int UserInfoCache::updateUserInfo(int userId, UserInfo *userInfo)
-//  {
-//      int ret = 1;
-//..
+// inline
+// int UserInfoCache::updateUserInfo(int userId, UserInfo *userInfo)
+// {
+//     int ret = 1;
+// ```
 // Although we intend to update the information, we first acquire a *read*
 // *lock* to locate the item.  This allows other threads to read the list while
 // we find the item.  If we do not locate the item we can simply release the
 // *read* *lock* and return an error without causing any other *reading* thread
 // to block.  (Again, other writers *will* block until this *read* *lock* is
 // released.)
-//..
-//      d_lock.lockRead();
-//      InfoMap::iterator it = d_infoMap.find(userId);
-//      if (d_infoMap.end() != it) {
-//..
-// Since 'it != end()', we found the item.  Now we need to upgrade to a *write*
+// ```
+//     d_lock.lockRead();
+//     InfoMap::iterator it = d_infoMap.find(userId);
+//     if (d_infoMap.end() != it) {
+// ```
+// Since `it != end()`, we found the item.  Now we need to upgrade to a *write*
 // *lock*.  If we can't do this atomically, then we need to locate the item
-// again.  This is because another thread may have changed 'd_infoMap' during
+// again.  This is because another thread may have changed `d_infoMap` during
 // the time between our *read* and *write* locks.
-//..
-//          if (d_lock.upgradeToWriteLock()) {
-//              it = d_infoMap.find(userId);
-//          }
-//..
+// ```
+//         if (d_lock.upgradeToWriteLock()) {
+//             it = d_infoMap.find(userId);
+//         }
+// ```
 // This is a little more costly, but since we don't expect many concurrent
 // writes, it should not happen often.  In the (likely) event that we do
 // upgrade to a *write* *lock* atomically, then the second lookup above is not
 // performed.  In any case, we can now update the information and release the
 // lock, since we already have a pointer to the item and we know that the list
 // could not have been changed by anyone else.
-//..
-//          if (d_infoMap.end() != it) {
-//              it->second = *userInfo;
-//              ret = 0;
-//          }
-//          d_lock.unlock();
-//      }
-//      else {
-//          d_lock.unlock();
-//      }
-//      return ret;
-//  }
+// ```
+//         if (d_infoMap.end() != it) {
+//             it->second = *userInfo;
+//             ret = 0;
+//         }
+//         d_lock.unlock();
+//     }
+//     else {
+//         d_lock.unlock();
+//     }
+//     return ret;
+// }
 //
-//  inline
-//  int UserInfoCache::addUserInfo(int userId, UserInfo *userInfo)
-//  {
-//      d_lock.lockRead();
-//      bool found = !! d_infoMap.count(userId);
-//      if (! found) {
-//          if (d_lock.upgradeToWriteLock()) {
-//              found = !! d_infoMap.count(userId);
-//          }
-//          if (! found) {
-//              d_infoMap[userId] = *userInfo;
-//          }
-//          d_lock.unlock();
-//      }
-//      else {
-//          d_lock.unlock();
-//      }
-//      return found ? 1 : 0;
-//  }
+// inline
+// int UserInfoCache::addUserInfo(int userId, UserInfo *userInfo)
+// {
+//     d_lock.lockRead();
+//     bool found = !! d_infoMap.count(userId);
+//     if (! found) {
+//         if (d_lock.upgradeToWriteLock()) {
+//             found = !! d_infoMap.count(userId);
+//         }
+//         if (! found) {
+//             d_infoMap[userId] = *userInfo;
+//         }
+//         d_lock.unlock();
+//     }
+//     else {
+//         d_lock.unlock();
+//     }
+//     return found ? 1 : 0;
+// }
 //
-//  inline
-//  void UserInfoCache::removeUser(int userId)
-//  {
-//      d_lock.lockWrite();
-//      d_infoMap.erase(userId);
-//      d_lock.unlock();
-//  }
-//..
+// inline
+// void UserInfoCache::removeUser(int userId)
+// {
+//     d_lock.lockWrite();
+//     d_infoMap.erase(userId);
+//     d_lock.unlock();
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -241,8 +239,8 @@ namespace bslmt {
                           // class ReaderWriterLock
                           // ======================
 
+/// This class provides a multi-reader/single-writer lock mechanism.
 class ReaderWriterLock {
-    // This class provides a multi-reader/single-writer lock mechanism.
 
     // PRIVATE TYPES
     enum SignalState {
@@ -252,37 +250,38 @@ class ReaderWriterLock {
     };
 
     // CLASS DATA
+
+    // mask for writer portion of the counter
     static const unsigned long long WRITER_MASK         = 0x000000000000FFFFLL;
-        // mask for writer portion of the counter
 
+    // mask for active reader potion of the counter
     static const unsigned long long READER_MASK         = 0x00000000FFFF0000LL;
-        // mask for active reader potion of the counter
 
+    // value used to increment and decrement the active reader count by 1
     static const unsigned long long READER_INC          = 0x0000000000010000LL;
-        // value used to increment and decrement the active reader count by 1
 
+    // mask for waiting reader portion of the counter
     static const unsigned long long BLOCKED_READER_MASK = 0x0000FFFF00000000LL;
-        // mask for waiting reader portion of the counter
 
+    // value used to increment and decrement the blocked reader count by 1
     static const unsigned long long BLOCKED_READER_INC = 0x00000000100000000LL;
-        // value used to increment and decrement the blocked reader count by 1
 
+    // mask for read ok flag which indicates that readers can acquire a
+    // lock without blocking.
     static const unsigned long long READ_OK             = 0x0001000000000000LL;
-        // mask for read ok flag which indicates that readers can acquire a
-        // lock without blocking.
 
+    // mask for upgrade pending flag which indicates that a reader thread
+    // is waiting to upgrade to a writer
     static const unsigned long long UPGRADE_PENDING     = 0x0002000000000000LL;
-        // mask for upgrade pending flag which indicates that a reader thread
-        // is waiting to upgrade to a writer
 
+    // mask for reservation pending flag
     static const unsigned long long RESERVATION_PENDING = 0x0004000000000000LL;
-        // mask for reservation pending flag
 
+    // mask for the read broadcast state portion of counter
     static const unsigned long long READ_BCAST_MASK     = 0xFFF0000000000000LL;
-        // mask for the read broadcast state portion of counter
 
+    // value used to increment the read broadcast count by 1
     static const unsigned long long READ_BCAST_INC      = 0x0010000000000000LL;
-        // value used to increment the read broadcast count by 1
 
     // INSTANCE DATA
     bsls::AtomicOperations::AtomicTypes::Int64 d_rwCount;
@@ -315,97 +314,100 @@ class ReaderWriterLock {
 
   public:
     // CREATORS
-    ReaderWriterLock();
-        // Construct a reader/writer lock initialized to an unlocked state.
 
+    /// Construct a reader/writer lock initialized to an unlocked state.
+    ReaderWriterLock();
+
+    /// Destroy this reader/writer lock.
     ~ReaderWriterLock();
-        // Destroy this reader/writer lock.
 
     // MANIPULATORS
+
+    /// Lock this reader/writer lock for read.  If there are no pending or
+    /// active write locks, the call will return immediately, otherwise it
+    /// block until all write locks have been released.  Use `unlock` to
+    /// release the lock.
     void lockRead();
-        // Lock this reader/writer lock for read.  If there are no pending or
-        // active write locks, the call will return immediately, otherwise it
-        // block until all write locks have been released.  Use 'unlock' to
-        // release the lock.
 
+    /// Lock this reader/writer lock for read and reserve a write lock so
+    /// that a call to `upgradeToWriteLock` is guaranteed to upgrade
+    /// atomically.  If there are no pending or active write locks, the call
+    /// will return immediately, otherwise it will block until it all active
+    /// and pending writes have completed.  The lock may then be atomically
+    /// converted to a write lock by calling `upgradeToWriteLock`.  Use
+    /// `unlock` to release the lock.
     void lockReadReserveWrite();
-        // Lock this reader/writer lock for read and reserve a write lock so
-        // that a call to 'upgradeToWriteLock' is guaranteed to upgrade
-        // atomically.  If there are no pending or active write locks, the call
-        // will return immediately, otherwise it will block until it all active
-        // and pending writes have completed.  The lock may then be atomically
-        // converted to a write lock by calling 'upgradeToWriteLock'.  Use
-        // 'unlock' to release the lock.
 
+    /// Lock the reader/writer lock for write.  The call will block until
+    /// all active read locks or active/pending write locks are released.
+    /// When the reader/writer lock is locked for write, all read/write lock
+    /// attempts will either fail or block until the lock is released.  Use
+    /// `unlock` to release the lock.
     void lockWrite();
-        // Lock the reader/writer lock for write.  The call will block until
-        // all active read locks or active/pending write locks are released.
-        // When the reader/writer lock is locked for write, all read/write lock
-        // attempts will either fail or block until the lock is released.  Use
-        // 'unlock' to release the lock.
 
+    /// Attempt to lock this reader/writer lock for read.  Return 0 on
+    /// success, and a non-zero value if the lock is currently locked for
+    /// write or if there are writers waiting for this lock.  If successful,
+    /// `unlock` must be used to release this lock.
     int tryLockRead();
-        // Attempt to lock this reader/writer lock for read.  Return 0 on
-        // success, and a non-zero value if the lock is currently locked for
-        // write or if there are writers waiting for this lock.  If successful,
-        // 'unlock' must be used to release this lock.
 
+    /// Attempt to lock this reader/writer lock for write.  Return 0 on
+    /// success, and a non-zero value if the lock already locked for read or
+    /// write.  If successful, `unlock` must be called to release the lock.
     int tryLockWrite();
-        // Attempt to lock this reader/writer lock for write.  Return 0 on
-        // success, and a non-zero value if the lock already locked for read or
-        // write.  If successful, 'unlock' must be called to release the lock.
 
+    /// Convert a read lock (acquired by a successful call to `lockRead`,
+    /// `lockReadReserveWrite`, or `tryLockRead`) to a write lock.  Return 0
+    /// if the upgrade operation was atomic, and a non-zero value otherwise.
+    /// If there are other active read locks, the call will block until all
+    /// current read locks are released.  Note that locks that were acquired
+    /// through `lockReadReserveWrite` are guaranteed to upgrade atomically.
+    /// Use `unlock` to release this lock.
     int upgradeToWriteLock();
-        // Convert a read lock (acquired by a successful call to 'lockRead',
-        // 'lockReadReserveWrite', or 'tryLockRead') to a write lock.  Return 0
-        // if the upgrade operation was atomic, and a non-zero value otherwise.
-        // If there are other active read locks, the call will block until all
-        // current read locks are released.  Note that locks that were acquired
-        // through 'lockReadReserveWrite' are guaranteed to upgrade atomically.
-        // Use 'unlock' to release this lock.
 
+    /// Attempt to atomically convert a read lock (acquired by a successful
+    /// call to `lockRead`, `lockReadReserveWrite`, or `tryLockRead`) to a
+    /// write lock.  Return 0 on success, and a non-zero value otherwise.
+    /// If a write lock request is already pending, a non-zero value is
+    /// immediately returned.  If there are other active read locks, the
+    /// call will block until all current read locks are released.  Note
+    /// that locks that were acquired through `lockReadReserveWrite` are
+    /// guaranteed to succeed.
     int tryUpgradeToWriteLock();
-        // Attempt to atomically convert a read lock (acquired by a successful
-        // call to 'lockRead', 'lockReadReserveWrite', or 'tryLockRead') to a
-        // write lock.  Return 0 on success, and a non-zero value otherwise.
-        // If a write lock request is already pending, a non-zero value is
-        // immediately returned.  If there are other active read locks, the
-        // call will block until all current read locks are released.  Note
-        // that locks that were acquired through 'lockReadReserveWrite' are
-        // guaranteed to succeed.
 
+    /// *DEPRECATED* Use `unlock` instead.  Note that calls to this function
+    /// are simply forwarded to `unlock`.
     void unlockRead();
-        // *DEPRECATED* Use 'unlock' instead.  Note that calls to this function
-        // are simply forwarded to 'unlock'.
 
+    /// *DEPRECATED* Use `unlock` instead.  Note that calls to this function
+    /// are simply forwarded to `unlock`.
     void unlockReadUnreserveWrite();
-        // *DEPRECATED* Use 'unlock' instead.  Note that calls to this function
-        // are simply forwarded to 'unlock'.
 
+    /// *DEPRECATED* Use `unlock` instead.  Note that calls to this function
+    /// are simply forwarded to `unlock`.
     void unlockWrite();
-        // *DEPRECATED* Use 'unlock' instead.  Note that calls to this function
-        // are simply forwarded to 'unlock'.
 
+    /// Release a read lock that was previously acquired from a successful
+    /// call to `lockRead`, `lockReadReserveWrite`, or `tryLockRead`, or a
+    /// call to write lock which was previously acquired by a successful
+    /// call to `lockWrite`, `tryLockWrite`, or `upgradeToWriteLock`.  Note
+    /// that the behavior is undefined unless the calling thread currently
+    /// owns this read/write lock.
     void unlock();
-        // Release a read lock that was previously acquired from a successful
-        // call to 'lockRead', 'lockReadReserveWrite', or 'tryLockRead', or a
-        // call to write lock which was previously acquired by a successful
-        // call to 'lockWrite', 'tryLockWrite', or 'upgradeToWriteLock'.  Note
-        // that the behavior is undefined unless the calling thread currently
-        // owns this read/write lock.
 
     // ACCESSORS
+
+    /// Return `true` if this reader-write lock is currently read locked or
+    /// write locked, and `false` otherwise.
     bool isLocked() const;
-        // Return 'true' if this reader-write lock is currently read locked or
-        // write locked, and 'false' otherwise.
 
+    /// Return `true` if this reader-write lock is currently read locked,
+    /// and `false` otherwise.
     bool isLockedRead() const;
-        // Return 'true' if this reader-write lock is currently read locked,
-        // and 'false' otherwise.
 
+    /// Return `true` if this reader-write lock is currently write locked,
+    /// and `false` otherwise.
     bool isLockedWrite() const;
-        // Return 'true' if this reader-write lock is currently write locked,
-        // and 'false' otherwise.
 };
 
 }  // close package namespace

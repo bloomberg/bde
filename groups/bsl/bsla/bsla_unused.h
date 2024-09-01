@@ -7,11 +7,11 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a macro to suppress "unused" warnings.
 //
-//@DEPRECATED: Use 'bsla_maybeunused' instead.
+//@DEPRECATED: Use `bsla_maybeunused` instead.
 //
 //@MACROS:
 //  BSLA_UNUSED:           do not warn if annotated entity is unused
-//  BSLA_UNUSED_IS_ACTIVE: defined if 'BSLA_UNUSED' is active
+//  BSLA_UNUSED_IS_ACTIVE: defined if `BSLA_UNUSED` is active
 //
 //@SEE_ALSO: bsla_annotations, bsla_maybeunused
 //
@@ -19,21 +19,21 @@ BSLS_IDENT("$Id: $")
 // "unused" warnings on a locally defined function, type, or variable that is
 // not used.
 //
-// Note that the similar macro, 'BSLA_MAYBE_UNUSED', aliasing the standard
-// '[[maybe_unused]]' attribute, may be considered for use instead of this
+// Note that the similar macro, `BSLA_MAYBE_UNUSED`, aliasing the standard
+// `[[maybe_unused]]` attribute, may be considered for use instead of this
 // macro.
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_UNUSED':
+//: `BSLA_UNUSED`:
 //:     This annotation indicates that the so-annotated function, variable, or
 //:     type is possibly unused and the compiler should not generate a warning
 //:     for the unused identifier.
 //:
-//: 'BSLA_UNUSED_IS_ACTIVE':
-//:     The macro 'BSLA_UNUSED_IS_ACTIVE' is defined if 'BSLA_UNUSED' expands
-//:     to something with the desired effect; otherwise 'BSLA_UNUSED_IS_ACTIVE'
-//:     is not defined and 'BSLA_UNUSED' expands to nothing.
+//: `BSLA_UNUSED_IS_ACTIVE`:
+//:     The macro `BSLA_UNUSED_IS_ACTIVE` is defined if `BSLA_UNUSED` expands
+//:     to something with the desired effect; otherwise `BSLA_UNUSED_IS_ACTIVE`
+//:     is not defined and `BSLA_UNUSED` expands to nothing.
 //
 ///Usage
 ///-----
@@ -41,127 +41,127 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: "Unused" Warnings
 /// - - - - - - - - - - - - - -
-// First, we define a namespace, 'warn', within the unnamed namespace with a
+// First, we define a namespace, `warn`, within the unnamed namespace with a
 // type, a function, and a variable in it.  They are unused:
-//..
-//  namespace {
-//  namespace warn {
+// ```
+// namespace {
+// namespace warn {
 //
-//  double x;
+// double x;
 //
-//  struct ResultRec {
-//      double d_x;
-//      double d_y;
-//  };
+// struct ResultRec {
+//     double d_x;
+//     double d_y;
+// };
 //
-//  int quadratic(double *zeroA,
-//                double *zeroB,
-//                double *zeroC,
-//                double cubeFactor,
-//                double a,
-//                double b,
-//                double c)
-//      // Solve the quadratic function for the specified 'a', 'b', and 'c',
-//      // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
-//      // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
-//      // to those solutions and return 0 otherwise.  The specified
-//      // 'cubeFactor' and 'zeroC' are unused for now but will be used in
-//      // future expansion of the function to handle cubic polynomials.
-//  {
-//      const double discriminant = b * b - 4 * a * c;
-//      if (discriminant < 0 || 0.0 == a) {
-//          *zeroA = *zeroB = 0.0;
-//          return -1;                                                // RETURN
-//      }
+// /// Solve the quadratic function for the specified 'a', 'b', and 'c',
+// /// where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
+// /// return a non-zero value, and set the specified 'zeroA' and 'zeroB'
+// /// to those solutions and return 0 otherwise.  The specified
+// /// 'cubeFactor' and 'zeroC' are unused for now but will be used in
+// /// future expansion of the function to handle cubic polynomials.
+// int quadratic(double *zeroA,
+//               double *zeroB,
+//               double *zeroC,
+//               double cubeFactor,
+//               double a,
+//               double b,
+//               double c)
+// {
+//     const double discriminant = b * b - 4 * a * c;
+//     if (discriminant < 0 || 0.0 == a) {
+//         *zeroA = *zeroB = 0.0;
+//         return -1;                                                // RETURN
+//     }
 //
-//      const double root = ::sqrt(discriminant);
-//      *zeroA = (-b + root) / (2 * a);
-//      *zeroB = (-b - root) / (2 * a);
+//     const double root = ::sqrt(discriminant);
+//     *zeroA = (-b + root) / (2 * a);
+//     *zeroB = (-b - root) / (2 * a);
 //
-//      return 0;
-//  }
+//     return 0;
+// }
 //
-//  }  // close namespace warn
-//  }  // close unnamed namespace
-//..
+// }  // close namespace warn
+// }  // close unnamed namespace
+// ```
 // Then, we observe the warnings:
-//..
-//  .../bsla_unused.t.cpp:135:27: warning: unused parameter 'zeroC'
-//  [-Wunused-parameter]
-//                 double *zeroC,
-//                 ~~~~~~~~^~~~~
-//  .../bsla_unused.t.cpp:136:26: warning: unused parameter 'cubeFactor'
-//  [-Wunused-parameter]
-//                 double cubeFactor,
-//                 ~~~~~~~^~~~~~~~~~
-//  .../bsla_unused.t.cpp:133:9: warning: 'int {anonymous}::warn::
-//  quadratic(double*, double*, double*, double, double, double, double)'
-//  defined but not used [-Wunused-function]
-//   int quadratic(double *zeroA,
-//       ^~~~~~~~~
-//  .../bsla_unused.t.cpp:126:12: warning: '{anonymous}::warn::x' defined but
-//  not used [-Wunused-variable]
-//   double x;
-//          ^
-//..
+// ```
+// .../bsla_unused.t.cpp:135:27: warning: unused parameter 'zeroC'
+// [-Wunused-parameter]
+//                double *zeroC,
+//                ~~~~~~~~^~~~~
+// .../bsla_unused.t.cpp:136:26: warning: unused parameter 'cubeFactor'
+// [-Wunused-parameter]
+//                double cubeFactor,
+//                ~~~~~~~^~~~~~~~~~
+// .../bsla_unused.t.cpp:133:9: warning: 'int {anonymous}::warn::
+// quadratic(double*, double*, double*, double, double, double, double)'
+// defined but not used [-Wunused-function]
+//  int quadratic(double *zeroA,
+//      ^~~~~~~~~
+// .../bsla_unused.t.cpp:126:12: warning: '{anonymous}::warn::x' defined but
+// not used [-Wunused-variable]
+//  double x;
+//         ^
+// ```
 // Note that none of the compilers currently in use by the development team
-// issue a warning on the unused 'warn::ResultRec', but some in the future
-// might.  In the meantime, 'BSLA_UNUSED' is tolerated on type declarations
+// issue a warning on the unused `warn::ResultRec`, but some in the future
+// might.  In the meantime, `BSLA_UNUSED` is tolerated on type declarations
 // without resulting in a syntax error.
 //
-// Next, we define a namespace, 'nowarn', within the unused namespace with
-// exactly the same unused entities, using the 'BSLA_UNUSED' annotation to
+// Next, we define a namespace, `nowarn`, within the unused namespace with
+// exactly the same unused entities, using the `BSLA_UNUSED` annotation to
 // silence the warnings:
-//..
-//  namespace {
-//  namespace nowarn {
+// ```
+// namespace {
+// namespace nowarn {
 //
-//  struct ResultRec {
-//      double d_x;
-//      double d_y;
-//  } BSLA_UNUSED;
+// struct ResultRec {
+//     double d_x;
+//     double d_y;
+// } BSLA_UNUSED;
 //
-//  double x BSLA_UNUSED;
+// double x BSLA_UNUSED;
 //
-//  int quadratic(double             *zeroA,
-//                double             *zeroB,
-//                BSLA_UNUSED double *zeroC,
-//                BSLA_UNUSED double  cubeFactor,
-//                double              a,
-//                double              b,
-//                double              c) BSLA_UNUSED;
-//      // Solve the quadratic function for the specified 'a', 'b', and 'c',
-//      // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
-//      // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
-//      // to those solutions and return 0 otherwise.  The specified
-//      // 'cubeFactor' and 'zeroC' are unused for now but will be used in
-//      // future expansion of the function to handle cubic polynomials.
+// /// Solve the quadratic function for the specified 'a', 'b', and 'c',
+// /// where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
+// /// return a non-zero value, and set the specified 'zeroA' and 'zeroB'
+// /// to those solutions and return 0 otherwise.  The specified
+// /// 'cubeFactor' and 'zeroC' are unused for now but will be used in
+// /// future expansion of the function to handle cubic polynomials.
+// int quadratic(double             *zeroA,
+//               double             *zeroB,
+//               BSLA_UNUSED double *zeroC,
+//               BSLA_UNUSED double  cubeFactor,
+//               double              a,
+//               double              b,
+//               double              c) BSLA_UNUSED;
 //
-//  int quadratic(double             *zeroA,
-//                double             *zeroB,
-//                BSLA_UNUSED double *zeroC,
-//                BSLA_UNUSED double  cubeFactor,
-//                double              a,
-//                double              b,
-//                double              c)
-//  {
-//      const double discriminant = b * b - 4 * a * c;
-//      if (discriminant < 0 || 0.0 == a) {
-//          *zeroA = *zeroB = 0.0;
-//          return -1;                                                // RETURN
-//      }
+// int quadratic(double             *zeroA,
+//               double             *zeroB,
+//               BSLA_UNUSED double *zeroC,
+//               BSLA_UNUSED double  cubeFactor,
+//               double              a,
+//               double              b,
+//               double              c)
+// {
+//     const double discriminant = b * b - 4 * a * c;
+//     if (discriminant < 0 || 0.0 == a) {
+//         *zeroA = *zeroB = 0.0;
+//         return -1;                                                // RETURN
+//     }
 //
-//      const double root = ::sqrt(discriminant);
-//      *zeroA = (-b + root) / (2 * a);
-//      *zeroB = (-b - root) / (2 * a);
+//     const double root = ::sqrt(discriminant);
+//     *zeroA = (-b + root) / (2 * a);
+//     *zeroB = (-b - root) / (2 * a);
 //
-//      return 0;
-//  }
+//     return 0;
+// }
 //
-//  }  // close namespace nowarn
-//  }  // close unnamed namespace
-//..
-// Finally, we observe that the warnings for the 'nowarn' namespace are
+// }  // close namespace nowarn
+// }  // close unnamed namespace
+// ```
+// Finally, we observe that the warnings for the `nowarn` namespace are
 // suppressed.
 
 #include <bsls_platform.h>

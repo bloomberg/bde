@@ -5,23 +5,23 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide support for the 'bslstl_map.t.cpp' test driver.
+//@PURPOSE: Provide support for the `bslstl_map.t.cpp` test driver.
 //
 //@CLASSES:
 //
 //@SEE_ALSO: bslstl_map
 //
-//@DESCRIPTION: This component provides a third translation unit for 'map' test
+//@DESCRIPTION: This component provides a third translation unit for `map` test
 // cases to reduce the test-driver's build time.  The usage example test, and
 // test cases 1-8 are in the original component test driver.  Test cases 9-27
-// are in the 'bslstl_map_test1' component's test driver.  Test case 28 is in
+// are in the `bslstl_map_test1` component's test driver.  Test case 28 is in
 // this subordinate component's test driver.  The remaining tests (29 and
-// higher) are in the 'bslstl_map_test3' component's test driver.
+// higher) are in the `bslstl_map_test3` component's test driver.
 //
 // As the number of test concerns grows, and the number of types to instantiate
-// 'map' with in order to gain complete code coverage grows, we have exceeded
+// `map` with in order to gain complete code coverage grows, we have exceeded
 // the limits of certain compilers.  For example, gcc will not produce a valid
-// '.o' file as the number of template instantiations exceeds some internal
+// `.o` file as the number of template instantiations exceeds some internal
 // tables.  In order to continue providing full coverage, some of the standard
 // value-semantic type test cases (1-8) are handled by the primary component
 // test driver, and the remaining standard tests, and tests for all remaining

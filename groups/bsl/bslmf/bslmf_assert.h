@@ -14,76 +14,76 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a macro that will generate a
 // compile-time error if its constant integral expression argument evaluates to
-// false (i.e., a value of '0').  The 'BSLMF_ASSERT' macro is similar to the
-// standard run-time 'assert' macro, except that its argument is evaluated at
+// false (i.e., a value of `0`).  The `BSLMF_ASSERT` macro is similar to the
+// standard run-time `assert` macro, except that its argument is evaluated at
 // compile-time, it produces no executable code, and it can be used safely in
 // header files.
-//..
-//  BSLMF_ASSERT(sizeof(int) >= sizeof(char));    // OK
-//  BSLMF_ASSERT(sizeof(double) < sizeof(char));  // COMPILE ERROR!
-//..
+// ```
+// BSLMF_ASSERT(sizeof(int) >= sizeof(char));    // OK
+// BSLMF_ASSERT(sizeof(double) < sizeof(char));  // COMPILE ERROR!
+// ```
 // The second line will result in a compile error with a message stating that
-// the type 'BSLMF_COMPILE_TIME_ASSERTION_FAILURE' is incomplete, usually
+// the type `BSLMF_COMPILE_TIME_ASSERTION_FAILURE` is incomplete, usually
 // preceded by the file and line number where the macro was used.  The
 // following error message is typical of most compilers:
-//..
-//  $ CC -g myfile.cpp
-//  "myfile.cpp", line 86: Error: The type
-//  "BSLMF_COMPILE_TIME_ASSERTION_FAILURE<0>" is incomplete.
-//  1 Error(s) detected.
-//..
+// ```
+// $ CC -g myfile.cpp
+// "myfile.cpp", line 86: Error: The type
+// "BSLMF_COMPILE_TIME_ASSERTION_FAILURE<0>" is incomplete.
+// 1 Error(s) detected.
+// ```
 // If the macro argument is true, the macro will generate an innocuous
-// 'typedef' with a name that is the concatenation of the symbol
-// 'bslmf::Assert', and the value of '__LINE__' (which will be the line number
+// `typedef` with a name that is the concatenation of the symbol
+// `bslmf::Assert`, and the value of `__LINE__` (which will be the line number
 // in the file where the macro was called).  For example, the first line from
 // the example above might result in the following statement:
-//..
-//  typedef bslmf::AssertTest<1> bslmf_Assert_85;
-//..
+// ```
+// typedef bslmf::AssertTest<1> bslmf_Assert_85;
+// ```
 // Note that these generated typedefs are implementation details of the
 // compile-time checking facility and are not intended to be used directly
 // outside of this component.
 //
-// Attempting to invoke 'BSLMF_ASSERT' on a non-compile-time value will
+// Attempting to invoke `BSLMF_ASSERT` on a non-compile-time value will
 // typically result in a compilation error.
 //
-// 'BSLMF_ASSERT' can be used at namespace, class, and function scope to assert
+// `BSLMF_ASSERT` can be used at namespace, class, and function scope to assert
 // compile-time conditions.  !WARNING:! a compiler bug on certain platforms
-// produces an error when the 'BSLMF_ASSERT' macro is used more than once on
+// produces an error when the `BSLMF_ASSERT` macro is used more than once on
 // the *same* line in class scope.
-//..
-//  +---------------------------------------------
-//  | // mytype.h
-//  | #ifndef INCLUDED_BSLMF_ASSERT
-//  | #include <bslmf_assert.h>
-//  | #endif
-//  |
-//  | class MyType {
-//  |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));  // OK
-//  |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));  // OK
-//  |     BSLMF_ASSERT(1 == 1);                       // OK
-//  |     BSLMF_ASSERT(1 == 1); BSLMF_ASSERT(1 == 1); // SAME LINE - MIGHT
-//  |                                                 // CAUSE ERROR!
-//  |
-//  |     int d_data;
-//  |     ...
-//  |     void foo();
-//  |     ...
-//  | };
+// ```
+// +---------------------------------------------
+// | // mytype.h
+// | #ifndef INCLUDED_BSLMF_ASSERT
+// | #include <bslmf_assert.h>
+// | #endif
+// |
+// | class MyType {
+// |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));  // OK
+// |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));  // OK
+// |     BSLMF_ASSERT(1 == 1);                       // OK
+// |     BSLMF_ASSERT(1 == 1); BSLMF_ASSERT(1 == 1); // SAME LINE - MIGHT
+// |                                                 // CAUSE ERROR!
+// |
+// |     int d_data;
+// |     ...
+// |     void foo();
+// |     ...
+// | };
 //
-//        +---------------------------------------------
-//        | // mytype.cpp
-//        | #include <mytype.h>
-//        | #include <bslmf_assert.h>
-//        |
-//        | BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-//        |
-//        | void MyType::foo()
-//        | {
-//        |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-//        |     ...
-//        | }
-//..
+//       +---------------------------------------------
+//       | // mytype.cpp
+//       | #include <mytype.h>
+//       | #include <bslmf_assert.h>
+//       |
+//       | BSLMF_ASSERT(sizeof(int) >= sizeof(char));
+//       |
+//       | void MyType::foo()
+//       | {
+//       |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));
+//       |     ...
+//       | }
+// ```
 
 #include <bslscm_version.h>
 

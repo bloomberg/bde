@@ -13,18 +13,18 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'AllocBitwiseMoveableTestType', that is
-// bitwise-moveable, uses a 'bslma::Allocator' to supply memory, and defines
-// the type traits 'bslma::UsesBslmaAllocator' and 'bslmf::IsBitwiseMoveable'.
+// (value-semantic) attribute class, `AllocBitwiseMoveableTestType`, that is
+// bitwise-moveable, uses a `bslma::Allocator` to supply memory, and defines
+// the type traits `bslma::UsesBslmaAllocator` and `bslmf::IsBitwiseMoveable`.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the class value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the class value
 //
 ///Usage
 ///-----
@@ -34,39 +34,39 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to print the supported traits of this test type.
 //
-// First, we create a function template 'printTypeTraits' with a parameterized
-// 'TYPE':
-//..
-//  template <class TYPE>
-//  void printTypeTraits()
-//      // Prints the traits of the parameterized 'TYPE' to the console.
-//  {
-//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
-//          printf("Type defines bslma::UsesBslmaAllocator.\n");
-//      }
-//      else {
-//          printf(
-//              "Type does not define bslma::UsesBslmaAllocator.\n");
-//      }
+// First, we create a function template `printTypeTraits` with a parameterized
+// `TYPE`:
+// ```
+// template <class TYPE>
+// void printTypeTraits()
+//     // Prints the traits of the parameterized 'TYPE' to the console.
+// {
+//     if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//         printf("Type defines bslma::UsesBslmaAllocator.\n");
+//     }
+//     else {
+//         printf(
+//             "Type does not define bslma::UsesBslmaAllocator.\n");
+//     }
 //
-//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
-//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
-//      }
-//      else {
-//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
-//      }
-//  }
-//..
-// Now, we invoke the 'printTypeTraits' function template using
-// 'AllocBitwiseMoveableTestType' as the parameterized 'TYPE':
-//..
-//  printTypeTraits<AllocBitwiseMoveableTestType>();
-//..
+//     if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//         printf("Type defines bslmf::IsBitwiseMoveable.\n");
+//     }
+//     else {
+//         printf("Type does not define bslmf::IsBitwiseMoveable.\n");
+//     }
+// }
+// ```
+// Now, we invoke the `printTypeTraits` function template using
+// `AllocBitwiseMoveableTestType` as the parameterized `TYPE`:
+// ```
+// printTypeTraits<AllocBitwiseMoveableTestType>();
+// ```
 // Finally, we observe the console output:
-//..
-//  Type defines bslma::UsesBslmaAllocator.
-//  Type defines bslmf::IsBitwiseMoveable.
-//..
+// ```
+// Type defines bslma::UsesBslmaAllocator.
+// Type defines bslmf::IsBitwiseMoveable.
+// ```
 
 #include <bslscm_version.h>
 
@@ -83,13 +83,13 @@ namespace bsltf {
                         // class AllocBitwiseMoveableTestType
                         // ==================================
 
+/// This unconstrained (value-semantic) attribute class that is
+/// bitwise-moveable, uses a `bslma::Allocator` to supply memory, and
+/// defines the type traits `bslma::UsesBslmaAllocator` and
+/// `bslmf::IsBitwiseMoveable`.  See the Attributes section under
+/// @DESCRIPTION in the component-level documentation for information on the
+/// class attributes.
 class AllocBitwiseMoveableTestType {
-    // This unconstrained (value-semantic) attribute class that is
-    // bitwise-moveable, uses a 'bslma::Allocator' to supply memory, and
-    // defines the type traits 'bslma::UsesBslmaAllocator' and
-    // 'bslmf::IsBitwiseMoveable'.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.
 
     // DATA
     int              *d_data_p;       // pointer to the integer class value
@@ -99,69 +99,73 @@ class AllocBitwiseMoveableTestType {
 
   public:
     // CREATORS
+
+    /// Create a `AllocBitwiseMoveableTestType` object having the (default)
+    /// attribute values:
+    /// ```
+    /// data() == 0
+    /// ```
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     AllocBitwiseMoveableTestType();
     explicit AllocBitwiseMoveableTestType(bslma::Allocator *basicAllocator);
-        // Create a 'AllocBitwiseMoveableTestType' object having the (default)
-        // attribute values:
-        //..
-        //  data() == 0
-        //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
 
+    /// Create a `AllocBitwiseMoveableTestType` object having the specified
+    /// `data` attribute value.  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     explicit AllocBitwiseMoveableTestType(
                                          int               data,
                                          bslma::Allocator *basicAllocator = 0);
-        // Create a 'AllocBitwiseMoveableTestType' object having the specified
-        // 'data' attribute value.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a `AllocBitwiseMoveableTestType` object having the same value
+    /// as the specified `original` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     AllocBitwiseMoveableTestType(
                      const AllocBitwiseMoveableTestType&   original,
                      bslma::Allocator                     *basicAllocator = 0);
-        // Create a 'AllocBitwiseMoveableTestType' object having the same value
-        // as the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this object.
     ~AllocBitwiseMoveableTestType();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
     AllocBitwiseMoveableTestType& operator=(
                                       const AllocBitwiseMoveableTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `AllocBitwiseMoveableTestType`
+/// objects have the same if their `data` attributes are the same.
 bool operator==(const AllocBitwiseMoveableTestType& lhs,
                 const AllocBitwiseMoveableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'AllocBitwiseMoveableTestType'
-    // objects have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `AllocBitwiseMoveableTestType`
+/// objects do not have the same value if their `data` attributes are not
+/// the same.
 bool operator!=(const AllocBitwiseMoveableTestType& lhs,
                 const AllocBitwiseMoveableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'AllocBitwiseMoveableTestType'
-    // objects do not have the same value if their 'data' attributes are not
-    // the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

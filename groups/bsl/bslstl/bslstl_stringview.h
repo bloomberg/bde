@@ -5,46 +5,46 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a standard-compliant 'basic_string_view' class template.
+//@PURPOSE: Provide a standard-compliant `basic_string_view` class template.
 //
 //@CLASSES:
-//  bsl::basic_string_view: C++ compliant 'basic_string_view' implementation
-//  bsl::string_view: 'typedef' for 'bsl::basic_string_view<char>'
-//  bsl::wstring_view: 'typedef' for 'bsl::basic_string_view<wchar_t>'
+//  bsl::basic_string_view: C++ compliant `basic_string_view` implementation
+//  bsl::string_view: `typedef` for `bsl::basic_string_view<char>`
+//  bsl::wstring_view: `typedef` for `bsl::basic_string_view<wchar_t>`
 //
 //@CANONICAL_HEADER: bsl_string_view.h
 //
 //@SEE_ALSO: ISO C++ Standard, bdlb_stringviewutil
 //
 //@DESCRIPTION: This component defines a single class template
-// 'bsl::basic_string_view' and aliases for ordinary and wide character
-// specializations 'bsl::string_view' and 'bsl::wstring_view' implementing
-// standard containers, 'std::string_view' and 'std::wstring_view', that can
+// `bsl::basic_string_view` and aliases for ordinary and wide character
+// specializations `bsl::string_view` and `bsl::wstring_view` implementing
+// standard containers, `std::string_view` and `std::wstring_view`, that can
 // refer to a constant contiguous sequence of char-like objects with the first
 // element of the sequence at position zero.
 //
-// An instantiation of 'basic_string_view' is a value-semantic type whose
+// An instantiation of `basic_string_view` is a value-semantic type whose
 // salient attribute is the sequence of characters it represents.  The
-// 'basic_string_view' 'class' is parameterized by the character type,
-// 'CHAR_TYPE' and that character type's traits, 'CHAR_TRAITS'.  The traits for
+// `basic_string_view` `class` is parameterized by the character type,
+// `CHAR_TYPE` and that character type's traits, `CHAR_TRAITS`.  The traits for
 // each character type provide functions that assign, compare, and copy a
 // sequence of those characters.
 //
-// A 'basic_string_view' meets the requirements of a sequential container with
+// A `basic_string_view` meets the requirements of a sequential container with
 // random access iterators as specified in the [basic.string_view] section of
-// the C++ standard [24.4].  The 'basic_string_view' implemented here adheres
+// the C++ standard [24.4].  The `basic_string_view` implemented here adheres
 // to the C++17 standard, except that it does not have template specializations
-// 'std::u16string_view' and 'std::u32string_view'.  Note that if compiler
-// supports C++17 standard, then 'stl' implementation of 'basic_string_view' is
+// `std::u16string_view` and `std::u32string_view`.  Note that if compiler
+// supports C++17 standard, then `stl` implementation of `basic_string_view` is
 // used.
 //
 ///Lexicographical Comparisons
 ///---------------------------
-// Two 'basic_string_view's 'lhs' and 'rhs' are lexicographically compared by
-// first determining 'N', the smaller of the lengths of 'lhs' and 'rhs', and
-// comparing characters at each position between 0 and 'N - 1', using
-// 'CHAR_TRAITS::compare' in lexicographical fashion.  If
-// 'CHAR_TRAITS::compare' determines that string_views are non-equal (smaller
+// Two `basic_string_view`s `lhs` and `rhs` are lexicographically compared by
+// first determining `N`, the smaller of the lengths of `lhs` and `rhs`, and
+// comparing characters at each position between 0 and `N - 1`, using
+// `CHAR_TRAITS::compare` in lexicographical fashion.  If
+// `CHAR_TRAITS::compare` determines that string_views are non-equal (smaller
 // or larger), then this is the result.  Otherwise, the lengths of the
 // string_views are compared and the shorter string_view is declared the
 // smaller.  Lexicographical comparison returns equality only when both
@@ -54,88 +54,88 @@ BSLS_IDENT("$Id: $")
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances of
-// 'basic_string_view':
-//..
-//  Legend
-//  ------
-//  'V'              - the 'CHAR_TYPE' template parameter type of the
-//                     'basic_string_view'
-//  'a', 'b'         - two distinct objects of type 'basic_string_view<V>'
-//  'k'              - an integral number
-//  'p'              - a pointer defining a sequence of 'CHAR_TYPE' characters
+// `basic_string_view`:
+// ```
+// Legend
+// ------
+// 'V'              - the 'CHAR_TYPE' template parameter type of the
+//                    'basic_string_view'
+// 'a', 'b'         - two distinct objects of type 'basic_string_view<V>'
+// 'k'              - an integral number
+// 'p'              - a pointer defining a sequence of 'CHAR_TYPE' characters
 //
-//  +----------------------------------------------+--------------------------+
-//  | Operation                                    | Complexity               |
-//  |==============================================+==========================|
-//  | basic_string_view<V> a (default construction)| O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | basic_string_view<V> a(b) (copy construction)| O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | basic_string_view<V> a(p)                    | O[n]                     |
-//  |----------------------------------------------+--------------------------|
-//  | basic_string_view<V> a(p, k)                 | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a.~basic_string_view<V>() (destruction)      | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a.begin(), a.end(),                          | O[1]                     |
-//  | a.cbegin(), a.cend(),                        |                          |
-//  | a.rbegin(), a.rend(),                        |                          |
-//  | a.crbegin(), a.crend()                       |                          |
-//  |----------------------------------------------+--------------------------|
-//  | a.size()                                     | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a.max_size()                                 | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a.remove_prefix(k)                           | O[1]                     |
-//  | a.remove_suffix(k)                           |                          |
-//  |----------------------------------------------+--------------------------|
-//  | a[k]                                         | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a.at(k)                                      | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a.front()                                    | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a.back()                                     | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a.swap(b), swap(a, b)                        | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a = b; (assignment)                          | O[1]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a == b, a != b                               | O[n]                     |
-//  |----------------------------------------------+--------------------------|
-//  | a < b, a <= b, a > b, a >= b                 | O[n]                     |
-//  +----------------------------------------------+--------------------------+
-//..
+// +----------------------------------------------+--------------------------+
+// | Operation                                    | Complexity               |
+// |==============================================+==========================|
+// | basic_string_view<V> a (default construction)| O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | basic_string_view<V> a(b) (copy construction)| O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | basic_string_view<V> a(p)                    | O[n]                     |
+// |----------------------------------------------+--------------------------|
+// | basic_string_view<V> a(p, k)                 | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a.~basic_string_view<V>() (destruction)      | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a.begin(), a.end(),                          | O[1]                     |
+// | a.cbegin(), a.cend(),                        |                          |
+// | a.rbegin(), a.rend(),                        |                          |
+// | a.crbegin(), a.crend()                       |                          |
+// |----------------------------------------------+--------------------------|
+// | a.size()                                     | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a.max_size()                                 | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a.remove_prefix(k)                           | O[1]                     |
+// | a.remove_suffix(k)                           |                          |
+// |----------------------------------------------+--------------------------|
+// | a[k]                                         | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a.at(k)                                      | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a.front()                                    | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a.back()                                     | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a.swap(b), swap(a, b)                        | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a = b; (assignment)                          | O[1]                     |
+// |----------------------------------------------+--------------------------|
+// | a == b, a != b                               | O[n]                     |
+// |----------------------------------------------+--------------------------|
+// | a < b, a <= b, a > b, a >= b                 | O[n]                     |
+// +----------------------------------------------+--------------------------+
+// ```
 //
 ///User-defined literals
 ///---------------------
-// The user-defined literal operators are declared for the 'bsl::string_view'
-// and 'bsl::wstring_view' types.  The ud-suffix '_sv' is chosen to distinguish
-// between the 'bsl'-string_view's user-defined literal operators and the
-// 'std'-string_view's user-defined literal 'operator ""sv' introduced in the
+// The user-defined literal operators are declared for the `bsl::string_view`
+// and `bsl::wstring_view` types.  The ud-suffix `_sv` is chosen to distinguish
+// between the `bsl`-string_view's user-defined literal operators and the
+// `std`-string_view's user-defined literal `operator ""sv` introduced in the
 // C++14 standard and implemented in the standard library provided by the
-// compiler vendor.  Note that the 'bsl'-string_view's 'operator "" _sv',
-// unlike the 'std'-string_view's 'operator ""sv', can be used in a client's
+// compiler vendor.  Note that the `bsl`-string_view's `operator "" _sv`,
+// unlike the `std`-string_view's `operator ""sv`, can be used in a client's
 // code if the compiler supports the C++11 standard.  Also note that if the
-// compiler supports the C++17 standard then the 'std'-string_view's
-// 'operator ""sv' can be used to initialize a 'bsl'-string_view as follows:
-//..
-//  using namespace std::string_view_literals;
-//  bsl::string_view sv = "test"sv;
-//..
+// compiler supports the C++17 standard then the `std`-string_view's
+// `operator ""sv` can be used to initialize a `bsl`-string_view as follows:
+// ```
+// using namespace std::string_view_literals;
+// bsl::string_view sv = "test"sv;
+// ```
 //
-// Also note that 'bsl'-string_view's user-defined literal operators are
-// declared in the 'bsl::literals::string_view_literals' namespace, where
-// 'literals' and 'string_view_literals' are inline namespaces.  Access to
-// these operators can be gained with either 'using namespace bsl::literals',
-// 'using namespace bsl::string_view_literals' or
-// 'using namespace bsl::literals::string_view_literals'.  But we recommend
-// 'using namespace bsl::string_view_literals' to minimize the scope of the
+// Also note that `bsl`-string_view's user-defined literal operators are
+// declared in the `bsl::literals::string_view_literals` namespace, where
+// `literals` and `string_view_literals` are inline namespaces.  Access to
+// these operators can be gained with either `using namespace bsl::literals`,
+// `using namespace bsl::string_view_literals` or
+// `using namespace bsl::literals::string_view_literals`.  But we recommend
+// `using namespace bsl::string_view_literals` to minimize the scope of the
 // using declaration:
-//..
-//  using namespace bsl::string_view_literals;
-//  bsl::string_view svr = "test"_sv;
-//..
+// ```
+// using namespace bsl::string_view_literals;
+// bsl::string_view svr = "test"_sv;
+// ```
 //
 ///Usage
 ///-----
@@ -143,51 +143,51 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// The 'bsl::string_view' can be used as a lightweight replacement of the
-// 'bsl::string', unless you need to modify the content.  It takes up no more
+// The `bsl::string_view` can be used as a lightweight replacement of the
+// `bsl::string`, unless you need to modify the content.  It takes up no more
 // space and doesn't allocate memory:
-//..
-//      bslma::TestAllocator         da("Default", veryVeryVeryVerbose);
-//      bslma::DefaultAllocatorGuard dag(&da);
+// ```
+//     bslma::TestAllocator         da("Default", veryVeryVeryVerbose);
+//     bslma::DefaultAllocatorGuard dag(&da);
 //
-//      bslma::TestAllocator sfa ("StringFootprint",     veryVeryVeryVerbose);
-//      bslma::TestAllocator svfa("StringViewFootprint", veryVeryVeryVerbose);
-//      bslma::TestAllocator ssa ("StringSupplied",      veryVeryVeryVerbose);
+//     bslma::TestAllocator sfa ("StringFootprint",     veryVeryVeryVerbose);
+//     bslma::TestAllocator svfa("StringViewFootprint", veryVeryVeryVerbose);
+//     bslma::TestAllocator ssa ("StringSupplied",      veryVeryVeryVerbose);
 //
-//      const char *LONG_STRING = "0123456789012345678901234567890123456789"
-//                                "0123456789012345678901234567890123456789";
+//     const char *LONG_STRING = "0123456789012345678901234567890123456789"
+//                               "0123456789012345678901234567890123456789";
 //
-//      bsl::string      *sPtr  = new (sfa ) bsl::string(LONG_STRING, &ssa);
-//      bsl::string_view *svPtr = new (svfa) bsl::string_view(LONG_STRING);
+//     bsl::string      *sPtr  = new (sfa ) bsl::string(LONG_STRING, &ssa);
+//     bsl::string_view *svPtr = new (svfa) bsl::string_view(LONG_STRING);
 //
-//      assert(sfa.numBytesInUse() >= svfa.numBytesInUse());
-//      assert(0                   <   ssa.numBytesInUse());
-//      assert(0                   ==   da.numBytesInUse());
-//..
-// At the same time it supports all most used 'access' operations of the
-// 'bsl::string', using the same interfaces:
-//..
-//      const bsl::string&      STR = *sPtr;
-//      const bsl::string_view& SV  = *svPtr;
+//     assert(sfa.numBytesInUse() >= svfa.numBytesInUse());
+//     assert(0                   <   ssa.numBytesInUse());
+//     assert(0                   ==   da.numBytesInUse());
+// ```
+// At the same time it supports all most used `access` operations of the
+// `bsl::string`, using the same interfaces:
+// ```
+//     const bsl::string&      STR = *sPtr;
+//     const bsl::string_view& SV  = *svPtr;
 //
-//      assert(STR.length()                == SV.length());
-//      assert(STR.empty()                 == SV.empty());
-//      assert(STR.front()                 == SV.front());
-//      assert(STR.at(15)                  == SV.at(15));
-//      assert(STR.find("345")             == SV.find("345"));
-//      assert(STR.find_last_not_of("578") == SV.find_last_not_of("578"));
-//      assert(STR.compare(0, 3, "012")    == SV.compare(0, 3, "012"));
-//..
-// However, using the 'bsl::string_view', you need to be especially attentive
+//     assert(STR.length()                == SV.length());
+//     assert(STR.empty()                 == SV.empty());
+//     assert(STR.front()                 == SV.front());
+//     assert(STR.at(15)                  == SV.at(15));
+//     assert(STR.find("345")             == SV.find("345"));
+//     assert(STR.find_last_not_of("578") == SV.find_last_not_of("578"));
+//     assert(STR.compare(0, 3, "012")    == SV.compare(0, 3, "012"));
+// ```
+// However, using the `bsl::string_view`, you need to be especially attentive
 // to the lifetime of the source character string, since the component
 // explicitly refers to it:
-//..
-//      assert(LONG_STRING != STR.data());
-//      assert(LONG_STRING == SV.data());
+// ```
+//     assert(LONG_STRING != STR.data());
+//     assert(LONG_STRING == SV.data());
 //
-//      sfa.deleteObject(sPtr);
-//      svfa.deleteObject(svPtr);
-//..
+//     sfa.deleteObject(sPtr);
+//     svfa.deleteObject(svPtr);
+// ```
 
 #include <bslscm_version.h>
 
@@ -1272,27 +1272,28 @@ inline namespace literals {
 inline namespace string_view_literals {
 
 // FREE OPERATORS
+
+/// Convert a character sequence of the specified `length` excluding the
+/// terminating null character starting at the beginning of the specified
+/// `characterString` to a string_view object of the indicated return type.
+/// (See the "User-Defined Literals" section in the component-level
+/// documentation.)
+///
+/// Example:
+/// ```
+///    using namespace bsl::string_view_literals;
+///    bsl::string_view sv1 = "123\0abc";
+///    bsl::string_view sv2 = "123\0abc"_sv;
+///    assert(3 == sv1.size());
+///    assert(7 == sv2.size());
+///
+///    bsl::wstring_view sv3 = L"123\0abc"_sv;
+///    assert(7 == sv3.size());
+/// ```
  string_view operator ""_sv(const char    *characterString,
                             std::size_t    length);
 wstring_view operator ""_sv(const wchar_t *characterString,
                             std::size_t    length);
-    // Convert a character sequence of the specified 'length' excluding the
-    // terminating null character starting at the beginning of the specified
-    // 'characterString' to a string_view object of the indicated return type.
-    // (See the "User-Defined Literals" section in the component-level
-    // documentation.)
-    //
-    // Example:
-    //..
-    //     using namespace bsl::string_view_literals;
-    //     bsl::string_view sv1 = "123\0abc";
-    //     bsl::string_view sv2 = "123\0abc"_sv;
-    //     assert(3 == sv1.size());
-    //     assert(7 == sv2.size());
-    //
-    //     bsl::wstring_view sv3 = L"123\0abc"_sv;
-    //     assert(7 == sv3.size());
-    //..
 
 }  // close namespace string_view_literals
 }  // close namespace literals
@@ -1304,19 +1305,19 @@ wstring_view operator ""_sv(const wchar_t *characterString,
 namespace BloombergLP {
 namespace bslh {
 
+/// Pass the specified `input` string to the specified `hashAlg` hashing
+/// algorithm of the (template parameter) type `HASHALG`.  Note that this
+/// function violates the BDE coding standard, adding a function for a
+/// namespace for a different package, and none of the function parameters
+/// are from this package either.  This is necessary in order to provide an
+/// implementation of `bslh::hashAppend` for the (native) standard library
+/// `string_view` type as we are not allowed to add overloads directly into
+/// namespace `std`, and this component essentially provides the interface
+/// between `bsl` and `std` string types.
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 void hashAppend(HASHALG&                                              hashAlg,
                 const std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input);
-    // Pass the specified 'input' string to the specified 'hashAlg' hashing
-    // algorithm of the (template parameter) type 'HASHALG'.  Note that this
-    // function violates the BDE coding standard, adding a function for a
-    // namespace for a different package, and none of the function parameters
-    // are from this package either.  This is necessary in order to provide an
-    // implementation of 'bslh::hashAppend' for the (native) standard library
-    // 'string_view' type as we are not allowed to add overloads directly into
-    // namespace 'std', and this component essentially provides the interface
-    // between 'bsl' and 'std' string types.
 
 }  // close namespace bslh
 }  // close enterprise namespace

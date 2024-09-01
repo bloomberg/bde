@@ -17,36 +17,36 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslalg_hashutil
 //
 //@DESCRIPTION: This component provides a namespace for hash functions used by
-// 'hash_map' and 'hash_set'.
+// `hash_map` and `hash_set`.
 //
 // Note that the hash functions here are based on STLPort's implementation,
 // with copyright notice as follows:
-//..
-//-----------------------------------------------------------------------------
-// Copyright (c) 1996-1998
-// Silicon Graphics Computer Systems, Inc.
+// ```
+// -----------------------------------------------------------------------------
+//  Copyright (c) 1996-1998
+//  Silicon Graphics Computer Systems, Inc.
 //
-// Permission to use, copy, modify, distribute and sell this software
-// and its documentation for any purpose is hereby granted without fee,
-// provided that the above copyright notice appear in all copies and
-// that both that copyright notice and this permission notice appear
-// in supporting documentation.  Silicon Graphics makes no
-// representations about the suitability of this software for any
-// purpose.  It is provided "as is" without express or implied warranty.
+//  Permission to use, copy, modify, distribute and sell this software
+//  and its documentation for any purpose is hereby granted without fee,
+//  provided that the above copyright notice appear in all copies and
+//  that both that copyright notice and this permission notice appear
+//  in supporting documentation.  Silicon Graphics makes no
+//  representations about the suitability of this software for any
+//  purpose.  It is provided "as is" without express or implied warranty.
 //
 //
-// Copyright (c) 1994
-// Hewlett-Packard Company
+//  Copyright (c) 1994
+//  Hewlett-Packard Company
 //
-// Permission to use, copy, modify, distribute and sell this software
-// and its documentation for any purpose is hereby granted without fee,
-// provided that the above copyright notice appear in all copies and
-// that both that copyright notice and this permission notice appear
-// in supporting documentation.  Hewlett-Packard Company makes no
-// representations about the suitability of this software for any
-// purpose.  It is provided "as is" without express or implied warranty.
-//-----------------------------------------------------------------------------
-//..
+//  Permission to use, copy, modify, distribute and sell this software
+//  and its documentation for any purpose is hereby granted without fee,
+//  provided that the above copyright notice appear in all copies and
+//  that both that copyright notice and this permission notice appear
+//  in supporting documentation.  Hewlett-Packard Company makes no
+//  representations about the suitability of this software for any
+//  purpose.  It is provided "as is" without express or implied warranty.
+// -----------------------------------------------------------------------------
+// ```
 //
 ///Usage
 ///-----
@@ -76,11 +76,11 @@ namespace bslstp {
                           // class bslst::hash
                           // ==================
 
+/// Empty base class for hashing.  No general hash struct defined, each type
+/// requires a specialization.  Leaving this struct declared but undefined
+/// will generate error messages that are more clear when someone tries to
+/// use a key that does not have a corresponding hash function.
 template <class HASH_KEY> struct Hash;
-    // Empty base class for hashing.  No general hash struct defined, each type
-    // requires a specialization.  Leaving this struct declared but undefined
-    // will generate error messages that are more clear when someone tries to
-    // use a key that does not have a corresponding hash function.
 
 template <> struct Hash<char>;
 template <> struct Hash<signed char>;
@@ -100,22 +100,22 @@ struct HashCString;
                        // class bslstp::HashSelector
                        // ==========================
 
+/// This meta-function selects the appropriate implementation for comparing
+/// the parameterized `TYPE`.  This generic template uses the
+/// `std::equal_to` functor.
 template <class HASH_KEY>
 struct HashSelector {
-    // This meta-function selects the appropriate implementation for comparing
-    // the parameterized 'TYPE'.  This generic template uses the
-    // 'std::equal_to' functor.
 
     // TYPES
     typedef ::bsl::hash<HASH_KEY> Type;
 };
 
+/// Partial specialization to treat `const` qualified types in exactly the
+/// same way as the non-`const` qualified type.  Users should rarely, if
+/// ever, need this specialization but would be surprised by their results
+/// if used accidentally, and it were not supplied..
 template <class HASH_KEY>
 struct HashSelector<const HASH_KEY> {
-    // Partial specialization to treat 'const' qualified types in exactly the
-    // same way as the non-'const' qualified type.  Users should rarely, if
-    // ever, need this specialization but would be surprised by their results
-    // if used accidentally, and it were not supplied..
 
     // TYPES
     typedef typename HashSelector<HASH_KEY>::Type Type;
@@ -185,16 +185,17 @@ struct HashSelector<unsigned long long> {
                            // struct HashCString
                            // ==================
 
+/// Hash functor to generate a hash for a pointer to a null-terminated
+/// string.
 struct HashCString {
-    // Hash functor to generate a hash for a pointer to a null-terminated
-    // string.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(HashCString, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `s`.
     std::size_t operator()(const char *s) const
-        // Return a hash value computed using the specified 's'.
     {
         unsigned long result = 0;
 
@@ -210,167 +211,178 @@ struct HashCString {
                  // explicit class bslstp::Hash<> specializations
                  // =============================================
 
+/// Specialization of `Hash` for `char` values.
 template <>
 struct Hash<char> {
-    // Specialization of 'Hash' for 'char' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(char x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `unsigned` `char` values.
 template <>
 struct Hash<unsigned char> {
-    // Specialization of 'Hash' for 'unsigned' 'char' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(unsigned char x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `signed` `char` values.
 template <>
 struct Hash<signed char> {
-    // Specialization of 'Hash' for 'signed' 'char' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(signed char x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `short` values.
 template <>
 struct Hash<short> {
-    // Specialization of 'Hash' for 'short' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(short x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `unsigned` `short` values.
 template <>
 struct Hash<unsigned short> {
-    // Specialization of 'Hash' for 'unsigned' 'short' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(unsigned short x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `int` values.
 template <>
 struct Hash<int> {
-    // Specialization of 'Hash' for 'int' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(int x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `unsigned` `int` values.
 template <>
 struct Hash<unsigned int> {
-    // Specialization of 'Hash' for 'unsigned' 'int' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(unsigned int x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `long` values.
 template <>
 struct Hash<long> {
-    // Specialization of 'Hash' for 'long' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(long x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `unsigned` `long` values.
 template <>
 struct Hash<unsigned long> {
-    // Specialization of 'Hash' for 'unsigned' 'long' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(unsigned long x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
+/// Specialization of `Hash` for `long long` values.
 template <>
 struct Hash<long long> {
-    // Specialization of 'Hash' for 'long long' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(long long x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }
 };
 
+/// Specialization of `Hash` for `unsigned` `long long` values.
 template <>
 struct Hash<unsigned long long> {
-    // Specialization of 'Hash' for 'unsigned' 'long long' values.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
+
+    /// Return a hash value computed using the specified `x`.
     std::size_t operator()(unsigned long long x) const
-        // Return a hash value computed using the specified 'x'.
     {
         return x;
     }

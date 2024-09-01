@@ -5,25 +5,25 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bslmt::Semaphore'.
+//@PURPOSE: Provide a win32 implementation of `bslmt::Semaphore`.
 //
 //@CLASSES:
 //  bslmt::SemaphoreImpl<Win32Semaphore>: win32 specialization
 //
 //@SEE_ALSO: bslmt_semaphore
 //
-//@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
-// for Windows (win32), 'bslmt::SemaphoreImpl<Win32Semaphore>', via the
+//@DESCRIPTION: This component provides an implementation of `bslmt::Semaphore`
+// for Windows (win32), `bslmt::SemaphoreImpl<Win32Semaphore>`, via the
 // template specialization:
-//..
-//  bslmt::SemaphoreImpl<Platform::Win32Threads>
-//..
+// ```
+// bslmt::SemaphoreImpl<Platform::Win32Threads>
+// ```
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bslmt::Semaphore'.
+// should instead use `bslmt::Semaphore`.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

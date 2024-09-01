@@ -8,12 +8,12 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an allocating test class to represent function arguments.
 //
 //@CLASSES:
-//   bsltf::AllocArgumentType<N>: simple wrapper around an allocated 'int'
+//   bsltf::AllocArgumentType<N>: simple wrapper around an allocated `int`
 //
 //@SEE_ALSO: bsltf_argumenttype, bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a representation of an allocating
-// argument type template class, 'bsltf::AllocArgumentType<N>', used for
+// argument type template class, `bsltf::AllocArgumentType<N>`, used for
 // testing functions that take a variable number of template arguments.  The
 // integer template parameter enables specification of a number of types
 // without requiring a separate component for each.  Note that
@@ -23,18 +23,18 @@ BSLS_IDENT("$Id: $")
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          -1
-//..
-//: o 'data': representation of the class value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          -1
+// ```
+// * `data`: representation of the class value
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-// See 'bsltf_argumenttype' for usage example.
+// See `bsltf_argumenttype` for usage example.
 
 #include <bslscm_version.h>
 
@@ -55,18 +55,18 @@ namespace bsltf {
                          // class AllocArgumentType<int>
                          // ============================
 
+/// This class template declares a separate type for each template parameter
+/// value `N`, `bsltf::AllocArgumentType<N>`, that wraps an integer value
+/// and provides implicit conversion to and from `int`.  The wrapped integer
+/// will be dynamically allocated using the supplied allocator, or the
+/// default allocator if none is supplied.  Its main purpose is that having
+/// separate types for testing enables distinguishing them when calling
+/// through a function template interface, thereby avoiding ambiguities or
+/// accidental switching of arguments in the implementation of in-place
+/// constructors.  It further tests that allocators are propagated
+/// correctly, or not, as required.
 template <int N>
 class AllocArgumentType {
-    // This class template declares a separate type for each template parameter
-    // value 'N', 'bsltf::AllocArgumentType<N>', that wraps an integer value
-    // and provides implicit conversion to and from 'int'.  The wrapped integer
-    // will be dynamically allocated using the supplied allocator, or the
-    // default allocator if none is supplied.  Its main purpose is that having
-    // separate types for testing enables distinguishing them when calling
-    // through a function template interface, thereby avoiding ambiguities or
-    // accidental switching of arguments in the implementation of in-place
-    // constructors.  It further tests that allocators are propagated
-    // correctly, or not, as required.
 
     // PRIVATE TYPES
     typedef bslmf::MovableRefUtil MoveUtil;
@@ -83,74 +83,78 @@ class AllocArgumentType {
 
   public:
     // CREATORS
-    explicit AllocArgumentType(bslma::Allocator *basicAllocator =  0);
-        // Create an 'AllocArgumentType' object having the (default) attribute
-        // value '-1'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used. Note, that default constructor does not allocate
-        // memory.
 
+    /// Create an `AllocArgumentType` object having the (default) attribute
+    /// value `-1`.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used. Note, that default constructor does not allocate
+    /// memory.
+    explicit AllocArgumentType(bslma::Allocator *basicAllocator =  0);
+
+    /// Create an `AllocArgumentType` object having the specified `value`.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used. The behavior is undefined unless `value >= 0`.
     explicit AllocArgumentType(int               value,
                                bslma::Allocator *basicAllocator =  0);
-        // Create an 'AllocArgumentType' object having the specified 'value'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used. The behavior is undefined unless 'value >= 0'.
 
+    /// Create an `AllocArgumentType` object having the same value as the
+    /// specified `original`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used. Note, that no memory is allocated if
+    /// `original` refers to a default-constructed object.
     AllocArgumentType(const AllocArgumentType&  original,
                       bslma::Allocator         *basicAllocator = 0);
-        // Create an 'AllocArgumentType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used. Note, that no memory is allocated if
-        // 'original' refers to a default-constructed object.
 
+    /// Create an `AllocArgumentType` object having the same value as the
+    /// specified `original`. Note, that no memory is allocated if
+    /// `original` refers to a default-constructed object.
     AllocArgumentType(bslmf::MovableRef<AllocArgumentType> original);
-        // Create an 'AllocArgumentType' object having the same value as the
-        // specified 'original'. Note, that no memory is allocated if
-        // 'original' refers to a default-constructed object.
 
+    /// Create an `AllocArgumentType` object having the same value as the
+    /// specified `original` using the specified `basicAllocator` to supply
+    /// memory.  Note, that no memory is allocated if `original` refers to a
+    /// default-constructed object.
     AllocArgumentType(bslmf::MovableRef<AllocArgumentType>  original,
                       bslma::Allocator                     *basicAllocator);
-        // Create an 'AllocArgumentType' object having the same value as the
-        // specified 'original' using the specified 'basicAllocator' to supply
-        // memory.  Note, that no memory is allocated if 'original' refers to a
-        // default-constructed object.
 
+    /// Destroy this object.
     ~AllocArgumentType();
-        // Destroy this object.
 
     // MANIPULATORS
-    AllocArgumentType& operator=(const AllocArgumentType& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Assign to this object the value of the specified `rhs` object.
+    AllocArgumentType& operator=(const AllocArgumentType& rhs);
+
+    /// Assign to this object the value of the specified `rhs` object.  Note
+    /// that `rhs` is left in a valid but unspecified state.
     AllocArgumentType&
     operator=(BloombergLP::bslmf::MovableRef<AllocArgumentType> rhs);
-        // Assign to this object the value of the specified 'rhs' object.  Note
-        // that 'rhs' is left in a valid but unspecified state.
 
     // ACCESSORS
+
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Return the value of this test argument object.
     operator int() const;
-        // Return the value of this test argument object.
 
+    /// Return the move state of this object as target of a move operation.
     MoveState::Enum movedInto() const;
-        // Return the move state of this object as target of a move operation.
 
+    /// Return the move state of this object as source of a move operation.
     MoveState::Enum movedFrom() const;
-        // Return the move state of this object as source of a move operation.
 };
 
 // FREE FUNCTIONS
+
+/// Return the move-from state of the specified `object`.
 template <int N>
 MoveState::Enum getMovedFrom(const AllocArgumentType<N>& object);
-    // Return the move-from state of the specified 'object'.
 
+/// Return the move-into state of the specified `object`.
 template <int N>
 MoveState::Enum getMovedInto(const AllocArgumentType<N>& object);
-    // Return the move-into state of the specified 'object'.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

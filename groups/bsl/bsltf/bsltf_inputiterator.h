@@ -10,17 +10,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsltf::InputIterator: empty input iterator template
 //
-//@DESCRIPTION: This components provides a value-semantic 'class',
-// 'bsltf::InputIterator', that defines an input iterator that supports the
+//@DESCRIPTION: This components provides a value-semantic `class`,
+// `bsltf::InputIterator`, that defines an input iterator that supports the
 // following operations:
 //
-//: o Obj& operator++()
-//:
-//: o Obj operator++(int)
-//:
-//: o pointer operator->() const
-//:
-//: o reference& operator*() const
+// * Obj& operator++()
+// * Obj operator++(int)
+// * pointer operator->() const
+// * reference& operator*() const
 //
 // The iterator is initializable with either a pointer into a range, or a
 // non-pointer iterator over a contiguous range.
@@ -33,65 +30,65 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bsltf::InputIterator':
+///Example 1: Basic Use of `bsltf::InputIterator`:
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use a 'bsltf::InputIterator' to test that an
+// In the following example we use a `bsltf::InputIterator` to test that an
 // aggregation function compiles and works when instantiated with a pure input
 // iterator.
 //
-// First, we define a function 'sum' that accepts two input iterators and
+// First, we define a function `sum` that accepts two input iterators and
 // returns the sum of all elements in range specified by them:
-//..
-//  template <class IN_ITER>
-//  double sum(IN_ITER first, IN_ITER last)
-//      // Return the sum of the 'double's in the specified range
-//      // '[ first, last )'.
-//  {
-//      double total = 0;
-//      while (first != last) {
-//          total += *first++;
-//      }
-//      return total;
-//  }
-//..
-// Then, in 'main', we define an array of 'double's and define 'InputIterators'
+// ```
+// template <class IN_ITER>
+// double sum(IN_ITER first, IN_ITER last)
+//     // Return the sum of the 'double's in the specified range
+//     // '[ first, last )'.
+// {
+//     double total = 0;
+//     while (first != last) {
+//         total += *first++;
+//     }
+//     return total;
+// }
+// ```
+// Then, in `main`, we define an array of `double`s and define `InputIterators`
 // pointing to the beginning and ending of it, initializing the iterators with
 // pointers:
-//..
-//  static double myArray[] = { 2.5, 3, 5, 7, 11.5, 5 };
-//  enum { k_MY_ARRAY_LEN = sizeof myArray / sizeof *myArray };
+// ```
+// static double myArray[] = { 2.5, 3, 5, 7, 11.5, 5 };
+// enum { k_MY_ARRAY_LEN = sizeof myArray / sizeof *myArray };
 //
-//  typedef bsltf::InputIterator<const double> Iter;
+// typedef bsltf::InputIterator<const double> Iter;
 //
-//  Iter begin(myArray + 0), end(myArray + k_MY_ARRAY_LEN);
-//..
-// Next, we call 'sum' with the two iterators, and observe that its yields the
-// expected result, and because it compiles, we know that 'sum' did not attempt
+// Iter begin(myArray + 0), end(myArray + k_MY_ARRAY_LEN);
+// ```
+// Next, we call `sum` with the two iterators, and observe that its yields the
+// expected result, and because it compiles, we know that `sum` did not attempt
 // any operations on the iterators other than those defined for the most basic
 // input iterator:
-//..
-//  const double x = sum(begin, end);
-//  assert(34.0 == x);
-//..
-// Then, we illustrate that we can just make 'begin' and 'end' iterators from
-// the array directly with the 'begin' and 'end' class methods of the
-// 'InputIteratorUtil' class.
-//..
-//  typedef bsltf::InputIteratorUtil Util;
+// ```
+// const double x = sum(begin, end);
+// assert(34.0 == x);
+// ```
+// Then, we illustrate that we can just make `begin` and `end` iterators from
+// the array directly with the `begin` and `end` class methods of the
+// `InputIteratorUtil` class.
+// ```
+// typedef bsltf::InputIteratorUtil Util;
 //
-//  const double y = sum(Util::begin(myArray), Util::end(myArray));
-//  assert(34.0 == y);
-//..
-// Now, we make an 'std::vector' containing the elements of 'myArray':
-//..
-//  const std::vector<double> v(myArray + 0, myArray + k_MY_ARRAY_LEN);
-//..
-// Finally, we call 'sum' using, again, the 'begin' and 'end' class methods to
-// create iterators for it directly from our 'vector':
-//..
-//  const double z = sum(Util::begin(v), Util::end(v));
-//  assert(34.0 == z);
-//..
+// const double y = sum(Util::begin(myArray), Util::end(myArray));
+// assert(34.0 == y);
+// ```
+// Now, we make an `std::vector` containing the elements of `myArray`:
+// ```
+// const std::vector<double> v(myArray + 0, myArray + k_MY_ARRAY_LEN);
+// ```
+// Finally, we call `sum` using, again, the `begin` and `end` class methods to
+// create iterators for it directly from our `vector`:
+// ```
+// const double z = sum(Util::begin(v), Util::end(v));
+// assert(34.0 == z);
+// ```
 
 #include <bslscm_version.h>
 
@@ -150,11 +147,12 @@ class InputIterator {
 
   public:
     // CREATORS
-    InputIterator();
-        // Construct an empty input iterator.
 
+    /// Construct an empty input iterator.
+    InputIterator();
+
+    /// Construct an input iterator based on the specified `ptr`.
     explicit InputIterator(TYPE *ptr);
-        // Construct an input iterator based on the specified 'ptr'.
 
     // InputIterator(const InputIterator& original) = default;
         // Construct a copy of the specified 'original' object.
@@ -167,87 +165,89 @@ class InputIterator {
         // Assign to this object the value of the specified 'rhs' and return a
         // reference to this modifiable object.
 
+    /// Increment this iterator to refer to the next contiguous `TYPE`
+    /// object, and return a reference to after the increment.  The behavior
+    /// is undefined if this iterator is empty.
     InputIterator& operator++();
-        // Increment this iterator to refer to the next contiguous 'TYPE'
-        // object, and return a reference to after the increment.  The behavior
-        // is undefined if this iterator is empty.
 
+    /// Copy this iterator, increment, and return by value the copy that was
+    /// made prior to the increment.  The behavior is undefined if this
+    /// iterator is empty.
     InputIterator operator++(int);
-        // Copy this iterator, increment, and return by value the copy that was
-        // made prior to the increment.  The behavior is undefined if this
-        // iterator is empty.
 
     // ACCESSORS
-    pointer operator->() const;
-        // Return a pointer to the 'TYPE' object referred to by this iterator.
-        // The behavior is undefined if this iterator is empty.
 
+    /// Return a pointer to the `TYPE` object referred to by this iterator.
+    /// The behavior is undefined if this iterator is empty.
+    pointer operator->() const;
+
+    /// Return a const reference to the `TYPE` object referred to by this
+    /// iterator.  The behavior is undefined if this iterator is empty.
     reference operator*() const;
-        // Return a const reference to the 'TYPE' object referred to by this
-        // iterator.  The behavior is undefined if this iterator is empty.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` refer to the same `TYPE`
+/// object and `false` othersise.
 template <class TYPE>
 inline
 bool operator==(const InputIterator<TYPE>& lhs,
                 const InputIterator<TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same 'TYPE'
-    // object and 'false' othersise.
 
+/// Return `true` if the specified `lhs` and `rhs` do not refer to the same
+/// `TYPE` object and `false` othersise.
 template <class TYPE>
 inline
 bool operator!=(const InputIterator<TYPE>& lhs,
                 const InputIterator<TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' do not refer to the same
-    // 'TYPE' object and 'false' othersise.
 
                           // =======================
                           // class InputIteratorUtil
                           // =======================
 
+/// This namespace `struct` allows the easy creation of `begin` and `end`
+/// iterators from a variety of contiguous range types.  Either the argument
+/// must be an array, or a container that supports the following operations:
+/// * `size()`
+/// * `operator[](size_t)` (if 0 != size())
+///
+/// and the type `CONTIGUOUS_CONTAINER::value_type`.
 struct InputIteratorUtil {
-    // This namespace 'struct' allows the easy creation of 'begin' and 'end'
-    // iterators from a variety of contiguous range types.  Either the argument
-    // must be an array, or a container that supports the following operations:
-    //: o 'size()'
-    //:
-    //: o 'operator[](size_t)' (if 0 != size())
-    //
-    // and the type 'CONTIGUOUS_CONTAINER::value_type'.
 
     // CLASS METHODS
+
+    /// Return an `InputIterator` referring to the first element of the
+    /// specified `container` or a null iterator if `container` is empty.
     template <class CONTIGUOUS_CONTAINER>
     static InputIterator<typename CONTIGUOUS_CONTAINER::value_type> begin(
                                               CONTIGUOUS_CONTAINER& container);
     template <class CONTIGUOUS_CONTAINER>
     static InputIterator<const typename CONTIGUOUS_CONTAINER::value_type>
                                   begin(const CONTIGUOUS_CONTAINER& container);
-        // Return an 'InputIterator' referring to the first element of the
-        // specified 'container' or a null iterator if 'container' is empty.
 
+    /// Return an `InputIterator` referring to the first element of the
+    /// specified `array`.
     template <class TYPE, std::size_t LEN>
     static InputIterator<TYPE> begin(TYPE (&array)[LEN]);
     template <class TYPE, std::size_t LEN>
     static InputIterator<const TYPE> begin(const TYPE (&array)[LEN]);
-        // Return an 'InputIterator' referring to the first element of the
-        // specified 'array'.
 
+    /// Return an `InputIterator` referring to after the last element of the
+    /// specified `container` or a null iterator if `container` is empty.
     template <class CONTIGUOUS_CONTAINER>
     static InputIterator<typename CONTIGUOUS_CONTAINER::value_type> end(
                                               CONTIGUOUS_CONTAINER& container);
     template <class CONTIGUOUS_CONTAINER>
     static InputIterator<const typename CONTIGUOUS_CONTAINER::value_type> end(
                                         const CONTIGUOUS_CONTAINER& container);
-        // Return an 'InputIterator' referring to after the last element of the
-        // specified 'container' or a null iterator if 'container' is empty.
 
+    /// Return an `InputIterator` referring to after the last element of the
+    /// specified `array`.
     template <class TYPE, std::size_t LEN>
     static InputIterator<TYPE> end(TYPE (&array)[LEN]);
     template <class TYPE, std::size_t LEN>
     static InputIterator<const TYPE> end(const TYPE (&array)[LEN]);
-        // Return an 'InputIterator' referring to after the last element of the
-        // specified 'array'.
 };
 
 // ============================================================================

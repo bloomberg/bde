@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_ERROR(QUOTED_MESSAGE): emit error message and fail compilation
-//  BSLA_ERROR_IS_ACTIVE:       defined if 'BSLA_ERROR' is active
+//  BSLA_ERROR_IS_ACTIVE:       defined if `BSLA_ERROR` is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -20,20 +20,20 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_ERROR(QUOTED_MESSAGE)':
+//: `BSLA_ERROR(QUOTED_MESSAGE)`:
 //:     This annotation, when used, will cause compilation to fail with an
 //:     error message when a call to the so-annotated function is not removed
 //:     through dead-code elimination or other optimizations.  While it is
 //:     possible to leave the function undefined, thus incurring a link-time
 //:     failure, with the use of this macro the invalid call will be diagnosed
 //:     earlier (i.e., at compile time), and the diagnostic will include the
-//:     location of the function call.  The message 'QUOTED_MESSAGE', which
+//:     location of the function call.  The message `QUOTED_MESSAGE`, which
 //:     should be a double-quoted string, will appear in the error message.
 //
-//: 'BSLA_ERROR_IS_ACTIVE':
-//:     The macro 'BSLA_ERROR_IS_ACTIVE' is defined if 'BSLA_ERROR' expands to
-//:     something with the desired effect; otherwise 'BSLA_ERROR_IS_ACTIVE' is
-//:     not defined and 'BSLA_ERROR' expands to nothing.
+//: `BSLA_ERROR_IS_ACTIVE`:
+//:     The macro `BSLA_ERROR_IS_ACTIVE` is defined if `BSLA_ERROR` expands to
+//:     something with the desired effect; otherwise `BSLA_ERROR_IS_ACTIVE` is
+//:     not defined and `BSLA_ERROR` expands to nothing.
 //
 ///Usage
 ///-----
@@ -41,27 +41,27 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Flagging a Function for a Compile Failure and Message if Used
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we declare and define a function annotated with 'BSLA_ERROR'.  Note
-// that the argument to 'BSLA_ERROR' must be a quoted string:
-//..
-//  void usageFunc() BSLA_ERROR("Don't call 'usageFunc'");
-//      // Do nothing.
+// First, we declare and define a function annotated with `BSLA_ERROR`.  Note
+// that the argument to `BSLA_ERROR` must be a quoted string:
+// ```
+// void usageFunc() BSLA_ERROR("Don't call 'usageFunc'");
+//     // Do nothing.
 //
-//  void usageFunc()
-//  {
-//  }
-//..
-// Now, we call 'usageFunc':
-//..
-//  usageFunc();
-//..
+// void usageFunc()
+// {
+// }
+// ```
+// Now, we call `usageFunc`:
+// ```
+// usageFunc();
+// ```
 // Finally, observe that the compile fails with the following error message:
-//..
-//  .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with
-//  attribute error: Don't call 'usageFunc'
-//       usageFunc();
-//                  ^
-//..
+// ```
+// .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with
+// attribute error: Don't call 'usageFunc'
+//      usageFunc();
+//                 ^
+// ```
 
 #include <bsls_platform.h>
 

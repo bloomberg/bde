@@ -16,68 +16,68 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_readlockguard, bslmt_writelockguard
 //
-//@DESCRIPTION: This component provides generic guards, 'bslmt::LockGuard',
-// 'bslmt::LockGuardUnlock', and 'bslmt::LockGuardTryLock', to automatically
+//@DESCRIPTION: This component provides generic guards, `bslmt::LockGuard`,
+// `bslmt::LockGuardUnlock`, and `bslmt::LockGuardTryLock`, to automatically
 // lock and unlock an external synchronization object.  The synchronization
-// object can be any type (e.g., 'bslmt::Mutex' or 'bslmt::RecursiveMutex')
+// object can be any type (e.g., `bslmt::Mutex` or `bslmt::RecursiveMutex`)
 // that provides the following methods:
-//..
-//  void lock();
-//  void unlock();
-//..
-// Both 'bslmt::LockGuard' and 'bslmt::LockGuardUnlock' implement the
+// ```
+// void lock();
+// void unlock();
+// ```
+// Both `bslmt::LockGuard` and `bslmt::LockGuardUnlock` implement the
 // "construction is acquisition, destruction is release" idiom.  During
-// construction, 'bslmt::LockGuard' automatically calls 'lock' on the
-// user-supplied object, and 'unlock' when it is destroyed (unless released).
-// 'bslmt::LockGuardUnlock' does the opposite -- it invokes the 'unlock' method
-// when constructed and the 'lock' method when it is destroyed.
+// construction, `bslmt::LockGuard` automatically calls `lock` on the
+// user-supplied object, and `unlock` when it is destroyed (unless released).
+// `bslmt::LockGuardUnlock` does the opposite -- it invokes the `unlock` method
+// when constructed and the `lock` method when it is destroyed.
 //
-// A third type of guard, 'bslmt::LockGuardTryLock', attempts to acquire a
+// A third type of guard, `bslmt::LockGuardTryLock`, attempts to acquire a
 // lock, and if acquisition succeeds, releases it upon destruction.  Since the
 // acquisition is done at construction time, it is not possible to return a
-// value to indicate success.  Rather, the 'bslmt::LockGuardTryLock' contains a
-// pointer to the synchronization object if 'tryLock' succeeds, and is null
-// otherwise.  The synchronization object can be any type (e.g., 'bslmt::Mutex'
-// or 'bslmt::RecursiveMutex') that provides the following methods:
-//..
-//  int  tryLock();
-//  void unlock();
-//..
+// value to indicate success.  Rather, the `bslmt::LockGuardTryLock` contains a
+// pointer to the synchronization object if `tryLock` succeeds, and is null
+// otherwise.  The synchronization object can be any type (e.g., `bslmt::Mutex`
+// or `bslmt::RecursiveMutex`) that provides the following methods:
+// ```
+// int  tryLock();
+// void unlock();
+// ```
 // Note that none of these guard types assumes ownership of the external
 // synchronization object.  Also note that objects of all of the guard types
-// may be constructed with a null 'lock' whereby the constructed guard objects
+// may be constructed with a null `lock` whereby the constructed guard objects
 // manage no lock.  The destructor of each of the guard types has no effect if
 // no lock is under management.
 //
-///Behavior of the 'release' Method
+///Behavior of the `release` Method
 ///--------------------------------
-// Like all BDE guard classes, each of the three 'bslmt::LockGuard*' classes
-// provides a 'release' method that terminates the guard's management of any
-// lock object that the guard holds.  The 'release' method has *no* *effect*
+// Like all BDE guard classes, each of the three `bslmt::LockGuard*` classes
+// provides a `release` method that terminates the guard's management of any
+// lock object that the guard holds.  The `release` method has *no* *effect*
 // on the state of the lock object.
 //
-// In particular, 'bslmt::ReadLockGuard::release' does not unlock the lock
+// In particular, `bslmt::ReadLockGuard::release` does not unlock the lock
 // object under management.  If a user wants to release the lock object *and*
 // unlock the lock object (because the lock is no longer required before the
 // guard goes out of scope), the following idiom can be used:
-//..
-//  // 'guard' is an existing guard of type 'bslmt::LockGuard<my_Lock>',
-//  // created in a scope that we do not control.
+// ```
+// // 'guard' is an existing guard of type 'bslmt::LockGuard<my_Lock>',
+// // created in a scope that we do not control.
 //
-//  {
-//      // ... Do work that requires the lock.
+// {
+//     // ... Do work that requires the lock.
 //
-//      // We know that the lock is no longer needed.
+//     // We know that the lock is no longer needed.
 //
-//      my_Lock *lock = guard.release();
+//     my_Lock *lock = guard.release();
 //
-//      // 'lock' is no longer managed, but is *still* *locked*.
+//     // 'lock' is no longer managed, but is *still* *locked*.
 //
-//      lock->unlock();
+//     lock->unlock();
 //
-//      // ... Do work that does not require the lock.
-//  }
-//..
+//     // ... Do work that does not require the lock.
+// }
+// ```
 //
 ///Usage
 ///-----
@@ -87,90 +87,90 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // Use this component to ensure that in the event of an exception or exit from
 // any point in a given scope, the synchronization object will be properly
-// unlocked.  The following function, 'errorProneFunc', is overly complex, not
+// unlocked.  The following function, `errorProneFunc`, is overly complex, not
 // exception safe, and contains a bug.
-//..
-//  static void errorProneFunc(my_Object *obj, my_Mutex *mutex)
-//  {
-//      mutex->lock();
-//      if (someCondition) {
-//          obj->someMethod();
-//          mutex->unlock();
-//          return;                                                   // RETURN
-//      } else if (someOtherCondition) {
-//          obj->someOtherMethod();
-//          // MISTAKE! forgot to unlock mutex
-//          return;                                                   // RETURN
-//      }
-//      obj->defaultMethod();
-//      mutex->unlock();
-//      return;
-//  }
-//..
+// ```
+// static void errorProneFunc(my_Object *obj, my_Mutex *mutex)
+// {
+//     mutex->lock();
+//     if (someCondition) {
+//         obj->someMethod();
+//         mutex->unlock();
+//         return;                                                   // RETURN
+//     } else if (someOtherCondition) {
+//         obj->someOtherMethod();
+//         // MISTAKE! forgot to unlock mutex
+//         return;                                                   // RETURN
+//     }
+//     obj->defaultMethod();
+//     mutex->unlock();
+//     return;
+// }
+// ```
 // The function can be rewritten with a cleaner and safer implementation using
-// a guard object.  The 'safeFunc' function is simpler than 'errorProneFunc',
+// a guard object.  The `safeFunc` function is simpler than `errorProneFunc`,
 // is exception safe, and avoids the multiple calls to unlock that can be a
 // source of errors.
-//..
-//  static void safeFunc(my_Object *obj, my_Mutex *mutex)
-//  {
-//      bslmt::LockGuard<my_Mutex> guard(mutex);
-//      if (someCondition) {
-//          obj->someMethod();
-//          return;                                                   // RETURN
-//      } else if (someOtherCondition) {
-//          obj->someOtherMethod();
-//          // OK, mutex is automatically unlocked
-//          return;                                                   // RETURN
-//      }
-//      obj->defaultMethod();
-//      return;
-//  }
-//..
+// ```
+// static void safeFunc(my_Object *obj, my_Mutex *mutex)
+// {
+//     bslmt::LockGuard<my_Mutex> guard(mutex);
+//     if (someCondition) {
+//         obj->someMethod();
+//         return;                                                   // RETURN
+//     } else if (someOtherCondition) {
+//         obj->someOtherMethod();
+//         // OK, mutex is automatically unlocked
+//         return;                                                   // RETURN
+//     }
+//     obj->defaultMethod();
+//     return;
+// }
+// ```
 // When blocking while acquiring the lock is not desirable, one may instead use
-// a 'bslmt::LockGuardTryLock' in the typical following fashion:
-//..
-//  static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
-//      // Perform task and return positive value if locking succeeds.  Return
-//      // 0 if locking fails.
-//  {
-//      const int RETRIES = 1; // use higher values for higher success rate
-//      bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
-//      if (guard.ptr()) { // mutex is locked
-//          if (someCondition) {
-//              obj->someMethod();
-//              return 2;                                             // RETURN
-//          } else if (someOtherCondition) {
-//              obj->someOtherMethod();
-//              return 3;                                             // RETURN
-//          }
-//          obj->defaultMethod();
-//          return 1;                                                 // RETURN
-//      }
-//      return 0;
-//  }
-//..
-// Instantiations of 'bslmt::LockGuardUnlock' can be interleaved with
-// instantiations of 'bslmt::LockGuard' to create both critical sections and
+// a `bslmt::LockGuardTryLock` in the typical following fashion:
+// ```
+// static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
+//     // Perform task and return positive value if locking succeeds.  Return
+//     // 0 if locking fails.
+// {
+//     const int RETRIES = 1; // use higher values for higher success rate
+//     bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
+//     if (guard.ptr()) { // mutex is locked
+//         if (someCondition) {
+//             obj->someMethod();
+//             return 2;                                             // RETURN
+//         } else if (someOtherCondition) {
+//             obj->someOtherMethod();
+//             return 3;                                             // RETURN
+//         }
+//         obj->defaultMethod();
+//         return 1;                                                 // RETURN
+//     }
+//     return 0;
+// }
+// ```
+// Instantiations of `bslmt::LockGuardUnlock` can be interleaved with
+// instantiations of `bslmt::LockGuard` to create both critical sections and
 // regions where the lock is released.
-//..
-//  void f(my_Mutex *mutex)
-//  {
-//      bslmt::LockGuard<my_Mutex> guard(mutex);
+// ```
+// void f(my_Mutex *mutex)
+// {
+//     bslmt::LockGuard<my_Mutex> guard(mutex);
 //
-//      // critical section here
+//     // critical section here
 //
-//      {
-//          bslmt::LockGuardUnlock<my_Mutex> guard(mutex);
+//     {
+//         bslmt::LockGuardUnlock<my_Mutex> guard(mutex);
 //
-//          // mutex is unlocked here
+//         // mutex is unlocked here
 //
-//      } // mutex is locked again here
+//     } // mutex is locked again here
 //
-//      // critical section here
+//     // critical section here
 //
-//  } // mutex is unlocked here
-//..
+// } // mutex is unlocked here
+// ```
 // Care must be taken so as not to interleave guard objects in such a way as to
 // cause an illegal sequence of calls on a lock (two sequential lock calls or
 // two sequential unlock calls on a non-recursive mutex).
@@ -184,10 +184,10 @@ namespace bslmt {
                              // class LockGuard
                              // ===============
 
+/// This class template implements a guard for acquisition and release of
+/// synchronization resources (i.e., locks).
 template <class T>
 class LockGuard {
-    // This class template implements a guard for acquisition and release of
-    // synchronization resources (i.e., locks).
 
     // DATA
     T *d_lock_p;  // lock guarded by this object (held, not owned)
@@ -199,53 +199,56 @@ class LockGuard {
 
   public:
     // CREATORS
+
+    /// Create a scoped guard that conditionally manages the specified
+    /// `lock` (if non-null) and invokes `lock->lock()`.  Supplying a null
+    /// `lock` has no effect.  The behavior is undefined unless `lock` (if
+    /// non-null) is not already locked by this thread.  Note that `lock`
+    /// must remain valid throughout the lifetime of this guard, or until
+    /// `release` is called.
     explicit LockGuard(T *lock);
-        // Create a scoped guard that conditionally manages the specified
-        // 'lock' (if non-null) and invokes 'lock->lock()'.  Supplying a null
-        // 'lock' has no effect.  The behavior is undefined unless 'lock' (if
-        // non-null) is not already locked by this thread.  Note that 'lock'
-        // must remain valid throughout the lifetime of this guard, or until
-        // 'release' is called.
 
+    /// Create a scoped guard that conditionally manages the specified
+    /// `lock` (if non-null) and invokes `lock->lock()` if the specified
+    /// `alreadyLockedFlag` is `false`.  Supplying a null `lock` has no
+    /// effect.  The behavior is undefined unless the state of `lock` (if
+    /// non-null) is consistent with `alreadyLockedFlag`.  Note that
+    /// `alreadyLockedFlag` is used to indicate whether `lock` is in an
+    /// already-locked state when passed, so if `alreadyLockedFlag` is
+    /// `true` the `lock` method will *not* be called on the supplied
+    /// `lock`.  Also note that `lock` must remain valid throughout the
+    /// lifetime of this guard, or until `release` is called.
     LockGuard(T *lock, bool alreadyLockedFlag);
-        // Create a scoped guard that conditionally manages the specified
-        // 'lock' (if non-null) and invokes 'lock->lock()' if the specified
-        // 'alreadyLockedFlag' is 'false'.  Supplying a null 'lock' has no
-        // effect.  The behavior is undefined unless the state of 'lock' (if
-        // non-null) is consistent with 'alreadyLockedFlag'.  Note that
-        // 'alreadyLockedFlag' is used to indicate whether 'lock' is in an
-        // already-locked state when passed, so if 'alreadyLockedFlag' is
-        // 'true' the 'lock' method will *not* be called on the supplied
-        // 'lock'.  Also note that 'lock' must remain valid throughout the
-        // lifetime of this guard, or until 'release' is called.
 
+    /// Destroy this scoped guard and invoke the `unlock` method on the
+    /// lock object under management by this guard, if any.  If no lock is
+    /// currently being managed, this method has no effect.
     ~LockGuard();
-        // Destroy this scoped guard and invoke the 'unlock' method on the
-        // lock object under management by this guard, if any.  If no lock is
-        // currently being managed, this method has no effect.
 
     // MANIPULATORS
+
+    /// Return the address of the modifiable lock object under management by
+    /// this guard, and release the lock from further management by this
+    /// guard.  If no lock is currently being managed, return 0 with no
+    /// other effect.  Note that this operation does *not* unlock the lock
+    /// object (if any) that was under management.
     T *release();
-        // Return the address of the modifiable lock object under management by
-        // this guard, and release the lock from further management by this
-        // guard.  If no lock is currently being managed, return 0 with no
-        // other effect.  Note that this operation does *not* unlock the lock
-        // object (if any) that was under management.
 
     // ACCESSORS
+
+    /// Return the address of the modifiable lock object under management by
+    /// this guard, or 0 if no lock is currently being managed.
     T *ptr() const;
-        // Return the address of the modifiable lock object under management by
-        // this guard, or 0 if no lock is currently being managed.
 };
 
                           // =====================
                           // class LockGuardUnlock
                           // =====================
 
+/// This class template implements a guard for release and reacquisition
+/// of synchronization resources (i.e., locks).
 template <class T>
 class LockGuardUnlock {
-    // This class template implements a guard for release and reacquisition
-    // of synchronization resources (i.e., locks).
 
     // DATA
     T *d_lock_p;  // lock guarded by this object (held, not owned)
@@ -257,52 +260,55 @@ class LockGuardUnlock {
 
   public:
     // CREATORS
+
+    /// Create a scoped guard that conditionally manages the specified
+    /// `lock` (if non-null) and invokes `lock->unlock()`.  Supplying a null
+    /// `lock` has no effect.  The behavior is undefined unless `lock` (if
+    /// non-null) is locked by this thread.  Note that `lock` must remain
+    /// valid throughout the lifetime of this guard, or until `release` is
+    /// called.
     explicit LockGuardUnlock(T *lock);
-        // Create a scoped guard that conditionally manages the specified
-        // 'lock' (if non-null) and invokes 'lock->unlock()'.  Supplying a null
-        // 'lock' has no effect.  The behavior is undefined unless 'lock' (if
-        // non-null) is locked by this thread.  Note that 'lock' must remain
-        // valid throughout the lifetime of this guard, or until 'release' is
-        // called.
 
+    /// Create a scoped guard that conditionally manages the specified
+    /// `lock` (if non-null) and invokes `lock->unlock()` if the specified
+    /// `alreadyUnlockedFlag` is `false`.  Supplying a null `lock` has no
+    /// effect.  The behavior is undefined unless the state of `lock` (if
+    /// non-null) is consistent with `alreadyUnlockedFlag`.  Note that
+    /// `alreadyUnlockedFlag` is used to indicate whether `lock` is in an
+    /// already-unlocked state when passed, so if `alreadyUnlockedFlag` is
+    /// `true` the `unlock` method will *not* be called on the supplied
+    /// `lock`.  Also note that `lock` must remain valid throughout the
+    /// lifetime of this guard, or until `release` is called.
     LockGuardUnlock(T *lock, bool alreadyUnlockedFlag);
-        // Create a scoped guard that conditionally manages the specified
-        // 'lock' (if non-null) and invokes 'lock->unlock()' if the specified
-        // 'alreadyUnlockedFlag' is 'false'.  Supplying a null 'lock' has no
-        // effect.  The behavior is undefined unless the state of 'lock' (if
-        // non-null) is consistent with 'alreadyUnlockedFlag'.  Note that
-        // 'alreadyUnlockedFlag' is used to indicate whether 'lock' is in an
-        // already-unlocked state when passed, so if 'alreadyUnlockedFlag' is
-        // 'true' the 'unlock' method will *not* be called on the supplied
-        // 'lock'.  Also note that 'lock' must remain valid throughout the
-        // lifetime of this guard, or until 'release' is called.
 
+    /// Destroy this scoped guard and invoke the `lock` method on the lock
+    /// object under management by this guard, if any.  If no lock is
+    /// currently being managed, this method has no effect.
     ~LockGuardUnlock();
-        // Destroy this scoped guard and invoke the 'lock' method on the lock
-        // object under management by this guard, if any.  If no lock is
-        // currently being managed, this method has no effect.
 
     // MANIPULATORS
+
+    /// Return the address of the modifiable lock object under management by
+    /// this guard, and release the lock from further management by this
+    /// guard.  If no lock is currently being managed, return 0 with no
+    /// other effect.  Note that this operation does *not* lock the lock
+    /// object (if any) that was under management.
     T *release();
-        // Return the address of the modifiable lock object under management by
-        // this guard, and release the lock from further management by this
-        // guard.  If no lock is currently being managed, return 0 with no
-        // other effect.  Note that this operation does *not* lock the lock
-        // object (if any) that was under management.
 
     // ACCESSORS
+
+    /// Return the address of the modifiable lock object under management by
+    /// this guard, or 0 if no lock is currently being managed.
     T *ptr() const;
-        // Return the address of the modifiable lock object under management by
-        // this guard, or 0 if no lock is currently being managed.
 };
 
                             // =================
                             // class UnLockGuard
                             // =================
 
+/// This class is DEPRECATED.  Use `LockGuardUnlock` instead.
 template <class T>
 class UnLockGuard : public LockGuardUnlock<T> {
-    // This class is DEPRECATED.  Use 'LockGuardUnlock' instead.
 
   private:
     // NOT IMPLEMENTED
@@ -311,21 +317,22 @@ class UnLockGuard : public LockGuardUnlock<T> {
 
   public:
     // CREATORS
-    explicit UnLockGuard(T *lock);
-        // DEPRECATED: Use 'LockGuardUnlock' instead.
 
+    /// DEPRECATED: Use `LockGuardUnlock` instead.
+    explicit UnLockGuard(T *lock);
+
+    /// DEPRECATED: Use `LockGuardUnlock` instead.
     UnLockGuard(T *lock, bool alreadyUnlockedFlag);
-        // DEPRECATED: Use 'LockGuardUnlock' instead.
 };
 
                           // ======================
                           // class LockGuardTryLock
                           // ======================
 
+/// This class template implements a guard for tentative acquisition and
+/// release of synchronization resources (i.e., locks).
 template <class T>
 class LockGuardTryLock {
-    // This class template implements a guard for tentative acquisition and
-    // release of synchronization resources (i.e., locks).
 
     // DATA
     T *d_lock_p;  // lock guarded by this object (held, not owned)
@@ -337,43 +344,46 @@ class LockGuardTryLock {
 
   public:
     // CREATORS
-    explicit LockGuardTryLock(T *lock, int attempts = 1);
-        // Create a scoped guard that conditionally manages the specified
-        // 'lock' (if non-null) and invokes 'lock->tryLock()' until the lock is
-        // acquired, or until the optionally specified 'attempts' have been
-        // made to acquire the lock.  If 'attempts' is not specified only one
-        // attempt is made to acquire the lock.  Supplying a null 'lock' has no
-        // effect.  The behavior is undefined unless 'lock' (if non-null) is
-        // not already locked by this thread and '0 < attempts'.  Note that
-        // 'lock' must remain valid throughout the lifetime of this guard, or
-        // until 'release' is called.
 
+    /// Create a scoped guard that conditionally manages the specified
+    /// `lock` (if non-null) and invokes `lock->tryLock()` until the lock is
+    /// acquired, or until the optionally specified `attempts` have been
+    /// made to acquire the lock.  If `attempts` is not specified only one
+    /// attempt is made to acquire the lock.  Supplying a null `lock` has no
+    /// effect.  The behavior is undefined unless `lock` (if non-null) is
+    /// not already locked by this thread and `0 < attempts`.  Note that
+    /// `lock` must remain valid throughout the lifetime of this guard, or
+    /// until `release` is called.
+    explicit LockGuardTryLock(T *lock, int attempts = 1);
+
+    /// Destroy this scoped guard and invoke the `unlock` method on the
+    /// lock object under management by this guard, if any.  If no lock is
+    /// currently being managed, this method has no effect.
     ~LockGuardTryLock();
-        // Destroy this scoped guard and invoke the 'unlock' method on the
-        // lock object under management by this guard, if any.  If no lock is
-        // currently being managed, this method has no effect.
 
     // MANIPULATORS
+
+    /// Return the address of the modifiable lock object under management by
+    /// this guard, and release the lock from further management by this
+    /// guard.  If no lock is currently being managed, return 0 with no
+    /// other effect.  Note that this operation does *not* unlock the lock
+    /// object (if any) that was under management.
     T *release();
-        // Return the address of the modifiable lock object under management by
-        // this guard, and release the lock from further management by this
-        // guard.  If no lock is currently being managed, return 0 with no
-        // other effect.  Note that this operation does *not* unlock the lock
-        // object (if any) that was under management.
 
     // ACCESSORS
+
+    /// Return the address of the modifiable lock object under management by
+    /// this guard, or 0 if no lock is currently being managed.
     T *ptr() const;
-        // Return the address of the modifiable lock object under management by
-        // this guard, or 0 if no lock is currently being managed.
 };
 
                             // ==================
                             // class TryLockGuard
                             // ==================
 
+/// This class is DEPRECATED.  Use `LockGuardTryLock` instead.
 template <class T>
 class TryLockGuard : public LockGuardTryLock<T> {
-    // This class is DEPRECATED.  Use 'LockGuardTryLock' instead.
 
   private:
     // NOT IMPLEMENTED
@@ -382,8 +392,9 @@ class TryLockGuard : public LockGuardTryLock<T> {
 
   public:
     // CREATORS
+
+    /// DEPRECATED: Use `LockGuardTryLock` instead.
     explicit TryLockGuard(T *lock, int attempts = 1);
-        // DEPRECATED: Use 'LockGuardTryLock' instead.
 };
 
 }  // close package namespace

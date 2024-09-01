@@ -15,7 +15,7 @@
 //
 // Note that the functions in this component are based on STLPort's
 // implementation, with copyright notice as follows:
-//..
+// ```
 /*
  * Copyright (c) 1997
  * Silicon Graphics Computer Systems, Inc.
@@ -211,12 +211,13 @@ private:
   struct QuickSwap;
   friend struct QuickSwap;
 
+  /// Function object to quickly swap two slists with identical
+  /// allocators and allocation modes.
   struct QuickSwap {
-      // Function object to quickly swap two slists with identical
-      // allocators and allocation modes.
+
+      /// Swap contents of `v1` and `v2`.  Undefined unless
+      /// `v1.get_allocator()  == v2.get_allocator()`.
       void operator()(_Self& v1, _Self& v2) const
-          // Swap contents of 'v1' and 'v2'.  Undefined unless
-          // 'v1.get_allocator()  == v2.get_allocator()'.
       {
           // MODIFIED BY ARTHUR
           //_STLP_STD::swap(v1._M_head._M_data, v2._M_head._M_data);

@@ -7,17 +7,17 @@ BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
 
-//@PURPOSE: Provide a standard compliant 'system_error' class.
+//@PURPOSE: Provide a standard compliant `system_error` class.
 //
 //@CLASSES:
-//  bsl::system_error: a standard compliant 'system_error' class
+//  bsl::system_error: a standard compliant `system_error` class
 //
 //@CANONICAL_HEADER: bsl_system_error.h
 //
-//@DESCRIPTION: This component defines class 'bsl::system_error', a class used
-// for annotated exception objects about 'errno'-style errors.  In C++11 mode,
-// the vendor-supplied '<system_error>' implementation is used instead, and the
-// corresponding names from 'std' are imported into 'bsl'.
+//@DESCRIPTION: This component defines class `bsl::system_error`, a class used
+// for annotated exception objects about `errno`-style errors.  In C++11 mode,
+// the vendor-supplied `<system_error>` implementation is used instead, and the
+// corresponding names from `std` are imported into `bsl`.
 //
 ///Usage
 ///-----
@@ -27,29 +27,29 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to add an informative message when a system error occurs and
 // include that as part of an exception that we throw when reporting the error.
-// We can use 'bsl::system_error' to do that.
+// We can use `bsl::system_error` to do that.
 //
-// First, reset 'errno' to avoid detecting old problems.
-//..
-//  errno = 0;
-//..
-// Then, do something that will fail and set 'errno'.
-//..
-//  strtod("1e2000", 0);
-//..
-// Next, check that 'errno' was actually set.
-//..
-//  assert(ERANGE == errno);
-//..
+// First, reset `errno` to avoid detecting old problems.
+// ```
+// errno = 0;
+// ```
+// Then, do something that will fail and set `errno`.
+// ```
+// strtod("1e2000", 0);
+// ```
+// Next, check that `errno` was actually set.
+// ```
+// assert(ERANGE == errno);
+// ```
 //  Finally, prepare an annotated exception and verify the annotation and the
 //  error code stored within it.
-//..
-//  bsl::system_error annotated(errno, generic_category(), "1e2000");
-//  assert(strstr(annotated.what(), "1e2000"));
-//  assert(static_cast<int>(bsl::errc::result_out_of_range) ==
-//         annotated.code().value());
-//  assert(&generic_category() == &annotated.code().category());
-//..
+// ```
+// bsl::system_error annotated(errno, generic_category(), "1e2000");
+// assert(strstr(annotated.what(), "1e2000"));
+// assert(static_cast<int>(bsl::errc::result_out_of_range) ==
+//        annotated.code().value());
+// assert(&generic_category() == &annotated.code().category());
+// ```
 
 #include <bslscm_version.h>
 

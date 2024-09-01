@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bslmt::RecursiveMutex'.
+//@PURPOSE: Provide a win32 implementation of `bslmt::RecursiveMutex`.
 //
 //@CLASSES:
 //  bslmt::RecursiveMutexImpl<Win32Threads>: win32 specialization
@@ -13,17 +13,17 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmt_recursivemutex
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bslmt::RecursiveMutex' for Windows (win32),
-// 'bslmt::RecursiveMutexImpl<Win32Threads>', via the template specialization:
-//..
-//  bslmt::RecursiveMutexImpl<Platform::Win32Threads>
-//..
+// `bslmt::RecursiveMutex` for Windows (win32),
+// `bslmt::RecursiveMutexImpl<Win32Threads>`, via the template specialization:
+// ```
+// bslmt::RecursiveMutexImpl<Platform::Win32Threads>
+// ```
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bslmt::RecursiveMutex'.
+// should instead use `bslmt::RecursiveMutex`.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

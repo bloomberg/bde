@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Windows platform with MSVC compiler for ARM CPUs.  The classes are
-// for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
+// for private use only.  See `bsls_atomicoperations` and `bsls_atomic` for
 // the public interface to atomics.
 
 #include <bsls_atomicoperations_default.h>

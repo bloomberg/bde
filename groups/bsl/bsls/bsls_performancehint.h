@@ -11,62 +11,62 @@ BSLS_IDENT("$Id: $")
 //  bsls::PerformanceHint: namespace for performance optimization hints
 //
 //@MACROS:
-//  BSLS_PERFORMANCEHINT_PREDICT_LIKELY(X): 'X' probably evaluates to non-zero
-//  BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(X): 'X' probably evaluates to zero
-//  BSLS_PERFORMANCEHINT_PREDICT_EXPECT(X, Y): 'X' probably evaluates to 'Y'
+//  BSLS_PERFORMANCEHINT_PREDICT_LIKELY(X): `X` probably evaluates to non-zero
+//  BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(X): `X` probably evaluates to zero
+//  BSLS_PERFORMANCEHINT_PREDICT_EXPECT(X, Y): `X` probably evaluates to `Y`
 //  BSLS_PERFORMANCEHINT_UNLIKELY_HINT: annotate block unlikely to be taken
 //  BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE: prevent compiler optimizations
 //
 //@DESCRIPTION: This component provides performance hints for the compiler or
 // hardware.  There are currently two types of hints that are supported:
-//: o branch prediction
-//: o data cache prefetching
+// * branch prediction
+// * data cache prefetching
 //
 ///Branch Prediction
 ///-----------------
-// The three macros provided, 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY',
-// 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY', and
-// 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT', can be used to optimize compiler
+// The three macros provided, `BSLS_PERFORMANCEHINT_PREDICT_LIKELY`,
+// `BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY`, and
+// `BSLS_PERFORMANCEHINT_PREDICT_EXPECT`, can be used to optimize compiler
 // generated code for branch prediction.  The compiler, when given the hint
-// under *optimized* mode (i.e., with 'BDE_BUILD_TARGET_OPT' defined) will
+// under *optimized* mode (i.e., with `BDE_BUILD_TARGET_OPT` defined) will
 // rearrange the assembly instructions it generates to minimize the number of
 // jumps needed.
 //
 // The following describes the macros provided by this component:
-//..
-//                Macro Name                          Description of Macro
+// ```
+//               Macro Name                          Description of Macro
 // ----------------------------------------       -----------------------------
 // BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)      Hint to the compiler that the
-//                                                specified *integral* 'expr'
-//                                                expression is likely to
-//                                                evaluate to non-zero.
-//                                                Returns 'true' or 'false'
-//                                                depending on the result of
-//                                                the expression.
+//                                               specified *integral* 'expr'
+//                                               expression is likely to
+//                                               evaluate to non-zero.
+//                                               Returns 'true' or 'false'
+//                                               depending on the result of
+//                                               the expression.
 //
 // BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(expr)    Hint to the compiler that the
-//                                                specified *integral* 'expr'
-//                                                expression is likely to
-//                                                evaluate to zero.  Returns
-//                                                'true' or 'false' depending
-//                                                on the result of the
-//                                                expression.
+//                                               specified *integral* 'expr'
+//                                               expression is likely to
+//                                               evaluate to zero.  Returns
+//                                               'true' or 'false' depending
+//                                               on the result of the
+//                                               expression.
 //
 // BSLS_PERFORMANCEHINT_PREDICT_EXPECT(expr, value)
-//                                                Hint to the compiler that the
-//                                                specified *integral* 'expr'
-//                                                expression is likely to
-//                                                evaluate to the specified
-//                                                'value'.  Returns the result
-//                                                of the expression.
+//                                               Hint to the compiler that the
+//                                               specified *integral* 'expr'
+//                                               expression is likely to
+//                                               evaluate to the specified
+//                                               'value'.  Returns the result
+//                                               of the expression.
 //
 // BSLS_PERFORMANCEHINT_UNLIKELY_HINT             Hint to the compiler that the
-//                                                block which contains the hint
-//                                                is unlikely chosen.  Use this
-//                                                in conjunction with the
-//                                                'PREDICT_UNLIKELY' clause for
-//                                                maximum portability.
-//..
+//                                               block which contains the hint
+//                                               is unlikely chosen.  Use this
+//                                               in conjunction with the
+//                                               'PREDICT_UNLIKELY' clause for
+//                                               maximum portability.
+// ```
 //
 ///Warning
 ///- - - -
@@ -85,40 +85,40 @@ BSLS_IDENT("$Id: $")
 // There is a bug in gcc 4.2, 4.3, and 4.4 such that when using the branch
 // prediction macros with multiple conditions, the generated code might not be
 // properly optimized.  For example:
-//..
-//  if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(a && b)) {
-//      // ...
-//  }
-//..
+// ```
+// if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(a && b)) {
+//     // ...
+// }
+// ```
 // The work-around is simply to split the conditions:
-//..
-//  if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(a)
-//   && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(b)) {
-//      // ...
-//  }
-//..
+// ```
+// if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(a)
+//  && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(b)) {
+//     // ...
+// }
+// ```
 // This applies to all of the "likely", "unlikely", and "expect" macros defined
 // in this component.  Note that a bug report has been filed:
-//..
-//  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=42233
-//..
+// ```
+// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=42233
+// ```
 //
 ///Data Cache Prefetching
 ///----------------------
-// The two functions provided in the 'bsls::PerformanceHint' 'struct' are
-// 'prefetchForReading' and 'prefetchForWriting'.  Use of these functions will
+// The two functions provided in the `bsls::PerformanceHint` `struct` are
+// `prefetchForReading` and `prefetchForWriting`.  Use of these functions will
 // cause the compiler to generate prefetch instructions to prefetch one cache
 // line worth of data at the specified address into the cache line to minimize
 // processor stalls.
-//..
-//       Function Name                       Description of Function
-//  ------------------------         ------------------------------------------
-//  prefetchForReading(address)      Prefetches one cache line worth of data at
-//                                   the specified 'address' for reading.
+// ```
+//      Function Name                       Description of Function
+// ------------------------         ------------------------------------------
+// prefetchForReading(address)      Prefetches one cache line worth of data at
+//                                  the specified 'address' for reading.
 //
-//  prefetchForWriting(address)      Prefetches one cache line worth of data at
-//                                   the specified 'address' for writing.
-//..
+// prefetchForWriting(address)      Prefetches one cache line worth of data at
+//                                  the specified 'address' for writing.
+// ```
 //
 ///Warning
 ///- - - -
@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Optimization Fence
 ///------------------
-// The macro 'BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE' prevents some compiler
+// The macro `BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE` prevents some compiler
 // optimizations, particularly compiler instruction reordering.  This fence
 // does *not* map to a CPU instruction and has no impact on processor
 // instruction re-ordering, and therefore should not be used to synchronize
@@ -152,196 +152,196 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Using the Branch Prediction Macros
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// The following demonstrates the use of 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY'
-// and 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' to generate more efficient
-// assembly instructions.  Note the use of 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT'
-// inside the 'if' branch for maximum portability.
-//..
-//  volatile int global;
+// The following demonstrates the use of `BSLS_PERFORMANCEHINT_PREDICT_LIKELY`
+// and `BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY` to generate more efficient
+// assembly instructions.  Note the use of `BSLS_PERFORMANCEHINT_UNLIKELY_HINT`
+// inside the `if` branch for maximum portability.
+// ```
+// volatile int global;
 //
-//  void foo()
-//  {
-//      global = 1;
-//  }
+// void foo()
+// {
+//     global = 1;
+// }
 //
-//  void bar()
-//  {
-//      global = 2;
-//  }
+// void bar()
+// {
+//     global = 2;
+// }
 //
-//  int main(int argc, char **argv)
-//  {
-//      argc = std::atoi(argv[1]);
+// int main(int argc, char **argv)
+// {
+//     argc = std::atoi(argv[1]);
 //
-//      for (int x = 0; x < argc; ++x) {
-//          int y = std::rand() % 10;
+//     for (int x = 0; x < argc; ++x) {
+//         int y = std::rand() % 10;
 //
-//          // Correct usage of 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' since
-//          // there are nine of ten chance that this branch is taken.
+//         // Correct usage of 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' since
+//         // there are nine of ten chance that this branch is taken.
 //
-//          if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(8 != y)) {
-//              foo();
-//          }
-//          else {
-//              BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-//              bar();
-//          }
-//      }
-//      return 0;
-//  }
-//..
-// An excerpt of the assembly code generated using 'xlC' Version 10 on AIX from
+//         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(8 != y)) {
+//             foo();
+//         }
+//         else {
+//             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+//             bar();
+//         }
+//     }
+//     return 0;
+// }
+// ```
+// An excerpt of the assembly code generated using `xlC` Version 10 on AIX from
 // this small program is:
-//..
-//  b8:   2c 00 00 08     cmpwi   r0,8
-//  bc:   41 82 00 38     beq-    f4 <.main+0xb4>
-//                         ^
-//                         Note that if register r0 (y) equals 8, branch to
-//                         instruction f4 (a jump).  The '-' after 'beq'
-//                         indicates that the branch is unlikely to be taken.
-//                         The predicted code path continues the 'if'
-//                         statement, which calls 'foo' below.
+// ```
+// b8:   2c 00 00 08     cmpwi   r0,8
+// bc:   41 82 00 38     beq-    f4 <.main+0xb4>
+//                        ^
+//                        Note that if register r0 (y) equals 8, branch to
+//                        instruction f4 (a jump).  The '-' after 'beq'
+//                        indicates that the branch is unlikely to be taken.
+//                        The predicted code path continues the 'if'
+//                        statement, which calls 'foo' below.
 //
-//  c0:   4b ff ff 41     bl      0 <.foo__Fv>
-//  ...
-//  f4:   4b ff ff 2d     bl      20 <.bar__Fv>
-//..
-// Now, if 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' is changed to
-// 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY', and the
-// 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT' is moved to the first branch, the
+// c0:   4b ff ff 41     bl      0 <.foo__Fv>
+// ...
+// f4:   4b ff ff 2d     bl      20 <.bar__Fv>
+// ```
+// Now, if `BSLS_PERFORMANCEHINT_PREDICT_LIKELY` is changed to
+// `BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY`, and the
+// `BSLS_PERFORMANCEHINT_UNLIKELY_HINT` is moved to the first branch, the
 // following assembly code will be generated:
-//..
-//  b8:   2c 00 00 08     cmpwi   r0,8
-//  bc:   40 c2 00 38     bne-    f4 <.main+0xb4>
-//                         ^
-//                         Note that the test became a "branch not equal"
-//                         test.  The predicted code path now continues to the
-//                         'else' statement, which calls 'bar' below.
+// ```
+// b8:   2c 00 00 08     cmpwi   r0,8
+// bc:   40 c2 00 38     bne-    f4 <.main+0xb4>
+//                        ^
+//                        Note that the test became a "branch not equal"
+//                        test.  The predicted code path now continues to the
+//                        'else' statement, which calls 'bar' below.
 //
-//  c0:   4b ff ff 61     bl      20 <.bar__Fv>
-//  ...
-//  f4:   4b ff ff 0d     bl      0 <.foo__Fv>
-//..
+// c0:   4b ff ff 61     bl      20 <.bar__Fv>
+// ...
+// f4:   4b ff ff 0d     bl      0 <.foo__Fv>
+// ```
 // A timing analysis shows that effective use of branch prediction can have a
 // material effect on code efficiency:
-//..
-//  $time ./unlikely.out 100000000
+// ```
+// $time ./unlikely.out 100000000
 //
-//  real    0m2.022s
-//  user    0m2.010s
-//  sys     0m0.013s
+// real    0m2.022s
+// user    0m2.010s
+// sys     0m0.013s
 //
-//  $time ./likely.out 100000000
+// $time ./likely.out 100000000
 //
-//  real    0m2.159s
-//  user    0m2.149s
-//  sys     0m0.005s
-//..
+// real    0m2.159s
+// user    0m2.149s
+// sys     0m0.005s
+// ```
 //
-///Example 2: Using 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT'
+///Example 2: Using `BSLS_PERFORMANCEHINT_PREDICT_EXPECT`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is essentially the same as the '__builtin_expect(expr, value)'
+// This macro is essentially the same as the `__builtin_expect(expr, value)`
 // macro that is provided by some compilers.  This macro allows the user to
 // define more complex hints to the compiler, such as the optimization of
-// 'switch' statements.  For example, given:
-//..
-//  int x = std::rand() % 4;
-//..
-// the following is incorrect usage of 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT',
+// `switch` statements.  For example, given:
+// ```
+// int x = std::rand() % 4;
+// ```
+// the following is incorrect usage of `BSLS_PERFORMANCEHINT_PREDICT_EXPECT`,
 // since the probability of getting a 3 is equivalent to the other
 // possibilities ( 0, 1, 2 ):
-//..
-//  switch (BSLS_PERFORMANCEHINT_PREDICT_EXPECT(x, 3)) {
-//    case 1: //..
-//            break;
-//    case 2: //..
-//            break;
-//    case 3: //..
-//            break;
-//    default: break;
-//  }
-//..
+// ```
+// switch (BSLS_PERFORMANCEHINT_PREDICT_EXPECT(x, 3)) {
+//   case 1: //..
+//           break;
+//   case 2: //..
+//           break;
+//   case 3: //..
+//           break;
+//   default: break;
+// }
+// ```
 // However, this is sufficient to illustrate the intent of this macro.
 //
 ///Example 3: Cache Line Prefetching
 ///- - - - - - - - - - - - - - - - -
-// The following demonstrates use of 'prefetchForReading' and
-// 'prefetchForWriting' to prefetch data cache lines:
-//..
-//  const int SIZE = 10 * 1024 * 1024;
+// The following demonstrates use of `prefetchForReading` and
+// `prefetchForWriting` to prefetch data cache lines:
+// ```
+// const int SIZE = 10 * 1024 * 1024;
 //
-//  void add(int *arrayA, int *arrayB)
-//  {
-//      for (int i = 0; i < SIZE / 8; ++i){
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+// void add(int *arrayA, int *arrayB)
+// {
+//     for (int i = 0; i < SIZE / 8; ++i){
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
 //
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//      }
-//  }
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//     }
+// }
 //
-//  int array1[SIZE];
-//  int array2[SIZE];
+// int array1[SIZE];
+// int array2[SIZE];
 //
-//  int main()
-//  {
-//      BloombergLP::bsls::Stopwatch timer;
-//      timer.start();
-//      for (int i = 0; i < 10; ++i) {
-//          add(array1, array2);
-//      }
-//      printf("time: %f\n", timer.elapsedTime());
-//      return 0;
-//  }
-//..
+// int main()
+// {
+//     BloombergLP::bsls::Stopwatch timer;
+//     timer.start();
+//     for (int i = 0; i < 10; ++i) {
+//         add(array1, array2);
+//     }
+//     printf("time: %f\n", timer.elapsedTime());
+//     return 0;
+// }
+// ```
 // The above code simply adds two arrays together multiple times.  Using
-// 'bsls::Stopwatch', we recorded the running time and printed it to 'stdout':
-//..
-//  $./prefetch.sundev1.tsk
-//  time: 8.446806
-//..
-// Now, we can observe that in the 'add' function, 'arrayA' and 'arrayB' are
-// accessed sequentially for the majority of the program.  'arrayA' is used for
-// writing and 'arrayB' is used for reading.  Making use of prefetch, we add
-// calls to 'prefetchForReading' and 'prefetchForWriting':
-//..
-//  void add2(int *arrayA, int *arrayB)
-//  {
-//      for (int i = 0; i < SIZE / 8; ++i){
-//          using namespace BloombergLP; // Generally avoid 'using' in this TD.
-//          bsls::PerformanceHint::prefetchForWriting((int *) arrayA + 16);
-//          bsls::PerformanceHint::prefetchForReading((int *) arrayB + 16);
+// `bsls::Stopwatch`, we recorded the running time and printed it to `stdout`:
+// ```
+// $./prefetch.sundev1.tsk
+// time: 8.446806
+// ```
+// Now, we can observe that in the `add` function, `arrayA` and `arrayB` are
+// accessed sequentially for the majority of the program.  `arrayA` is used for
+// writing and `arrayB` is used for reading.  Making use of prefetch, we add
+// calls to `prefetchForReading` and `prefetchForWriting`:
+// ```
+// void add2(int *arrayA, int *arrayB)
+// {
+//     for (int i = 0; i < SIZE / 8; ++i){
+//         using namespace BloombergLP; // Generally avoid 'using' in this TD.
+//         bsls::PerformanceHint::prefetchForWriting((int *) arrayA + 16);
+//         bsls::PerformanceHint::prefetchForReading((int *) arrayB + 16);
 //
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
 //
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//          *arrayA += *arrayB; ++arrayA; ++arrayB;
-//      }
-//  }
-//..
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//         *arrayA += *arrayB; ++arrayA; ++arrayB;
+//     }
+// }
+// ```
 // Adding the prefetch improves the program's efficiency:
-//..
-//  $./prefetch.sundev1.tsk
-//  time: 6.442100
-//..
-// Note that we prefetch the address '16 * sizeof(int)' bytes away from
-// 'arrayA'.  This is such that the prefetch instruction has sufficient time to
+// ```
+// $./prefetch.sundev1.tsk
+// time: 6.442100
+// ```
+// Note that we prefetch the address `16 * sizeof(int)` bytes away from
+// `arrayA`.  This is such that the prefetch instruction has sufficient time to
 // finish before the data is actually accessed.  To see the difference, if we
-// changed '+ 16' to '+ 4':
-//..
-//  $./prefetch.sundev1.tsk
-//  time: 6.835928
-//..
+// changed `+ 16` to `+ 4`:
+// ```
+// $./prefetch.sundev1.tsk
+// time: 6.835928
+// ```
 // And we get less of an improvement in speed.  Similarly, if we prefetch too
 // far away from the data use, the data might be removed from the cache before
 // it is looked at and the prefetch is wasted.
@@ -467,29 +467,30 @@ namespace bsls {
                         // struct PerformanceHint
                         // ======================
 
+/// This `struct` provides a namespace for a suite of functions that give
+/// performance hints to the compiler or hardware.
 struct PerformanceHint {
-    // This 'struct' provides a namespace for a suite of functions that give
-    // performance hints to the compiler or hardware.
 
     // CLASS METHODS
+
+    /// Prefetch one cache line worth of data at the specified `address` for
+    /// reading if the compiler built-in is available (see to the component
+    /// level document for limitations).  Otherwise this method has no
+    /// effect.
     static void prefetchForReading(const void *address);
-        // Prefetch one cache line worth of data at the specified 'address' for
-        // reading if the compiler built-in is available (see to the component
-        // level document for limitations).  Otherwise this method has no
-        // effect.
 
+    /// Prefetch one cache line worth of data at the specified `address` for
+    /// writing if the compiler built-in is available (see to the component
+    /// level document for limitations).  Otherwise this method has no
+    /// effect.
     static void prefetchForWriting(void *address);
-        // Prefetch one cache line worth of data at the specified 'address' for
-        // writing if the compiler built-in is available (see to the component
-        // level document for limitations).  Otherwise this method has no
-        // effect.
 
+    /// This is an empty function that is marked as rarely called using
+    /// pragmas.  If this function is placed in a block of code inside a
+    /// branch, the compiler will optimize the assembly code generated and
+    /// mark the block as unlikely.  Note that this function is
+    /// intentionally not inlined.
     static void rarelyCalled();
-        // This is an empty function that is marked as rarely called using
-        // pragmas.  If this function is placed in a block of code inside a
-        // branch, the compiler will optimize the assembly code generated and
-        // mark the block as unlikely.  Note that this function is
-        // intentionally not inlined.
 
 #if defined(BDE_BUILD_TARGET_OPT)
 #if defined(BSLS_PLATFORM_CMP_SUN)
@@ -506,12 +507,12 @@ struct PerformanceHint {
 #endif  // BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_BUILD_TARGET_OPT
 
+    /// This is an empty function that is marked with low execution
+    /// frequency using pragmas.  If this function is placed in a block of
+    /// code inside a branch, the compiler will optimize the assembly code
+    /// generated and mark the block as unlikely.
     BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD
     static void lowFrequency();
-        // This is an empty function that is marked with low execution
-        // frequency using pragmas.  If this function is placed in a block of
-        // code inside a branch, the compiler will optimize the assembly code
-        // generated and mark the block as unlikely.
 };
 
 // ============================================================================
@@ -614,8 +615,8 @@ void PerformanceHint::lowFrequency()
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bsls::PerformanceHint bsls_PerformanceHint;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide functions for use in 'bsl' that throw standard exceptions.
+//@PURPOSE: Provide functions for use in `bsl` that throw standard exceptions.
 //
 //@CLASSES:
 //  bsls::BslExceptionUtil: namespace for utilities to throw exceptions
@@ -32,51 +32,51 @@ BSLS_IDENT("$Id: $")
 // that does not support exceptions.
 //
 // First we declare a function template that wants to throw a standard
-// exception.  Note that the 'exception' header is not included at this point.
-//..
-//  #include <bsls_bslexceptionutil.h>
+// exception.  Note that the `exception` header is not included at this point.
+// ```
+// #include <bsls_bslexceptionutil.h>
 //
-//  template<typename T>
-//  void testFunction(int selector)
-//      //  Throw a standard exception according to the specified 'selector'.
-//  {
-//    switch (selector) {
-//..
+// template<typename T>
+// void testFunction(int selector)
+//     //  Throw a standard exception according to the specified 'selector'.
+// {
+//   switch (selector) {
+// ```
 //  Now we can use the utilities in this component to throw the desired
 //  exception, even though the standard exception classes are not visible to
 //  this code.
-//..
-//      case  1: bsls::BslExceptionUtil::throwBadAlloc();
-//      case  2: bsls::BslExceptionUtil::throwBadCast();
-//      default: bsls::BslExceptionUtil::throwException();
-//    }
-//  }
-//..
+// ```
+//     case  1: bsls::BslExceptionUtil::throwBadAlloc();
+//     case  2: bsls::BslExceptionUtil::throwBadCast();
+//     default: bsls::BslExceptionUtil::throwException();
+//   }
+// }
+// ```
 // Finally, we can write some client code that calls our function, and wishes
 // to catch the thrown exception.  Observe that this file must #include the
 // corresponding standard header in order to catch the exception.
-//..
-//  #include <exception>
-//  #include <new>
-//  #include <typeinfo>
+// ```
+// #include <exception>
+// #include <new>
+// #include <typeinfo>
 //
-//  void callTestFunction()
-//  {
-//      try {
-//          testFunction<int>(1);
-//          assert(0 == "Should throw before reaching here.");
-//      }
-//      catch (const std::bad_alloc& ex) {
-//      }
+// void callTestFunction()
+// {
+//     try {
+//         testFunction<int>(1);
+//         assert(0 == "Should throw before reaching here.");
+//     }
+//     catch (const std::bad_alloc& ex) {
+//     }
 //
-//      try {
-//          testFunction<double>(2);
-//          assert(0 == "Should throw before reaching here.");
-//      }
-//      catch (const std::bad_cast& ex) {
-//      }
-//  }
-//..
+//     try {
+//         testFunction<double>(2);
+//         assert(0 == "Should throw before reaching here.");
+//     }
+//     catch (const std::bad_cast& ex) {
+//     }
+// }
+// ```
 
 #include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
@@ -90,50 +90,51 @@ namespace bsls {
                         // class BslExceptionUtil
                         //=======================
 
+/// This `struct` provides a namespace for `static` utility functions that
+/// throw standard library exceptions.
 struct BslExceptionUtil {
-    // This 'struct' provides a namespace for 'static' utility functions that
-    // throw standard library exceptions.
 
     // CLASS METHODS
+
+    /// Throw a `bsl::bad_alloc` exception if exceptions are enabled in the
+    /// current build mode, otherwise abort the program.  `bsl::bad_alloc`
+    /// will be an alias for the platform's `std::bad_alloc` class, to
+    /// ensure both ABI and API compatibility with non-BDE code relying on
+    /// the standard exception hierarchy.
     BSLS_ANNOTATION_NORETURN
     static void throwBadAlloc();
-        // Throw a 'bsl::bad_alloc' exception if exceptions are enabled in the
-        // current build mode, otherwise abort the program.  'bsl::bad_alloc'
-        // will be an alias for the platform's 'std::bad_alloc' class, to
-        // ensure both ABI and API compatibility with non-BDE code relying on
-        // the standard exception hierarchy.
 
+    /// Throw a `bsl::bad_cast` exception if exceptions are enabled in the
+    /// current build mode, otherwise abort the program.  `bsl::bad_cast`
+    /// will be an alias for the platform's `std::bad_cast` class, to ensure
+    /// both ABI and API compatibility with non-BDE code relying on the
+    /// standard exception hierarchy.
     BSLS_ANNOTATION_NORETURN
     static void throwBadCast();
-        // Throw a 'bsl::bad_cast' exception if exceptions are enabled in the
-        // current build mode, otherwise abort the program.  'bsl::bad_cast'
-        // will be an alias for the platform's 'std::bad_cast' class, to ensure
-        // both ABI and API compatibility with non-BDE code relying on the
-        // standard exception hierarchy.
 
+    /// Throw a `bsl::bad_exception` exception if exceptions are enabled in
+    /// the current build mode, otherwise abort the program.
+    /// `bsl::bad_exception` will be an alias for the platform's
+    /// `std::bad_exception` class, to ensure both ABI and API compatibility
+    /// with non-BDE code relying on the standard exception hierarchy.
     BSLS_ANNOTATION_NORETURN
     static void throwBadException();
-        // Throw a 'bsl::bad_exception' exception if exceptions are enabled in
-        // the current build mode, otherwise abort the program.
-        // 'bsl::bad_exception' will be an alias for the platform's
-        // 'std::bad_exception' class, to ensure both ABI and API compatibility
-        // with non-BDE code relying on the standard exception hierarchy.
 
+    /// Throw a `bsl::bad_typeid` exception if exceptions are enabled in the
+    /// current build mode, otherwise abort the program.  `bsl::bad_typeid`
+    /// will be an alias for the platform's `std::bad_typeid` class, to
+    /// ensure both ABI and API compatibility with non-BDE code relying on
+    /// the standard exception hierarchy.
     BSLS_ANNOTATION_NORETURN
     static void throwBadTypeid();
-        // Throw a 'bsl::bad_typeid' exception if exceptions are enabled in the
-        // current build mode, otherwise abort the program.  'bsl::bad_typeid'
-        // will be an alias for the platform's 'std::bad_typeid' class, to
-        // ensure both ABI and API compatibility with non-BDE code relying on
-        // the standard exception hierarchy.
 
+    /// Throw a `bsl::exception` exception if exceptions are enabled in the
+    /// current build mode, otherwise abort the program.  `bsl::exception`
+    /// will be an alias for the platform's `std::exception` class, to
+    /// ensure both ABI and API compatibility with non-BDE code relying on
+    /// the standard exception hierarchy.
     BSLS_ANNOTATION_NORETURN
     static void throwException();
-        // Throw a 'bsl::exception' exception if exceptions are enabled in the
-        // current build mode, otherwise abort the program.  'bsl::exception'
-        // will be an alias for the platform's 'std::exception' class, to
-        // ensure both ABI and API compatibility with non-BDE code relying on
-        // the standard exception hierarchy.
 };
 
 }  // close package namespace

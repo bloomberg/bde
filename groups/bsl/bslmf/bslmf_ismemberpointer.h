@@ -14,22 +14,22 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_ismemberfunctionpointer, bslmf_ismemberobjectpointer
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_member_pointer' and a template variable 'bsl::is_member_pointer_v',
-// that represents the result value of the 'bsl::is_member_pointer'
+// `bsl::is_member_pointer` and a template variable `bsl::is_member_pointer_v`,
+// that represents the result value of the `bsl::is_member_pointer`
 // meta-function, that may be used to query whether a type is a pointer to
 // non-static member type.
 //
-// 'bsl::is_member_pointer' meets the requirements of the 'is_member_pointer'
+// `bsl::is_member_pointer` meets the requirements of the `is_member_pointer`
 // template defined in the C++11 standard [meta.unary.comp].
 //
-// Note that the template variable 'is_member_pointer_v' is defined in the
+// Note that the template variable `is_member_pointer_v` is defined in the
 // C++17 standard as an inline variable.  If the current compiler supports the
-// inline variable C++17 compiler feature, 'bsl::is_member_pointer_v' is
-// defined as an 'inline constexpr bool' variable.  Otherwise, if the compiler
+// inline variable C++17 compiler feature, `bsl::is_member_pointer_v` is
+// defined as an `inline constexpr bool` variable.  Otherwise, if the compiler
 // supports the variable templates C++14 compiler feature,
-// 'bsl::is_member_pointer_v' is defined as a non-inline 'constexpr bool'
-// variable.  See 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// `bsl::is_member_pointer_v` is defined as a non-inline `constexpr bool`
+// variable.  See `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in
 // bsls_compilerfeatures component for details.
 //
 ///Usage
@@ -41,38 +41,38 @@ BSLS_IDENT("$Id: $")
 // Suppose that we want to assert whether a set of types are member pointer
 // types.
 //
-// First, we create a user-defined type 'MyStruct':
-//..
-//  struct MyStruct
-//  {
-//  };
-//..
-// Now, we create three 'typedef's -- a member object pointer type, a member
+// First, we create a user-defined type `MyStruct`:
+// ```
+// struct MyStruct
+// {
+// };
+// ```
+// Now, we create three `typedef`s -- a member object pointer type, a member
 // function pointer type and a general function pointer type:
-//..
-//  typedef int MyStruct::* DataMemPtr;
-//  typedef int (MyStruct::*MyStructMethodPtr) ();
-//  typedef int (*MyFunctionPtr) ();
-//..
-// Finally, we instantiate the 'bsl::is_member_pointer' template for various
-// types and assert the 'value' static data member of each instantiation:
-//..
-//  assert(false == bsl::is_member_pointer<int*>::value);
-//  assert(false == bsl::is_member_pointer<MyFunctionPtr>::value);
-//  assert(true  == bsl::is_member_pointer<DataMemPtr>::value);
-//  assert(true  == bsl::is_member_pointer<MyStructMethodPtr>::value);
-//..
+// ```
+// typedef int MyStruct::* DataMemPtr;
+// typedef int (MyStruct::*MyStructMethodPtr) ();
+// typedef int (*MyFunctionPtr) ();
+// ```
+// Finally, we instantiate the `bsl::is_member_pointer` template for various
+// types and assert the `value` static data member of each instantiation:
+// ```
+// assert(false == bsl::is_member_pointer<int*>::value);
+// assert(false == bsl::is_member_pointer<MyFunctionPtr>::value);
+// assert(true  == bsl::is_member_pointer<DataMemPtr>::value);
+// assert(true  == bsl::is_member_pointer<MyStructMethodPtr>::value);
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_member_pointer_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_member_pointer_v<int*>);
-//  assert(false == bsl::is_member_pointer_v<MyFunctionPtr>);
-//  assert(true  == bsl::is_member_pointer_v<DataMemPtr>);
-//  assert(true  == bsl::is_member_pointer_v<MyStructMethodPtr>);
-//#endif
-//..
+// `bsl::is_member_pointer_v` variable as follows:
+// ```
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//   assert(false == bsl::is_member_pointer_v<int*>);
+//   assert(false == bsl::is_member_pointer_v<MyFunctionPtr>);
+//   assert(true  == bsl::is_member_pointer_v<DataMemPtr>);
+//   assert(true  == bsl::is_member_pointer_v<MyStructMethodPtr>);
+// #endif
+// ```
 
 #include <bslscm_version.h>
 
@@ -93,48 +93,48 @@ namespace bsl {
                          // struct is_member_pointer
                          // ========================
 
+/// This `struct` template implements the `is_member_pointer` meta-function
+/// defined in the C++11 standard [meta.unary.comp] to determine if the
+/// (template parameter) `t_TYPE` is a member pointer type.  This `struct`
+/// derives from `bsl::true_type` if the `t_TYPE` is a member pointer type,
+/// and from `bsl::false_type` otherwise.  Additional specializations are
+/// provided below to give the correct answer in all cases.
 template <class t_TYPE>
 struct is_member_pointer : false_type {
-    // This 'struct' template implements the 'is_member_pointer' meta-function
-    // defined in the C++11 standard [meta.unary.comp] to determine if the
-    // (template parameter) 't_TYPE' is a member pointer type.  This 'struct'
-    // derives from 'bsl::true_type' if the 't_TYPE' is a member pointer type,
-    // and from 'bsl::false_type' otherwise.  Additional specializations are
-    // provided below to give the correct answer in all cases.
 };
 
+/// This partial specialization provides the `true_type` result for a
+/// (cv-unqualified) pointer-to-member type.  Note that additional partial
+/// specializations are required to handle the cv-qualified cases.
 template <class t_TARGET_TYPE, class t_HOST_TYPE>
 struct is_member_pointer<t_TARGET_TYPE t_HOST_TYPE::*> : true_type {
-    // This partial specialization provides the 'true_type' result for a
-    // (cv-unqualified) pointer-to-member type.  Note that additional partial
-    // specializations are required to handle the cv-qualified cases.
 };
 
+/// This partial specialization provides the `true_type` result for a
+/// `const`-qualified pointer-to-member type.
 template <class t_TARGET_TYPE, class t_HOST_TYPE>
 struct is_member_pointer<t_TARGET_TYPE t_HOST_TYPE::*const> : true_type {
-    // This partial specialization provides the 'true_type' result for a
-    // 'const'-qualified pointer-to-member type.
 };
 
+/// This partial specialization provides the `true_type` result for a
+/// `volatile`-qualified pointer-to-member type.
 template <class t_TARGET_TYPE, class t_HOST_TYPE>
 struct is_member_pointer<t_TARGET_TYPE t_HOST_TYPE::*volatile> : true_type {
-    // This partial specialization provides the 'true_type' result for a
-    // 'volatile'-qualified pointer-to-member type.
 };
 
+/// This partial specialization provides the `true_type` result for a
+/// `const volatile`-qualified pointer-to-member type.
 template <class t_TARGET_TYPE, class t_HOST_TYPE>
 struct is_member_pointer<t_TARGET_TYPE t_HOST_TYPE::*const volatile>
 : true_type {
-    // This partial specialization provides the 'true_type' result for a
-    // 'const volatile'-qualified pointer-to-member type.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// This template variable represents the result value of the
+/// `bsl::is_member_pointer` meta-function.
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_member_pointer_v =
                                               is_member_pointer<t_TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_member_pointer' meta-function.
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)    \

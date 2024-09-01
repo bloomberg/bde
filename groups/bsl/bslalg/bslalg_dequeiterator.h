@@ -13,14 +13,14 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslalg_dequeimputil, bslalg_dequeprimitives
 //
 //@DESCRIPTION: This component provides an in-core value semantic class,
-// 'bslalg::DequeIterator', that is a primitive iterator type for enumerating
+// `bslalg::DequeIterator`, that is a primitive iterator type for enumerating
 // elements in a deque (implemented in the form of a dynamic array) knowing
 // only its value type and a nominal block size.  Conceptually, a deque is an
 // array of block pointers, each block capable of containing a fixed number of
 // objects.  An element in the deque is identified by an iterator that consists
 // of two pointers:
-//: o a pointer to the block pointer array, and
-//: o a pointer to a value within the block referred to by the first pointer.
+// * a pointer to the block pointer array, and
+// * a pointer to a value within the block referred to by the first pointer.
 //
 // Dereferencing the iterator dereferences the second pointer.  Incrementing or
 // decrementing the iterator consists of incrementing the value pointer, unless
@@ -40,48 +40,48 @@ BSLS_IDENT("$Id: $")
 // picture below).
 //
 // The picture is as follows:
-//..
-//                       v--- Iterator to 'I': ptr to this BlockPtr
-//  +-----+-----+-----+-----+-----+-----+-----+-----+
-//  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |    BlockPtr array
-//  +-----+-----+--|--+--|--+--|--+--|--+-----+-----+
-//                 |     |     |     |                  Block
-//                 |     |     |     |  +---+---+---+---+---+---+---+---+
-//                 |     |     |     `--| V | W | X | Y | Z |   |   |   |
-//                 |     |     |        +---+---+---+---+---+---+---+---+
-//                 |     |     |                  Block
-//                 |     |     |  +---+---+---+---+---+---+---+---+
-//                 |     |     `--| N | O | P | Q | R | S | T | U |
-//                 |     |        +---+---+---+---+---+---+---+---+
-//                 |     |                v---- Iterator to 'I': ptr to value
-//                 |     |  +---+---+---+---+---+---+---+---+
-//                 |     `--| F | G | H | I | J | K | L | M |
-//                 |        +---+---+---+---+---+---+---+---+
-//                 |                  Block
-//                 |  +---+---+---+---+---+---+---+---+
-//                 `--|   |   |   | A | B | C | D | E |
-//                    +---+---+---+---+---+---+---+---+
-//..
+// ```
+//                      v--- Iterator to 'I': ptr to this BlockPtr
+// +-----+-----+-----+-----+-----+-----+-----+-----+
+// |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |    BlockPtr array
+// +-----+-----+--|--+--|--+--|--+--|--+-----+-----+
+//                |     |     |     |                  Block
+//                |     |     |     |  +---+---+---+---+---+---+---+---+
+//                |     |     |     `--| V | W | X | Y | Z |   |   |   |
+//                |     |     |        +---+---+---+---+---+---+---+---+
+//                |     |     |                  Block
+//                |     |     |  +---+---+---+---+---+---+---+---+
+//                |     |     `--| N | O | P | Q | R | S | T | U |
+//                |     |        +---+---+---+---+---+---+---+---+
+//                |     |                v---- Iterator to 'I': ptr to value
+//                |     |  +---+---+---+---+---+---+---+---+
+//                |     `--| F | G | H | I | J | K | L | M |
+//                |        +---+---+---+---+---+---+---+---+
+//                |                  Block
+//                |  +---+---+---+---+---+---+---+---+
+//                `--|   |   |   | A | B | C | D | E |
+//                   +---+---+---+---+---+---+---+---+
+// ```
 // Depicted above is a deque consisting of eight block pointers, only four
 // actually used to point to blocks of eight elements.  In the first block, the
 // first three elements are uninitialized, and the twenty six elements follow
-// in sequence across the different blocks.  An iterator to the 'I' element
+// in sequence across the different blocks.  An iterator to the `I` element
 // consists of a pointer to the fourth block pointer and a pointer to the sixth
 // element of that block.  The value of the corresponding deque would be
-// '[ A, B, C, ... X, Y, Z ]', its logical length 26, and its capacity would be
+// `[ A, B, C, ... X, Y, Z ]`, its logical length 26, and its capacity would be
 // 19 (the minimum number of prepend/append to force a reallocation of the
 // block pointer array).
 //
 // This component does not provide the full interface of a C++ standard library
-// iterator as we do not want a dependency on 'iterator_traits' in a package
-// below 'bslstl'.  'bslalg::DequeIterator' provides the minimal necessary set
-// of features to implement such an iterator for a standard conforming 'deque'
+// iterator as we do not want a dependency on `iterator_traits` in a package
+// below `bslstl`.  `bslalg::DequeIterator` provides the minimal necessary set
+// of features to implement such an iterator for a standard conforming `deque`
 // implementation in a higher level component.
 //
 ///Usage
 ///-----
-// This component is for use by the 'bslstl' package.  Other clients should use
-// the STL deque (in header '<deque>').
+// This component is for use by the `bslstl` package.  Other clients should use
+// the STL deque (in header `<deque>`).
 
 #include <bslscm_version.h>
 
@@ -108,13 +108,13 @@ class DequeIterator<VALUE_TYPE, 1>;
                        // class DequeIterator
                        // ===================
 
+/// Implementation of a deque iterator, parameterized by the `VALUE_TYPE`,
+/// for a deque with the parameterized `BLOCK_LENGTH`, and suitable for use
+/// by the `bslstl::RandomAccessIterator` adapter.  Note that `BLOCK_LENGTH`
+/// is the number of items of `VALUE_TYPE` within a block, not the size of a
+/// block in bytes.
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 class DequeIterator {
-    // Implementation of a deque iterator, parameterized by the 'VALUE_TYPE',
-    // for a deque with the parameterized 'BLOCK_LENGTH', and suitable for use
-    // by the 'bslstl::RandomAccessIterator' adapter.  Note that 'BLOCK_LENGTH'
-    // is the number of items of 'VALUE_TYPE' within a block, not the size of a
-    // block in bytes.
 
     // PRIVATE TYPES
     typedef bslalg::DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>  DequeImpUtil;
@@ -126,22 +126,23 @@ class DequeIterator {
     VALUE_TYPE *d_value_p;
 
     // FRIENDS
+
+    /// Return `true` if the specified `lhs` iterator points to the same
+    /// element in the same block as the specified `rhs` iterator, and
+    /// `false` otherwise.  The behavior is undefined unless `lhs` and `rhs`
+    /// are iterators over the same deque.  Note that this friend is a
+    /// regular functon, not a function template, so there is no way to
+    /// declare it outside the class in order to provide the definition.
     friend bool operator==(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Return 'true' if the specified 'lhs' iterator points to the same
-        // element in the same block as the specified 'rhs' iterator, and
-        // 'false' otherwise.  The behavior is undefined unless 'lhs' and 'rhs'
-        // are iterators over the same deque.  Note that this friend is a
-        // regular functon, not a function template, so there is no way to
-        // declare it outside the class in order to provide the definition.
     {
         return lhs.d_value_p == rhs.d_value_p;
     }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    /// Perform a three-way comparison between the specified `lhs` and `rhs`
+    /// iterators.  The behavior is undefined unless `lhs` and `rhs` are
+    /// iterators over the same deque.
     friend auto operator<=>(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Perform a three-way comparison between the specified 'lhs' and 'rhs'
-        // iterators.  The behavior is undefined unless 'lhs' and 'rhs' are
-        // iterators over the same deque.
     {
         auto result = lhs.d_blockPtr_p <=> rhs.d_blockPtr_p;
         return result == 0 ? lhs.d_value_p <=> rhs.d_value_p
@@ -180,116 +181,120 @@ class DequeIterator {
 
   public:
     // CREATORS
-    DequeIterator();
-        // Create a singular iterator (i.e., having internal null pointers).
 
+    /// Create a singular iterator (i.e., having internal null pointers).
+    DequeIterator();
+
+    /// Create an iterator pointing to the first element in the block
+    /// pointed to by the specified `blockPtrPtr`.
     explicit
     DequeIterator(BlockPtr *blockPtrPtr);
-        // Create an iterator pointing to the first element in the block
-        // pointed to by the specified 'blockPtrPtr'.
 
+    /// Create an iterator pointing to the element at the specified
+    /// `valuePtr` address in the block pointed to by the specified
+    /// `blockPtrPtr`.  The behavior is undefined unless `valuePtr` points
+    /// into the block `*blockPtrPtr`.
     DequeIterator(BlockPtr *blockPtrPtr, VALUE_TYPE *valuePtr);
-        // Create an iterator pointing to the element at the specified
-        // 'valuePtr' address in the block pointed to by the specified
-        // 'blockPtrPtr'.  The behavior is undefined unless 'valuePtr' points
-        // into the block '*blockPtrPtr'.
 
     // MANIPULATORS
+
+    /// Increment this iterator to point to the next element in the
+    /// corresponding deque (i.e., the element following the current one in
+    /// the same block or, if the current element is the last one in the
+    /// block, the first element in the next block).
     void operator++();
-        // Increment this iterator to point to the next element in the
-        // corresponding deque (i.e., the element following the current one in
-        // the same block or, if the current element is the last one in the
-        // block, the first element in the next block).
 
+    /// Decrement this iterator to point to the previous element in the
+    /// corresponding deque (i.e., the element preceding the current one in
+    /// the same block or, if the current element is the first one in the
+    /// block, the last element in the previous block).
     void operator--();
-        // Decrement this iterator to point to the previous element in the
-        // corresponding deque (i.e., the element preceding the current one in
-        // the same block or, if the current element is the first one in the
-        // block, the last element in the previous block).
 
+    /// Advance this iterator by the specified `offset`.
     void operator+=(std::ptrdiff_t offset);
-        // Advance this iterator by the specified 'offset'.
 
+    /// Move this iterator backward by the specified `offset`.
     void operator-=(std::ptrdiff_t offset);
-        // Move this iterator backward by the specified 'offset'.
 
+    /// Set this iterator to point to the first element of the next block.
     void nextBlock();
-        // Set this iterator to point to the first element of the next block.
 
+    /// Set this iterator to point to the first (not the last) element of
+    /// the previous block.
     void previousBlock();
-        // Set this iterator to point to the first (not the last) element of
-        // the previous block.
 
+    /// Set this iterator to point to the first element of the block pointed
+    /// to by the specified `blockPtrPtr`.
     void setBlock(BlockPtr *blockPtrPtr);
-        // Set this iterator to point to the first element of the block pointed
-        // to by the specified 'blockPtrPtr'.
 
+    /// Decrement this iterator to point to the next element in the block of
+    /// the corresponding deque.  The behavior is undefined unless this
+    /// iterator is pointed to a valid position of the deque.  Note that
+    /// this method is used only for optimization purposes in
+    /// `bslstl_Deque`, and clients of this package should not use this
+    /// directly.
     void valuePtrDecrement();
-        // Decrement this iterator to point to the next element in the block of
-        // the corresponding deque.  The behavior is undefined unless this
-        // iterator is pointed to a valid position of the deque.  Note that
-        // this method is used only for optimization purposes in
-        // 'bslstl_Deque', and clients of this package should not use this
-        // directly.
 
+    /// Increment this iterator to point to the next element in the block of
+    /// the corresponding deque.  The behavior is undefined unless this
+    /// iterator is pointed to a valid position of the deque.  Note that
+    /// this method is used only for optimization purposes in
+    /// `bslstl_Deque`, and clients of this package should not use this
+    /// directly.
     void valuePtrIncrement();
-        // Increment this iterator to point to the next element in the block of
-        // the corresponding deque.  The behavior is undefined unless this
-        // iterator is pointed to a valid position of the deque.  Note that
-        // this method is used only for optimization purposes in
-        // 'bslstl_Deque', and clients of this package should not use this
-        // directly.
 
     // ACCESSORS
+
+    /// Return a reference to the parameterized `VALUE_TYPE` object pointed
+    /// to by this iterator.  Note that this value is modifiable if
+    /// `VALUE_TYPE` is modifiable, and non-modifiable if it is not.
     VALUE_TYPE& operator*() const;
-        // Return a reference to the parameterized 'VALUE_TYPE' object pointed
-        // to by this iterator.  Note that this value is modifiable if
-        // 'VALUE_TYPE' is modifiable, and non-modifiable if it is not.
 
+    /// Return an iterator pointing the element at the specified `offset`
+    /// after this iterator.
     DequeIterator operator+(std::ptrdiff_t offset) const;
-        // Return an iterator pointing the element at the specified 'offset'
-        // after this iterator.
 
+    /// Return an iterator pointing the element at the specified `offset`
+    /// before this iterator.
     DequeIterator operator-(std::ptrdiff_t offset) const;
-        // Return an iterator pointing the element at the specified 'offset'
-        // before this iterator.
 
+    /// Return the distance between this iterator and the specified `rhs`
+    /// iterator.
     std::ptrdiff_t operator-(const DequeIterator& rhs) const;
-        // Return the distance between this iterator and the specified 'rhs'
-        // iterator.
 
+    /// Return the address of the first element in the block pointed to by
+    /// this iterator.
     VALUE_TYPE *blockBegin() const;
-        // Return the address of the first element in the block pointed to by
-        // this iterator.
 
+    /// Return the address of (one-past) the last element in the block
+    /// pointed to by this iterator.
     VALUE_TYPE *blockEnd() const;
-        // Return the address of (one-past) the last element in the block
-        // pointed to by this iterator.
 
+    /// Return the address of the block pointer pointed to by this iterator.
     BlockPtr *blockPtr() const;
-        // Return the address of the block pointer pointed to by this iterator.
 
+    /// Return the offset of the element pointed to by this iterator, from
+    /// the beginning of the block containing it.
     std::size_t offsetInBlock() const;
-        // Return the offset of the element pointed to by this iterator, from
-        // the beginning of the block containing it.
 
+    /// Return the number of elements in the block pointed to by this
+    /// iterator, until the end of this block, starting at (and including)
+    /// the element pointed to by this iterator.
     std::size_t remainingInBlock() const;
-        // Return the number of elements in the block pointed to by this
-        // iterator, until the end of this block, starting at (and including)
-        // the element pointed to by this iterator.
 
+    /// Return the address of the parameterized `VALUE_TYPE` object pointed
+    /// to by this iterator.
     VALUE_TYPE *valuePtr() const;
-        // Return the address of the parameterized 'VALUE_TYPE' object pointed
-        // to by this iterator.
 };
 
 // PARTIAL SPECIALIZATION
+
+/// This partial specialization of `DequeIterator` for the case when there
+/// is a single element per block uses simpler storage and a simpler
+/// implementation.  The contract for all functions is the same, and so not
+/// repeated.
 template <class VALUE_TYPE>
 class DequeIterator<VALUE_TYPE, 1> {
-    // This partial specialization of 'DequeIterator' for the case when there
-    // is a single element per block uses simpler storage and a simpler
-    // implementation.  The contract for all functions is the same, and so not
-    // repeated.
 
     // PRIVATE TYPES
     typedef bslalg::DequeImpUtil<VALUE_TYPE, 1> DequeImpUtil;
@@ -772,8 +777,8 @@ DequeIterator<VALUE_TYPE, 1>::valuePtr() const
 #ifdef bslalg_DequeIterator
 #undef bslalg_DequeIterator
 #endif
+/// This alias is defined for backward compatibility.
 #define bslalg_DequeIterator bslalg::DequeIterator
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

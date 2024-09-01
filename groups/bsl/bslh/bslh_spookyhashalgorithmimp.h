@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithm
 //
-//@DESCRIPTION: 'bslh::SpookyHashAlgorithmImp' provides BDE style encapsulation
+//@DESCRIPTION: `bslh::SpookyHashAlgorithmImp` provides BDE style encapsulation
 // around Bob Jenkins' canonical SpookyHash implementation.  SpookyHash
 // provides a way to hash contiguous data all at once, or discontiguous data in
 // pieces.  More information is available at:
@@ -29,137 +29,137 @@ BSLS_IDENT("$Id: $")
 // these checksums colliding (according to the approximation found here:
 // http://en.wikipedia.org/wiki/Birthday_problem).  We want to avoid checksum
 // collision, so we will use the 128-bit hashing functionality provided by
-// 'SpookyHashAlgorithmImp'.
+// `SpookyHashAlgorithmImp`.
 //
-// First, we will declare a class 'CheckedData' which will store some data as
+// First, we will declare a class `CheckedData` which will store some data as
 // well as the checksum associated with it.
-//..
+// ```
 //
-//  class CheckedData {
-//      // This class holds a pointer to data and provides a way of verifying
-//      // that the data has not changed.
+//   class CheckedData {
+//       // This class holds a pointer to data and provides a way of verifying
+//       // that the data has not changed.
 //
-//      // TYPES
-//      typedef bsls::Types::Uint64 Uint64;
+//       // TYPES
+//       typedef bsls::Types::Uint64 Uint64;
 //
-//      // DATA
-//      size_t      d_length;
-//      const char *d_data;
-//      Uint64      d_checksum1;
-//      Uint64      d_checksum2;
+//       // DATA
+//       size_t      d_length;
+//       const char *d_data;
+//       Uint64      d_checksum1;
+//       Uint64      d_checksum2;
 //
-//    public:
-//      CheckedData(const char *data, size_t length);
-//          // Creates an instance of this class having the specified 'length'
-//          // bytes of 'data'.  The behavior is undefined unless 'data' is
-//          // initialized with at least 'length' bytes or 'length' is zero,
-//          // and remains valid for the lifetime of this object.  Note that
-//          // only a pointer to the data will be maintained, it will not be
-//          // copied.
+//     public:
+//       CheckedData(const char *data, size_t length);
+//           // Creates an instance of this class having the specified 'length'
+//           // bytes of 'data'.  The behavior is undefined unless 'data' is
+//           // initialized with at least 'length' bytes or 'length' is zero,
+//           // and remains valid for the lifetime of this object.  Note that
+//           // only a pointer to the data will be maintained, it will not be
+//           // copied.
 //
-//      const char *getData();
-//          // Return a pointer to the data being tracked by this class.
+//       const char *getData();
+//           // Return a pointer to the data being tracked by this class.
 //
-//      bool isDataValid();
-//          // Return 'true' if the data stored in this class matches the
-//          // stored checksum, and 'false' otherwise.
-//  };
+//       bool isDataValid();
+//           // Return 'true' if the data stored in this class matches the
+//           // stored checksum, and 'false' otherwise.
+//   };
 //
-//..
-// Then, we define the 'CheckedData' constructor.  Here we will use
-// 'SpookyHashImp' to calculate a 128-bit checksum.
-//..
+// ```
+// Then, we define the `CheckedData` constructor.  Here we will use
+// `SpookyHashImp` to calculate a 128-bit checksum.
+// ```
 //
-//  CheckedData::CheckedData(const char *data, size_t length)
-//  : d_length(length)
-//  , d_data(data)
-//  , d_checksum1(0)
-//  , d_checksum2(0)
-//  {
-//      BSLS_ASSERT(0 != data || 0 == length);
+//   CheckedData::CheckedData(const char *data, size_t length)
+//   : d_length(length)
+//   , d_data(data)
+//   , d_checksum1(0)
+//   , d_checksum2(0)
+//   {
+//       BSLS_ASSERT(0 != data || 0 == length);
 //
-//      SpookyHashAlgorithmImp hashAlg(1, 2);
+//       SpookyHashAlgorithmImp hashAlg(1, 2);
 //
-//      hashAlg.hash128(d_data, d_length, &d_checksum1, &d_checksum2);
-//  }
+//       hashAlg.hash128(d_data, d_length, &d_checksum1, &d_checksum2);
+//   }
 //
-//  const char *CheckedData::getData() {
-//      return d_data;
-//  }
+//   const char *CheckedData::getData() {
+//       return d_data;
+//   }
 //
-//..
-// Next, we define 'isDataValid'.  We will generate a checksum from the
+// ```
+// Next, we define `isDataValid`.  We will generate a checksum from the
 // contained data and then compare it to the checksum we generated when the
 // class was created.  If the two hashes match, then we can be reasonably
 // certain that the data is still in a valid state (the chance of an accidental
 // collision is very low).  If the checksums do not match, we know that the
 // data has been corrupted.  We will not be able to restore it, but we will
 // know not to trust it.
-//..
+// ```
 //
-//  bool CheckedData::isDataValid() {
-//      SpookyHashAlgorithmImp hashAlg(1, 2);
-//      Uint64 checksum1 = 0;
-//      Uint64 checksum2 = 0;
+//   bool CheckedData::isDataValid() {
+//       SpookyHashAlgorithmImp hashAlg(1, 2);
+//       Uint64 checksum1 = 0;
+//       Uint64 checksum2 = 0;
 //
-//      hashAlg.hash128(d_data, d_length, &checksum1, &checksum2);
+//       hashAlg.hash128(d_data, d_length, &checksum1, &checksum2);
 //
-//      return (d_checksum1 == checksum1) && (d_checksum2 == checksum2);
-//  }
-//..
-// Then, we store some data in our 'CheckedData' class for safekeeping.
-//..
+//       return (d_checksum1 == checksum1) && (d_checksum2 == checksum2);
+//   }
+// ```
+// Then, we store some data in our `CheckedData` class for safekeeping.
+// ```
 //
-//      char data[] = "To be, or not to be--that is the question:"
-//                    "Whether 'tis nobler in the mind to suffer"
-//                    "The slings and arrows of outrageous fortune"
-//                    "Or to take arms against a sea of troubles"
-//                    "And by opposing end them.  To die, to sleep--"
-//                    "No more--and by a sleep to say we end"
-//                    "The heartache, and the thousand natural shocks"
-//                    "That flesh is heir to.  'Tis a consummation"
-//                    "Devoutly to be wished.  To die, to sleep--"
-//                    "To sleep--perchance to dream: ay, there's the rub,"
-//                    "For in that sleep of death what dreams may come"
-//                    "When we have shuffled off this mortal coil,"
-//                    "Must give us pause.  There's the respect"
-//                    "That makes calamity of so long life."
-//                    "For who would bear the whips and scorns of time,"
-//                    "Th' oppressor's wrong, the proud man's contumely"
-//                    "The pangs of despised love, the law's delay,"
-//                    "The insolence of office, and the spurns"
-//                    "That patient merit of th' unworthy takes,"
-//                    "When he himself might his quietus make"
-//                    "With a bare bodkin? Who would fardels bear,"
-//                    "To grunt and sweat under a weary life,"
-//                    "But that the dread of something after death,"
-//                    "The undiscovered country, from whose bourn"
-//                    "No traveller returns, puzzles the will,"
-//                    "And makes us rather bear those ills we have"
-//                    "Than fly to others that we know not of?"
-//                    "Thus conscience does make cowards of us all,"
-//                    "And thus the native hue of resolution"
-//                    "Is sicklied o'er with the pale cast of thought,"
-//                    "And enterprise of great pitch and moment"
-//                    "With this regard their currents turn awry"
-//                    "And lose the name of action. -- Soft you now,"
-//                    "The fair Ophelia! -- Nymph, in thy orisons"
-//                    "Be all my sins remembered.";
-//      CheckedData checkedData(data, strlen(data));
+//       char data[] = "To be, or not to be--that is the question:"
+//                     "Whether 'tis nobler in the mind to suffer"
+//                     "The slings and arrows of outrageous fortune"
+//                     "Or to take arms against a sea of troubles"
+//                     "And by opposing end them.  To die, to sleep--"
+//                     "No more--and by a sleep to say we end"
+//                     "The heartache, and the thousand natural shocks"
+//                     "That flesh is heir to.  'Tis a consummation"
+//                     "Devoutly to be wished.  To die, to sleep--"
+//                     "To sleep--perchance to dream: ay, there's the rub,"
+//                     "For in that sleep of death what dreams may come"
+//                     "When we have shuffled off this mortal coil,"
+//                     "Must give us pause.  There's the respect"
+//                     "That makes calamity of so long life."
+//                     "For who would bear the whips and scorns of time,"
+//                     "Th' oppressor's wrong, the proud man's contumely"
+//                     "The pangs of despised love, the law's delay,"
+//                     "The insolence of office, and the spurns"
+//                     "That patient merit of th' unworthy takes,"
+//                     "When he himself might his quietus make"
+//                     "With a bare bodkin? Who would fardels bear,"
+//                     "To grunt and sweat under a weary life,"
+//                     "But that the dread of something after death,"
+//                     "The undiscovered country, from whose bourn"
+//                     "No traveller returns, puzzles the will,"
+//                     "And makes us rather bear those ills we have"
+//                     "Than fly to others that we know not of?"
+//                     "Thus conscience does make cowards of us all,"
+//                     "And thus the native hue of resolution"
+//                     "Is sicklied o'er with the pale cast of thought,"
+//                     "And enterprise of great pitch and moment"
+//                     "With this regard their currents turn awry"
+//                     "And lose the name of action. -- Soft you now,"
+//                     "The fair Ophelia! -- Nymph, in thy orisons"
+//                     "Be all my sins remembered.";
+//       CheckedData checkedData(data, strlen(data));
 //
-//..
-// Now, we check that the 'CheckedData' recognizes that it is still valid.
-//..
+// ```
+// Now, we check that the `CheckedData` recognizes that it is still valid.
+// ```
 //
-//      ASSERT(checkedData.isDataValid());
+//       ASSERT(checkedData.isDataValid());
 //
-//..
-// Finally, we tamper with the data and check that our 'CheckedData' class can
+// ```
+// Finally, we tamper with the data and check that our `CheckedData` class can
 // detect this.
-//..
-//      data[34] = 'z';
-//      ASSERT(!checkedData.isDataValid());
-//..
+// ```
+//     data[34] = 'z';
+//     ASSERT(!checkedData.isDataValid());
+// ```
 //
 ///Changes
 ///-------
@@ -167,39 +167,26 @@ BSLS_IDENT("$Id: $")
 // continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
-//: 1 Added 'BloombergLP' and 'bslh' namespaces
-//:
-//: 2 Renamed 'SpookyHash' to 'SpookyHashAlgorithmImp'
-//:
-//: 3 Removed usage of 'stdint.h' (which might not be available on all
-//:   platforms) and updated associated 'typedef's
-//:
-//: 4 Added 'include' guards
-//:
-//: 5 Made some methods private
-//:
-//: 6 Reformatted comments and added comments
-//:
-//: 7 Updated indenting to BDE style
-//:
-//: 8 Moved 'typedef's within class
-//:
-//: 9 Changed C-style casts to 'static_cast's
-//:
-//: 10 Reordered methods according to BDE style
-//:
-//: 11 Added inline to 'Hash32' and 'Hash64'
-//:
-//: 12 Changed static constants to 'enum's to avoid storage overhead
-//:
-//: 13 Added constructor in place of 'init'
-//:
-//: 14 Made function names lower case (had to change 'Final' to 'finalize' and
-//:    'Short' to 'shortHash' to avoid using a keyword)
+// 1. Added `BloombergLP` and `bslh` namespaces
+// 2. Renamed `SpookyHash` to `SpookyHashAlgorithmImp`
+// 3. Removed usage of `stdint.h` (which might not be available on all
+//    platforms) and updated associated `typedef`s
+// 4. Added `include` guards
+// 5. Made some methods private
+// 6. Reformatted comments and added comments
+// 7. Updated indenting to BDE style
+// 8. Moved `typedef`s within class
+// 9. Changed C-style casts to `static_cast`s
+// 10. Reordered methods according to BDE style
+// 11. Added inline to `Hash32` and `Hash64`
+// 12. Changed static constants to `enum`s to avoid storage overhead
+// 13. Added constructor in place of `init`
+// 14. Made function names lower case (had to change `Final` to `finalize` and
+//     `Short` to `shortHash` to avoid using a keyword)
 //
 ///Third-Party Documentation
 ///-------------------------
-//..
+// ```
 // SpookyHash: a 128-bit non cryptographic hash function
 //
 // By Bob Jenkins, public domain
@@ -226,7 +213,7 @@ BSLS_IDENT("$Id: $")
 // SpookyHash, they have nice math for combining the CRCs of pieces to form the
 // CRCs of wholes.  There are also cryptographic hashes, but those are even
 // slower than MD5.
-//..
+// ```
 
 #include <bslscm_version.h>
 
@@ -240,10 +227,10 @@ namespace BloombergLP {
 namespace bslh {
 
 
+/// This class wraps an implementation of Bob Jenkin's "SpookyHash" in a
+/// BDE-style component.  For more information, see
+/// http://burtleburtle.net/bob/hash/spooky.html .
 class SpookyHashAlgorithmImp {
-    // This class wraps an implementation of Bob Jenkin's "SpookyHash" in a
-    // BDE-style component.  For more information, see
-    // http://burtleburtle.net/bob/hash/spooky.html .
 
   public:
     typedef  bsls::Types::Uint64  Uint64;
@@ -253,18 +240,19 @@ class SpookyHashAlgorithmImp {
 
   private:
     // DATA
+
+    /// Number of 64-bit integers used in the internal state.
     enum { k_NUM_VARS = 12 };
-        // Number of 64-bit integers used in the internal state.
 
+    /// Size of the internal state, in bytes.
     enum { k_BLOCK_SIZE = k_NUM_VARS * 8 };
-        // Size of the internal state, in bytes.
 
+    /// Size of buffer of unhashed data, in bytes.
     enum { k_BUFFER_SIZE = k_BLOCK_SIZE * 2 };
-        // Size of buffer of unhashed data, in bytes.
 
+    // A non-zero, odd, constant that has an irregular distribution of 1's
+    // and 0's to be used in hashing calculations.
     static const Uint64 sc_const = 0xdeadbeefdeadbeefULL;
-        // A non-zero, odd, constant that has an irregular distribution of 1's
-        // and 0's to be used in hashing calculations.
 
     Uint64 m_data[2 * k_NUM_VARS]; // unhashed data, for partial messages
     Uint64 m_state[k_NUM_VARS];    // internal state of the hash
@@ -272,74 +260,76 @@ class SpookyHashAlgorithmImp {
     Uint8  m_remainder;            // length of unhashed data stashed in m_data
 
     // PRIVATE CLASS METHODS
+
+    /// Incorporate the first 12 bytes of the specified `data` into `h0`,
+    /// `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `h7`, `h8`, `h9`, `h10`, and
+    /// `h11`, and then mix the inputs together so that `h0` and `h1` are a
+    /// hash of all the inputs.  Note that non-BDE-standard passing by
+    /// non-`const` reference is used here to remain consistent with the
+    /// cannonical implementation.  The behavior is undefined unless `data`
+    /// points at least 8 bytes of initialized memory.
     static void end(const Uint64 *data,
                     Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
                     Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
                     Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
-        // Incorporate the first 12 bytes of the specified 'data' into 'h0',
-        // 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', and
-        // 'h11', and then mix the inputs together so that 'h0' and 'h1' are a
-        // hash of all the inputs.  Note that non-BDE-standard passing by
-        // non-'const' reference is used here to remain consistent with the
-        // cannonical implementation.  The behavior is undefined unless 'data'
-        // points at least 8 bytes of initialized memory.
 
+    /// Combine the specified `h0`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`,
+    /// `h7`, `h8`, `h9`, `h10`, and `h11` together so that `h0` and `h1`
+    /// will be a hash of all the inputs.  Note that non-BDE-standard
+    /// passing by non-`const` reference is used here to remain consistent
+    /// with the cannonical implementation.  The behavior is undefined
+    /// unless `data` points at least 8 bytes of initialized memory.
     static void endPartial(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
                            Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
                            Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
-        // Combine the specified 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
-        // will be a hash of all the inputs.  Note that non-BDE-standard
-        // passing by non-'const' reference is used here to remain consistent
-        // with the cannonical implementation.  The behavior is undefined
-        // unless 'data' points at least 8 bytes of initialized memory.
 
+    /// Thoroughly mix the first 12 bytes of the specified `data` into `s0`,
+    /// `s1`, `s2`, `s3`, `s4`, `s5`, `s6`, `s7`, `s8`, `s9`, `s10`, and
+    /// `s11`.  This method should be used when the input is 96 bytes or
+    /// longer to prevent the loss of entropy, because the internal state of
+    /// `SpookyHashAlgorithmImp` is overwritten every 96 bytes.  Note that
+    /// non-BDE-standard passing by non-`const` reference is used here to
+    /// remain consistent with the cannonical implementation.  The behavior
+    /// is undefined unless `data` points at least 8 bytes of initialized
+    /// memory.
     static void mix(const Uint64 *data,
                     Uint64 &s0, Uint64 &s1, Uint64 &s2,  Uint64 &s3,
                     Uint64 &s4, Uint64 &s5, Uint64 &s6,  Uint64 &s7,
                     Uint64 &s8, Uint64 &s9, Uint64 &s10, Uint64 &s11);
-        // Thoroughly mix the first 12 bytes of the specified 'data' into 's0',
-        // 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', and
-        // 's11'.  This method should be used when the input is 96 bytes or
-        // longer to prevent the loss of entropy, because the internal state of
-        // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes.  Note that
-        // non-BDE-standard passing by non-'const' reference is used here to
-        // remain consistent with the cannonical implementation.  The behavior
-        // is undefined unless 'data' points at least 8 bytes of initialized
-        // memory.
 
+    /// Return the specified `x` left rotated by `k` bits.
     static Uint64 rot64(Uint64 x, int k);
-        // Return the specified 'x' left rotated by 'k' bits.
 
+    /// Hash the specified `length` bytes of `message` using `hash1` and
+    /// `hash2` as seeds.  Load the higher order bits of the resulting
+    /// 128-bit hash value into `hash1` and the lower order bits in `hash2`.
+    /// This method is meant to be used for messages less than 192 bytes in
+    /// length because of its lower startup cost.  The behavior is undefined
+    /// unless `message` points at least `length` bytes of initialized
+    /// memory or `length` is zero, and both `hash1` and `hash2` point to
+    /// at least 8 bytes of initialized, modifiable, memory.
     static void shortHash(const void *message,
                           size_t      length,
                           Uint64     *hash1,
                           Uint64     *hash2);
-        // Hash the specified 'length' bytes of 'message' using 'hash1' and
-        // 'hash2' as seeds.  Load the higher order bits of the resulting
-        // 128-bit hash value into 'hash1' and the lower order bits in 'hash2'.
-        // This method is meant to be used for messages less than 192 bytes in
-        // length because of its lower startup cost.  The behavior is undefined
-        // unless 'message' points at least 'length' bytes of initialized
-        // memory or 'length' is zero, and both 'hash1' and 'hash2' point to
-        // at least 8 bytes of initialized, modifiable, memory.
 
+    /// Combine the specified `h0`, `h1`, `h2`, and `h3` together so that
+    /// `h0` and `h1` will be a hash of all the inputs.  Note that
+    /// non-BDE-standard passing by non-`const` reference is used here to
+    /// remain consistent with the cannonical implementation.
     static void shortEnd(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
-        // Combine the specified 'h0', 'h1', 'h2', and 'h3' together so that
-        // 'h0' and 'h1' will be a hash of all the inputs.  Note that
-        // non-BDE-standard passing by non-'const' reference is used here to
-        // remain consistent with the cannonical implementation.
 
+    /// Thoroughly mix the specified `h0`, `h1`, `h2`, and `h3` so that each
+    /// bit of input contributes entropy to every bit of the final states of
+    /// `h0`, `h1`, `h2`, and `h3`.  Note that non-BDE-standard passing by
+    /// non-`const` reference is used here to remain consistent with the
+    /// cannonical implementation.
     static void shortMix(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
-        // Thoroughly mix the specified 'h0', 'h1', 'h2', and 'h3' so that each
-        // bit of input contributes entropy to every bit of the final states of
-        // 'h0', 'h1', 'h2', and 'h3'.  Note that non-BDE-standard passing by
-        // non-'const' reference is used here to remain consistent with the
-        // cannonical implementation.
 
     // NOT IMPLEMENTED
+
+    /// Do not allow copy construction
     SpookyHashAlgorithmImp(const SpookyHashAlgorithmImp& original);// = delete;
-        // Do not allow copy construction
 
     SpookyHashAlgorithmImp& operator=(const SpookyHashAlgorithmImp& rhs);
                                                                    // = delete;
@@ -347,63 +337,66 @@ class SpookyHashAlgorithmImp {
 
   public:
     // PUBLIC CLASS METHODS
+
+    /// Hash the specified `length` bytes of `message` using `seed` as a
+    /// seed.  Return the resulting 32-bit hash.  The behavior is undefined
+    /// unless `message` points at least `length` bytes of initialized
+    /// memory or `length` is zero.
     static Uint32 hash32(const void *message,
                          size_t      length,
                          Uint32      seed);
-        // Hash the specified 'length' bytes of 'message' using 'seed' as a
-        // seed.  Return the resulting 32-bit hash.  The behavior is undefined
-        // unless 'message' points at least 'length' bytes of initialized
-        // memory or 'length' is zero.
 
+    /// Hash the specified `length` bytes of `message` using `seed` as a
+    /// seed.  Return the resulting 64-bit hash.  The behavior is undefined
+    /// unless `message` points at least `length` bytes of initialized
+    /// memory or `length` is zero.
     static Uint64 hash64(const void *message,
                          size_t      length,
                          Uint64      seed);
-        // Hash the specified 'length' bytes of 'message' using 'seed' as a
-        // seed.  Return the resulting 64-bit hash.  The behavior is undefined
-        // unless 'message' points at least 'length' bytes of initialized
-        // memory or 'length' is zero.
 
+    /// Hash the specified `length` bytes of `message` using `hash1` and
+    /// `hash2` as seeds.  Load the higher order bits of the resulting
+    /// 128-bit hash value into `hash1` and the lower order bits in `hash2`.
+    /// The behavior is undefined unless `message` points at least `length`
+    /// bytes of initialized memory or `length` is zero, and both `hash1`
+    /// and `hash2` point to at least 8 bytes of initialized, modifiable,
+    /// memory.
     static void hash128(const void *message,
                         size_t      length,
                         Uint64     *hash1,
                         Uint64     *hash2);
-        // Hash the specified 'length' bytes of 'message' using 'hash1' and
-        // 'hash2' as seeds.  Load the higher order bits of the resulting
-        // 128-bit hash value into 'hash1' and the lower order bits in 'hash2'.
-        // The behavior is undefined unless 'message' points at least 'length'
-        // bytes of initialized memory or 'length' is zero, and both 'hash1'
-        // and 'hash2' point to at least 8 bytes of initialized, modifiable,
-        // memory.
 
     // CREATORS
+
+    /// Create a `bslh::SpookyHashAlgorithmImp`, initializing the internal
+    /// state of the object using the specified `seed1` and `seed2` as seeds
+    /// for the algorithm.
     SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2);
-        // Create a 'bslh::SpookyHashAlgorithmImp', initializing the internal
-        // state of the object using the specified 'seed1' and 'seed2' as seeds
-        // for the algorithm.
 
     //! ~SpookyHashAlgorithmImp() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    void update(const void *message, size_t length);
-        // Accumulate the specified 'length' bytes of 'message' into the
-        // internal state of the algorithm.  Accumulating bytes through
-        // 'Update' will produce the same result as hashing them all at once
-        // through the 'HashXX' static methods.  The behavior is undefined
-        // unless 'message' points at least 'length' bytes of initialized
-        // memory or 'length' is zero.
 
+    /// Accumulate the specified `length` bytes of `message` into the
+    /// internal state of the algorithm.  Accumulating bytes through
+    /// `Update` will produce the same result as hashing them all at once
+    /// through the `HashXX` static methods.  The behavior is undefined
+    /// unless `message` points at least `length` bytes of initialized
+    /// memory or `length` is zero.
+    void update(const void *message, size_t length);
+
+    /// Load the finalized hash into the specified `hash1` and `hash2`.
+    /// `hash1` will contain the higher order bits of the hash and `hash2`
+    /// will contain the lower order bits.  The internal state of the
+    /// algorithm will be modified, meaning that calling final multiple
+    /// times will result in different hash values being returned.  The
+    /// returned hash will be the same as if `Hash128` had been called will
+    /// all of the accumulated data in one block.  The behavior is undefined
+    /// unless both `hash1` and `hash2` point to 8 bytes of modifiable
+    /// memory.  Note that a value will be returned even if `update` has not
+    /// been called.
     void finalize(Uint64 *hash1, Uint64 *hash2);
-        // Load the finalized hash into the specified 'hash1' and 'hash2'.
-        // 'hash1' will contain the higher order bits of the hash and 'hash2'
-        // will contain the lower order bits.  The internal state of the
-        // algorithm will be modified, meaning that calling final multiple
-        // times will result in different hash values being returned.  The
-        // returned hash will be the same as if 'Hash128' had been called will
-        // all of the accumulated data in one block.  The behavior is undefined
-        // unless both 'hash1' and 'hash2' point to 8 bytes of modifiable
-        // memory.  Note that a value will be returned even if 'update' has not
-        // been called.
 };
 
 // ============================================================================

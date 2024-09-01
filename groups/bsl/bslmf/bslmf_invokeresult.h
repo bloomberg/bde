@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 // bsl::invoke_result: Metafunction to determine invocation result type
-// bsl::invoke_result_t: alias to the return type of the 'bsl::invoke_result'
+// bsl::invoke_result_t: alias to the return type of the `bsl::invoke_result`
 // bslmf::InvokeResultDeductionFailed: Returned on failed result deduction
 //
 //@MACROS:
@@ -17,96 +17,96 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_invoke
 //
-//@DESCRIPTION: This component provides a metafunction 'bsl::invoke_result'
+//@DESCRIPTION: This component provides a metafunction `bsl::invoke_result`
 // that determines, at compile time, the type returned by invoking a callable
 // type, including pointer-to-function, pointer-to-member function,
 // pointer-to-member object (returns the object type), or functor class and a
-// class 'bslmf::InvokeResultDeductionFailed' that is returned when the
+// class `bslmf::InvokeResultDeductionFailed` that is returned when the
 // invocation return type cannot be determined (C++03 only).  For a set of
-// types 'F', 'T1', 'T2', and 'T3', 'bsl::invoke_result<F, T1, t2, T3>::type'
+// types `F`, `T1`, `T2`, and `T3`, `bsl::invoke_result<F, T1, t2, T3>::type`
 // is roughly the type of the return value obtained by calling an object of
-// type 'F' with arguments of type 'T1', 'T2', and 'T3', respectively.
-// However, 'invoke_result' goes beyond function-like objects and deduces a
-// return type if 'F' is a pointer to function member or data member of some
-// class 'C' and 'T1' is a type (derived from) 'C', pointer to 'C', or
-// smart-pointer to 'C'.  (See precise specification, below).  For the
+// type `F` with arguments of type `T1`, `T2`, and `T3`, respectively.
+// However, `invoke_result` goes beyond function-like objects and deduces a
+// return type if `F` is a pointer to function member or data member of some
+// class `C` and `T1` is a type (derived from) `C`, pointer to `C`, or
+// smart-pointer to `C`.  (See precise specification, below).  For the
 // convenience of users, an alias for the type returned by the
-// 'bsl::invoke_result', 'bsl::invoke_result_t', is provided by this component.
+// `bsl::invoke_result`, `bsl::invoke_result_t`, is provided by this component.
 //
-// The interfaces and functionality of 'bsl::invoke_result' and
-// 'bsl::invoke_result_t' are intended to be identical to that of the C++17
-// metafunctions, 'std::invoke_result' and 'std::invoke_result_t' except that
+// The interfaces and functionality of `bsl::invoke_result` and
+// `bsl::invoke_result_t` are intended to be identical to that of the C++17
+// metafunctions, `std::invoke_result` and `std::invoke_result_t` except that
 // invalid argument lists are detected in C++11 and later, but not in C++03.
 // In C++03, invalid arguments lists will result in a compilation error
-// (instead of simply missing 'type') in the remaining cases.  Some other
+// (instead of simply missing `type`) in the remaining cases.  Some other
 // functionality is lost when compiling with a C++03 compiler -- see the
 // precise specification, below.
 //
 ///C++17 Semantics Detection
 ///-------------------------
 // This component defines the macro
-// 'BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS' if 'bsl::invoke_result' behaves
-// according to the C++17 specification of 'std::invoke_result', which is
+// `BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS` if `bsl::invoke_result` behaves
+// according to the C++17 specification of `std::invoke_result`, which is
 // elaborated below.  This macro is defined as long as the compiler supports
-// the 'decltype' specifier, which is generally available in C++11 and later
+// the `decltype` specifier, which is generally available in C++11 and later
 // compilation modes.
 //
 ///Precise specification
 ///---------------------
 // The C++11 and C++14 standard defines the pseudo-expression
-// _INVOKE_ '(f, t1, t2, ..., tN)', as follows:
+// <u>INVOKE</u> `(f, t1, t2, ..., tN)`, as follows:
 //
-//: o '(t1.*f)(t2, ..., tN)' when 'f' is a pointer to a member function of a
-//:   class 'T' and 't1' is an object of type 'T' or a reference to an object
-//:   of type 'T' or a reference to an object of a type derived from 'T';
-//: o '((*t1).*f)(t2, ..., tN)' when 'f' is a pointer to a member function of
-//:   a class 'T' and 't1' is not one of the types described in the previous
-//:   item;
-//: o 't1.*f' when 'N == 1' and 'f' is a pointer to member data of a class 'T'
-//:   and 't1' is an object of type 'T' or a reference to an object of type
-//:   'T' or a reference to an object of a type derived from 'T';
-//: o '(*t1).*f' when 'N == 1' and 'f' is a pointer to member data of a class
-//:   'T' and 't1' is not one of the types described in the previous item;
-//: o 'f(t1, t2, ..., tN)' in all other cases.
+// * `(t1.*f)(t2, ..., tN)` when `f` is a pointer to a member function of a
+//   class `T` and `t1` is an object of type `T` or a reference to an object
+//   of type `T` or a reference to an object of a type derived from `T`;
+// * `((*t1).*f)(t2, ..., tN)` when `f` is a pointer to a member function of
+//   a class `T` and `t1` is not one of the types described in the previous
+//   item;
+// * `t1.*f` when `N == 1` and `f` is a pointer to member data of a class `T`
+//   and `t1` is an object of type `T` or a reference to an object of type
+//   `T` or a reference to an object of a type derived from `T`;
+// * `(*t1).*f` when `N == 1` and `f` is a pointer to member data of a class
+//   `T` and `t1` is not one of the types described in the previous item;
+// * `f(t1, t2, ..., tN)` in all other cases.
 //
-// Given types 'F', 'T1', 'T2', ..., 'TN' corresponding to the expressions
-// 'f', 't1', 't2', ..., 'tN' in the definition of _INVOKE_, the type produced
-// by 'bslmf::ResultType<F, T1, T2, ..., TN>::type' is generally the type of
-// the psuedo-expression _INVOKE_ '(f, t1, t2, ..., tN)', with some
+// Given types `F`, `T1`, `T2`, ..., `TN` corresponding to the expressions
+// `f`, `t1`, `t2`, ..., `tN` in the definition of <u>INVOKE</u>, the type produced
+// by `bslmf::ResultType<F, T1, T2, ..., TN>::type` is generally the type of
+// the psuedo-expression <u>INVOKE</u> `(f, t1, t2, ..., tN)`, with some
 // limitations in C++03, as described below.
 //
-// Because C++03 does not support 'decltype', there are circumstances in which
-// 'bsl::invoke_result' is not able to deduce the return type of an invocable
-// object of class type (i.e., a functor).  If 'R' is the type of the _INVOKE_
-// expression, then ideally 'type' is 'R'.  However the C++03 version of
-// 'bsl::invoke_result' determines 'type' as follows:
+// Because C++03 does not support `decltype`, there are circumstances in which
+// `bsl::invoke_result` is not able to deduce the return type of an invocable
+// object of class type (i.e., a functor).  If `R` is the type of the <u>INVOKE</u>
+// expression, then ideally `type` is `R`.  However the C++03 version of
+// `bsl::invoke_result` determines `type` as follows:
 //
-//: 1 If there exists a user-defined specialization of
-//:   'bsl::invoke_result<F, T1, T2, ... TN>', then 'type' is determined by the
-//:   specialization, regardless of correctness.  (This rule is true of C++11
-//:   and later, as well.)
-//: 2 Otherwise, if 'F' is a function type, pointer to function type, pointer
-//:   to member function type, pointer to member object type, or reference to
-//:   any of these (i.e, 'F' is anything other than a class type or reference
-//:   to class type), then 'type' is 'R'.
-//: 3 Otherwise, if 'R' is o a fundamental type, o a pointer to (possibly
-//:   cv-qualified) 'void' or fundamental type, o an lvalue reference to any of
-//:   the above types (possibly cv-qualified), o 'bsl::nullptr_t', or o 'void',
-//:   then 'type' is 'R'.
-//: 4 Otherwise, if 'F' is a class type with member 'result_type', then 'type'
-//:   is 'F::result_type'.  Note that 'bsl::invoke_result' cannot deduce
-//:   different result types for different overloads of 'operator()' in this
-//:   case.
-//: 5 Otherwise, if 'F' is a class type with member type 'ResultType', then
-//:   'type' is 'F::ResultType'.  Note that 'bsl::invoke_result' cannot deduce
-//:   different result types for different overloads of 'operator()' in this
-//:   case.
-//: 6 Otherwise, 'type' is 'bslmf::InvokeResultDeductionFailed'.  The benefit
-//:   of this placeholder over a compilation error is that 'invoke_result' is
-//:   often used in a context where the return value will eventually be
-//:   discarded.  Thus, generating a useless type is often harmless.  In cases
-//:   where it is not harmless, the placeholder type will almost certainly
-//:   result in a compilation error in the surrounding code.
+// 1. If there exists a user-defined specialization of
+//    `bsl::invoke_result<F, T1, T2, ... TN>`, then `type` is determined by the
+//    specialization, regardless of correctness.  (This rule is true of C++11
+//    and later, as well.)
+// 2. Otherwise, if `F` is a function type, pointer to function type, pointer
+//    to member function type, pointer to member object type, or reference to
+//    any of these (i.e, `F` is anything other than a class type or reference
+//    to class type), then `type` is `R`.
+// 3. Otherwise, if `R` is o a fundamental type, o a pointer to (possibly
+//    cv-qualified) `void` or fundamental type, o an lvalue reference to any of
+//    the above types (possibly cv-qualified), o `bsl::nullptr_t`, or o `void`,
+//    then `type` is `R`.
+// 4. Otherwise, if `F` is a class type with member `result_type`, then `type`
+//    is `F::result_type`.  Note that `bsl::invoke_result` cannot deduce
+//    different result types for different overloads of `operator()` in this
+//    case.
+// 5. Otherwise, if `F` is a class type with member type `ResultType`, then
+//    `type` is `F::ResultType`.  Note that `bsl::invoke_result` cannot deduce
+//    different result types for different overloads of `operator()` in this
+//    case.
+// 6. Otherwise, `type` is `bslmf::InvokeResultDeductionFailed`.  The benefit
+//    of this placeholder over a compilation error is that `invoke_result` is
+//    often used in a context where the return value will eventually be
+//    discarded.  Thus, generating a useless type is often harmless.  In cases
+//    where it is not harmless, the placeholder type will almost certainly
+//    result in a compilation error in the surrounding code.
 //
 // If the callable type is a pointer-to-member (data or function), invalid
 // argument lists are not detected.  Thus, there is a small chance that invalid
@@ -118,82 +118,82 @@ BSLS_IDENT("$Id: $")
 ///Usage Example
 ///-------------
 // Suppose we want to create a wrapper that executes an invocable object and
-// sets a 'done' flag.  The 'done' flag will not be set if the invocation
-// exits via an exception.  The wrapper takes an invocable 'f' and an argument
-// 'x' and evaluates 'f(x)', returning the result.  In the absence of C++14
+// sets a `done` flag.  The `done` flag will not be set if the invocation
+// exits via an exception.  The wrapper takes an invocable `f` and an argument
+// `x` and evaluates `f(x)`, returning the result.  In the absence of C++14
 // automatically-deduced function return declarations, we use
-// 'bsl::invoke_result' to deduce the return type of 'f(x)'.
+// `bsl::invoke_result` to deduce the return type of `f(x)`.
 //
 // First, we write the wrapper template as follows:
-//..
-//  template <class FT, class XT>
-//  typename bsl::invoke_result<FT, XT>::type
-//  invokeAndSetFlag(bool *done, FT f, XT x)
-//      // Return 'f(x)' and set '*done' to true if no exception.
-//  {
-//      typedef typename bsl::invoke_result<FT, XT>::type ResultType;
-//      *done = false; // Clear flag in case of exception
-//      ResultType result = f(x);
-//      *done = true;  // Set flag on success
-//      return result;
-//  }
-//..
+// ```
+// template <class FT, class XT>
+// typename bsl::invoke_result<FT, XT>::type
+// invokeAndSetFlag(bool *done, FT f, XT x)
+//     // Return 'f(x)' and set '*done' to true if no exception.
+// {
+//     typedef typename bsl::invoke_result<FT, XT>::type ResultType;
+//     *done = false; // Clear flag in case of exception
+//     ResultType result = f(x);
+//     *done = true;  // Set flag on success
+//     return result;
+// }
+// ```
 // Note that additional metaprogramming would be required to make this
-// template work for return type 'void'; such metaprogramming is beyond the
+// template work for return type `void`; such metaprogramming is beyond the
 // scope of this usage example.
 //
 // Then we define a couple of simple functors to be used with the wrapper.
 // The first functor is a simple template that triples its invocation
 // argument:
-//..
-//  template <class t_TP>
-//  struct Triple {
-//      // Functor that triples its argument.
+// ```
+// template <class t_TP>
+// struct Triple {
+//     // Functor that triples its argument.
 //
-//      t_TP operator()(t_TP v) const { return static_cast<t_TP>(v * 3); }
-//          // Return three times the specified 'v' value.
-//  };
-//..
-// Next, we define a second functor that returns an enumerator 'ODD' or
-// 'EVEN', depending on whether its argument is exactly divisible by 2.  Since
+//     t_TP operator()(t_TP v) const { return static_cast<t_TP>(v * 3); }
+//         // Return three times the specified 'v' value.
+// };
+// ```
+// Next, we define a second functor that returns an enumerator `ODD` or
+// `EVEN`, depending on whether its argument is exactly divisible by 2.  Since
 // the return type is not a fundamental type, this functor indicates its
-// return type using the 'ResultType' idiom:
-//..
-//  enum EvenOdd { e_EVEN, e_ODD };
+// return type using the `ResultType` idiom:
+// ```
+// enum EvenOdd { e_EVEN, e_ODD };
 //
-//  struct CalcEvenOdd {
-//      // Functor that determines whether its argument is odd or even.
+// struct CalcEvenOdd {
+//     // Functor that determines whether its argument is odd or even.
 //
-//      typedef EvenOdd ResultType;
+//     typedef EvenOdd ResultType;
 //
-//      EvenOdd operator()(int i) const { return (i & 1) ? e_ODD : e_EVEN; }
-//          // Return 'e_ODD' if the specified 'i' is odd; otherwise return
-//          // 'e_EVEN'
-//  };
-//..
+//     EvenOdd operator()(int i) const { return (i & 1) ? e_ODD : e_EVEN; }
+//         // Return 'e_ODD' if the specified 'i' is odd; otherwise return
+//         // 'e_EVEN'
+// };
+// ```
 // Finally, we can invoke these functors through our wrapper:
-//..
-//  int main()
-//      // Run the usage example.
-//  {
-//      bool done = false;
+// ```
+// int main()
+//     // Run the usage example.
+// {
+//     bool done = false;
 //
-//      Triple<short> ts = {};
-//      short         r0 = invokeAndSetFlag(&done, ts, short(9));
-//      assert(done && 27 == r0);
+//     Triple<short> ts = {};
+//     short         r0 = invokeAndSetFlag(&done, ts, short(9));
+//     assert(done && 27 == r0);
 //
-//      CalcEvenOdd ceo = {};
-//      done            = false;
-//      EvenOdd r1      = invokeAndSetFlag(&done, ceo, 5);
-//      assert(done && e_ODD == r1);
+//     CalcEvenOdd ceo = {};
+//     done            = false;
+//     EvenOdd r1      = invokeAndSetFlag(&done, ceo, 5);
+//     assert(done && e_ODD == r1);
 //
-//      done = false;
-//      EvenOdd r2 = invokeAndSetFlag(&done, ceo, 8);
-//      assert(done && e_EVEN == r2);
+//     done = false;
+//     EvenOdd r2 = invokeAndSetFlag(&done, ceo, 8);
+//     assert(done && e_EVEN == r2);
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -252,31 +252,32 @@ namespace bslmf {
                  // class template InvokeResultDeductionFailed
                  // ==========================================
 
+/// When `invoke_result` cannot deduce the actual return type of a functor
+/// (in C++03 mode), it yields this type as a placeholder.  The advantage of
+/// using this placeholder instead of a compilation failure (e.g., using a
+/// static assert) is that the return type of an INVOKE() operation is
+/// often discarded, so our failure to deduce the return type is often
+/// harmless.  Since `InvokeResultDeductionFailed` is a return type, it must
+/// be convertible from the actual return type; this conversion is
+/// accomplished by means of a constructor that makes it convertible from
+/// *any* type.
 struct InvokeResultDeductionFailed {
-    // When 'invoke_result' cannot deduce the actual return type of a functor
-    // (in C++03 mode), it yields this type as a placeholder.  The advantage of
-    // using this placeholder instead of a compilation failure (e.g., using a
-    // static assert) is that the return type of an INVOKE() operation is
-    // often discarded, so our failure to deduce the return type is often
-    // harmless.  Since 'InvokeResultDeductionFailed' is a return type, it must
-    // be convertible from the actual return type; this conversion is
-    // accomplished by means of a constructor that makes it convertible from
-    // *any* type.
 
     // CREATORS
+
+    /// Convert from an arbitrary type.  The actual argument value is
+    /// discarded.
     template <class t_TYPE>
     InvokeResultDeductionFailed(const t_TYPE&)
     {
     }
-        // Convert from an arbitrary type.  The actual argument value is
-        // discarded.
 };
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
+/// Forward declaration
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_BaseCalcUtil;
-    // Forward declaration
 
 #endif
 
@@ -291,26 +292,26 @@ namespace bsl {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
+/// This class is a metafunction that conditionally provides a `type` member
+/// that is the type resulting from invoking an object of the specified
+/// `t_FN` template parameter with arguments of the specified `t_ARGTYPES`
+/// template parameters.  More precisely, given types `F`, `T1`, `T2`, ...,
+/// `TN` corresponding to expressions `f`, `t1`, `t2`, ..., `tN`,
+/// `bslmf::ResultType<F, T1, T2, ..., TN>::type` is usually the type of the
+/// psuedo-expression <u>INVOKE</u> `(f, t1, t2, ..., tN)`, as defined in section
+/// [func.rquire] of the C++11 standard.  If the compiler supports C++11
+/// `decltype` and the psuedo-expression <u>INVOKE</u> `(f, t1, t2, ..., tN)` is
+/// not well-formed, this class provides no `type` member.  If `t_FN` is a
+/// class (functor) type and the compiler doesn't support C++11 `decltype`,
+/// the return type is automatically deduced for fundamental types, `void`,
+/// pointers or references to those, or `bsl::nullptr_t` and is deduced by
+/// `bslmf::ResultType<t_FN>::type` otherwise.  If deduction fails, this
+/// metafunction yields `bslmf::InvokeResultDeductionFailed`.  See
+/// component-level documentation for more detail.
 template <class t_FN, class... t_ARGTYPES>
 class invoke_result
 : public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES...>::
       BaseType {
-    // This class is a metafunction that conditionally provides a 'type' member
-    // that is the type resulting from invoking an object of the specified
-    // 't_FN' template parameter with arguments of the specified 't_ARGTYPES'
-    // template parameters.  More precisely, given types 'F', 'T1', 'T2', ...,
-    // 'TN' corresponding to expressions 'f', 't1', 't2', ..., 'tN',
-    // 'bslmf::ResultType<F, T1, T2, ..., TN>::type' is usually the type of the
-    // psuedo-expression _INVOKE_ '(f, t1, t2, ..., tN)', as defined in section
-    // [func.rquire] of the C++11 standard.  If the compiler supports C++11
-    // 'decltype' and the psuedo-expression _INVOKE_ '(f, t1, t2, ..., tN)' is
-    // not well-formed, this class provides no 'type' member.  If 't_FN' is a
-    // class (functor) type and the compiler doesn't support C++11 'decltype',
-    // the return type is automatically deduced for fundamental types, 'void',
-    // pointers or references to those, or 'bsl::nullptr_t' and is deduced by
-    // 'bslmf::ResultType<t_FN>::type' otherwise.  If deduction fails, this
-    // metafunction yields 'bslmf::InvokeResultDeductionFailed'.  See
-    // component-level documentation for more detail.
 
     ///Implementation Note
     ///- - - - - - - - - -
@@ -323,12 +324,13 @@ class invoke_result
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
+
+/// `invoke_result_t` is an alias to the return type of the
+/// `bsl::invoke_result` meta-function.  Note, that the `invoke_result_t`
+/// avoids the `::type` suffix and `typename` prefix when we want to use the
+/// result of the meta-function in templates.
 template <class t_FN, class... t_ARGTYPES>
 using invoke_result_t = typename invoke_result<t_FN, t_ARGTYPES...>::type;
-    // 'invoke_result_t' is an alias to the return type of the
-    // 'bsl::invoke_result' meta-function.  Note, that the 'invoke_result_t'
-    // avoids the '::type' suffix and 'typename' prefix when we want to use the
-    // result of the meta-function in templates.
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 #endif
@@ -344,34 +346,35 @@ namespace bslmf {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
+/// Forward declaration
 template <bool     t_IS_FUNCPTR,
           bool     t_IS_MEMFUNCPTR,
           bool     t_IS_MEMOBJPTR,
           class    t_FN,
           class... t_ARGTYPES>
 struct InvokeResult_Imp;
-    // Forward declaration
 
                  // =========================================
                  // struct template InvokeResult_BaseCalcUtil
                  // =========================================
 
+/// This component-private utility `struct` template provides a nested
+/// typedef, `BaseType`, which is a class type that itself provides a nested
+/// typedef `type` that is the type of the `INVOKE(fn, args...)` expression
+/// given `fn` is an object of the specified `t_FN` type and `args...` are
+/// objects of the specified `t_ARGTYPES...` types.  If the
+/// `INVOKE(fn, args...)` expression is not well-formed, `BaseType` provides
+/// no such nested typedef.
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_BaseCalcUtil {
-    // This component-private utility 'struct' template provides a nested
-    // typedef, 'BaseType', which is a class type that itself provides a nested
-    // typedef 'type' that is the type of the 'INVOKE(fn, args...)' expression
-    // given 'fn' is an object of the specified 't_FN' type and 'args...' are
-    // objects of the specified 't_ARGTYPES...' types.  If the
-    // 'INVOKE(fn, args...)' expression is not well-formed, 'BaseType' provides
-    // no such nested typedef.
 
   private:
     // PRIVATE TYPES
+
+    /// Remove references and cv-qualifiers from `t_FN`, and decay function
+    /// types and array types to pointers.  In C++03, treat
+    /// `bslmf::MovableRef<t_T>` as a (movable) reference-qualified `t_T`.
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
-        // Remove references and cv-qualifiers from 't_FN', and decay function
-        // types and array types to pointers.  In C++03, treat
-        // 'bslmf::MovableRef<t_T>' as a (movable) reference-qualified 't_T'.
 
     enum {
         k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
@@ -379,30 +382,31 @@ struct InvokeResult_BaseCalcUtil {
         k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
     };
 
+    /// `FwdFn` is the type forwarded to `InvokeResult_Imp`.  It is `F`
+    /// (a.k.a., `decay_t<t_FN>`) if `F` is a function pointer or
+    /// pointer-to-member and `t_FN` otherwise.
     typedef typename bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR ||
                                           k_IS_MEMOBJPTR,
                                       F,
                                       t_FN>::type FwdFn;
-        // 'FwdFn' is the type forwarded to 'InvokeResult_Imp'.  It is 'F'
-        // (a.k.a., 'decay_t<t_FN>') if 'F' is a function pointer or
-        // pointer-to-member and 't_FN' otherwise.
 
   public:
     // TYPES
+
+    /// In C++11 and later, conditionally provides a nested typedef `type`
+    /// that is the type returned by the expression <u>INVOKE</u> `(f, args...)`,
+    /// where `f` is an object of type `t_FN` and `args...` is a list of
+    /// object of types `t_ARGTYPES...`, if the expression is well formed.
+    /// In C++03, provide a nested typed `type` that is the type returned by
+    /// the same invoke expression if the type can be deduced, and is
+    /// `InvokeResultDeductionFailed` otherwise.  Note that in C++11 and
+    /// later, `type` is never `InvokeResultDeductionFailed`.
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
                                                           FwdFn,
                                                           t_ARGTYPES...>
         BaseType;
-        // In C++11 and later, conditionally provides a nested typedef 'type'
-        // that is the type returned by the expression _INVOKE_ '(f, args...)',
-        // where 'f' is an object of type 't_FN' and 'args...' is a list of
-        // object of types 't_ARGTYPES...', if the expression is well formed.
-        // In C++03, provide a nested typed 'type' that is the type returned by
-        // the same invoke expression if the type can be deduced, and is
-        // 'InvokeResultDeductionFailed' otherwise.  Note that in C++11 and
-        // later, 'type' is never 'InvokeResultDeductionFailed'.
 };
 
 #endif
@@ -411,32 +415,32 @@ struct InvokeResult_BaseCalcUtil {
                       // struct InvokeResult_VoidChecker
                       // ===============================
 
+/// Empty type used to detect void expressions.  The size of this type is
+/// the same as `bslmf::Tag<1>`.
 struct InvokeResult_VoidChecker : Tag<true> {
-    // Empty type used to detect void expressions.  The size of this type is
-    // the same as 'bslmf::Tag<1>'.
 };
 
+/// Return `InvokeResult_VoidChecker()` if the left argument is of type
+/// cv-`void`; otherwise `bslmf::Tag<false>()`.  This overload of the comma
+/// operator is declared but not defined, and is intended to be used in
+/// metafunctions in an unevaluated context to detect void expressions.  For
+/// any non-void expression `expr`, `(expr,InvokeResult_VoidChecker())`,
+/// will match this overload and produce a result of type
+/// `bslmf::Tag<false>`.  However, `const t_TYPE&` will not match `void`, so
+/// if `expr` is a void expression, the built-in comma operator is matched
+/// and the result will have type `InvokeResult_VoidChecker` (i.e., the
+/// second argument).
+///
+/// Note that Sun CC incorrectly matches this overload for a void
+/// expression, then fails hard.  The `enable_if` prevents this match for
+/// Sun CC and any other compilers that may similarly match `void` and is
+/// harmless for compilers that don't.
 template <class t_TYPE>
 typename bsl::enable_if<!bsl::is_void<t_TYPE>::value, Tag<false> >::type
 operator,(const t_TYPE&, InvokeResult_VoidChecker);
-    // Return 'InvokeResult_VoidChecker()' if the left argument is of type
-    // cv-'void'; otherwise 'bslmf::Tag<false>()'.  This overload of the comma
-    // operator is declared but not defined, and is intended to be used in
-    // metafunctions in an unevaluated context to detect void expressions.  For
-    // any non-void expression 'expr', '(expr,InvokeResult_VoidChecker())',
-    // will match this overload and produce a result of type
-    // 'bslmf::Tag<false>'.  However, 'const t_TYPE&' will not match 'void', so
-    // if 'expr' is a void expression, the built-in comma operator is matched
-    // and the result will have type 'InvokeResult_VoidChecker' (i.e., the
-    // second argument).
-    //
-    // Note that Sun CC incorrectly matches this overload for a void
-    // expression, then fails hard.  The 'enable_if' prevents this match for
-    // Sun CC and any other compilers that may similarly match 'void' and is
-    // harmless for compilers that don't.
 
+/// Metafunction helpers for deducing the return type of an expression.
 struct InvokeResult_Index {
-    // Metafunction helpers for deducing the return type of an expression.
 
     enum {
         // Enumeration of possible return types.
@@ -487,6 +491,10 @@ struct InvokeResult_Index {
     static bslmf::Tag<e_CHAR16_T>               fromVal(char16_t&            );
     static bslmf::Tag<e_CHAR32_T>               fromVal(char32_t&            );
 #endif
+    /// Return a tag type representing the argument type.  These functions
+    /// are declared but not defined and are intended to be used in an
+    /// unevaluated context (e.g., within `sizeof`) to convert an expression
+    /// into a compile-time enumeration constant.
     static bslmf::Tag<e_SHORT>                  fromVal(short&               );
     static bslmf::Tag<e_USHORT>                 fromVal(unsigned short&      );
     static bslmf::Tag<e_INT>                    fromVal(int&                 );
@@ -507,17 +515,13 @@ struct InvokeResult_Index {
     static bslmf::Tag<e_POINTER>                fromVal(t_TP *&);
     template <class t_TP>
     static bslmf::Tag<e_OTHER>                  fromVal(t_TP&);
-        // Return a tag type representing the argument type.  These functions
-        // are declared but not defined and are intended to be used in an
-        // unevaluated context (e.g., within 'sizeof') to convert an expression
-        // into a compile-time enumeration constant.
 };
 
+/// Metafunction to convert a type index back to a type.  For each
+/// specialization of this struct, the `type` member will be the type
+/// corresponding to `index`.  For example, if `index` is `e_UCHAR`, then
+/// `InvokeResult_Type<index>::type` is `unsigned char`.
 template <int t_INDEX> struct InvokeResult_Type;
-    // Metafunction to convert a type index back to a type.  For each
-    // specialization of this struct, the 'type' member will be the type
-    // corresponding to 'index'.  For example, if 'index' is 'e_UCHAR', then
-    // 'InvokeResult_Type<index>::type' is 'unsigned char'.
 
 // Turn off bde_verify warnings for "Declaration without tag".  Pedantically,
 // every 'type' declared in a metafunction should have the tag '// TYPES', but
@@ -613,34 +617,36 @@ struct InvokeResult_Type<InvokeResult_Index::e_OTHER>
 // Re-enable warnings for "Declaration without tag"
 // BDE_VERIFY pragma: pop
 
+/// Utility metaprogramming functions inherited by other metaprogramming
+/// classes.
 struct InvokeResult_ImpUtils
 {
-    // Utility metaprogramming functions inherited by other metaprogramming
-    // classes.
 
     // TYPES
+
+    /// Type convertible from any lvalue type.  Used for overload resolution
+    /// in metafunctions.
     struct AnyLvalue {
-        // Type convertible from any lvalue type.  Used for overload resolution
-        // in metafunctions.
 
         // CREATORS
+
+        /// (Declared but not defined) Convert from any lvalue argument.
         template <class t_TP>
         AnyLvalue(volatile t_TP&);
-            // (Declared but not defined) Convert from any lvalue argument.
     };
 
+    /// Type convertible from any rvalue type.  Used for overload resolution
+    /// in metafunctions.
     struct AnyRvalue {
-        // Type convertible from any rvalue type.  Used for overload resolution
-        // in metafunctions.
 
         // CREATORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        /// (Declared but not defined) Convert from any rvalue argument.
         template <class t_TP>
         AnyRvalue(
                t_TP&&,
                typename bsl::enable_if<bsl::is_rvalue_reference<t_TP&&>::value,
                                        int>::type = 0);
-            // (Declared but not defined) Convert from any rvalue argument.
 #else
         template <class t_TP>
         AnyRvalue(t_TP);
@@ -652,14 +658,14 @@ struct InvokeResult_ImpUtils
 
     // CLASS METHODS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    /// Return a reference to the specified `t_SOME_TYPE` template parameter
+    /// type; if `t_SOME_TYPE` is an rvalue, then the returned reference is
+    /// an rvalue reference.  This function is declared but not defined and
+    /// is intended to be called in an unevaluated context.  Because there
+    /// is no definition, the available constructors for `t_SOME_TYPE` are
+    /// irrelevant.
     template <class t_SOME_TYPE>
     static typename bsl::add_rvalue_reference<t_SOME_TYPE>::type myDeclval();
-        // Return a reference to the specified 't_SOME_TYPE' template parameter
-        // type; if 't_SOME_TYPE' is an rvalue, then the returned reference is
-        // an rvalue reference.  This function is declared but not defined and
-        // is intended to be called in an unevaluated context.  Because there
-        // is no definition, the available constructors for 't_SOME_TYPE' are
-        // irrelevant.
 #else
     template <class t_SOME_TYPE>
     static t_SOME_TYPE myDeclval();
@@ -670,21 +676,26 @@ struct InvokeResult_ImpUtils
         // irrelevant.
 #endif
 
+    /// (Declared but not defined) Return `bslmf::Tag<false>()` if the
+    /// first argument is an rvalue and `bslmf::Tag<true>()` if it is
+    /// lvalue.  In actual use, the second argument is always a literal
+    /// `int`, which causes the second overload to be preferred in case of
+    /// ambiguity.
     static bslmf::Tag<false>    checkLvalue(AnyRvalue, ...);
     static bslmf::Tag<true >    checkLvalue(AnyLvalue, int);
-        // (Declared but not defined) Return 'bslmf::Tag<false>()' if the
-        // first argument is an rvalue and 'bslmf::Tag<true>()' if it is
-        // lvalue.  In actual use, the second argument is always a literal
-        // 'int', which causes the second overload to be preferred in case of
-        // ambiguity.
 
+    /// (Declared but not defined) Return `bslmf::Tag<true>()` if the
+    /// argument is `const`-qualified and `bslmf::Tag<false>()` otherwise.
     template <class t_TP>
     static bslmf::Tag<false> checkConst(t_TP&);
     template <class t_TP>
     static bslmf::Tag<true> checkConst(const t_TP&);
-        // (Declared but not defined) Return 'bslmf::Tag<true>()' if the
-        // argument is 'const'-qualified and 'bslmf::Tag<false>()' otherwise.
 
+    /// (Declared but not defined) Return `bslmf::Tag<true>()` if the
+    /// argument is `volatile`-qualified and `bslmf::Tag<false>()`
+    /// otherwise.  Note that if `t_TP` is both const- and
+    /// volatile-qualified, it will not match `volatile t_TP&`, hence the
+    /// need for the const overloads.
     template <class t_TP>
     static bslmf::Tag<false> checkVolatile(t_TP&);
     template <class t_TP>
@@ -693,19 +704,18 @@ struct InvokeResult_ImpUtils
     static bslmf::Tag<true> checkVolatile(volatile t_TP&);
     template <class t_TP>
     static bslmf::Tag<true> checkVolatile(const volatile t_TP&);
-        // (Declared but not defined) Return 'bslmf::Tag<true>()' if the
-        // argument is 'volatile'-qualified and 'bslmf::Tag<false>()'
-        // otherwise.  Note that if 't_TP' is both const- and
-        // volatile-qualified, it will not match 'volatile t_TP&', hence the
-        // need for the const overloads.
 
+    /// (Declared but not defined) Return the argument, with cv-qualifiers
+    /// removed.
     template <class t_TP>
     static t_TP& uncv(const t_TP&);
     template <class t_TP>
     static t_TP& uncv(const volatile t_TP&);
-        // (Declared but not defined) Return the argument, with cv-qualifiers
-        // removed.
 
+    /// If the argument type `t_TP` is pointer to type `X`, where `X` is not
+    /// cv-`void`, return a reference to `X`; otherwise return a reference
+    /// to `t_TP`.  Note that these functions are declared but not defined
+    /// and are intended to be called only in an unevaluated context.
     template <class t_TP>
     static t_TP& unpoint(t_TP&);
     template <class t_TP>
@@ -722,28 +732,24 @@ struct InvokeResult_ImpUtils
     template <class t_TP>
     static typename bsl::enable_if<!bsl::is_void<t_TP>::value, t_TP>::type&
     unpoint(t_TP *const volatile&);
-        // If the argument type 't_TP' is pointer to type 'X', where 'X' is not
-        // cv-'void', return a reference to 'X'; otherwise return a reference
-        // to 't_TP'.  Note that these functions are declared but not defined
-        // and are intended to be called only in an unevaluated context.
 };
 
+/// Starting with type, `t_UNQUAL_TYPE`, generate a new type by applying the
+/// following steps in order:
+///
+/// 1. If the specified `t_IS_CONST` parameter is true, apply
+///    `bsl::add_const`; otherwise leave unchanged.
+/// 2. If the specified `t_IS_VOLATILE` parameter is true, apply
+///    `bsl::add_volatile`; otherwise leave unchanged.
+/// 3. If the specified `t_IS_LVALUE` parameter is true, apply
+///    `bsl::add_lvalue_reference`; otherwise leave unchanged.
+///
+/// Set the `type` member to the resulting type.
 template <class t_UNQUAL_TYPE,
           bool t_IS_CONST,
           bool t_IS_VOLATILE,
           bool t_IS_LVALUE>
 struct InvokeResult_AddCVRef {
-    // Starting with type, 't_UNQUAL_TYPE', generate a new type by applying the
-    // following steps in order:
-    //
-    //: 1 If the specified 't_IS_CONST' parameter is true, apply
-    //:   'bsl::add_const'; otherwise leave unchanged.
-    //: 2 If the specified 't_IS_VOLATILE' parameter is true, apply
-    //:   'bsl::add_volatile'; otherwise leave unchanged.
-    //: 3 If the specified 't_IS_LVALUE' parameter is true, apply
-    //:   'bsl::add_lvalue_reference'; otherwise leave unchanged.
-    //
-    // Set the 'type' member to the resulting type.
 
   private:
     // PRIVATE TYPES
@@ -869,20 +875,20 @@ struct InvokeResult_FunctorDeduction<true /* IS_VOID */, t_FN, t_ARGTYPES...> {
 
 #endif
 
+/// This metafunction determines which cv qualifiers and reference
+/// qualifiers should be propagated from the first argument of
+/// `invoke_result`.  This primary template is instantiated when
+/// `t_ARG_TYPE` is the same or is derived from `t_MEMOF_CLASS`.  The
+/// constant `k_IS_LVALUE` is true iff `t_ARG_TYPE` is an lvalue reference;
+/// the constant `k_IS_CONST` is true iff `t_ARG_TYPE` is const-qualified;
+/// and the constant `k_IS_VOLATILE` is true iff `t_ARG_TYPE` is
+/// volatile-qualified.
 template <class t_MEMOF_CLASS,
           class t_ARG_TYPE,
           bool t_IS_DERIVED = bsl::is_convertible<
               typename bsl::decay<t_ARG_TYPE>::type *,
               typename bsl::decay<t_MEMOF_CLASS>::type *>::value>
 struct InvokeResult_MemPtrArgQualifiers {
-    // This metafunction determines which cv qualifiers and reference
-    // qualifiers should be propagated from the first argument of
-    // 'invoke_result'.  This primary template is instantiated when
-    // 't_ARG_TYPE' is the same or is derived from 't_MEMOF_CLASS'.  The
-    // constant 'k_IS_LVALUE' is true iff 't_ARG_TYPE' is an lvalue reference;
-    // the constant 'k_IS_CONST' is true iff 't_ARG_TYPE' is const-qualified;
-    // and the constant 'k_IS_VOLATILE' is true iff 't_ARG_TYPE' is
-    // volatile-qualified.
 
     // TYPES
     enum {
@@ -894,34 +900,35 @@ struct InvokeResult_MemPtrArgQualifiers {
     };
 };
 
+/// This metafunction determines which cv qualifiers and reference
+/// qualifiers should be propagated from the first argument of
+/// `invoke_result`.
+///
+/// This specialization is instantiated when `t_ARG_TYPE` is not derived
+/// from `t_MEMOF_CLASS` and is assumed to be a pointer or smart pointer
+/// type.  If type `A` is the result of dereferencing an object of type
+/// `t_ARG_TYPE`, then the constant `k_IS_LVALUE` is true iff `A` is an
+/// lvalue reference; the constant `k_IS_CONST` is true iff `A` is a
+/// const-qualified reference; and the constant `k_IS_VOLATILE` is true iff
+/// `A` is a volatile-qualified reference.
 template <class t_MEMOF_CLASS, class t_ARG_TYPE>
 struct InvokeResult_MemPtrArgQualifiers<t_MEMOF_CLASS, t_ARG_TYPE, false>
 : InvokeResult_ImpUtils {
-    // This metafunction determines which cv qualifiers and reference
-    // qualifiers should be propagated from the first argument of
-    // 'invoke_result'.
-    //
-    // This specialization is instantiated when 't_ARG_TYPE' is not derived
-    // from 't_MEMOF_CLASS' and is assumed to be a pointer or smart pointer
-    // type.  If type 'A' is the result of dereferencing an object of type
-    // 't_ARG_TYPE', then the constant 'k_IS_LVALUE' is true iff 'A' is an
-    // lvalue reference; the constant 'k_IS_CONST' is true iff 'A' is a
-    // const-qualified reference; and the constant 'k_IS_VOLATILE' is true iff
-    // 'A' is a volatile-qualified reference.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
   private:
     // CLASS METHODS
+
+    /// (Declared but not defined.)  Return an lvalue reference
+    /// corresponding of the specified `t_TP` type, which is deduced from
+    /// the specified unnamed argument.  If the argument is an lvalue, the
+    /// return type is identical to the argument type.  If the argument is
+    /// an rvalue, the return type is an lvalue to the argument type with
+    /// the same cv qualifiers.  This function is useful for avoiding too
+    /// many redundant overloads in metafunctions that determine cv
+    /// qualifications, etc.
     template <class t_TP>
     static t_TP& tolvalue(t_TP&&);
-        // (Declared but not defined.)  Return an lvalue reference
-        // corresponding of the specified 't_TP' type, which is deduced from
-        // the specified unnamed argument.  If the argument is an lvalue, the
-        // return type is identical to the argument type.  If the argument is
-        // an rvalue, the return type is an lvalue to the argument type with
-        // the same cv qualifiers.  This function is useful for avoiding too
-        // many redundant overloads in metafunctions that determine cv
-        // qualifications, etc.
 
   public:
     // TYPES
@@ -948,38 +955,41 @@ struct InvokeResult_MemPtrArgQualifiers<t_MEMOF_CLASS, t_ARG_TYPE, false>
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
+/// Forward declaration
 template <class t_VOID_TYPE, class t_FN, class... t_ARGTYPES>
 struct InvokeResult_FunctorImp;
-    // Forward declaration
 
+/// Forward declaration
 template <class t_VOID_TYPE, class t_FN, class... t_ARGTYPES>
 struct InvokeResult_FuncPtrImp;
-    // Forward declaration
 
+/// Forward declaration
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_MemFuncPtrImp;
-    // Forward declaration
 
+/// Forward declaration
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_MemObjPtrImp;
-    // Forward declaration
 
                       // ================================
                       // struct template InvokeResult_Imp
                       // ================================
 
+/// This component-private, partial `struct` template specialization
+/// provides the implementation of `InvokeResult_Imp` for types that are
+/// neither function pointers, pointers to member functions, nor pointers to
+/// member objects.
 template <bool t_IS_FUNCPTR,
           bool t_IS_MEMFUNCPTR,
           bool t_IS_MEMOBJPTR,
           class t_FN,
           class... t_ARGTYPES>
 struct InvokeResult_Imp : InvokeResult_FunctorImp<void, t_FN, t_ARGTYPES...> {
-    // This component-private, partial 'struct' template specialization
-    // provides the implementation of 'InvokeResult_Imp' for types that are
-    // neither function pointers, pointers to member functions, nor pointers to
-    // member objects.
 };
 
+/// This component-private, partial `struct` template specialization
+/// provides the implementation of `InvokeResult_Imp` for function pointer
+/// types.
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_Imp<true /* t_IS_FUNCPTR */,
                         false,
@@ -987,11 +997,11 @@ struct InvokeResult_Imp<true /* t_IS_FUNCPTR */,
                         t_FN,
                         t_ARGTYPES...>
 : InvokeResult_FuncPtrImp<void, t_FN, t_ARGTYPES...> {
-    // This component-private, partial 'struct' template specialization
-    // provides the implementation of 'InvokeResult_Imp' for function pointer
-    // types.
 };
 
+/// This component-private, partial `struct` template specialization
+/// provides the implementation of `InvokeResult_Imp` for pointer to member
+/// function types.
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_Imp<false,
                         true /* t_IS_MEMFUNCPTR */,
@@ -999,11 +1009,11 @@ struct InvokeResult_Imp<false,
                         t_FN,
                         t_ARGTYPES...>
 : InvokeResult_MemFuncPtrImp<t_FN, t_ARGTYPES...> {
-    // This component-private, partial 'struct' template specialization
-    // provides the implementation of 'InvokeResult_Imp' for pointer to member
-    // function types.
 };
 
+/// This component-private, partial `struct` template specialization
+/// provides the implementation of `InvokeResult_Imp` for pointer to member
+/// object types.
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_Imp<false,
                         false,
@@ -1011,9 +1021,6 @@ struct InvokeResult_Imp<false,
                         t_FN,
                         t_ARGTYPES...>
 : InvokeResult_MemObjPtrImp<t_FN, t_ARGTYPES...> {
-    // This component-private, partial 'struct' template specialization
-    // provides the implementation of 'InvokeResult_Imp' for pointer to member
-    // object types.
 };
 
                   // =======================================
@@ -1021,38 +1028,39 @@ struct InvokeResult_Imp<false,
                   // =======================================
 
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is neither
+/// a pointer-to-function, pointer-to-member-function, nor
+/// pointer-to-member-object type, and the `INVOKE(fn, args...)` expression,
+/// is *not* well-formed given `fn` is an object of the specified `t_FN`
+/// type and `args...` are objects of the specified `t_ARGTYPES...` types.
+/// The `INVOKE(fn, args...)` expression in this case is `fn(args...)`.
+/// Note that this `struct` does not provide a `type` typedef.
 template <class t_VOID_TYPE, class t_FN, class... t_ARGTYPES>
 struct InvokeResult_FunctorImp {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is neither
-    // a pointer-to-function, pointer-to-member-function, nor
-    // pointer-to-member-object type, and the 'INVOKE(fn, args...)' expression,
-    // is *not* well-formed given 'fn' is an object of the specified 't_FN'
-    // type and 'args...' are objects of the specified 't_ARGTYPES...' types.
-    // The 'INVOKE(fn, args...)' expression in this case is 'fn(args...)'.
-    // Note that this 'struct' does not provide a 'type' typedef.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is neither
+/// a pointer-to-function, pointer-to-member-function, nor
+/// pointer-to-member-object type, and the `INVOKE(fn, args...)` expression
+/// is well-formed given `fn` is an object of the specified `t_FN` type and
+/// `args...` are objects of the specified `t_ARGTYPES...` types.  The
+/// `INVOKE(fn, args...)` expression in this case is `fn(args...)`.
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_FunctorImp<
     typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<t_FN>()(
                     InvokeResult_ImpUtils::myDeclval<t_ARGTYPES>()...))>::type,
     t_FN,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is neither
-    // a pointer-to-function, pointer-to-member-function, nor
-    // pointer-to-member-object type, and the 'INVOKE(fn, args...)' expression
-    // is well-formed given 'fn' is an object of the specified 't_FN' type and
-    // 'args...' are objects of the specified 't_ARGTYPES...' types.  The
-    // 'INVOKE(fn, args...)' expression in this case is 'fn(args...)'.
 
     // TYPES
+
+    /// For C++11 and later, the type of the `INVOKE(fn, args...)`
+    /// expression given `fn` is an object of the specified `t_FN` type and
+    /// `args...` are objects of the specified `t_ARGTYPES...` types.  The
+    /// `INVOKE(fn, args...)` expression in this case is `fn(args...)`.
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES>()...)) type;
-        // For C++11 and later, the type of the 'INVOKE(fn, args...)'
-        // expression given 'fn' is an object of the specified 't_FN' type and
-        // 'args...' are objects of the specified 't_ARGTYPES...' types.  The
-        // 'INVOKE(fn, args...)' expression in this case is 'fn(args...)'.
 };
 #else   // ! BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 template <class t_VOID_TYPE, class t_FN, class... t_ARGTYPES>
@@ -1089,36 +1097,37 @@ struct InvokeResult_FunctorImp : InvokeResult_ImpUtils {
                   // =======================================
 
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-function type, and the `INVOKE(fn, args...)` expression is
+/// *not* well-formed given `fn` is an object of the specified `t_FN` type
+/// and `args...` are objects of the specified `t_ARGTYPES...` types.  The
+/// `INVOKE(fn, args...)` expression in this case is `fn(args...)`.  Note
+/// that this `struct` does not provide a `type` typedef.
 template <class t_VOID_TYPE, class t_FN, class... t_ARGTYPES>
 struct InvokeResult_FuncPtrImp {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-function type, and the 'INVOKE(fn, args...)' expression is
-    // *not* well-formed given 'fn' is an object of the specified 't_FN' type
-    // and 'args...' are objects of the specified 't_ARGTYPES...' types.  The
-    // 'INVOKE(fn, args...)' expression in this case is 'fn(args...)'.  Note
-    // that this 'struct' does not provide a 'type' typedef.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-function type, and the `INVOKE(fn, args...)` expression is
+/// well-formed given `fn` is an object of the specified `t_FN` type and
+/// `args...` are objects of the specified `t_ARGTYPES...` types.  The
+/// `INVOKE(fn, args...)` expression in this case is `fn(args...)`.
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_FuncPtrImp<
     typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<t_FN>()(
                     InvokeResult_ImpUtils::myDeclval<t_ARGTYPES>()...))>::type,
     t_FN,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-function type, and the 'INVOKE(fn, args...)' expression is
-    // well-formed given 'fn' is an object of the specified 't_FN' type and
-    // 'args...' are objects of the specified 't_ARGTYPES...' types.  The
-    // 'INVOKE(fn, args...)' expression in this case is 'fn(args...)'.
 
     // TYPES
+
+    /// For C++11 and later, the type of result of the `INVOKE(fn, args...)`
+    /// expression where `fn` is an object of the specified `t_FN` type, and
+    /// `args...` are objects of the specified `t_ARGTYPES...` types.  The
+    /// `INVOKE(fn, args...)` expression in this case is is `fn(args...)`.
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES>()...)) type;
-        // For C++11 and later, the type of result of the 'INVOKE(fn, args...)'
-        // expression where 'fn' is an object of the specified 't_FN' type, and
-        // 'args...' are objects of the specified 't_ARGTYPES...' types.  The
-        // 'INVOKE(fn, args...)' expression in this case is is 'fn(args...)'.
 };
 #else  // ! BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 template <class t_VOID_TYPE, class t_FN, class... t_ARGTYPES>
@@ -1145,6 +1154,7 @@ struct InvokeResult_FuncPtrImp {
                  // ==========================================
 
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+/// Forward declaration.
 template <class t_VOID_TYPE,
           bool t_ARG1_DERIVES_FROM_CLASS,
           bool t_ARG1_IS_REFERENCE_WRAPPER,
@@ -1152,17 +1162,21 @@ template <class t_VOID_TYPE,
           class t_ARG1TYPE,
           class... t_ARGTYPES>
 struct InvokeResult_MemFuncPtrImpDispatch;
-    // Forward declaration.
 
 // SPECIALIZATIONS
+
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-function type, and the `t_ARGTYPES...` pack is empty.
+/// Note that this `struct` does not provide a `type` typedef.
 template <class t_FN>
 struct InvokeResult_MemFuncPtrImp<t_FN> {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-function type, and the 't_ARGTYPES...' pack is empty.
-    // Note that this 'struct' does not provide a 'type' typedef.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-function type, and the `t_ARGTYPES...` pack contains
+/// 1 type or more.
 template <class t_FN, class t_ARG1TYPE, class... t_ARGTYPES>
 struct InvokeResult_MemFuncPtrImp<t_FN, t_ARG1TYPE, t_ARGTYPES...>
 : InvokeResult_MemFuncPtrImpDispatch<
@@ -1175,10 +1189,6 @@ struct InvokeResult_MemFuncPtrImp<t_FN, t_ARG1TYPE, t_ARGTYPES...>
       t_FN,
       t_ARG1TYPE,
       t_ARGTYPES...> {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-function type, and the 't_ARGTYPES...' pack contains
-    // 1 type or more.
 };
 #else  // ! BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 template <class t_FN, class... t_ARGTYPES>
@@ -1204,6 +1214,13 @@ struct InvokeResult_MemFuncPtrImp<t_FN, t_ARGTYPES...> {
              // ==================================================
 
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+/// Implementation of `invoke_result<t_FN, t_ARG1TYPE, t_ARGTYPES...>`.
+/// This specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-function type, and the `INVOKE(fn, arg1, args...)`
+/// expression is *not* well-formed given `fn` is an object of the specified
+/// `t_FN` type and `arg1, args...` are objects of the specified
+/// `t_ARG1TYPE, t_ARGTYPES...` types.  Note that this `struct` does not
+/// provide a `type` typedef.
 template <class    t_VOID_TYPE,
           bool     t_ARG1_DERIVES_FROM_CLASS,
           bool     t_ARG1_IS_REFERENCE_WRAPPER,
@@ -1211,15 +1228,17 @@ template <class    t_VOID_TYPE,
           class    t_ARG1TYPE,
           class... t_ARGTYPES>
 struct InvokeResult_MemFuncPtrImpDispatch {
-    // Implementation of 'invoke_result<t_FN, t_ARG1TYPE, t_ARGTYPES...>'.
-    // This specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-function type, and the 'INVOKE(fn, arg1, args...)'
-    // expression is *not* well-formed given 'fn' is an object of the specified
-    // 't_FN' type and 'arg1, args...' are objects of the specified
-    // 't_ARG1TYPE, t_ARGTYPES...' types.  Note that this 'struct' does not
-    // provide a 'type' typedef.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARG1TYPE, t_ARGTYPES...>`.
+/// This specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-function type, `t_ARG1TYPE` is neither a class type
+/// that derives from the class type of `t_FN` nor a specialization of
+/// `bsl::reference_wrapper`, and the `INVOKE(fn, arg1, args...)` expression
+/// is well-formed given `fn` is an object of the specified `t_FN` type and
+/// `arg1, args...` are objects of the specified `t_ARG1TYPE, t_ARGTYPES...`
+/// types.  The `INVOKE(fn, arg1, args...)` expression in this case is
+/// `((*arg1).*fn)(args...)`.
 template <class t_FN, class t_ARG1TYPE, class... t_ARGTYPES>
 struct InvokeResult_MemFuncPtrImpDispatch<
     typename bslmf::VoidType<
@@ -1231,26 +1250,27 @@ struct InvokeResult_MemFuncPtrImpDispatch<
     t_FN,
     t_ARG1TYPE,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
-    // Implementation of 'invoke_result<t_FN, t_ARG1TYPE, t_ARGTYPES...>'.
-    // This specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-function type, 't_ARG1TYPE' is neither a class type
-    // that derives from the class type of 't_FN' nor a specialization of
-    // 'bsl::reference_wrapper', and the 'INVOKE(fn, arg1, args...)' expression
-    // is well-formed given 'fn' is an object of the specified 't_FN' type and
-    // 'arg1, args...' are objects of the specified 't_ARG1TYPE, t_ARGTYPES...'
-    // types.  The 'INVOKE(fn, arg1, args...)' expression in this case is
-    // '((*arg1).*fn)(args...)'.
 
     // TYPES
+
+    /// For C++11 and later, the type of the `INVOKE(fn, args...)`
+    /// expression where `fn` is an object of the specified `t_FN` type, and
+    /// `arg1, args...` are objects of the specified
+    /// `t_ARG1TYPE, t_ARGTYPES...` types.  The `INVOKE(fn, arg1, args...)`
+    /// expression in this case is `((*arg1).*fn)(args...)`.
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES>()...)) type;
-        // For C++11 and later, the type of the 'INVOKE(fn, args...)'
-        // expression where 'fn' is an object of the specified 't_FN' type, and
-        // 'arg1, args...' are objects of the specified
-        // 't_ARG1TYPE, t_ARGTYPES...' types.  The 'INVOKE(fn, arg1, args...)'
-        // expression in this case is '((*arg1).*fn)(args...)'.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-function type, `t_ARG1TYPE` is a class type that
+/// derives from the class type of `t_FN`, and the
+/// `INVOKE(fn, arg1, args...)` expression is well-formed given `fn` is an
+/// object of the specified `t_FN` type and `arg1, args...` are objects of
+/// the specified `t_ARG1TYPE, t_ARGTYPES...` types.  The
+/// `INVOKE(fn, arg1, args...)` expression in this case is
+/// `(arg1.*fn)(args...)`.
 template <class t_FN, class t_ARG1TYPE, class... t_ARGTYPES>
 struct InvokeResult_MemFuncPtrImpDispatch<
     typename bslmf::VoidType<
@@ -1262,26 +1282,26 @@ struct InvokeResult_MemFuncPtrImpDispatch<
     t_FN,
     t_ARG1TYPE,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-function type, 't_ARG1TYPE' is a class type that
-    // derives from the class type of 't_FN', and the
-    // 'INVOKE(fn, arg1, args...)' expression is well-formed given 'fn' is an
-    // object of the specified 't_FN' type and 'arg1, args...' are objects of
-    // the specified 't_ARG1TYPE, t_ARGTYPES...' types.  The
-    // 'INVOKE(fn, arg1, args...)' expression in this case is
-    // '(arg1.*fn)(args...)'.
 
     // TYPES
+
+    /// For C++11 and later, the type of the `INVOKE(fn, arg1, args...)`
+    /// expression where `fn` is an object of the specified `t_FN` type, and
+    /// `arg1, args...` are objects of the specified
+    /// `t_ARG1TYPE, t_ARGTYPES...` types.  The `INVOKE(fn, arg1, args...)`
+    /// expression in this case is `(arg1.*fn)(args...)`.
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES>()...)) type;
-        // For C++11 and later, the type of the 'INVOKE(fn, arg1, args...)'
-        // expression where 'fn' is an object of the specified 't_FN' type, and
-        // 'arg1, args...' are objects of the specified
-        // 't_ARG1TYPE, t_ARGTYPES...' types.  The 'INVOKE(fn, arg1, args...)'
-        // expression in this case is '(arg1.*fn)(args...)'.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-function type, `t_ARG1TYPE` is a specialization of
+/// `bsl::reference_wrapper`, and the `INVOKE(fn, arg1, args...)` expression
+/// is well-formed given `fn` is an object of the specified `t_FN` type and
+/// `arg1, args...` are objects of the specified `t_ARG1TYPE, t_ARGTYPES...`
+/// types.  The `INVOKE(fn, arg1, args...)` expression in this case is
+/// `(arg1.get().*fn)(args...)`.
 template <class t_FN, class t_ARG1TYPE, class... t_ARGTYPES>
 struct InvokeResult_MemFuncPtrImpDispatch<
     typename bslmf::VoidType<
@@ -1293,23 +1313,16 @@ struct InvokeResult_MemFuncPtrImpDispatch<
     t_FN,
     t_ARG1TYPE,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-function type, 't_ARG1TYPE' is a specialization of
-    // 'bsl::reference_wrapper', and the 'INVOKE(fn, arg1, args...)' expression
-    // is well-formed given 'fn' is an object of the specified 't_FN' type and
-    // 'arg1, args...' are objects of the specified 't_ARG1TYPE, t_ARGTYPES...'
-    // types.  The 'INVOKE(fn, arg1, args...)' expression in this case is
-    // '(arg1.get().*fn)(args...)'.
 
     // TYPES
+
+    /// For C++11 and later, the type of the `INVOKE(fn, arg1, args...)`
+    /// expression where `fn` is an object of the specified `t_FN` type, and
+    /// `arg1, args...` are objects of the specified
+    /// `t_ARG1TYPE, t_ARGTYPES...` types.  The `INVOKE(fn, arg1, args...)`
+    /// expression in this case is `(arg1.get().*fn)(args...)`.
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES>()...)) type;
-        // For C++11 and later, the type of the 'INVOKE(fn, arg1, args...)'
-        // expression where 'fn' is an object of the specified 't_FN' type, and
-        // 'arg1, args...' are objects of the specified
-        // 't_ARG1TYPE, t_ARGTYPES...' types.  The 'INVOKE(fn, arg1, args...)'
-        // expression in this case is '(arg1.get().*fn)(args...)'.
 };
 
 #endif // BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
@@ -1319,24 +1332,29 @@ struct InvokeResult_MemFuncPtrImpDispatch<
                  // =========================================
 
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+/// Forward declaration.
 template <class t_VOID_TYPE,
           bool  t_ARG_DERIVES_FROM_CLASS,
           bool  t_ARG_IS_REFERENCE_WRAPPER,
           class t_FN,
           class t_ARGTYPE>
 struct InvokeResult_MemObjPtrImpDispatch;
-    // Forward declaration.
 
 // SPECIALIZATIONS
+
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-object type, and the `t_ARGTYPES...` pack is empty or
+/// contains more than 1 type.  Note that this `struct` does not provide a
+/// `type` typedef.
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_MemObjPtrImp {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-object type, and the 't_ARGTYPES...' pack is empty or
-    // contains more than 1 type.  Note that this 'struct' does not provide a
-    // 'type' typedef.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPES...>`.  This
+/// specialization is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-object type and the `t_ARGTYPES...` pack contains
+/// exactly 1 type.
 template <class t_FN, class t_ARGTYPE>
 struct InvokeResult_MemObjPtrImp<t_FN, t_ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
@@ -1348,10 +1366,6 @@ struct InvokeResult_MemObjPtrImp<t_FN, t_ARGTYPE>
           typename bsl::remove_reference<t_ARGTYPE>::type>::type>::value,
       t_FN,
       t_ARGTYPE> {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPES...>'.  This
-    // specialization is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-object type and the 't_ARGTYPES...' pack contains
-    // exactly 1 type.
 };
 
 #else // ! BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
@@ -1399,20 +1413,28 @@ struct InvokeResult_MemObjPtrImp<t_RET t_CLASS::*, t_ARGTYPE> {
              // =================================================
 
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+/// Implementation of `invoke_result<t_FN, t_ARGTYPE>`.  This specialization
+/// is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-object type, and the `INVOKE(fn, arg)` expression is
+/// *not* well-formed given `fn` is an object of the specified `t_FN` type
+/// and `arg` is an object of the specified `t_ARGTYPE`.  Note that this
+/// `struct` does not provide a `type` typedef.
 template <class t_VOID_TYPE,
           bool  t_ARG_DERIVES_FROM_CLASS,
           bool  t_ARG_IS_REFERENCE_WRAPPER,
           class t_FN,
           class t_ARGTYPE>
 struct InvokeResult_MemObjPtrImpDispatch {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPE>'.  This specialization
-    // is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-object type, and the 'INVOKE(fn, arg)' expression is
-    // *not* well-formed given 'fn' is an object of the specified 't_FN' type
-    // and 'arg' is an object of the specified 't_ARGTYPE'.  Note that this
-    // 'struct' does not provide a 'type' typedef.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPE>`.  This specialization
+/// is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-object type, `t_ARGTYPE` is neither a class type that
+/// derives from the class type of `t_FN` nor a specialization of
+/// `bsl::reference_wrapper`, and the `INVOKE(fn, arg)` expression is
+/// well-formed given `fn` is an object of the specified `t_FN` type and
+/// `arg` is an object of the specified `t_ARGTYPE` type.  The
+/// `INVOKE(fn, arg)` expression in this case is `(*arg).*fn`.
 template <class t_FN, class t_ARGTYPE>
 struct InvokeResult_MemObjPtrImpDispatch<
     typename bslmf::VoidType<
@@ -1422,14 +1444,6 @@ struct InvokeResult_MemObjPtrImpDispatch<
     /* t_ARG1_IS_REFERENCE_WRAPPER */ false,
     t_FN,
     t_ARGTYPE> : InvokeResult_ImpUtils {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPE>'.  This specialization
-    // is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-object type, 't_ARGTYPE' is neither a class type that
-    // derives from the class type of 't_FN' nor a specialization of
-    // 'bsl::reference_wrapper', and the 'INVOKE(fn, arg)' expression is
-    // well-formed given 'fn' is an object of the specified 't_FN' type and
-    // 'arg' is an object of the specified 't_ARGTYPE' type.  The
-    // 'INVOKE(fn, arg)' expression in this case is '(*arg).*fn'.
 
     // TYPES
     typedef decltype((*myDeclval<t_ARGTYPE>()).*myDeclval<t_FN>()) type;
@@ -1439,6 +1453,13 @@ struct InvokeResult_MemObjPtrImpDispatch<
     // this case is '(*arg).*fn'.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPE>`.  This specialization
+/// is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-object type, `t_ARGTYPE` is a class type that derives
+/// from the class type of `t_FN`, and the `INVOKE(fn, arg)` expression is
+/// well-formed given `fn` is an object of the specified `t_FN` type and
+/// `arg` is an object of the specified `t_ARGTYPE` type.  The
+/// `INVOKE(fn, arg)` expression in this case is `arg1.*fn`.
 template <class t_FN, class t_ARGTYPE>
 struct InvokeResult_MemObjPtrImpDispatch<
     typename bslmf::VoidType<
@@ -1448,13 +1469,6 @@ struct InvokeResult_MemObjPtrImpDispatch<
     /* t_ARG_IS_REFERENCE_WRAPPER */ false,
     t_FN,
     t_ARGTYPE> : InvokeResult_ImpUtils {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPE>'.  This specialization
-    // is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-object type, 't_ARGTYPE' is a class type that derives
-    // from the class type of 't_FN', and the 'INVOKE(fn, arg)' expression is
-    // well-formed given 'fn' is an object of the specified 't_FN' type and
-    // 'arg' is an object of the specified 't_ARGTYPE' type.  The
-    // 'INVOKE(fn, arg)' expression in this case is 'arg1.*fn'.
 
     // TYPES
     typedef decltype(myDeclval<t_ARGTYPE>().*myDeclval<t_FN>()) type;
@@ -1464,6 +1478,13 @@ struct InvokeResult_MemObjPtrImpDispatch<
     // this case is 'arg1.*fn'.
 };
 
+/// Implementation of `invoke_result<t_FN, t_ARGTYPE>`.  This specialization
+/// is instantiated in C++11 and later when `t_FN` is a
+/// pointer-to-member-object type, `t_ARGTYPE` is a specialization of
+/// `bsl::reference_wrapper`, and the `INVOKE(fn, arg)` expression is
+/// well-formed given `fn` is an object of the specified `t_FN` type and
+/// `arg` is an object of the specified `t_ARGTYPE` type.  The
+/// `INVOKE(fn, arg)` expression in this case is `arg.get().*fn`.
 template <class t_FN, class t_ARGTYPE>
 struct InvokeResult_MemObjPtrImpDispatch<
     typename bslmf::VoidType<
@@ -1473,13 +1494,6 @@ struct InvokeResult_MemObjPtrImpDispatch<
     /* t_ARG1_IS_REFERENCE_WRAPPER */ true,
     t_FN,
     t_ARGTYPE> : InvokeResult_ImpUtils {
-    // Implementation of 'invoke_result<t_FN, t_ARGTYPE>'.  This specialization
-    // is instantiated in C++11 and later when 't_FN' is a
-    // pointer-to-member-object type, 't_ARGTYPE' is a specialization of
-    // 'bsl::reference_wrapper', and the 'INVOKE(fn, arg)' expression is
-    // well-formed given 'fn' is an object of the specified 't_FN' type and
-    // 'arg' is an object of the specified 't_ARGTYPE' type.  The
-    // 'INVOKE(fn, arg)' expression in this case is 'arg.get().*fn'.
 
     // TYPES
     typedef decltype(myDeclval<t_ARGTYPE>().get().*myDeclval<t_FN>()) type;

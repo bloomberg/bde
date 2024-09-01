@@ -9,11 +9,11 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::conjunction: forms the logical AND of the specified type traits
-//  bsl::conjunction_v: the result value of the 'conjunction' meta-function
+//  bsl::conjunction_v: the result value of the `conjunction` meta-function
 //
 //@DESCRIPTION: This component makes available the functionality provided by
-// the 'std::conjunction' meta-function in all C++ language modes -
-// 'std::conjunction' is available only starting from C++17.
+// the `std::conjunction` meta-function in all C++ language modes -
+// `std::conjunction` is available only starting from C++17.
 
 #include <bslscm_version.h>
 

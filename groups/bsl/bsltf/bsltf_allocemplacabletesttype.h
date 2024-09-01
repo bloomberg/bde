@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an allocating test class used to test 'emplace' methods.
+//@PURPOSE: Provide an allocating test class used to test `emplace` methods.
 //
 //@CLASSES:
 //  bsltf::AllocEmplacableTestType: allocating test class with 0..14 arguments
@@ -13,31 +13,31 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_allocargumenttype, bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a (value-semantic) attribute class,
-// 'bsltf::AllocEmplacableTestType', that is used to ensure that arguments are
+// `bsltf::AllocEmplacableTestType`, that is used to ensure that arguments are
 // forwarded correctly to a type's constructor.  This component is similar to
-// 'bsltf_emplacabletesttype', but provides a type that allocates on
+// `bsltf_emplacabletesttype`, but provides a type that allocates on
 // construction.
 //
 ///Attributes
 ///----------
-//..
-//  Name     Type                           Default
-//  -------  -----------------------------  -------
-//  arg01    bsltf::AllocArgumentType< 1>   -1
-//  arg02    bsltf::AllocArgumentType< 2>   -1
-//  arg03    bsltf::AllocArgumentType< 3>   -1
-//  arg04    bsltf::AllocArgumentType< 4>   -1
-//  arg05    bsltf::AllocArgumentType< 5>   -1
-//  arg06    bsltf::AllocArgumentType< 6>   -1
-//  arg07    bsltf::AllocArgumentType< 7>   -1
-//  arg08    bsltf::AllocArgumentType< 8>   -1
-//  arg09    bsltf::AllocArgumentType< 9>   -1
-//  arg10    bsltf::AllocArgumentType<10>   -1
-//  arg11    bsltf::AllocArgumentType<11>   -1
-//  arg12    bsltf::AllocArgumentType<12>   -1
-//  arg13    bsltf::AllocArgumentType<13>   -1
-//  arg14    bsltf::AllocArgumentType<14>   -1
-//..
+// ```
+// Name     Type                           Default
+// -------  -----------------------------  -------
+// arg01    bsltf::AllocArgumentType< 1>   -1
+// arg02    bsltf::AllocArgumentType< 2>   -1
+// arg03    bsltf::AllocArgumentType< 3>   -1
+// arg04    bsltf::AllocArgumentType< 4>   -1
+// arg05    bsltf::AllocArgumentType< 5>   -1
+// arg06    bsltf::AllocArgumentType< 6>   -1
+// arg07    bsltf::AllocArgumentType< 7>   -1
+// arg08    bsltf::AllocArgumentType< 8>   -1
+// arg09    bsltf::AllocArgumentType< 9>   -1
+// arg10    bsltf::AllocArgumentType<10>   -1
+// arg11    bsltf::AllocArgumentType<11>   -1
+// arg12    bsltf::AllocArgumentType<12>   -1
+// arg13    bsltf::AllocArgumentType<13>   -1
+// arg14    bsltf::AllocArgumentType<14>   -1
+// ```
 //
 ///Usage
 ///-----
@@ -45,131 +45,131 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Testing Methods With Argument Forwarding
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will utilize 'bsltf::AllocEmplacableTestType' to
-// test the implementation of a container's 'emplace' method.
+// In this example, we will utilize `bsltf::AllocEmplacableTestType` to
+// test the implementation of a container's `emplace` method.
 //
-// First, we create an elided definition of a container class, 'MyContainer',
-// and show the signature of the 'emplace' method we intend to test:
-//..
-//  // container.h
-//  // -----------
-//  template <class TYPE>
-//  class Container {
-//      // This class template implements a value-semantic container type
-//      // holding elements of the (template parameter) type 'TYPE'.  This
-//      // class provides an 'emplace' method that constructs the element by
-//      // forwarding a variable number of arguments to the 'TYPE' constructor.
+// First, we create an elided definition of a container class, `MyContainer`,
+// and show the signature of the `emplace` method we intend to test:
+// ```
+// // container.h
+// // -----------
+// template <class TYPE>
+// class Container {
+//     // This class template implements a value-semantic container type
+//     // holding elements of the (template parameter) type 'TYPE'.  This
+//     // class provides an 'emplace' method that constructs the element by
+//     // forwarding a variable number of arguments to the 'TYPE' constructor.
 //
-//      // ...
+//     // ...
 //
-//      // MANIPULATORS
-//      template <class... Args>
-//      void emplace(Args&&... arguments);
-//          // Insert into this container a newly created 'TYPE' object,
-//          // constructed by forwarding the specified (variable number of)
-//          // 'arguments' to the corresponding constructor of 'TYPE'.
+//     // MANIPULATORS
+//     template <class... Args>
+//     void emplace(Args&&... arguments);
+//         // Insert into this container a newly created 'TYPE' object,
+//         // constructed by forwarding the specified (variable number of)
+//         // 'arguments' to the corresponding constructor of 'TYPE'.
 //
-//      // ...
-//  };
-//..
-// Then, we provide test machinery that will invoke the 'emplace' method with
+//     // ...
+// };
+// ```
+// Then, we provide test machinery that will invoke the `emplace` method with
 // variable number of arguments:
-//..
-//  // container.t.cpp
-//  // ---------------
+// ```
+// // container.t.cpp
+// // ---------------
 //
-//  template <class T>
-//  bslmf::MovableRef<T> forwardCtorArg(T& argument, bsl::true_type);
-//      // Return 'bslmf::MovableRef' to the specified 'argument'.
+// template <class T>
+// bslmf::MovableRef<T> forwardCtorArg(T& argument, bsl::true_type);
+//     // Return 'bslmf::MovableRef' to the specified 'argument'.
 //
-//  template <class T>
-//  const T& forwardCtorArg(T& argument, bsl::false_type)
-//      // Return a reference providing non-modifiable access to the
-//      // specified 'argument'.
+// template <class T>
+// const T& forwardCtorArg(T& argument, bsl::false_type)
+//     // Return a reference providing non-modifiable access to the
+//     // specified 'argument'.
 //
-//  template <int N_ARGS, bool MOVE_ARG_01, bool MOVE_ARG_02>
-//  void testCaseHelper()
-//      // Call 'emplace' on the container and verify that value was correctly
-//      // constructed and inserted into the container.  Forward (template
-//      // parameter) 'N_ARGS' arguments to the 'emplace' method and ensure 1)
-//      // that values are properly passed to the constructor of
-//      // 'bsltf::AllocEmplacableTestType', 2) that the allocator is correctly
-//      // configured for each argument in the newly inserted element in
-//      // 'target', and 3) that the arguments are forwarded using copy
-//      // ('false') or move semantics ('true') based on bool template
-//      // parameters 'MOVE_ARG_01' ...  'MOVE_ARG_02'.
-//  {
-//      bslma::TestAllocator ta;
-//..
-// Here, we use 'AllocEmplacableTestType' as the contained type to ensure the
-// arguments to the 'emplace' method are correctly forwarded to the contained
+// template <int N_ARGS, bool MOVE_ARG_01, bool MOVE_ARG_02>
+// void testCaseHelper()
+//     // Call 'emplace' on the container and verify that value was correctly
+//     // constructed and inserted into the container.  Forward (template
+//     // parameter) 'N_ARGS' arguments to the 'emplace' method and ensure 1)
+//     // that values are properly passed to the constructor of
+//     // 'bsltf::AllocEmplacableTestType', 2) that the allocator is correctly
+//     // configured for each argument in the newly inserted element in
+//     // 'target', and 3) that the arguments are forwarded using copy
+//     // ('false') or move semantics ('true') based on bool template
+//     // parameters 'MOVE_ARG_01' ...  'MOVE_ARG_02'.
+// {
+//     bslma::TestAllocator ta;
+// ```
+// Here, we use `AllocEmplacableTestType` as the contained type to ensure the
+// arguments to the `emplace` method are correctly forwarded to the contained
 // type's constructor:
-//..
-//      Container<bsltf::AllocEmplacableTestType>        mX(&ta);
-//      const Container<bsltf::AllocEmplacableTestType>& X = mX;
+// ```
+//     Container<bsltf::AllocEmplacableTestType>        mX(&ta);
+//     const Container<bsltf::AllocEmplacableTestType>& X = mX;
 //
-//      // Prepare the arguments
-//      bslma::TestAllocator aa("args", veryVeryVeryVerbose);
+//     // Prepare the arguments
+//     bslma::TestAllocator aa("args", veryVeryVeryVerbose);
 //
-//      bsltf::AllocArgumentType<1> A01(18, &aa);
-//      bsltf::AllocArgumentType<2> A02(33, &aa);
-//..
-// Then, we call 'emplace' supplying test arguments, which should call the
-// correct constructor of 'AllocEmplacableTestType' (which we will later
+//     bsltf::AllocArgumentType<1> A01(18, &aa);
+//     bsltf::AllocArgumentType<2> A02(33, &aa);
+// ```
+// Then, we call `emplace` supplying test arguments, which should call the
+// correct constructor of `AllocEmplacableTestType` (which we will later
 // verify):
-//..
-//      const bsl::integral_constant<bool, MOVE_ARG_01> MOVE_01 = {};
-//      const bsl::integral_constant<bool, MOVE_ARG_02> MOVE_02 = {};
-//      switch (N_ARGS) {
-//        case 0: {
-//          mX.emplace();
-//        } break;
-//        case 1: {
-//          mX.emplace(forwardCtorArg(A01, MOVE_01));
-//        } break;
-//        case 2: {
-//          mX.emplace(forwardCtorArg(A01, MOVE_01),
-//                     forwardCtorArg(A02, MOVE_02));
-//        } break;
-//        default: {
-//          assert(0);
-//        } break;
-//      }
-//..
+// ```
+//     const bsl::integral_constant<bool, MOVE_ARG_01> MOVE_01 = {};
+//     const bsl::integral_constant<bool, MOVE_ARG_02> MOVE_02 = {};
+//     switch (N_ARGS) {
+//       case 0: {
+//         mX.emplace();
+//       } break;
+//       case 1: {
+//         mX.emplace(forwardCtorArg(A01, MOVE_01));
+//       } break;
+//       case 2: {
+//         mX.emplace(forwardCtorArg(A01, MOVE_01),
+//                    forwardCtorArg(A02, MOVE_02));
+//       } break;
+//       default: {
+//         assert(0);
+//       } break;
+//     }
+// ```
 // We verify the correct arguments were forwarded to the
-// 'AllocEmplcableTestType':
-//..
-//      // Verify that, depending on the corresponding template parameters,
-//      // arguments were copied or moved.
-//      assert(MOVE_ARG_01 == (bsltf::MoveState::e_MOVED == A01.movedFrom()));
-//      assert(MOVE_ARG_02 == (bsltf::MoveState::e_MOVED == A02.movedFrom()));
+// `AllocEmplcableTestType`:
+// ```
+//     // Verify that, depending on the corresponding template parameters,
+//     // arguments were copied or moved.
+//     assert(MOVE_ARG_01 == (bsltf::MoveState::e_MOVED == A01.movedFrom()));
+//     assert(MOVE_ARG_02 == (bsltf::MoveState::e_MOVED == A02.movedFrom()));
 //
-//      // Verify that the element was constructed correctly.
-//      const bsltf::AllocEmplacableTestType& V = X.front();
+//     // Verify that the element was constructed correctly.
+//     const bsltf::AllocEmplacableTestType& V = X.front();
 //
-//      assert(18 == V.arg01() || N_ARGS < 1);
-//      assert(33 == V.arg02() || N_ARGS < 2);
-//  }
-//..
+//     assert(18 == V.arg01() || N_ARGS < 1);
+//     assert(33 == V.arg02() || N_ARGS < 2);
+// }
+// ```
 // Finally, we call our templatized test case helper with a variety of template
 // arguments:
-//..
-//  void testCase()
-//  {
-//      // Testing 'emplace' with 0 arguments.
-//      testCaseHelper<0, false, false>();
+// ```
+// void testCase()
+// {
+//     // Testing 'emplace' with 0 arguments.
+//     testCaseHelper<0, false, false>();
 //
-//      // Testing 'emplace' with 1 argument.
-//      testCaseHelper<1, false, false>();
-//      testCaseHelper<1, true,  false>();
+//     // Testing 'emplace' with 1 argument.
+//     testCaseHelper<1, false, false>();
+//     testCaseHelper<1, true,  false>();
 //
-//      // Testing 'emplace' with 2 arguments.
-//      testCaseHelper<2, false, false>();
-//      testCaseHelper<2, true,  false>();
-//      testCaseHelper<2, false, true >();
-//      testCaseHelper<2, true,  true >();
-//  }
-//..
+//     // Testing 'emplace' with 2 arguments.
+//     testCaseHelper<2, false, false>();
+//     testCaseHelper<2, true,  false>();
+//     testCaseHelper<2, false, true >();
+//     testCaseHelper<2, true,  true >();
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -186,10 +186,10 @@ namespace bsltf {
                          // class AllocEmplacableTestType
                          // =============================
 
+/// This class provides a test object used to check that the arguments
+/// passed for creating an object with an in-place representation are of the
+/// correct types and values.
 class AllocEmplacableTestType {
-    // This class provides a test object used to check that the arguments
-    // passed for creating an object with an in-place representation are of the
-    // correct types and values.
   public:
     // TYPEDEFS
     typedef bsltf::AllocArgumentType< 1> ArgType01;
@@ -225,16 +225,25 @@ class AllocEmplacableTestType {
     ArgType14 d_arg14;
 
     // CLASS DATA
+
+    // Track number of times the destructor is called.
     static int s_numDeletes;
-        // Track number of times the destructor is called.
 
   public:
     // CLASS METHODS
+
+    /// Return the number of times an object of this type has been
+    /// destroyed.
     static int getNumDeletes();
-        // Return the number of times an object of this type has been
-        // destroyed.
 
     // CREATORS
+
+    /// Create an `AllocEmplacableTestType` by initializing corresponding
+    /// attributes with the specified `arg01`..`arg14`, and initializing any
+    /// remaining attributes with their default value (-1).  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     AllocEmplacableTestType(bslma::Allocator *basicAllocator = 0);
     explicit AllocEmplacableTestType(ArgType01         arg01,
                                      bslma::Allocator *basicAllocator = 0);
@@ -355,39 +364,34 @@ class AllocEmplacableTestType {
                             ArgType13         arg13,
                             ArgType14         arg14,
                             bslma::Allocator *basicAllocator = 0);
-        // Create an 'AllocEmplacableTestType' by initializing corresponding
-        // attributes with the specified 'arg01'..'arg14', and initializing any
-        // remaining attributes with their default value (-1).  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an allocating, in-place test object having the same value as
+    /// the specified `original`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     AllocEmplacableTestType(
                            const AllocEmplacableTestType&  original,
                            bslma::Allocator               *basicAllocator = 0);
-        // Create an allocating, in-place test object having the same value as
-        // the specified 'original'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Increment the count of calls to this destructor, and destroy this
+    /// object.
     ~AllocEmplacableTestType();
-        // Increment the count of calls to this destructor, and destroy this
-        // object.
 
     // MANIPULATORS
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
     AllocEmplacableTestType& operator=(
                                  const AllocEmplacableTestType& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 #else
     //! AllocEmplacableTestType& operator=(
     //                           const AllocEmplacableTestType& rhs) = default;
 #endif
 
     // ACCESSORS
+
+    /// Return the allocator used to supply memory for this object.
     bslma::Allocator *allocator() const;
-        // Return the allocator used to supply memory for this object.
 
     const ArgType01& arg01() const;
     const ArgType02& arg02() const;
@@ -402,31 +406,33 @@ class AllocEmplacableTestType {
     const ArgType11& arg11() const;
     const ArgType12& arg12() const;
     const ArgType13& arg13() const;
-    const ArgType14& arg14() const;
-        // Return the value of the correspondingly numbered argument that was
-        // passed to the constructor of this object.
 
+    /// Return the value of the correspondingly numbered argument that was
+    /// passed to the constructor of this object.
+    const ArgType14& arg14() const;
+
+    /// Return `true` if the specified `rhs` has the same value as this
+    /// object, and `false` otherwise.  Two `AllocEmplacableTestType`
+    /// objects have the same value if each of their corresponding
+    /// attributes have the same value.
     bool isEqual(const AllocEmplacableTestType& rhs) const;
-        // Return 'true' if the specified 'rhs' has the same value as this
-        // object, and 'false' otherwise.  Two 'AllocEmplacableTestType'
-        // objects have the same value if each of their corresponding
-        // attributes have the same value.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `AllocEmplacableTestType` objects
+/// have the same value if each of their corresponding attributes have the
+/// same value.
 bool operator==(const AllocEmplacableTestType& lhs,
                 const AllocEmplacableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'AllocEmplacableTestType' objects
-    // have the same value if each of their corresponding attributes have the
-    // same value.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `AllocEmplacableTestType`
+/// objects do not have the same value if any of their corresponding
+/// attributes do not have the same value.
 bool operator!=(const AllocEmplacableTestType& lhs,
                 const AllocEmplacableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'AllocEmplacableTestType'
-    // objects do not have the same value if any of their corresponding
-    // attributes do not have the same value.
 
 // ============================================================================
 //                      INLINE DEFINITIONS

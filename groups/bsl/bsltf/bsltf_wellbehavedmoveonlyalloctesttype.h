@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide well-behaved move-only type using 'bslma' allocators.
+//@PURPOSE: Provide well-behaved move-only type using `bslma` allocators.
 //
 //@CLASSES:
 //   bsltf::WellBehavedMoveOnlyAllocTestType: move-only, allocating test class
@@ -13,27 +13,27 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'WellBehavedMoveOnlyAllocTestType', that
-// uses a 'bslma::Allocator' to supply memory (defines the type trait
-// 'bslma::UsesBslmaAllocator') and provides only a move constructor and move
+// (value-semantic) attribute class, `WellBehavedMoveOnlyAllocTestType`, that
+// uses a `bslma::Allocator` to supply memory (defines the type trait
+// `bslma::UsesBslmaAllocator`) and provides only a move constructor and move
 // assignment operator (disables copy constructor and copy assignment
 // operator).  Furthermore, this class is not bitwise-moveable, and will assert
 // on destruction if it has been bitwise-moved.  In addition, in the case of a
 // move where source and destination objects use different allocators, the move
-// acts like a copy and does not modify the source, or mark it as 'moved-from',
-// and does not mark the destination as 'moved-into'.  This class is primarily
+// acts like a copy and does not modify the source, or mark it as `moved-from`,
+// and does not mark the destination as `moved-into`.  This class is primarily
 // provided to facilitate testing of templates by defining a simple type
 // representative of user-defined types having an allocator that cannot be
 // copied (only moved).
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the object's value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the object's value
 //
 ///Usage
 ///-----
@@ -41,42 +41,42 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Type Traits and Move Construction
 /// - - - - - - - - - - - - - - - - - - - - - -
-// First, we observe that the type uses 'bslma::Allocator's:
-//..
-//  assert(true == bslma::UsesBslmaAllocator<
-//                            bsltf::WellBehavedMoveOnlyAllocTestType>::value);
-//..
+// First, we observe that the type uses `bslma::Allocator`s:
+// ```
+// assert(true == bslma::UsesBslmaAllocator<
+//                           bsltf::WellBehavedMoveOnlyAllocTestType>::value);
+// ```
 // Then, we observe that the type is not copy-constructible:
-//..
-//  assert(false == bsl::is_copy_constructible<
-//                            bsltf::WellBehavedMoveOnlyAllocTestType>::value);
-//..
+// ```
+// assert(false == bsl::is_copy_constructible<
+//                           bsltf::WellBehavedMoveOnlyAllocTestType>::value);
+// ```
 // Next, we observe that the type is not bitwise movable:
-//..
-//  assert(false == bslmf::IsBitwiseMoveable<
-//                            bsltf::WellBehavedMoveOnlyAllocTestType>::value);
-//..
-// Then, we create an instance of our type with the value '5':
-//..
-//  bsltf::WellBehavedMoveOnlyAllocTestType a(5);
-//..
+// ```
+// assert(false == bslmf::IsBitwiseMoveable<
+//                           bsltf::WellBehavedMoveOnlyAllocTestType>::value);
+// ```
+// Then, we create an instance of our type with the value `5`:
+// ```
+// bsltf::WellBehavedMoveOnlyAllocTestType a(5);
+// ```
 // Next, we move-construct another instance from the first:
-//..
-//  bsltf::WellBehavedMoveOnlyAllocTestType b(bslmf::MovableRefUtil::move(a));
-//..
+// ```
+// bsltf::WellBehavedMoveOnlyAllocTestType b(bslmf::MovableRefUtil::move(a));
+// ```
 // Now, we observe the salient state of both objects:
-//..
-//  assert(0 == a.data());
-//  assert(5 == b.data());
-//..
+// ```
+// assert(0 == a.data());
+// assert(5 == b.data());
+// ```
 // And finally, the non-salient state:
-//..
-//  assert(bsltf::MoveState::e_MOVED == a.movedFrom());
-//  assert(bsltf::MoveState::e_MOVED == b.movedInto());
+// ```
+// assert(bsltf::MoveState::e_MOVED == a.movedFrom());
+// assert(bsltf::MoveState::e_MOVED == b.movedInto());
 //
-//  assert(bsltf::MoveState::e_NOT_MOVED == a.movedInto());
-//  assert(bsltf::MoveState::e_NOT_MOVED == b.movedFrom());
-//..
+// assert(bsltf::MoveState::e_NOT_MOVED == a.movedInto());
+// assert(bsltf::MoveState::e_NOT_MOVED == b.movedFrom());
+// ```
 
 #include <bslscm_version.h>
 
@@ -98,14 +98,14 @@ namespace bsltf {
                     // class WellBehavedMoveOnlyAllocTestType
                     // ======================================
 
+/// This unconstrained (value-semantic) attribute class that uses a
+/// `bslma::Allocator` to supply memory and defines the type trait
+/// `bslma::UsesBslmaAllocator`.  This class is primarily provided to
+/// facilitate testing of templates by defining a simple type representative
+/// of user-defined types having an allocator.  See the Attributes section
+/// under @DESCRIPTION in the component-level documentation for information
+/// on the class attributes.
 class WellBehavedMoveOnlyAllocTestType {
-    // This unconstrained (value-semantic) attribute class that uses a
-    // 'bslma::Allocator' to supply memory and defines the type trait
-    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided to
-    // facilitate testing of templates by defining a simple type representative
-    // of user-defined types having an allocator.  See the Attributes section
-    // under @DESCRIPTION in the component-level documentation for information
-    // on the class attributes.
 
     // DATA
     int                     *d_data_p;       // pointer to the data value
@@ -128,113 +128,119 @@ class WellBehavedMoveOnlyAllocTestType {
 
   public:
     // CREATORS
+
+    /// Create a `WellBehavedMoveOnlyAllocTestType` object having the
+    /// (default) attribute values:
+    /// ```
+    /// data() == 0
+    /// ```
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit WellBehavedMoveOnlyAllocTestType(
                                          bslma::Allocator *basicAllocator = 0);
-        // Create a 'WellBehavedMoveOnlyAllocTestType' object having the
-        // (default) attribute values:
-        //..
-        //  data() == 0
-        //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create a `WellBehavedMoveOnlyAllocTestType` object having the
+    /// specified `data` attribute value.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit WellBehavedMoveOnlyAllocTestType(
                                          int               data,
                                          bslma::Allocator *basicAllocator = 0);
-        // Create a 'WellBehavedMoveOnlyAllocTestType' object having the
-        // specified 'data' attribute value.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
     WellBehavedMoveOnlyAllocTestType(
                   bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
+
+    /// Create a `WellBehavedMoveAllocTestType` object having the same value
+    /// as the specified `original` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  After
+    /// construction, this object will be in a `movedInto` state, and
+    /// `original` will be in a `movedFrom` state.  No allocations shall
+    /// occur (so no exception will be thrown) unless
+    /// 'basicAllocator != original.allocator()).
     WellBehavedMoveOnlyAllocTestType(
           bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType>  original,
           bslma::Allocator                                    *basicAllocator);
-        // Create a 'WellBehavedMoveAllocTestType' object having the same value
-        // as the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  After
-        // construction, this object will be in a 'movedInto' state, and
-        // 'original' will be in a 'movedFrom' state.  No allocations shall
-        // occur (so no exception will be thrown) unless
-        // 'basicAllocator != original.allocator()).
 
+    /// Destroy this object.
     ~WellBehavedMoveOnlyAllocTestType();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  If
+    /// `rhs` is a reference to this object, there are no other effects;
+    /// otherwise, the object referenced by `rhs` will be reset to a default
+    /// constructed state, `rhs` shall be in a `movedFrom` state, and this
+    /// object will be in a `movedTo` state.  No allocations shall occur
+    /// (so no exception will be thrown) unless this object and `rhs` have
+    /// different allocators.  Note that the moved-from state is specified,
+    /// rather than "valid but unspecified", as this type is intended for
+    /// verifying test drivers that want to ensure that moves occur
+    /// correctly where expected.
     WellBehavedMoveOnlyAllocTestType& operator=(
                       bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType> rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  If
-        // 'rhs' is a reference to this object, there are no other effects;
-        // otherwise, the object referenced by 'rhs' will be reset to a default
-        // constructed state, 'rhs' shall be in a 'movedFrom' state, and this
-        // object will be in a 'movedTo' state.  No allocations shall occur
-        // (so no exception will be thrown) unless this object and 'rhs' have
-        // different allocators.  Note that the moved-from state is specified,
-        // rather than "valid but unspecified", as this type is intended for
-        // verifying test drivers that want to ensure that moves occur
-        // correctly where expected.
 
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
+    /// Set the moved-into state of this object to the specified `value`.
     void setMovedInto(MoveState::Enum value);
-        // Set the moved-into state of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Return the move state of this object as target of a move operation.
     MoveState::Enum movedInto() const;
-        // Return the move state of this object as target of a move operation.
 
+    /// Return the move state of this object as source of a move operation.
     MoveState::Enum movedFrom() const;
-        // Return the move state of this object as source of a move operation.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `WellBehavedMoveOnlyAllocTestType`
+/// objects have the same if their `data` attributes are the same.
 bool operator==(const WellBehavedMoveOnlyAllocTestType& lhs,
                 const WellBehavedMoveOnlyAllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'WellBehavedMoveOnlyAllocTestType'
-    // objects have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two
+/// `WellBehavedMoveOnlyAllocTestType` objects do not have the same value if
+/// their `data` attributes are not the same.
 bool operator!=(const WellBehavedMoveOnlyAllocTestType& lhs,
                 const WellBehavedMoveOnlyAllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two
-    // 'WellBehavedMoveOnlyAllocTestType' objects do not have the same value if
-    // their 'data' attributes are not the same.
 
 // FREE FUNCTIONS
+
+/// Return the move-from state of the specified `object`.
 MoveState::Enum getMovedFrom(const WellBehavedMoveOnlyAllocTestType& object);
-    // Return the move-from state of the specified 'object'.
 
+/// Return the move-into state of the specified `object`.
 MoveState::Enum getMovedInto(const WellBehavedMoveOnlyAllocTestType& object);
-    // Return the move-into state of the specified 'object'.
 
+/// Set the moved-into state of the specified `object` to the specified
+/// `value`.
 void setMovedInto(WellBehavedMoveOnlyAllocTestType *object,
                                                         MoveState::Enum value);
-    // Set the moved-into state of the specified 'object' to the specified
-    // 'value'.
 
+/// Exchange the states of the specified `a` and `b`.  If the allocators
+/// match, both `a` and `b` will be left in a moved-into state, otherwise,
+/// both will not.  If `a` and `b` are the same object, this function will
+/// have no effect.  No allocations shall occur (so no exceptions will be
+/// thrown) unless `a` and `b` have different allocators.
 void swap(WellBehavedMoveOnlyAllocTestType& a,
           WellBehavedMoveOnlyAllocTestType& b);
-    // Exchange the states of the specified 'a' and 'b'.  If the allocators
-    // match, both 'a' and 'b' will be left in a moved-into state, otherwise,
-    // both will not.  If 'a' and 'b' are the same object, this function will
-    // have no effect.  No allocations shall occur (so no exceptions will be
-    // thrown) unless 'a' and 'b' have different allocators.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

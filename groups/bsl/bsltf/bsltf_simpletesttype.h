@@ -13,8 +13,8 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained in-core
-// (value-semantic) attribute class, 'SimpleTestType', that does not take an
-// allocator nor define any type traits.  'SimpleTestType' can be used during
+// (value-semantic) attribute class, `SimpleTestType`, that does not take an
+// allocator nor define any type traits.  `SimpleTestType` can be used during
 // testing as the parameterized type of a class templates to ensure classes
 // with the similar properties will function correctly.  Note that this is
 // particular valuable when testing a container template that supports
@@ -22,12 +22,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the class value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the class value
 //
 ///Usage
 ///-----
@@ -37,39 +37,39 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to print the supported traits of this test type.
 //
-// First, we create a function template 'printTypeTraits' with a parameterized
-// 'TYPE':
-//..
-//  template <class TYPE>
-//  void printTypeTraits()
-//      // Prints the traits of the parameterized 'TYPE' to the console.
-//  {
-//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
-//          printf("Type defines bslma::UsesBslmaAllocator.\n");
-//      }
-//      else {
-//          printf(
-//               "Type does not define bslma::UsesBslmaAllocator.\n");
-//      }
+// First, we create a function template `printTypeTraits` with a parameterized
+// `TYPE`:
+// ```
+// template <class TYPE>
+// void printTypeTraits()
+//     // Prints the traits of the parameterized 'TYPE' to the console.
+// {
+//     if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//         printf("Type defines bslma::UsesBslmaAllocator.\n");
+//     }
+//     else {
+//         printf(
+//              "Type does not define bslma::UsesBslmaAllocator.\n");
+//     }
 //
-//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
-//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
-//      }
-//      else {
-//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
-//      }
-//  }
-//..
-// Now, we invoke the 'printTypeTraits' function template using
-// 'SimpleTestType' as the parameterized 'TYPE':
-//..
-//  printTypeTraits<SimpleTestType>();
-//..
+//     if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//         printf("Type defines bslmf::IsBitwiseMoveable.\n");
+//     }
+//     else {
+//         printf("Type does not define bslmf::IsBitwiseMoveable.\n");
+//     }
+// }
+// ```
+// Now, we invoke the `printTypeTraits` function template using
+// `SimpleTestType` as the parameterized `TYPE`:
+// ```
+// printTypeTraits<SimpleTestType>();
+// ```
 // Finally, we observe the console output:
-//..
-//  Type does not define bslma::UsesBslmaAllocator.
-//  Type does not define bslmf::IsBitwiseMoveable.
-//..
+// ```
+// Type does not define bslma::UsesBslmaAllocator.
+// Type does not define bslmf::IsBitwiseMoveable.
+// ```
 
 #include <bslscm_version.h>
 
@@ -80,11 +80,11 @@ namespace bsltf {
                         // class SimpleTestType
                         // ====================
 
+/// This unconstrained (value-semantic) attribute class does not allocate
+/// memory and does not define any traits.  See the Attributes section under
+/// @DESCRIPTION in the component-level documentation for information on the
+/// class attributes.
 class SimpleTestType {
-    // This unconstrained (value-semantic) attribute class does not allocate
-    // memory and does not define any traits.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.
 
     // DATA
     int d_data;  // integer class value
@@ -92,47 +92,50 @@ class SimpleTestType {
   public:
 
     // CREATORS
-    SimpleTestType();
-        // Create a 'SimpleTestType' object having the (default) attribute
-        // values:
-        //..
-        //  data() == 0
-        //..
 
+    /// Create a `SimpleTestType` object having the (default) attribute
+    /// values:
+    /// ```
+    /// data() == 0
+    /// ```
+    SimpleTestType();
+
+    /// Create a `SimpleTestType` object having the specified `data`
+    /// attribute value.
     explicit SimpleTestType(int data);
-        // Create a 'SimpleTestType' object having the specified 'data'
-        // attribute value.
 
     //! SimpleTestType(const SimpleTestType& original) = default;
         // Create a 'SimpleTestType' object having the same value as the
         // specified 'original' object.
 
+    /// Destroy this object.
     ~SimpleTestType();
-        // Destroy this object.
 
     // MANIPULATORS
     //! SimpleTestType& operator=(const SimpleTestType& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // FREE OPERATORS
-bool operator==(const SimpleTestType& lhs, const SimpleTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'SimpleTestType' objects
-    // have the same value if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `SimpleTestType` objects
+/// have the same value if their `data` attributes are the same.
+bool operator==(const SimpleTestType& lhs, const SimpleTestType& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `SimpleTestType` objects do not
+/// have the same value if their `data` attributes are not the same.
 bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'SimpleTestType' objects do not
-    // have the same value if their 'data' attributes are not the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

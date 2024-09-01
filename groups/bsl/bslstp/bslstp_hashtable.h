@@ -14,7 +14,7 @@
 //
 // Note that the functions in this component are based on STLPort's
 // implementation, with copyright notice as follows:
-//..
+// ```
 /*
  *
  * Copyright (c) 1994
@@ -39,11 +39,11 @@
  * modified is included with the above copyright notice.
  *
  */
-//..
+// ```
 //
-///Usage
-///-----
-// This component is for internal use only.
+// /Usage
+// /-----
+//  This component is for internal use only.
 
 #ifdef BDE_OPENSOURCE_PUBLICATION // STP
 #error "bslstp_hashtable is not for publication"
@@ -217,14 +217,15 @@ private:
   struct QuickSwap;
   friend struct QuickSwap;
 
+  /// Function object to quickly swap two trees with identical
+  /// allocators and allocation modes.
   struct QuickSwap
   {
-      // Function object to quickly swap two trees with identical
-      // allocators and allocation modes.
+
+      /// Swap contents of `v1` and `v2`.  Undefined unless
+      /// `v1.get_allocator() == v2.get_allocator()` and
+      /// `v1.allocationHint() == v2.allocationHint()`.
       void operator()(_Self& v1, _Self& v2) const
-          // Swap contents of 'v1' and 'v2'.  Undefined unless
-          // 'v1.get_allocator() == v2.get_allocator()' and
-          // 'v1.allocationHint() == v2.allocationHint()'.
       {
           ::std::swap(v1._M_hash,    v2._M_hash);
           ::std::swap(v1._M_equals,  v2._M_equals);

@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a POSIX implementation of 'bslmt::RecursiveMutex'.
+//@PURPOSE: Provide a POSIX implementation of `bslmt::RecursiveMutex`.
 //
 //@CLASSES:
 //  bslmt::RecursiveMutexImpl<PosixThreads>: POSIX specialization
@@ -13,17 +13,17 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmt_recursivemutex
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bslmt::RecursiveMutex' for POSIX threads ("pthreads"),
-// 'bslmt::RecursiveMutexImpl<PosixThreads>', via the template specialization:
-//..
-//  bslmt::RecursiveMutexImpl<Platform::PosixThreads>
-//..
+// `bslmt::RecursiveMutex` for POSIX threads ("pthreads"),
+// `bslmt::RecursiveMutexImpl<PosixThreads>`, via the template specialization:
+// ```
+// bslmt::RecursiveMutexImpl<Platform::PosixThreads>
+// ```
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bslmt::RecursiveMutex'.
+// should instead use `bslmt::RecursiveMutex`.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -51,12 +51,12 @@ class RecursiveMutexImpl;
              // class RecursiveMutexImpl<Platform::PosixThreads>
              // ================================================
 
+/// This class provides a full specialization of `RecursiveMutexImpl` for
+/// pthreads.  If the pthreads implementation supports the "recursive"
+/// attribute, then the native implementation is used, otherwise, a
+/// portable, efficient implementation is provided.
 template <>
 class RecursiveMutexImpl<Platform::PosixThreads> {
-    // This class provides a full specialization of 'RecursiveMutexImpl' for
-    // pthreads.  If the pthreads implementation supports the "recursive"
-    // attribute, then the native implementation is used, otherwise, a
-    // portable, efficient implementation is provided.
 
     // DATA
     pthread_mutex_t d_lock;       // TBD doc
@@ -77,40 +77,42 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
 
   public:
     // CREATORS
-    RecursiveMutexImpl();
-        // Create a recursive mutex initialized to an unlocked state.  This
-        // method does not return normally unless there are sufficient system
-        // resources to construct the object.
 
+    /// Create a recursive mutex initialized to an unlocked state.  This
+    /// method does not return normally unless there are sufficient system
+    /// resources to construct the object.
+    RecursiveMutexImpl();
+
+    /// Destroy this recursive mutex object.
     ~RecursiveMutexImpl();
-        // Destroy this recursive mutex object.
 
     // MANIPULATORS
+
+    /// Acquire a lock on this mutex object.  If this object is currently
+    /// locked by a different thread, then suspend execution of the current
+    /// thread until a lock can be acquired.  Otherwise, if it unlocked, or
+    /// locked by the calling thread, then grant ownership of the lock
+    /// immediately and return.  Note that when this object is recursively
+    /// locked by a thread, `unlock` must be called an equal number of times
+    /// before the lock is actually released.
     void lock();
-        // Acquire a lock on this mutex object.  If this object is currently
-        // locked by a different thread, then suspend execution of the current
-        // thread until a lock can be acquired.  Otherwise, if it unlocked, or
-        // locked by the calling thread, then grant ownership of the lock
-        // immediately and return.  Note that when this object is recursively
-        // locked by a thread, 'unlock' must be called an equal number of times
-        // before the lock is actually released.
 
+    /// Attempt to acquire a lock on this mutex object.  If this object is
+    /// unlocked, or locked by the calling thread, then grant ownership of
+    /// the lock immediately and return 0.  Otherwise If this object is
+    /// currently locked by a different thread or if an error occurs, then
+    /// return a non-zero value.  Note that when this object is recursively
+    /// locked by a thread, `unlock` must be called an equal number of times
+    ///  before the lock is actually released.
     int tryLock();
-        // Attempt to acquire a lock on this mutex object.  If this object is
-        // unlocked, or locked by the calling thread, then grant ownership of
-        // the lock immediately and return 0.  Otherwise If this object is
-        // currently locked by a different thread or if an error occurs, then
-        // return a non-zero value.  Note that when this object is recursively
-        // locked by a thread, 'unlock' must be called an equal number of times
-        //  before the lock is actually released.
 
+    /// Release a lock on this mutex that was previously acquired through a
+    /// successful call to `lock`, or `tryLock`.  The behavior is undefined,
+    /// unless the calling thread currently owns the lock on this mutex.
+    /// Note that when this object is recursively locked by a thread,
+    /// `unlock` must be called an equal number of times before the lock is
+    /// actually released.
     void unlock();
-        // Release a lock on this mutex that was previously acquired through a
-        // successful call to 'lock', or 'tryLock'.  The behavior is undefined,
-        // unless the calling thread currently owns the lock on this mutex.
-        // Note that when this object is recursively locked by a thread,
-        // 'unlock' must be called an equal number of times before the lock is
-        // actually released.
 };
 
 }  // close package namespace

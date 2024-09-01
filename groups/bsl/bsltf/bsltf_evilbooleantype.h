@@ -5,20 +5,20 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide the most awkward type that is convertible to 'bool'.
+//@PURPOSE: Provide the most awkward type that is convertible to `bool`.
 //
 //@CLASSES:
-//  bsltf::EvilBooleanType: most awkward type that is convertible to 'bool'
+//  bsltf::EvilBooleanType: most awkward type that is convertible to `bool`
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@DESCRIPTION: This component provides a type that is convertible-to-'bool',
+//@DESCRIPTION: This component provides a type that is convertible-to-`bool`,
 // and so may be used to satisfy many C++ standard library requirements, but is
 // perversely implemented to provide the most awkward interface that meets the
 // requirements.  This type is not intended for use in production code, but is
 // most useful when implementing test drivers for generic components that must
 // accept predicates, or other expressions, that yield a type that is merely
-// convertible to 'bool'.
+// convertible to `bool`.
 //
 ///Usage
 ///-----
@@ -27,25 +27,25 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of using
-// 'bsltf::EvilBooleanType'.
+// `bsltf::EvilBooleanType`.
 //
-// First, we create an object 'trueValue' and initialize it with the 'true'
+// First, we create an object `trueValue` and initialize it with the `true`
 // value:
-//..
-//  bsltf::EvilBooleanType trueValue(true);
-//..
+// ```
+// bsltf::EvilBooleanType trueValue(true);
+// ```
 // Now, we can use it for if-else conditions or another constructions, that
 // require boolen value:
-//..
-//  if (trueValue) {
-//      assert(trueValue);
-//  }
-//..
+// ```
+// if (trueValue) {
+//     assert(trueValue);
+// }
+// ```
 // Finally we create another object, having the opposite value, and verify it:
-//..
-//  bsltf::EvilBooleanType falseValue = !trueValue;
-//  assert(false == (bool)falseValue);
-//..
+// ```
+// bsltf::EvilBooleanType falseValue = !trueValue;
+// assert(false == (bool)falseValue);
+// ```
 
 #include <bslscm_version.h>
 
@@ -59,29 +59,30 @@ namespace bsltf {
                             // class EvilBooleanType
                             // =====================
 
+/// This class provides a test type for predicates returning a type that is
+/// convertible-to-bool.  It makes life reasonably difficult by disabling
+/// the address-of and comma operators, but deliberately does not overload
+/// the `&&` and `||` operators, as we hope the standard will be updated to
+/// no longer require such support.  Once C++11 becomes available, this
+/// class would use an `explicit operator bool()` conversion operator, and
+/// explicitly supply the `==` and `!=` operators, but we use the
+/// convertible-to-pointer-to-member idiom in the meantime.  Implicitly
+/// defined operations fill out the API as needed.
 struct EvilBooleanType {
-    // This class provides a test type for predicates returning a type that is
-    // convertible-to-bool.  It makes life reasonably difficult by disabling
-    // the address-of and comma operators, but deliberately does not overload
-    // the '&&' and '||' operators, as we hope the standard will be updated to
-    // no longer require such support.  Once C++11 becomes available, this
-    // class would use an 'explicit operator bool()' conversion operator, and
-    // explicitly supply the '==' and '!=' operators, but we use the
-    // convertible-to-pointer-to-member idiom in the meantime.  Implicitly
-    // defined operations fill out the API as needed.
 
   private:
     // PRIVATE TYPES
+
+    /// Struct, containing value to be pointed to.
     struct ImpDetail
-        // Struct, containing value to be pointed to.
     {
         int d_member;
     };
 
 
+    /// Typedef for pointer to the nested class field, that can be converted
+    /// to boolean.
     typedef int ImpDetail::* BoolResult;
-        // Typedef for pointer to the nested class field, that can be converted
-        // to boolean.
 
     // DATA
     BoolResult d_value;  // pointer being converted to boolean value
@@ -97,9 +98,10 @@ struct EvilBooleanType {
 
   public:
     // CREATORS
+
+    /// Create a `EvilBooleanType` object having the attribute value defined
+    /// by the specified `value`.
     EvilBooleanType(bool value);                                    // IMPLICIT
-        // Create a 'EvilBooleanType' object having the attribute value defined
-        // by the specified 'value'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     // To avoid warnings about future incompatibility due to the deleted copy
@@ -107,38 +109,39 @@ struct EvilBooleanType {
     // generated.  For consistency the destructor was also placed here and
     // declared to be explicitly generated.
 
+    /// Create a `EvilBooleanType` object having the same value as the
+    /// specified `original` object.
     EvilBooleanType(const EvilBooleanType& original) = default;
-        // Create a 'EvilBooleanType' object having the same value as the
-        // specified 'original' object.
 
+    /// Destroy this object.
     ~EvilBooleanType() = default;
-        // Destroy this object.
 #endif
 
     // ACCESSORS
-    operator BoolResult() const;
-        // Return the value of this object.
 
+    /// Return the value of this object.
+    operator BoolResult() const;
+
+    /// Return the newly created object having the logically negated value
+    /// of this object.
     EvilBooleanType operator!() const;
-        // Return the newly created object having the logically negated value
-        // of this object.
 };
 
+/// Return an `EvilBoolanType` value that converts to `true` if the
+/// specified `lhs` and `rhs` have the same value, and a value that converts
+/// to `false` otherwise. Two `EvilBooleanType` objects have the same value
+/// if the values resulting from converting each to `bool` have the same
+/// value.
 EvilBooleanType operator==(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
-    // Return an 'EvilBoolanType' value that converts to 'true' if the
-    // specified 'lhs' and 'rhs' have the same value, and a value that converts
-    // to 'false' otherwise. Two 'EvilBooleanType' objects have the same value
-    // if the values resulting from converting each to 'bool' have the same
-    // value.
 
+/// Return an `EvilBoolanType` value that converts to `true` if the
+/// specified `lhs` and `rhs` do not have the same value, and a value that
+/// converts to `false` otherwise. Two `EvilBooleanType` objects do not have
+/// the same value if the values resulting from converting each to `bool` do
+/// not have the same value.
 EvilBooleanType operator!=(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
-    // Return an 'EvilBoolanType' value that converts to 'true' if the
-    // specified 'lhs' and 'rhs' do not have the same value, and a value that
-    // converts to 'false' otherwise. Two 'EvilBooleanType' objects do not have
-    // the same value if the values resulting from converting each to 'bool' do
-    // not have the same value.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

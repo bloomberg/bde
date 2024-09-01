@@ -5,26 +5,26 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a Darwin implementation of 'bslmt::Semaphore'.
+//@PURPOSE: Provide a Darwin implementation of `bslmt::Semaphore`.
 //
 //@CLASSES:
 //  bslmt::SemaphoreImpl<DarwinSemaphore>: semaphore specialization for Darwin
 //
 //@SEE_ALSO: bslmt_semaphore
 //
-//@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
+//@DESCRIPTION: This component provides an implementation of `bslmt::Semaphore`
 // for POSIX threads ("pthreads") according to the POSIX support on Darwin
-// platform, 'bslmt::SemaphoreImpl<DarwinSemaphore>', via the template
+// platform, `bslmt::SemaphoreImpl<DarwinSemaphore>`, via the template
 // specialization:
-//..
-//  bslmt::SemaphoreImpl<Platform::DarwinSemaphore>
-//..
+// ```
+// bslmt::SemaphoreImpl<Platform::DarwinSemaphore>
+// ```
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bslmt::Semaphore'.
+// should instead use `bslmt::Semaphore`.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

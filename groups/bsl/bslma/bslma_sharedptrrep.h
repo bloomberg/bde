@@ -14,10 +14,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //           bslma_sharedptrrep_outofplace
 //
 //@DESCRIPTION: This component provides a partially implemented abstract class,
-// 'bslma::SharedPtrRep', for managing the lifetime of a shared object.
-// 'bslma::SharedPtrRep' provides a count of both shared and weak references to
+// `bslma::SharedPtrRep`, for managing the lifetime of a shared object.
+// `bslma::SharedPtrRep` provides a count of both shared and weak references to
 // a shared object (described in more detail in the next section).  In
-// addition, 'bslma::SharedPtrRep' provides protocol methods that allows a
+// addition, `bslma::SharedPtrRep` provides protocol methods that allows a
 // concrete implementation to specify what action should be taken when these
 // reference counts reach zero.
 //
@@ -27,243 +27,243 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // 1) A shared reference allows users to share the ownership of an object and
 // control its lifetime.  A shared object is destroyed only when the last
-// shared reference to it is released.  The function 'acquireRef' should be
-// called when a new shared reference is created and 'releaseRef' should be
+// shared reference to it is released.  The function `acquireRef` should be
+// called when a new shared reference is created and `releaseRef` should be
 // called when a share reference is removed.
 //
 // 2) A weak reference provides users conditional access to an object without
 // sharing its ownership (or affecting its lifetime).  A shared object can be
 // destroyed even if there are weak references to it.  The function
-// 'acquireWeakRef' should be called when a new weak reference is created and
-// 'releaseWeakRef' should be called when a weak reference is removed.
+// `acquireWeakRef` should be called when a new weak reference is created and
+// `releaseWeakRef` should be called when a weak reference is removed.
 //
 ///Thread Safety
 ///-------------
-// 'bslma::SharedPtrRep' is thread-safe provided that 'disposeObject' and
-// 'disposeRep' are not called explicitly, meaning that all non-creator
-// operations other than 'disposeObject' and 'disposeRep' on a given instance
-// can be safely invoked simultaneously from multiple threads ('disposeObject'
-// and 'disposeRep' are meant to be implemented by types inheriting
-// 'bslma::SharedPtrRep', and invoked only by 'releaseRef' and
-// 'releaseWeakRef').  Note that there is no thread safety guarantees for
+// `bslma::SharedPtrRep` is thread-safe provided that `disposeObject` and
+// `disposeRep` are not called explicitly, meaning that all non-creator
+// operations other than `disposeObject` and `disposeRep` on a given instance
+// can be safely invoked simultaneously from multiple threads (`disposeObject`
+// and `disposeRep` are meant to be implemented by types inheriting
+// `bslma::SharedPtrRep`, and invoked only by `releaseRef` and
+// `releaseWeakRef`).  Note that there is no thread safety guarantees for
 // operations on the managed object.
 //
-///'disposeObject' and 'disposeRep'
+///`disposeObject` and `disposeRep`
 ///--------------------------------
-// 'disposeObject' is meant to act as the destructor of the managed object and
+// `disposeObject` is meant to act as the destructor of the managed object and
 // each derived class must override this method to perform an action that
 // releases the shared object from management, such as deleting the managed
-// object.  'disposeObject' will be called when the last shared reference to
-// the object has been released using 'releaseRef'.
+// object.  `disposeObject` will be called when the last shared reference to
+// the object has been released using `releaseRef`.
 //
-// 'disposeRep' is meant to act as the destructor of 'bslma::SharedPtrRep'.
-// The destructor of 'bslma::SharedPtrRep' is declared as private and cannot be
-// called.  The derived class must override 'disposeRep' to perform an action
+// `disposeRep` is meant to act as the destructor of `bslma::SharedPtrRep`.
+// The destructor of `bslma::SharedPtrRep` is declared as private and cannot be
+// called.  The derived class must override `disposeRep` to perform an action
 // such as deallocating the memory of the instance of the derived class.
-// 'disposeRep' will be called when both the last shared reference and the last
-// weak reference to the object has been released using 'releaseRef' or
-// 'releaseWeakRef'.
+// `disposeRep` will be called when both the last shared reference and the last
+// weak reference to the object has been released using `releaseRef` or
+// `releaseWeakRef`.
 //
 ///Usage
 ///-----
 // The following example demonstrates how to implement a shared
-// 'bdlt::Datetime' using 'bslma::SharedPtrRep'.  In this example, the
-// implementation will store an object of 'bdlt::Datetime' in-place.  First, we
-// define an implementation of 'bslma::SharedPtrRep':
-//..
-//  class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
-//      // Implementation of 'bslma::SharedPtrRep' for an in-place
-//      // 'bdlt::Datetime' object.
+// `bdlt::Datetime` using `bslma::SharedPtrRep`.  In this example, the
+// implementation will store an object of `bdlt::Datetime` in-place.  First, we
+// define an implementation of `bslma::SharedPtrRep`:
+// ```
+// class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
+//     // Implementation of 'bslma::SharedPtrRep' for an in-place
+//     // 'bdlt::Datetime' object.
 //
-//      // DATA
-//      bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
-//      bdlt::Datetime    d_instance;    // in-place object
+//     // DATA
+//     bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
+//     bdlt::Datetime    d_instance;    // in-place object
 //
-//    private:
-//      // NOT IMPLEMENTED
-//      MySharedDatetimeRepImpl(const MySharedDatetimeRepImpl&);
-//      MySharedDatetimeRepImpl& operator=(const MySharedDatetimeRepImpl&);
+//   private:
+//     // NOT IMPLEMENTED
+//     MySharedDatetimeRepImpl(const MySharedDatetimeRepImpl&);
+//     MySharedDatetimeRepImpl& operator=(const MySharedDatetimeRepImpl&);
 //
-//    public:
-//      // CREATORS
-//      MySharedDatetimeRepImpl(bslma::Allocator *basicAllocator,
-//                              int               year,
-//                              int               month,
-//                              int               day);
-//          // Create a shared representation of a 'bdlt::Datetime' object
-//          // having the specified 'year', 'month' and 'day' using the
-//          // specified 'basicAllocator' to supply memory.
+//   public:
+//     // CREATORS
+//     MySharedDatetimeRepImpl(bslma::Allocator *basicAllocator,
+//                             int               year,
+//                             int               month,
+//                             int               day);
+//         // Create a shared representation of a 'bdlt::Datetime' object
+//         // having the specified 'year', 'month' and 'day' using the
+//         // specified 'basicAllocator' to supply memory.
 //
-//      // MANIPULATORS
-//      virtual void disposeRep();
-//          // Dispose of this 'MySharedDatetimeRepImpl' object.
+//     // MANIPULATORS
+//     virtual void disposeRep();
+//         // Dispose of this 'MySharedDatetimeRepImpl' object.
 //
-//      virtual void disposeObject();
-//          // Dispose of the managed 'bdlt::Datetime' object.
+//     virtual void disposeObject();
+//         // Dispose of the managed 'bdlt::Datetime' object.
 //
-//      // ACCESSORS
-//      bdlt::Datetime *ptr();
-//          // Return the address of the modifiable managed 'bdlt::Datetime'
-//          // object.
+//     // ACCESSORS
+//     bdlt::Datetime *ptr();
+//         // Return the address of the modifiable managed 'bdlt::Datetime'
+//         // object.
 //
-//      virtual void *originalPtr() const;
-//          // Return the address of the modifiable managed 'bdlt::Datetime'
-//          // object.
-//  };
-//..
+//     virtual void *originalPtr() const;
+//         // Return the address of the modifiable managed 'bdlt::Datetime'
+//         // object.
+// };
+// ```
 // Next, we define the implementation:
-//..
-//  // CREATORS
-//  MySharedDatetimeRepImpl::MySharedDatetimeRepImpl(
-//                                            bslma::Allocator *basicAllocator,
-//                                            int               year,
-//                                            int               month,
-//                                            int               day)
-//  : d_allocator_p(basicAllocator)
-//  , d_instance(year, month, day)
-//  {
-//  }
+// ```
+// // CREATORS
+// MySharedDatetimeRepImpl::MySharedDatetimeRepImpl(
+//                                           bslma::Allocator *basicAllocator,
+//                                           int               year,
+//                                           int               month,
+//                                           int               day)
+// : d_allocator_p(basicAllocator)
+// , d_instance(year, month, day)
+// {
+// }
 //
-//  void MySharedDatetimeRepImpl::disposeRep()
-//  {
-//      d_allocator_p->deallocate(this);
-//  }
+// void MySharedDatetimeRepImpl::disposeRep()
+// {
+//     d_allocator_p->deallocate(this);
+// }
 //
-//  void MySharedDatetimeRepImpl::disposeObject()
-//  {
-//      d_instance.~bdlt::Datetime();
-//  }
+// void MySharedDatetimeRepImpl::disposeObject()
+// {
+//     d_instance.~bdlt::Datetime();
+// }
 //
-//  bdlt::Datetime *MySharedDatetimeRepImpl::ptr()
-//  {
-//      return &d_instance;
-//  }
+// bdlt::Datetime *MySharedDatetimeRepImpl::ptr()
+// {
+//     return &d_instance;
+// }
 //
-//  void *MySharedDatetimeRepImpl::originalPtr() const {
-//      return const_cast<void*>(static_cast<const void *>(&d_instance));
-//  }
-//..
-// Next, we implement a shared 'bdlt::Datetime' class.
-//..
-//  class MySharedDatetimePtr {
-//      // This class provides a reference counted managed pointer to support
-//      // shared ownership of a 'bdlt::Datetime' object.
+// void *MySharedDatetimeRepImpl::originalPtr() const {
+//     return const_cast<void*>(static_cast<const void *>(&d_instance));
+// }
+// ```
+// Next, we implement a shared `bdlt::Datetime` class.
+// ```
+// class MySharedDatetimePtr {
+//     // This class provides a reference counted managed pointer to support
+//     // shared ownership of a 'bdlt::Datetime' object.
 //
-//      bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
-//      bslma::SharedPtrRep *d_rep_p;  // pointer to the representation object
+//     bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
+//     bslma::SharedPtrRep *d_rep_p;  // pointer to the representation object
 //
-//    private:
-//      // NOT IMPLEMENTED
-//      MySharedDatetimePtr& operator=(const MySharedDatetimePtr&);
+//   private:
+//     // NOT IMPLEMENTED
+//     MySharedDatetimePtr& operator=(const MySharedDatetimePtr&);
 //
-//    public:
-//      // CREATORS
-//      MySharedDatetimePtr();
-//          // Create an empty shared datetime.
+//   public:
+//     // CREATORS
+//     MySharedDatetimePtr();
+//         // Create an empty shared datetime.
 //
-//      MySharedDatetimePtr(bdlt::Datetime* ptr, bslma::SharedPtrRep* rep);
-//          // Create a shared datetime that adopts ownership of the specified
-//          // 'ptr' and the specified 'rep'.
+//     MySharedDatetimePtr(bdlt::Datetime* ptr, bslma::SharedPtrRep* rep);
+//         // Create a shared datetime that adopts ownership of the specified
+//         // 'ptr' and the specified 'rep'.
 //
-//      MySharedDatetimePtr(const MySharedDatetimePtr& original);
-//          // Create a shared datetime that refers to the same object managed
-//          // by the specified 'original'
+//     MySharedDatetimePtr(const MySharedDatetimePtr& original);
+//         // Create a shared datetime that refers to the same object managed
+//         // by the specified 'original'
 //
-//      ~MySharedDatetimePtr();
-//          // Destroy this shared datetime and release the reference to the
-//          // 'bdlt::Datetime' object to which it might be referring.  If this
-//          // is the last shared reference, deleted the managed object.
+//     ~MySharedDatetimePtr();
+//         // Destroy this shared datetime and release the reference to the
+//         // 'bdlt::Datetime' object to which it might be referring.  If this
+//         // is the last shared reference, deleted the managed object.
 //
-//      // MANIPULATORS
-//      void createInplace(bslma::Allocator *basicAllocator,
-//                         int               year,
-//                         int               month,
-//                         int               day);
-//          // Create a new 'MySharedDatetimeRepImpl', using the specified
-//          // 'basicAllocator' to supply memory, using the specified 'year',
-//          // 'month' and 'day' to initialize the 'bdlt::Datetime' within the
-//          // newly created 'MySharedDatetimeRepImpl', and make this
-//          // object refer to the newly created 'bdlt::Datetime' object.
+//     // MANIPULATORS
+//     void createInplace(bslma::Allocator *basicAllocator,
+//                        int               year,
+//                        int               month,
+//                        int               day);
+//         // Create a new 'MySharedDatetimeRepImpl', using the specified
+//         // 'basicAllocator' to supply memory, using the specified 'year',
+//         // 'month' and 'day' to initialize the 'bdlt::Datetime' within the
+//         // newly created 'MySharedDatetimeRepImpl', and make this
+//         // object refer to the newly created 'bdlt::Datetime' object.
 //
-//      // ACCESSORS
-//      bdlt::Datetime& operator*() const;
-//          // Return a reference to the modifiable 'bdlt::Datetime' to which
-//          // this object refers.
+//     // ACCESSORS
+//     bdlt::Datetime& operator*() const;
+//         // Return a reference to the modifiable 'bdlt::Datetime' to which
+//         // this object refers.
 //
-//      bdlt::Datetime *operator->() const;
-//          // Return the address of the modifiable 'bdlt::Datetime' to which
-//          // this object refers.
+//     bdlt::Datetime *operator->() const;
+//         // Return the address of the modifiable 'bdlt::Datetime' to which
+//         // this object refers.
 //
-//      bdlt::Datetime *ptr() const;
-//          // Return the address of the modifiable 'bdlt::Datetime' to which
-//          // this object refers.
-//  };
-//..
-// Finally, we implement 'MySharedDatetimePtr':
-//..
-//  MySharedDatetimePtr::MySharedDatetimePtr()
-//  : d_ptr_p(0)
-//  , d_rep_p(0)
-//  {
-//  }
+//     bdlt::Datetime *ptr() const;
+//         // Return the address of the modifiable 'bdlt::Datetime' to which
+//         // this object refers.
+// };
+// ```
+// Finally, we implement `MySharedDatetimePtr`:
+// ```
+// MySharedDatetimePtr::MySharedDatetimePtr()
+// : d_ptr_p(0)
+// , d_rep_p(0)
+// {
+// }
 //
-//  MySharedDatetimePtr::MySharedDatetimePtr(bdlt::Datetime      *ptr,
-//                                           bslma::SharedPtrRep *rep)
-//  : d_ptr_p(ptr)
-//  , d_rep_p(rep)
-//  {
-//  }
+// MySharedDatetimePtr::MySharedDatetimePtr(bdlt::Datetime      *ptr,
+//                                          bslma::SharedPtrRep *rep)
+// : d_ptr_p(ptr)
+// , d_rep_p(rep)
+// {
+// }
 //
-//  MySharedDatetimePtr::MySharedDatetimePtr(
-//                                         const MySharedDatetimePtr& original)
-//  : d_ptr_p(original.d_ptr_p)
-//  , d_rep_p(original.d_rep_p)
-//  {
-//      if (d_ptr_p) {
-//          d_rep_p->acquireRef();
-//      } else {
-//          d_rep_p = 0;
-//      }
-//  }
+// MySharedDatetimePtr::MySharedDatetimePtr(
+//                                        const MySharedDatetimePtr& original)
+// : d_ptr_p(original.d_ptr_p)
+// , d_rep_p(original.d_rep_p)
+// {
+//     if (d_ptr_p) {
+//         d_rep_p->acquireRef();
+//     } else {
+//         d_rep_p = 0;
+//     }
+// }
 //
-//  MySharedDatetimePtr::~MySharedDatetimePtr()
-//  {
-//      if (d_rep_p) {
-//          d_rep_p->releaseRef();
-//      }
-//  }
+// MySharedDatetimePtr::~MySharedDatetimePtr()
+// {
+//     if (d_rep_p) {
+//         d_rep_p->releaseRef();
+//     }
+// }
 //
-//  void MySharedDatetimePtr::createInplace(bslma::Allocator *basicAllocator,
-//                                          int               year,
-//                                          int               month,
-//                                          int               day)
-//  {
-//      basicAllocator = bslma::Default::allocator(basicAllocator);
-//      MySharedDatetimeRepImpl *rep = new (*basicAllocator)
-//                                      MySharedDatetimeRepImpl(basicAllocator,
-//                                                              year,
-//                                                              month,
-//                                                              day);
-//      MySharedDatetimePtr temp(rep->ptr(), rep);
-//      bsl::swap(d_ptr_p, temp.d_ptr_p);
-//      bsl::swap(d_rep_p, temp.d_rep_p);
-//  }
+// void MySharedDatetimePtr::createInplace(bslma::Allocator *basicAllocator,
+//                                         int               year,
+//                                         int               month,
+//                                         int               day)
+// {
+//     basicAllocator = bslma::Default::allocator(basicAllocator);
+//     MySharedDatetimeRepImpl *rep = new (*basicAllocator)
+//                                     MySharedDatetimeRepImpl(basicAllocator,
+//                                                             year,
+//                                                             month,
+//                                                             day);
+//     MySharedDatetimePtr temp(rep->ptr(), rep);
+//     bsl::swap(d_ptr_p, temp.d_ptr_p);
+//     bsl::swap(d_rep_p, temp.d_rep_p);
+// }
 //
-//  bdlt::Datetime& MySharedDatetimePtr::operator*() const
-//  {
-//      return *d_ptr_p;
-//  }
+// bdlt::Datetime& MySharedDatetimePtr::operator*() const
+// {
+//     return *d_ptr_p;
+// }
 //
-//  bdlt::Datetime *MySharedDatetimePtr::operator->() const
-//  {
-//      return d_ptr_p;
-//  }
+// bdlt::Datetime *MySharedDatetimePtr::operator->() const
+// {
+//     return d_ptr_p;
+// }
 //
-//  bdlt::Datetime *MySharedDatetimePtr::ptr() const
-//  {
-//      return d_ptr_p;
-//  }
-//..
+// bdlt::Datetime *MySharedDatetimePtr::ptr() const
+// {
+//     return d_ptr_p;
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -279,17 +279,17 @@ namespace bslma {
                         // class SharedPtrRep
                         // ==================
 
+/// This class provides a partially implemented shared pointer
+/// representation ("letter") protocol.  The class provides two counters for
+/// storing the number of shared and weak references, and functions to
+/// increment and decrement these counters.  In addition, this class
+/// provides protocol methods that allow concrete implementations to specify
+/// what action should be taken when these counts reach zero.  The function
+/// `disposeRep` is responsible for destroying this object, it is called
+/// when the reference count to this object reaches zero.  Thus, the
+/// destructor of this object is declared as protected and should never be
+/// invoked.
 class SharedPtrRep {
-    // This class provides a partially implemented shared pointer
-    // representation ("letter") protocol.  The class provides two counters for
-    // storing the number of shared and weak references, and functions to
-    // increment and decrement these counters.  In addition, this class
-    // provides protocol methods that allow concrete implementations to specify
-    // what action should be taken when these counts reach zero.  The function
-    // 'disposeRep' is responsible for destroying this object, it is called
-    // when the reference count to this object reaches zero.  Thus, the
-    // destructor of this object is declared as protected and should never be
-    // invoked.
 
     // DATA
     bsls::AtomicInt d_adjustedSharedCount;
@@ -312,146 +312,153 @@ class SharedPtrRep {
     SharedPtrRep& operator=(const SharedPtrRep&);  // = delete
 
     // PRIVATE ACCESSORS
+
+    /// Do nothing.  Note that this function is added to avoid including a
+    /// (redundant) vtable into every translation unit that includes this
+    /// type.  Although we expect that these redundant vtables, identified
+    /// by the `-Wweak-vtables` warning of the clang compiler (version 4.0
+    /// and higher), will be consolidated by the linker, this workaround
+    /// avoids the space being used in the generated object files, which may
+    /// be important for very heavily used types like this one.
+    /// Implementing a virtual function out-of-line enables the compiler to
+    /// use this component translation unit as a "home" for the single
+    /// shared copy of the vtable.
     virtual void vtableDummy() const;
-        // Do nothing.  Note that this function is added to avoid including a
-        // (redundant) vtable into every translation unit that includes this
-        // type.  Although we expect that these redundant vtables, identified
-        // by the '-Wweak-vtables' warning of the clang compiler (version 4.0
-        // and higher), will be consolidated by the linker, this workaround
-        // avoids the space being used in the generated object files, which may
-        // be important for very heavily used types like this one.
-        // Implementing a virtual function out-of-line enables the compiler to
-        // use this component translation unit as a "home" for the single
-        // shared copy of the vtable.
 
   protected:
     // PROTECTED CREATORS
+
+    /// Destroy this representation object.  Note that this destructor is
+    /// not intended to be invoked polymorphically, and is marked `virtual`
+    /// only to silence frequent warnings on popular compilers.
     virtual ~SharedPtrRep();
-        // Destroy this representation object.  Note that this destructor is
-        // not intended to be invoked polymorphically, and is marked 'virtual'
-        // only to silence frequent warnings on popular compilers.
 
   public:
     // CLASS METHODS
-    static void managedPtrDeleter(void *, void *rep);
-        // Release the shared reference to an object held by the 'SharedPtrRep'
-        // object that is pointed to be by specified 'rep'.  The behavior is
-        // undefined unless 'rep' points to an object whose complete type
-        // publicly and unambiguously derives from 'SharedPtrRep'.  Note that
-        // the first argument is ignored.  Also note that this function serves
-        // as the 'ManagedPtr' deleter when converting a 'bsl::shared_ptr' to a
-        // 'bslma::ManagedPtr'.
 
+    /// Release the shared reference to an object held by the `SharedPtrRep`
+    /// object that is pointed to be by specified `rep`.  The behavior is
+    /// undefined unless `rep` points to an object whose complete type
+    /// publicly and unambiguously derives from `SharedPtrRep`.  Note that
+    /// the first argument is ignored.  Also note that this function serves
+    /// as the `ManagedPtr` deleter when converting a `bsl::shared_ptr` to a
+    /// `bslma::ManagedPtr`.
+    static void managedPtrDeleter(void *, void *rep);
+
+    /// This function has no effect.  The behavior is undefined unless `rep`
+    /// is null.  Note that this function serves as the managed ptr deleter
+    /// when converting an empty or null `bsl::shared_ptr` to a
+    /// `bslma::ManagedPtr`.
     static void managedPtrEmptyDeleter(void *, void *rep);
-        // This function has no effect.  The behavior is undefined unless 'rep'
-        // is null.  Note that this function serves as the managed ptr deleter
-        // when converting an empty or null 'bsl::shared_ptr' to a
-        // 'bslma::ManagedPtr'.
 
     // CREATORS
+
+    /// Create a `SharedPtrRep` object having one shared reference and no
+    /// weak references.
     SharedPtrRep();
-        // Create a 'SharedPtrRep' object having one shared reference and no
-        // weak references.
 
     // PURE VIRTUAL FUNCTIONS
+
+    /// Dispose of the shared object referred to by this representation.
+    /// This method is automatically invoked by `releaseRef` when the number
+    /// of shared references reaches zero and should not be explicitly
+    /// invoked otherwise.  Note that this virtual `disposeObject` method
+    /// effectively serves as the shared object's destructor.  Also note
+    /// that derived classes must override this method to perform the
+    /// appropriate action such as deleting the shared object.
     virtual void disposeObject() = 0;
-        // Dispose of the shared object referred to by this representation.
-        // This method is automatically invoked by 'releaseRef' when the number
-        // of shared references reaches zero and should not be explicitly
-        // invoked otherwise.  Note that this virtual 'disposeObject' method
-        // effectively serves as the shared object's destructor.  Also note
-        // that derived classes must override this method to perform the
-        // appropriate action such as deleting the shared object.
 
+    /// Dispose of this representation object.  This method is automatically
+    /// invoked by `releaseRef` and `releaseWeakRef` when the number of weak
+    /// references and the number of shared references both reach zero and
+    /// should not be explicitly invoked otherwise.  The behavior is
+    /// undefined unless `disposeObject` has already been called for this
+    /// representation.  Note that this virtual `disposeRep` method
+    /// effectively serves as the representation object's destructor.  Also
+    /// note that derived classes must override this method to perform
+    /// appropriate action such as deleting this representation, or
+    /// returning it to an object pool.
     virtual void disposeRep() = 0;
-        // Dispose of this representation object.  This method is automatically
-        // invoked by 'releaseRef' and 'releaseWeakRef' when the number of weak
-        // references and the number of shared references both reach zero and
-        // should not be explicitly invoked otherwise.  The behavior is
-        // undefined unless 'disposeObject' has already been called for this
-        // representation.  Note that this virtual 'disposeRep' method
-        // effectively serves as the representation object's destructor.  Also
-        // note that derived classes must override this method to perform
-        // appropriate action such as deleting this representation, or
-        // returning it to an object pool.
 
+    /// Return a pointer to the deleter stored by the derived representation
+    /// (if any) if the deleter has the same type as that described by the
+    /// specified `type`, and a null pointer otherwise.  Note that while
+    /// this methods appears to be a simple accessor, it is declared as non-
+    /// `const` qualified to support representations storing the deleter
+    /// directly as a data member.
     virtual void *getDeleter(const std::type_info& type) = 0;
-        // Return a pointer to the deleter stored by the derived representation
-        // (if any) if the deleter has the same type as that described by the
-        // specified 'type', and a null pointer otherwise.  Note that while
-        // this methods appears to be a simple accessor, it is declared as non-
-        // 'const' qualified to support representations storing the deleter
-        // directly as a data member.
 
+    /// Return the (untyped) address of the modifiable shared object
+    /// referred to by this representation.
     virtual void *originalPtr() const = 0;
-        // Return the (untyped) address of the modifiable shared object
-        // referred to by this representation.
 
     // MANIPULATORS
-    void acquireRef();
-        // Atomically acquire a shared reference to the shared object referred
-        // to by this representation.  The behavior is undefined unless
-        // '0 < numReferences()'.
 
+    /// Atomically acquire a shared reference to the shared object referred
+    /// to by this representation.  The behavior is undefined unless
+    /// `0 < numReferences()`.
+    void acquireRef();
+
+    /// Atomically acquire a weak reference to the shared object referred to
+    /// by this representation.  The behavior is undefined unless
+    /// `0 < numWeakReferences() || 0 < numReferences()`.
     void acquireWeakRef();
-        // Atomically acquire a weak reference to the shared object referred to
-        // by this representation.  The behavior is undefined unless
-        // '0 < numWeakReferences() || 0 < numReferences()'.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    /// Atomically increment the number of shared references to the shared
+    /// object referred to by this representation by the optionally
+    /// specified `incrementAmount`.  The behavior is undefined unless
+    /// `0 < incrementAmount` and `0 < numReferences()`.
+    ///
+    /// DEPRECATED: Use `acquireRef` instead.
     void incrementRefs(int incrementAmount = 1);
-        // Atomically increment the number of shared references to the shared
-        // object referred to by this representation by the optionally
-        // specified 'incrementAmount'.  The behavior is undefined unless
-        // '0 < incrementAmount' and '0 < numReferences()'.
-        //
-        // DEPRECATED: Use 'acquireRef' instead.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+    /// Atomically release a shared reference to the shared object referred
+    /// to by this representation, disposing of the shared object if all the
+    /// shared references to that object are released, and disposing of this
+    /// representation if all (shared and weak) references to that object
+    /// are released.  The behavior is undefined unless
+    /// `0 < numReferences()`.
     void releaseRef();
-        // Atomically release a shared reference to the shared object referred
-        // to by this representation, disposing of the shared object if all the
-        // shared references to that object are released, and disposing of this
-        // representation if all (shared and weak) references to that object
-        // are released.  The behavior is undefined unless
-        // '0 < numReferences()'.
 
+    /// Atomically release a weak reference to the shared object referred to
+    /// by this representation, disposing of this representation if all
+    /// (shared and weak) references to the shared object are released.  The
+    /// behavior is undefined unless `0 < numWeakReferences()`.
     void releaseWeakRef();
-        // Atomically release a weak reference to the shared object referred to
-        // by this representation, disposing of this representation if all
-        // (shared and weak) references to the shared object are released.  The
-        // behavior is undefined unless '0 < numWeakReferences()'.
 
+    /// Reset the number of shared references and the number of weak
+    /// references stored by this representation to the specified
+    /// `numSharedReferences` and `numWeakReferences` respectively.  This
+    /// function is *not* thread-safe and users must ensure that they
+    /// serialize access to the `SharedPtrRep` object when calling this
+    /// function.  Note that this function updates the counts, but does not
+    /// dispose of the representation or the object irrespective of the
+    /// values of `numSharedReferences` and `numWeakReferences`.
     void resetCountsRaw(int numSharedReferences, int numWeakReferences);
-        // Reset the number of shared references and the number of weak
-        // references stored by this representation to the specified
-        // 'numSharedReferences' and 'numWeakReferences' respectively.  This
-        // function is *not* thread-safe and users must ensure that they
-        // serialize access to the 'SharedPtrRep' object when calling this
-        // function.  Note that this function updates the counts, but does not
-        // dispose of the representation or the object irrespective of the
-        // values of 'numSharedReferences' and 'numWeakReferences'.
 
+    /// Atomically acquire a shared reference to the shared object referred
+    /// to by this representation, if the number of shared references is
+    /// greater than 0, and do nothing otherwise.  Return `true` if the
+    /// acquire succeeds, and `false` otherwise.  The behavior is undefined
+    /// unless `0 < numWeakReferences() || 0 < numReferences()`.
     bool tryAcquireRef();
-        // Atomically acquire a shared reference to the shared object referred
-        // to by this representation, if the number of shared references is
-        // greater than 0, and do nothing otherwise.  Return 'true' if the
-        // acquire succeeds, and 'false' otherwise.  The behavior is undefined
-        // unless '0 < numWeakReferences() || 0 < numReferences()'.
 
     // ACCESSORS
+
+    /// Return `true` if there is only one shared reference and no weak
+    /// references to the object referred to by this representation, and
+    /// `false` otherwise.
     bool hasUniqueOwner() const;
-        // Return 'true' if there is only one shared reference and no weak
-        // references to the object referred to by this representation, and
-        // 'false' otherwise.
 
+    /// Return a "snapshot" of the current number of shared references to
+    /// the shared object referred to by this representation object.
     int numReferences() const;
-        // Return a "snapshot" of the current number of shared references to
-        // the shared object referred to by this representation object.
 
+    /// Return a "snapshot" of the current number of weak references to the
+    /// shared object referred to by this representation object.
     int numWeakReferences() const;
-        // Return a "snapshot" of the current number of weak references to the
-        // shared object referred to by this representation object.
 
 };
 

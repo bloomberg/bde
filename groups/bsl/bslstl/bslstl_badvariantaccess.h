@@ -5,18 +5,18 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an exception class thrown by 'bsl::variant'.
+//@PURPOSE: Provide an exception class thrown by `bsl::variant`.
 //
 //@CLASSES:
-//  bsl::bad_variant_access: exception type thrown by 'bsl::variant'
+//  bsl::bad_variant_access: exception type thrown by `bsl::variant`
 //
 //@SEE_ALSO: bslstl_variant, bslstl_stdexceptionutil
 //
-//@DESCRIPTION: This component provides the 'bsl::bad_variant_access' exception
-// class.  This exception is thrown by 'bsl::get' when a 'bsl::variant' does
-// not contain the requested alternative and 'bsl::visit' when a 'bsl::variant'
-// does not contain a value.  If 'std::variant' is available,
-// 'bsl::bad_variant_access' is an alias to 'std::bad_variant_access'.
+//@DESCRIPTION: This component provides the `bsl::bad_variant_access` exception
+// class.  This exception is thrown by `bsl::get` when a `bsl::variant` does
+// not contain the requested alternative and `bsl::visit` when a `bsl::variant`
+// does not contain a value.  If `std::variant` is available,
+// `bsl::bad_variant_access` is an alias to `std::bad_variant_access`.
 
 #include <bslscm_version.h>
 

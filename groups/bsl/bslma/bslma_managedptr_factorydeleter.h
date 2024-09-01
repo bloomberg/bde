@@ -12,11 +12,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE_ALSO: bslma_managedptr
 //
-//@DESCRIPTION: This component provides a utility 'struct',
-// 'bslma::ManagedPtr_FactoryDeleter', used as an implementation detail by
-// 'bslma::ManagedPtr' to produce a type-erasing deleter function that destroys
-// an object of (template parameter) 'OBJECT_TYPE', using a factory of
-// (template parameter) 'FACTORY' type that provides a 'deleteObject' method.
+//@DESCRIPTION: This component provides a utility `struct`,
+// `bslma::ManagedPtr_FactoryDeleter`, used as an implementation detail by
+// `bslma::ManagedPtr` to produce a type-erasing deleter function that destroys
+// an object of (template parameter) `OBJECT_TYPE`, using a factory of
+// (template parameter) `FACTORY` type that provides a `deleteObject` method.
 
 #include <bslscm_version.h>
 
@@ -29,20 +29,21 @@ namespace bslma {
                    // struct ManagedPtr_FactoryDeleter
                    // ================================
 
+/// This utility provides a general deleter for factories that provide a
+/// `deleteObject` operation (e.g., `bslma::Allocator`, `bdlma::Pool`).
 template <class OBJECT_TYPE, class FACTORY>
 struct ManagedPtr_FactoryDeleter {
-    // This utility provides a general deleter for factories that provide a
-    // 'deleteObject' operation (e.g., 'bslma::Allocator', 'bdlma::Pool').
 
     // CLASS METHODS
+
+    /// Delete the specified `object` by invoking `deleteObject` on the
+    /// specified `factory`, casting `object` to `OBJECT_TYPE *` and
+    /// `factory` to `FACTORY *`.  The behavior is undefined unless
+    /// `factory` points to an object of type `FACTORY`, and `object` points
+    /// to a complete object of type `OBJECT_TYPE` or `OBJECT_TYPE` has a
+    /// virtual destructor and `object` points to an object whose dynamic
+    /// type derives from 'OBJECT_TYPE.
     static void deleter(void *object, void *factory);
-        // Delete the specified 'object' by invoking 'deleteObject' on the
-        // specified 'factory', casting 'object' to 'OBJECT_TYPE *' and
-        // 'factory' to 'FACTORY *'.  The behavior is undefined unless
-        // 'factory' points to an object of type 'FACTORY', and 'object' points
-        // to a complete object of type 'OBJECT_TYPE' or 'OBJECT_TYPE' has a
-        // virtual destructor and 'object' points to an object whose dynamic
-        // type derives from 'OBJECT_TYPE.
 };
 
 // ============================================================================

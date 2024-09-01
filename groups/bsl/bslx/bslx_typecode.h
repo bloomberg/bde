@@ -10,55 +10,55 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslx::TypeCode: namespace for enumerating BDEX-supported fundamental types
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'bslx::TypeCode::Enum', which enumerates the set of fundamental types
-// supported within 'bslx'.  A 'bslx::TypeCode' is particularly important when
-// testing 'bslx' implementations (see 'bslx::TestOutStream' and
-// 'bslx::TestInStream').
+//@DESCRIPTION: This component provides a namespace for the `enum` type
+// `bslx::TypeCode::Enum`, which enumerates the set of fundamental types
+// supported within `bslx`.  A `bslx::TypeCode` is particularly important when
+// testing `bslx` implementations (see `bslx::TestOutStream` and
+// `bslx::TestInStream`).
 //
 ///Enumerators
 ///-----------
-//..
-//  Name                 Description
-//  ------------------   ---------------------------------------------------
-//  e_INT8               Value is an 8-bit integer.
+// ```
+// Name                 Description
+// ------------------   ---------------------------------------------------
+// e_INT8               Value is an 8-bit integer.
 //
-//  e_UINT8              Value is an unsigned 8-bit integer.
+// e_UINT8              Value is an unsigned 8-bit integer.
 //
-//  e_INT16              Value is a 16-bit integer.
+// e_INT16              Value is a 16-bit integer.
 //
-//  e_UINT16             Value is an unsigned 16-bit integer.
+// e_UINT16             Value is an unsigned 16-bit integer.
 //
-//  e_INT24              Value is a 24-bit integer.
+// e_INT24              Value is a 24-bit integer.
 //
-//  e_UINT24             Value is an unsigned 24-bit integer.
+// e_UINT24             Value is an unsigned 24-bit integer.
 //
-//  e_INT32              Value is a 32-bit integer.
+// e_INT32              Value is a 32-bit integer.
 //
-//  e_UINT32             Value is an unsigned 32-bit integer.
+// e_UINT32             Value is an unsigned 32-bit integer.
 //
-//  e_INT40              Value is a 40-bit integer.
+// e_INT40              Value is a 40-bit integer.
 //
-//  e_UINT40             Value is an unsigned 40-bit integer.
+// e_UINT40             Value is an unsigned 40-bit integer.
 //
-//  e_INT48              Value is a 48-bit integer.
+// e_INT48              Value is a 48-bit integer.
 //
-//  e_UINT48             Value is an unsigned 48-bit integer.
+// e_UINT48             Value is an unsigned 48-bit integer.
 //
-//  e_INT56              Value is a 56-bit integer.
+// e_INT56              Value is a 56-bit integer.
 //
-//  e_UINT56             Value is an unsigned 56-bit integer.
+// e_UINT56             Value is an unsigned 56-bit integer.
 //
-//  e_INT64              Value is a 64-bit integer.
+// e_INT64              Value is a 64-bit integer.
 //
-//  e_UINT64             Value is an unsigned 64-bit integer.
+// e_UINT64             Value is an unsigned 64-bit integer.
 //
-//  e_FLOAT32            Value is a 32-bit floating-point number.
+// e_FLOAT32            Value is a 32-bit floating-point number.
 //
-//  e_FLOAT64            Value is a 64-bit floating-point number.
+// e_FLOAT64            Value is a 64-bit floating-point number.
 //
-//  e_INVALID            Value is not valid.
-//..
+// e_INVALID            Value is not valid.
+// ```
 //
 ///Usage
 ///-----
@@ -67,27 +67,27 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of using
-// 'bslx::TypeCode'.
+// `bslx::TypeCode`.
 //
-// First, we create a variable 'value' of type 'bslx::TypeCode::Enum' and
-// initialize it with the enumerator value 'bslx::TypeCode::e_INT32':
-//..
-//  bslx::TypeCode::Enum value = bslx::TypeCode::e_INT32;
-//..
+// First, we create a variable `value` of type `bslx::TypeCode::Enum` and
+// initialize it with the enumerator value `bslx::TypeCode::e_INT32`:
+// ```
+// bslx::TypeCode::Enum value = bslx::TypeCode::e_INT32;
+// ```
 // Now, we store the address of its ASCII representation in a pointer variable,
-// 'asciiValue', of type 'const char *':
-//..
-//  const char *asciiValue = bslx::TypeCode::toAscii(value);
-//  assert(0 == bsl::strcmp(asciiValue, "INT32"));
-//..
-// Finally, we print 'value' to 'bsl::cout':
-//..
-//  bsl::cout << value << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
-//  INT32
-//..
+// `asciiValue`, of type `const char *`:
+// ```
+// const char *asciiValue = bslx::TypeCode::toAscii(value);
+// assert(0 == bsl::strcmp(asciiValue, "INT32"));
+// ```
+// Finally, we print `value` to `bsl::cout`:
+// ```
+// bsl::cout << value << bsl::endl;
+// ```
+// This statement produces the following output on `stdout`:
+// ```
+// INT32
+// ```
 
 #include <bslscm_version.h>
 
@@ -100,10 +100,10 @@ namespace bslx {
                          // struct TypeCode
                          // ===============
 
+/// This `struct` provides a namespace for enumerating the set of
+/// fundamental types supported within `bslx`.  See `Enum` in the `TYPES`
+/// sub-section for details.
 struct TypeCode {
-    // This 'struct' provides a namespace for enumerating the set of
-    // fundamental types supported within 'bslx'.  See 'Enum' in the 'TYPES'
-    // sub-section for details.
 
   private:
     // PRIVATE TYPES
@@ -153,52 +153,54 @@ struct TypeCode {
 
   public:
     // CLASS METHODS
+
+    /// Write the string representation of the specified enumeration `value`
+    /// to the specified output `stream`, and return a reference to
+    /// `stream`.  Optionally specify an initial indentation `level`, whose
+    /// absolute value is incremented recursively for nested objects.  If
+    /// `level` is specified, optionally specify `spacesPerLevel`, whose
+    /// absolute value indicates the number of spaces per indentation level
+    /// for this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  See `toAscii` for
+    /// what constitutes the string representation of a `TypeCode::Enum`
+    /// value.
     static bsl::ostream& print(bsl::ostream&  stream,
                                TypeCode::Enum value,
                                int            level          = 0,
                                int            spacesPerLevel = 4);
-        // Write the string representation of the specified enumeration 'value'
-        // to the specified output 'stream', and return a reference to
-        // 'stream'.  Optionally specify an initial indentation 'level', whose
-        // absolute value is incremented recursively for nested objects.  If
-        // 'level' is specified, optionally specify 'spacesPerLevel', whose
-        // absolute value indicates the number of spaces per indentation level
-        // for this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  See 'toAscii' for
-        // what constitutes the string representation of a 'TypeCode::Enum'
-        // value.
 
+    /// Return the non-modifiable string representation corresponding to the
+    /// specified enumeration `value`, if it exists, and a unique (error)
+    /// string otherwise.  The string representation of `value` matches its
+    /// corresponding enumerator name with the "e_" prefix elided.  For
+    /// example:
+    /// ```
+    /// bsl::cout << TypeCode::toAscii(TypeCode::e_INT32);
+    /// ```
+    /// will print the following on standard output:
+    /// ```
+    /// INT32
+    /// ```
+    /// Note that specifying a `value` that does not match any of the
+    /// enumerators will result in a string representation that is distinct
+    /// from any of those corresponding to the enumerators, but is otherwise
+    /// unspecified.
     static const char *toAscii(TypeCode::Enum value);
-        // Return the non-modifiable string representation corresponding to the
-        // specified enumeration 'value', if it exists, and a unique (error)
-        // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "e_" prefix elided.  For
-        // example:
-        //..
-        //  bsl::cout << TypeCode::toAscii(TypeCode::e_INT32);
-        //..
-        // will print the following on standard output:
-        //..
-        //  INT32
-        //..
-        // Note that specifying a 'value' that does not match any of the
-        // enumerators will result in a string representation that is distinct
-        // from any of those corresponding to the enumerators, but is otherwise
-        // unspecified.
 };
 
 // FREE OPERATORS
+
+/// Write the string representation of the specified enumeration `value` to
+/// the specified output `stream` in a single-line format, and return a
+/// reference to `stream`.  See `toAscii` for what constitutes the string
+/// representation of a `TypeCode::Enum` value.  Note that this method has
+/// the same behavior as
+/// ```
+/// TypeCode::print(stream, value, 0, -1);
+/// ```
 bsl::ostream& operator<<(bsl::ostream& stream, TypeCode::Enum value);
-    // Write the string representation of the specified enumeration 'value' to
-    // the specified output 'stream' in a single-line format, and return a
-    // reference to 'stream'.  See 'toAscii' for what constitutes the string
-    // representation of a 'TypeCode::Enum' value.  Note that this method has
-    // the same behavior as
-    //..
-    //  TypeCode::print(stream, value, 0, -1);
-    //..
 
 // ============================================================================
 //                        INLINE DEFINITIONS

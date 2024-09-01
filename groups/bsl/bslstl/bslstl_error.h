@@ -10,19 +10,19 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide standard compliant versions of <system_error> classes.
 //
 //@CLASSES:
-//  bsl::error_category: a standard compliant version of 'error_category'
-//  bsl::error_code: a standard complaint version of 'error_code'
-//  bsl::error_condition: a standard complaint version of 'error_condition'
+//  bsl::error_category: a standard compliant version of `error_category`
+//  bsl::error_code: a standard complaint version of `error_code`
+//  bsl::error_condition: a standard complaint version of `error_condition`
 //
 //@CANONICAL_HEADER: bsl_system_error.h
 //
-//@DESCRIPTION: This component defines classes 'bsl::error_category',
-// 'bsl::error_code', and 'bsl::error_condition', global functions
-// 'bsl::generic_category', 'bsl::system_category', 'bsl::make_error_code', and
-// 'bsl::make_error_condition', and a variety of operators that provide
-// implementations of the C++11 'system_error' facility.  In C++11 mode, the
-// vendor-supplied '<system_error>' implementation is used instead, and the
-// corresponding names from 'std' are imported into 'bsl'.
+//@DESCRIPTION: This component defines classes `bsl::error_category`,
+// `bsl::error_code`, and `bsl::error_condition`, global functions
+// `bsl::generic_category`, `bsl::system_category`, `bsl::make_error_code`, and
+// `bsl::make_error_condition`, and a variety of operators that provide
+// implementations of the C++11 `system_error` facility.  In C++11 mode, the
+// vendor-supplied `<system_error>` implementation is used instead, and the
+// corresponding names from `std` are imported into `bsl`.
 //
 ///Usage
 ///-----

@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslim_fuzzdataview
 //
-//@DESCRIPTION: This component provides a namespace, 'bslim::FuzzUtil',
+//@DESCRIPTION: This component provides a namespace, `bslim::FuzzUtil`,
 // containing functions that create fundamental and standard library types from
-// fuzz data provided by a fuzz harness (e.g., 'libFuzzer').
+// fuzz data provided by a fuzz harness (e.g., `libFuzzer`).
 //
 // See {http://bburl/BDEFuzzTesting} for details on how to build and run with
 // fuzz testing enabled.
@@ -27,57 +27,57 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wish to fuzz test a function with preconditions.
 //
-// First, we define the 'TradingInterfaceUnderTest' 'struct':
-//..
-//  struct TradingInterfaceUnderTest {
-//      // This utility class provides sample functionality to demonstrate how
-//      // fuzz data might be used.
+// First, we define the `TradingInterfaceUnderTest` `struct`:
+// ```
+// struct TradingInterfaceUnderTest {
+//     // This utility class provides sample functionality to demonstrate how
+//     // fuzz data might be used.
 //
-//      // CLASS METHODS
-//      static int numEarningsAnnouncements(int year, int month)
-//          // Return a value containing the number of earnings announcements
-//          // in the specified 'year' and 'month'.  The behavior is undefined
-//          // unless '1950 < year < 2030' and 'month' is in '[1 .. 12]'.  Note
-//          // that the values here are arbitrary, and in the real-world this
-//          // data would be obtained from a database or an API.
-//      {
-//          BSLS_ASSERT(1950 <  year  && year  < 2030);
-//          BSLS_ASSERT(   1 <= month && month <=  12);
+//     // CLASS METHODS
+//     static int numEarningsAnnouncements(int year, int month)
+//         // Return a value containing the number of earnings announcements
+//         // in the specified 'year' and 'month'.  The behavior is undefined
+//         // unless '1950 < year < 2030' and 'month' is in '[1 .. 12]'.  Note
+//         // that the values here are arbitrary, and in the real-world this
+//         // data would be obtained from a database or an API.
+//     {
+//         BSLS_ASSERT(1950 <  year  && year  < 2030);
+//         BSLS_ASSERT(   1 <= month && month <=  12);
 //
-//          if (2020 < year && 6 < month) {
-//              return 11;                                            // RETURN
-//          }
-//          return 6;
-//      }
-//  };
-//..
+//         if (2020 < year && 6 < month) {
+//             return 11;                                            // RETURN
+//         }
+//         return 6;
+//     }
+// };
+// ```
 // Then, we need a block of raw bytes.  This would normally come from a fuzz
-// harness (e.g., the 'LLVMFuzzerTestOneInput' entry point function from
-// 'libFuzzer').  Since 'libFuzzer' is not available here, we initialize a
-// 'myFuzzData' array that we will use instead.
-//..
-//  const bsl::uint8_t  myFuzzData[] = {0x43, 0x19, 0x0D, 0x44, 0x37, 0x0D,
-//                                      0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
-//..
-// Next, we create a 'FuzzDataView' to wrap the raw bytes.
-//..
-//  bslim::FuzzDataView fdv(myFuzzData, sizeof myFuzzData);
-//..
-// Now, we pass this 'FuzzDataView' to 'FuzzUtil' to generate values within the
+// harness (e.g., the `LLVMFuzzerTestOneInput` entry point function from
+// `libFuzzer`).  Since `libFuzzer` is not available here, we initialize a
+// `myFuzzData` array that we will use instead.
+// ```
+// const bsl::uint8_t  myFuzzData[] = {0x43, 0x19, 0x0D, 0x44, 0x37, 0x0D,
+//                                     0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
+// ```
+// Next, we create a `FuzzDataView` to wrap the raw bytes.
+// ```
+// bslim::FuzzDataView fdv(myFuzzData, sizeof myFuzzData);
+// ```
+// Now, we pass this `FuzzDataView` to `FuzzUtil` to generate values within the
 // permissible range of the function under test:
-//..
-//  int month = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv,    1,   12);
-//  int year  = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1951, 2029);
-//  assert(   1 <= month && month <=   12);
-//  assert(1951 <= year  && year  <= 2029);
-//..
-// Finally, we can use these 'int' values to pass to a function that returns
+// ```
+// int month = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv,    1,   12);
+// int year  = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1951, 2029);
+// assert(   1 <= month && month <=   12);
+// assert(1951 <= year  && year  <= 2029);
+// ```
+// Finally, we can use these `int` values to pass to a function that returns
 // the number of earnings announcements scheduled in a given month.
-//..
-//  int numEarnings =
-//      TradingInterfaceUnderTest::numEarningsAnnouncements(year, month);
-//  (void) numEarnings;
-//..
+// ```
+// int numEarnings =
+//     TradingInterfaceUnderTest::numEarningsAnnouncements(year, month);
+// (void) numEarnings;
+// ```
 
 #include <bslscm_version.h>
 
@@ -106,37 +106,48 @@ namespace bslim {
                               // struct FuzzUtil
                               // ===============
 
+/// This utility `struct` provides a namespace for a suite of functions
+/// operating on objects of type `FuzzDataView`and providing the consumption
+/// of fuzz data bytes into fundamental and standard library types.
 struct FuzzUtil {
-    // This utility 'struct' provides a namespace for a suite of functions
-    // operating on objects of type 'FuzzDataView'and providing the consumption
-    // of fuzz data bytes into fundamental and standard library types.
 
     // CLASS METHODS
+
+    /// Return a `bool` value based upon consuming a single byte from the
+    /// specified `fuzzDataView`.  If `fuzzDataView->length()` is 0, return
+    /// `false`.
     static bool consumeBool(FuzzDataView *fuzzDataView);
-        // Return a 'bool' value based upon consuming a single byte from the
-        // specified 'fuzzDataView'.  If 'fuzzDataView->length()' is 0, return
-        // 'false'.
 
     template <class TYPE>
     static typename bsl::enable_if<bsl::is_integral<TYPE>::value, TYPE>::type
     consumeNumber(FuzzDataView *fuzzDataView);
 
+    /// Return a value of (template parameter) `TYPE` in the range
+    /// [min .. max] -- where `min` and `max` are the minimum and maximum
+    /// values representable by the `TYPE` -- based on at most the next
+    /// `sizeof(TYPE) + 1` bytes from the specified `fuzzDataView`, and
+    /// update `fuzzDataView` to reflect the bytes consumed.  If
+    /// `0 == fuzzDataView->length()`, return the minimum value of `TYPE`.
+    /// This function does not participate in overload resolution unless
+    /// either `bsl::is_integral<TYPE>::value` or
+    /// `bsl::is_floating_point<TYPE>::value` is `true`.  The behavior is
+    /// undefined if `bsl::is_same<TYPE, bool>::value` or
+    /// `bsl::is_same<TYPE, long double>` is `true`.
     template <class TYPE>
     static typename
     bsl::enable_if<bsl::is_floating_point<TYPE>::value, TYPE>::type
     consumeNumber(FuzzDataView *fuzzDataView);
-        // Return a value of (template parameter) 'TYPE' in the range
-        // [min .. max] -- where 'min' and 'max' are the minimum and maximum
-        // values representable by the 'TYPE' -- based on at most the next
-        // 'sizeof(TYPE) + 1' bytes from the specified 'fuzzDataView', and
-        // update 'fuzzDataView' to reflect the bytes consumed.  If
-        // '0 == fuzzDataView->length()', return the minimum value of 'TYPE'.
-        // This function does not participate in overload resolution unless
-        // either 'bsl::is_integral<TYPE>::value' or
-        // 'bsl::is_floating_point<TYPE>::value' is 'true'.  The behavior is
-        // undefined if 'bsl::is_same<TYPE, bool>::value' or
-        // 'bsl::is_same<TYPE, long double>' is 'true'.
 
+    /// Return a value of (template parameter) `TYPE` in the specified range
+    /// [min .. max] based on at most the next `sizeof(TYPE) + 1` bytes from
+    /// the specified `fuzzDataView`, and update `fuzzDataView` to reflect
+    /// the bytes consumed.  If `0 == fuzzDataView->length()`, return the
+    /// specified `min`.  This function does not participate in overload
+    /// resolution unless either `bsl::is_integral<TYPE>::value` or
+    /// `bsl::is_floating_point<TYPE>::value` is `true`.  The behavior is
+    /// undefined if `min > max`, `min` or `max` is not finite, or either
+    /// `bsl::is_same<TYPE, bool>::value` or
+    /// `bsl::is_same<TYPE, long double>` is `true`.
     template <class TYPE>
     static typename
     bsl::enable_if<bsl::is_integral<TYPE>::value, TYPE>::type
@@ -147,16 +158,6 @@ struct FuzzUtil {
     static typename
     bsl::enable_if<bsl::is_floating_point<TYPE>::value, TYPE>::type
     consumeNumberInRange(FuzzDataView *fuzzDataView, TYPE min, TYPE max);
-        // Return a value of (template parameter) 'TYPE' in the specified range
-        // [min .. max] based on at most the next 'sizeof(TYPE) + 1' bytes from
-        // the specified 'fuzzDataView', and update 'fuzzDataView' to reflect
-        // the bytes consumed.  If '0 == fuzzDataView->length()', return the
-        // specified 'min'.  This function does not participate in overload
-        // resolution unless either 'bsl::is_integral<TYPE>::value' or
-        // 'bsl::is_floating_point<TYPE>::value' is 'true'.  The behavior is
-        // undefined if 'min > max', 'min' or 'max' is not finite, or either
-        // 'bsl::is_same<TYPE, bool>::value' or
-        // 'bsl::is_same<TYPE, long double>' is 'true'.
 
     static void consumeRandomLengthChars(bsl::vector<char> *output,
                                          FuzzDataView      *fuzzDataView,

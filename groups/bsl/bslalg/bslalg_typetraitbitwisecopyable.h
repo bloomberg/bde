@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as bit-wise copyable.
 //
-//@DEPRECATED: Use 'bslmf_istriviallycopyable' instead.
+//@DEPRECATED: Use `bslmf_istriviallycopyable` instead.
 //
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseCopyable: bit-wise copyable trait
@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitBitwiseCopyable', which allows the trait
-// 'bsl::is_trivially_copyable' to be declared using the (deprecated)
-// 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the 'bslmf_istriviallycopyable'
+// `bslalg::TypeTraitBitwiseCopyable`, which allows the trait
+// `bsl::is_trivially_copyable` to be declared using the (deprecated)
+// `BSLALG_DECLARE_NESTED_TRAITS` macro.  See the `bslmf_istriviallycopyable`
 // component for details of this trait.
 //
 ///Usage
@@ -37,24 +37,24 @@ namespace bslalg {
                         // class TypeTraitBitwiseCopyable
                         // ==============================
 
+/// Objects of a type with this trait can be copied using `memcpy`.  After
+/// such a bitwise copy, both the original and the copy are valid.  Classes
+/// with this trait are assumed to have trivial (no-op) destructors and are
+/// assumed to be bitwise moveable (see the `TypeTraitBitwiseMoveable`
+/// trait).  Undefined behavior may result if this trait is assigned to a
+/// type that allocates memory or other resources, uses virtual inheritance,
+/// or places pointers to itself within other data structures.  Also,
+/// objects of a type with this trait can be destroyed by a no-op, i.e., not
+/// invoking the destructor, although it is safe to write zeros into the
+/// memory footprint of the object.
 struct TypeTraitBitwiseCopyable {
-    // Objects of a type with this trait can be copied using 'memcpy'.  After
-    // such a bitwise copy, both the original and the copy are valid.  Classes
-    // with this trait are assumed to have trivial (no-op) destructors and are
-    // assumed to be bitwise moveable (see the 'TypeTraitBitwiseMoveable'
-    // trait).  Undefined behavior may result if this trait is assigned to a
-    // type that allocates memory or other resources, uses virtual inheritance,
-    // or places pointers to itself within other data structures.  Also,
-    // objects of a type with this trait can be destroyed by a no-op, i.e., not
-    // invoking the destructor, although it is safe to write zeros into the
-    // memory footprint of the object.
 
+    /// This class template ties the `bslalg::TypeTraitBitwiseCopyable`
+    /// trait tag to the `bsl::is_trivially_copyable` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseCopyable>
     {
-        // This class template ties the 'bslalg::TypeTraitBitwiseCopyable'
-        // trait tag to the 'bsl::is_trivially_copyable' trait metafunction.
     };
 
     template <class TYPE>
@@ -68,8 +68,8 @@ struct TypeTraitBitwiseCopyable {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslalg::TypeTraitBitwiseCopyable bslalg_TypeTraitBitwiseCopyable;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

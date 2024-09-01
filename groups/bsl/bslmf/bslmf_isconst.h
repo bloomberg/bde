@@ -5,62 +5,62 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for 'const'-qualified types.
+//@PURPOSE: Provide a compile-time check for `const`-qualified types.
 //
 //@CLASSES:
-//  bsl::is_const: meta-function for determining 'const'-qualified types
-//  bsl::is_const_v: the result value of the 'bsl::is_const' meta-function
+//  bsl::is_const: meta-function for determining `const`-qualified types
+//  bsl::is_const_v: the result value of the `bsl::is_const` meta-function
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_const' and a
-// template variable 'bsl::is_const_v', that represents the result value of the
-// 'bsl::is_const' meta-function, that may be used to query whether a type is
-// 'const'-qualified as defined in the C++ standard [basic.type.qualifier].
+//@DESCRIPTION: This component defines a meta-function, `bsl::is_const` and a
+// template variable `bsl::is_const_v`, that represents the result value of the
+// `bsl::is_const` meta-function, that may be used to query whether a type is
+// `const`-qualified as defined in the C++ standard [basic.type.qualifier].
 //
-// 'bsl::is_const' meets the requirements of the 'is_const' template defined in
+// `bsl::is_const` meets the requirements of the `is_const` template defined in
 // the C++11 standard [meta.unary.prop].
 //
-// Note that the template variable 'is_const_v' is defined in the C++17
+// Note that the template variable `is_const_v` is defined in the C++17
 // standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_const_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_const_v' is defined
-// as a non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// variable C++17 compiler feature, `bsl::is_const_v` is defined as an
+// `inline constexpr bool` variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, `bsl::is_const_v` is defined
+// as a non-inline `constexpr bool` variable.  See
+// `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in
 // bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify 'const' Types
+///Example 1: Verify `const` Types
 ///- - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is
-// 'const'-qualified.
+// `const`-qualified.
 //
-// First, we create two 'typedef's -- a 'const'-qualified type and an
+// First, we create two `typedef`s -- a `const`-qualified type and an
 // unqualified type:
-//..
-//  typedef int        MyType;
-//  typedef const int  MyConstType;
-//..
-// Now, we instantiate the 'bsl::is_const' template for each of the 'typedef's
-// and assert the 'value' static data member of each instantiation:
-//..
-//  assert(false == bsl::is_const<MyType>::value);
-//  assert(true  == bsl::is_const<MyConstType>::value);
-//..
+// ```
+// typedef int        MyType;
+// typedef const int  MyConstType;
+// ```
+// Now, we instantiate the `bsl::is_const` template for each of the `typedef`s
+// and assert the `value` static data member of each instantiation:
+// ```
+// assert(false == bsl::is_const<MyType>::value);
+// assert(true  == bsl::is_const<MyConstType>::value);
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_const_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_const_v<MyType>);
-//  assert(true  == bsl::is_const_v<MyConstType>);
-//#endif
-//..
+// `bsl::is_const_v` variable as follows:
+// ```
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//   assert(false == bsl::is_const_v<MyType>);
+//   assert(true  == bsl::is_const_v<MyConstType>);
+// #endif
+// ```
 
 #include <bslscm_version.h>
 
@@ -93,15 +93,15 @@ namespace bsl {
                          // struct is_const
                          // ===============
 
+/// This `struct` template implements the `is_const` meta-function defined
+/// in the C++11 standard [meta.unary.cat] to determine if the (template
+/// parameter) `t_TYPE` is `const`-qualified.  This `struct` derives from
+/// `bsl::true_type` if the `t_TYPE` is `const`-qualified, and
+/// `bsl::false_type` otherwise.  Note that this generic default template
+/// derives from `bsl::false_type`.  A template specialization is provided
+/// (below) that derives from `bsl::true_type`.
 template <class t_TYPE>
 struct is_const : false_type {
-    // This 'struct' template implements the 'is_const' meta-function defined
-    // in the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 't_TYPE' is 'const'-qualified.  This 'struct' derives from
-    // 'bsl::true_type' if the 't_TYPE' is 'const'-qualified, and
-    // 'bsl::false_type' otherwise.  Note that this generic default template
-    // derives from 'bsl::false_type'.  A template specialization is provided
-    // (below) that derives from 'bsl::true_type'.
 };
 
                        // =============================
@@ -119,10 +119,10 @@ struct is_const<const t_TYPE>
     // obtained by delegating the result to a call through 'is_same'.
 };
 #else
+/// This partial specialization of `is_const`, for when the (template
+/// parameter) `t_TYPE` is `const`-qualified, derives from `bsl::true_type`.
 template <class t_TYPE>
 struct is_const<const t_TYPE> : true_type {
-    // This partial specialization of 'is_const', for when the (template
-    // parameter) 't_TYPE' is 'const'-qualified, derives from 'bsl::true_type'.
 };
 #endif
 
@@ -156,11 +156,11 @@ struct is_const<const t_TYPE[LENGTH]> : true_type {
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// This template variable represents the result value of the
+/// `bsl::is_const` meta-function.
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_const_v =
                                                        is_const<t_TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_const' meta-function.
 #endif
 
 }  // close namespace bsl

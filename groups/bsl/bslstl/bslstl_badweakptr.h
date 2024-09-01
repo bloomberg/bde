@@ -8,8 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an exception class to indicate a weak_ptr has expired.
 //
 //@CLASSES:
-//  bslstl::BadWeakPtr: exception class derived from 'std' classes
-//  bsl::bad_weak_ptr: alias to an exception type thrown by the 'bsl' library
+//  bslstl::BadWeakPtr: exception class derived from `std` classes
+//  bsl::bad_weak_ptr: alias to an exception type thrown by the `bsl` library
 //
 //@CANONICAL_HEADER: bsl_memory.h
 //
@@ -60,24 +60,25 @@ namespace bslstl {
 
 class BadWeakPtr : public std::exception {
   public:
+    /// Create a `BadWeakPtr` object.  Note that this function is explicitly
+    /// user-declared, to make it simple to declare `const` objects of this
+    /// type.
     BadWeakPtr() BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'BadWeakPtr' object.  Note that this function is explicitly
-        // user-declared, to make it simple to declare 'const' objects of this
-        // type.
 
+    /// Destroy this object.
     ~BadWeakPtr() BSLS_EXCEPTION_VIRTUAL_NOTHROW BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // ACCESSORS
+
+    /// Return a pointer to the string literal "bad_weak_ptr", with a
+    /// storage duration of the lifetime of the program.  Note that the
+    /// caller should *not* attempt to free this memory.  Note that the
+    /// `bsls_exceptionutil` macro `BSLS_NOTHROW_SPEC` is deliberately not
+    /// used here, as a number of standard libraries declare `what` in the
+    /// base `exception` class explicitly with the no-throw specification,
+    /// even in a build that may not recognize exceptions.
     const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Return a pointer to the string literal "bad_weak_ptr", with a
-        // storage duration of the lifetime of the program.  Note that the
-        // caller should *not* attempt to free this memory.  Note that the
-        // 'bsls_exceptionutil' macro 'BSLS_NOTHROW_SPEC' is deliberately not
-        // used here, as a number of standard libraries declare 'what' in the
-        // base 'exception' class explicitly with the no-throw specification,
-        // even in a build that may not recognize exceptions.
 };
 
 // ============================================================================

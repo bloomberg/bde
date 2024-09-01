@@ -14,12 +14,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a templated buffer type with a
 // user-specified compile-time size and user-specified alignment.  The user
-// instantiates 'bsls::AlignedBuffer' with specific size and alignment
+// instantiates `bsls::AlignedBuffer` with specific size and alignment
 // requirements, and then uses that memory as needed.  If an alignment is not
 // specified at template instantiation, then the buffer object is maximally
 // aligned.
 //
-// Typically, 'bsls::AlignedBuffer' is used in situations where it is desirable
+// Typically, `bsls::AlignedBuffer` is used in situations where it is desirable
 // to allocate a block of properly-aligned raw memory from somewhere other than
 // the heap, e.g., on the stack or within an aggregate object, including within
 // a union.  It is a convenient way to create a small heap from which one or
@@ -27,47 +27,47 @@ BSLS_IDENT("$Id: $")
 //
 ///Single-Object Buffers
 ///---------------------
-// Although, for a given type 'T',
-// 'bsls::AlignedBuffer<sizeof(T), bsls::AlignmentFromType<T>::value>' will
-// produce a buffer properly sized and aligned to hold a 'T' object, it is
-// simpler and clearer to use 'bsls::ObjectBuffer<T>' for this purpose.  See
-// the 'bsls_objectbuffer' component for more information.
+// Although, for a given type `T`,
+// `bsls::AlignedBuffer<sizeof(T), bsls::AlignmentFromType<T>::value>` will
+// produce a buffer properly sized and aligned to hold a `T` object, it is
+// simpler and clearer to use `bsls::ObjectBuffer<T>` for this purpose.  See
+// the `bsls_objectbuffer` component for more information.
 //
 ///Stack Alignment
 ///---------------
 // On platforms with 32-bit words, there is usually no efficiency gain by using
 // more than 4-byte alignment.  Yet some compilers use 8-byte alignment for
-// 'long long' or 'double', presumably so that the code will run faster on a
+// `long long` or `double`, presumably so that the code will run faster on a
 // future 64-bit CPU.  The program loader, however, has no reason to presume
 // more than 4-byte alignment when allocating the program stack.  This can
 // result in stack objects appearing to be misaligned relative to the
 // alignments computed by this component.  This is not a bug in either this
 // component nor in the compiler, but it is somewhat surprising.  We have seen
 // this behavior on the MS VC++ 7 platform.  See also the "Surprises and
-// Anomalies" section in 'bsls_alignmentfromtype.h'.
+// Anomalies" section in `bsls_alignmentfromtype.h`.
 //
 ///Known issues
 ///------------
 // On all versions of the Microsoft compiler prior to MSVC 14.0 (2015), passing
-// 'AlignedBuffer' or an object containing 'AlignedBuffer' as a *by-value*
+// `AlignedBuffer` or an object containing `AlignedBuffer` as a *by-value*
 // function argument would lead to C2719 error (see
 // https://msdn.microsoft.com/en-us/library/373ak2y1.aspx).  In versions 14.10
 // (2017) through 16.8 (2019) it can trigger a compiler bug leading to crashes
-// due to the destructor being invoked with an incorrect 'this' pointer.  This
+// due to the destructor being invoked with an incorrect `this` pointer.  This
 // bug has been observed only building for x86 (32-bit) platform in Debug mode
 // (specifically with /Od /Ob0 flags), e.g.:
-//..
-//  struct X {
-//      bsls::AlignedBuffer<1, 8> d_buffer;
-//  };
+// ```
+// struct X {
+//     bsls::AlignedBuffer<1, 8> d_buffer;
+// };
 //
-//  void func(X) {}
+// void func(X) {}
 //
-//  int main()
-//  {
-//      func(X());  // The destructor of 'X' is called with broken 'this'.
-//  }
-//..
+// int main()
+// {
+//     func(X());  // The destructor of 'X' is called with broken 'this'.
+// }
+// ```
 // See DRQS 151904020 for more details.
 //
 // This was fixed my Microsoft in MSVC 2019 version 16.9, for details see:
@@ -75,71 +75,71 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The 'allocateFromBuffer' function below uses an aligned buffer as a small
-// heap from which objects can be allocated.  We choose 'int' alignment (4-byte
+// The `allocateFromBuffer` function below uses an aligned buffer as a small
+// heap from which objects can be allocated.  We choose `int` alignment (4-byte
 // alignment) for our buffer because the objects we are allocating are composed
-// of 'char', 'short', and 'int' values only.  If no alignment were specified,
+// of `char`, `short`, and `int` values only.  If no alignment were specified,
 // the buffer would be maximally aligned, which could be wasteful on some
 // platforms.
-//..
-//  const int MY_ALIGNMENT = bsls::AlignmentFromType<int>::value;
-//  bsls::AlignedBuffer<1000, MY_ALIGNMENT> my_AllocBuffer;
-//  const char* my_AllocEnd = my_AllocBuffer.buffer() + 1000;
-//  char *my_AllocPtr = my_AllocBuffer.buffer();
-//      // Invariant: my_AllocPtr is always aligned on a multiple of 4 bytes
+// ```
+// const int MY_ALIGNMENT = bsls::AlignmentFromType<int>::value;
+// bsls::AlignedBuffer<1000, MY_ALIGNMENT> my_AllocBuffer;
+// const char* my_AllocEnd = my_AllocBuffer.buffer() + 1000;
+// char *my_AllocPtr = my_AllocBuffer.buffer();
+//     // Invariant: my_AllocPtr is always aligned on a multiple of 4 bytes
 //
-//  static void *allocateFromBuffer(int size)
-//  {
-//      if (size > my_AllocEnd - my_AllocPtr)
-//          return 0;       // Out of buffer space
+// static void *allocateFromBuffer(int size)
+// {
+//     if (size > my_AllocEnd - my_AllocPtr)
+//         return 0;       // Out of buffer space
 //
-//      void *result = my_AllocPtr;
-//      my_AllocPtr += size;
-//      if (size % MY_ALIGNMENT) {
-//          // re-establish invariant by re-aligning my_AllocPtr
-//          my_AllocPtr += MY_ALIGNMENT - size % MY_ALIGNMENT;
-//      }
+//     void *result = my_AllocPtr;
+//     my_AllocPtr += size;
+//     if (size % MY_ALIGNMENT) {
+//         // re-establish invariant by re-aligning my_AllocPtr
+//         my_AllocPtr += MY_ALIGNMENT - size % MY_ALIGNMENT;
+//     }
 //
-//      assert(0 == size_t(my_AllocPtr) % MY_ALIGNMENT);     // Test invariant
+//     assert(0 == size_t(my_AllocPtr) % MY_ALIGNMENT);     // Test invariant
 //
-//      return result;
-//  }
-//..
-// Below, we use our allocation function to allocate arrays of 'char', 'short',
-// and user-defined 'Object' types from the static buffer.  Note that our
-// 'Object' structure is composed of members that have alignment requirements
-// less than or equal to 'int's alignment requirements.
-//..
-//  struct Object {
-//      char  d_c;
-//      short d_s;
-//      int   d_i;
-//  };
+//     return result;
+// }
+// ```
+// Below, we use our allocation function to allocate arrays of `char`, `short`,
+// and user-defined `Object` types from the static buffer.  Note that our
+// `Object` structure is composed of members that have alignment requirements
+// less than or equal to `int`s alignment requirements.
+// ```
+// struct Object {
+//     char  d_c;
+//     short d_s;
+//     int   d_i;
+// };
 //
-//  int main()
-//  {
-//      // Allocate three 'char's from the buffer.
-//      char *charPtr   = (char *)   allocateFromBuffer(3 * sizeof(char));
-//      assert(0 == size_t(charPtr) % MY_ALIGNMENT);
+// int main()
+// {
+//     // Allocate three 'char's from the buffer.
+//     char *charPtr   = (char *)   allocateFromBuffer(3 * sizeof(char));
+//     assert(0 == size_t(charPtr) % MY_ALIGNMENT);
 //
-//      // Allocate three 'short's from the buffer.
-//      short *shortPtr = (short *)  allocateFromBuffer(3 * sizeof(short));
-//      assert(0 == size_t(shortPtr) % MY_ALIGNMENT);
+//     // Allocate three 'short's from the buffer.
+//     short *shortPtr = (short *)  allocateFromBuffer(3 * sizeof(short));
+//     assert(0 == size_t(shortPtr) % MY_ALIGNMENT);
 //
-//      // Allocate three 'Object's from the buffer
-//      Object *objPtr = (Object *)  allocateFromBuffer(3 * sizeof(Object));
-//      assert(0 == size_t(objPtr) % MY_ALIGNMENT);
+//     // Allocate three 'Object's from the buffer
+//     Object *objPtr = (Object *)  allocateFromBuffer(3 * sizeof(Object));
+//     assert(0 == size_t(objPtr) % MY_ALIGNMENT);
 //
-//      if (!charPtr || !shortPtr || !objPtr) {
-//          fprintf(stderr, "Global buffer is not large enough.\n");
-//          return -1;
-//      }
+//     if (!charPtr || !shortPtr || !objPtr) {
+//         fprintf(stderr, "Global buffer is not large enough.\n");
+//         return -1;
+//     }
 //
-//      // ...
+//     // ...
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 
 #include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
@@ -154,19 +154,19 @@ namespace bsls {
                         // union AlignedBuffer_Data
                         // ========================
 
+/// This *private* implementation type provides a public `char` array
+/// data member `d_buffer` whose length is the specifed (template parameter)
+/// `SIZE` and which is aligned according to the specified (template
+/// parameter) `ALIGNMENT`.
 template <int SIZE, int ALIGNMENT>
 union AlignedBuffer_Data {
-    // This *private* implementation type provides a public 'char' array
-    // data member 'd_buffer' whose length is the specifed (template parameter)
-    // 'SIZE' and which is aligned according to the specified (template
-    // parameter) 'ALIGNMENT'.
 
   public:
+    /// Define an alias for alignment type to work around a Sun CC 5.5 bug
+    /// that gives a warning if the type is directly accessed in the union.
+    /// Note that to allow the union to access this typedef it must be
+    /// declared with public access.
     typedef typename AlignmentToType<ALIGNMENT>::Type AlignmentType;
-        // Define an alias for alignment type to work around a Sun CC 5.5 bug
-        // that gives a warning if the type is directly accessed in the union.
-        // Note that to allow the union to access this typedef it must be
-        // declared with public access.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
     // The C++11 implementation uses the 'alignas' keyword to ensure the
@@ -205,14 +205,14 @@ union AlignedBuffer_Data<SIZE, 16> {BSLS_ALIGNAS(16) char d_buffer[SIZE]; };
                         // class AlignedBuffer
                         // ===================
 
+/// An instance of this union is a block of raw memory of specified `SIZE`
+/// and `ALIGNMENT`.  A `AlignedBuffer` object does not manage the
+/// construction or destruction of any other objects.  `SIZE` is rounded up
+/// to the nearest multiple of `ALIGNMENT`.  An instantiation of this union
+/// template will not compile unless `ALIGNMENT` is a power of two not
+/// larger than `AlignmentUtil::BSLS_MAX_ALIGNMENT`.
 template <int SIZE, int ALIGNMENT = AlignmentUtil::BSLS_MAX_ALIGNMENT>
 class AlignedBuffer {
-    // An instance of this union is a block of raw memory of specified 'SIZE'
-    // and 'ALIGNMENT'.  A 'AlignedBuffer' object does not manage the
-    // construction or destruction of any other objects.  'SIZE' is rounded up
-    // to the nearest multiple of 'ALIGNMENT'.  An instantiation of this union
-    // template will not compile unless 'ALIGNMENT' is a power of two not
-    // larger than 'AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 
     // DATA
     AlignedBuffer_Data<SIZE, ALIGNMENT> d_data;
@@ -226,14 +226,16 @@ class AlignedBuffer {
     // or copy constructors.
 
     // MANIPULATORS
+
+    /// Return a the address of the first byte of this object, cast to a
+    /// `char*` pointer.
     char *buffer();
-        // Return a the address of the first byte of this object, cast to a
-        // 'char*' pointer.
 
     // ACCESSORS
+
+    /// Return a the address of the first byte of this object, cast to a
+    /// `const char*` pointer.
     const char *buffer() const;
-        // Return a the address of the first byte of this object, cast to a
-        // 'const char*' pointer.
 };
 
 // ============================================================================
@@ -266,8 +268,8 @@ const char *AlignedBuffer<SIZE, ALIGNMENT>::buffer() const
 #ifdef bsls_AlignedBuffer
 #undef bsls_AlignedBuffer
 #endif
+/// This alias is defined for backward compatibility.
 #define bsls_AlignedBuffer bsls::AlignedBuffer
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

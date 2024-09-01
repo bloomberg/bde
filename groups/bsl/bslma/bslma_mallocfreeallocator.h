@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide malloc/free adaptor to 'bslma::Allocator' protocol.
+//@PURPOSE: Provide malloc/free adaptor to `bslma::Allocator` protocol.
 //
 //@CLASSES:
 //  bslma::MallocFreeAllocator: support malloc/free style allocate/deallocate
@@ -13,99 +13,99 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslma_newdeleteallocator, bslma_allocator
 //
 //@DESCRIPTION: This component provides an allocator,
-// 'bslma::MallocFreeAllocator', that implements the 'bslma::Allocator'
+// `bslma::MallocFreeAllocator`, that implements the `bslma::Allocator`
 // protocol and supplies memory using the system-supplied (native)
-// 'std::malloc' and 'std::free' operators.
-//..
-//   ,--------------------------.
-//  ( bslma::MallocFreeAllocator )
-//   `--------------------------'
-//                |         ctor/dtor
-//                |         singleton
-//                V
-//        ,----------------.
-//       ( bslma::Allocator )
-//        `----------------'
-//                        allocate
-//                        deallocate
-//..
-// The key purpose of this component is to facilitate the use of 'malloc' and
-// 'free' when the default 'bslma::NewDeleteAllocator' is not desirable (such
-// as the case of 'bslma::TestAllocator').  To accomplish this goal, 'malloc'
-// and 'free' are wrapped in a singleton object whose lifetime is guaranteed to
+// `std::malloc` and `std::free` operators.
+// ```
+//  ,--------------------------.
+// ( bslma::MallocFreeAllocator )
+//  `--------------------------'
+//               |         ctor/dtor
+//               |         singleton
+//               V
+//       ,----------------.
+//      ( bslma::Allocator )
+//       `----------------'
+//                       allocate
+//                       deallocate
+// ```
+// The key purpose of this component is to facilitate the use of `malloc` and
+// `free` when the default `bslma::NewDeleteAllocator` is not desirable (such
+// as the case of `bslma::TestAllocator`).  To accomplish this goal, `malloc`
+// and `free` are wrapped in a singleton object whose lifetime is guaranteed to
 // exceed any possibility of its use.
 //
 ///Thread Safety
 ///-------------
-// A single object of 'bslma::MallocFreeAllocator' is safe for concurrent
-// access by multiple threads.  The underlying implementation of 'malloc' and
-// 'free' will ensure that heap corruption does not occur.  Note that this
+// A single object of `bslma::MallocFreeAllocator` is safe for concurrent
+// access by multiple threads.  The underlying implementation of `malloc` and
+// `free` will ensure that heap corruption does not occur.  Note that this
 // allocator therefore has a stronger thread safety guarantee than is required
 // by the base-class contract or than is provided by other allocators.
 //
 ///Usage
 ///-----
-// This component is intended to be used when the use of 'new' and 'delete' are
-// not desirable, such as the case of 'bslma::TestAllocator'.  Instead of using
-// 'bslma::Default' which uses the 'bslma::NewDeleteAllocator', this component
-// can be used to bypass the use of 'new' and 'delete'.
+// This component is intended to be used when the use of `new` and `delete` are
+// not desirable, such as the case of `bslma::TestAllocator`.  Instead of using
+// `bslma::Default` which uses the `bslma::NewDeleteAllocator`, this component
+// can be used to bypass the use of `new` and `delete`.
 //
 // The following example demonstrates the use of this component for a user
 // defined allocator instead of using the default allocator:
-//..
-//  // my_allocator.h
-//  // ...
+// ```
+// // my_allocator.h
+// // ...
 //
-//  class my_Allocator : public bslma::Allocator {
-//      // This class provides a mechanism for allocation and deallocation.
+// class my_Allocator : public bslma::Allocator {
+//     // This class provides a mechanism for allocation and deallocation.
 //
-//      // DATA
-//      bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
+//     // DATA
+//     bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 //
-//    public:
-//      // CREATORS
-//      my_Allocator(bslma::Allocator *basicAllocator = 0);
-//          // Create a 'my_Allcoator'.  Optionally specify 'basicAllocator' to
-//          // supply memory.  If 'basicAllocator' is 0, the
-//          // 'bslma::MallocFreeAllocator' will be used.
+//   public:
+//     // CREATORS
+//     my_Allocator(bslma::Allocator *basicAllocator = 0);
+//         // Create a 'my_Allcoator'.  Optionally specify 'basicAllocator' to
+//         // supply memory.  If 'basicAllocator' is 0, the
+//         // 'bslma::MallocFreeAllocator' will be used.
 //
-//      ~my_Allocator();
-//          // Destroy this allocator.  Note that the behavior of destroying an
-//          // allocator while memory is allocated from it is not specified.
-//          // (Unless you *know* that it is valid to do so, don't!)
+//     ~my_Allocator();
+//         // Destroy this allocator.  Note that the behavior of destroying an
+//         // allocator while memory is allocated from it is not specified.
+//         // (Unless you *know* that it is valid to do so, don't!)
 //
-//      // MANIPULATORS
-//      void *allocate(size_type size);
-//          // Return a newly allocated block of memory of (at least) the
-//          // specified positive 'size' (bytes).  If 'size' is 0, a null
-//          // pointer is returned with no effect.  Note that the alignment of
-//          // the address returned is the maximum alignment for any
-//          // fundamental type defined for this platform.
+//     // MANIPULATORS
+//     void *allocate(size_type size);
+//         // Return a newly allocated block of memory of (at least) the
+//         // specified positive 'size' (bytes).  If 'size' is 0, a null
+//         // pointer is returned with no effect.  Note that the alignment of
+//         // the address returned is the maximum alignment for any
+//         // fundamental type defined for this platform.
 //
-//      void deallocate(void *address);
-//          // Return the memory at the specified 'address' back to this
-//          // allocator.  If 'address' is 0, this function has no effect.  The
-//          // behavior is undefined if 'address' was not allocated using this
-//          // allocator, or has already been deallocated.
-//  };
-//..
-// The constructor is implemented using 'bslma::MallocFreeAllocator'.
-//..
-//  // my_allocator.cpp
-//  // ...
+//     void deallocate(void *address);
+//         // Return the memory at the specified 'address' back to this
+//         // allocator.  If 'address' is 0, this function has no effect.  The
+//         // behavior is undefined if 'address' was not allocated using this
+//         // allocator, or has already been deallocated.
+// };
+// ```
+// The constructor is implemented using `bslma::MallocFreeAllocator`.
+// ```
+// // my_allocator.cpp
+// // ...
 //
-//  // CREATORS
-//  my_Allocator::my_Allocator(bslma::Allocator *basicAllocator)
-//  : d_allocator_p(basicAllocator
-//                  ? basicAllocator
-//                  : &bslma::MallocFreeAllocator::singleton())
-//  {
-//  }
+// // CREATORS
+// my_Allocator::my_Allocator(bslma::Allocator *basicAllocator)
+// : d_allocator_p(basicAllocator
+//                 ? basicAllocator
+//                 : &bslma::MallocFreeAllocator::singleton())
+// {
+// }
 //
-//  // ...
-//..
-// When the 'basicAllocator' is not specified, the 'bslma::MallocFreeAllocator'
-// will be used.  That allocator then then calls 'std::malloc' and 'std::free'
+// // ...
+// ```
+// When the `basicAllocator` is not specified, the `bslma::MallocFreeAllocator`
+// will be used.  That allocator then then calls `std::malloc` and `std::free`
 // for allocating and deallocating memory.
 
 #include <bslscm_version.h>
@@ -124,12 +124,12 @@ namespace bslma {
                         // class MallocFreeAllocator
                         // =========================
 
+/// This class provides direct access to the system-supplied (native) global
+/// `std::malloc` and `std::free`.  A `static` method is provided for
+/// obtaining a unique, process wide object of this class, which is valid
+/// from the time the method is called until after the program (not just
+/// `main`) exits.
 class MallocFreeAllocator : public Allocator {
-    // This class provides direct access to the system-supplied (native) global
-    // 'std::malloc' and 'std::free'.  A 'static' method is provided for
-    // obtaining a unique, process wide object of this class, which is valid
-    // from the time the method is called until after the program (not just
-    // 'main') exits.
 
   private:
     // NOT IMPLEMENTED
@@ -138,45 +138,48 @@ class MallocFreeAllocator : public Allocator {
 
   public:
     // CLASS METHODS
+
+    /// Return a reference to a valid object of this class.  Note that this
+    /// object is guaranteed to be valid from the time of this call onward
+    /// (i.e., not just until exiting `main`).
     static MallocFreeAllocator& singleton();
-        // Return a reference to a valid object of this class.  Note that this
-        // object is guaranteed to be valid from the time of this call onward
-        // (i.e., not just until exiting 'main').
 
     // CREATORS
-    MallocFreeAllocator();
-        // Create an allocator that uses 'std::malloc' and 'std::free' to
-        // supply memory.  Note that all objects of this class share the same
-        // underlying resource.
 
+    /// Create an allocator that uses `std::malloc` and `std::free` to
+    /// supply memory.  Note that all objects of this class share the same
+    /// underlying resource.
+    MallocFreeAllocator();
+
+    /// Destroy this allocator.  Note that the behavior of destroying an
+    /// allocator while memory is allocated from it is not specified.
+    /// (Unless you *know* that it is valid to do so, don't!)
+    ///
+    /// For this concrete implementation, destroying this allocator object
+    /// has no effect on allocated memory.
     ~MallocFreeAllocator() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this allocator.  Note that the behavior of destroying an
-        // allocator while memory is allocated from it is not specified.
-        // (Unless you *know* that it is valid to do so, don't!)
-        //
-        // For this concrete implementation, destroying this allocator object
-        // has no effect on allocated memory.
 
     // MANIPULATORS
-    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-        // Return a newly allocated block of memory of (at least) the specified
-        // positive 'size' (in bytes).  If 'size' is 0, a null pointer is
-        // returned with no other effect.  If this allocator cannot return the
-        // requested number of bytes, then it will return a null pointer.  The
-        // behavior is undefined unless '0 <= size'.  Note that the alignment
-        // of the address returned is the maximum alignment for any type
-        // defined on this platform.  Also note that 'std::malloc' is *not*
-        // called when 'size' is 0 (in order to avoid having to acquire a lock,
-        // and potential contention in multi-treaded programs).
 
+    /// Return a newly allocated block of memory of (at least) the specified
+    /// positive `size` (in bytes).  If `size` is 0, a null pointer is
+    /// returned with no other effect.  If this allocator cannot return the
+    /// requested number of bytes, then it will return a null pointer.  The
+    /// behavior is undefined unless `0 <= size`.  Note that the alignment
+    /// of the address returned is the maximum alignment for any type
+    /// defined on this platform.  Also note that `std::malloc` is *not*
+    /// called when `size` is 0 (in order to avoid having to acquire a lock,
+    /// and potential contention in multi-treaded programs).
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+    /// Return the memory block at the specified `address` back to this
+    /// allocator.  If `address` is 0, this function has no effect.  The
+    /// behavior is undefined unless `address` was allocated using this
+    /// allocator object and has not already been deallocated.  Note that
+    /// `std::free` is *not* called when `address` is 0 (in order to avoid
+    /// having to acquire a lock, and potential contention in multi-treaded
+    /// programs).
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-        // Return the memory block at the specified 'address' back to this
-        // allocator.  If 'address' is 0, this function has no effect.  The
-        // behavior is undefined unless 'address' was allocated using this
-        // allocator object and has not already been deallocated.  Note that
-        // 'std::free' is *not* called when 'address' is 0 (in order to avoid
-        // having to acquire a lock, and potential contention in multi-treaded
-        // programs).
 };
 
 // ============================================================================
@@ -219,8 +222,8 @@ void MallocFreeAllocator::deallocate(void *address)
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslma::MallocFreeAllocator bslma_MallocFreeAllocator;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

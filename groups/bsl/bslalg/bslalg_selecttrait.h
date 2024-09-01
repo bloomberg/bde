@@ -7,16 +7,16 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to select a suitable trait on a type.
 //
-//@DEPRECATED: Use 'bslmf_selecttrait' instead.
+//@DEPRECATED: Use `bslmf_selecttrait` instead.
 //
 //@CLASSES:
 //  bslalg::SelectTrait: trait detection mechanism
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a meta-function, 'bslalg::SelectTrait',
+//@DESCRIPTION: This component provides a meta-function, `bslalg::SelectTrait`,
 // for selecting the most appropriate trait from a list of candidate traits for
-// parameterized 'TYPE'.
+// parameterized `TYPE`.
 //
 ///Usage
 ///-----
@@ -37,6 +37,12 @@ namespace bslalg {
                           // class SelectTrait
                           // =================
 
+/// Select one trait out of several that the parameterized type `T` may
+/// possess.  If `T` has the parameterized trait `TRAIT1`, then the nested
+/// `Type` is `TRAIT1`, else if `T` has an optionally parameterized
+/// `TRAIT2`, then `Type` is `TRAIT2`, etc.  Also computes an integral
+/// selection constant and meta-value.  If `T` has none of the parameterized
+/// `TRAIT*`, then the nested `Type` is `TypeTraitNil`.
 template <class TYPE,
           class TRAIT1,
           class TRAIT2 = TypeTraitNil,
@@ -44,25 +50,21 @@ template <class TYPE,
           class TRAIT4 = TypeTraitNil,
           class TRAIT5 = TypeTraitNil>
 struct SelectTrait {
-    // Select one trait out of several that the parameterized type 'T' may
-    // possess.  If 'T' has the parameterized trait 'TRAIT1', then the nested
-    // 'Type' is 'TRAIT1', else if 'T' has an optionally parameterized
-    // 'TRAIT2', then 'Type' is 'TRAIT2', etc.  Also computes an integral
-    // selection constant and meta-value.  If 'T' has none of the parameterized
-    // 'TRAIT*', then the nested 'Type' is 'TypeTraitNil'.
 
     // PUBLIC TYPES
     enum {
+        /// Integral value indicating which trait was selected: 1 for
+        /// `TRAIT1`, 2 for `TRAIT2`, etc., and 0 if none were selected.
         SELECTION = (HasTrait<TYPE, TRAIT1>::value ? 1 :
                      HasTrait<TYPE, TRAIT2>::value ? 2 :
                      HasTrait<TYPE, TRAIT3>::value ? 3 :
                      HasTrait<TYPE, TRAIT4>::value ? 4 :
                      HasTrait<TYPE, TRAIT5>::value ? 5 :
                      0)
-            // Integral value indicating which trait was selected: 1 for
-            // 'TRAIT1', 2 for 'TRAIT2', etc., and 0 if none were selected.
     };
 
+    /// The actual trait that was selected, or `TypeTraitNil` if no trait
+    /// was selected.
     typedef typename bslmf::Switch<SELECTION,
                                    TypeTraitNil,
                                    TRAIT1,
@@ -70,8 +72,6 @@ struct SelectTrait {
                                    TRAIT3,
                                    TRAIT4,
                                    TRAIT5>::Type Type;
-        // The actual trait that was selected, or 'TypeTraitNil' if no trait
-        // was selected.
 };
 
 }  // close package namespace
@@ -84,8 +84,8 @@ struct SelectTrait {
 #ifdef bslalg_SelectTrait
 #undef bslalg_SelectTrait
 #endif
+/// This alias is defined for backward compatibility.
 #define bslalg_SelectTrait bslalg::SelectTrait
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

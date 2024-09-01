@@ -12,17 +12,17 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Linux ARM platform with GCC.  The classes are for private use only.
-// See 'bsls_atomicoperations' and 'bsls_atomic' for the public interface to
+// See `bsls_atomicoperations` and `bsls_atomic` for the public interface to
 // atomics.
 //
 // IMPLEMENTATION NOTES: Wherever possible we use atomic intrinsics that both
 // GCC 4.6+ and Clang 3.2+ support.  Otherwise the inline assembly code is
 // used that can be compiled both by GCC and Clang.  This puts some
 // restrictions on the assembly code because Clang doesn't support register
-// pairs that represent a 64bit value.  So instead of 'ldrexd %1, %H1, [%3]'
-// the exact registers have to be specified, as in 'ldrexd r2, r3, [%3]'.  Note
-// also that operations like 'ldrexd' and 'stdrexd' are supported only starting
-// from 'armv6zk', so not every armv6 platform will work.
+// pairs that represent a 64bit value.  So instead of `ldrexd %1, %H1, [%3]`
+// the exact registers have to be specified, as in `ldrexd r2, r3, [%3]`.  Note
+// also that operations like `ldrexd` and `stdrexd` are supported only starting
+// from `armv6zk`, so not every armv6 platform will work.
 //
 // For more details on ARM atomic primitives see the Linux kernel source code
 // (arch/arm/include/asm/atomic.h) and the "C/C++11 mappings to processors"

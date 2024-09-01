@@ -5,15 +5,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Implement atomic operations using clang '__c11_atomic_*' intrinsics
+//@PURPOSE: Implement atomic operations using clang `__c11_atomic_*` intrinsics
 //
 //@CLASSES:
 //  bsls::AtomicOperations_ALL_ALL_ClangIntrinsics:
-//  clang '__c11_atomic_*' intrinsics
+//  clang `__c11_atomic_*` intrinsics
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // in 32bit/64bit mode using clang compiler intrinsics.  The classes are for
-// private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the
+// private use only.  See `bsls_atomicoperations` and `bsls_atomic` for the
 // public interface to atomics.
 
 #include <bsls_atomicoperations_default.h>
@@ -77,8 +77,8 @@ struct AtomicOperations_ALL_ALL_ClangIntrinsics
     typedef Atomic_TypeTraits<AtomicOperations_ALL_ALL_ClangIntrinsics>
             AtomicTypes;
 
+    /// compile-time assert
     typedef char AtomicInt_SizeCheck[sizeof(int) == 4 ? 1 : -1];
-        // compile-time assert
 
         // *** atomic functions for int ***
 

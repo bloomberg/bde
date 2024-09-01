@@ -8,22 +8,22 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide an ownership comparison for shared and weak pointers.
 //
 //@CLASSES:
-//  bsl::owner_equal: owner equality comparator for 'shared_ptr' and 'weak_ptr'
+//  bsl::owner_equal: owner equality comparator for `shared_ptr` and `weak_ptr`
 //
 //@CANONICAL_HEADER: bsl_memory.h
 //
 //@SEE_ALSO: bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides the C++26 standard binary comparison
-// functor, 'bsl::owner_equal', that determines the equality of two smart
-// pointer objects by the address of their 'bslma::SharedPtrRep' data.  Note
+// functor, `bsl::owner_equal`, that determines the equality of two smart
+// pointer objects by the address of their `bslma::SharedPtrRep` data.  Note
 // that this class is an empty POD type.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'owner_equal'
+///Example 1: Basic Use of `owner_equal`
 ///- - - - - - - - - - - - - - - - - - -
 // Suppose we need an unordered map accepting shared pointers as keys.  We also
 // expect that this container will be accessible from multiple threads and some
@@ -31,43 +31,43 @@ BSLS_IDENT("$Id$ $CSID$")
 // cycles.
 //
 // First, we create a container and populate it:
-//..
-//      typedef bsl::unordered_map<
-//          bsl::shared_ptr<int>,
-//          int,
-//          bsl::owner_hash,
-//          bsl::owner_equal> Map;
+// ```
+//     typedef bsl::unordered_map<
+//         bsl::shared_ptr<int>,
+//         int,
+//         bsl::owner_hash,
+//         bsl::owner_equal> Map;
 //
-//      Map                  container;
-//      bsl::shared_ptr<int> sharedPtr1 = bsl::make_shared<int>(1);
-//      bsl::shared_ptr<int> sharedPtr2 = bsl::make_shared<int>(2);
-//      bsl::weak_ptr<int>   weakPtr1(sharedPtr1);
+//     Map                  container;
+//     bsl::shared_ptr<int> sharedPtr1 = bsl::make_shared<int>(1);
+//     bsl::shared_ptr<int> sharedPtr2 = bsl::make_shared<int>(2);
+//     bsl::weak_ptr<int>   weakPtr1(sharedPtr1);
 //
-//      container[sharedPtr1] = 1;
-//      container[sharedPtr2] = 2;
-//..
+//     container[sharedPtr1] = 1;
+//     container[sharedPtr2] = 2;
+// ```
 // Then we make sure that shared pointers can be used to perform lookup, and
 // verify that the results are correct.
-//..
-//      Map::const_iterator iter = container.find(sharedPtr1);
-//      assert(container.end() != iter        );
-//      assert(1               == iter->second);
+// ```
+//     Map::const_iterator iter = container.find(sharedPtr1);
+//     assert(container.end() != iter        );
+//     assert(1               == iter->second);
 //
-//      iter = container.find(sharedPtr2);
-//      assert(container.end() != iter);
-//      assert(2               == iter->second);
-//..
+//     iter = container.find(sharedPtr2);
+//     assert(container.end() != iter);
+//     assert(2               == iter->second);
+// ```
 // Finally, we simulate the accessing the container from another thread and
 // perform lookup using weak pointers:
-//..
-//      iter = container.find(weakPtr1);
-//      assert(container.end() != iter        );
-//      assert(1               == iter->second);
+// ```
+//     iter = container.find(weakPtr1);
+//     assert(container.end() != iter        );
+//     assert(1               == iter->second);
 //
-//      bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
-//      iter = container.find(weakPtr3);
-//      assert(container.end() == iter);
-//..
+//     bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
+//     iter = container.find(weakPtr3);
+//     assert(container.end() == iter);
+// ```
 
 #include <bslscm_version.h>
 
@@ -82,8 +82,9 @@ namespace bsl {
 struct owner_equal {
 
     // TYPES
+
+    /// Type alias indicating this is a transparent comparator.
     typedef void is_transparent;
-        // Type alias indicating this is a transparent comparator.
 
     // CREATORS
     //! owner_equal() = default;
@@ -116,14 +117,15 @@ struct owner_equal {
     bool operator()(const weak_ptr<  ELEMENT_TYPE_X>& x,
                     const shared_ptr<ELEMENT_TYPE_Y>& y) const
                                                          BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return `true` if the address of the
+    /// `BloombergLP::bslma::SharedPtrRep` object used by the specified `x`
+    /// is equal to the address of the `BloombergLP::bslma::SharedPtrRep`
+    /// object used by the specified `y`, and `false` otherwise.
     template<class ELEMENT_TYPE_X, class ELEMENT_TYPE_Y>
     bool operator()(const weak_ptr<ELEMENT_TYPE_X>& x,
                     const weak_ptr<ELEMENT_TYPE_Y>& y) const
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'x'
-        // is equal to the address of the 'BloombergLP::bslma::SharedPtrRep'
-        // object used by the specified 'y', and 'false' otherwise.
 };
 
 // ============================================================================

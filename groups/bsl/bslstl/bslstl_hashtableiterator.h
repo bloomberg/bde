@@ -15,14 +15,14 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslalg_bidirectionallink, bslstl_unorderedmap, bslstl_unorderedset
 //
 //@DESCRIPTION: This component provides a standard-conforming forward iterator,
-// 'bslstl::HashTableIterator', over a list of elements (of type
-// 'bslalg::BidirectionalLink') in a hashtable.  The requirements of a forward
+// `bslstl::HashTableIterator`, over a list of elements (of type
+// `bslalg::BidirectionalLink`) in a hashtable.  The requirements of a forward
 // iterator are outlined in the C++11 standard in section [24.2.5] under the
-// tag [forward.iterators].  The 'bslstl::HashTableIterator' class template has
-// two template parameters: 'VALUE_TYPE', and 'DIFFERENCE_TYPE'.  'VALUE_TYPE'
+// tag [forward.iterators].  The `bslstl::HashTableIterator` class template has
+// two template parameters: `VALUE_TYPE`, and `DIFFERENCE_TYPE`.  `VALUE_TYPE`
 // indicates the type of the value to which this iterator provides references,
-// and may be const-qualified for constant iterators.  'DIFFERENCE_TYPE'
-// determines the (standard mandated) 'difference_type' for the iterator, and
+// and may be const-qualified for constant iterators.  `DIFFERENCE_TYPE`
+// determines the (standard mandated) `difference_type` for the iterator, and
 // will typically be supplied by the allocator used by the hash-table being
 // iterated over.
 //
@@ -30,79 +30,79 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Iterating a Hash Table Using 'HashTableIterator'
+///Example 1: Iterating a Hash Table Using `HashTableIterator`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a simple hashtable and then use a
-// 'HashTableIterator' to iterate through its elements.
+// `HashTableIterator` to iterate through its elements.
 //
-// First, we define a typedef, 'Node', prepresenting a bidirectional node
+// First, we define a typedef, `Node`, prepresenting a bidirectional node
 // holding an integer value:
-//..
-//  typedef bslalg::BidirectionalNode<int> Node;
-//..
+// ```
+// typedef bslalg::BidirectionalNode<int> Node;
+// ```
 // Then, we construct a test allocator, and we use it to allocate an array of
-// 'Node' objects, each holding a unique integer value:
-//..
-//  bslma::TestAllocator scratch;
+// `Node` objects, each holding a unique integer value:
+// ```
+// bslma::TestAllocator scratch;
 //
-//  const int NUM_NODES = 5;
-//  const int NUM_BUCKETS = 3;
+// const int NUM_NODES = 5;
+// const int NUM_BUCKETS = 3;
 //
-//  Node *nodes[NUM_NODES];
-//  for (int i = 0; i < NUM_NODES; ++i) {
-//      nodes[i] = static_cast<Node *>(scratch.allocate(sizeof(Node)));
-//      nodes[i]->value() = i;
-//  }
-//..
-// Next, we create an array of 'HashTableBuckets' objects, and we use the array
-// to construct an empty hash table characterized by a 'HashTableAnchor'
+// Node *nodes[NUM_NODES];
+// for (int i = 0; i < NUM_NODES; ++i) {
+//     nodes[i] = static_cast<Node *>(scratch.allocate(sizeof(Node)));
+//     nodes[i]->value() = i;
+// }
+// ```
+// Next, we create an array of `HashTableBuckets` objects, and we use the array
+// to construct an empty hash table characterized by a `HashTableAnchor`
 // object:
-//..
-//  bslalg::HashTableBucket buckets[NUM_BUCKETS];
-//  for (int i = 0; i < NUM_BUCKETS; ++i) {
-//      buckets[i].reset();
-//  }
-//  bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
-//..
+// ```
+// bslalg::HashTableBucket buckets[NUM_BUCKETS];
+// for (int i = 0; i < NUM_BUCKETS; ++i) {
+//     buckets[i].reset();
+// }
+// bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
+// ```
 // Then, we insert each node in the array of nodes into the hash table using
-// 'bslalg::HashTableImpUtil', supplying the integer value held by each node as
+// `bslalg::HashTableImpUtil`, supplying the integer value held by each node as
 // its hash value:
-//..
-//  for (int i = 0; i < NUM_NODES; ++i) {
-//      bslalg::HashTableImpUtil::insertAtFrontOfBucket(&hashTable,
-//                                                      nodes[i],
-//                                                      nodes[i]->value());
-//  }
-//..
-// Next, we define a 'typedef' that is an alias an instance of
-// 'HashTableIterator' that can traverse hash tables holding integer values.
-//..
-//  typedef bslstl::HashTableIterator<int, ptrdiff_t> Iter;
-//..
+// ```
+// for (int i = 0; i < NUM_NODES; ++i) {
+//     bslalg::HashTableImpUtil::insertAtFrontOfBucket(&hashTable,
+//                                                     nodes[i],
+//                                                     nodes[i]->value());
+// }
+// ```
+// Next, we define a `typedef` that is an alias an instance of
+// `HashTableIterator` that can traverse hash tables holding integer values.
+// ```
+// typedef bslstl::HashTableIterator<int, ptrdiff_t> Iter;
+// ```
 // Now, we create two iterators: one pointing to the start of the bidirectional
 // linked list held by the hash table, and the other representing the end
 // sentinel.  We use them to navigate and print the elements of the hash table:
-//..
-//  Iter iter(hashTable.listRootAddress());
-//  Iter end;
-//  for (;iter != end; ++iter) {
-//      printf("%d\n", *iter);
-//  }
-//..
+// ```
+// Iter iter(hashTable.listRootAddress());
+// Iter end;
+// for (;iter != end; ++iter) {
+//     printf("%d\n", *iter);
+// }
+// ```
 // Then, we observe the following output:
-//..
+// ```
 // 2
 // 4
 // 1
 // 3
 // 0
-//..
+// ```
 // Finally, we deallocate the memory used by the hash table:
-//..
-//  for (int i = 0; i < NUM_NODES; ++i) {
-//      scratch.deallocate(nodes[i]);
-//  }
-//..
+// ```
+// for (int i = 0; i < NUM_NODES; ++i) {
+//     scratch.deallocate(nodes[i]);
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -161,8 +161,9 @@ class HashTableIterator {
     typedef DIFFERENCE_TYPE             difference_type;
     typedef VALUE_TYPE                 *pointer;
     typedef VALUE_TYPE&                 reference;
+
+    /// Standard iterator defined types [24.4.2].
     typedef bsl::forward_iterator_tag   iterator_category;
-        // Standard iterator defined types [24.4.2].
 
   private:
     // DATA
@@ -171,27 +172,29 @@ class HashTableIterator {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Move this iterator to refer to the next node in the list.
     void advance();
-        // Move this iterator to refer to the next node in the list.
 
   public:
     // CREATORS
+
+    /// Create a default-constructed iterator referring to an empty list of
+    /// nodes.  All default-constructed iterators are non-dereferenceable
+    /// and refer to the same empty list.
     HashTableIterator();
-        // Create a default-constructed iterator referring to an empty list of
-        // nodes.  All default-constructed iterators are non-dereferenceable
-        // and refer to the same empty list.
 
+    /// Create an iterator referring to the specified `node`.  The behavior
+    /// is undefined unless `node` is of the type
+    /// `bslalg::BidirectionalNode<VALUE_TYPE>`, which is derived from
+    /// `bslalg::BidirectionalLink`.  Note that this constructor is an
+    /// implementation detail and is not part of the C++ standard.
     explicit HashTableIterator(bslalg::BidirectionalLink *node);
-        // Create an iterator referring to the specified 'node'.  The behavior
-        // is undefined unless 'node' is of the type
-        // 'bslalg::BidirectionalNode<VALUE_TYPE>', which is derived from
-        // 'bslalg::BidirectionalLink'.  Note that this constructor is an
-        // implementation detail and is not part of the C++ standard.
 
+    /// Create an iterator at the same position as the specified `original`
+    /// iterator.  Note that this constructor enables converting from
+    /// modifiable to `const` iterator types.
     HashTableIterator(const NcIter& original);                      // IMPLICIT
-        // Create an iterator at the same position as the specified 'original'
-        // iterator.  Note that this constructor enables converting from
-        // modifiable to 'const' iterator types.
 
     //! HashTableIterator(const HashTableIterator& original) = default;
         // Create an iterator having the same value as the specified
@@ -203,42 +206,49 @@ class HashTableIterator {
         // 'NcType' is the same as 'VALUE_TYPE'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    /// Destroy this object.
     ~HashTableIterator() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// a return a reference providing modifiable access to this object.
     HashTableIterator& operator=(const HashTableIterator& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // a return a reference providing modifiable access to this object.
 #endif
 
+    /// Move this iterator to the next node in the list and return a
+    /// reference providing modifiable access to this iterator.  The
+    /// behavior is undefined unless the iterator refers to a valid (not yet
+    /// erased) node in the list.
     HashTableIterator& operator++();
-        // Move this iterator to the next node in the list and return a
-        // reference providing modifiable access to this iterator.  The
-        // behavior is undefined unless the iterator refers to a valid (not yet
-        // erased) node in the list.
 
     // ACCESSORS
+
+    /// Return a reference providing modifiable access to the value (of the
+    /// template parameter `VALUE_TYPE`) of the node at which this iterator
+    /// is positioned.  The behavior is undefined unless the iterator refers
+    /// to a valid (not yet erased) node the list.
     reference operator*() const;
-        // Return a reference providing modifiable access to the value (of the
-        // template parameter 'VALUE_TYPE') of the node at which this iterator
-        // is positioned.  The behavior is undefined unless the iterator refers
-        // to a valid (not yet erased) node the list.
 
+    /// Return the address of the value (of the template parameter
+    /// `VALUE_TYPE`) of the element at which this iterator is positioned.
+    /// The behavior is undefined unless the iterator refers to a valid (not
+    /// yet erased) node the list.
     pointer operator->() const;
-        // Return the address of the value (of the template parameter
-        // 'VALUE_TYPE') of the element at which this iterator is positioned.
-        // The behavior is undefined unless the iterator refers to a valid (not
-        // yet erased) node the list.
 
+    /// Return the address of the node at which this iterator is positioned
+    /// in the list, or 0 if this iterator is positioned after the end of a
+    /// list.  Note that this method is an implementation detail and is not
+    /// part of the C++ standard.
     bslalg::BidirectionalLink *node() const;
-        // Return the address of the node at which this iterator is positioned
-        // in the list, or 0 if this iterator is positioned after the end of a
-        // list.  Note that this method is an implementation detail and is not
-        // part of the C++ standard.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and the specified `rhs` iterators
+/// have the same value and `false` otherwise.  Two iterators have the same
+/// value if they refer to the same node in the same list, or if both
+/// iterators are at the past-the-end position of the tree.
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator==(const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
                 const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
@@ -254,11 +264,12 @@ template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator==(
               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
-    // have the same value and 'false' otherwise.  Two iterators have the same
-    // value if they refer to the same node in the same list, or if both
-    // iterators are at the past-the-end position of the tree.
 
+/// Return `true` if the specified `lhs` and the specified `rhs` iterators
+/// do not have the same value and `false` otherwise.  Two iterators do not
+/// have the same value if they refer to the different nodes in the same
+/// list, or if either (but not both) of the iterators are at the
+/// past-the-end position of the tree.
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator!=(const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
                 const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
@@ -274,19 +285,14 @@ template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator!=(
               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
-    // do not have the same value and 'false' otherwise.  Two iterators do not
-    // have the same value if they refer to the different nodes in the same
-    // list, or if either (but not both) of the iterators are at the
-    // past-the-end position of the tree.
 
 
+/// Move the specified `iter` to the next node in the list and return
+/// value of `iter` prior to this call.  The behavior is undefined
+/// unless `iter` refers to a valid (not yet erased) node a the list.
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>
 operator++(HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& iter, int);
-    // Move the specified 'iter' to the next node in the list and return
-    // value of 'iter' prior to this call.  The behavior is undefined
-    // unless 'iter' refers to a valid (not yet erased) node a the list.
 
 
 // ============================================================================

@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslh_hash
 //
-//@DESCRIPTION: 'bslh::WyHashIncrementalAlgorithm' implements the WyHash
+//@DESCRIPTION: `bslh::WyHashIncrementalAlgorithm` implements the WyHash
 // algorithm by Wang Yi et al (see implementation file for full list of
 // authors) with modifications.  This algorithm is known to be very fast yet
 // have good avalanche behavior.
@@ -23,11 +23,10 @@ BSLS_IDENT("$Id: $")
 // to BDE coding conventions with no change in the binary results produced.
 //
 // The modifications are:
-//: o A property is added that hashing a segment in one pass will yeild the
-//:   same result as hashing it in pieces.
-//:
-//: o Byte-swapping is eliminated for speed, and therefore the algorithm yields
-//:   different results depending on the byte-order of the host.
+// * A property is added that hashing a segment in one pass will yeild the
+//   same result as hashing it in pieces.
+// * Byte-swapping is eliminated for speed, and therefore the algorithm yields
+//   different results depending on the byte-order of the host.
 //
 ///Security
 ///--------
@@ -36,10 +35,10 @@ BSLS_IDENT("$Id: $")
 // cryptographically secure, an algorithm must, among other things, provide
 // "Collision Resistance", described in
 // https://en.wikipedia.org/wiki/Collision_resistance , meaning that it should
-// be difficult to find two different messages 'm1' and 'm2' such that
-// 'hash(m1) == hash(m2)'.  Because of the limited sized output (only 2**64
+// be difficult to find two different messages `m1` and `m2` such that
+// `hash(m1) == hash(m2)`.  Because of the limited sized output (only 2**64
 // possibilities) and the fast execution time of the algorithm, it is probable
-// to find two such values searching only about 'sqrt(2**64) == 2**32' inputs,
+// to find two such values searching only about `sqrt(2**64) == 2**32` inputs,
 // which wont take long.
 //
 // WyHash *is*, however, a cryptographically strong PRF (pseudo-random
@@ -76,7 +75,7 @@ BSLS_IDENT("$Id: $")
 ///Subdivision-Invariance
 ///----------------------
 // Note that this algorithm is *subdivision-invariant* (see
-// {'bslh_hash'|Subdivision-Invariance}).
+// {`bslh_hash`|Subdivision-Invariance}).
 //
 ///Speed
 ///-----
@@ -90,9 +89,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Example: Creating and Using a Hash Table
 /// - - - - - - - - - - - - - - - - - - - -
-// Suppose we have any array of types that define 'operator==', and we want a
+// Suppose we have any array of types that define `operator==`, and we want a
 // fast way to find out if values are contained in the array.  We can create a
-// 'HashTable' data structure that is capable of looking up values in O(1)
+// `HashTable` data structure that is capable of looking up values in O(1)
 // time.
 //
 // Further suppose that we will be storing futures (the financial instruments)
@@ -101,246 +100,246 @@ BSLS_IDENT("$Id: $")
 // general purpose hashing algorithm with a good hash distribution and good
 // speed.  This algorithm will need to be in the form of a hash functor -- an
 // object that will take objects stored in our array as input, and yield a
-// 64-bit int value.  The functor can pass the attributes of the 'TYPE' that
+// 64-bit int value.  The functor can pass the attributes of the `TYPE` that
 // are salient to hashing into the hashing algorithm, and then return the hash
 // that is produced.
 //
 // We can use the result of the hash function to index into our array of
-// 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
-// array of 'TYPE' objects.
+// `buckets`.  Each `bucket` is simply a pointer to a value in our original
+// array of `TYPE` objects.
 //
-// First, we define our 'HashTable' template class, with the two type
-// parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
+// First, we define our `HashTable` template class, with the two type
+// parameters: `TYPE` (the type being referenced) and `HASHER` (a functor that
 // produces the hash).
-//..
-//  template <class TYPE, class HASHER>
-//  class HashTable {
-//..
-// This 'class template' implements a hash table providing fast lookup of an
-// external, non-owned, array of values of (template parameter) 'TYPE'.
+// ```
+// template <class TYPE, class HASHER>
+// class HashTable {
+// ```
+// This `class template` implements a hash table providing fast lookup of an
+// external, non-owned, array of values of (template parameter) `TYPE`.
 //
-// The (template parameter) 'TYPE' shall have a transitive, symmetric
-// 'operator==' function.  There is no requirement that it have any kind of
+// The (template parameter) `TYPE` shall have a transitive, symmetric
+// `operator==` function.  There is no requirement that it have any kind of
 // creator defined.
 //
-// The 'HASHER' template parameter type must be a functor with a method having
+// The `HASHER` template parameter type must be a functor with a method having
 // the following signature:
-//..
-//  size_t operator()(TYPE)  const;
-//                   -OR-
-//  size_t operator()(const TYPE&) const;
-//..
-// and 'HASHER' shall have a publicly accessible default constructor and
+// ```
+// size_t operator()(TYPE)  const;
+//                  -OR-
+// size_t operator()(const TYPE&) const;
+// ```
+// and `HASHER` shall have a publicly accessible default constructor and
 // destructor.
 //
 // Note that this hash table has numerous simplifications because we know the
 // size of the array and never have to resize the table.
-//..
-//      // DATA
-//      const TYPE       *d_values;          // Array of values table is to
-//                                           // hold
-//      size_t            d_numValues;       // Length of 'd_values'.
-//      const TYPE      **d_bucketArray;     // Contains ptrs into 'd_values'
-//      size_t            d_bucketArrayMask; // Will always be '2^N - 1'.
-//      HASHER            d_hasher;          // User supplied hashing algorithm
+// ```
+//     // DATA
+//     const TYPE       *d_values;          // Array of values table is to
+//                                          // hold
+//     size_t            d_numValues;       // Length of 'd_values'.
+//     const TYPE      **d_bucketArray;     // Contains ptrs into 'd_values'
+//     size_t            d_bucketArrayMask; // Will always be '2^N - 1'.
+//     HASHER            d_hasher;          // User supplied hashing algorithm
 //
-//    private:
-//      // PRIVATE ACCESSORS
-//      bool lookup(size_t      *idx,
-//                  const TYPE&  value,
-//                  size_t       hashValue) const;
-//          // Look up the specified 'value', having the specified 'hashValue',
-//          // and load its index in 'd_bucketArray' into the specified 'idx'.
-//          // If not found, return the vacant entry in 'd_bucketArray' where
-//          // it should be inserted.  Return 'true' if 'value' is found and
-//          // 'false' otherwise.
+//   private:
+//     // PRIVATE ACCESSORS
+//     bool lookup(size_t      *idx,
+//                 const TYPE&  value,
+//                 size_t       hashValue) const;
+//         // Look up the specified 'value', having the specified 'hashValue',
+//         // and load its index in 'd_bucketArray' into the specified 'idx'.
+//         // If not found, return the vacant entry in 'd_bucketArray' where
+//         // it should be inserted.  Return 'true' if 'value' is found and
+//         // 'false' otherwise.
 //
-//    public:
-//      // CREATORS
-//      HashTable(const TYPE *valuesArray,
-//                size_t      numValues);
-//          // Create a hash table referring to the specified 'valuesArray'
-//          // having length of the specified 'numValues'.  No value in
-//          // 'valuesArray' shall have the same value as any of the other
-//          // values in 'valuesArray'
+//   public:
+//     // CREATORS
+//     HashTable(const TYPE *valuesArray,
+//               size_t      numValues);
+//         // Create a hash table referring to the specified 'valuesArray'
+//         // having length of the specified 'numValues'.  No value in
+//         // 'valuesArray' shall have the same value as any of the other
+//         // values in 'valuesArray'
 //
-//      ~HashTable();
-//          // Free up memory used by this hash table.
+//     ~HashTable();
+//         // Free up memory used by this hash table.
 //
-//      // ACCESSORS
-//      bool contains(const TYPE& value) const;
-//          // Return true if the specified 'value' is found in the table and
-//          // false otherwise.
-//  };
+//     // ACCESSORS
+//     bool contains(const TYPE& value) const;
+//         // Return true if the specified 'value' is found in the table and
+//         // false otherwise.
+// };
 //
-//  // PRIVATE ACCESSORS
-//  template <class TYPE, class HASHER>
-//  bool HashTable<TYPE, HASHER>::lookup(size_t      *idx,
-//                                       const TYPE&  value,
-//                                       size_t       hashValue) const
-//  {
-//      const TYPE *ptr;
-//      for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
-//                                     *idx = (*idx + 1) & d_bucketArrayMask) {
-//          if (value == *ptr) {
-//              return true;                                          // RETURN
-//          }
-//      }
+// // PRIVATE ACCESSORS
+// template <class TYPE, class HASHER>
+// bool HashTable<TYPE, HASHER>::lookup(size_t      *idx,
+//                                      const TYPE&  value,
+//                                      size_t       hashValue) const
+// {
+//     const TYPE *ptr;
+//     for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
+//                                    *idx = (*idx + 1) & d_bucketArrayMask) {
+//         if (value == *ptr) {
+//             return true;                                          // RETURN
+//         }
+//     }
 //
-//      // value was not found in table
+//     // value was not found in table
 //
-//      return false;
-//  }
+//     return false;
+// }
 //
-//  // CREATORS
-//  template <class TYPE, class HASHER>
-//  HashTable<TYPE, HASHER>::HashTable(const TYPE *valuesArray,
-//                                     size_t      numValues)
-//  : d_values(valuesArray)
-//  , d_numValues(numValues)
-//  , d_hasher()
-//  {
-//      size_t bucketArrayLength = 4;
-//      while (bucketArrayLength < numValues * 4) {
-//          bucketArrayLength *= 2;
+// // CREATORS
+// template <class TYPE, class HASHER>
+// HashTable<TYPE, HASHER>::HashTable(const TYPE *valuesArray,
+//                                    size_t      numValues)
+// : d_values(valuesArray)
+// , d_numValues(numValues)
+// , d_hasher()
+// {
+//     size_t bucketArrayLength = 4;
+//     while (bucketArrayLength < numValues * 4) {
+//         bucketArrayLength *= 2;
 //
-//      }
-//      d_bucketArrayMask = bucketArrayLength - 1;
-//      d_bucketArray = new const TYPE *[bucketArrayLength];
-//      memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
+//     }
+//     d_bucketArrayMask = bucketArrayLength - 1;
+//     d_bucketArray = new const TYPE *[bucketArrayLength];
+//     memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 //
-//      for (unsigned i = 0; i < numValues; ++i) {
-//          const TYPE& value = d_values[i];
-//          size_t idx;
-//          const bool found = lookup(&idx, value, d_hasher(value));
-//          BSLS_ASSERT_OPT(!found);    (void) found;
-//          d_bucketArray[idx] = &d_values[i];
-//      }
-//  }
+//     for (unsigned i = 0; i < numValues; ++i) {
+//         const TYPE& value = d_values[i];
+//         size_t idx;
+//         const bool found = lookup(&idx, value, d_hasher(value));
+//         BSLS_ASSERT_OPT(!found);    (void) found;
+//         d_bucketArray[idx] = &d_values[i];
+//     }
+// }
 //
-//  template <class TYPE, class HASHER>
-//  HashTable<TYPE, HASHER>::~HashTable()
-//  {
-//      delete [] d_bucketArray;
-//  }
+// template <class TYPE, class HASHER>
+// HashTable<TYPE, HASHER>::~HashTable()
+// {
+//     delete [] d_bucketArray;
+// }
 //
-//  // ACCESSORS
-//  template <class TYPE, class HASHER>
-//  bool HashTable<TYPE, HASHER>::contains(const TYPE& value) const
-//  {
-//      size_t idx;
-//      return lookup(&idx, value, d_hasher(value));
-//  }
-//..
-// Then, we define a 'Future' class, which holds a c-string 'name', char
-// 'callMonth', and short 'callYear'.
-//..
-//  class Future {
-//..
-// This 'class' identifies a future contract.  It tracks the name, call month
+// // ACCESSORS
+// template <class TYPE, class HASHER>
+// bool HashTable<TYPE, HASHER>::contains(const TYPE& value) const
+// {
+//     size_t idx;
+//     return lookup(&idx, value, d_hasher(value));
+// }
+// ```
+// Then, we define a `Future` class, which holds a c-string `name`, char
+// `callMonth`, and short `callYear`.
+// ```
+// class Future {
+// ```
+// This `class` identifies a future contract.  It tracks the name, call month
 // and year of the contract it represents, and allows equality comparison.
-//..
-//      // DATA
-//      const char *d_name;    // held, not owned
-//      const char  d_callMonth;
-//      const short d_callYear;
+// ```
+//     // DATA
+//     const char *d_name;    // held, not owned
+//     const char  d_callMonth;
+//     const short d_callYear;
 //
-//    public:
-//      // CREATORS
-//      Future(const char *name, const char callMonth, const short callYear)
-//      : d_name(name), d_callMonth(callMonth), d_callYear(callYear)
-//          // Create a 'Future' object out of the specified 'name',
-//          // 'callMonth', and 'callYear'.
-//      {}
+//   public:
+//     // CREATORS
+//     Future(const char *name, const char callMonth, const short callYear)
+//     : d_name(name), d_callMonth(callMonth), d_callYear(callYear)
+//         // Create a 'Future' object out of the specified 'name',
+//         // 'callMonth', and 'callYear'.
+//     {}
 //
-//      Future() : d_name(""), d_callMonth('\0'), d_callYear(0)
-//          // Create a 'Future' with default values.
-//      {}
+//     Future() : d_name(""), d_callMonth('\0'), d_callYear(0)
+//         // Create a 'Future' with default values.
+//     {}
 //
-//      // ACCESSORS
-//      const char * getMonth() const
-//          // Return the month that this future expires.
-//      {
-//          return &d_callMonth;
-//      }
+//     // ACCESSORS
+//     const char * getMonth() const
+//         // Return the month that this future expires.
+//     {
+//         return &d_callMonth;
+//     }
 //
-//      const char * getName() const
-//          // Return the name of this future
-//      {
-//          return d_name;
-//      }
+//     const char * getName() const
+//         // Return the name of this future
+//     {
+//         return d_name;
+//     }
 //
-//      const short * getYear() const
-//          // Return the year that this future expires
-//      {
-//          return &d_callYear;
-//      }
+//     const short * getYear() const
+//         // Return the year that this future expires
+//     {
+//         return &d_callYear;
+//     }
 //
-//      bool operator==(const Future& rhs) const
-//          // Compare this to the specified 'other' object and return true if
-//          // they are equal
-//      {
-//          return (!strcmp(d_name, rhs.d_name)) &&
-//                                            d_callMonth == rhs.d_callMonth &&
-//                                            d_callYear  == rhs.d_callYear;
-//      }
-//  };
+//     bool operator==(const Future& rhs) const
+//         // Compare this to the specified 'other' object and return true if
+//         // they are equal
+//     {
+//         return (!strcmp(d_name, rhs.d_name)) &&
+//                                           d_callMonth == rhs.d_callMonth &&
+//                                           d_callYear  == rhs.d_callYear;
+//     }
+// };
 //
-//  bool operator!=(const Future& lhs, const Future& rhs)
-//      // Compare compare the specified 'lhs' and 'rhs' objects and return
-//      // true if they are not equal
-//  {
-//      return !(lhs == rhs);
-//  }
-//..
-// Next, we need a hash functor for 'Future'.  We are going to use the
-// 'SpookyHashAlgorithm' because it is a fast, general purpose hashing
+// bool operator!=(const Future& lhs, const Future& rhs)
+//     // Compare compare the specified 'lhs' and 'rhs' objects and return
+//     // true if they are not equal
+// {
+//     return !(lhs == rhs);
+// }
+// ```
+// Next, we need a hash functor for `Future`.  We are going to use the
+// `SpookyHashAlgorithm` because it is a fast, general purpose hashing
 // algorithm that will provide an easy way to combine the attributes of
-// 'Future' objects that are salient to hashing into one reasonable hash that
+// `Future` objects that are salient to hashing into one reasonable hash that
 // will distribute the items evenly throughout the hash table.
-//..
-//  struct HashFuture {
-//      // This struct is a functor that will apply the 'SpookyHashAlgorithm'
-//      // to objects of type 'Future'.
+// ```
+// struct HashFuture {
+//     // This struct is a functor that will apply the 'SpookyHashAlgorithm'
+//     // to objects of type 'Future'.
 //
-//      bsls::Types::Uint64 d_seed;
+//     bsls::Types::Uint64 d_seed;
 //
-//      HashFuture()
-//      {
-//          // Generate random bits in 'd_seed' based on the time of day in
-//          // nanoseconds.
+//     HashFuture()
+//     {
+//         // Generate random bits in 'd_seed' based on the time of day in
+//         // nanoseconds.
 //
-//          bsls::Types::Uint64 nano =
-//                    bsls::SystemTime::nowMonotonicClock().totalNanoseconds();
-//          const int iterations = static_cast<int>(nano & 7) + 1;
-//          for (int ii = 0; ii < iterations; ++ii) {
-//              nano *= bsls::SystemTime::nowMonotonicClock().
-//                                                          totalNanoseconds();
-//              nano += nano >> 32;
-//          }
+//         bsls::Types::Uint64 nano =
+//                   bsls::SystemTime::nowMonotonicClock().totalNanoseconds();
+//         const int iterations = static_cast<int>(nano & 7) + 1;
+//         for (int ii = 0; ii < iterations; ++ii) {
+//             nano *= bsls::SystemTime::nowMonotonicClock().
+//                                                         totalNanoseconds();
+//             nano += nano >> 32;
+//         }
 //
-//          BSLMF_ASSERT(sizeof(d_seed) <= sizeof(nano));
+//         BSLMF_ASSERT(sizeof(d_seed) <= sizeof(nano));
 //
-//          memcpy(&d_seed, &nano, sizeof(d_seed));
-//      }
+//         memcpy(&d_seed, &nano, sizeof(d_seed));
+//     }
 //
-//      // MANIPULATOR
-//      size_t operator()(const Future& future) const
-//          // Return the hash of the of the specified 'future'.  Note that
-//          // this uses the 'SpookyHashAlgorithm' to quickly combine the
-//          // attributes of 'Future' objects that are salient to hashing into
-//          // a hash suitable for a hash table.
-//      {
-//          bslh::WyHashIncrementalAlgorithm hash(d_seed);
+//     // MANIPULATOR
+//     size_t operator()(const Future& future) const
+//         // Return the hash of the of the specified 'future'.  Note that
+//         // this uses the 'SpookyHashAlgorithm' to quickly combine the
+//         // attributes of 'Future' objects that are salient to hashing into
+//         // a hash suitable for a hash table.
+//     {
+//         bslh::WyHashIncrementalAlgorithm hash(d_seed);
 //
-//          hash(future.getName(),  strlen(future.getName()));
-//          hash(future.getMonth(), sizeof(char));
-//          hash(future.getYear(),  sizeof(short));
+//         hash(future.getName(),  strlen(future.getName()));
+//         hash(future.getMonth(), sizeof(char));
+//         hash(future.getYear(),  sizeof(short));
 //
-//          return static_cast<size_t>(hash.computeHash());
-//      }
-//  };
-//..
+//         return static_cast<size_t>(hash.computeHash());
+//     }
+// };
+// ```
 
 #include <bslscm_version.h>
 
@@ -389,9 +388,9 @@ namespace bslh {
                     // class bslh::WyHashIncrementalAlgorithm
                     // ======================================
 
+/// This class wraps an implementation of the "WyHash" hash algorithm in an
+/// interface that is usable in the modular hashing system in `bslh`.
 class WyHashIncrementalAlgorithm {
-    // This class wraps an implementation of the "WyHash" hash algorithm in an
-    // interface that is usable in the modular hashing system in 'bslh'.
 
   private:
     // PRIVATE TYPES
@@ -401,8 +400,9 @@ class WyHashIncrementalAlgorithm {
 
   public:
     // TYPES
+
+    /// Typedef indicating the value type returned by this algorithm.
     typedef bsls::Types::Uint64 result_type;
-        // Typedef indicating the value type returned by this algorithm.
 
     enum { k_SEED_LENGTH = sizeof(uint64_t) };
 
@@ -450,80 +450,83 @@ class WyHashIncrementalAlgorithm {
         // swapped.
 #endif
 
+    /// Multiply the specified `*a_p` and `*b_p`, yielding a 128 bit result,
+    /// when `*b_p` will contain the high 64 bits and `*a_p` will contain
+    /// the low 64 bits of the result.  This may be configured through
+    /// conditional switches to perform a faster function other than
+    /// multiply.
     static void _wymum(uint64_t *a_p, uint64_t *b_p);
-        // Multiply the specified '*a_p' and '*b_p', yielding a 128 bit result,
-        // when '*b_p' will contain the high 64 bits and '*a_p' will contain
-        // the low 64 bits of the result.  This may be configured through
-        // conditional switches to perform a faster function other than
-        // multiply.
 
+    /// Do a 64x64 -> 128 bit multiply of the specified `a` and `b`, then
+    /// then return the bitwise-xor of the high and low 64-bits.
     static uint64_t _wymix(uint64_t a, uint64_t b);
-        // Do a 64x64 -> 128 bit multiply of the specified 'a' and 'b', then
-        // then return the bitwise-xor of the high and low 64-bits.
 
+    /// Read 8 bytes, native-endian.  Note that `p` might not be aligned.
     static uint64_t _wyr8(const uint8_t *p);
-        // Read 8 bytes, native-endian.  Note that 'p' might not be aligned.
 
+    /// Read 4 bytes, native-endian,  Note that `p` might not be aligned.
     static uint64_t _wyr4(const uint8_t *p);
-        // Read 4 bytes, native-endian,  Note that 'p' might not be aligned.
 
+    /// Read a mix of the specified `k` bytes beginning at the specified
+    /// `p`, where `k` is in the range `[ 1 .. 3 ]`.
     static uint64_t _wyr3(const uint8_t *p, size_t k);
-        // Read a mix of the specified 'k' bytes beginning at the specified
-        // 'p', where 'k' is in the range '[ 1 .. 3 ]'.
 
     // PRIVATE MANIPULATORS
+
+    /// Return a ptr to the address at the specified `offset` after the
+    /// beginning of the `prepad` area of the buffer.  The behavior is
+    /// undefined unless `1 <= offset`.
     uint8_t *prePadAt(ptrdiff_t offset);
-        // Return a ptr to the address at the specified 'offset' after the
-        // beginning of the 'prepad' area of the buffer.  The behavior is
-        // undefined unless '1 <= offset'.
 
+    /// Process the specified `k_REPEAT_LENGTH`-byte `buffer`.  Note that
+    /// this function is called only when there is additional input beyond
+    /// the buffer.
     void process48ByteSection(const uint8_t *buffer);
-        // Process the specified 'k_REPEAT_LENGTH'-byte 'buffer'.  Note that
-        // this function is called only when there is additional input beyond
-        // the buffer.
 
+    /// Return a pointer to the beginning of the repeated buffer area.
     uint8_t *repeatBufferBegin();
-        // Return a pointer to the beginning of the repeated buffer area.
 
+    /// Return a pointer past the end of the buffer.
     uint8_t *repeatBufferEnd();
-        // Return a pointer past the end of the buffer.
 
   public:
     // CREATORS
+
+    /// Create a `WyHashIncrementalAlgorithm` using a default initial seed.
     WyHashIncrementalAlgorithm();
-        // Create a 'WyHashIncrementalAlgorithm' using a default initial seed.
 
+    /// Create a `bslh::WyHashIncrementalAlgorithm`, seeded with the
+    /// specified `seed`.
     explicit WyHashIncrementalAlgorithm(uint64_t seed);
-        // Create a 'bslh::WyHashIncrementalAlgorithm', seeded with the
-        // specified 'seed'.
 
+    /// Create a `bslh::WyHashIncrementalAlgorithm`, seeded with
+    /// `k_SEED_LENGTH` bytes of data starting at the specified `seed`.
     explicit WyHashIncrementalAlgorithm(const char *seed);
-        // Create a 'bslh::WyHashIncrementalAlgorithm', seeded with
-        // 'k_SEED_LENGTH' bytes of data starting at the specified 'seed'.
 
     //! ~WyHashIncrementalAlgorithm() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    void operator()(const void *data, size_t numBytes);
-        // Incorporate the specified 'data', of at least the specified
-        // 'numBytes', into the internal state of the hashing algorithm.  Every
-        // bit of data incorporated into the internal state of the algorithm
-        // will contribute to the final hash produced by 'computeHash()'.  The
-        // same hash value will be produced regardless of whether a sequence of
-        // bytes is passed in all at once or through multiple calls to this
-        // member function.  Input where 'numBytes' is 0 will have no effect on
-        // the internal state of the algorithm.  The behaviour is undefined
-        // unless 'data' points to a valid memory location with at least
-        // 'numBytes' bytes of initialized memory or 'numBytes' is zero.
 
+    /// Incorporate the specified `data`, of at least the specified
+    /// `numBytes`, into the internal state of the hashing algorithm.  Every
+    /// bit of data incorporated into the internal state of the algorithm
+    /// will contribute to the final hash produced by `computeHash()`.  The
+    /// same hash value will be produced regardless of whether a sequence of
+    /// bytes is passed in all at once or through multiple calls to this
+    /// member function.  Input where `numBytes` is 0 will have no effect on
+    /// the internal state of the algorithm.  The behaviour is undefined
+    /// unless `data` points to a valid memory location with at least
+    /// `numBytes` bytes of initialized memory or `numBytes` is zero.
+    void operator()(const void *data, size_t numBytes);
+
+    /// Return the finalized version of the hash that has been accumulated.
+    /// Note that this changes the internal state of the object, so calling
+    /// `computeHash()` multiple times in a row will return different
+    /// results, and only the first result returned will match the expected
+    /// result of the algorithm.  Also note that a value will be returned,
+    /// even if data has not been passed into `operator()`
     result_type computeHash();
-        // Return the finalized version of the hash that has been accumulated.
-        // Note that this changes the internal state of the object, so calling
-        // 'computeHash()' multiple times in a row will return different
-        // results, and only the first result returned will match the expected
-        // result of the algorithm.  Also note that a value will be returned,
-        // even if data has not been passed into 'operator()'
 };
 
 // ============================================================================
@@ -643,10 +646,10 @@ uint64_t WyHashIncrementalAlgorithm::_wyr4(const uint8_t *p)
     return v;
 }
 
+/// Read a mix of the `k` bytes beginning at `p`, where `k` is in the range
+/// `[ 1 .. 3 ]`.
 inline
 uint64_t WyHashIncrementalAlgorithm::_wyr3(const uint8_t *p, size_t k)
-    // Read a mix of the 'k' bytes beginning at 'p', where 'k' is in the range
-    // '[ 1 .. 3 ]'.
 {
     BSLS_ASSERT_SAFE(1 <= k && k <= 3);
 

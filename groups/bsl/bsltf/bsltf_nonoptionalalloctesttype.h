@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a class for testing that allocates with 'bslma::Allocator'.
+//@PURPOSE: Provide a class for testing that allocates with `bslma::Allocator`.
 //
 //@CLASSES:
 //   bsltf::NonOptionalAllocTestType: test class with non-optional allocator.
@@ -13,22 +13,22 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'NonOptionalAllocTestType', that uses a
-// 'bslma::Allocator' to allocate memory and defines the type trait
-// 'bslma::UsesBslmaAllocator'.  Furthermore, this class is not
+// (value-semantic) attribute class, `NonOptionalAllocTestType`, that uses a
+// `bslma::Allocator` to allocate memory and defines the type trait
+// `bslma::UsesBslmaAllocator`.  Furthermore, this class is not
 // bitwise-moveable, and will assert on destruction if it has been moved.  This
-// class does not meet the 'default-insertable' requirement on template
+// class does not meet the `default-insertable` requirement on template
 // parameter type for containers and is primarily provided to facilitate
 // testing of extended quality of implementation of BDE containers.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
-//..
-//: o 'data': representation of the object's value
+// ```
+// Name                Type         Default
+// ------------------  -----------  -------
+// data                int          0
+// ```
+// * `data`: representation of the object's value
 //
 ///Usage
 ///-----
@@ -38,39 +38,39 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to print the supported traits of this test type.
 //
-// First, we create a function template 'printTypeTraits' with a parameterized
-// 'TYPE':
-//..
-//  template <class TYPE>
-//  void printTypeTraits()
-//      // Prints the traits of the parameterized 'TYPE' to the console.
-//  {
-//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
-//          printf("Type defines bslma::UsesBslmaAllocator.\n");
-//      }
-//      else {
-//          printf(
-//              "Type does not define bslma::UsesBslmaAllocator.\n");
-//      }
+// First, we create a function template `printTypeTraits` with a parameterized
+// `TYPE`:
+// ```
+// template <class TYPE>
+// void printTypeTraits()
+//     // Prints the traits of the parameterized 'TYPE' to the console.
+// {
+//     if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//         printf("Type defines bslma::UsesBslmaAllocator.\n");
+//     }
+//     else {
+//         printf(
+//             "Type does not define bslma::UsesBslmaAllocator.\n");
+//     }
 //
-//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
-//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
-//      }
-//      else {
-//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
-//      }
-//  }
-//..
-// Now, we invoke the 'printTypeTraits' function template using
-// 'NonOptionalAllocTestType' as the parameterized 'TYPE':
-//..
-//  printTypeTraits<NonOptionalAllocTestType>();
-//..
+//     if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//         printf("Type defines bslmf::IsBitwiseMoveable.\n");
+//     }
+//     else {
+//         printf("Type does not define bslmf::IsBitwiseMoveable.\n");
+//     }
+// }
+// ```
+// Now, we invoke the `printTypeTraits` function template using
+// `NonOptionalAllocTestType` as the parameterized `TYPE`:
+// ```
+// printTypeTraits<NonOptionalAllocTestType>();
+// ```
 // Finally, we observe the console output:
-//..
-//  Type defines bslma::UsesBslmaAllocator.
-//  Type does not define bslmf::IsBitwiseMoveable.
-//..
+// ```
+// Type defines bslma::UsesBslmaAllocator.
+// Type does not define bslmf::IsBitwiseMoveable.
+// ```
 
 #include <bslscm_version.h>
 
@@ -88,11 +88,11 @@ namespace bsltf {
                         // class NonOptionalAllocTestType
                         // ==============================
 
+/// This unconstrained (value-semantic) attribute class that uses a
+/// `bslma::Allocator` to allocate memory and defines the type trait
+/// `bslma::UsesBslmaAllocator`.  This class does not provide a default
+/// constructor.
 class NonOptionalAllocTestType {
-    // This unconstrained (value-semantic) attribute class that uses a
-    // 'bslma::Allocator' to allocate memory and defines the type trait
-    // 'bslma::UsesBslmaAllocator'.  This class does not provide a default
-    // constructor.
 
     // DATA
     int                      *d_data_p;      // pointer to the data value
@@ -105,61 +105,65 @@ class NonOptionalAllocTestType {
 
   public:
     // CREATORS
-    explicit NonOptionalAllocTestType(bslma::Allocator *basicAllocator);
-        // Create a 'NonOptionalAllocTestType' object having the (default)
-        // attribute values using the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
 
+    /// Create a `NonOptionalAllocTestType` object having the (default)
+    /// attribute values using the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
+    explicit NonOptionalAllocTestType(bslma::Allocator *basicAllocator);
+
+    /// Create a `NonOptionalAllocTestType` object having the specified
+    /// `data` attribute value using the specified a `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     explicit NonOptionalAllocTestType(int               data,
                                       bslma::Allocator *basicAllocator);
-        // Create a 'NonOptionalAllocTestType' object having the specified
-        // 'data' attribute value using the specified a 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a `NonOptionalAllocTestType` object having the same value as
+    /// the specified `original` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     NonOptionalAllocTestType(
                           const NonOptionalAllocTestType&  original,
                           bslma::Allocator                *basicAllocator = 0);
-        // Create a 'NonOptionalAllocTestType' object having the same value as
-        // the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this object.
     ~NonOptionalAllocTestType();
-        // Destroy this object.
 
     // MANIPULATORS
-    NonOptionalAllocTestType& operator=(const NonOptionalAllocTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    NonOptionalAllocTestType& operator=(const NonOptionalAllocTestType& rhs);
+
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `NonOptionalAllocTestType` objects
+/// have the same if their `data` attributes are the same.
 bool operator==(const NonOptionalAllocTestType& lhs,
                 const NonOptionalAllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'NonOptionalAllocTestType' objects
-    // have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `NonOptionalAllocTestType`
+/// objects do not have the same value if their `data` attributes are not
+/// the same.
 bool operator!=(const NonOptionalAllocTestType& lhs,
                 const NonOptionalAllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'NonOptionalAllocTestType'
-    // objects do not have the same value if their 'data' attributes are not
-    // the same.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

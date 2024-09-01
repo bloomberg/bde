@@ -19,17 +19,17 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // This section provides a brief description of the macros defined in this
 // component.
-//..
-//  BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type, refName, referredSymbol);
-//      Force a link-time dependency into an object by creating a "symbol" (a
-//      static variable with external linkage) having specified 'type'
-//      (typically 'const char *'), the specified 'name' (which should be
-//      unique), and that will be given the value of the address of the
-//      specified 'referredSymbol'.
-//..
+// ```
+// BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type, refName, referredSymbol);
+//     Force a link-time dependency into an object by creating a "symbol" (a
+//     static variable with external linkage) having specified 'type'
+//     (typically 'const char *'), the specified 'name' (which should be
+//     unique), and that will be given the value of the address of the
+//     specified 'referredSymbol'.
+// ```
 // Notice that this macro is typically used to prevent to binary incompatible
 // object files from being successfully linked together.  This is achieved by
-// calling this macro in a way that 'referredSymbol' will have a different
+// calling this macro in a way that `referredSymbol` will have a different
 // symbol name for incompatible builds.
 //
 ///Link coercion mechanism
@@ -73,32 +73,32 @@ BSLS_IDENT("$Id: $")
 //
 // First we define a macro such that our symbol name will be different for
 // debug and optimized builds of our library:
-//..
-//  mylib_safecompile.h
-//  #ifdef NDEBUG
-//      #define MYLIB_DEBUG_SYMBOL_NAME mylib_BuiltWithNDebugMode
-//  #else
-//      #define MYLIB_DEBUG_SYMBOL_NAME mylib_BuiltWithoutNDebugMode
-//  #endif
-//..
-// Now we use the 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' macro to require
+// ```
+// mylib_safecompile.h
+// #ifdef NDEBUG
+//     #define MYLIB_DEBUG_SYMBOL_NAME mylib_BuiltWithNDebugMode
+// #else
+//     #define MYLIB_DEBUG_SYMBOL_NAME mylib_BuiltWithoutNDebugMode
+// #endif
+// ```
+// Now we use the `BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY` macro to require
 // translation units to link against a library having a matching symbol name:
-//..
-//  extern const char* MYLIB_DEBUG_SYMBOL_NAME;
-//  BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
-//                                            mylib_coercebasedondebugmode,
-//                                            MYLIB_DEBUG_SYMBOL_NAME )
-//..
+// ```
+// extern const char* MYLIB_DEBUG_SYMBOL_NAME;
+// BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
+//                                           mylib_coercebasedondebugmode,
+//                                           MYLIB_DEBUG_SYMBOL_NAME )
+// ```
 // Note that the referred symbol will have a different name depending on
-// whether 'NDEBUG' is defined or not.
+// whether `NDEBUG` is defined or not.
 //
-// Finally, in the corresponding '.cpp' file we must define the appropriate
+// Finally, in the corresponding `.cpp` file we must define the appropriate
 // symbol name for the library:
-//..
-//   mylib_safecompile.cpp
-//   const char *MYLIB_DEBUG_SYMBOL_NAME = "debug compatibility check: "
-//                                          #MYLIB_DEBUG_SYMBOL_NAME;
-//..
+// ```
+//  mylib_safecompile.cpp
+//  const char *MYLIB_DEBUG_SYMBOL_NAME = "debug compatibility check: "
+//                                         #MYLIB_DEBUG_SYMBOL_NAME;
+// ```
 
 #include <bsls_platform.h>
 

@@ -9,37 +9,37 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_enum: standard meta-function for determining enumerated types
-//  bsl::is_enum_v: the result value of the 'bsl::is_enum' meta-function
+//  bsl::is_enum_v: the result value of the `bsl::is_enum` meta-function
 //  bslmf::IsEnum: meta-function for determining enumerated types
 //
 //@SEE_ALSO: bslmf_isfundamental
 //
-//@DESCRIPTION: This component defines two meta-functions, 'bsl::is_enum' and
-// 'BloombergLP::bslmf::IsEnum' and a template variable 'bsl::is_enum_v', that
-// represents the result value of the 'bsl::is_enum' meta-function.  All these
+//@DESCRIPTION: This component defines two meta-functions, `bsl::is_enum` and
+// `BloombergLP::bslmf::IsEnum` and a template variable `bsl::is_enum_v`, that
+// represents the result value of the `bsl::is_enum` meta-function.  All these
 // meta-functions may be used to query whether a type is an enumerated type,
-// optionally qualified with 'const' or 'volatile'.
+// optionally qualified with `const` or `volatile`.
 //
-// 'bsl::is_enum' meets the requirements of the 'is_enum' template defined in
-// the C++11 standard [meta.unary.cat], while 'bslmf::IsEnum' was devised
-// before 'is_enum' was standardized.
+// `bsl::is_enum` meets the requirements of the `is_enum` template defined in
+// the C++11 standard [meta.unary.cat], while `bslmf::IsEnum` was devised
+// before `is_enum` was standardized.
 //
 // The two meta-functions are functionally equivalent.  The major difference
-// between them is that the result for 'bsl::is_enum' is indicated by the class
-// member 'value', while the result for 'bslmf::IsEnum' is indicated by the
-// class member 'value'.
+// between them is that the result for `bsl::is_enum` is indicated by the class
+// member `value`, while the result for `bslmf::IsEnum` is indicated by the
+// class member `value`.
 //
-// Note that 'bsl::is_enum' should be preferred over 'bslmf::IsEnum', and in
+// Note that `bsl::is_enum` should be preferred over `bslmf::IsEnum`, and in
 // general, should be used by new components.
 //
-// Also note that the template variable 'is_enum_v' is defined in the C++17
+// Also note that the template variable `is_enum_v` is defined in the C++17
 // standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_enum_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_enum_v' is defined
-// as a non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// variable C++17 compiler feature, `bsl::is_enum_v` is defined as an
+// `inline constexpr bool` variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, `bsl::is_enum_v` is defined
+// as a non-inline `constexpr bool` variable.  See
+// `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in
 // bsls_compilerfeatures component for details.
 //
 ///Usage
@@ -48,27 +48,27 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Enumerated Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a set of types are 'enum' types.
+// Suppose that we want to assert whether a set of types are `enum` types.
 //
-// First, we create an enumerated type, 'MyEnum', and a class type, 'MyClass':
-//..
-//  enum MyEnum { MY_ENUMERATOR = 5 };
-//  class MyClass { explicit MyClass(MyEnum); };
-//..
-// Now, we instantiate the 'bsl::is_enum' template for both types we defined
-// previously, and assert the 'value' static data member of each instantiation:
-//..
-//  assert(true  == bsl::is_enum<MyEnum>::value);
-//  assert(false == bsl::is_enum<MyClass>::value);
-//..
+// First, we create an enumerated type, `MyEnum`, and a class type, `MyClass`:
+// ```
+// enum MyEnum { MY_ENUMERATOR = 5 };
+// class MyClass { explicit MyClass(MyEnum); };
+// ```
+// Now, we instantiate the `bsl::is_enum` template for both types we defined
+// previously, and assert the `value` static data member of each instantiation:
+// ```
+// assert(true  == bsl::is_enum<MyEnum>::value);
+// assert(false == bsl::is_enum<MyClass>::value);
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature, then we can re-write the snippet of code above as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(true  == bsl::is_enum_v<MyEnum>);
-//  assert(false == bsl::is_enum_v<MyClass>);
-//#endif
-//..
+// ```
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//   assert(true  == bsl::is_enum_v<MyEnum>);
+//   assert(false == bsl::is_enum_v<MyClass>);
+// #endif
+// ```
 
 #include <bslscm_version.h>
 
@@ -102,13 +102,13 @@ namespace bsl {
                                 // struct is_enum
                                 // ==============
 
+/// This `struct` template implements the `is_enum` meta-function defined in
+/// the C++11 standard [meta.unary.cat] to determine if the (template
+/// parameter) `t_TYPE` is an enumerated type.  This `struct` derives from
+/// `bsl::true_type` if the `t_TYPE` is an enumerated type, and from
+/// `bsl::false_type` otherwise.
 template <class t_TYPE>
 struct is_enum;
-    // This 'struct' template implements the 'is_enum' meta-function defined in
-    // the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 't_TYPE' is an enumerated type.  This 'struct' derives from
-    // 'bsl::true_type' if the 't_TYPE' is an enumerated type, and from
-    // 'bsl::false_type' otherwise.
 
 }  // close namespace bsl
 
@@ -119,18 +119,18 @@ namespace bslmf {
                                 // struct IsEnum
                                 // =============
 
+/// This `struct` provides a meta-function that computes, at compile time,
+/// whether the (template parameter) `t_TYPE` is an enumerated type.  It
+/// derives from `bsl::true_type` if `t_TYPE` is an enumerated type, and
+/// from `bsl::false_type` otherwise.
+///
+/// Enumerated types are the only user-defined types that have the
+/// characteristics of a native arithmetic type (i.e., they can be converted
+/// to an integral type without invoking user-defined conversions).  This
+/// class takes advantage of this property to distinguish `enum` types from
+/// class types that are convertible to an integral or enumerated type.
 template <class t_TYPE>
 struct IsEnum : bsl::is_enum<t_TYPE>::type {
-    // This 'struct' provides a meta-function that computes, at compile time,
-    // whether the (template parameter) 't_TYPE' is an enumerated type.  It
-    // derives from 'bsl::true_type' if 't_TYPE' is an enumerated type, and
-    // from 'bsl::false_type' otherwise.
-    //
-    // Enumerated types are the only user-defined types that have the
-    // characteristics of a native arithmetic type (i.e., they can be converted
-    // to an integral type without invoking user-defined conversions).  This
-    // class takes advantage of this property to distinguish 'enum' types from
-    // class types that are convertible to an integral or enumerated type.
 };
 
 }  // close package namespace
@@ -148,17 +148,17 @@ namespace bsl {
                         // struct is_enum (C++11)
                         // ======================
 
+/// This specialisation defers entirely to the native trait on supported
+/// C++11 compilers.
 template <class t_TYPE>
 struct is_enum : bsl::integral_constant<bool, ::std::is_enum<t_TYPE>::value> {
-    // This specialisation defers entirely to the native trait on supported
-    // C++11 compilers.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// This template variable represents the result value of the `bsl::is_enum`
+/// meta-function.
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_enum_v = is_enum<t_TYPE>::value;
-    // This template variable represents the result value of the 'bsl::is_enum'
-    // meta-function.
 #endif
 
 } // namespace bsl
@@ -275,8 +275,8 @@ struct is_enum<const volatile t_TYPE>
 #ifdef bslmf_IsEnum
 #undef bslmf_IsEnum
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_IsEnum bslmf::IsEnum
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 #endif

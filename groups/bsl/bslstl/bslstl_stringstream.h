@@ -5,59 +5,59 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a C++03-compatible 'stringstream' class.
+//@PURPOSE: Provide a C++03-compatible `stringstream` class.
 //
 //@CLASSES:
-//  bsl::stringstream: C++03-compatible 'stringstream' class
+//  bsl::stringstream: C++03-compatible `stringstream` class
 //
 //@CANONICAL_HEADER: bsl_sstream.h
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_sstream.h>' instead.
+// `<bsl_sstream.h>` instead.
 //
-// This component defines a class template, 'bsl::basic_stringstream',
+// This component defines a class template, `bsl::basic_stringstream`,
 // implementing a standard stream that provides a constructor and manipulator
-// ('str') that allow clients to directly set the internal sequence of
+// (`str`) that allow clients to directly set the internal sequence of
 // characters that is accessed (or modified) by the stream, as well as an
-// accessor ('str') for obtaining a string having the same sequence of
+// accessor (`str`) for obtaining a string having the same sequence of
 // characters to which the stream currently refers (see 27.8.5 [stringstream]
 // of the C++11 standard).  This component also defines two standard aliases,
-// 'bsl::stringstream' and 'bsl::wstringstream', that refer to specializations
-// of the 'bsl::basic_stringstream' template for 'char' and 'wchar_t' types,
-// respectively.  The 'bsl::basic_stringstream' template has three parameters,
-// 'CHAR_TYPE', 'CHAR_TRAITS', and 'ALLOCATOR'.  The 'CHAR_TYPE' and
-// 'CHAR_TRAITS' parameters respectively define the character type for the
+// `bsl::stringstream` and `bsl::wstringstream`, that refer to specializations
+// of the `bsl::basic_stringstream` template for `char` and `wchar_t` types,
+// respectively.  The `bsl::basic_stringstream` template has three parameters,
+// `CHAR_TYPE`, `CHAR_TRAITS`, and `ALLOCATOR`.  The `CHAR_TYPE` and
+// `CHAR_TRAITS` parameters respectively define the character type for the
 // string-stream and a type providing a set of operations the string-stream
 // will use to manipulate characters of that type, which must meet the
 // character traits requirements defined by the C++11 standard, 21.2
-// [char.traits].  The 'ALLOCATOR' template parameter is described in the
+// [char.traits].  The `ALLOCATOR` template parameter is described in the
 // "Memory Allocation" section below.
 //
 ///Memory Allocation
 ///-----------------
-// The type supplied as a string-stream's 'ALLOCATOR' template parameter
+// The type supplied as a string-stream's `ALLOCATOR` template parameter
 // determines how that string-stream will allocate memory.  The
-// 'basic_stringstream' template supports allocators meeting the requirements
+// `basic_stringstream` template supports allocators meeting the requirements
 // of the C++11 standard, 17.6.3.5 [allocator.requirements]; in addition, it
-// supports scoped-allocators derived from the 'bslma::Allocator' memory
-// allocation protocol.  Clients intending to use 'bslma'-style allocators
-// should use 'bsl::allocator', which provides a C++11 standard-compatible
-// adapter for a 'bslma::Allocator' object.  Note that the standard aliases
-// 'bsl::stringstream' and 'bsl::wstringstream' both use 'bsl::allocator'.
+// supports scoped-allocators derived from the `bslma::Allocator` memory
+// allocation protocol.  Clients intending to use `bslma`-style allocators
+// should use `bsl::allocator`, which provides a C++11 standard-compatible
+// adapter for a `bslma::Allocator` object.  Note that the standard aliases
+// `bsl::stringstream` and `bsl::wstringstream` both use `bsl::allocator`.
 //
-///'bslma'-Style Allocators
+///`bslma`-Style Allocators
 /// - - - - - - - - - - - -
-// If the type supplied for the 'ALLOCATOR' template parameter of an
-// 'stringstream' instantiation is 'bsl::allocator', then objects of that
+// If the type supplied for the `ALLOCATOR` template parameter of an
+// `stringstream` instantiation is `bsl::allocator`, then objects of that
 // string-stream type will conform to the standard behavior of a
-// 'bslma'-allocator-enabled type.  Such a string-stream accepts an optional
-// 'bslma::Allocator' argument at construction.  If the address of a
-// 'bslma::Allocator' object is explicitly supplied at construction, it will be
+// `bslma`-allocator-enabled type.  Such a string-stream accepts an optional
+// `bslma::Allocator` argument at construction.  If the address of a
+// `bslma::Allocator` object is explicitly supplied at construction, it will be
 // used to supply memory for the string-stream throughout its lifetime;
 // otherwise, the string-stream will use the default allocator installed at the
-// time of the string-stream's construction (see 'bslma_default').
+// time of the string-stream's construction (see `bslma_default`).
 //
 ///Usage
 ///-----
@@ -65,39 +65,39 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Input and Output Operations
 /// - - - - - - - - - - - - - - - - - - - - - -
-// The following example demonstrates the use of 'bsl::stringstream' to read
-// and write data of various types to a 'bsl::string' object.
+// The following example demonstrates the use of `bsl::stringstream` to read
+// and write data of various types to a `bsl::string` object.
 //
 // Suppose we want to implement a simplified converter between a pair of
-// generic types, 'TYPE1' and 'TYPE2'.  We use 'bsl::stringstream' to implement
-// the 'lexicalCast' function.  We write the data of type 'TYPE1' into the
-// stream with 'operator<<' and then read it back as the data of 'TYPE2' with
-// 'operator>>':
-//..
-//  template <class TYPE2, class TYPE1>
-//  TYPE2 lexicalCast(const TYPE1& what)
-//  {
-//      bsl::stringstream converter;
-//      converter << what;
+// generic types, `TYPE1` and `TYPE2`.  We use `bsl::stringstream` to implement
+// the `lexicalCast` function.  We write the data of type `TYPE1` into the
+// stream with `operator<<` and then read it back as the data of `TYPE2` with
+// `operator>>`:
+// ```
+// template <class TYPE2, class TYPE1>
+// TYPE2 lexicalCast(const TYPE1& what)
+// {
+//     bsl::stringstream converter;
+//     converter << what;
 //
-//      TYPE2 val;
-//      converter >> val;
-//      return val;
-//  }
-//..
-// Finally, we verify that the 'lexicalCast' function works on some simple test
+//     TYPE2 val;
+//     converter >> val;
+//     return val;
+// }
+// ```
+// Finally, we verify that the `lexicalCast` function works on some simple test
 // cases:
-//..
-//  assert(lexicalCast<int>("1234") == 1234);
+// ```
+// assert(lexicalCast<int>("1234") == 1234);
 //
-//  assert(lexicalCast<short>("-5") == -5);
+// assert(lexicalCast<short>("-5") == -5);
 //
-//  assert(lexicalCast<bsl::string>("abc") == "abc");
+// assert(lexicalCast<bsl::string>("abc") == "abc");
 //
-//  assert(lexicalCast<bsl::string>(1234) == "1234");
+// assert(lexicalCast<bsl::string>(1234) == "1234");
 //
-//  assert(lexicalCast<short>(-5) == -5);
-//..
+// assert(lexicalCast<short>(-5) == -5);
+// ```
 
 #include <bslscm_version.h>
 
@@ -131,13 +131,13 @@ namespace bsl {
                           // class basic_stringstream
                           // ========================
 
+/// This class implements a standard stream providing operations using
+/// `bsl::basic_string` for modifying or accessing the sequence of
+/// characters read from, or written to, the stream.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_stringstream
     : private StringBufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public std::basic_iostream<CHAR_TYPE, CHAR_TRAITS> {
-    // This class implements a standard stream providing operations using
-    // 'bsl::basic_string' for modifying or accessing the sequence of
-    // characters read from, or written to, the stream.
 
   private:
     // PRIVATE TYPES
@@ -166,6 +166,25 @@ class basic_stringstream
     typedef typename traits_type::pos_type  pos_type;
 
     // CREATORS
+
+    /// Create a `basic_stringstream` object.  Optionally specify a
+    /// `modeBitMask` indicating whether the underlying stream-buffer may be
+    /// read from, written to, or both (`rdbuf` is created using
+    /// `modeBitMask`).  If `modeBitMask` is not supplied, `rdbuf` will be
+    /// created using `ios_base::in | ios_base::out`.  Optionally specify an
+    /// `initialString` indicating the initial sequence of characters that
+    /// this stream may access or manipulate.  If `initialString` is not
+    /// supplied, the initial sequence of characters will be empty.
+    /// Optionally specify the `allocator` used to supply memory.  If
+    /// `allocator` is not supplied, a default-constructed object of the
+    /// (template parameter) `ALLOCATOR` type is used.  If the `ALLOCATOR`
+    /// argument is of type `bsl::allocator` (the default), then
+    /// `allocator`, if supplied, shall be convertible to
+    /// `bslma::Allocator *`.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` and `allocator` is not supplied, the currently
+    /// installed default allocator will be used to supply memory.  If
+    /// `initialString` is passed by `MovableRef`, it is left in a valid but
+    /// unspecified state.
     explicit
     basic_stringstream(const allocator_type& allocator = allocator_type());
     explicit
@@ -177,25 +196,16 @@ class basic_stringstream
     basic_stringstream(const StringType&     initialString,
                        ios_base::openmode    modeBitMask,
                        const allocator_type& allocator = allocator_type());
-        // Create a 'basic_stringstream' object.  Optionally specify a
-        // 'modeBitMask' indicating whether the underlying stream-buffer may be
-        // read from, written to, or both ('rdbuf' is created using
-        // 'modeBitMask').  If 'modeBitMask' is not supplied, 'rdbuf' will be
-        // created using 'ios_base::in | ios_base::out'.  Optionally specify an
-        // 'initialString' indicating the initial sequence of characters that
-        // this stream may access or manipulate.  If 'initialString' is not
-        // supplied, the initial sequence of characters will be empty.
-        // Optionally specify the 'allocator' used to supply memory.  If
-        // 'allocator' is not supplied, a default-constructed object of the
-        // (template parameter) 'ALLOCATOR' type is used.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default), then
-        // 'allocator', if supplied, shall be convertible to
-        // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.  If
-        // 'initialString' is passed by 'MovableRef', it is left in a valid but
-        // unspecified state.
 
+    /// Create a `basic_stringstream` object.  Use the specified
+    /// `initialString` indicating the initial sequence of characters that
+    /// this buffer will access or manipulate.  Optionally specify a
+    /// `modeBitMask` indicating whether this buffer may be read from,
+    /// written to, or both.  If `modeBitMask` is not supplied, this buffer
+    /// is created with `ios_base::in | ios_base::out`.  Optionally specify
+    /// the `allocator` used to supply memory.  If `allocator` is not
+    /// supplied, the allocator in `initialString` is used.  `initialString`
+    /// is left in a valid but unspecified state.
     explicit
     basic_stringstream(
                      BloombergLP::bslmf::MovableRef<StringType> initialString);
@@ -209,16 +219,20 @@ class basic_stringstream
                       BloombergLP::bslmf::MovableRef<StringType> initialString,
                       ios_base::openmode                         modeBitMask,
                       const allocator_type&                      allocator);
-        // Create a 'basic_stringstream' object.  Use the specified
-        // 'initialString' indicating the initial sequence of characters that
-        // this buffer will access or manipulate.  Optionally specify a
-        // 'modeBitMask' indicating whether this buffer may be read from,
-        // written to, or both.  If 'modeBitMask' is not supplied, this buffer
-        // is created with 'ios_base::in | ios_base::out'.  Optionally specify
-        // the 'allocator' used to supply memory.  If 'allocator' is not
-        // supplied, the allocator in 'initialString' is used.  'initialString'
-        // is left in a valid but unspecified state.
 
+    /// Create a `basic_stringstream` object.  Use the specified
+    /// `initialString` indicating the initial sequence of characters that
+    /// this stream will access or manipulate.  `rdbuf` is created using
+    /// `ios_base::in | ios_base::out`.  Optionally specify the `allocator`
+    /// used to supply memory.  If `allocator` is not supplied, a
+    /// default-constructed object of the (template parameter) `ALLOCATOR`
+    /// type is used.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` (the default), then `allocator`, if supplied, shall
+    /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
+    /// is of type `bsl::allocator` and `allocator` is not supplied, the
+    /// currently installed default allocator will be used to supply memory.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     basic_stringstream(
         const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>&
@@ -226,19 +240,6 @@ class basic_stringstream
         const allocator_type&                     allocator = allocator_type(),
         typename bsl::enable_if<
                     !bsl::is_same<ALLOCATOR, SALLOC>::value, void *>::type = 0)
-        // Create a 'basic_stringstream' object.  Use the specified
-        // 'initialString' indicating the initial sequence of characters that
-        // this stream will access or manipulate.  'rdbuf' is created using
-        // 'ios_base::in | ios_base::out'.  Optionally specify the 'allocator'
-        // used to supply memory.  If 'allocator' is not supplied, a
-        // default-constructed object of the (template parameter) 'ALLOCATOR'
-        // type is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' and 'allocator' is not supplied, the
-        // currently installed default allocator will be used to supply memory.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     : BaseType(initialString.begin(),
                initialString.end(),
                ios_base::in | ios_base::out,
@@ -247,6 +248,20 @@ class basic_stringstream
     {
     }
 
+    /// Create a `basic_stringstream` object.  Use the specified
+    /// `initialString` indicating the initial sequence of characters that
+    /// this stream will access or manipulate.  Use the specified
+    /// `modeBitMask` to indicate whether this stream may be read from,
+    /// written to, or both.  Optionally specify the `allocator` used to
+    /// supply memory.  If `allocator` is not supplied, a
+    /// default-constructed object of the (template parameter) `ALLOCATOR`
+    /// type is used.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` (the default), then `allocator`, if supplied, shall
+    /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
+    /// is of type `bsl::allocator` and `allocator` is not supplied, the
+    /// currently installed default allocator will be used to supply memory.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     basic_stringstream(
         const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>&
@@ -255,20 +270,6 @@ class basic_stringstream
         const allocator_type&                     allocator = allocator_type(),
         typename bsl::enable_if<
                     !bsl::is_same<ALLOCATOR, SALLOC>::value, void *>::type = 0)
-        // Create a 'basic_stringstream' object.  Use the specified
-        // 'initialString' indicating the initial sequence of characters that
-        // this stream will access or manipulate.  Use the specified
-        // 'modeBitMask' to indicate whether this stream may be read from,
-        // written to, or both.  Optionally specify the 'allocator' used to
-        // supply memory.  If 'allocator' is not supplied, a
-        // default-constructed object of the (template parameter) 'ALLOCATOR'
-        // type is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' and 'allocator' is not supplied, the
-        // currently installed default allocator will be used to supply memory.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     : BaseType(initialString.begin(),
                initialString.end(),
                modeBitMask,
@@ -279,11 +280,11 @@ class basic_stringstream
 
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    /// Create a `basic_stringstream` object having the same value as the
+    /// specified `original` object by moving the contents of `original` to
+    /// the newly-created object.  `original` is left in a valid but
+    /// unspecified state.
     basic_stringstream(basic_stringstream&& original);
-        // Create a 'basic_stringstream' object having the same value as the
-        // specified 'original' object by moving the contents of 'original' to
-        // the newly-created object.  'original' is left in a valid but
-        // unspecified state.
 #endif
 
     //! ~basic_stringstream() = default;
@@ -291,39 +292,40 @@ class basic_stringstream
 
     // MANIPULATORS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.  The contents
+    /// of `rhs` are move-assigned to this object.  `rhs` is left in a valid
+    /// but unspecified state.
     basic_stringstream& operator=(basic_stringstream&& rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.  The contents
-        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
-        // but unspecified state.
 #endif
 
+    /// Reset the internally buffered sequence of characters maintained by
+    /// this stream to the specified `value`.  If `value` is passed by
+    /// `MovableRef`, it is left in a valid but unspecified state.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     void str(const StringType& value);
     void str(BloombergLP::bslmf::MovableRef<StringType> value);
     template <class SALLOC>
     typename
         bsl::enable_if<!bsl::is_same<ALLOCATOR, SALLOC>::value, void>::type
     str(const basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>& value)
-        // Reset the internally buffered sequence of characters maintained by
-        // this stream to the specified 'value'.  If 'value' is passed by
-        // 'MovableRef', it is left in a valid but unspecified state.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return this->rdbuf()->str(value);
     }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    /// Return the internally buffered sequence of characters maintained by
+    /// this stream, leaving the stream empty.
     StringType str() &&;
-        // Return the internally buffered sequence of characters maintained by
-        // this stream, leaving the stream empty.
 #endif
 
     // ACCESSORS
+
+    /// Return an address providing modifiable access to the
+    /// `basic_stringbuf` object that is internally used by this stream
+    /// object to buffer unformatted characters.
     StreamBufType *rdbuf() const;
-        // Return an address providing modifiable access to the
-        // 'basic_stringbuf' object that is internally used by this stream
-        // object to buffer unformatted characters.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
     StringType str() const &;
@@ -335,24 +337,25 @@ class basic_stringstream
 
 #ifndef BSLS_PLATFORM_CMP_SUN
     // To be enabled once DRQS 168075157 is resolved
+
+    /// Return a copy of the internally buffered sequence of characters
+    /// maintained by this stream object in a `basic_string` that uses the
+    /// specified `allocator`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     typename bsl::enable_if<
         bsl::IsStdAllocator<SALLOC>::value,
         basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC> >::type
     str(const SALLOC& allocator) const
-        // Return a copy of the internally buffered sequence of characters
-        // maintained by this stream object in a 'basic_string' that uses the
-        // specified 'allocator'.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return this->rdbuf()->str(allocator);
     }
 #endif
 
+    /// Return a view of the internally buffered sequence of characters
+    /// maintained by this stream object.
     ViewType view() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a view of the internally buffered sequence of characters
-        // maintained by this stream object.
 };
 
 // STANDARD TYPEDEFS

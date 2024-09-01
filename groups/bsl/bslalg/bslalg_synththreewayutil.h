@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide implementation utilities for 'operator<=>'.
+//@PURPOSE: Provide implementation utilities for `operator<=>`.
 //
 //@CLASSES:
 //  bslalg::SynthThreeWayUtil: exposition-only utilities from <compare>
@@ -13,60 +13,60 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslstl_compare
 //
 //@DESCRIPTION: This component provides a namespace class,
-// 'bslalg::SynthThreeWayUtil', that contains an implementation of the Standard
+// `bslalg::SynthThreeWayUtil`, that contains an implementation of the Standard
 // exposition-only entities (see [expos.only.entity] in the C++20 Standard):
-// 'synth-three-way' ('bslalg::SynthThreeWayUtil::compare') and
-// 'synth-three-way-result' ('bslalg::SynthThreeWayUtil::Result').
+// `synth-three-way` (`bslalg::SynthThreeWayUtil::compare`) and
+// `synth-three-way-result` (`bslalg::SynthThreeWayUtil::Result`).
 //
-// 'bslalg::SynthThreeWayUtil::compare' is a callable object with the following
+// `bslalg::SynthThreeWayUtil::compare` is a callable object with the following
 // effective signature:
-//..
-//  template <class T1, class T2>
-//  constexpr Result<T1, T2> compare(const T1& t1, const T2& t2);
-//..
-// It returns the result of 't1 <=> t2' expression if this expression is valid.
-// Otherwise, if 't1 < t2' and 't2 < t1' expressions are well-formed and return
-// boolean-testable results, 'operator<' is used to emulate 'operator<=>'.
+// ```
+// template <class T1, class T2>
+// constexpr Result<T1, T2> compare(const T1& t1, const T2& t2);
+// ```
+// It returns the result of `t1 <=> t2` expression if this expression is valid.
+// Otherwise, if `t1 < t2` and `t2 < t1` expressions are well-formed and return
+// boolean-testable results, `operator<` is used to emulate `operator<=>`.
 // Otherwise this function is not defined and does not participate in overload
 // resolution.
 //
-// As shown above, 'bslalg::SynthThreeWayUtil::Result<T1, T2>' is a type
-// returned by 'bslalg::SynthThreeWayUtil::compare<T1, T2>'.
+// As shown above, `bslalg::SynthThreeWayUtil::Result<T1, T2>` is a type
+// returned by `bslalg::SynthThreeWayUtil::compare<T1, T2>`.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing '<=>' For a Sequence Container
+///Example 1: Implementing `<=>` For a Sequence Container
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use 'bslalg::SynthThreeWayUtil' to implement the
-// three-way comparison operator ('<=>') for a list container (whose details
+// In the following example we use `bslalg::SynthThreeWayUtil` to implement the
+// three-way comparison operator (`<=>`) for a list container (whose details
 // have been elided):
-//..
-//  template <class T, class A>
-//  bslalg::SynthThreeWayUtil::Result<T> operator<=>(const list<T,A>& lhs,
-//                                                   const list<T,A>& rhs)
-//  {
-//      return bsl::lexicographical_compare_three_way(
-//                                         lhs.begin(),
-//                                         lhs.end(),
-//                                         rhs.begin(),
-//                                         rhs.end(),
-//                                         bslalg::SynthThreeWayUtil::compare);
-//  }
-//..
-// Now the '<', '>', '<=' and '>=' operators are automatically defined for the
+// ```
+// template <class T, class A>
+// bslalg::SynthThreeWayUtil::Result<T> operator<=>(const list<T,A>& lhs,
+//                                                  const list<T,A>& rhs)
+// {
+//     return bsl::lexicographical_compare_three_way(
+//                                        lhs.begin(),
+//                                        lhs.end(),
+//                                        rhs.begin(),
+//                                        rhs.end(),
+//                                        bslalg::SynthThreeWayUtil::compare);
+// }
+// ```
+// Now the `<`, `>`, `<=` and `>=` operators are automatically defined for the
 // container:
-//..
-//  // Create some instance of the template
-//  list<int> list1, list2;
+// ```
+// // Create some instance of the template
+// list<int> list1, list2;
 //
-//  // Empty lists are equal
-//  assert(!(list1 <  list2));
-//  assert(!(list1 >  list2));
-//  assert(  list1 <= list2);
-//  assert(  list1 >= list2);
-//..
+// // Empty lists are equal
+// assert(!(list1 <  list2));
+// assert(!(list1 >  list2));
+// assert(  list1 <= list2);
+// assert(  list1 >= list2);
+// ```
 
 #include <bslscm_version.h>
 
@@ -90,9 +90,17 @@ namespace bslalg {
                             // class SynthThreeWayUtil
                             // =======================
 
+/// "Exposition-only" part of `bslstl_compare.h`
 struct SynthThreeWayUtil {
-    // "Exposition-only" part of 'bslstl_compare.h'
 
+    /// Return the result of `t1 <=> t2` expression if this expression is
+    /// valid.  Otherwise, if `t1 < t2` and `t2 < t1` expressions are
+    /// well-formed and return boolean-testable results, use the `<`
+    /// operator to emulate `<=>`.  Otherwise this function is not defined
+    /// and does not participate in overload resolution.  Note that this is
+    /// an implementation of the exposition-only callable object
+    /// `synth-three-way` defined by the ISO C++20 Standard
+    /// [expos.only.entity].
     static constexpr
     struct {
         template <class t_TYPE1, class t_TYPE2>
@@ -127,22 +135,14 @@ struct SynthThreeWayUtil {
             }
         }
     } compare{};
-        // Return the result of 't1 <=> t2' expression if this expression is
-        // valid.  Otherwise, if 't1 < t2' and 't2 < t1' expressions are
-        // well-formed and return boolean-testable results, use the '<'
-        // operator to emulate '<=>'.  Otherwise this function is not defined
-        // and does not participate in overload resolution.  Note that this is
-        // an implementation of the exposition-only callable object
-        // 'synth-three-way' defined by the ISO C++20 Standard
-        // [expos.only.entity].
 
+    /// A type returned by `SynthThreeWayUtil::compare<t_TYPE1, t_TYPE2>`.
+    /// Note that this is an implementation of the exposition-only type
+    /// alias `synth-three-way-result` defined by the ISO C++20 Standard
+    /// [expos.only.entity].
     template <class t_TYPE1, class t_TYPE2 = t_TYPE1>
     using Result = decltype(compare(std::declval<t_TYPE1&>(),
                                     std::declval<t_TYPE2&>()));
-        // A type returned by 'SynthThreeWayUtil::compare<t_TYPE1, t_TYPE2>'.
-        // Note that this is an implementation of the exposition-only type
-        // alias 'synth-three-way-result' defined by the ISO C++20 Standard
-        // [expos.only.entity].
 };
 
 }  // close package namespace

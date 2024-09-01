@@ -9,18 +9,18 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //   bsl::is_empty: standard meta-function for detecting empty classes
-//   bsl::is_empty_v: the result value of the 'bsl::is_empty' meta-function
+//   bsl::is_empty_v: the result value of the `bsl::is_empty` meta-function
 //
 //@SEE_ALSO: bslmf_isclass.h
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_empty' and a
-// template variable 'bsl::is_empty_v', that represents the result value of the
-// 'bsl::is_empty' meta-function, which may be used to determine whether a type
-// is a 'class' or 'struct' with no non-static data members other than
+//@DESCRIPTION: This component defines a meta-function, `bsl::is_empty` and a
+// template variable `bsl::is_empty_v`, that represents the result value of the
+// `bsl::is_empty` meta-function, which may be used to determine whether a type
+// is a `class` or `struct` with no non-static data members other than
 // bit-fields of length 0, no virtual member functions, no virtual base
-// classes, and no base class 'B' for which 'is_empty<B>::value' is 'false'.
+// classes, and no base class `B` for which `is_empty<B>::value` is `false`.
 // This meta-function conforms to the definition of the C++11 standard
-// 'is_empty' meta-function in section [meta.unary.prop].
+// `is_empty` meta-function in section [meta.unary.prop].
 //
 // An empty class type type is *usually* stateless and, can be "stored" in a
 // zero-length memory region.  (Hypothetically, an empty object can hold state
@@ -29,14 +29,14 @@ BSLS_IDENT("$Id: $")
 // expected to optimize away the storage requirements of the empty base class.
 // This optimization is known as the "Empty Base Optimization" or "EBO".
 //
-// Note that the template variable 'is_empty_v' is defined in the C++17
+// Note that the template variable `is_empty_v` is defined in the C++17
 // standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_empty_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_empty_v' is defined as a
-// non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// variable C++17 compiler feature, `bsl::is_empty_v` is defined as an
+// `inline constexpr bool` variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, `bsl::is_empty_v` is defined as a
+// non-inline `constexpr bool` variable.  See
+// `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES` and
+// `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` macros in
 // bsls_compilerfeatures component for details.
 //
 ///Usage
@@ -46,61 +46,61 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Compute Storage Requirements for a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wish to create a generic function that will allocate a record
-// comprising a value of specified 't_TYPE' and a description in the form of a
+// comprising a value of specified `t_TYPE` and a description in the form of a
 // null-terminated character string.  First, we declare the function prototype:
-//..
-//  template <class t_TYPE>
-//  void *makeRecord(const t_TYPE& value, const char* description);
-//..
-// Next, we implement the function so that the copy of 'value' takes up no
-// space if 't_TYPE' is an empty class.  We manage this by computing a zero
-// storage requirement if 'is_empty<t_TYPE>::value' is true:
-//..
-//  #include <cstring>
-//  #include <new>
+// ```
+// template <class t_TYPE>
+// void *makeRecord(const t_TYPE& value, const char* description);
+// ```
+// Next, we implement the function so that the copy of `value` takes up no
+// space if `t_TYPE` is an empty class.  We manage this by computing a zero
+// storage requirement if `is_empty<t_TYPE>::value` is true:
+// ```
+// #include <cstring>
+// #include <new>
 //
-//  template <class t_TYPE>
-//  void *makeRecord(const t_TYPE& value, const char* description)
-//  {
-//      // 'ValueSize' is computed at compile time.
-//      static const std::size_t ValueSize = bsl::is_empty<t_TYPE>::value ?
-//          0 : sizeof(t_TYPE);
+// template <class t_TYPE>
+// void *makeRecord(const t_TYPE& value, const char* description)
+// {
+//     // 'ValueSize' is computed at compile time.
+//     static const std::size_t ValueSize = bsl::is_empty<t_TYPE>::value ?
+//         0 : sizeof(t_TYPE);
 //
-//      // Allocate memory for value and description
-//      const std::size_t MemSize = ValueSize + std::strlen(description) + 1;
-//      void *mem = ::operator new(MemSize);
+//     // Allocate memory for value and description
+//     const std::size_t MemSize = ValueSize + std::strlen(description) + 1;
+//     void *mem = ::operator new(MemSize);
 //
-//      // Construct copy of value at front of allocated memory
-//      ::new(mem) t_TYPE(value);
+//     // Construct copy of value at front of allocated memory
+//     ::new(mem) t_TYPE(value);
 //
-//      // Copy description into space following value.
-//      std::strcpy(static_cast<char*>(mem) + ValueSize, description);
+//     // Copy description into space following value.
+//     std::strcpy(static_cast<char*>(mem) + ValueSize, description);
 //
-//      return mem;
-//  }
-//..
-// Finally, we use 'makeRecord' with both an empty and non-empty value type:
-//..
-//  struct EmptyMarker { };
+//     return mem;
+// }
+// ```
+// Finally, we use `makeRecord` with both an empty and non-empty value type:
+// ```
+// struct EmptyMarker { };
 //
-//  int main()
-//  {
-//      void *record1 = makeRecord(9999, "four nines");
-//      // Value takes 'sizeof(int)' bytes at front of record.
-//      assert(9999 == *static_cast<int*>(record1));
-//      assert(0 == std::strcmp(static_cast<char*>(record1) + sizeof(int),
-//                              "four nines"));
+// int main()
+// {
+//     void *record1 = makeRecord(9999, "four nines");
+//     // Value takes 'sizeof(int)' bytes at front of record.
+//     assert(9999 == *static_cast<int*>(record1));
+//     assert(0 == std::strcmp(static_cast<char*>(record1) + sizeof(int),
+//                             "four nines"));
 //
-//      void *record2 = makeRecord(EmptyMarker(), "Empty");
-//      // Value takes no space at front of record.
-//      assert(0 == std::strcmp(static_cast<char*>(record2), "Empty"));
+//     void *record2 = makeRecord(EmptyMarker(), "Empty");
+//     // Value takes no space at front of record.
+//     assert(0 == std::strcmp(static_cast<char*>(record2), "Empty"));
 //
-//      ::operator delete(record1);
-//      ::operator delete(record2);
+//     ::operator delete(record1);
+//     ::operator delete(record2);
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 
 #include <bslscm_version.h>
 
@@ -132,20 +132,20 @@ namespace bsl {
                        // struct is_empty
                        // ===============
 
+/// This `struct` is a meta-function to determine whether the (template
+/// parameter) `t_TYPE` is an empty class type.  This `struct` derives from
+/// `bsl::true_type` if the `t_TYPE` is empty, and from `bsl::false_type`
+/// otherwise.  This meta-function has the same syntax as the `is_empty`
+/// meta-function defined in the C++11 standard [meta.unary.prop]; on C++03
+/// platforms, however, this meta-function defaults to `true_type` if
+/// `t_TYPE` is a `class` or `struct` with no non-static data members other
+/// than bit-fields of length 0, no virtual member functions, no virtual
+/// base classes, and no base class `B` for which `is_empty<B>::value` is
+/// `false`; otherwise `is_empty` defaults to `false_type`.  Note that this
+/// meta-function will fail to compile for a union that is the same size as
+/// an empty class in C++03.
 template <class t_TYPE>
 struct is_empty;
-    // This 'struct' is a meta-function to determine whether the (template
-    // parameter) 't_TYPE' is an empty class type.  This 'struct' derives from
-    // 'bsl::true_type' if the 't_TYPE' is empty, and from 'bsl::false_type'
-    // otherwise.  This meta-function has the same syntax as the 'is_empty'
-    // meta-function defined in the C++11 standard [meta.unary.prop]; on C++03
-    // platforms, however, this meta-function defaults to 'true_type' if
-    // 't_TYPE' is a 'class' or 'struct' with no non-static data members other
-    // than bit-fields of length 0, no virtual member functions, no virtual
-    // base classes, and no base class 'B' for which 'is_empty<B>::value' is
-    // 'false'; otherwise 'is_empty' defaults to 'false_type'.  Note that this
-    // meta-function will fail to compile for a union that is the same size as
-    // an empty class in C++03.
 
 }  // close namespace bsl
 
@@ -159,19 +159,19 @@ namespace bsl {
                     // struct is_empty (C++11)
                     // =======================
 
+/// This specification defers to the native trait on supported C++11
+/// compilers.
 template <class t_TYPE>
 struct is_empty
 : bsl::integral_constant<bool, ::std::is_empty<t_TYPE>::value> {
-    // This specification defers to the native trait on supported C++11
-    // compilers.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// This template variable represents the result value of the
+/// `bsl::is_empty` meta-function.
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_empty_v =
                                                        is_empty<t_TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_empty' meta-function.
 #endif
 
 #else

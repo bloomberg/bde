@@ -5,19 +5,19 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a trait to mark classes as similar to 'std::pair'.
+//@PURPOSE: Provide a trait to mark classes as similar to `std::pair`.
 //
-//@DEPRECATED: Use 'bslmf_ispair' instead.
+//@DEPRECATED: Use `bslmf_ispair` instead.
 //
 //@CLASSES:
-//  bslalg::TypeTraitPair: for 'std::pair'-like classes
+//  bslalg::TypeTraitPair: for `std::pair`-like classes
 //
 //@SEE_ALSO: bslalg_typetraits
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitPair', which allows the trait 'bslmf::IsPair' to be
-// declared using the (deprecated) 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See
-// the 'bslmf_ispair' component for details of this trait.
+// `bslalg::TypeTraitPair`, which allows the trait `bslmf::IsPair` to be
+// declared using the (deprecated) `BSLALG_DECLARE_NESTED_TRAITS` macro.  See
+// the `bslmf_ispair` component for details of this trait.
 //
 ///Usage
 ///-----
@@ -40,16 +40,16 @@ namespace bslalg {
                         // struct TypeTraitPair
                         // ====================
 
+/// A `TYPE` with this trait has two data members, `first` and `second`
+/// of types `T::first_type` and `T::second_type`, respectively.
 struct TypeTraitPair {
-    // A 'TYPE' with this trait has two data members, 'first' and 'second'
-    // of types 'T::first_type' and 'T::second_type', respectively.
 
+    /// This class template ties the `bslalg::TypeTraitPair` trait tag to
+    /// the `bslmf::IsPair` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bslmf::IsPair>
     {
-        // This class template ties the 'bslalg::TypeTraitPair' trait tag to
-        // the 'bslmf::IsPair' trait metafunction.
     };
 
     template <class TYPE>
@@ -63,8 +63,8 @@ struct TypeTraitPair {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

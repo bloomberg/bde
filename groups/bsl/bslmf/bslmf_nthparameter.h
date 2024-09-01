@@ -14,25 +14,25 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component contains a metafunction that treats a
 // parameter pack of types as compile-time array of types, returning the Nth
 // type (counting from zero).  It is useful for implementing types like
-// 'tuple' that need access to a specific element of a parameter pack.
+// `tuple` that need access to a specific element of a parameter pack.
 //
 ///Usage
 ///-----
-// We wish to implement a 'tuple'-like class that holds a heterogeneous
+// We wish to implement a `tuple`-like class that holds a heterogeneous
 // collection of elements, each of which might have a different type.  The
-// metafunction, 'my_tuple_element<I, my_tuple<ELEMS...>>::Type' would be type
-// of the 'I'th element in the tuple (where 'I' is zero-based).
+// metafunction, `my_tuple_element<I, my_tuple<ELEMS...>>::Type` would be type
+// of the `I`th element in the tuple (where `I` is zero-based).
 //
-// First, we define our 'my_tuple' class template.  The body of the class is
+// First, we define our `my_tuple` class template.  The body of the class is
 // unimportant for this usage examples:
-//..
+// ```
 // template <class... ELEMS>
 // class my_tuple {
 //     // ...
 // };
-//..
-// Then, we use 'bslmf::NthParameter' to implement 'my_tuple_element':
-//..
+// ```
+// Then, we use `bslmf::NthParameter` to implement `my_tuple_element`:
+// ```
 // #include <bslmf_nthparameter.h>
 //
 // template <std::size_t I, class TUPLE>
@@ -42,9 +42,9 @@ BSLS_IDENT("$Id: $")
 // struct my_tuple_element<I, my_tuple<ELEMS...> > {
 //     typedef typename bslmf::NthParameter<I, ELEMS...>::Type Type;
 // };
-//..
-// Finally, we test this implementation using 'bsl::is_same':
-//..
+// ```
+// Finally, we test this implementation using `bsl::is_same`:
+// ```
 // #include <bslmf_issame.h>
 //
 // int main()
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //
 //    assert(! (bsl::is_same<short, my_tuple_element<0, ttype>::Type>::value));
 // }
-//..
+// ```
 
 #include <bsls_compilerfeatures.h>
 
@@ -88,38 +88,38 @@ struct NthParameter_Sentinel;  // Declared but not defined
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
 
+/// Metafunction to compute the specified `t_N`th element of the specified
+/// `t_PARAMS` template parameter pack.  The `Type` nested typedef will
+/// match the `t_N`th element of `t_PARAMS`, where `t_N` is zero-based (so
+/// that an `t_N` of zero corresponds to the first parameter.
 template <std::size_t t_N,
           class t_FIRST_PARAM = NthParameter_Sentinel,
           class... t_PARAMS>
 struct NthParameter {
-    // Metafunction to compute the specified 't_N'th element of the specified
-    // 't_PARAMS' template parameter pack.  The 'Type' nested typedef will
-    // match the 't_N'th element of 't_PARAMS', where 't_N' is zero-based (so
-    // that an 't_N' of zero corresponds to the first parameter.
 
+    /// The type of the Nth parameter, computed by recursively stripping off
+    /// the first parameter until t_N == 0.
     typedef typename NthParameter<t_N - 1, t_PARAMS...>::Type Type;
-        // The type of the Nth parameter, computed by recursively stripping off
-        // the first parameter until t_N == 0.
 };
 
 // ============================================================================
 //                              IMPLEMENTATION
 // ============================================================================
 
+/// Specialization of `NthParameter` for when `t_N` is zero.
 template <class t_FIRST_PARAM, class... t_PARAMS>
 struct NthParameter<0, t_FIRST_PARAM, t_PARAMS...> {
-    // Specialization of 'NthParameter' for when 't_N' is zero.
 
+    /// The type of the 0th parameter.
     typedef t_FIRST_PARAM Type;
-        // The type of the 0th parameter.
 };
 
 #endif
 
+/// Specialization of `NthParameter` for when `t_N` exceeds the actual
+/// number of parameters.
 template <>
 struct NthParameter<0, NthParameter_Sentinel> {
-    // Specialization of 'NthParameter' for when 't_N' exceeds the actual
-    // number of parameters.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     // No 'Type' member is defined.

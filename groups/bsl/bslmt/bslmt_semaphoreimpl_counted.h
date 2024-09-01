@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an implementation of 'bslmt::Semaphore' with count.
+//@PURPOSE: Provide an implementation of `bslmt::Semaphore` with count.
 //
 //@CLASSES:
 //  bslmt::SemaphoreImpl<CountedSemaphore>: semaphore specialization with count
@@ -13,26 +13,26 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmt_semaphore
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bslmt::Semaphore', 'bslmt::SemaphoreImpl<CountedSemaphore>', via the
+// `bslmt::Semaphore`, `bslmt::SemaphoreImpl<CountedSemaphore>`, via the
 // template specialization:
-//..
-//  bslmt::SemaphoreImpl<Platform::CountedSemaphore>
-//..
+// ```
+// bslmt::SemaphoreImpl<Platform::CountedSemaphore>
+// ```
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bslmt::Semaphore'.
+// should instead use `bslmt::Semaphore`.
 //
-// This implementation of 'bslmt::Semaphore' is intended for platforms where a
-// separate count must be maintained.  'bslmt::Semaphore' supports large
+// This implementation of `bslmt::Semaphore` is intended for platforms where a
+// separate count must be maintained.  `bslmt::Semaphore` supports large
 // values, but the native semaphores provided on some platforms are restricted
-// to a relatively small range of values (e.g., '[ 0 .. 32000 ]' on AIX) and on
+// to a relatively small range of values (e.g., `[ 0 .. 32000 ]` on AIX) and on
 // some other platforms do not provide a count at all (Darwin).  To support
 // uniform usage across platforms, this component maintains the count of the
-// semaphore in a separate atomic integer.  'post' is only invoked on the
+// semaphore in a separate atomic integer.  `post` is only invoked on the
 // underlying semaphore when it is known there are threads blocked on it.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

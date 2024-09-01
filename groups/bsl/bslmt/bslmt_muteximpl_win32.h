@@ -5,25 +5,25 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bslmt::Mutex'.
+//@PURPOSE: Provide a win32 implementation of `bslmt::Mutex`.
 //
 //@CLASSES:
 //  bslmt::MutexImpl<Platform::Win32Threads>: win32 specialization
 //
 //@SEE_ALSO: bslmt_mutex
 //
-//@DESCRIPTION: This component provides an implementation of 'bslmt::Mutex' for
-// Windows (win32), 'bslmt::MutexImpl<Platform::Win32Threads>', via the
+//@DESCRIPTION: This component provides an implementation of `bslmt::Mutex` for
+// Windows (win32), `bslmt::MutexImpl<Platform::Win32Threads>`, via the
 // template specialization:
-//..
-//  bslmt::MutexImpl<Platform::Win32Threads>
-//..
+// ```
+// bslmt::MutexImpl<Platform::Win32Threads>
+// ```
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bslmt::Mutex'.
+// should instead use `bslmt::Mutex`.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

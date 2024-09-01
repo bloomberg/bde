@@ -11,8 +11,8 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslscm_version, bslscm_versiontag
 //
 //@DESCRIPTION: This component provides patch versioning information for the
-// 'bsl' package group (and any other package groups released atomically with
-// 'bsl').  The 'BSLSCM_PATCHVERSION_PATCH' macro this component defines is of
+// `bsl` package group (and any other package groups released atomically with
+// `bsl`).  The `BSLSCM_PATCHVERSION_PATCH` macro this component defines is of
 // limited standalone utility.
 //
 // This header should only be included by implementation files, to avoid
@@ -20,17 +20,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// At compile time, the 'patch' version of 'bsl' can be examined.
-//..
-//  #if BSLSCM_PATCHVERSION_PATCH > 0
-//      printf("This is a patch release\n");
-//  #else
-//      printf("This is a \".0\" initial release\n");
-//  #endif
-//..
+// At compile time, the `patch` version of `bsl` can be examined.
+// ```
+// #if BSLSCM_PATCHVERSION_PATCH > 0
+//     printf("This is a patch release\n");
+// #else
+//     printf("This is a \".0\" initial release\n");
+// #endif
+// ```
 
+/// Provide the patch version number of the current (latest) BSL release.
 #define BSLSCM_PATCHVERSION_PATCH 0
-    // Provide the patch version number of the current (latest) BSL release.
 
 #endif
 

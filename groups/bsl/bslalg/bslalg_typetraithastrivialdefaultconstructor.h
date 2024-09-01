@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as having a trivial default ctor.
 //
-//@DEPRECATED: Use 'bslmf_istriviallydefaultconstructible' instead.
+//@DEPRECATED: Use `bslmf_istriviallydefaultconstructible` instead.
 //
 //@CLASSES:
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
@@ -15,10 +15,10 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitHasTrivialDefaultConstructor', which allows the trait
-// 'bsl::is_trivially_default_constructible' to be declared using the
-// (deprecated) 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the
-// 'bslmf_istriviallydefaultconstructible' component for details of this trait.
+// `bslalg::TypeTraitHasTrivialDefaultConstructor`, which allows the trait
+// `bsl::is_trivially_default_constructible` to be declared using the
+// (deprecated) `BSLALG_DECLARE_NESTED_TRAITS` macro.  See the
+// `bslmf_istriviallydefaultconstructible` component for details of this trait.
 //
 ///Usage
 ///-----
@@ -37,22 +37,22 @@ namespace bslalg {
             // struct TypeTraitHasTrivialDefaultConstructor
             //=============================================
 
+/// A `TYPE` with this trait has a trivial default constructor.  Objects of
+/// a type with this trait can be default-initialized by simply writing
+/// zeros into the memory footprint of the object.  Although it is possible
+/// for such a type not to be bitwise copyable, undefined behavior may
+/// result if this trait is assigned to such a type.  (See the description
+/// of `TypeTraitBitwiseCopyable`.)
 struct TypeTraitHasTrivialDefaultConstructor {
-    // A 'TYPE' with this trait has a trivial default constructor.  Objects of
-    // a type with this trait can be default-initialized by simply writing
-    // zeros into the memory footprint of the object.  Although it is possible
-    // for such a type not to be bitwise copyable, undefined behavior may
-    // result if this trait is assigned to such a type.  (See the description
-    // of 'TypeTraitBitwiseCopyable'.)
 
+    /// This class template ties the
+    /// `bslalg::TypeTraitHasTrivialDefaultConstructor` trait tag to the
+    /// `bsl::is_trivially_default_constructible` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE,
                                       bsl::is_trivially_default_constructible>
     {
-        // This class template ties the
-        // 'bslalg::TypeTraitHasTrivialDefaultConstructor' trait tag to the
-        // 'bsl::is_trivially_default_constructible' trait metafunction.
     };
 
     template <class TYPE>
@@ -68,9 +68,9 @@ struct TypeTraitHasTrivialDefaultConstructor {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslalg::TypeTraitHasTrivialDefaultConstructor
                                   bslalg_TypeTraitHasTrivialDefaultConstructor;
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace

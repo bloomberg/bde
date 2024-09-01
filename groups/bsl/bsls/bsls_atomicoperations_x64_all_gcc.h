@@ -12,16 +12,16 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Linux X86_64 platform with GCC.  The classes are for private use
-// only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the public
+// only.  See `bsls_atomicoperations` and `bsls_atomic` for the public
 // interface to atomics.
 //
 ///Notes
 ///-----
-//: o GCC atomic intrinsics are used where possible instead of the assembly
-//:   code,
-//: o "+m" constraint may cause an 'inconsistent operand constraint' error in
-//:   GCC 3.x in optimized builds, therefore sometimes a combination of output
-//:   "=m" and input "m" constraints is used.
+// * GCC atomic intrinsics are used where possible instead of the assembly
+//   code,
+// * "+m" constraint may cause an `inconsistent operand constraint` error in
+//   GCC 3.x in optimized builds, therefore sometimes a combination of output
+//   "=m" and input "m" constraints is used.
 
 #include <bsls_atomicoperations_default.h>
 #include <bsls_platform.h>

@@ -10,23 +10,23 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslim::FormatGuard: format guard for stream types.
 //
-//@DESCRIPTION: The 'bslim::FormatGuard' type saves the configuration of a
-// 'basic_ostream' type, when the guard is created.  When the guard is
+//@DESCRIPTION: The `bslim::FormatGuard` type saves the configuration of a
+// `basic_ostream` type, when the guard is created.  When the guard is
 // destroyed, the stream is restored to the state it was in when the guard was
 // created.
 //
 // The state that is saved is
-//: o The 'fmtflags' state
-//: o The floating-point precision
-//: o The fill char
+// * The `fmtflags` state
+// * The floating-point precision
+// * The fill char
 //
-// Note that the 'width' field is not saved, because it does not normally
+// Note that the `width` field is not saved, because it does not normally
 // persist among multiple items output, but automatically resets to 0 after a
 // single item is ouput.
 //
 ///Usage
 ///-----
-// In the following example we illustrate the usage of 'FormatGuard'.
+// In the following example we illustrate the usage of `FormatGuard`.
 //
 ///Example 1: Saving Stream State to be Restored Later:
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -34,36 +34,36 @@ BSLS_IDENT("$Id: $")
 // state of the stream.
 //
 // First, we declare our stream:
-//..
-//  bsl::ostringstream oss;
-//..
-// Then, we use a 'FormatGuard' to save the state of 'oss' before we
-// reconfigure it, so that when the 'FormatGuard' is destroyed it will resotre
-// 'oss' to its original state.
-//..
-//  {
-//      bslim::FormatGuard guard(&oss);
-//..
+// ```
+// bsl::ostringstream oss;
+// ```
+// Then, we use a `FormatGuard` to save the state of `oss` before we
+// reconfigure it, so that when the `FormatGuard` is destroyed it will resotre
+// `oss` to its original state.
+// ```
+// {
+//     bslim::FormatGuard guard(&oss);
+// ```
 // Then, we reconfigure out stream and do some output:
-//..
-//      oss << "First line in hex: " << bsl::showbase << bsl::hex << 80 <<
-//                                                                        endl;
-//..
-// Next, we leave the block and the destructor of 'guard' will restore 'oss'
+// ```
+//     oss << "First line in hex: " << bsl::showbase << bsl::hex << 80 <<
+//                                                                       endl;
+// ```
+// Next, we leave the block and the destructor of `guard` will restore `oss`
 // to its original configuration:
-//..
-//  }
-//..
+// ```
+// }
+// ```
 // Now, we do another line of output:
-//..
-//  oss << "Second line in decimal: " << 123 << endl;
-//..
+// ```
+// oss << "Second line in decimal: " << 123 << endl;
+// ```
 // Finally, we observe that our guarded output was in hex, as desired, and the
 // output afterward was in decimal, as desired:
-//..
-//  assert(oss.str() == "First line in hex: 0x50\n"
-//                      "Second line in decimal: 123\n");
-//..
+// ```
+// assert(oss.str() == "First line in hex: 0x50\n"
+//                     "Second line in decimal: 123\n");
+// ```
 
 #include <bslscm_version.h>
 
@@ -83,9 +83,9 @@ namespace bslim {
                               // class FormatGuard
                               // =================
 
+/// This class implements a guard that saves the state of a `basic_ostream`
+/// and restores that state upon destruction of the guard.
 class FormatGuard {
-    // This class implements a guard that saves the state of a 'basic_ostream'
-    // and restores that state upon destruction of the guard.
 
     // PRIVATE TYPES
     typedef void (FormatGuard::*DestructorImpl_p)();
@@ -110,22 +110,24 @@ class FormatGuard {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Restore the format flags, precision, and fill character to the
+    /// stream that was passed to the constructor.
     template <class CHAR_TYPE, class CHAR_TRAITS>
     void ostreamDestructorImpl();
-        // Restore the format flags, precision, and fill character to the
-        // stream that was passed to the constructor.
 
   public:
     // CREATORS
+
+    /// Create a `FormatGuard` object saving the state of the specified
+    /// `stream`.
     template <class CHAR_TYPE, class CHAR_TRAITS>
     explicit
     FormatGuard(bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS> *stream);
-        // Create a 'FormatGuard' object saving the state of the specified
-        // 'stream'.
 
+    /// Restore all the saved state to the stream that was passed to the
+    /// constructor.
     ~FormatGuard();
-        // Restore all the saved state to the stream that was passed to the
-        // constructor.
 };
 
                               // -----------------

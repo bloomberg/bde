@@ -10,51 +10,51 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
-//  BSLS_MACROINCREMENT(NUMBER): expand to evaluated 'NUMBER + 1'
+//  BSLS_MACROINCREMENT(NUMBER): expand to evaluated `NUMBER + 1`
 //
-//@DESCRIPTION: This component provides a macro, 'BSLS_MACROINCREMENT(NUMBER)',
+//@DESCRIPTION: This component provides a macro, `BSLS_MACROINCREMENT(NUMBER)`,
 // that produces the preprocessor number equal to the number succeeding the
 // supplied argument.  This is necessary as the preprocessor performs
-// arithmetic only inside the context of a '#if' directive.  Common use cases
-// for this macro would be '#line' directives or any attempt to provide a
+// arithmetic only inside the context of a `#if` directive.  Common use cases
+// for this macro would be `#line` directives or any attempt to provide a
 // computed value when token-pasting to produce an identifier.
 //
 ///Macro Summary
 ///-------------
 // This section provides a brief description of the macro defined in this
 // component.
-//..
-//  BSLS_MACROINCREMENT(MACRO_VALUE)
-//      Return the preprocessor number that is the successor to 'MACRO_VALUE'.
-//      The behavior is undefined unless 'MACRO_VALUE' is an integer literal,
-//      or a macro that ultimately expands to an integer literal.
-//..
+// ```
+// BSLS_MACROINCREMENT(MACRO_VALUE)
+//     Return the preprocessor number that is the successor to 'MACRO_VALUE'.
+//     The behavior is undefined unless 'MACRO_VALUE' is an integer literal,
+//     or a macro that ultimately expands to an integer literal.
+// ```
 //
 ///Usage
 ///-----
 // Here we illustrate the typical use case, which demonstrates using the
-// 'BSLS_MACROINCREMENT' macro to change the effective name of a file without
+// `BSLS_MACROINCREMENT` macro to change the effective name of a file without
 // changing the effective line count.
 //
 // First, we print out current file name and line number:
-//..
-//  cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
-//..
+// ```
+// cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
+// ```
 // Now, we provide a new effective file name to compiler by supplying the new
-// file name to '#line' directive:
-//..
-//#line BSLS_MACROINCREMENT(__LINE__) "some_other_filename.cpp"
-//..
-// Notice that the first argument following '#line' directive is the designated
-// line number of the next line, so we increment current '__LINE__' by calling
-// 'BSLS_MACROINCREMENT' to keep consistent line numbers.
+// file name to `#line` directive:
+// ```
+// #line BSLS_MACROINCREMENT(__LINE__) "some_other_filename.cpp"
+// ```
+// Notice that the first argument following `#line` directive is the designated
+// line number of the next line, so we increment current `__LINE__` by calling
+// `BSLS_MACROINCREMENT` to keep consistent line numbers.
 //
 // Finally, print out current file name and line number again.  Observe that
-// the file name is changed to the one we set in previous '#line' directive
+// the file name is changed to the one we set in previous `#line` directive
 // while the line number still works as expected:
-//..
-//  cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
-//..
+// ```
+// cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
+// ```
 
 #define BSLS_MACROINCREMENT(MACRO_VALUE) \
     BSLS_MACROINCREMENT_IMPL(MACRO_VALUE)

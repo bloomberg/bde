@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a non-allocating test class used to test 'emplace' methods.
+//@PURPOSE: Provide a non-allocating test class used to test `emplace` methods.
 //
 //@CLASSES:
 //   bsltf::EmplacableTestType: non-allocating test class with 0..14 arguments
@@ -13,37 +13,37 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsltf_argumenttype, bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component provides a (value-semantic) attribute class,
-// 'bsltf::EmplacableTestType', that is used to ensure that arguments are
+// `bsltf::EmplacableTestType`, that is used to ensure that arguments are
 // forwarded correctly to a type's constructor.  This component is similar to
-// 'bsltf_allocemplacabletesttype', but provides a type that does not allocate
+// `bsltf_allocemplacabletesttype`, but provides a type that does not allocate
 // on construction.
 //
 ///Attributes
 ///----------
-//..
-//  Name     Type                      Default
-//  -------  ------------------------  -------
-//  arg01    bsltf::ArgumentType< 1>   -1
-//  arg02    bsltf::ArgumentType< 2>   -1
-//  arg03    bsltf::ArgumentType< 3>   -1
-//  arg04    bsltf::ArgumentType< 4>   -1
-//  arg05    bsltf::ArgumentType< 5>   -1
-//  arg06    bsltf::ArgumentType< 6>   -1
-//  arg07    bsltf::ArgumentType< 7>   -1
-//  arg08    bsltf::ArgumentType< 8>   -1
-//  arg09    bsltf::ArgumentType< 9>   -1
-//  arg10    bsltf::ArgumentType<10>   -1
-//  arg11    bsltf::ArgumentType<11>   -1
-//  arg12    bsltf::ArgumentType<12>   -1
-//  arg13    bsltf::ArgumentType<13>   -1
-//  arg14    bsltf::ArgumentType<14>   -1
-//..
+// ```
+// Name     Type                      Default
+// -------  ------------------------  -------
+// arg01    bsltf::ArgumentType< 1>   -1
+// arg02    bsltf::ArgumentType< 2>   -1
+// arg03    bsltf::ArgumentType< 3>   -1
+// arg04    bsltf::ArgumentType< 4>   -1
+// arg05    bsltf::ArgumentType< 5>   -1
+// arg06    bsltf::ArgumentType< 6>   -1
+// arg07    bsltf::ArgumentType< 7>   -1
+// arg08    bsltf::ArgumentType< 8>   -1
+// arg09    bsltf::ArgumentType< 9>   -1
+// arg10    bsltf::ArgumentType<10>   -1
+// arg11    bsltf::ArgumentType<11>   -1
+// arg12    bsltf::ArgumentType<12>   -1
+// arg13    bsltf::ArgumentType<13>   -1
+// arg14    bsltf::ArgumentType<14>   -1
+// ```
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-// See 'bsltf_allocemplacabletesttype' for usage example.
+// See `bsltf_allocemplacabletesttype` for usage example.
 
 #include <bslscm_version.h>
 
@@ -56,10 +56,10 @@ namespace bsltf {
                          // class EmplacableTestType
                          // ========================
 
+/// This class provides a test object used to check that the arguments
+/// passed for creating an object with an in-place representation are of the
+/// correct type and value.
 class EmplacableTestType {
-    // This class provides a test object used to check that the arguments
-    // passed for creating an object with an in-place representation are of the
-    // correct type and value.
 
   public:
     // PUBLIC TYPES
@@ -96,16 +96,22 @@ class EmplacableTestType {
     ArgType14 d_arg14;
 
     // CLASS DATA
+
+    // Track number of times the destructor is called.
     static int s_numDeletes;
-        // Track number of times the destructor is called.
 
   public:
     // CLASS METHODS
+
+    /// Return the number of times an object of this type has been
+    /// destroyed.
     static int getNumDeletes();
-        // Return the number of times an object of this type has been
-        // destroyed.
 
     // CREATORS
+
+    /// Create an `EmplacableTestType` object by initializing corresponding
+    /// attributes with the specified `arg01`..`arg14`, and initializing any
+    /// remaining attributes with their default value (-1).
     EmplacableTestType();
     explicit EmplacableTestType(ArgType01 arg01);
     EmplacableTestType(ArgType01 arg01, ArgType02 arg02);
@@ -209,24 +215,22 @@ class EmplacableTestType {
                        ArgType12 arg12,
                        ArgType13 arg13,
                        ArgType14 arg14);
-        // Create an 'EmplacableTestType' object by initializing corresponding
-        // attributes with the specified 'arg01'..'arg14', and initializing any
-        // remaining attributes with their default value (-1).
 
+    /// Create an in-place test object having the same value as the
+    /// specified `original`.
     EmplacableTestType(const EmplacableTestType& original);
-        // Create an in-place test object having the same value as the
-        // specified 'original'.
 
+    /// Increment the count of calls to this destructor, and destroy this
+    /// object.
     ~EmplacableTestType();
-        // Increment the count of calls to this destructor, and destroy this
-        // object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  Note
+    /// that this must be explicitly defined to silence compiler warnings on
+    /// later versions of C++.
     EmplacableTestType& operator=(const EmplacableTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that this must be explicitly defined to silence compiler warnings on
-        // later versions of C++.
 
     // ACCESSORS
     const ArgType01& arg01() const;
@@ -242,29 +246,31 @@ class EmplacableTestType {
     const ArgType11& arg11() const;
     const ArgType12& arg12() const;
     const ArgType13& arg13() const;
-    const ArgType14& arg14() const;
-        // Return the value of the correspondingly numbered argument that was
-        // passed to the constructor of this object.
 
+    /// Return the value of the correspondingly numbered argument that was
+    /// passed to the constructor of this object.
+    const ArgType14& arg14() const;
+
+    /// Return `true` if the specified `other` object has the same value as
+    /// this object, and `false` otherwise.  Two `EmplacableTestType`
+    /// objects have the same value if each of their corresponding
+    /// attributes have the same value.
     bool isEqual(const EmplacableTestType& other) const;
-        // Return 'true' if the specified 'other' object has the same value as
-        // this object, and 'false' otherwise.  Two 'EmplacableTestType'
-        // objects have the same value if each of their corresponding
-        // attributes have the same value.
 };
 
 // FREE OPERATORS
-bool operator==(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'EmplacableTestType' objects have the
-    // same value if each of their corresponding attributes have the same
-    // value.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `EmplacableTestType` objects have the
+/// same value if each of their corresponding attributes have the same
+/// value.
+bool operator==(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `EmplacableTestType` objects do
+/// not have the same value if any of their corresponding attributes do not
+/// have the same value.
 bool operator!=(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'EmplacableTestType' objects do
-    // not have the same value if any of their corresponding attributes do not
-    // have the same value.
 
 // ============================================================================
 //                      INLINE DEFINITIONS

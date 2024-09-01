@@ -12,12 +12,12 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_hashtable
 //
-//@DESCRIPTION: This component provides a namespace, 'bslstl::IteratorUtil',
+//@DESCRIPTION: This component provides a namespace, `bslstl::IteratorUtil`,
 // containing utility functions for iterator types.  In particular, this
-// component includes a function 'insertDistance' that returns the number of
+// component includes a function `insertDistance` that returns the number of
 // elements that should be accounted for when range-inserting in a container,
-// given a pair of iterator 'a' and 'b' describing a half-open range
-// '[a .. b)'.
+// given a pair of iterator `a` and `b` describing a half-open range
+// `[a .. b)`.
 //
 ///Usage
 ///-----
@@ -31,17 +31,17 @@ BSLS_IDENT("$Id: $")
 // First, we create an array of integer values and two pointers (which are
 // considered random access iterators) referring to the beginning and end of a
 // range within that array:
-//..
-//  int values[] = { 1, 2, 3, 4, 5 };
-//  int *begin = &values[0];
-//  int *end   = &values[3];
-//..
-// Now, we use the 'IteratorUtil::insertDistance' class method to calculate the
-// distance of the open range '[begin .. end)':
-//..
-//  std::size_t distance = IteratorUtil::insertDistance(begin, end);
-//  assert(3 == distance);
-//..
+// ```
+// int values[] = { 1, 2, 3, 4, 5 };
+// int *begin = &values[0];
+// int *end   = &values[3];
+// ```
+// Now, we use the `IteratorUtil::insertDistance` class method to calculate the
+// distance of the open range `[begin .. end)`:
+// ```
+// std::size_t distance = IteratorUtil::insertDistance(begin, end);
+// assert(3 == distance);
+// ```
 
 #include <bslscm_version.h>
 
@@ -64,54 +64,54 @@ namespace bslstl {
                         // struct IteratorUtil
                         // ===================
 
+/// This utility struct provides a namespace for functions on iterators and
+/// iterator ranges.
 struct IteratorUtil {
-    // This utility struct provides a namespace for functions on iterators and
-    // iterator ranges.
 
+    /// Return 0 if the (template parameter) type `InputIterator` is limited
+    /// to the standard input-iterator category, otherwise return the number
+    /// of elements that is reachable from the specified `first` to (but not
+    /// including) the specified `last`.  This function has a constant-time
+    /// complexity if the iterator category of `InputIterator` is a strictly
+    /// a standard input iterator, or is a random access iterator, otherwise
+    /// it is linear in the length of the range `[first .. last)`.  The
+    /// behavior is undefined unless `last` is reachable from `first`.  Note
+    /// that this function always returns 0 when compiled with the Sun
+    /// compiler, while we work around issues in the Sun standard library.
     template <class InputIterator>
     static typename bsl::iterator_traits<InputIterator>::difference_type
     insertDistance(InputIterator first, InputIterator last);
-        // Return 0 if the (template parameter) type 'InputIterator' is limited
-        // to the standard input-iterator category, otherwise return the number
-        // of elements that is reachable from the specified 'first' to (but not
-        // including) the specified 'last'.  This function has a constant-time
-        // complexity if the iterator category of 'InputIterator' is a strictly
-        // a standard input iterator, or is a random access iterator, otherwise
-        // it is linear in the length of the range '[first .. last)'.  The
-        // behavior is undefined unless 'last' is reachable from 'first'.  Note
-        // that this function always returns 0 when compiled with the Sun
-        // compiler, while we work around issues in the Sun standard library.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     // These template aliases are 'convenience alises' defined in the standard
     // as 'exposition-only' to simplify the specification of the deduction
     // guides for the associative containers.
 
+    /// returns the `value_type` of the specified iterator type.
     template <class INPUT_ITER>  // aka iter-val-type
     using IterVal_t = typename bsl::iterator_traits<INPUT_ITER>::value_type;
-        // returns the 'value_type' of the specified iterator type.
 
+    /// returns the `key-type` of the specified iterator type, which is
+    /// expected to refer to a `pair<KEY_TYPE, MAPPED_TYPE>`
     template <class INPUT_ITER> // aka iter-key-type
     using IterKey_t = bsl::remove_const_t<
         typename bsl::iterator_traits<INPUT_ITER>::value_type::first_type>;
-        // returns the 'key-type' of the specified iterator type, which is
-        // expected to refer to a 'pair<KEY_TYPE, MAPPED_TYPE>'
 
+    /// returns the `mapped-type` of the specified iterator type, which is
+    /// expected to refer to a `pair<KEY_TYPE, MAPPED_TYPE>`
     template <class INPUT_ITER> // aka iter-mapped-type
     using IterMapped_t =
         typename bsl::iterator_traits<INPUT_ITER>::value_type::second_type;
-        // returns the 'mapped-type' of the specified iterator type, which is
-        // expected to refer to a 'pair<KEY_TYPE, MAPPED_TYPE>'
 
+    /// returns the type that is actually stored in a map.  The supplied
+    /// iterator type is expected to refer to a
+    /// `pair<KEY_TYPE, MAPPED_TYPE>`.
     template <class INPUT_ITER>  // aka iter-to-alloc-type
     using IterToAlloc_t = bsl::pair<
         bsl::add_const_t<
             typename bsl::iterator_traits<INPUT_ITER>::value_type::first_type>,
             typename bsl::iterator_traits<INPUT_ITER>::value_type::second_type
         >;
-        // returns the type that is actually stored in a map.  The supplied
-        // iterator type is expected to refer to a
-        // 'pair<KEY_TYPE, MAPPED_TYPE>'.
 #endif
 
 };
@@ -128,11 +128,11 @@ template <class InputIterator>
 typename bsl::iterator_traits<InputIterator>::difference_type
 IteratorUtil::insertDistance(InputIterator first, InputIterator last)
 {
+    /// This local class provides a utility to estimate the maximum
+    /// number of elements that may be inserted by a range-insert
+    /// operation on a standard container, by performing tag dispatch
+    /// on the iterator's category type.
     struct impl {
-        // This local class provides a utility to estimate the maximum
-        // number of elements that may be inserted by a range-insert
-        // operation on a standard container, by performing tag dispatch
-        // on the iterator's category type.
 
         static
         typename bsl::iterator_traits<InputIterator>::difference_type
